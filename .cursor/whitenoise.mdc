@@ -1,0 +1,28 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# White Noise
+
+This project is called White Noise, a secure messenger app written in Rust and Dart. It implements secure direct and group messaging using [Messaging Layer Security protocol](mdc:https:/www.rfc-editor.org/rfc/rfc9420.txt) via the [OpenMLS implementation library](mdc:https:/www.github.com/openmls/openmls) and using the [Nostr Protocol](mdc:https:/raw.githubusercontent.com/nostr-protocol/nips/refs/heads/master/README.md) as the delivery/transport mechanism. White Noise uses several of the [rust-nostr](mdc:https:/github.com/rust-nostr/nostr) rust crates to implement Nostr functionality in the app.
+
+## Project Structure
+
+White Noise is a [Flutter](mdc:https:/flutter.dev) app that uses a Rust crate (whitenoise) and flutter_rust_bridge as the data backend. The project is organanized like a standard Flutter app. The app is set up to build for Android, iOS, Linux desktop, Macos desktop, and Windows Desktop.
+
+## Nostr
+
+Nostr is a decentralized social media protocol involving clients, relays, keys, and a unified Nostr event format.
+
+Specifications on Nostr are called "NIPs". NIP stands for "Nostr Implementation Possibilities". NIPs are numbered like `NIP-XX` where `XX` are two capitalized hexadecimal digits, eg `NIP-01` and `NIP-C7`.
+
+To learn about Nostr, use the fetch tool to read [NIP-01](mdc:https:/raw.githubusercontent.com/nostr-protocol/nips/refs/heads/master/01.md).
+
+To read a specific NIP, construct the NIP URL following this template: `https://raw.githubusercontent.com/nostr-protocol/nips/refs/heads/master/{nip}.md` (replace `{nip}` in the URL template with the relevant NIP name, eg `07` for NIP-07, or `C7` for NIP-C7). Then use the fetch tool to read the URL.
+
+To read the definition of a specific kind, construct a URL following this template: `https://nostrbook.dev/kinds/{kind}.md` (replace `{kind}` in the template with the kind number, eg `https://nostrbook.dev/kinds/0.md` for kind 0).
+
+To discover the full list of NIPs, use the fetch tool to read the [NIPs README](mdc:https:/raw.githubusercontent.com/nostr-protocol/nips/refs/heads/master/README.md).
+
+Almost all of the data you work with will come from the rust crate and will already be in the right format so you should never have to interface directly with nostr relays or nostr primitives.
