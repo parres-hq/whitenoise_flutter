@@ -45,13 +45,14 @@ struct Account {
 }
 ```
 
-````rust
+```rust
 struct Contact {
-    pubkey: PublicKey,      // Nostr public key - in hex format
-    alias: String           // Contact's alias (petname); this is a NIP-02 concept, set by the user following this contact
-    metadata: Metadata,     // Kind-0 metadata
-    relays: AccountRelays,  // Nostr relays
+    pubkey:     PublicKey,      // Nostr public key - in hex format
+    alias:      String          // Contact's alias (petname); this is a NIP-02 concept, set by the user following this contact
+    metadata:   Metadata,       // Kind-0 metadata
+    relays:     AccountRelays,  // Nostr relays
 }
+```
 
 ```rust
 struct Metadata {
@@ -66,7 +67,7 @@ struct Metadata {
     lud16:        Option<String>,    // LUD-16 lightning URL
     // Other custom fields can also show up here, always of the Option<String> type
 }
-````
+```
 
 ```rust
 struct AccountSettings {
@@ -86,11 +87,13 @@ struct AccountOnboarding {
 
 ```rust
 struct AccountRelays {
-    nostr_relays: Vec<RelayUrl>,                        // List of user's normal relays from kind: 10002 event
-    inbox_relays: Vec<RelayUrl>,                        // List of user's inbox relays from kind: 10050 event
-    key_package_relays: Vec<RelayUrl>,                  // List of user's key package relays from kind: 10051 event
+    nostr_relays:       Vec<RelayUrl>,  // List of user's normal relays from kind: 10002 event
+    inbox_relays:       Vec<RelayUrl>,  // List of user's inbox relays from kind: 10050 event
+    key_package_relays: Vec<RelayUrl>,  // List of user's key package relays from kind: 10051 event
 }
+```
 
+```rust
 /// Status of a relay connection - matches RelayStatus from rust-nostr
 enum RelayStatus {
     Initialized     // The relay has just been created.
@@ -115,16 +118,16 @@ struct AccountNwc {
 ```rust
 /// High level details about a group. Messages are loaded separately via pagination.
 struct Group {
-    mls_group_id:        GroupId,           // The MLS Group ID - never changes
-    nostr_group_id:      [u8; 32],          // The group ID used for identifying this group on relays - can change
-    name:                String,            // The name of the group
-    description:         String,            // The description of the group
-    admin_pubkeys:       Vec<PublicKey>,    // The list of admin pubkeys
-    last_message_id:     Option<EventId>,   // The ID of the latest message
-    last_message_at:     Option<Timestamp>, // The timestamp of the latest message
-    last_message_preview: Option<String>,   // The preview text of the latest message to show in the chats list
-    group_type:          GroupType,         // The type of group (DM or Group)
-    state:               GroupState,        // Whether the group is active or not
+    mls_group_id:         GroupId,           // The MLS Group ID - never changes
+    nostr_group_id:       [u8; 32],          // The group ID used for identifying this group on relays - can change
+    name:                 String,            // The name of the group
+    description:          String,            // The description of the group
+    admin_pubkeys:        Vec<PublicKey>,    // The list of admin pubkeys
+    last_message_id:      Option<EventId>,   // The ID of the latest message
+    last_message_at:      Option<Timestamp>, // The timestamp of the latest message
+    last_message_preview: Option<String>,    // The preview text of the latest message to show in the chats list
+    group_type:           GroupType,         // The type of group (DM or Group)
+    state:                GroupState,        // Whether the group is active or not
 }
 ```
 
@@ -225,32 +228,24 @@ enum WelcomeState {
 
 ```rust
 struct FileUpload {
-    pub filename: String,
-    pub mime_type: String,
-    pub data: Vec<u8>,
+    pub filename:   String,
+    pub mime_type:  String,
+    pub data:       Vec<u8>,
 }
 
 struct UploadedMedia {
-    pub blob_descriptor: BlobDescriptor,
-    pub imeta_tag: Tag,
+    pub blob_descriptor:    BlobDescriptor,
+    pub imeta_tag:          Tag,
 }
 
 /// The same as Blossom
 struct BlobDescriptor {
-    /// URL where the blob can be accessed
-    pub url: String,
-    /// SHA-256 hash of the blob data
-    pub sha256: String,
-    /// Size of the blob in bytes
-    pub size: u64,
-    /// Optional MIME type of the blob
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub r#type: Option<String>,
-    /// Unix timestamp when the blob was uploaded
-    pub uploaded: u64,
-    /// Optional information about compression if the blob is compressed
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub compressed: Option<CompressedInfo>,
+    pub url:        String,                 // URL where the blob can be accessed
+    pub sha256:     String,                 // SHA-256 hash of the blob data
+    pub size:       u64,                    // Size of the blob in bytes
+    pub r#type:     Option<String>,         // Optional MIME type of the blob
+    pub uploaded:   u64,                    // Unix timestamp when the blob was uploaded
+    pub compressed: Option<CompressedInfo>, // Optional information about compression if the blob is compressed
 }
 ```
 
