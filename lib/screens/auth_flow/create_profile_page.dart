@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/screens/auth_flow/key_created_page.dart';
 
-class SetupPage extends StatefulWidget {
-  const SetupPage({super.key});
+class CreateProfilePage extends StatefulWidget {
+  const CreateProfilePage({super.key});
 
   @override
-  State<SetupPage> createState() => _SetupPageState();
+  State<CreateProfilePage> createState() => _CreateProfilePageState();
 }
 
-class _SetupPageState extends State<SetupPage> {
+class _CreateProfilePageState extends State<CreateProfilePage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
 
