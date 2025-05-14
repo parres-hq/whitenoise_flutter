@@ -40,14 +40,15 @@ struct Account {
     last_used:          Timestamp,          // The last time the account was used
     last_synced:        Timestamp,          // The last time the account was synced up fully to relays
     active:             bool,               // Is this account currently active - (do we need this?)
-    groups:             Vec<GroupMetadata>, // GroupMetadata for the groups the user is part of (includes both active and inactive groups)
+    groups:             Vec<Group>,         // Group for the groups the user is part of (includes both active and inactive groups)
     welcomes:           Vec<Welcome>,       // Welcomes for the user (includes pending, accepted, and dismissed welcomes)
 }
 ```
 
 ````rust
-struct EnrichedContact {
+struct Contact {
     pubkey: PublicKey,      // Nostr public key - in hex format
+    alias: String           // Contact's alias (petname); this is a NIP-02 concept, set by the user following this contact
     metadata: Metadata,     // Kind-0 metadata
     relays: AccountRelays,  // Nostr relays
 }
@@ -146,18 +147,19 @@ enum GroupState {
 
 ```rust
 struct Message {
-    state:            MessageState,    // The state of the message
-    id:               EventId,         // The ID of the message event
-    pubkey:           PublicKey,       // PublicKey of the sender
-    kind:             Kind,            // Nostr event kind
-    created_at:       Timestamp,       // When was the message sente
-    content:          String,          // Content
-    tags:             Tags,            // Nostr event tags
-    reactions:        Vec<Message>,    // Optional set of messages that are reacting to this message
-    reaction_to:      Option<Message>, // Optional message that this message is reacting to. Will only be set when it's a kind 7 message
-    reaction_summary: HashMap,         // Summary of reactions to this message e.g. {❤️: 3, 👍: 1}
-    replies:          Vec<Message>,    // Set of messages that are replying to this message
-    reply_to:         Option<Message>, // Optional message that this message is replying to
+    state:             MessageState,                    // The state of the message
+    id:                EventId,                         // The ID of the message event
+    pubkey:            PublicKey,                       // PublicKey of the sender
+    kind:              Kind,                            // Nostr event kind
+    created_at:        Timestamp,                       // When was the message sente
+    content:           Option<String>,                  // Optional Content
+    tags:              Tags,                            // Nostr event tags
+    reactions:         Vec<Message>,                    // Optional set of messages that are reacting to this message
+    reaction_to:       Option<Message>,                 // Optional message that this message is reacting to. Will only be set when it's a kind 7 message
+    reaction_summary:  HashMap,                         // Summary of reactions to this message e.g. {❤️: 3, 👍: 1}
+    replies:           Vec<Message>,                    // Set of messages that are replying to this message
+    reply_to:          Option<Message>,                 // Optional message that this message is replying to
+    tokenized_content: Option<Vec<SerializableToken>>   // Optional tokenized message content
 }
 ```
 
@@ -260,131 +262,88 @@ struct BlobDescriptor {
 /// =========================================
 
 // Initialize app state from the database
-async fn initialize_whitenoise(config: WhitenoiseConfig) -> Result<WhitenoiseState, Error> {
-    // Load from database and return initial state
-}
+async fn initialize_whitenoise(config: WhitenoiseConfig) -> Result<WhitenoiseState, Error> {}
 
 // Delete all data from the app databases
-async fn delete_all_data() -> Result<(), Error> {
-    // Delete everything from the databases
-}
+async fn delete_all_data() -> Result<(), Error> {}
+
+// Invite a user to White Noise using a NIP-04 DM
+async fn invite_to_whitenoise(pubkey: PublicKey) -> Result<(), Error> {}
+
+// Load relay connection status
+async fn load_relay_status() -> Result<HashMap<RelayUrl, RelayStatus>, Error> {}
 
 /// =========================================
 /// Accounts
 /// =========================================
 
 /// Creates a new account by generating a new Nostr keypair.
-/// Returns the new account's public key and updates the WhitenoiseState.
-async fn create_account() -> Result<PublicKey, Error> {
-    // Implementation
-}
+async fn create_account() -> Result<Account, Error> {}
 
 /// Logs in an existing account using a Nostr private key.
-/// Returns the account's public key and updates the WhitenoiseState.
-async fn login(secret_key: String) -> Result<PublicKey, Error> {
-    // Implementation
-}
+async fn login(secret_key: String) -> Result<Account, Error> {}
 
-/// Logs out an account by its public key.
-/// Optionally deletes all associated data (groups, messages, etc.).
-/// Updates the WhitenoiseState.
-async fn logout(pubkey: PublicKey, delete_data: bool) -> Result<(), Error> {
-    // Implementation
-}
+/// Logs out an account by its public key. Optionally deletes all associated data (groups, messages, etc.).
+async fn logout(pubkey: PublicKey, delete_data: bool) -> Result<(), Error> {}
 
 /// Update the active account
-/// Updates the WhitenoiseState
-async fn update_active_account(pubkey: PublicKey) -> Result<(), Error> {
-    // Implementation
-}
+async fn update_active_account(pubkey: PublicKey) -> Result<Account, Error> {}
 
 /// Updates an account's metadata (kind 0 event).
-/// Returns the updated account and updates the WhitenoiseState.
-async fn update_account_metadata(pubkey: PublicKey, metadata: Metadata) -> Result<Account, Error> {
-    // Implementation
-}
+async fn update_account_metadata(pubkey: PublicKey, metadata: Metadata) -> Result<Account, Error> {}
 
 /// Updates an account's settings.
-/// Returns the updated account and updates the WhitenoiseState.
-async fn update_account_settings(pubkey: PublicKey, settings: AccountSettings) -> Result<Account, Error> {
-    // Implementation
-}
+async fn update_account_settings(pubkey: PublicKey, settings: AccountSettings) -> Result<Account, Error> {}
 
 /// Updates an account's contacts list (kind 3 event).
-/// Returns the updated account and updates the WhitenoiseState.
-async fn update_account_contacts(pubkey: PublicKey, contacts: Vec<PublicKey>) -> Result<Account, Error> {
-    // Implementation
-}
+async fn update_account_contacts(pubkey: PublicKey, contacts: Vec<PublicKey>) -> Result<Account, Error> {}
 
 /// Updates an account's onboarding status.
-/// Returns the updated account and updates the WhitenoiseState.
-async fn update_account_onboarding(pubkey: PublicKey, onboarding: AccountOnboarding) -> Result<Account, Error> {
-    // Implementation
-}
+async fn update_account_onboarding(pubkey: PublicKey, onboarding: AccountOnboarding) -> Result<Account, Error> {}
+
+/// Updates an account's relays.
+async fn update_account_relays(pubkey: PublicKey, onboarding: AccountRelays) -> Result<Account, Error> {}
+
+/// Updates an account's NWC settings.
+async fn update_account_nwc(pubkey: PublicKey, nwc: AccountNwc) -> Result<Account, Error> {}
+
+/// Exports a user's nsec
+async fn export_nsec(pubkey: PublicKey) -> Result<String, Error> {}
+
+/// =========================================
+/// Contacts
+/// =========================================
+
+/// Loads a contact
+async fn load_contact(pubkey: PublicKey) -> Result<Contact, Error> {}
 
 /// =========================================
 /// Groups
 /// =========================================
 
 /// Creates a new group with the specified members and admins.
-/// Returns the created group and updates the WhitenoiseState.
-async fn create_group(
-    name: String,
-    description: String,
-    member_pubkeys: Vec<PublicKey>,
-    admin_pubkeys: Vec<PublicKey>,
-) -> Result<Group, Error> {
-    // Implementation
-}
+async fn create_group(name: String, description: String, member_pubkeys: Vec<PublicKey>, admin_pubkeys: Vec<PublicKey>) -> Result<Group, Error> {}
 
 /// Joins an existing group using a welcome message.
-/// Returns the joined group and updates the WhitenoiseState.
-async fn join_group(welcome: Welcome) -> Result<Group, Error> {
-    // Implementation
-}
+async fn join_group(welcome: Welcome) -> Result<Group, Error> {}
+
+/// Declines joining a group from a welcome message.
+async fn decline_join_group(welcome: Welcome) -> Result<(), Error> {}
 
 /// Leaves a group.
-/// Updates the WhitenoiseState.
-async fn leave_group(group_id: GroupId) -> Result<(), Error> {
-    // Implementation
-}
+async fn leave_group(group_id: GroupId) -> Result<(), Error> {}
 
 /// Updates a group's metadata including name, description, and admin list.
-/// Returns the updated group and updates the WhitenoiseState.
-async fn update_group_metadata(
-    group_id: GroupId,
-    name: Option<String>,
-    description: Option<String>,
-    admin_pubkeys: Option<Vec<PublicKey>>,
-) -> Result<Group, Error> {
-    // Implementation
-}
+async fn update_group_metadata(group_id: GroupId, name: Option<String>, description: Option<String>, admin_pubkeys: Option<Vec<PublicKey>>) -> Result<Group, Error> {}
 
 /// Adds a new member to the group.
-/// Returns the updated group and updates the WhitenoiseState.
-async fn add_member(
-    group_id: GroupId,
-    member_pubkey: PublicKey,
-) -> Result<Group, Error> {
-    // Implementation
-}
+async fn add_members(group_id: GroupId, member_pubkeys: Vec<PublicKey>) -> Result<Group, Error> {}
 
 /// Removes a member from the group.
-/// Returns the updated group and updates the WhitenoiseState.
-async fn remove_member(
-    group_id: GroupId,
-    member_pubkey: PublicKey,
-) -> Result<Group, Error> {
-    // Implementation
-}
+async fn remove_members(group_id: GroupId, member_pubkeys: Vec<PublicKey>) -> Result<Group, Error> {}
 
-// Rotate your key in the group
-// Will be done periodically for forward secrecy
-async fn rotate_key_in_group(
-    group_id: GroupId,
-) -> Result<(), Error> {
-    // Implementation
-}
+// Rotate your key in the group. Will be done periodically for forward secrecy.
+async fn rotate_key_in_group(group_id: GroupId) -> Result<(), Error> {}
 
 /// =========================================
 /// Messages
@@ -392,23 +351,10 @@ async fn rotate_key_in_group(
 
 // Method to load messages for a group with pagination.
 // This will be backed by an LRU cache that will hold the most recently viewed messages in memory and load from the database only when necessary.
-async fn load_messages(
-    group_id: GroupId,
-    cursor: Option<MessageCursor>,
-    limit: usize,
-) -> Result<MessagePage, Error> {
-    // Returns a page of messages with pagination info
-}
+async fn load_messages(group_id: GroupId, cursor: Option<MessageCursor>, limit: usize) -> Result<MessagePage, Error> {}
 
 /// Sends a new message to a group.
-/// Returns the created message and updates the WhitenoiseState.
-async fn send_message(
-    group_id: GroupId,
-    message: String,
-    kind: u16,
-    tags: Option<Vec<Tag>>,
-    uploaded_files: Option<Vec<FileUpload>>,
-) -> Result<MessageWithTokens, Error> {}
+async fn send_message(group_id: GroupId, message: String, kind: u16, tags: Option<Vec<Tag>>, uploaded_files: Option<Vec<FileUpload>>) -> Result<Message, Error> {}
 
 /// =========================================
 /// Key Packages
@@ -418,51 +364,31 @@ async fn send_message(
 async fn publish_new_key_package(pubkey: PublicKey) -> Result<(), Error> {}
 
 /// Delete all key packages from relays
-async fn delete_all_key_packages(pubkey: PublicKey) -> Result<bool, Error>
+async fn delete_all_key_packages(pubkey: PublicKey) -> Result<(), Error> {}
 
 /// =========================================
 /// Files
 /// =========================================
 
 /// Uploads an encrypted file to storage.
-/// Returns the file metadata including the URL and encryption details.
-async fn upload_encrypted_file(
-    group_id: GroupId,
-    file_name: String,
-    mime_type: String,
-    data: Vec<u8>
-) -> Result<UploadedMedia, Error> {
-    // Implementation
-}
+async fn upload_encrypted_file(group_id: GroupId, file_upload: FileUpload) -> Result<UploadedMedia, Error> {}
 
 /// Uploads an unencrypted media file to storage.
-/// This is specifically for media content that will be served via the Blossom service.
-/// Returns the file metadata including the URL.
-async fn upload_unencrypted_media(
-    file_name: String,
-    mime_type: String,
-    data: Vec<u8>
-) -> Result<BlobDescriptor, Error> {
-    // Implementation
-}
+/// This is specifically for media content (avatars and banners)
+async fn upload_unencrypted_media(file_upload: FileUpload) -> Result<BlobDescriptor, Error> {}
 
 /// Loads a file from storage.
-/// Returns the file data and metadata.
-async fn load_file(file_hash: String) -> Result<FileData, Error> {
-    // Implementation
-}
+async fn load_file(file_hash: String) -> Result<BlobDescriptor, Error> {}
 
 /// Deletes a file from storage.
-async fn delete_file(file_hash: String) -> Result<(), Error> {
-    // Implementation
-}
+async fn delete_file(file_hash: String) -> Result<(), Error> {}
 
 /// =========================================
 /// Payments
 /// =========================================
 
 /// Pay a lightning invoice
-async fn pay_invoice(group_id: GroupId, tags: Option<Vec<Tag>>, bolt11: String) -> Result<(), Error> {
+async fn pay_ln_invoice(group_id: GroupId, tags: Option<Vec<Tag>>, bolt11: String) -> Result<(), Error> {
     // Implement
 }
 ```
@@ -500,7 +426,7 @@ async fn pay_invoice(group_id: GroupId, tags: Option<Vec<Tag>>, bolt11: String) 
 | `fetch_enriched_contacts`           | Fetches multiple enriched contacts                        | n/a                         | Use `load_contact`                                          |
 | `query_contacts_with_metadata`      | Queries contacts with metadata                            | n/a                         | Use `load_contact`                                          |
 | `fetch_contacts_with_metadata`      | Fetches contacts with metadata                            | n/a                         | Use `load_contact`                                          |
-| `invite_to_white_noise`             | Sends invitation as NIP-04 DM                             | `invite_to_white_noise`     | Sends invitation as NIP-04 DM                               |
+| `invite_to_white_noise`             | Sends invitation as NIP-04 DM                             | `invite_to_whitenoise`      | Sends invitation as NIP-04 DM                               |
 | `init_nostr_for_current_user`       | Initializes Nostr for current user                        | n/a                         | Happens in `initialize_whitenoise`                          |
 | `publish_relay_list`                | Publishes relay list to Nostr                             | n/a                         | Handled by `update_account_relays`                          |
 | `publish_new_key_package`           | Publishes new MLS key package                             | `publish_new_key_package`   | Publishes new MLS key package                               |
@@ -514,8 +440,8 @@ async fn pay_invoice(group_id: GroupId, tags: Option<Vec<Tag>>, bolt11: String) 
 | `accept_welcome`                    | Accepts a group welcome                                   | `join_group`                | Joins a group by accepting a welcome                        |
 | `decline_welcome`                   | Declines a group welcome                                  | `decline_join_group`        | Declines to join a group by welcome                         |
 | n/a                                 | n/a                                                       | `leave_group`               | Leaves a group                                              |
-| n/a                                 | n/a                                                       | `add_member`                | Adds member to a group (only admins can perform)            |
-| n/a                                 | n/a                                                       | `remove_member`             | Removes member from a group (only admins can perform)       |
+| n/a                                 | n/a                                                       | `add_members`               | Adds members to a group (only admins can perform)           |
+| n/a                                 | n/a                                                       | `remove_members`            | Removes members from a group (only admins can perform)      |
 | n/a                                 | n/a                                                       | `update_group_metadata`     | Updates group metadata (only admins can perform)            |
 | `get_group_members`                 | Gets members of a group                                   | n/a                         | Included in Group struct                                    |
 | `get_group_relays`                  | Gets relays for a group                                   | n/a                         | Included in Group struct                                    |
@@ -527,7 +453,7 @@ async fn pay_invoice(group_id: GroupId, tags: Option<Vec<Tag>>, bolt11: String) 
 | `upload_media`                      | Uploads unencrypted media content to Blossom service      | `upload_unencrypted_media`  | Uploads unencrypted file to storage (only media)            |
 | `fetch_file`                        | Fetches file from storage                                 | `load_file`                 | Loads a file from storage                                   |
 | `delete_file`                       | Deletes file from storage                                 | `delete_file`               | Deletes a file from storage                                 |
-| `pay_invoice`                       | Pays a Lightning invoice                                  | `pay_invoice`               | Pays a Lightning invoice                                    |
+| `pay_invoice`                       | Pays a Lightning invoice                                  | `pay_ln_invoice`            | Pays a Lightning invoice                                    |
 | `get_welcome`                       | Gets a specific welcome                                   | n/a                         | Included in Account struct                                  |
 | `get_welcomes`                      | Gets all welcomes                                         | n/a                         | Included in Account struct                                  |
 | `decrypt_content`                   | Decrypts content using Nostr encryption                   | n/a                         | Not needed                                                  |
