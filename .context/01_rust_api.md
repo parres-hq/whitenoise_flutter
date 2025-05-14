@@ -1,6 +1,6 @@
 # What is this about?
 
- This doc is a place to collect ideas and feedback on what the shape of the rust API should look like for the Flutter app. Currently the rust crate that is built into Tauri is doing a lot of things that I don't think we need to do here in Flutter. For example, there are about 50 commands that are quite Tuari or Svelte specific and I think we can get away from that and do something cleaner here.
+This doc is a place to collect ideas and feedback on what the shape of the rust API should look like for the Flutter app. Currently the rust crate that is built into Tauri is doing a lot of things that I don't think we need to do here in Flutter. For example, there are about 50 commands that are quite Tuari or Svelte specific and I think we can get away from that and do something cleaner here.
 
 # Why do we have a Rust crate in the app at all?
 
@@ -13,7 +13,6 @@ We're using [flutter_rust_bridge](https://github.com/fzyzcjy/flutter_rust_bridge
 # Application State
 
 Since we'll be using Riverpod to create high-level providers that give access global state, we should be able to simplify the API significantly and depend on a high-level `StreamProvider` (or several) that provide updates from the backend to the front-end continuously.
-
 
 # Structs
 
@@ -40,7 +39,7 @@ struct Account {
     last_synced:    Timestamp,          // The last time the account was synced up fully to relays
     active:         bool,               // Is this account currently active - (do we need this?)
     groups:         Vec<GroupMetadata>, // GroupMetadata for the groups the user is part of (includes both active and inactive groups)
-    welcomes:       BTreeSet<Welcome>,  // A BTreeSet of welcomes for the user (includes pending, accepted, and dismissed welcomes)
+    welcomes:       Vec<Welcome>,       // Welcomes for the user (includes pending, accepted, and dismissed welcomes)
 }
 ```
 
@@ -80,16 +79,16 @@ struct AccountOnboarding {
 ```rust
 /// High level details about a group. Messages are loaded separately via pagination.
 struct Group {
-    mls_group_id:        GroupId,                   // The MLS Group ID - never changes
-    nostr_group_id:      [u8; 32],                  // The group ID used for identifying this group on relays - can change
-    name:                String,                    // The name of the group
-    description:         String,                    // The description of the group
-    admin_pubkeys:       BTreeSet<PublicKey>,       // The list of admin pubkeys
-    last_message_id:     Option<EventId>,           // The ID of the latest message
-    last_message_at:     Option<Timestamp>,         // The timestamp of the latest message
-    last_message_preview: Option<String>,           // The preview text of the latest message to show in the chats list
-    group_type:          GroupType,                 // The type of group (DM or Group)
-    state:               GroupState,                // Whether the group is active or not
+    mls_group_id:        GroupId,           // The MLS Group ID - never changes
+    nostr_group_id:      [u8; 32],          // The group ID used for identifying this group on relays - can change
+    name:                String,            // The name of the group
+    description:         String,            // The description of the group
+    admin_pubkeys:       Vec<PublicKey>,    // The list of admin pubkeys
+    last_message_id:     Option<EventId>,   // The ID of the latest message
+    last_message_at:     Option<Timestamp>, // The timestamp of the latest message
+    last_message_preview: Option<String>,   // The preview text of the latest message to show in the chats list
+    group_type:          GroupType,         // The type of group (DM or Group)
+    state:               GroupState,        // Whether the group is active or not
 }
 ```
 
@@ -143,18 +142,20 @@ struct MessageCursor {
     direction:   PageDirection, // Which direction to load messages
 }
 ```
+
 ```rust
 enum PageDirection {
     Forward,  // Load newer messages
     Backward, // Load older messages
 }
 ```
+
 ```rust
 struct MessagePage {
-    messages:    Vec<Message>,              // The messages in this page
-    next_cursor: Option<MessageCursor>,     // Cursor for loading the next page
-    prev_cursor: Option<MessageCursor>,     // Cursor for loading the previous page
-    has_more:    bool,                      // Whether there are more messages to load
+    messages:    Vec<Message>,          // The messages in this page
+    next_cursor: Option<MessageCursor>, // Cursor for loading the next page
+    prev_cursor: Option<MessageCursor>, // Cursor for loading the previous page
+    has_more:    bool,                  // Whether there are more messages to load
 }
 ```
 
@@ -162,15 +163,15 @@ struct MessagePage {
 
 ```rust
 struct Welcome {
-    mls_group_id:        GroupId,              // the mls_group_id
-    nostr_group_id:      [u8; 32],             // the nostr_group_id
-    group_name:          String,               // group name
-    group_description:   String,               // group description
-    group_admin_pubkeys: BTreeSet<PublicKey>,  // the admin pubkeys
-    group_relays:        BTreeSet<RelayUrl>,   // the relays of the group
-    welcomer:            PublicKey,            // the pubkey of the person who sent the welcome message
-    member_count:        u32,                  // the number of members in the group
-    state:               WelcomeState,         // The state of the welcome
+    mls_group_id:        GroupId,          // the mls_group_id
+    nostr_group_id:      [u8; 32],         // the nostr_group_id
+    group_name:          String,           // group name
+    group_description:   String,           // group description
+    group_admin_pubkeys: Vec<PublicKey>,   // the admin pubkeys
+    group_relays:        Vec<RelayUrl>,    // the relays of the group
+    welcomer:            PublicKey,        // the pubkey of the person who sent the welcome message
+    member_count:        u32,              // the number of members in the group
+    state:               WelcomeState,     // The state of the welcome
 }
 ```
 
@@ -223,6 +224,12 @@ async fn logout(pubkey: PublicKey, delete_data: bool) -> Result<(), Error> {
     // Implementation
 }
 
+/// Update the active account
+/// Updates the WhitenoiseState
+async fn update_active_account(pubkey: PublicKey) -> Result<(), Error> {
+    // Implementation
+}
+
 /// Updates an account's metadata (kind 0 event).
 /// Returns the updated account and updates the WhitenoiseState.
 async fn update_account_metadata(pubkey: PublicKey, metadata: Metadata) -> Result<Account, Error> {
@@ -238,6 +245,12 @@ async fn update_account_settings(pubkey: PublicKey, settings: AccountSettings) -
 /// Updates an account's contacts list (kind 3 event).
 /// Returns the updated account and updates the WhitenoiseState.
 async fn update_account_contacts(pubkey: PublicKey, contacts: Vec<PublicKey>) -> Result<Account, Error> {
+    // Implementation
+}
+
+/// Updates an account's onboarding status.
+/// Returns the updated account and updates the WhitenoiseState.
+async fn update_account_onboarding(pubkey: PublicKey, onboarding: AccountOnboarding) -> Result<Account, Error> {
     // Implementation
 }
 
@@ -338,4 +351,71 @@ async fn publish_new_key_package(pubkey: PublicKey) -> Result<(), Error> {}
 
 /// Check to see if a valid key package exists for a user
 async fn valid_key_package_exists(pubkey: PublicKey) -> Result<bool, Error>
+
+/// Delete all key packages from relays
+async fn delete_all_key_packages(pubkey: PublicKey) -> Result<bool, Error>
 ```
+
+# Tauri Commands → New API
+
+| Old Tauri Command                   | What it did                                               | New Method                          | What it does / Why we don't need it                         |
+| ----------------------------------- | --------------------------------------------------------- | ----------------------------------- | ----------------------------------------------------------- |
+| n/a                                 | n/a                                                       | `initialize_whitenoise`             | intialize the app and return comprehensive app state object |
+| `is_mobile`                         | Checks if running on mobile platform                      | n/a                                 | we can use dart methods directly for this                   |
+| `is_platform`                       | Returns the current platform identifier                   | n/a                                 | we can use dart methods directly for this                   |
+| `delete_all_data`                   | Deletes all data from the application                     | `delete_all_data`                   | Deletes all data from the application                       |
+| `create_identity`                   | Create a new identity and set it active                   | `create_account`                    | Create a new identity and set it active                     |
+| `login`                             | Logs in with given public key                             | `login`                             | Log in with given public key and set it active              |
+| `logout`                            | Logs out the given public key                             | `logout`                            | Logs out the given public key                               |
+| `set_active_account`                | Sets the active account                                   | `update_active_account`             | Sets the active account                                     |
+| `get_accounts`                      | Lists all accounts                                        | n/a                                 | `initialize_whitenoise` returns comprehensive state object  |
+| `update_account_onboarding`         | Updates onboarding status for account                     | `update_account_onboarding`         | Updates onboarding status for account                       |
+| `publish_metadata_event`            | Publishes metadata event for an account                   | `update_account_metadata`           | Update account metadata & publish new kind:0 event          |
+| n/a                                 | n/a                                                       | `update_account_settings`           | Update account settings                                     |
+| n/a                                 | n/a                                                       | `update_account_contacts`           | Update account contact list & publish new kind:3 event      |
+| `fetch_relays_list`                 | Fetched a relays list of a specific kind for a given user |                                     |                                                             |
+| `get_nostr_wallet_connect_balance`  | Gets balance from connected NWC wallet                    |                                     |                                                             |
+| `has_nostr_wallet_connect_uri`      | Checks if NWC URI is configured                           |                                     |                                                             |
+| `remove_nostr_wallet_connect_uri`   | Removes NWC URI for active account                        |                                     |                                                             |
+| `set_nostr_wallet_connect_uri`      | Sets NWC URI for active account                           |                                     |                                                             |
+| `export_nsec`                       | Exports NSEC key for a public key                         |                                     |                                                             |
+| `fetch_relays`                      | Fetches status of connected Nostr relays                  |                                     |                                                             |
+| `fetch_enriched_contact`            | Fetches enriched contact information                      |                                     |                                                             |
+| `query_enriched_contact`            | Queries enriched contact information                      |                                     |                                                             |
+| `search_for_enriched_contacts`      | Searches for enriched contacts                            |                                     |                                                             |
+| `invite_to_white_noise`             | Sends invitation to White Noise                           |                                     |                                                             |
+| `init_nostr_for_current_user`       | Initializes Nostr for current user                        |                                     |                                                             |
+| `publish_relay_list`                | Publishes relay list to Nostr                             |                                     |                                                             |
+| `query_enriched_contacts`           | Queries multiple enriched contacts                        |                                     |                                                             |
+| `fetch_enriched_contacts`           | Fetches multiple enriched contacts                        |                                     |                                                             |
+| `query_contacts_with_metadata`      | Queries contacts with metadata                            |                                     |                                                             |
+| `fetch_contacts_with_metadata`      | Fetches contacts with metadata                            |                                     |                                                             |
+| `publish_new_key_package`           | Publishes new MLS key package                             | `publish_new_key_package`           | Publishes new MLS key package                               |
+| `valid_key_package_exists_for_user` | Checks if valid key package exists                        | `valid_key_package_exists_for_user` | Checks if valid key package exists                          |
+| `delete_all_key_packages`           | Deletes all key packages from relays                      | `delete_all_key_packages`           | Deletes all key packages from relays                        |
+| `create_group`                      | Creates a new MLS group                                   | `create_group`                      | Creates new MLS group                                       |
+| `get_group_and_messages`            | Gets group and its messages                               | `load_messages`                     | Loads a paginated list of messages for a given group        |
+| `rotate_key_in_group`               | Rotates key in a group                                    | `rotate_key_in_group`               | Rotates key in a group                                      |
+| `send_mls_message`                  | Sends message to MLS group                                | `send_message`                      | Sends a message to a group                                  |
+| `accept_welcome`                    | Accepts a group welcome                                   | `join_group`                        | Joins a group by accepting a welcome                        |
+| `decline_welcome`                   | Declines a group welcome                                  | `decline_join_group`                | Declines to join a group by welcome                         |
+| n/a                                 | n/a                                                       | `leave_group`                       | Leaves a group                                              |
+| n/a                                 | n/a                                                       | `add_member`                        | Adds member to a group - only admins can perform            |
+| n/a                                 | n/a                                                       | `remove_member`                     | Removes member from a group - only admins can perform       |
+| n/a                                 | n/a                                                       | `update_group_metadata`             | Updates group metadata - only admins can perform            |
+| `get_group_members`                 | Gets members of a group                                   | n/a                                 | Included in Group struct                                    |
+| `get_group_relays`                  | Gets relays for a group                                   | n/a                                 | Included in Group struct                                    |
+| `delete_message`                    | Deletes message from MLS group                            | n/a                                 | We will use `send_message` with kind:5 UnsignedEvent        |
+| `get_active_groups`                 | Gets all active groups                                    | n/a                                 | Included in Account struct                                  |
+| `get_group`                         | Gets single MLS group by ID                               | n/a                                 | Included in Group struct                                    |
+| `get_group_admins`                  | Gets admins of a group                                    | n/a                                 | Included in Group struct                                    |
+| `upload_file`                       | Uploads file to storage                                   |                                     |                                                             |
+| `upload_media`                      | Uploads media content to Blossom service                  |                                     |                                                             |
+| `fetch_file`                        | Fetches file from storage                                 |                                     |                                                             |
+| `delete_file`                       | Deletes file from storage                                 |                                     |                                                             |
+| `query_message`                     | Queries a specific message                                | n/a                                 | Not needed                                                  |
+| `pay_invoice`                       | Pays a Lightning invoice                                  |                                     |                                                             |
+| `get_welcome`                       | Gets a specific welcome                                   | n/a                                 | Included in Account struct                                  |
+| `get_welcomes`                      | Gets all welcomes                                         | n/a                                 | Included in Account struct                                  |
+| `decrypt_content`                   | Decrypts content using Nostr encryption                   | n/a                                 | Not needed                                                  |
+| `encrypt_content`                   | Encrypts content using Nostr encryption                   | n/a                                 | Not needed                                                  |
