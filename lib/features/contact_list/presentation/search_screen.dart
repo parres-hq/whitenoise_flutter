@@ -37,6 +37,8 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   bool _hasSearchResults = false;
+  List<ChatModel> _filteredContacts = [];
+  List<ChatModel> _filteredChats = [];
 
   @override
   void initState() {
@@ -55,6 +57,8 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
     setState(() {
       _searchQuery = _searchController.text;
       _hasSearchResults = _searchQuery.isNotEmpty;
+      _filteredContacts = _getFilteredContacts();
+      _filteredChats = _getFilteredChats();
     });
   }
 
@@ -76,8 +80,6 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final filteredContacts = _getFilteredContacts();
-    final filteredChats = _getFilteredChats();
 
     final bottomSheetHeight = 1.sh * 0.9;
 
@@ -134,7 +136,7 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
                         ),
                       ),
                       if (_hasSearchResults) ...[
-                        if (filteredContacts.isNotEmpty) ...[
+                        if (_filteredContacts.isNotEmpty) ...[
                           Gap(24.h),
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -145,17 +147,17 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
                           ),
                           ListView.builder(
                             padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            itemCount: filteredContacts.length,
+                            itemCount: _filteredContacts.length,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
                             itemBuilder: (context, index) {
-                              final contact = filteredContacts[index];
+                              final contact = _filteredContacts[index];
                               return ContactListTile(contact: contact);
                             },
                           ),
                           Gap(24.h),
                         ],
-                        if (filteredChats.isNotEmpty) ...[
+                        if (_filteredChats.isNotEmpty) ...[
                           Padding(
                             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
                             child: Align(
@@ -166,15 +168,15 @@ class _SearchBottomSheetState extends State<SearchBottomSheet> {
                           Expanded(
                             child: ListView.builder(
                               padding: EdgeInsets.symmetric(horizontal: 16.w),
-                              itemCount: filteredChats.length,
+                              itemCount: _filteredChats.length,
                               itemBuilder: (context, index) {
-                                final chat = filteredChats[index];
+                                final chat = _filteredChats[index];
                                 return ChatListTile(chat: chat);
                               },
                             ),
                           ),
                         ],
-                        if (filteredContacts.isEmpty && filteredChats.isEmpty)
+                        if (_filteredContacts.isEmpty && _filteredChats.isEmpty)
                           Expanded(
                             child: Center(
                               child: Text(
