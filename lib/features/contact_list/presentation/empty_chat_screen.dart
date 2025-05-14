@@ -4,7 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/core/utils/app_colors.dart';
 import 'package:whitenoise/core/utils/assets_paths.dart';
-import 'package:whitenoise/features/contact_list/presentation/widgets/contact_list_appbar.dart';
+import 'package:whitenoise/features/contact_list/presentation/widgets/chat_list_appbar.dart';
 
 class EmptyChatScreen extends StatelessWidget {
   const EmptyChatScreen({super.key});
@@ -16,7 +16,7 @@ class EmptyChatScreen extends StatelessWidget {
       backgroundColor: AppColors.color202320,
         elevation: 0,
         automaticallyImplyLeading: false,
-        title: const ContactListAppBar(),
+        title: const ChatListAppBar(),
       ),
       body: ColoredBox(
         color: AppColors.white,
@@ -29,7 +29,13 @@ class EmptyChatScreen extends StatelessWidget {
               ),
               Gap(20.h),
               Text(
-                'No chats found\nClick "+" to start a new chat',
+                'No chats found',
+                style: TextStyle(color: AppColors.color727772, fontSize: 18.sp),
+                textAlign: TextAlign.center,
+              ),
+              Gap(8.h),
+              Text(
+                'Click "+" to start a new chat',
                 style: TextStyle(
                   color: AppColors.color727772,
                   fontSize: 18.sp,

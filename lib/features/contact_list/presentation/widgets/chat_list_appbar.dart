@@ -6,8 +6,8 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/core/utils/assets_paths.dart';
 import 'package:whitenoise/features/contact_list/presentation/search_screen.dart';
 
-class ContactListAppBar extends StatelessWidget {
-  const ContactListAppBar({super.key});
+class ChatListAppBar extends StatelessWidget {
+  const ChatListAppBar({super.key});
 
   @override
   Widget build(BuildContext context) {
