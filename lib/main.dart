@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/src/rust/api/simple.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:whitenoise/features/contact_list/presentation/empty_chat_screen.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await RustLib.init();
   runApp(const MyApp());
 }
@@ -12,15 +15,21 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title: const Text('flutter_rust_bridge quickstart')),
-        body: Center(
-          child: Text(
-            'Action: Call Rust `greet("Tom")`\nResult: `${greet(name: "Tom")}`',
-          ),
-        ),
-      ),
+    final width = MediaQuery.of(context).size.width;
+
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
+    return ScreenUtilInit(
+      designSize: width > 600 ? const Size(600, 1024) : const Size(390, 844),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'WhiteNoise',
+          debugShowCheckedModeBanner: false,
+          home: const EmptyChatScreen(),
+        );
+      },
     );
   }
 }
