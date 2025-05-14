@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/features/contact_list/presentation/empty_chat_screen.dart';
+import 'package:whitenoise/features/contact_list/presentation/chat_list_screen.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 
 Future<void> main() async {
@@ -27,7 +27,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'WhiteNoise',
           debugShowCheckedModeBanner: false,
-          home: const EmptyChatScreen(),
+          home: const ChatListScreen(),
         );
       },
     );
