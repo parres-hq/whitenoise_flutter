@@ -102,11 +102,12 @@ enum RelayStatus {
 }
 ```
 
-````rust
+```rust
 struct AccountNwc {
     nwc_uri: String // The NWC connection URI
     balance: u64    // The NWC balance
 }
+```
 
 ## Groups
 
