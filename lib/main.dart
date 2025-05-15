@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/features/contact_list/presentation/chat_list_screen.dart';
+import 'package:whitenoise/screens/auth_flow/welcome_page.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 
 Future<void> main() async {
@@ -25,9 +26,10 @@ class MyApp extends StatelessWidget {
       splitScreenMode: true,
       builder: (context, child) {
         return MaterialApp(
-          title: 'WhiteNoise',
+          title: 'White Noise',
+          theme: ThemeData.light(),
           debugShowCheckedModeBanner: false,
-          home: const ChatListScreen(),
+          home: const WelcomePage(),
         );
       },
     );
