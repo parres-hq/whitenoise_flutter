@@ -1,7 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/core/utils/app_colors.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
 /// A utility class for showing custom bottom sheets with a slide-up animation.
 class CustomBottomSheet {

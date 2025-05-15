@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/ui/contact_list/group_chat_details_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/shared/custom_bottom_sheet.dart';
 import 'package:whitenoise/shared/custom_button.dart';
@@ -53,9 +54,7 @@ class _NewGroupChatSheetState extends State<NewGroupChatSheet> {
 
   List<ContactModel> _getFilteredContacts() {
     if (_searchQuery.isEmpty) return dummyContacts;
-    return dummyContacts
-        .where((contact) => contact.name.toLowerCase().contains(_searchQuery.toLowerCase()))
-        .toList();
+    return dummyContacts.where((contact) => contact.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
   }
 
   void _toggleContactSelection(ContactModel contact) {
@@ -72,10 +71,7 @@ class _NewGroupChatSheetState extends State<NewGroupChatSheet> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CustomTextField(
-          textController: _searchController,
-          hintText: 'Search contact or public key...',
-        ),
+        CustomTextField(textController: _searchController, hintText: 'Search contact or public key...'),
         Expanded(
           child: ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -83,7 +79,7 @@ class _NewGroupChatSheetState extends State<NewGroupChatSheet> {
             itemBuilder: (context, index) {
               final contact = _filteredContacts[index];
               final isSelected = _selectedContacts.contains(contact);
-              
+
               return ContactListTile(
                 contact: contact,
                 isSelected: isSelected,
@@ -95,16 +91,13 @@ class _NewGroupChatSheetState extends State<NewGroupChatSheet> {
         ),
         SafeArea(
           child: CustomButton(
-            onPressed: _selectedContacts.isNotEmpty
-                ? () {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Created group with ${_selectedContacts.length} contacts'),
-                      ),
-                    );
-                  }
-                : null,
+            onPressed:
+                _selectedContacts.isNotEmpty
+                    ? () {
+                      Navigator.pop(context);
+                      GroupChatDetailsSheet.show(context: context, selectedContacts: _selectedContacts.toList());
+                    }
+                    : null,
             title: 'Continue',
           ),
         ),
