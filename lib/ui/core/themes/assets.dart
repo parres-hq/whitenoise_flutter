@@ -8,10 +8,10 @@ class AssetsPaths {
   static const String icAdd = '$_svgsDir/ic_add.svg';
   static const String icDelivered = '$_svgsDir/ic_delivered.svg';
   static const String icVerifiedUser = '$_svgsDir/ic_verified_user.svg';
-  static String icChevronRight = '$_svgsDir/ic_chevron_right.svg';
-  static String icGroupChat = '$_svgsDir/ic_group_chat.svg';
+  static const String icChevronRight = '$_svgsDir/ic_chevron_right.svg';
+  static const String icGroupChat = '$_svgsDir/ic_group_chat.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';
-  static String loginSplash = '$_pngsDir/login_splash.png';
+  static const String loginSplash = '$_pngsDir/login_splash.png';
 }

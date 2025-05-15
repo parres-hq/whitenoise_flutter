@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:whitenoise/core/utils/app_colors.dart';
 
 /// A utility class for showing custom bottom sheets with a slide-up animation.
 class CustomBottomSheet {
@@ -12,8 +13,8 @@ class CustomBottomSheet {
     double heightFactor = 0.9,
     bool barrierDismissible = true,
     String? barrierLabel,
-    Color barrierColor = Colors.transparent,
-    Color backgroundColor = Colors.white,
+    Color barrierColor = AppColors.transparent,
+    Color backgroundColor = AppColors.white,
     bool blurBackground = true,
     double blurSigma = 5.0,
     Duration transitionDuration = const Duration(milliseconds: 300),
@@ -29,7 +30,7 @@ class CustomBottomSheet {
         final bottomSheetHeight = 1.sh * heightFactor;
 
         return Material(
-          color: Colors.transparent,
+          color: AppColors.transparent,
           child:
               blurBackground
                   ? BackdropFilter(
@@ -74,7 +75,7 @@ class CustomBottomSheet {
     return Stack(
       fit: StackFit.expand,
       children: [
-        Container(color: Colors.black.withValues(alpha: 0.1)),
+        Container(color: AppColors.black.withValues(alpha: 0.1)),
         Column(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -90,13 +91,13 @@ class CustomBottomSheet {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           if (title != null)
-                            Text(title, style: TextStyle(color: Colors.black, fontSize: 24.sp))
+                            Text(title, style: TextStyle(color: AppColors.black, fontSize: 24.sp))
                           else
                             const Spacer(),
                           if (showCloseButton)
                             GestureDetector(
                               onTap: () => Navigator.pop(context),
-                              child: Icon(Icons.close, color: Colors.black, size: 24.w),
+                              child: Icon(Icons.close, color: AppColors.black, size: 24.w),
                             ),
                         ],
                       ),
