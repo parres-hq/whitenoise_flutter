@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/features/contact_list/models/chat_model.dart';
 import 'package:whitenoise/features/contact_list/data/dummy_data.dart';
+import 'package:whitenoise/features/contact_list/models/contact_model.dart';
 import 'package:whitenoise/features/contact_list/presentation/widgets/chat_list_tile.dart';
 import 'package:whitenoise/features/contact_list/presentation/widgets/contact_list_tile.dart';
 import 'package:whitenoise/shared/custom_textfield.dart';
@@ -30,7 +31,7 @@ class _SearchChatBottomSheetState extends State<SearchChatBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   bool _hasSearchResults = false;
-  List<ChatModel> _filteredContacts = [];
+  List<ContactModel> _filteredContacts = [];
   List<ChatModel> _filteredChats = [];
 
   @override
@@ -55,7 +56,7 @@ class _SearchChatBottomSheetState extends State<SearchChatBottomSheet> {
     });
   }
 
-  List<ChatModel> _getFilteredContacts() {
+  List<ContactModel> _getFilteredContacts() {
     if (_searchQuery.isEmpty) return [];
     return dummyContacts.where((contact) => contact.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
   }

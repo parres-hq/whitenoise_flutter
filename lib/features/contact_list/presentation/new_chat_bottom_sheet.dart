@@ -4,8 +4,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/core/utils/app_colors.dart';
 import 'package:whitenoise/core/utils/assets_paths.dart';
-import 'package:whitenoise/features/contact_list/models/chat_model.dart';
 import 'package:whitenoise/features/contact_list/data/dummy_data.dart';
+import 'package:whitenoise/features/contact_list/models/contact_model.dart';
+import 'package:whitenoise/features/contact_list/presentation/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/features/contact_list/presentation/widgets/contact_list_tile.dart';
 import 'package:whitenoise/shared/custom_bottom_sheet.dart';
 import 'package:whitenoise/shared/custom_textfield.dart';
@@ -30,7 +31,7 @@ class NewChatBottomSheet extends StatefulWidget {
 class _NewChatBottomSheetState extends State<NewChatBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  List<ChatModel> _filteredContacts = [];
+  List<ContactModel> _filteredContacts = [];
 
   @override
   void initState() {
@@ -52,7 +53,7 @@ class _NewChatBottomSheetState extends State<NewChatBottomSheet> {
     });
   }
 
-  List<ChatModel> _getFilteredContacts() {
+  List<ContactModel> _getFilteredContacts() {
     if (_searchQuery.isEmpty) return dummyContacts;
     return dummyContacts.where((contact) => contact.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
   }
@@ -91,7 +92,22 @@ class _NewChatBottomSheetState extends State<NewChatBottomSheet> {
             itemCount: _filteredContacts.length,
             itemBuilder: (context, index) {
               final contact = _filteredContacts[index];
-              return ContactListTile(contact: contact);
+              return ContactListTile(
+                contact: contact,
+                onTap: () {
+                  StartSecureChatBottomSheet.show(
+                    context: context,
+                    name: contact.name,
+                    email: contact.email,
+                    publicKey: contact.publicKey,
+                    onStartChat: () {
+                      ScaffoldMessenger.of(
+                        context,
+                      ).showSnackBar(SnackBar(content: Text('Started secure chat with ${contact.name}')));
+                    },
+                  );
+                },
+              );
             },
           ),
         ),
