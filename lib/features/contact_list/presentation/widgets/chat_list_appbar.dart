@@ -22,7 +22,7 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
               Image.asset(AssetsPaths.icImage, width: 32.w, height: 32.w),
               const Spacer(),
               GestureDetector(
-                onTap: () => SearchBottomSheet.show(context),
+                onTap: () => SearchChatBottomSheet.show(context),
                 child: SvgPicture.asset(AssetsPaths.icSearch),
               ),
               Gap(24.w),
