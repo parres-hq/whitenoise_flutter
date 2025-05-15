@@ -10,7 +10,6 @@ class StartSecureChatBottomSheet extends StatelessWidget {
   final String email;
   final String publicKey;
   final VoidCallback? onStartChat;
-
   const StartSecureChatBottomSheet({
     super.key,
     required this.name,
