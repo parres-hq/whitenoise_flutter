@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/features/contact_list/presentation/chat_list_screen.dart';
 import 'package:whitenoise/screens/auth_flow/welcome_page.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 
