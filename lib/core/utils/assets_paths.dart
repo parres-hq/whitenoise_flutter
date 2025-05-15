@@ -13,4 +13,5 @@ class AssetsPaths {
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';
+  static String loginSplash = '$_pngsDir/login_splash.png';
 }

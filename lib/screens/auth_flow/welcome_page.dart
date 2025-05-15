@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:whitenoise/core/utils/assets_paths.dart';
 import 'package:whitenoise/screens/auth_flow/info_page.dart';
 import 'package:whitenoise/screens/auth_flow/login_page.dart';
 
@@ -27,7 +28,7 @@ class WelcomePage extends StatelessWidget {
                 ).createShader(bounds);
               },
               blendMode: BlendMode.dstIn,
-              child: Image.asset('assets/login-splash.png', fit: BoxFit.cover),
+              child: Image.asset(AssetsPaths.loginSplash, fit: BoxFit.cover),
             ),
           ),
 
