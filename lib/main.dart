@@ -10,7 +10,7 @@ import 'package:whitenoise/src/rust/frb_generated.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await RustLib.init();
+  //await RustLib.init();
   runApp(const MyApp());
 }
 
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           title: 'White Noise',
           debugShowCheckedModeBanner: false,
-          home: const WelcomePage(),
+          home: const ChatScreen(),
           theme: ThemeData(
             fontFamily: 'OverusedGrotesk',
             appBarTheme: AppBarTheme(

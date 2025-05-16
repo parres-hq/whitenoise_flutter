@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/src/models/message.dart';
-
 import '../../../core/utils/app_colors.dart';
 
 class ChatReplyItem extends StatelessWidget {
@@ -10,6 +9,8 @@ class ChatReplyItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: MediaQuery.of(context).size.width,
+      margin: EdgeInsets.only(top: 7),
       padding: EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: AppColors.colorF1EFEF,

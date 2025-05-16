@@ -25,32 +25,32 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   static const List<MenuItem> menuItems = [
     reply,
-    copy,
     forward,
+    copy,
     delete,
   ];
 
   static const List<MenuItem> myMessageMenuItems = [
     reply,
-    copy,
-    edit,
     forward,
+    edit,
+    copy,
     delete,
   ];
 
   static const MenuItem reply = MenuItem(
     label: 'Reply',
-    icon: Icons.reply,
+    icon: CarbonIcons.reply,
   );
 
   static const MenuItem copy = MenuItem(
     label: 'Copy',
-    icon: Icons.copy,
+    icon: CarbonIcons.copy,
   );
 
   static const MenuItem forward = MenuItem(
     label: 'Forward',
-    icon: Icons.send,
+    icon:  CarbonIcons.send,
   );
 
   static const MenuItem edit = MenuItem(
@@ -60,7 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   static const MenuItem delete = MenuItem(
     label: 'Delete',
-    icon: Icons.delete_forever,
+    icon:  CarbonIcons.delete,
     isDestuctive: true,
   );
 

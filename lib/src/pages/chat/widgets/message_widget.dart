@@ -95,7 +95,7 @@ class MessageWidget extends StatelessWidget {
     return Padding(
       padding: padding,
       child: Card(
-        elevation: 5,
+        elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
@@ -120,34 +120,69 @@ class MessageWidget extends StatelessWidget {
                 ): SizedBox(),
                 message.isReplyMessage==true?
                 ChatReplyItem(message: message,): SizedBox(),
-                message.messageType==0 && message.message != null && message.message!.isNotEmpty?
-                Text(
-                  message.message??"",
-                  style: TextStyle(
-                    color: textColor,
-                  ),
-                ):SizedBox(),
-                message.messageType==1 && message.audioPath != null?
-                    ChatAudioItem(audioPath: message.audioPath??""): SizedBox(),
-                Gap(5),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
+                message.messageType==0?
+                Wrap(
+                  alignment:  message.isMe? WrapAlignment.end: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
+                    message.message != null && message.message!.isNotEmpty?
                     Text(
-                      message.timeSent,
+                      message.message??"",
                       style: TextStyle(
-                        fontSize: 12,
                         color: textColor,
                       ),
+                    ):SizedBox(),
+                    Gap(5),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        message.message!=null && message.message!.isNotEmpty?Gap(10):Gap(0),
+                        Text(
+                          message.timeSent,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: textColor,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        message.isMe
+                            ? const Icon(
+                          CarbonIcons.checkmark_outline,
+                          color: AppColors.colorE2E2E2,
+                          size: 15,
+                        )
+                            : const SizedBox.shrink(),
+                      ],
                     ),
-                    const SizedBox(width: 5),
-                    message.isMe
-                        ? const Icon(
-                      CarbonIcons.checkmark_outline,
-                      color: AppColors.colorE2E2E2,
-                      size: 15,
-                    )
-                        : const SizedBox.shrink(),
+                  ],
+                ):
+                Wrap(
+                  alignment:  message.isMe? WrapAlignment.end: WrapAlignment.start,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    message.audioPath != null?
+                    ChatAudioItem(audioPath: message.audioPath??""): SizedBox(),
+                    Gap(5),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          message.timeSent,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: textColor,
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        message.isMe
+                            ? const Icon(
+                          CarbonIcons.checkmark_outline,
+                          color: AppColors.colorE2E2E2,
+                          size: 15,
+                        )
+                            : const SizedBox.shrink(),
+                      ],
+                    ),
                   ],
                 ),
               ],
