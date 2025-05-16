@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/screens/auth_flow/logged_page.dart';
+import 'package:whitenoise/ui/auth_flow/logged_page.dart';
 
 class KeyCreatedPage extends StatelessWidget {
   const KeyCreatedPage({super.key});

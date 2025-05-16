@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/screens/auth_flow/info_page.dart';
-import 'package:whitenoise/screens/auth_flow/login_page..dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/auth_flow/info_page.dart';
+import 'package:whitenoise/ui/auth_flow/login_page.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -27,7 +28,7 @@ class WelcomePage extends StatelessWidget {
                 ).createShader(bounds);
               },
               blendMode: BlendMode.dstIn,
-              child: Image.asset('assets/login-splash.png', fit: BoxFit.cover),
+              child: Image.asset(AssetsPaths.loginSplash, fit: BoxFit.cover),
             ),
           ),
 

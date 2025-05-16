@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/screens/auth_flow/key_created_page.dart';
+import 'package:whitenoise/ui/auth_flow/key_created_page.dart';
 
 class CreateProfilePage extends StatefulWidget {
   const CreateProfilePage({super.key});

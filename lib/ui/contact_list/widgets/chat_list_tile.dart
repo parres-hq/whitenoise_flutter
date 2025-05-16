@@ -2,17 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/core/utils/app_colors.dart';
-import 'package:whitenoise/core/utils/assets_paths.dart';
-import 'package:whitenoise/features/contact_list/models/chat_model.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/domain/models/chat_model.dart';
 
 class ChatListTile extends StatelessWidget {
   final ChatModel chat;
 
-  const ChatListTile({
-    required this.chat,
-    super.key,
-  });
+  const ChatListTile({required this.chat, super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -22,27 +19,28 @@ class ChatListTile extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(30.r),
-            child: chat.imagePath.isNotEmpty
-                ? Image.asset(
-                    chat.imagePath,
-                    width: 56.w,
-                    height: 56.w,
-                    fit: BoxFit.cover,
-                  )
-                : Container(
-                    width: 56.w,
-                    height: 56.w,
-                    color: Colors.orange,
-                    alignment: Alignment.center,
-                    child: Text(
-                      chat.name.substring(0, 1).toUpperCase(),
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.bold,
+            child:
+                chat.imagePath.isNotEmpty
+                    ? Image.asset(
+                      chat.imagePath,
+                      width: 56.w,
+                      height: 56.w,
+                      fit: BoxFit.cover,
+                    )
+                    : Container(
+                      width: 56.w,
+                      height: 56.w,
+                      color: Colors.orange,
+                      alignment: Alignment.center,
+                      child: Text(
+                        chat.name.substring(0, 1).toUpperCase(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
           ),
           Gap(12.w),
           Expanded(

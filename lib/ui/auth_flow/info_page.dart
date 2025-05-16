@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/screens/auth_flow/create_profile_page.dart';
+import 'package:whitenoise/ui/auth_flow/create_profile_page.dart';
 
 class InfoPage extends StatelessWidget {
   const InfoPage({super.key});

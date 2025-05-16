@@ -1,21 +1,5 @@
-import 'package:whitenoise/core/utils/assets_paths.dart';
-import 'package:whitenoise/features/contact_list/models/chat_model.dart';
-
-// Dummy contacts for search results
-final List<ChatModel> dummyContacts = [
-  ChatModel(
-    name: 'Max Hillebrand',
-    lastMessage: '',
-    time: '',
-    imagePath: AssetsPaths.icImage,
-  ),
-  ChatModel(
-    name: 'Max DeMarco',
-    lastMessage: '',
-    time: '',
-    imagePath: AssetsPaths.icImage,
-  ),
-];
+import 'package:whitenoise/domain/models/chat_model.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 
 final List<ChatModel> dummyChats = [
   ChatModel(
@@ -34,7 +18,8 @@ final List<ChatModel> dummyChats = [
   ),
   ChatModel(
     name: 'jstaab',
-    lastMessage: 'I think I might have found part of the issue with those key packages. 😎',
+    lastMessage:
+        'I think I might have found part of the issue with those key packages. 😎',
     time: '11:07',
     imagePath: AssetsPaths.icImage,
   ),

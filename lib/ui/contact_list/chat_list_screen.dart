@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/core/utils/app_colors.dart';
-import 'package:whitenoise/features/contact_list/data/dummy_data.dart';
-import 'package:whitenoise/features/contact_list/presentation/widgets/chat_list_appbar.dart';
-import 'package:whitenoise/features/contact_list/presentation/widgets/chat_list_tile.dart';
-
+import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/domain/dummy_data/dummy_chats.dart';
+import 'package:whitenoise/ui/contact_list/widgets/chat_list_appbar.dart';
+import 'package:whitenoise/ui/contact_list/widgets/chat_list_tile.dart';
 
 class ChatListScreen extends StatelessWidget {
   const ChatListScreen({super.key});
