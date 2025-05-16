@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/ui/contact_list/chat_invitation_sheet.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -148,19 +149,21 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
             },
           ),
         ),    
-        SafeArea(
-          child: CustomButton(
-            onPressed: _isGroupNameValid ? () {
-              final groupName = _groupNameController.text.trim();
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Created group "$groupName" with ${widget.selectedContacts.length} members'),
-                ),
-              );
-            } : null,
-            title: 'Create Group',
-          ),
+        CustomButton(
+          onPressed:
+              _isGroupNameValid
+                  ? () {
+                    ChatInvitationSheet.show(
+                      context: context,
+                      name: 'John Doe',
+                      email: 'john.doe@example.com',
+                      publicKey: '1234567890',
+                      onAccept: () {},
+                      onDecline: () {},
+                    );
+                  }
+                  : null,
+          title: 'Create Group',
         ),
       ],
     );
