@@ -1,18 +1,18 @@
-class Message {
-  int messageType; //0: text message, 1: audio message,
-  String id;
-  String timeSent;
-  List<String> reactions;
-  bool isMe;
+class MessageModel {
+  final int messageType; //0: text message, 1: audio message,
+  final String id;
+  final String timeSent;
+  final List<String> reactions;
+  final bool isMe;
+  final bool isReplyMessage;
   String? message;
   String? imageUrl;
   String? audioPath;
-  bool isReplyMessage;
   String? originalMessage;
   String? originalUser;
 
 
-  Message({
+  MessageModel({
     required this.messageType,
     required this.id,
     required this.timeSent,

@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:date_format/date_format.dart';
 import 'package:flutter/foundation.dart';
@@ -7,10 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
-import 'package:whitenoise/src/pages/chat/widgets/stacked_images.dart';
-import '../../../core/utils/app_colors.dart';
-import '../../../models/message.dart';
-import '../dummy_data/dummy_data.dart';
+import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/ui/chat/widgets/stacked_images.dart';
+import '../../../domain/dummy_data/dummy_messages.dart';
+import '../../core/themes/colors.dart';
 
 class ChatInput extends StatefulWidget {
   const ChatInput({
@@ -26,7 +25,7 @@ class ChatInput extends StatefulWidget {
     //required this.theme,
   }) : super(key: key);
 
-  final void Function(Message message)? onSend;
+  final void Function(MessageModel message)? onSend;
   final void Function()? attachBtnClicked;
   final EdgeInsetsGeometry padding;
   final Color? cursorColor;
@@ -66,14 +65,14 @@ class _ChatInputState extends State<ChatInput> {
 
   void _handleSend() {
 
-    Message? message;
+    MessageModel? message;
     final id = messages.length + 1;
     final timeSent = DateTime.now().millisecondsSinceEpoch;
     // format the time like 10:00 AM or 10:00 PM using package [date_format]
     final time = formatDate(DateTime.fromMillisecondsSinceEpoch(timeSent),
         [hh, ':', nn, ' ', am]);
     if (recordedFilePath != null) {
-      message = Message(
+      message = MessageModel(
         id: id.toString(),
         message: null,
         timeSent: time,
@@ -84,7 +83,7 @@ class _ChatInputState extends State<ChatInput> {
         isReplyMessage: false,
       );
     }else{
-      message = Message(
+      message = MessageModel(
         id: id.toString(),
         timeSent: time,
         isMe: true,
@@ -293,7 +292,7 @@ class _ChatInputState extends State<ChatInput> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.mic, size: 20, color: AppColors.red),
+                      Icon(Icons.mic, size: 20, color: AppColors.red1),
                       const SizedBox(width: 8),
                       Text(
                         _formattedRecordingTime,
@@ -346,7 +345,7 @@ class _ChatInputState extends State<ChatInput> {
                       curve: Curves.easeOut,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppColors.red,
+                        color: AppColors.red1,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.mic, size: 30, color: AppColors.white),

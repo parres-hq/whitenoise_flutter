@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-
-import '../../../core/utils/app_colors.dart';
-import '../../../core/utils/assets_paths.dart';
+import '../../core/themes/assets.dart';
+import '../../core/themes/colors.dart';
 
 class ContactInfo extends StatelessWidget {
   const ContactInfo({

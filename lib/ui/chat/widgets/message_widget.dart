@@ -3,11 +3,10 @@ import 'package:carbon_icons/carbon_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_reactions/widgets/stacked_reactions.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/src/pages/chat/widgets/chat_audio_item.dart';
-import 'package:whitenoise/src/pages/chat/widgets/chat_reply_item.dart';
-
-import '../../../core/utils/app_colors.dart';
-import '../../../models/message.dart';
+import 'package:whitenoise/domain/models/message_model.dart';
+import '../../core/themes/colors.dart';
+import 'chat_audio_item.dart';
+import 'chat_reply_item.dart';
 
 class MessageWidget extends StatelessWidget {
   const MessageWidget({
@@ -15,7 +14,7 @@ class MessageWidget extends StatelessWidget {
     required this.message,
   });
 
-  final Message message;
+  final MessageModel message;
 
   @override
   Widget build(BuildContext context) {

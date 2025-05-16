@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/src/core/utils/app_colors.dart';
-import 'package:whitenoise/src/pages/chat/chat_screen.dart';
 import 'package:whitenoise/src/rust/api/simple.dart';
 import 'package:flutter/services.dart';
-import 'package:whitenoise/features/contact_list/presentation/chat_list_screen.dart';
-import 'package:whitenoise/screens/auth_flow/welcome_page.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
+import 'package:whitenoise/ui/chat/chat_screen.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();

@@ -6,14 +6,14 @@ import 'package:flutter_chat_reactions/flutter_chat_reactions.dart';
 import 'package:flutter_chat_reactions/model/menu_item.dart';
 import 'package:flutter_chat_reactions/utilities/hero_dialog_route.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/src/pages/chat/widgets/chat_input.dart';
-import 'package:whitenoise/src/pages/chat/widgets/contact_info.dart';
-import 'package:whitenoise/src/pages/chat/widgets/message_widget.dart';
-import '../../core/utils/app_colors.dart';
-import '../../core/utils/assets_paths.dart';
-import '../../models/message.dart';
+import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_input.dart';
+import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
+import 'package:whitenoise/ui/chat/widgets/message_widget.dart';
+import '../core/themes/assets.dart';
+import '../core/themes/colors.dart';
 import 'states/chat_audio_state.dart';
-import 'dummy_data/dummy_data.dart';
+import '../../domain/dummy_data/dummy_messages.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -65,7 +65,7 @@ class _ChatScreenState extends State<ChatScreen> {
   );
 
   void showEmojiBottomSheet({
-    required Message message,
+    required MessageModel message,
   }) {
     showModalBottomSheet(
       context: context,
@@ -89,7 +89,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   // add reaction to message
   void addReactionToMessage({
-    required Message message,
+    required MessageModel message,
     required String reaction,
   }) {
     message.reactions.add(reaction);
@@ -97,7 +97,7 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {});
   }
 
-  void sendNewMessage(Message newMessage){
+  void sendNewMessage(MessageModel newMessage){
     setState(() {
       messages.insert(0,newMessage);
     });
@@ -283,8 +283,6 @@ class _ChatScreenState extends State<ChatScreen> {
                                   messageWidget: MessageWidget(
                                       message: message), // message widget
                                   onReactionTap: (reaction) {
-                                    print('reaction: $reaction');
-
                                     if (reaction == '➕') {
                                       // show emoji picker container
                                       showEmojiBottomSheet(

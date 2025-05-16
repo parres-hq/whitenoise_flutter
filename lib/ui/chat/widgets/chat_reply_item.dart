@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/src/models/message.dart';
-import '../../../core/utils/app_colors.dart';
+import 'package:whitenoise/domain/models/message_model.dart';
+
+import '../../core/themes/colors.dart';
 
 class ChatReplyItem extends StatelessWidget {
-  Message message;
+  MessageModel message;
   ChatReplyItem({super.key, required this.message});
 
   @override
@@ -13,7 +14,7 @@ class ChatReplyItem extends StatelessWidget {
       margin: EdgeInsets.only(top: 7),
       padding: EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: AppColors.colorF1EFEF,
+        color: AppColors.grey3,
         borderRadius: BorderRadius.circular(3),
         border: Border(
           left: BorderSide(
