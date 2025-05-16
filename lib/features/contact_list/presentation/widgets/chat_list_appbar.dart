@@ -5,7 +5,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/core/utils/app_colors.dart';
 import 'package:whitenoise/core/utils/assets_paths.dart';
-import 'package:whitenoise/features/contact_list/presentation/search_screen.dart';
+import 'package:whitenoise/features/contact_list/presentation/new_chat_bottom_sheet.dart';
+import 'package:whitenoise/features/contact_list/presentation/search_chat_bottom_sheet.dart';
 
 class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
   const ChatListAppBar({super.key});
@@ -22,11 +23,14 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
               Image.asset(AssetsPaths.icImage, width: 32.w, height: 32.w),
               const Spacer(),
               GestureDetector(
-                onTap: () => SearchBottomSheet.show(context),
+                onTap: () => SearchChatBottomSheet.show(context),
                 child: SvgPicture.asset(AssetsPaths.icSearch),
               ),
               Gap(24.w),
-              SvgPicture.asset(AssetsPaths.icAdd),
+              GestureDetector(
+                onTap: () => NewChatBottomSheet.show(context),
+                child: SvgPicture.asset(AssetsPaths.icAdd),
+              ),
             ],
           ),
         ),
