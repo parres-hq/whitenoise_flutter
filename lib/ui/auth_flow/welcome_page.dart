@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/core/utils/assets_paths.dart';
-import 'package:whitenoise/screens/auth_flow/info_page.dart';
-import 'package:whitenoise/screens/auth_flow/login_page.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/auth_flow/info_page.dart';
+import 'package:whitenoise/ui/auth_flow/login_page.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});

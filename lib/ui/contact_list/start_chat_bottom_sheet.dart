@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/core/utils/app_colors.dart';
-import 'package:whitenoise/core/utils/assets_paths.dart';
-import 'package:whitenoise/shared/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 
 class StartSecureChatBottomSheet extends StatelessWidget {
   final String name;
   final String email;
   final String publicKey;
   final VoidCallback? onStartChat;
-  
+
   const StartSecureChatBottomSheet({
     super.key,
     required this.name,
@@ -31,12 +31,13 @@ class StartSecureChatBottomSheet extends StatelessWidget {
       title: 'Start secure chat',
       heightFactor: 0.55,
       backgroundColor: Colors.white,
-      builder: (context) => StartSecureChatBottomSheet(
-        name: name,
-        email: email,
-        publicKey: publicKey,
-        onStartChat: onStartChat,
-      ),
+      builder:
+          (context) => StartSecureChatBottomSheet(
+            name: name,
+            email: email,
+            publicKey: publicKey,
+            onStartChat: onStartChat,
+          ),
     );
   }
 
@@ -63,10 +64,7 @@ class StartSecureChatBottomSheet extends StatelessWidget {
           Gap(12.h),
           Text(
             email,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: AppColors.color727772,
-            ),
+            style: TextStyle(fontSize: 14.sp, color: AppColors.color727772),
           ),
           Gap(8.h),
           Padding(
@@ -74,10 +72,7 @@ class StartSecureChatBottomSheet extends StatelessWidget {
             child: Text(
               publicKey,
               textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: AppColors.color727772,
-              ),
+              style: TextStyle(fontSize: 14.sp, color: AppColors.color727772),
             ),
           ),
           Gap(48.h),
@@ -100,10 +95,7 @@ class StartSecureChatBottomSheet extends StatelessWidget {
               ),
               child: Text(
                 'Start & Send Invite',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w500,
-                ),
+                style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
               ),
             ),
           ),

@@ -1,14 +1,14 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/features/contact_list/models/chat_model.dart';
-import 'package:whitenoise/features/contact_list/data/dummy_data.dart';
-import 'package:whitenoise/features/contact_list/models/contact_model.dart';
-import 'package:whitenoise/features/contact_list/presentation/widgets/chat_list_tile.dart';
-import 'package:whitenoise/features/contact_list/presentation/widgets/contact_list_tile.dart';
-import 'package:whitenoise/shared/custom_textfield.dart';
-import 'package:whitenoise/shared/custom_bottom_sheet.dart';
+import 'package:whitenoise/domain/models/chat_model.dart';
+import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
+import 'package:whitenoise/domain/dummy_data/dummy_chats.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/ui/contact_list/widgets/chat_list_tile.dart';
+import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
+import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 
 class SearchChatBottomSheet extends StatefulWidget {
   const SearchChatBottomSheet({super.key});
@@ -58,7 +58,12 @@ class _SearchChatBottomSheetState extends State<SearchChatBottomSheet> {
 
   List<ContactModel> _getFilteredContacts() {
     if (_searchQuery.isEmpty) return [];
-    return dummyContacts.where((contact) => contact.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+    return dummyContacts
+        .where(
+          (contact) =>
+              contact.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+        )
+        .toList();
   }
 
   List<ChatModel> _getFilteredChats() {
@@ -67,7 +72,9 @@ class _SearchChatBottomSheetState extends State<SearchChatBottomSheet> {
         .where(
           (chat) =>
               chat.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              chat.lastMessage.toLowerCase().contains(_searchQuery.toLowerCase()),
+              chat.lastMessage.toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              ),
         )
         .toList();
   }
@@ -76,13 +83,19 @@ class _SearchChatBottomSheetState extends State<SearchChatBottomSheet> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CustomTextField(textController: _searchController, hintText: 'Search contacts or chats...'),
+        CustomTextField(
+          textController: _searchController,
+          hintText: 'Search contacts or chats...',
+        ),
         if (_hasSearchResults) ...[
           if (_filteredContacts.isNotEmpty) ...[
             Gap(24.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              child: Align(alignment: Alignment.centerLeft, child: Text('Contacts', style: TextStyle(fontSize: 24.sp))),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Contacts', style: TextStyle(fontSize: 24.sp)),
+              ),
             ),
             ListView.builder(
               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -99,7 +112,10 @@ class _SearchChatBottomSheetState extends State<SearchChatBottomSheet> {
           if (_filteredChats.isNotEmpty) ...[
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              child: Align(alignment: Alignment.centerLeft, child: Text('Chats', style: TextStyle(fontSize: 24.sp))),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text('Chats', style: TextStyle(fontSize: 24.sp)),
+              ),
             ),
             Expanded(
               child: ListView.builder(
@@ -125,7 +141,10 @@ class _SearchChatBottomSheetState extends State<SearchChatBottomSheet> {
         if (!_hasSearchResults) ...[
           Expanded(
             child: Center(
-              child: Text('Type to search contacts or chats', style: TextStyle(fontSize: 16.sp, color: Colors.grey)),
+              child: Text(
+                'Type to search contacts or chats',
+                style: TextStyle(fontSize: 16.sp, color: Colors.grey),
+              ),
             ),
           ),
         ],

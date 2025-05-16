@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/core/utils/app_colors.dart';
-import 'package:whitenoise/core/utils/assets_paths.dart';
-import 'package:whitenoise/features/contact_list/models/contact_model.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
 
 class ContactListTile extends StatelessWidget {
   final ContactModel contact;
@@ -25,7 +25,11 @@ class ContactListTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(30.r),
               child:
                   contact.imagePath.isNotEmpty
-                      ? Image.asset(contact.imagePath, width: 56.w, height: 56.w)
+                      ? Image.asset(
+                        contact.imagePath,
+                        width: 56.w,
+                        height: 56.w,
+                      )
                       : Container(
                         width: 56.w,
                         height: 56.w,
@@ -33,7 +37,11 @@ class ContactListTile extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           contact.name.substring(0, 1).toUpperCase(),
-                          style: TextStyle(color: AppColors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: AppColors.white,
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
             ),
@@ -46,15 +54,26 @@ class ContactListTile extends StatelessWidget {
                     children: [
                       Text(
                         contact.name,
-                        style: TextStyle(color: AppColors.color2D312D, fontSize: 18.sp, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          color: AppColors.color2D312D,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       Gap(6.w),
-                      SvgPicture.asset(AssetsPaths.icVerifiedUser, height: 12.w, width: 12.w),
+                      SvgPicture.asset(
+                        AssetsPaths.icVerifiedUser,
+                        height: 12.w,
+                        width: 12.w,
+                      ),
                     ],
                   ),
                   Text(
                     'npubt klkk3 vrzme 455yh 9rl2j shq7r c8dpe gj3hd f82c3 ks2sk 7qulx 40dxt 3vt',
-                    style: TextStyle(color: AppColors.color727772, fontSize: 14.sp),
+                    style: TextStyle(
+                      color: AppColors.color727772,
+                      fontSize: 14.sp,
+                    ),
                   ),
                 ],
               ),

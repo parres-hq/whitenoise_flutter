@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/core/utils/app_colors.dart';
-import 'package:whitenoise/core/utils/assets_paths.dart';
-import 'package:whitenoise/features/contact_list/data/dummy_data.dart';
-import 'package:whitenoise/features/contact_list/models/contact_model.dart';
-import 'package:whitenoise/features/contact_list/presentation/start_chat_bottom_sheet.dart';
-import 'package:whitenoise/features/contact_list/presentation/widgets/contact_list_tile.dart';
-import 'package:whitenoise/shared/custom_bottom_sheet.dart';
-import 'package:whitenoise/shared/custom_textfield.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
+import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class NewChatBottomSheet extends StatefulWidget {
   const NewChatBottomSheet({super.key});
@@ -55,7 +55,12 @@ class _NewChatBottomSheetState extends State<NewChatBottomSheet> {
 
   List<ContactModel> _getFilteredContacts() {
     if (_searchQuery.isEmpty) return dummyContacts;
-    return dummyContacts.where((contact) => contact.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+    return dummyContacts
+        .where(
+          (contact) =>
+              contact.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+        )
+        .toList();
   }
 
   @override
@@ -63,7 +68,10 @@ class _NewChatBottomSheetState extends State<NewChatBottomSheet> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        CustomTextField(textController: _searchController, hintText: 'Search contact or public key...'),
+        CustomTextField(
+          textController: _searchController,
+          hintText: 'Search contact or public key...',
+        ),
         Gap(16.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
@@ -71,15 +79,29 @@ class _NewChatBottomSheetState extends State<NewChatBottomSheet> {
             children: [
               SvgPicture.asset(
                 AssetsPaths.icGroupChat,
-                colorFilter: ColorFilter.mode(AppColors.color727772, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  AppColors.color727772,
+                  BlendMode.srcIn,
+                ),
                 width: 20.w,
                 height: 20.w,
               ),
               Gap(10.w),
-              Expanded(child: Text('New Group Chat', style: TextStyle(color: AppColors.color727772, fontSize: 18.sp))),
+              Expanded(
+                child: Text(
+                  'New Group Chat',
+                  style: TextStyle(
+                    color: AppColors.color727772,
+                    fontSize: 18.sp,
+                  ),
+                ),
+              ),
               SvgPicture.asset(
                 AssetsPaths.icChevronRight,
-                colorFilter: ColorFilter.mode(AppColors.color727772, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  AppColors.color727772,
+                  BlendMode.srcIn,
+                ),
                 width: 8.55.w,
                 height: 15.w,
               ),
@@ -101,9 +123,13 @@ class _NewChatBottomSheetState extends State<NewChatBottomSheet> {
                     email: contact.email,
                     publicKey: contact.publicKey,
                     onStartChat: () {
-                      ScaffoldMessenger.of(
-                        context,
-                      ).showSnackBar(SnackBar(content: Text('Started secure chat with ${contact.name}')));
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Started secure chat with ${contact.name}',
+                          ),
+                        ),
+                      );
                     },
                   );
                 },
