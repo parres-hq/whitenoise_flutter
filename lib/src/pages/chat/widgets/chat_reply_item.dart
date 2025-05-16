@@ -1,0 +1,43 @@
+import 'package:flutter/material.dart';
+import 'package:whitenoise/src/models/message.dart';
+
+import '../../../core/utils/app_colors.dart';
+
+class ChatReplyItem extends StatelessWidget {
+  Message message;
+  ChatReplyItem({super.key, required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: AppColors.colorF1EFEF,
+        borderRadius: BorderRadius.circular(3),
+        border: Border(
+          left: BorderSide(
+            color: AppColors.color727772,
+            width: 4,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            message.originalUser??"",
+            style: TextStyle(
+              color: AppColors.color202320,
+            ),
+          ),
+          Text(
+            message.originalMessage??"",
+            style: TextStyle(
+              color: AppColors.color727772,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
