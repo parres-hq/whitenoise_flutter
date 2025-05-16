@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/src/core/utils/app_colors.dart';
 import 'package:whitenoise/src/pages/chat/chat_screen.dart';
 import 'package:whitenoise/src/rust/api/simple.dart';
+import 'package:flutter/services.dart';
+import 'package:whitenoise/features/contact_list/presentation/chat_list_screen.dart';
+import 'package:whitenoise/screens/auth_flow/welcome_page.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await RustLib.init();
   runApp(const MyApp());
 }
@@ -14,16 +19,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
-      title: 'WhiteNoise',
-      debugShowCheckedModeBanner: false,
-      home: ChatScreen(),
-      theme: ThemeData(
-        fontFamily: 'OverusedGrotesk',
-        appBarTheme: AppBarTheme(
-          backgroundColor: AppColors.color202320, // Default AppBar color for the app
-        ),
-      ),
+    final width = MediaQuery.of(context).size.width;
+
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
+    return ScreenUtilInit(
+      designSize: width > 600 ? const Size(600, 1024) : const Size(390, 844),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MaterialApp(
+          title: 'White Noise',
+          debugShowCheckedModeBanner: false,
+          home: const WelcomePage(),
+          theme: ThemeData(
+            fontFamily: 'OverusedGrotesk',
+            appBarTheme: AppBarTheme(
+            backgroundColor: AppColors.color202320, // Default AppBar color for the app
+            ),
+          )
+        );
+      },
     );
   }
 }
