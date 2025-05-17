@@ -9,6 +9,7 @@ import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/stacked_images.dart';
 import '../../../domain/dummy_data/dummy_messages.dart';
+import '../../../domain/models/contact_model.dart';
 import '../../core/themes/colors.dart';
 
 class ChatInput extends StatefulWidget {
@@ -81,6 +82,7 @@ class _ChatInputState extends State<ChatInput> {
         messageType: 1,
         audioPath: "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg",
         isReplyMessage: false,
+        senderData: ContactModel(name: "Me", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
       );
     }else{
       message = MessageModel(
@@ -92,6 +94,7 @@ class _ChatInputState extends State<ChatInput> {
         imageUrl:null,
         isReplyMessage: false,
         message: textController.text,
+        senderData: ContactModel(name: "Me", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
       );
     }
     if(images.isNotEmpty){

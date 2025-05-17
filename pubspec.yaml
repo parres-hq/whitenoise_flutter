@@ -41,7 +41,6 @@ dependencies:
     flutter_bloc: ^9.1.1 #used for state management
     flutter_svg: ^2.1.0
     gap: ^3.0.1
-    flutter_chat_reactions: ^0.1.1
     emoji_picker_flutter: ^4.3.0
     date_format: ^2.0.9
     carbon_icons: ^0.0.1+2
@@ -52,6 +51,7 @@ dependencies:
     dio: ^5.8.0+1
     flutter_screenutil: ^5.9.3
     go_router: ^15.1.2
+    animate_do: ^3.3.9
 
 dev_dependencies:
     flutter_test:
@@ -77,12 +77,9 @@ flutter:
     uses-material-design: true
 
     fonts:
-      - family: OverusedGrotesk
+      - family: OverusedGrotesk-VF
         fonts:
-          - asset: assets/fonts/OverusedGrotesk-Bold.ttf
-          - asset: assets/fonts/OverusedGrotesk-Light.ttf
-          - asset: assets/fonts/OverusedGrotesk-Medium.ttf
-          - asset: assets/fonts/OverusedGrotesk-Book.ttf
+          - asset: assets/fonts/OverusedGrotesk-VF.woff2
 
     assets:
       - assets/svgs/

@@ -4,20 +4,24 @@ import '../../core/themes/assets.dart';
 import '../../core/themes/colors.dart';
 
 class ContactInfo extends StatelessWidget {
+  final String imgPath;
+  final String title;
   const ContactInfo({
     super.key,
+    required this.title,
+    required this.imgPath
   });
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       children: [
         CircleAvatar(
-          radius: 15,
-          backgroundImage: AssetImage(AssetsPaths.icImage),
+          radius: 20,
+          backgroundImage: AssetImage(imgPath),
         ),
         Gap(10),
-        Text('Marek', style: TextStyle(color: AppColors.colorE2E2E2,),),
+        Text(title, style: TextStyle(color: AppColors.colorE2E2E2,),),
       ],
     );
   }

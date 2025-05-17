@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/simple.dart';
 import 'package:flutter/services.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 import 'package:whitenoise/ui/chat/chat_screen.dart';
+import 'package:whitenoise/ui/chat/groupchat_screen.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 
 Future<void> main() async {
@@ -38,7 +40,12 @@ class MyApp extends StatelessWidget {
             appBarTheme: AppBarTheme(
             backgroundColor: AppColors.color202320, // Default AppBar color for the app
             ),
-          )
+          ),
+          initialRoute: Routes.chat,
+          routes: {
+            Routes.chat: (context) => ChatScreen(),
+            Routes.newChat: (context) => GroupchatScreen(),
+          },
         );
       },
     );

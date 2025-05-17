@@ -1,9 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carbon_icons/carbon_icons.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_chat_reactions/widgets/stacked_reactions.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/domain/dummy_data/dummy_messages.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/ui/chat/widgets/reaction/stacked_reactions.dart';
 import '../../core/themes/colors.dart';
 import 'chat_audio_item.dart';
 import 'chat_reply_item.dart';
@@ -12,9 +13,13 @@ class MessageWidget extends StatelessWidget {
   const MessageWidget({
     super.key,
     required this.message,
+    required this.isGroupMessage,
+    required this.messageIndex
   });
 
   final MessageModel message;
+  final bool isGroupMessage;
+  final int messageIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -22,18 +27,43 @@ class MessageWidget extends StatelessWidget {
       alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.7,
+          maxWidth: MediaQuery.of(context).size.width * 0.8,
           minWidth: MediaQuery.of(context).size.width * 0.3,
         ),
-        child: Stack(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // message
-            buildMessage(
-              context,
-            ),
-            //reactions
-            buildReactions(
-              message.isMe,
+            isGroupMessage?
+              message.isMe==false && message.senderData!=null
+                && (messageIndex==0 || (messageIndex>0 && groupMessages[messageIndex-1].senderData!.name != message.senderData!.name))?
+            Container(
+              margin: EdgeInsets.only(bottom: 20, right: 10),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(15),
+                child: CachedNetworkImage(
+                  imageUrl: message.senderData!.imagePath,
+                  fit: BoxFit.cover,
+                  width: 30,
+                  height: 30,
+                ),
+              ),
+            ): Container(width: 30,margin: EdgeInsets.only(bottom: 20, right: 10),) :SizedBox(),
+            Expanded(
+              child: Align(
+                alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+                child: Stack(
+                  children: [
+                    // message
+                    buildMessage(
+                      context,
+                    ),
+                    //reactions
+                    buildReactions(
+                      message.isMe,
+                    ),
+                  ],
+                ),
+              ),
             ),
           ],
         ),
@@ -43,33 +73,35 @@ class MessageWidget extends StatelessWidget {
 
   // reactions widget
   Widget buildReactions(bool isMe) {
+    double bottomPadding = isGroupMessage==true && messageIndex>0 && groupMessages[messageIndex-1].senderData!.name == message.senderData!.name? message.reactions.isEmpty? 10 : 0: 10;
     return isMe
         ? Positioned(
-      bottom: 4,
-      right: 20,
+      bottom: bottomPadding,
+      left: 40,
       child: StackedReactions(
         reactions: message.reactions,
       ),
     )
         : Positioned(
-      bottom: 4,
-      left: 8,
+      bottom:  bottomPadding,
+      right: 40,
       child: StackedReactions(
         reactions: message.reactions,
       ),
     );
   }
 
+
   // message widget
   Widget buildMessage(
       BuildContext context,
       ) {
+    double bottomPadding = isGroupMessage==true && messageIndex>0 && groupMessages[messageIndex-1].senderData!.name == message.senderData!.name? message.reactions.isEmpty? 3 : 15:25;
+    //bottomPadding=message.reactions.isEmpty? messageIndex==0 || (messageIndex>0 && groupMessages[messageIndex-1].senderData!.name == message.senderData!.name)? 0 : ;
+
     // padding for the message card
-    final padding = message.reactions.isNotEmpty
-        ? message.isMe
-        ? const EdgeInsets.only(left: 30.0, bottom: 25.0)
-        : const EdgeInsets.only(right: 30.0, bottom: 25.0)
-        : message.isMe? const EdgeInsets.only(bottom: 0.0, left: 30.0): const EdgeInsets.only(bottom: 0.0, right: 30.0);
+    final padding= message.isMe? EdgeInsets.only(top: 0, left: 30.0, bottom: bottomPadding)
+        :  EdgeInsets.only(top: 0, right: 30.0, bottom: bottomPadding);
     // border radius for the message card
     final borderRadius = message.isMe
         ? const BorderRadius.only(
@@ -94,31 +126,49 @@ class MessageWidget extends StatelessWidget {
     return Padding(
       padding: padding,
       child: Card(
+        margin: EdgeInsets.all(0),
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: borderRadius,
         ),
         color: cardColor,
         child: Padding(
-          padding: const EdgeInsets.all(8.0),
+          padding: const EdgeInsets.all(10.0),
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: message.isMe
                   ? CrossAxisAlignment.end
                   : CrossAxisAlignment.start,
               children: [
+                isGroupMessage==true &&
+                  message.isMe==false && message.senderData!=null
+                    && (messageIndex==0 || (messageIndex<groupMessages.length-1 && groupMessages[messageIndex+1].senderData!.name != message.senderData!.name))?
+                Container(
+                  margin: EdgeInsets.only(bottom: 5),
+                  child: Text(
+                    message.senderData!.name??"",
+                    style: TextStyle(
+                      color: AppColors.red1,
+                    ),
+                  ),
+                ):SizedBox(),
                 message.imageUrl != null?
                 Center(
-                  child: CachedNetworkImage(
-                    imageUrl: message.imageUrl??"",
-                    placeholder: (context, url) => SizedBox(width: 50, height: 50, child: CircularProgressIndicator()),
-                    errorWidget: (context, url, error) => Icon(Icons.broken_image),
-                    fit: BoxFit.fill,
-                   // height: 150,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(5),
+                    child: CachedNetworkImage(
+                      imageUrl: message.imageUrl??"",
+                      placeholder: (context, url) => SizedBox(width: 50, height: 50, child: CircularProgressIndicator()),
+                      errorWidget: (context, url, error) => Icon(Icons.broken_image),
+                      fit: BoxFit.fill,
+                     // height: 150,
+                    ),
                   ),
                 ): SizedBox(),
                 message.isReplyMessage==true?
                 ChatReplyItem(message: message,): SizedBox(),
+                ( message.imageUrl != null || message.isReplyMessage==true) && message.messageType==0 && message.message != null && message.message!.isNotEmpty?
+                Gap(5): Gap(0),
                 message.messageType==0?
                 Wrap(
                   alignment:  message.isMe? WrapAlignment.end: WrapAlignment.start,

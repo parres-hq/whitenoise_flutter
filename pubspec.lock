@@ -2,7 +2,7 @@
 # See https://dart.dev/tools/pub/glossary#lockfile
 packages:
   animate_do:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: animate_do
       sha256: b6ff08dc6cf3cb5586a86d7f32a3b5f45502d2e08e3fb4f5a484c8421c9b3fc0
@@ -254,14 +254,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.4.1"
-  flutter_chat_reactions:
-    dependency: "direct main"
-    description:
-      name: flutter_chat_reactions
-      sha256: "1151ecce4a499f6b55babf870b19b0b19a48a003b004f21263b0747b765a17f7"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.1.1"
   flutter_driver:
     dependency: transitive
     description: flutter

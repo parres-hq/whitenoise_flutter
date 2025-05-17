@@ -12,20 +12,19 @@ import 'package:whitenoise/ui/chat/widgets/reaction/reaction_hero_dialog_route.d
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reactions_dialog_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/status_message_item_widget.dart';
-import '../../routing/routes.dart';
 import '../core/themes/assets.dart';
 import '../core/themes/colors.dart';
 import 'states/chat_audio_state.dart';
 import '../../domain/dummy_data/dummy_messages.dart';
 
-class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+class GroupchatScreen extends StatefulWidget {
+  const GroupchatScreen({super.key});
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  State<GroupchatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends State<ChatScreen> {
+class _ChatScreenState extends State<GroupchatScreen> {
   void showEmojiBottomSheet({
     required MessageModel message,
   }) {
@@ -61,7 +60,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   void sendNewMessage(MessageModel newMessage){
     setState(() {
-      messages.insert(0,newMessage);
+      groupMessages.insert(0,newMessage);
     });
   }
 
@@ -87,12 +86,10 @@ class _ChatScreenState extends State<ChatScreen> {
           icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.colorE2E2E2,),
           onPressed: () {},
         ),
-        title: const ContactInfo(title: "Marek", imgPath: AssetsPaths.icImage,),
+        title: const ContactInfo(title: "White Noise", imgPath: AssetsPaths.groupLogo,),
         actions: [
           GestureDetector(
-            onTap: (){
-              Navigator.pushNamed(context, Routes.newChat);
-            },
+            onTap: () => (),
             child: Container(margin: EdgeInsets.only(right: 15), child: Icon(CarbonIcons.search, color: AppColors.colorE2E2E2,) ),
           ),
         ],
@@ -109,111 +106,40 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: // list view builder for example messages
                 ListView.builder(
                   reverse: true,
-                  itemCount: messages.length+1,
+                  itemCount: groupMessages.length+1,
                   itemBuilder: (BuildContext context, int index) {
                     //get chatting user info
-                    if(index == messages.length){
+                    if(index == groupMessages.length){
                       return Container(
                         padding: EdgeInsets.only(left: 30, right: 30),
                         child: Column(
                           children: [
                             Gap(80),
                             CircleAvatar(
-                              backgroundImage: AssetImage(AssetsPaths.icImage),
+                              backgroundImage: AssetImage(AssetsPaths.groupLogo),
                               radius: 40,
                             ),
                             Gap(10),
-                            Text('Marek', style: TextStyle(color: AppColors.color202320, fontSize: 23),),
+                            Text('White Noise', style: TextStyle(color: AppColors.color202320, fontSize: 23),),
                             Gap(10),
-                            Text('marek@crupek.com', style: TextStyle(color: AppColors.grey2,),),
+                            Text('4 members', style: TextStyle(color: AppColors.grey2,),),
+                            Gap(30),
+                            StatusMessageItemWidget(icon:  CarbonIcons.group,highlightedContent:  "You", content: " created the group"),
                             Gap(10),
-                            Text.rich(
-                              textAlign: TextAlign.center,
-                              TextSpan(
-                                text: 'efaeg ', // Default style
-                                style: TextStyle(color: AppColors.grey2,),
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: 'eaeed ',
-                                    style: TextStyle(color: AppColors.color727772),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.grey2),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.color727772),
-                                  ),
-                                  TextSpan(
-                                    text: 'eaeed ',
-                                    style: TextStyle(color: AppColors.grey2),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.color727772),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.grey2),
-                                  ),
-                                  TextSpan(
-                                    text: 'eaeed ',
-                                    style: TextStyle(color: AppColors.color727772),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.grey2),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.color727772),
-                                  ),
-                                  TextSpan(
-                                    text: 'eaeed ',
-                                    style: TextStyle(color: AppColors.grey2),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.color727772),
-                                  ),
-                                  TextSpan(
-                                    text: 'kka',
-                                    style: TextStyle(color: AppColors.grey2),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Gap(20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(CarbonIcons.email, color: AppColors.color727772, size: 14,),
-                                Gap(5),
-                                Text.rich(
-                                  textAlign: TextAlign.center,
-                                  TextSpan(
-                                    text: 'Chat invite sent to ', // Default style
-                                    style: TextStyle(color: AppColors.color727772,),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                        text: "Marek",
-                                        style: TextStyle(color: AppColors.color202320),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
+                            StatusMessageItemWidget(icon:  CarbonIcons.email,highlightedContent:  "", content: "Invite sent to 4 people"),
                             Gap(10),
                             StatusMessageItemWidget(icon:  CarbonIcons.checkmark,highlightedContent:  "Marek", content: " accepted the invite"),
+                            Gap(10),
+                            StatusMessageItemWidget(icon:  CarbonIcons.checkmark,highlightedContent:  "Max Harald", content: " accepted the invite"),
+                            Gap(10),
+                            StatusMessageItemWidget(icon:  CarbonIcons.close,highlightedContent:  "Fablof7z", content: " rejected the invite"),
                             Gap(30),
                           ],
                         ),
                       );
                     }else{
                       // get message
-                      final message = messages[index];
+                      final message = groupMessages[index];
                       return GestureDetector(
                         // wrap your message widget with a [GestureDectector] or [InkWell]
                         onLongPress: () {
@@ -225,7 +151,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                   id: message.id, // unique id for message
                                   menuItems: message.isMe?DefaultData.myMessageMenuItems:DefaultData.menuItems,
                                   messageWidget: MessageWidget(
-                                      message: message, isGroupMessage: false, messageIndex: index,), // message widget
+                                      isGroupMessage: true,
+                                      message: message, messageIndex: index,), // message widget
                                   onReactionTap: (reaction) {
                                     if (reaction == '⋯') {//'➕'
                                       // show emoji picker container
@@ -257,7 +184,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         // wrap message with [Hero] widget
                         child: Hero(
                           tag: message.id,
-                          child: MessageWidget(message: message, isGroupMessage: false,messageIndex: index,),
+                          child: MessageWidget(message: message, isGroupMessage: true, messageIndex: index,),
                         ),
                       );
                     }

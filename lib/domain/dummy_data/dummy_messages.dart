@@ -1,5 +1,31 @@
 // list of messages
+import 'package:whitenoise/domain/models/contact_model.dart';
+
 import '../models/message_model.dart';
+
+MessageModel originalMessage1=MessageModel(
+    id: '100',
+    message: 'I am also fine',
+    timeSent: '10:05 AM',
+    reactions: ['👍', '❤️', '😂'],
+    isMe: true,
+    messageType: 0,
+    isReplyMessage: false,
+    senderData: ContactModel(name: "Marek", email: "marek@email.com", publicKey: "asdfasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
+    imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png"
+);
+
+MessageModel originalMessage2=MessageModel(
+    id: '101',
+    message: 'Good to hear that',
+    timeSent: '10:05 AM',
+    reactions: ['👍'],
+    isMe: false,
+    messageType: 0,
+    isReplyMessage: false,
+    senderData: ContactModel(name: "Marek", email: "marek@email.com", publicKey: "asdfasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
+    imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png"
+);
 
 List<MessageModel> messages = [
   MessageModel(
@@ -61,7 +87,8 @@ List<MessageModel> messages = [
       isMe: false,
       messageType: 1,
       isReplyMessage: false,
-      audioPath: "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg"
+    senderData: ContactModel(name: "Marek", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
+      audioPath: "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg",
   ),
   MessageModel(
       id: '6',
@@ -71,8 +98,8 @@ List<MessageModel> messages = [
       isMe: true,
       messageType: 0,
       isReplyMessage: true,
-      originalMessage: "I am fine, thank you",
-      originalUser: "Marek",
+      originalMessage: originalMessage2,
+      senderData: ContactModel(name: "Marek", email: "marek@email.com", publicKey: "asdfasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
       imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png"
   ),
   MessageModel(
@@ -83,8 +110,8 @@ List<MessageModel> messages = [
       isMe: false,
       messageType: 0,
       isReplyMessage: true,
-      originalMessage: "I am fine, thank you",
-      originalUser: "You",
+      originalMessage: originalMessage1,
+      senderData: ContactModel(name: "Marek", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
       imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"
   ),
   MessageModel(
@@ -103,6 +130,7 @@ List<MessageModel> messages = [
     reactions: [],
     isMe: false,
     messageType: 0,
+    senderData: ContactModel(name: "Marek", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
     isReplyMessage: false,
   ),
   MessageModel(
@@ -121,6 +149,84 @@ List<MessageModel> messages = [
     reactions: ['😍'],
     isMe: false,
     messageType: 0,
+    senderData: ContactModel(name: "Marek", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
     isReplyMessage: false,
+  ),
+];
+
+List<MessageModel> groupMessages = [
+  MessageModel(
+    id: '10',
+    message: 'Goodbye',
+    timeSent: '10:09 AM',
+    reactions: [
+      '👍',
+    ],
+    isMe: true,
+    messageType: 0,
+    isReplyMessage: false,
+    senderData: ContactModel(name: "Me", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
+  ),
+  MessageModel(
+    id: '9',
+    message: 'Bye',
+    timeSent: '10:08 AM',
+    reactions: ['👍', '💗', '😂'],
+    isMe: false,
+    messageType: 0,
+    senderData: ContactModel(name: "Marek", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
+    isReplyMessage: false,
+  ),
+  MessageModel(
+      id: '8',
+      message: 'Yes',
+      timeSent: '10:07 AM',
+      reactions: [],
+      isMe: false,
+      messageType: 0,
+      isReplyMessage: false,
+      senderData: ContactModel(name: "Marek", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
+  ),
+  MessageModel(
+      id: '7',
+      message: 'Good to hear that',
+      timeSent: '10:06 AM',
+      reactions: ['👍'],
+      isMe: false,
+      messageType: 0,
+      isReplyMessage: false,
+      senderData: ContactModel(name: "Marek", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
+
+  ),
+  MessageModel(
+      id: '6',
+      message: 'I am also fine',
+      timeSent: '10:05 AM',
+      reactions: ['👍', '❤️', '😂','👍','👍'],
+      isMe: false,
+      messageType: 0,
+      isReplyMessage: false,
+      senderData: ContactModel(name: "Max Hillebrand", email: "max@email.com", publicKey: "asdfasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png"),
+      imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png"
+  ),
+  MessageModel(
+      id: '2',
+      message: 'Yooo. nice to be here',
+      timeSent: '10:04 AM',
+      reactions: ['👍'],
+      isMe: false,
+      messageType: 0,
+      isReplyMessage: false,
+      senderData: ContactModel(name: "Marek", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
+  ),
+  MessageModel(
+    id: '1',
+    message: 'Hey all. welcome to new group',
+    timeSent: '10:00 AM',
+    reactions: ['😍'],
+    isMe: true,
+    messageType: 0,
+    isReplyMessage: false,
+    senderData: ContactModel(name: "Me", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
   ),
 ];

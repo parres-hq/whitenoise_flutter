@@ -11,7 +11,7 @@ class ChatReplyItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       width: MediaQuery.of(context).size.width,
-      margin: EdgeInsets.only(top: 7),
+      margin: EdgeInsets.only(top: 10),
       padding: EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: AppColors.grey3,
@@ -27,13 +27,13 @@ class ChatReplyItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            message.originalUser??"",
+            message.originalMessage!.senderData!.name,
             style: TextStyle(
               color: AppColors.color202320,
             ),
           ),
           Text(
-            message.originalMessage??"",
+            message.originalMessage!.message??"",
             style: TextStyle(
               color: AppColors.color727772,
             ),
