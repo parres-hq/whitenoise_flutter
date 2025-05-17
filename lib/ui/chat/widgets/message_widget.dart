@@ -73,7 +73,7 @@ class MessageWidget extends StatelessWidget {
 
   // reactions widget
   Widget buildReactions(bool isMe) {
-    double bottomPadding = isGroupMessage==true && messageIndex>0 && groupMessages[messageIndex-1].senderData!.name == message.senderData!.name? message.reactions.isEmpty? 10 : 0: 10;
+    double bottomPadding = isGroupMessage==true && messageIndex>0 && groupMessages[messageIndex-1].senderData!.name == message.senderData!.name? message.reactions.isEmpty? 10 : 0: 3;
     return isMe
         ? Positioned(
       bottom: bottomPadding,
@@ -96,7 +96,7 @@ class MessageWidget extends StatelessWidget {
   Widget buildMessage(
       BuildContext context,
       ) {
-    double bottomPadding = isGroupMessage==true && messageIndex>0 && groupMessages[messageIndex-1].senderData!.name == message.senderData!.name? message.reactions.isEmpty? 3 : 15:25;
+    double bottomPadding = isGroupMessage==true && messageIndex>0 && groupMessages[messageIndex-1].senderData!.name == message.senderData!.name? message.reactions.isEmpty? 3 : 15:18;
     //bottomPadding=message.reactions.isEmpty? messageIndex==0 || (messageIndex>0 && groupMessages[messageIndex-1].senderData!.name == message.senderData!.name)? 0 : ;
 
     // padding for the message card

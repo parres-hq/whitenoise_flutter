@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
 
+import '../../../core/themes/colors.dart';
+
 class ReactionsDialogWidget extends StatefulWidget {
   const ReactionsDialogWidget({
     super.key,
@@ -14,7 +16,7 @@ class ReactionsDialogWidget extends StatefulWidget {
     this.menuItems = DefaultData.menuItems,
     this.reactions = DefaultData.reactions,
     this.widgetAlignment = Alignment.centerRight,
-    this.menuItemsWidth = 0.45,
+    this.menuItemsWidth = 0.50,
   });
 
   // Id for the hero widget
@@ -90,15 +92,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
           width: MediaQuery.of(context).size.width * widget.menuItemsWidth,
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.background,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade500,
-                spreadRadius: 1,
-                blurRadius: 2,
-                offset: const Offset(0, 1), // changes position of shadow
-              ),
-            ],
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -108,7 +102,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                 Column(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(8.0, 4.0, 8.0, 4.0),
+                      padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
                       child: InkWell(
                         onTap: () {
                           // set the clicked index for animation
@@ -133,10 +127,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                               style: TextStyle(
                                 color: item.isDestuctive
                                     ? Colors.red
-                                    : Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .color,
+                                    : AppColors.color202320,
                               ),
                             ),
                             Pulse(
@@ -145,6 +136,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                               animate: clickedContextMenuIndex ==
                                   widget.menuItems.indexOf(item),
                               child: Icon(
+                                size: 20,
                                 item.icon,
                                 color: item.isDestuctive
                                     ? Colors.red
@@ -158,11 +150,9 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                         ),
                       ),
                     ),
+
                     if (widget.menuItems.last != item)
-                      Divider(
-                        color: Colors.grey.shade300,
-                        thickness: 1,
-                      ),
+                      Container(color: Colors.grey.shade300, height: 1,)
                   ],
                 ),
             ],
@@ -191,15 +181,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
           padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.background,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.shade500,
-                spreadRadius: 1,
-                blurRadius: 2,
-                offset: const Offset(0, 1), // changes position of shadow
-              ),
-            ],
+            borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -231,8 +213,12 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                         animate: reactionClicked &&
                             clickedReactionIndex ==
                                 widget.reactions.indexOf(reaction),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(4.0, 2.0, 4.0, 2),
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(7.0, 2.0, 7.0, 2),
+                          decoration: BoxDecoration(
+                            color: reaction=='⋯'? AppColors.grey1: Colors.transparent,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
                           child: Text(
                             reaction,
                             style: const TextStyle(fontSize: 22),
