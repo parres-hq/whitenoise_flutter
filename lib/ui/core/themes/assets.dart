@@ -10,7 +10,7 @@ class AssetsPaths {
   static const String icVerifiedUser = '$_svgsDir/ic_verified_user.svg';
   static const String icChevronRight = '$_svgsDir/ic_chevron_right.svg';
   static const String icGroupChat = '$_svgsDir/ic_group_chat.svg';
-  static const String icCamera = '$_pngsDir/ic_camera.svg';
+  static const String icCamera = '$_svgsDir/ic_camera.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';
