@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
-class LoggedInPage extends StatelessWidget {
-  const LoggedInPage({super.key});
+class LoggedInScreen extends StatelessWidget {
+  const LoggedInScreen({super.key});
 
   void _onContinuePressed(BuildContext context) {}
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: Stack(
         children: [
           SafeArea(
@@ -33,7 +34,7 @@ class LoggedInPage extends StatelessWidget {
                     child: Text(
                       'Let’s see if you already have previous activity.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                      style: TextStyle(fontSize: 16, color: AppColors.grey3),
                     ),
                   ),
                   const SizedBox(height: 48),
@@ -44,7 +45,7 @@ class LoggedInPage extends StatelessWidget {
                     ),
                     margin: const EdgeInsets.only(bottom: 16),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: AppColors.black,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Row(
@@ -54,13 +55,16 @@ class LoggedInPage extends StatelessWidget {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: AppColors.white,
                           ),
                         ),
                         SizedBox(width: 12),
                         Text(
                           'Looking for your contacts',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppColors.white,
+                          ),
                         ),
                       ],
                     ),
@@ -71,7 +75,7 @@ class LoggedInPage extends StatelessWidget {
                       horizontal: 20,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: AppColors.black,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Row(
@@ -81,13 +85,16 @@ class LoggedInPage extends StatelessWidget {
                           width: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: Colors.white,
+                            color: AppColors.white,
                           ),
                         ),
                         SizedBox(width: 12),
                         Text(
                           'Looking for chats',
-                          style: TextStyle(fontSize: 16, color: Colors.white),
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: AppColors.white,
+                          ),
                         ),
                       ],
                     ),
@@ -102,12 +109,12 @@ class LoggedInPage extends StatelessWidget {
             right: 0,
             child: Container(
               height: 96,
-              color: Colors.black,
+              color: AppColors.black,
               padding: const EdgeInsets.only(top: 20),
               child: TextButton(
                 style: ButtonStyle(
                   splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.all(Colors.transparent),
+                  overlayColor: WidgetStateProperty.all(AppColors.transparent),
                   padding: WidgetStateProperty.all(EdgeInsets.zero),
                 ),
                 onPressed: () => _onContinuePressed(context),
@@ -115,7 +122,7 @@ class LoggedInPage extends StatelessWidget {
                   alignment: Alignment.topCenter,
                   child: Text(
                     'Continue',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    style: TextStyle(fontSize: 18, color: AppColors.white),
                   ),
                 ),
               ),

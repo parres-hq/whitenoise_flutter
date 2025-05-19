@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/auth_flow/key_created_page.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/auth_flow/key_created_screen.dart';
 
-class CreateProfilePage extends StatefulWidget {
-  const CreateProfilePage({super.key});
+class CreateProfileScreen extends StatefulWidget {
+  const CreateProfileScreen({super.key});
 
   @override
-  State<CreateProfilePage> createState() => _CreateProfilePageState();
+  State<CreateProfileScreen> createState() => _CreateProfileScreenState();
 }
 
-class _CreateProfilePageState extends State<CreateProfilePage> {
+class _CreateProfileScreenState extends State<CreateProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
 
@@ -17,14 +18,14 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
     _bioController.text.trim();
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const KeyCreatedPage()),
+      MaterialPageRoute(builder: (_) => const KeyCreatedScreen()),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -39,7 +40,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                 ),
               ),
               const SizedBox(height: 32),
-              const CircleAvatar(backgroundColor: Colors.black, radius: 40),
+              const CircleAvatar(backgroundColor: AppColors.black, radius: 40),
               const SizedBox(height: 12),
               const Text(
                 'Upload photo',
@@ -59,7 +60,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                 decoration: InputDecoration(
                   hintText: 'Enter name...',
                   filled: true,
-                  fillColor: const Color(0xFFF2F2F2),
+                  fillColor: AppColors.grey1,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
@@ -82,14 +83,13 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
                 decoration: InputDecoration(
                   hintText: 'A quick note about you...',
                   filled: true,
-                  fillColor: const Color(0xFFF2F2F2),
+                  fillColor: AppColors.grey1,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
                   ),
                 ),
               ),
-
               const SizedBox(height: 32),
             ],
           ),
@@ -97,12 +97,12 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
       ),
       bottomNavigationBar: Container(
         height: 96,
-        color: Colors.black,
+        color: AppColors.black,
         padding: const EdgeInsets.only(top: 20),
         child: TextButton(
           style: ButtonStyle(
             splashFactory: NoSplash.splashFactory,
-            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            overlayColor: WidgetStateProperty.all(AppColors.transparent),
             padding: WidgetStateProperty.all(EdgeInsets.zero),
           ),
           onPressed: _onContinuePressed,
@@ -110,7 +110,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
             alignment: Alignment.topCenter,
             child: Text(
               'Continue',
-              style: TextStyle(fontSize: 18, color: Colors.white),
+              style: TextStyle(fontSize: 18, color: AppColors.white),
             ),
           ),
         ),
