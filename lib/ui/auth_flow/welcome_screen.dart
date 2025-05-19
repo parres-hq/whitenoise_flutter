@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
-import 'package:whitenoise/ui/auth_flow/info_screen.dart';
-import 'package:whitenoise/ui/auth_flow/login_screen.dart';
+import 'package:whitenoise/ui/auth_flow/info_page.dart';
+import 'package:whitenoise/ui/auth_flow/login_page.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -12,7 +11,7 @@ class WelcomeScreen extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: Colors.white,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -24,7 +23,7 @@ class WelcomeScreen extends StatelessWidget {
                 return const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [AppColors.black, AppColors.transparent],
+                  colors: [Colors.black, Colors.transparent],
                   stops: [0.7, 1.0],
                 ).createShader(bounds);
               },
@@ -32,6 +31,7 @@ class WelcomeScreen extends StatelessWidget {
               child: Image.asset(AssetsPaths.loginSplash, fit: BoxFit.cover),
             ),
           ),
+
           Padding(
             padding: const EdgeInsets.fromLTRB(24, 44, 24, 0),
             child: Column(
@@ -39,7 +39,7 @@ class WelcomeScreen extends StatelessWidget {
               children: const [
                 Text(
                   'Welcome to',
-                  style: TextStyle(fontSize: 24, color: AppColors.black),
+                  style: TextStyle(fontSize: 24, color: Colors.black87),
                 ),
                 SizedBox(height: 4),
                 Text(
@@ -47,66 +47,69 @@ class WelcomeScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 42,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.black,
+                    color: Colors.black,
                   ),
                 ),
                 SizedBox(height: 8),
                 Text(
                   'Private messaging made easy.',
-                  style: TextStyle(fontSize: 18, color: AppColors.grey3),
+                  style: TextStyle(fontSize: 18, color: Colors.grey),
                 ),
               ],
             ),
           ),
+
           const Spacer(),
+
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Center(
               child: TextButton(
                 style: ButtonStyle(
                   splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.all(AppColors.transparent),
+                  overlayColor: WidgetStateProperty.all(Colors.transparent),
                   padding: WidgetStateProperty.all(EdgeInsets.zero),
                 ),
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const InfoScreen()),
+                    MaterialPageRoute(builder: (_) => const InfoPage()),
                   );
                 },
                 child: const Text(
                   'Create a new profile',
                   style: TextStyle(
                     fontSize: 16,
-                    color: AppColors.black,
+                    color: Colors.black,
                     decoration: TextDecoration.none,
                   ),
                 ),
               ),
             ),
           ),
+
           Container(
             height: 96,
             width: double.infinity,
-            color: AppColors.black,
+            color: Colors.black,
             padding: const EdgeInsets.only(top: 20),
             child: TextButton(
               style: ButtonStyle(
                 splashFactory: NoSplash.splashFactory,
-                overlayColor: WidgetStateProperty.all(AppColors.transparent),
+                overlayColor: WidgetStateProperty.all(Colors.transparent),
                 padding: WidgetStateProperty.all(EdgeInsets.zero),
               ),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
+                  MaterialPageRoute(builder: (_) => const LoginPage()),
                 );
               },
               child: const Align(
                 alignment: Alignment.topCenter,
                 child: Text(
                   'Sign in',
-                  style: TextStyle(fontSize: 18, color: AppColors.white),
+                  style: TextStyle(fontSize: 18, color: Colors.white),
                 ),
               ),
             ),
