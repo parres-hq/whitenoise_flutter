@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/auth_flow/create_profile_page.dart';
+import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
 
-class InfoPage extends StatelessWidget {
-  const InfoPage({super.key});
+class InfoScreen extends StatelessWidget {
+  const InfoScreen({super.key});
 
   void _onContinuePressed(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const CreateProfilePage()),
+      MaterialPageRoute(builder: (_) => const CreateProfileScreen()),
     );
   }
 

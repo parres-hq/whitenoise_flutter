@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/ui/auth_flow/welcome_page.dart';
+import 'package:whitenoise/ui/auth_flow/welcome_screen.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 
 Future<void> main() async {
@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
           title: 'White Noise',
           theme: ThemeData.light(),
           debugShowCheckedModeBanner: false,
-          home: const WelcomePage(),
+          home: const WelcomeScreen(),
         );
       },
     );

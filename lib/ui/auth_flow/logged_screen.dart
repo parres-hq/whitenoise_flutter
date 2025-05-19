@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class LoggedInPage extends StatelessWidget {
-  const LoggedInPage({super.key});
+class LoggedInScreen extends StatelessWidget {
+  const LoggedInScreen({super.key});
 
   void _onContinuePressed(BuildContext context) {}
 

@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/auth_flow/key_created_page.dart';
+import 'package:whitenoise/ui/auth_flow/key_created_screen.dart';
 
-class CreateProfilePage extends StatefulWidget {
-  const CreateProfilePage({super.key});
+class CreateProfileScreen extends StatefulWidget {
+  const CreateProfileScreen({super.key});
 
   @override
-  State<CreateProfilePage> createState() => _CreateProfilePageState();
+  State<CreateProfileScreen> createState() => _CreateProfileScreenState();
 }
 
-class _CreateProfilePageState extends State<CreateProfilePage> {
+class _CreateProfileScreenState extends State<CreateProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
 
@@ -17,7 +17,7 @@ class _CreateProfilePageState extends State<CreateProfilePage> {
     _bioController.text.trim();
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (_) => const KeyCreatedPage()),
+      MaterialPageRoute(builder: (_) => const KeyCreatedScreen()),
     );
   }
 

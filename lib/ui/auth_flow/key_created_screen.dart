@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/auth_flow/logged_page.dart';
+import 'package:whitenoise/ui/auth_flow/logged_screen.dart';
 
-class KeyCreatedPage extends StatelessWidget {
-  const KeyCreatedPage({super.key});
+class KeyCreatedScreen extends StatelessWidget {
+  const KeyCreatedScreen({super.key});
 
   void _onContinuePressed(BuildContext context) {
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (_) => const LoggedInPage()),
+      MaterialPageRoute(builder: (_) => const LoggedInScreen()),
     );
   }
 
