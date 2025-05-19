@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/ui/auth_flow/welcome_page.dart';
-import 'package:whitenoise/src/rust/frb_generated.dart';
+import 'package:whitenoise/routing/router.dart';
+import 'package:flutter/services.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -30,7 +31,13 @@ class MyApp extends StatelessWidget {
         return MaterialApp.router(
           title: 'White Noise',
           debugShowCheckedModeBanner: false,
-          home: const WelcomePage(),
+          theme: ThemeData(
+            fontFamily: 'OverusedGrotesk',
+            appBarTheme: AppBarTheme(
+              backgroundColor: AppColors.color202320, // Default AppBar color for the app
+            ),
+          ),
+          routerConfig: router,
         );
       },
     );
