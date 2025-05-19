@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/auth_flow/logged_screen.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -28,7 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: Stack(
         children: [
           SafeArea(
@@ -53,13 +54,13 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text.rich(
                       TextSpan(
                         text: 'White Noise requires a ',
-                        style: TextStyle(fontSize: 16, color: Colors.black87),
+                        style: TextStyle(fontSize: 16, color: AppColors.black),
                         children: [
                           TextSpan(
                             text: 'Nostr private key',
                             style: TextStyle(
                               decoration: TextDecoration.underline,
-                              color: Colors.black87,
+                              color: AppColors.black,
                             ),
                           ),
                           TextSpan(text: ' to use.'),
@@ -79,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                       hintText: 'nsec...',
                       filled: true,
-                      fillColor: const Color(0xFFF2F2F2),
+                      fillColor: AppColors.grey1,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(6),
                         borderSide: BorderSide.none,
@@ -91,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text(
                       'Your key will be encrypted and only\nstored on your device.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey),
+                      style: TextStyle(color: AppColors.grey3),
                     ),
                   ),
                 ],
@@ -105,12 +106,12 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Container(
               height: 96,
               width: double.infinity,
-              color: Colors.black,
+              color: AppColors.black,
               padding: const EdgeInsets.only(top: 20),
               child: TextButton(
                 style: ButtonStyle(
                   splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.all(Colors.transparent),
+                  overlayColor: WidgetStateProperty.all(AppColors.transparent),
                   padding: WidgetStateProperty.all(EdgeInsets.zero),
                 ),
                 onPressed: _onContinuePressed,
@@ -118,7 +119,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   alignment: Alignment.topCenter,
                   child: Text(
                     'Continue',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    style: TextStyle(fontSize: 18, color: AppColors.white),
                   ),
                 ),
               ),

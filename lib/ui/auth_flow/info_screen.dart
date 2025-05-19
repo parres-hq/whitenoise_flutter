@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
@@ -19,7 +20,7 @@ class InfoScreen extends StatelessWidget {
         children: [
           const Padding(
             padding: EdgeInsets.only(top: 4),
-            child: CircleAvatar(backgroundColor: Colors.black, radius: 12),
+            child: CircleAvatar(backgroundColor: AppColors.black, radius: 12),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -36,7 +37,7 @@ class InfoScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: const TextStyle(fontSize: 15, color: Colors.grey),
+                  style: TextStyle(fontSize: 15, color: AppColors.grey3),
                 ),
               ],
             ),
@@ -49,7 +50,7 @@ class InfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: Stack(
         children: [
           SafeArea(
@@ -93,12 +94,12 @@ class InfoScreen extends StatelessWidget {
             right: 0,
             child: Container(
               height: 96,
-              color: Colors.black,
+              color: AppColors.black,
               padding: const EdgeInsets.only(top: 20),
               child: TextButton(
                 style: ButtonStyle(
                   splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.all(Colors.transparent),
+                  overlayColor: WidgetStateProperty.all(AppColors.transparent),
                   padding: WidgetStateProperty.all(EdgeInsets.zero),
                 ),
                 onPressed: () => _onContinuePressed(context),
@@ -106,7 +107,7 @@ class InfoScreen extends StatelessWidget {
                   alignment: Alignment.topCenter,
                   child: Text(
                     'Continue',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    style: TextStyle(fontSize: 18, color: AppColors.white),
                   ),
                 ),
               ),

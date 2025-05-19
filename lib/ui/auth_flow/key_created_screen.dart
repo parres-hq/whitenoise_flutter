@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/auth_flow/logged_screen.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
 class KeyCreatedScreen extends StatelessWidget {
   const KeyCreatedScreen({super.key});
@@ -27,7 +28,7 @@ blah blah blah blah blah blah
 ''';
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.white,
       body: Stack(
         children: [
           SafeArea(
@@ -46,7 +47,7 @@ blah blah blah blah blah blah
                   const SizedBox(height: 16),
                   const Text(
                     'Store this in a secure location. It’s your main\npassword to this profile and your messages.',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
+                    style: TextStyle(fontSize: 16, color: AppColors.grey3),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
@@ -57,7 +58,7 @@ blah blah blah blah blah blah
                       horizontal: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF5F5F5),
+                      color: AppColors.grey1,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
@@ -74,8 +75,8 @@ blah blah blah blah blah blah
                           height: 48,
                           child: TextButton(
                             style: TextButton.styleFrom(
-                              backgroundColor: Colors.black,
-                              foregroundColor: Colors.white,
+                              backgroundColor: AppColors.black,
+                              foregroundColor: AppColors.white,
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(24),
                               ),
@@ -91,7 +92,7 @@ blah blah blah blah blah blah
                   const Text(
                     'You can skip now and we’ll remind\nyou to do this later.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey),
+                    style: TextStyle(color: AppColors.grey3),
                   ),
                 ],
               ),
@@ -103,12 +104,12 @@ blah blah blah blah blah blah
             right: 0,
             child: Container(
               height: 96,
-              color: Colors.black,
+              color: AppColors.black,
               padding: const EdgeInsets.only(top: 20),
               child: TextButton(
                 style: ButtonStyle(
                   splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.all(Colors.transparent),
+                  overlayColor: WidgetStateProperty.all(AppColors.transparent),
                   padding: WidgetStateProperty.all(EdgeInsets.zero),
                 ),
                 onPressed: () => _onContinuePressed(context),
@@ -116,7 +117,7 @@ blah blah blah blah blah blah
                   alignment: Alignment.topCenter,
                   child: Text(
                     'Continue',
-                    style: TextStyle(fontSize: 18, color: Colors.white),
+                    style: TextStyle(fontSize: 18, color: AppColors.white),
                   ),
                 ),
               ),
