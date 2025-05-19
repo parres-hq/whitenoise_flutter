@@ -22,6 +22,7 @@ class GroupchatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<GroupchatScreen> {
+  late final List<MessageModel> _messages;
   void showEmojiBottomSheet({
     required MessageModel message,
   }) {
@@ -57,7 +58,7 @@ class _ChatScreenState extends State<GroupchatScreen> {
 
   void sendNewMessage(MessageModel newMessage){
     setState(() {
-      groupMessages.insert(0,newMessage);
+      _messages.insert(0,newMessage);
     });
   }
 
@@ -65,6 +66,7 @@ class _ChatScreenState extends State<GroupchatScreen> {
   @override
   void initState() {
     super.initState();
+    _messages = List<MessageModel>.from(groupMessages);
   }
 
 
@@ -102,10 +104,10 @@ class _ChatScreenState extends State<GroupchatScreen> {
                 child: // list view builder for example messages
                 ListView.builder(
                   reverse: true,
-                  itemCount: groupMessages.length+1,
+                  itemCount: _messages.length+1,
                   itemBuilder: (BuildContext context, int index) {
                     //get chatting user info
-                    if(index == groupMessages.length){
+                    if(index == _messages.length){
                       return Container(
                         padding: EdgeInsets.only(left: 30, right: 30),
                         child: Column(
@@ -135,7 +137,7 @@ class _ChatScreenState extends State<GroupchatScreen> {
                       );
                     }else{
                       // get message
-                      final message = groupMessages[index];
+                      final message = _messages[index];
                       return GestureDetector(
                         // wrap your message widget with a [GestureDectector] or [InkWell]
                         onLongPress: () {

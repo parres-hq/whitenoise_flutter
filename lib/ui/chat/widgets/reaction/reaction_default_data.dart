@@ -53,6 +53,6 @@ class DefaultData {
   static const MenuItem delete = MenuItem(
     label: 'Delete',
     icon:  CarbonIcons.delete,
-    isDestuctive: true,
+    isDestructive: true,
   );
 }

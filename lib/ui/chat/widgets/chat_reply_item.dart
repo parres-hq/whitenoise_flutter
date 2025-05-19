@@ -4,8 +4,8 @@ import 'package:whitenoise/domain/models/message_model.dart';
 import '../../core/themes/colors.dart';
 
 class ChatReplyItem extends StatelessWidget {
-  MessageModel message;
-  ChatReplyItem({super.key, required this.message});
+  final MessageModel message;
+  const ChatReplyItem({super.key, required this.message});
 
   @override
   Widget build(BuildContext context) {
@@ -27,16 +27,19 @@ class ChatReplyItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            message.originalMessage!.senderData!.name,
+            message.originalMessage?.senderData?.name??"",
             style: TextStyle(
               fontWeight: FontWeight.w500,
+              overflow: TextOverflow.ellipsis,
               color: message.isMe? AppColors.color202320: AppColors.colorE2E2E2,
             ),
           ),
           Text(
-            message.originalMessage!.message??"",
+            message.originalMessage?.message??"",
+            maxLines: 2,
             style: TextStyle(
               color: message.isMe? AppColors.color202320: AppColors.colorE2E2E2,
+              overflow: TextOverflow.ellipsis
             ),
           ),
         ],

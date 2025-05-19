@@ -111,10 +111,9 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                                 widget.menuItems.indexOf(item);
                           });
 
-                          // delay for 200 milliseconds to allow the animation to complete
-                          Future.delayed(const Duration(milliseconds: 500))
-                              .whenComplete(() {
-                            // pop the dialog
+
+                          Future.delayed(const Duration(milliseconds: 500)).whenComplete(() {
+                            if (!mounted) return;
                             Navigator.of(context).pop();
                             widget.onContextMenuTap(item);
                           });
@@ -125,7 +124,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                             Text(
                               item.label,
                               style: TextStyle(
-                                color: item.isDestuctive
+                                color: item.isDestructive
                                     ? Colors.red
                                     : AppColors.color202320,
                               ),
@@ -138,7 +137,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                               child: Icon(
                                 size: 20,
                                 item.icon,
-                                color: item.isDestuctive
+                                color: item.isDestructive
                                     ? Colors.red
                                     : Theme.of(context)
                                     .textTheme

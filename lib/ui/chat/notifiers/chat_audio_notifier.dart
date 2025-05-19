@@ -86,30 +86,6 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
     }
   }
 
-  // Future<void> togglePlayback() async {
-  //   final controller = state.playerController;
-  //   if (controller == null || !state.isReady) return;
-  //
-  //   final currentPlayingUrl = ref.read(currentlyPlayingAudioProvider);
-  //
-  //   if (state.isPlaying) {
-  //     await controller.stopPlayer();
-  //     state = state.copyWith(isPlaying: false);
-  //     ref.read(currentlyPlayingAudioProvider.notifier).state = null;
-  //   } else {
-  //     if (currentPlayingUrl != null && currentPlayingUrl != audioUrl) {
-  //       final previousNotifier = ref.read(chatAudioProvider(currentPlayingUrl).notifier);
-  //       await previousNotifier.stopPlaybackSilently();
-  //     }
-  //
-  //     // ✅ Ensure we're at the start if playback had completed before
-  //     await controller.seekTo(0);
-  //
-  //     await controller.startPlayer(forceRefresh: true);
-  //     state = state.copyWith(isPlaying: true);
-  //     ref.read(currentlyPlayingAudioProvider.notifier).state = audioUrl;
-  //   }
-  // }
   Future<void> togglePlayback() async {
     final controller = state.playerController;
     if (controller == null || !state.isReady) return;
