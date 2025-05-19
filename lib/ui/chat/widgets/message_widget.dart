@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:carbon_icons/carbon_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
+import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_messages.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/stacked_reactions.dart';

@@ -37,13 +37,12 @@ dependencies:
     rust_lib_whitenoise:
       path: rust_builder
     flutter_rust_bridge: 2.9.0
-    flutter_riverpod: ^2.6.1 #used for api connection
-    flutter_bloc: ^9.1.1 #used for state management
+    flutter_riverpod: ^2.6.1 #used for api connection and state management
     flutter_svg: ^2.1.0
     gap: ^3.0.1
     emoji_picker_flutter: ^4.3.0
     date_format: ^2.0.9
-    carbon_icons: ^0.0.1+2
+    #carbon_icons: ^0.0.1+2
     audio_waveforms: ^1.3.0
     image_picker: ^1.1.2
     cached_network_image: ^3.4.1
@@ -52,6 +51,7 @@ dependencies:
     flutter_screenutil: ^5.9.3
     go_router: ^15.1.2
     animate_do: ^3.3.9
+    supa_carbon_icons: ^0.0.1+6
 
 dev_dependencies:
     flutter_test:

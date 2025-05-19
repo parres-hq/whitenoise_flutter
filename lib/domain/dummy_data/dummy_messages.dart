@@ -88,7 +88,7 @@ List<MessageModel> messages = [
       messageType: 1,
       isReplyMessage: false,
     senderData: ContactModel(name: "Marek", email: "marek@email.com", publicKey: "asd fasdfasdfa", imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png"),
-      audioPath: "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg",
+      audioPath: "https://rpg.hamsterrepublic.com/wiki-images/f/f1/BigBossDeath.ogg",
   ),
   MessageModel(
       id: '6',

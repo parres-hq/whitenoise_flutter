@@ -1,17 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api/simple.dart';
+import 'package:whitenoise/routing/router.dart';
 import 'package:flutter/services.dart';
-import 'package:whitenoise/src/rust/frb_generated.dart';
-import 'package:whitenoise/ui/chat/chat_screen.dart';
-import 'package:whitenoise/ui/chat/groupchat_screen.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   //await RustLib.init();
-  runApp(const MyApp());
+  runApp(ProviderScope(child: const MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -31,21 +28,16 @@ class MyApp extends StatelessWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp(
+        return MaterialApp.router(
           title: 'White Noise',
           debugShowCheckedModeBanner: false,
-          home: const ChatScreen(),
           theme: ThemeData(
             fontFamily: 'OverusedGrotesk',
             appBarTheme: AppBarTheme(
-            backgroundColor: AppColors.color202320, // Default AppBar color for the app
+              backgroundColor: AppColors.color202320, // Default AppBar color for the app
             ),
           ),
-          initialRoute: Routes.chat,
-          routes: {
-            Routes.chat: (context) => ChatScreen(),
-            Routes.newChat: (context) => GroupchatScreen(),
-          },
+          routerConfig: router,
         );
       },
     );

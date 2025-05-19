@@ -1,21 +1,19 @@
-import 'package:carbon_icons/carbon_icons.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
+import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input.dart';
 import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/chat/widgets/message_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_hero_dialog_route.dart';
-import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reactions_dialog_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/status_message_item_widget.dart';
 import '../../routing/routes.dart';
 import '../core/themes/assets.dart';
 import '../core/themes/colors.dart';
-import 'states/chat_audio_state.dart';
 import '../../domain/dummy_data/dummy_messages.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -75,7 +73,6 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   void dispose() {
     super.dispose();
-    context.read<ChatAudioCubit>().dispose();
   }
 
   @override
@@ -90,9 +87,7 @@ class _ChatScreenState extends State<ChatScreen> {
         title: const ContactInfo(title: "Marek", imgPath: AssetsPaths.icImage,),
         actions: [
           GestureDetector(
-            onTap: (){
-              Navigator.pushNamed(context, Routes.newChat);
-            },
+            onTap:() => context.go(Routes.newChat),
             child: Container(margin: EdgeInsets.only(right: 15), child: Icon(CarbonIcons.search, color: AppColors.colorE2E2E2,) ),
           ),
         ],

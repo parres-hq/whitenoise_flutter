@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/auth_flow/info_page.dart';
 import 'package:whitenoise/ui/auth_flow/login_page.dart';
+
+import '../../routing/routes.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -100,10 +103,11 @@ class WelcomePage extends StatelessWidget {
                 padding: WidgetStateProperty.all(EdgeInsets.zero),
               ),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
-                );
+                // Navigator.push(
+                //   context,
+                //   MaterialPageRoute(builder: (_) => const LoginPage()),
+                // );
+                context.go(Routes.chats);
               },
               child: const Align(
                 alignment: Alignment.topCenter,

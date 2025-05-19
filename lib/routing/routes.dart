@@ -1,6 +1,5 @@
 abstract final class Routes {
   static const home = '/';
-
   // Auth
   static const login = '/login';
 
