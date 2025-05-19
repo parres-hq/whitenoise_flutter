@@ -1,22 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/shared/custom_button.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/shared/custom_bottom_sheet.dart';
+import 'package:whitenoise/shared/custom_button.dart';
 
-class StartSecureChatBottomSheet extends StatelessWidget {
+class ChatInvitationSheet extends StatelessWidget {
   final String name;
   final String email;
   final String publicKey;
-  final VoidCallback? onStartChat;
-  const StartSecureChatBottomSheet({
+  final VoidCallback? onAccept;
+  final VoidCallback? onDecline;
+  
+  const ChatInvitationSheet({
     super.key,
     required this.name,
     required this.email,
     required this.publicKey,
-    this.onStartChat,
+    this.onAccept,
+    this.onDecline,
   });
 
   static Future<void> show({
@@ -24,32 +27,34 @@ class StartSecureChatBottomSheet extends StatelessWidget {
     required String name,
     required String email,
     required String publicKey,
-    VoidCallback? onStartChat,
+    VoidCallback? onAccept,
+    VoidCallback? onDecline,
   }) {
     return CustomBottomSheet.show(
       context: context,
-      title: 'Start secure chat',
+      title: 'Invitation to join secure chat',
       heightFactor: 0.55,
       backgroundColor: Colors.white,
-      builder:
-          (context) => StartSecureChatBottomSheet(
-            name: name,
-            email: email,
-            publicKey: publicKey,
-            onStartChat: onStartChat,
-          ),
+      builder: (context) => ChatInvitationSheet(
+        name: name,
+        email: email,
+        publicKey: publicKey,
+        onAccept: onAccept,
+        onDecline: onDecline,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
             children: [
-              Gap(48.h),
+              Gap(24.h),
               CircleAvatar(radius: 40.r, backgroundImage: AssetImage(AssetsPaths.icImage)),
               Gap(12.h),
               Text(name, style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w500, color: AppColors.color202320)),
@@ -68,14 +73,25 @@ class StartSecureChatBottomSheet extends StatelessWidget {
             ],
           ),
         ),
+        const Spacer(),
+        CustomButton(
+          buttonType: ButtonType.secondary,
+          onPressed: () {
+            Navigator.pop(context);
+            if (onDecline != null) {
+              onDecline!();
+            }
+          },
+          title: 'Decline',
+        ),
         CustomButton(
           onPressed: () {
             Navigator.pop(context);
-            if (onStartChat != null) {
-              onStartChat!();
+            if (onAccept != null) {
+              onAccept!();
             }
           },
-          title: 'Start & Send Invite',
+          title: 'Accept',
         ),
       ],
     );

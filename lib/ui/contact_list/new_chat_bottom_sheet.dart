@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
@@ -73,39 +74,31 @@ class _NewChatBottomSheetState extends State<NewChatBottomSheet> {
           hintText: 'Search contact or public key...',
         ),
         Gap(16.h),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-          child: Row(
-            children: [
-              SvgPicture.asset(
-                AssetsPaths.icGroupChat,
-                colorFilter: ColorFilter.mode(
-                  AppColors.color727772,
-                  BlendMode.srcIn,
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+            NewGroupChatSheet.show(context);
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+            child: Row(
+              children: [
+                SvgPicture.asset(
+                  AssetsPaths.icGroupChat,
+                  colorFilter: ColorFilter.mode(AppColors.color727772, BlendMode.srcIn),
+                  width: 20.w,
+                  height: 20.w,
                 ),
-                width: 20.w,
-                height: 20.w,
-              ),
-              Gap(10.w),
-              Expanded(
-                child: Text(
-                  'New Group Chat',
-                  style: TextStyle(
-                    color: AppColors.color727772,
-                    fontSize: 18.sp,
-                  ),
+                Gap(10.w),
+                Expanded(child: Text('New Group Chat', style: TextStyle(color: AppColors.color727772, fontSize: 18.sp))),
+                SvgPicture.asset(
+                  AssetsPaths.icChevronRight,
+                  colorFilter: ColorFilter.mode(AppColors.color727772, BlendMode.srcIn),
+                  width: 8.55.w,
+                  height: 15.w,
                 ),
-              ),
-              SvgPicture.asset(
-                AssetsPaths.icChevronRight,
-                colorFilter: ColorFilter.mode(
-                  AppColors.color727772,
-                  BlendMode.srcIn,
-                ),
-                width: 8.55.w,
-                height: 15.w,
-              ),
-            ],
+              ],
+            ),
           ),
         ),
         Expanded(
