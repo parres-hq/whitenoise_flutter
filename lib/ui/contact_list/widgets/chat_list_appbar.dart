@@ -13,7 +13,7 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return ColoredBox(
-      color: AppColors.color202320,
+      color: AppColors.glitch950,
       child: Padding(
         padding: EdgeInsets.all(16.w),
         child: SafeArea(

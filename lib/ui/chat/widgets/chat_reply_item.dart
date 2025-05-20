@@ -14,11 +14,11 @@ class ChatReplyItem extends StatelessWidget {
       margin: EdgeInsets.only(top: 10),
       padding: EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: message.isMe? AppColors.grey3:  AppColors.grey4,
+        color: message.isMe ? AppColors.glitch400 : AppColors.glitch800,
         borderRadius: BorderRadius.circular(3),
         border: Border(
           left: BorderSide(
-            color: message.isMe? AppColors.color727772: AppColors.color202320,
+            color: message.isMe ? AppColors.glitch600 : AppColors.glitch950,
             width: 4,
           ),
         ),
@@ -27,19 +27,19 @@ class ChatReplyItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            message.originalMessage?.senderData?.name??"",
+            message.originalMessage?.senderData?.name ?? "",
             style: TextStyle(
               fontWeight: FontWeight.w500,
               overflow: TextOverflow.ellipsis,
-              color: message.isMe? AppColors.color202320: AppColors.colorE2E2E2,
+              color: message.isMe ? AppColors.glitch950 : AppColors.glitch200,
             ),
           ),
           Text(
-            message.originalMessage?.message??"",
+            message.originalMessage?.message ?? "",
             maxLines: 2,
             style: TextStyle(
-              color: message.isMe? AppColors.color202320: AppColors.colorE2E2E2,
-              overflow: TextOverflow.ellipsis
+              color: message.isMe ? AppColors.glitch950 : AppColors.glitch200,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],

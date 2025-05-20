@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:go_router/go_router.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
 
   void _onContinuePressed(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const CreateProfileScreen()),
-    );
+    context.go('/onboarding/create-profile');
   }
 
   Widget _buildFeatureItem(String title, String subtitle) {
@@ -37,7 +35,7 @@ class InfoScreen extends StatelessWidget {
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
-                  style: TextStyle(fontSize: 15, color: AppColors.grey3),
+                  style: TextStyle(fontSize: 15, color: AppColors.glitch400),
                 ),
               ],
             ),
@@ -63,7 +61,7 @@ class InfoScreen extends StatelessWidget {
                 children: [
                   const Center(
                     child: Text(
-                      'What’s unique\nabout White Noise',
+                      "What's unique\nabout White Noise",
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 22,
