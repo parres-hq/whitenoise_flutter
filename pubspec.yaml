@@ -77,14 +77,13 @@ flutter:
     uses-material-design: true
 
     fonts:
-      - family: OverusedGrotesk-VF
+      - family: OverusedGrotesk
         fonts:
-          - asset: assets/fonts/OverusedGrotesk-VF.woff2
+          - asset: assets/fonts/OverusedGrotesk-Roman.ttf
 
     assets:
       - assets/svgs/
       - assets/pngs/
-      - assets/fonts/
     # To add assets to your application, add an assets section, like this:
     # assets:
     #   - images/a_dot_burr.jpeg
