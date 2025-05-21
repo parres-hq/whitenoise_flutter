@@ -11,12 +11,14 @@ class ContactListTile extends StatelessWidget {
   final bool isSelected;
   final VoidCallback? onTap;
   final bool showCheck;
+  final bool showExpansionArrow;
 
   const ContactListTile({
     required this.contact,
     this.onTap,
     this.isSelected = false,
     this.showCheck = false,
+    this.showExpansionArrow = false,
     super.key,
   });
 
@@ -61,12 +63,12 @@ class ContactListTile extends StatelessWidget {
                   ),
                   Text(
                     contact.publicKey,
-                    style: TextStyle(color: AppColors.color727772, fontSize: 14.sp),
+                    style: TextStyle(color: AppColors.color727772, fontSize: showExpansionArrow ? 12.sp : 14.sp),
                   ),
                 ],
               ),
             ),
-            if (showCheck)
+            if (showCheck) ...[
               Container(
                 width: 18.w,
                 height: 18.w,
@@ -76,6 +78,9 @@ class ContactListTile extends StatelessWidget {
                 ),
                 child: isSelected ? Icon(Icons.check, size: 12.w, color: Colors.white) : null,
               ),
+            ] else if (showExpansionArrow) ...[
+              SvgPicture.asset(AssetsPaths.icExpand, width: 11.w, height: 18.w),
+            ],
           ],
         ),
       ),
