@@ -88,6 +88,7 @@ class ContactListTile extends StatelessWidget {
               ),
             ),
             if (showCheck) ...[
+              Gap(16.w),
               Container(
                 width: 18.w,
                 height: 18.w,
@@ -105,6 +106,7 @@ class ContactListTile extends StatelessWidget {
                         : null,
               ),
             ] else if (showExpansionArrow) ...[
+              Gap(16.w),
               SvgPicture.asset(AssetsPaths.icExpand, width: 11.w, height: 18.w),
             ],
           ],
