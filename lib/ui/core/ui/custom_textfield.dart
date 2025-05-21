@@ -10,6 +10,7 @@ class CustomTextField extends StatelessWidget {
     this.contentPadding,
     this.autofocus = true,
     this.hintText,
+    this.obscureText = false,
   });
 
   final TextEditingController textController;
@@ -17,6 +18,7 @@ class CustomTextField extends StatelessWidget {
   final EdgeInsetsGeometry? contentPadding;
   final bool autofocus;
   final String? hintText;
+  final bool obscureText;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +27,8 @@ class CustomTextField extends StatelessWidget {
       child: TextField(
         controller: textController,
         autofocus: autofocus,
+        obscureText: obscureText,
+        obscuringCharacter: '•',
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(color: AppColors.glitch600, fontSize: 14.sp),
