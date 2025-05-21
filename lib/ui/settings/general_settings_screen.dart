@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
 
 class GeneralSettingsScreen extends StatefulWidget {
   const GeneralSettingsScreen({super.key});
@@ -74,10 +79,32 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
         children: [
-          _sectionHeader('Profile', _profileExpanded, () {
-            setState(() => _profileExpanded = !_profileExpanded);
-          }),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _sectionHeader('Profile', _profileExpanded, () {
+                setState(() => _profileExpanded = !_profileExpanded);
+              }),
+              if (_profileExpanded)
+                Padding(
+                  padding: EdgeInsets.only(bottom: 12.h),
+                  child: GestureDetector(
+                    onTap: () => AddProfileBottomSheet.show(context: context),
+                    child: SvgPicture.asset(AssetsPaths.icAdd, height: 16.5.w, width: 16.5.w),
+                  ),
+                ),
+            ],
+          ),
           if (_profileExpanded) ...[
+            ContactListTile(
+              contact: ContactModel(
+                name: 'Profile',
+                email: 'profile@whitenoise.com',
+                publicKey: 'npub1  klkk3  vrzme  455yh  9rl2j  shq7r  c8dpe  gj3nd f82c3  ks2sk  7qulx  40dxt 3vt',
+                imagePath: '',
+              ),
+              showExpansionArrow: true,
+            ),
             _settingsRow(Icons.person_outline, 'Edit Profile', () {}),
             _settingsRow(Icons.vpn_key_outlined, 'Nostr keys', () {}),
             _settingsRow(Icons.network_wifi, 'Network', () {}),
