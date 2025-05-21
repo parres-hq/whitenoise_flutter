@@ -166,7 +166,6 @@ class _ChatScreenState extends State<GroupchatScreen> {
                                     }
                                   },
                                   onContextMenuTap: (menuItem) {
-                                    print('menu item: $menuItem');
                                     // handle context menu item
                                   },
                                   // align widget to the right for my message and to the left for contact message
