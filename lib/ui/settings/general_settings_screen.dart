@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
+import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 
 class GeneralSettingsScreen extends StatefulWidget {
   const GeneralSettingsScreen({super.key});
@@ -19,6 +21,8 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
   bool _profileExpanded = true;
   bool _privacyExpanded = false;
   bool _developerExpanded = false;
+
+  ContactModel _currentProfile = dummyContacts.first;
 
   void _deleteAllData() {
     ScaffoldMessenger.of(
@@ -97,13 +101,21 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
           ),
           if (_profileExpanded) ...[
             ContactListTile(
-              contact: ContactModel(
-                name: 'Profile',
-                email: 'profile@whitenoise.com',
-                publicKey: 'npub1  klkk3  vrzme  455yh  9rl2j  shq7r  c8dpe  gj3nd f82c3  ks2sk  7qulx  40dxt 3vt',
-                imagePath: '',
-              ),
-              showExpansionArrow: true,
+              contact: _currentProfile,
+              showExpansionArrow: dummyContacts.length > 1,
+              onTap: () {
+                if (dummyContacts.length > 1) {
+                  SwitchProfileBottomSheet.show(
+                    context: context,
+                    profiles: dummyContacts,
+                    onProfileSelected: (selectedProfile) {
+                      setState(() {
+                        _currentProfile = selectedProfile;
+                      });
+                    },
+                  );
+                }
+              },
             ),
             _settingsRow(Icons.person_outline, 'Edit Profile', () {}),
             _settingsRow(Icons.vpn_key_outlined, 'Nostr keys', () {}),
