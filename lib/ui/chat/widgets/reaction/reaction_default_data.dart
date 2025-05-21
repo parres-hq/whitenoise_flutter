@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
 

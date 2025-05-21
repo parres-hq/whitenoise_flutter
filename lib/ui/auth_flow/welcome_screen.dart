@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/auth_flow/info_page.dart';
-import 'package:whitenoise/ui/auth_flow/login_page.dart';
+import 'package:whitenoise/ui/auth_flow/info_screen.dart';
+import 'package:whitenoise/ui/auth_flow/login_screen.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -73,7 +73,7 @@ class WelcomeScreen extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const InfoPage()),
+                    MaterialPageRoute(builder: (_) => const InfoScreen()),
                   );
                 },
                 child: const Text(
@@ -102,7 +102,7 @@ class WelcomeScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (_) => const LoginPage()),
+                  MaterialPageRoute(builder: (_) => const LoginScreen()),
                 );
               },
               child: const Align(

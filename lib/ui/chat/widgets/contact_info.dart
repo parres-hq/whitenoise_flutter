@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import '../../core/themes/assets.dart';
 import '../../core/themes/colors.dart';
 
 class ContactInfo extends StatelessWidget {

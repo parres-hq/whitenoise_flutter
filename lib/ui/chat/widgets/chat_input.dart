@@ -14,7 +14,7 @@ import '../../core/themes/colors.dart';
 
 class ChatInput extends StatefulWidget {
   const ChatInput({
-    Key? key,
+    super.key,
     this.onSend,
     //required this.user,
     required this.padding,
@@ -24,7 +24,7 @@ class ChatInput extends StatefulWidget {
     this.mediaSelector,
     this.imageSource = ImageSource.gallery,
     //required this.theme,
-  }) : super(key: key);
+  });
 
   final void Function(MessageModel message)? onSend;
   final void Function()? attachBtnClicked;
@@ -279,7 +279,7 @@ class _ChatInputState extends State<ChatInput> {
       key: ValueKey('recording'), // Important for AnimatedSwitcher
       children: [
         Expanded(
-          child: Container(
+          child: SizedBox(
             height: 54,
             child: Stack(
               alignment: AlignmentDirectional.centerStart,
@@ -372,8 +372,8 @@ class _ChatInputState extends State<ChatInput> {
       children: [
         widget.mediaSelector != null
             ? InkWell(
-          child: widget.mediaSelector,
           onTap: _handleImagePick,
+          child: widget.mediaSelector,
         )
             : _buildIconBtn(Icons.attach_file, _handleImagePick),
         const SizedBox(width: 5),
@@ -403,7 +403,7 @@ class _ChatInputState extends State<ChatInput> {
             child: Icon(
               Icons.mic,
               size: 30,
-              color: AppColors.color202320 ?? AppColors.colorE2E2E2,
+              color: AppColors.color202320,
             ),
           ),
         )

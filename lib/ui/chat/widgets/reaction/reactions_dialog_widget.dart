@@ -91,7 +91,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         child: Container(
           width: MediaQuery.of(context).size.width * widget.menuItemsWidth,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
@@ -179,7 +179,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         child: Container(
           padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(

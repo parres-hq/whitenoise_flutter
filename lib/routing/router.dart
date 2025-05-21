@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/chat/groupchat_screen.dart';
 
-import '../ui/auth_flow/welcome_page.dart';
+import '../ui/auth_flow/welcome_screen.dart';
 import '../ui/chat/chat_screen.dart';
 
 /// The route configuration.
