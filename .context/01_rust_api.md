@@ -21,8 +21,10 @@ Since we'll be using Riverpod to create high-level providers that give access gl
 ```rust
 struct WhitenoiseState {
     config: WhitenoiseConfig,           // The config object passed in to initialize Whitenoise
-    accounts: Vec<Account>,             // Vec of accounts that are signed in
-    active_account: Option<PublicKey>,  // Optional in case there is no signed in accounts
+    account: Account
+    // This will be the future when we bring back multiple accounts
+    // accounts: Vec<Account>,             // Vec of accounts that are signed in
+    // active_account: Option<PublicKey>,  // Optional in case there is no signed in accounts
 }
 ```
 
@@ -281,8 +283,8 @@ async fn login(secret_key: String) -> Result<Account, Error> {}
 /// Logs out an account by its public key. Optionally deletes all associated data (groups, messages, etc.).
 async fn logout(pubkey: PublicKey, delete_data: bool) -> Result<(), Error> {}
 
-/// Update the active account
-async fn update_active_account(pubkey: PublicKey) -> Result<Account, Error> {}
+/// Update the active account - will come when we bring back multi-account
+// async fn update_active_account(pubkey: PublicKey) -> Result<Account, Error> {}
 
 /// Updates an account's metadata (kind 0 event).
 async fn update_account_metadata(pubkey: PublicKey, metadata: Metadata) -> Result<Account, Error> {}

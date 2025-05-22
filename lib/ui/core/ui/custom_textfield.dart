@@ -27,15 +27,15 @@ class CustomTextField extends StatelessWidget {
         autofocus: autofocus,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(color: AppColors.color727772, fontSize: 14.sp),
+          hintStyle: TextStyle(color: AppColors.glitch600, fontSize: 14.sp),
           border: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.colorE2E2E2),
+            borderSide: BorderSide(color: AppColors.glitch200),
           ),
           enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.colorE2E2E2),
+            borderSide: BorderSide(color: AppColors.glitch200),
           ),
           focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.colorE2E2E2),
+            borderSide: BorderSide(color: AppColors.glitch200),
           ),
           contentPadding:
               contentPadding ??

@@ -23,10 +23,15 @@ class CustomButton extends StatelessWidget {
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: isPrimary ? AppColors.color202320 : AppColors.colorF2F2F2,
-          foregroundColor: isPrimary ? AppColors.colorF9F9F9 : AppColors.color2D312D,
-          disabledBackgroundColor: isPrimary ? AppColors.color202320.withValues(alpha: 0.5) : AppColors.colorF2F2F2,
-          disabledForegroundColor: isPrimary ? AppColors.colorF9F9F9 : AppColors.color2D312D,
+          backgroundColor:
+              isPrimary ? AppColors.glitch950 : AppColors.glitch100,
+          foregroundColor: isPrimary ? AppColors.glitch50 : AppColors.glitch900,
+          disabledBackgroundColor:
+              isPrimary
+                  ? AppColors.glitch950.withValues(alpha: 0.5)
+                  : AppColors.glitch100,
+          disabledForegroundColor:
+              isPrimary ? AppColors.glitch50 : AppColors.glitch900,
           padding: EdgeInsets.symmetric(vertical: 16.h),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(0.r),
@@ -34,10 +39,7 @@ class CustomButton extends StatelessWidget {
         ),
         child: Text(
           title,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w500,
-          ),
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
         ),
       ),
     );

@@ -85,15 +85,29 @@ class _NewChatBottomSheetState extends State<NewChatBottomSheet> {
               children: [
                 SvgPicture.asset(
                   AssetsPaths.icGroupChat,
-                  colorFilter: ColorFilter.mode(AppColors.color727772, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(
+                    AppColors.glitch600,
+                    BlendMode.srcIn,
+                  ),
                   width: 20.w,
                   height: 20.w,
                 ),
                 Gap(10.w),
-                Expanded(child: Text('New Group Chat', style: TextStyle(color: AppColors.color727772, fontSize: 18.sp))),
+                Expanded(
+                  child: Text(
+                    'New Group Chat',
+                    style: TextStyle(
+                      color: AppColors.glitch600,
+                      fontSize: 18.sp,
+                    ),
+                  ),
+                ),
                 SvgPicture.asset(
                   AssetsPaths.icChevronRight,
-                  colorFilter: ColorFilter.mode(AppColors.color727772, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(
+                    AppColors.glitch600,
+                    BlendMode.srcIn,
+                  ),
                   width: 8.55.w,
                   height: 15.w,
                 ),

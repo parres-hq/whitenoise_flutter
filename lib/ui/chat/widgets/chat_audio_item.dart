@@ -43,7 +43,7 @@ class ChatAudioItem extends ConsumerWidget {
           height: 40,
           decoration: const BoxDecoration(
             shape: BoxShape.circle,
-            color: AppColors.color727772,
+            color: AppColors.glitch600,
           ),
           child: IconButton(
             icon: Icon(
@@ -71,6 +71,3 @@ class ChatAudioItem extends ConsumerWidget {
     );
   }
 }
-
-
-

@@ -24,9 +24,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  void showEmojiBottomSheet({
-    required MessageModel message,
-  }) {
+  void showEmojiBottomSheet({required MessageModel message}) {
     showModalBottomSheet(
       context: context,
       builder: (context) {
@@ -36,10 +34,7 @@ class _ChatScreenState extends State<ChatScreen> {
             onEmojiSelected: ((category, emoji) {
               // pop the bottom sheet
               Navigator.pop(context);
-              addReactionToMessage(
-                message: message,
-                reaction: emoji.emoji,
-              );
+              addReactionToMessage(message: message, reaction: emoji.emoji);
             }),
           ),
         );
@@ -57,18 +52,16 @@ class _ChatScreenState extends State<ChatScreen> {
     setState(() {});
   }
 
-  void sendNewMessage(MessageModel newMessage){
+  void sendNewMessage(MessageModel newMessage) {
     setState(() {
-      messages.insert(0,newMessage);
+      messages.insert(0, newMessage);
     });
   }
-
 
   @override
   void initState() {
     super.initState();
   }
-
 
   @override
   void dispose() {
@@ -81,33 +74,36 @@ class _ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.colorE2E2E2,),
-          onPressed: () {},
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.glitch200,
+          ),
+          onPressed: () => GoRouter.of(context).pop(),
         ),
-        title: const ContactInfo(title: "Marek", imgPath: AssetsPaths.icImage,),
+        title: const ContactInfo(title: "Marek", imgPath: AssetsPaths.icImage),
         actions: [
           GestureDetector(
-            onTap:() => context.go(Routes.newChat),
-            child: Container(margin: EdgeInsets.only(right: 15), child: Icon(CarbonIcons.search, color: AppColors.colorE2E2E2,) ),
+            onTap: () => Routes.goToChat(context, 'new'),
+            child: Container(
+              margin: EdgeInsets.only(right: 15),
+              child: Icon(CarbonIcons.search, color: AppColors.glitch200),
+            ),
           ),
         ],
       ),
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(
-            left: 8.0,
-            right: 8.0,
-          ),
+          padding: const EdgeInsets.only(left: 8.0, right: 8.0),
           child: Column(
             children: [
               Expanded(
                 child: // list view builder for example messages
-                ListView.builder(
+                    ListView.builder(
                   reverse: true,
-                  itemCount: messages.length+1,
+                  itemCount: messages.length + 1,
                   itemBuilder: (BuildContext context, int index) {
                     //get chatting user info
-                    if(index == messages.length){
+                    if (index == messages.length) {
                       return Container(
                         padding: EdgeInsets.only(left: 30, right: 30),
                         child: Column(
@@ -118,63 +114,96 @@ class _ChatScreenState extends State<ChatScreen> {
                               radius: 40,
                             ),
                             Gap(10),
-                            Text('Marek', style: TextStyle(color: AppColors.color202320, fontSize: 23),),
+                            Text(
+                              'Marek',
+                              style: TextStyle(
+                                color: AppColors.glitch950,
+                                fontSize: 23,
+                              ),
+                            ),
                             Gap(10),
-                            Text('marek@crupek.com', style: TextStyle(color: AppColors.grey2,),),
+                            Text(
+                              'marek@crupek.com',
+                              style: TextStyle(color: AppColors.glitch800),
+                            ),
                             Gap(10),
                             Text.rich(
                               textAlign: TextAlign.center,
                               TextSpan(
                                 text: 'efaeg ', // Default style
-                                style: TextStyle(color: AppColors.grey2,),
+                                style: TextStyle(color: AppColors.glitch800),
                                 children: <TextSpan>[
                                   TextSpan(
                                     text: 'eaeed ',
-                                    style: TextStyle(color: AppColors.color727772),
+                                    style: TextStyle(
+                                      color: AppColors.glitch600,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: 'kkase ',
-                                    style: TextStyle(color: AppColors.grey2),
+                                    style: TextStyle(
+                                      color: AppColors.glitch800,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: 'kkase ',
-                                    style: TextStyle(color: AppColors.color727772),
+                                    style: TextStyle(
+                                      color: AppColors.glitch600,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: 'eaeed ',
-                                    style: TextStyle(color: AppColors.grey2),
+                                    style: TextStyle(
+                                      color: AppColors.glitch800,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: 'kkase ',
-                                    style: TextStyle(color: AppColors.color727772),
+                                    style: TextStyle(
+                                      color: AppColors.glitch600,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: 'kkase ',
-                                    style: TextStyle(color: AppColors.grey2),
+                                    style: TextStyle(
+                                      color: AppColors.glitch800,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: 'eaeed ',
-                                    style: TextStyle(color: AppColors.color727772),
+                                    style: TextStyle(
+                                      color: AppColors.glitch600,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: 'kkase ',
-                                    style: TextStyle(color: AppColors.grey2),
+                                    style: TextStyle(
+                                      color: AppColors.glitch800,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: 'kkase ',
-                                    style: TextStyle(color: AppColors.color727772),
+                                    style: TextStyle(
+                                      color: AppColors.glitch600,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: 'eaeed ',
-                                    style: TextStyle(color: AppColors.grey2),
+                                    style: TextStyle(
+                                      color: AppColors.glitch800,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: 'kkase ',
-                                    style: TextStyle(color: AppColors.color727772),
+                                    style: TextStyle(
+                                      color: AppColors.glitch600,
+                                    ),
                                   ),
                                   TextSpan(
                                     text: 'kka',
-                                    style: TextStyle(color: AppColors.grey2),
+                                    style: TextStyle(
+                                      color: AppColors.glitch800,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -183,30 +212,43 @@ class _ChatScreenState extends State<ChatScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(CarbonIcons.email, color: AppColors.color727772, size: 14,),
+                                Icon(
+                                  CarbonIcons.email,
+                                  color: AppColors.glitch600,
+                                  size: 14,
+                                ),
                                 Gap(5),
                                 Text.rich(
                                   textAlign: TextAlign.center,
                                   TextSpan(
-                                    text: 'Chat invite sent to ', // Default style
-                                    style: TextStyle(color: AppColors.color727772,),
+                                    text:
+                                        'Chat invite sent to ', // Default style
+                                    style: TextStyle(
+                                      color: AppColors.glitch600,
+                                    ),
                                     children: <TextSpan>[
                                       TextSpan(
                                         text: "Marek",
-                                        style: TextStyle(color: AppColors.color202320),
-                                      )
+                                        style: TextStyle(
+                                          color: AppColors.glitch950,
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ),
                               ],
                             ),
                             Gap(10),
-                            StatusMessageItemWidget(icon:  CarbonIcons.checkmark,highlightedContent:  "Marek", content: " accepted the invite"),
+                            StatusMessageItemWidget(
+                              icon: CarbonIcons.checkmark,
+                              highlightedContent: "Marek",
+                              content: " accepted the invite",
+                            ),
                             Gap(30),
                           ],
                         ),
                       );
-                    }else{
+                    } else {
                       // get message
                       final message = messages[index];
                       return GestureDetector(
@@ -218,15 +260,20 @@ class _ChatScreenState extends State<ChatScreen> {
                               builder: (context) {
                                 return ReactionsDialogWidget(
                                   id: message.id, // unique id for message
-                                  menuItems: message.isMe?DefaultData.myMessageMenuItems:DefaultData.menuItems,
+                                  menuItems:
+                                      message.isMe
+                                          ? DefaultData.myMessageMenuItems
+                                          : DefaultData.menuItems,
                                   messageWidget: MessageWidget(
-                                      message: message, isGroupMessage: false, messageIndex: index,), // message widget
+                                    message: message,
+                                    isGroupMessage: false,
+                                    messageIndex: index,
+                                  ), // message widget
                                   onReactionTap: (reaction) {
-                                    if (reaction == '⋯') {//'➕'
+                                    if (reaction == '⋯') {
+                                      //'➕'
                                       // show emoji picker container
-                                      showEmojiBottomSheet(
-                                        message: message,
-                                      );
+                                      showEmojiBottomSheet(message: message);
                                     } else {
                                       // add reaction to message
                                       addReactionToMessage(
@@ -241,9 +288,10 @@ class _ChatScreenState extends State<ChatScreen> {
                                   },
                                   // align widget to the right for my message and to the left for contact message
                                   // default is [Alignment.centerRight]
-                                  widgetAlignment: message.isMe
-                                      ? Alignment.centerRight
-                                      : Alignment.centerLeft,
+                                  widgetAlignment:
+                                      message.isMe
+                                          ? Alignment.centerRight
+                                          : Alignment.centerLeft,
                                 );
                               },
                             ),
@@ -252,7 +300,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         // wrap message with [Hero] widget
                         child: Hero(
                           tag: message.id,
-                          child: MessageWidget(message: message, isGroupMessage: false,messageIndex: index,),
+                          child: MessageWidget(
+                            message: message,
+                            isGroupMessage: false,
+                            messageIndex: index,
+                          ),
                         ),
                       );
                     }
@@ -262,7 +314,10 @@ class _ChatScreenState extends State<ChatScreen> {
               // bottom chat input
               Padding(
                 padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                child: ChatInput(padding: const EdgeInsets.all(0), onSend: sendNewMessage) // BottomChatField(),
+                child: ChatInput(
+                  padding: const EdgeInsets.all(0),
+                  onSend: sendNewMessage,
+                ), // BottomChatField(),
               ),
             ],
           ),

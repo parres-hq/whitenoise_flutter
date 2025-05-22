@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/auth_flow/key_created_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class CreateProfileScreen extends StatefulWidget {
   const CreateProfileScreen({super.key});
@@ -16,10 +17,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   void _onContinuePressed() {
     _usernameController.text.trim();
     _bioController.text.trim();
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const KeyCreatedScreen()),
-    );
+    context.go('/onboarding/key-created');
   }
 
   @override
@@ -60,7 +58,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                 decoration: InputDecoration(
                   hintText: 'Enter name...',
                   filled: true,
-                  fillColor: AppColors.grey1,
+                  fillColor: AppColors.glitch100,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,
@@ -83,7 +81,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                 decoration: InputDecoration(
                   hintText: 'A quick note about you...',
                   filled: true,
-                  fillColor: AppColors.grey1,
+                  fillColor: AppColors.glitch100,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                     borderSide: BorderSide.none,

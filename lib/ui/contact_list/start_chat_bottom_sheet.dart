@@ -50,18 +50,31 @@ class StartSecureChatBottomSheet extends StatelessWidget {
           child: Column(
             children: [
               Gap(48.h),
-              CircleAvatar(radius: 40.r, backgroundImage: AssetImage(AssetsPaths.icImage)),
+              CircleAvatar(
+                radius: 40.r,
+                backgroundImage: AssetImage(AssetsPaths.icImage),
+              ),
               Gap(12.h),
-              Text(name, style: TextStyle(fontSize: 24.sp, fontWeight: FontWeight.w500, color: AppColors.color202320)),
+              Text(
+                name,
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.glitch950,
+                ),
+              ),
               Gap(12.h),
-              Text(email, style: TextStyle(fontSize: 14.sp, color: AppColors.color727772)),
+              Text(
+                email,
+                style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
+              ),
               Gap(8.h),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Text(
                   publicKey,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14.sp, color: AppColors.color727772),
+                  style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
                 ),
               ),
               Gap(48.h),

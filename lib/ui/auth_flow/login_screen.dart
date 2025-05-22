@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/auth_flow/logged_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 
-class LoginScreen extends StatefulWidget {
+class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController _keyController = TextEditingController();
 
   void _onContinuePressed() {
@@ -20,10 +22,8 @@ class _LoginScreenState extends State<LoginScreen> {
       ).showSnackBar(const SnackBar(content: Text('Please enter something')));
       return;
     }
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const LoggedInScreen()),
-    );
+    ref.read(authProvider).login();
+    // go_router will handle redirect to contacts
   }
 
   @override
@@ -80,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     decoration: InputDecoration(
                       hintText: 'nsec...',
                       filled: true,
-                      fillColor: AppColors.grey1,
+                      fillColor: AppColors.glitch100,
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(6),
                         borderSide: BorderSide.none,
@@ -92,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Text(
                       'Your key will be encrypted and only\nstored on your device.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: AppColors.grey3),
+                      style: TextStyle(color: AppColors.glitch400),
                     ),
                   ),
                 ],

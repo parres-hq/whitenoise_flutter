@@ -53,7 +53,7 @@ class ChatListTile extends StatelessWidget {
                     Text(
                       chat.name,
                       style: TextStyle(
-                        color: AppColors.color2D312D,
+                        color: AppColors.glitch900,
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -62,7 +62,7 @@ class ChatListTile extends StatelessWidget {
                       chat.time,
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: AppColors.color727772,
+                        color: AppColors.glitch600,
                       ),
                     ),
                   ],
@@ -74,7 +74,7 @@ class ChatListTile extends StatelessWidget {
                         chat.lastMessage,
                         style: TextStyle(
                           fontSize: 14.sp,
-                          color: AppColors.color727772,
+                          color: AppColors.glitch600,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -84,7 +84,7 @@ class ChatListTile extends StatelessWidget {
                       Container(
                         padding: EdgeInsets.all(6.r),
                         decoration: const BoxDecoration(
-                          color: AppColors.color202320,
+                          color: AppColors.glitch950,
                           shape: BoxShape.circle,
                         ),
                         child: Text(

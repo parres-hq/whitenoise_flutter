@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/auth_flow/logged_screen.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:go_router/go_router.dart';
 
 class KeyCreatedScreen extends StatelessWidget {
   const KeyCreatedScreen({super.key});
 
   void _onContinuePressed(BuildContext context) {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const LoggedInScreen()),
-    );
+    GoRouter.of(context).go('/onboarding/logged-in');
   }
 
   void _onCopyPressed(BuildContext context) {
@@ -45,9 +42,9 @@ blah blah blah blah blah blah
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 16),
-                  const Text(
-                    'Store this in a secure location. It’s your main\npassword to this profile and your messages.',
-                    style: TextStyle(fontSize: 16, color: AppColors.grey3),
+                  Text(
+                    'Store this in a secure location. It\'s your main\npassword to this profile and your messages.',
+                    style: TextStyle(fontSize: 16, color: AppColors.glitch400),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 32),
@@ -58,7 +55,7 @@ blah blah blah blah blah blah
                       horizontal: 16,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.grey1,
+                      color: AppColors.glitch100,
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Column(
@@ -89,10 +86,10 @@ blah blah blah blah blah blah
                     ),
                   ),
                   const SizedBox(height: 32),
-                  const Text(
-                    'You can skip now and we’ll remind\nyou to do this later.',
+                  Text(
+                    'You can skip now and we\'ll remind\nyou to do this later.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(color: AppColors.grey3),
+                    style: TextStyle(color: AppColors.glitch400),
                   ),
                 ],
               ),

@@ -18,13 +18,13 @@ class EmptyChatWidget extends StatelessWidget {
           Gap(20.h),
           Text(
             'No chats found',
-            style: TextStyle(color: AppColors.color727772, fontSize: 18.sp),
+            style: TextStyle(color: AppColors.glitch600, fontSize: 18.sp),
             textAlign: TextAlign.center,
           ),
           Gap(8.h),
           Text(
             'Click "+" to start a new chat',
-            style: TextStyle(color: AppColors.color727772, fontSize: 18.sp),
+            style: TextStyle(color: AppColors.glitch600, fontSize: 18.sp),
             textAlign: TextAlign.center,
           ),
         ],

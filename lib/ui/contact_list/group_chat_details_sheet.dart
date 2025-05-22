@@ -13,11 +13,8 @@ import 'package:whitenoise/shared/custom_textfield.dart';
 
 class GroupChatDetailsSheet extends StatefulWidget {
   final List<ContactModel> selectedContacts;
-  
-  const GroupChatDetailsSheet({
-    super.key,
-    required this.selectedContacts,
-  });
+
+  const GroupChatDetailsSheet({super.key, required this.selectedContacts});
 
   static Future<void> show({
     required BuildContext context,
@@ -28,9 +25,9 @@ class GroupChatDetailsSheet extends StatefulWidget {
       title: 'Group chat details',
       heightFactor: 0.9,
       backgroundColor: Colors.white,
-      builder: (context) => GroupChatDetailsSheet(
-        selectedContacts: selectedContacts,
-      ),
+      builder:
+          (context) =>
+              GroupChatDetailsSheet(selectedContacts: selectedContacts),
     );
   }
 
@@ -42,13 +39,13 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
   final TextEditingController _groupNameController = TextEditingController();
   bool _hasGroupImage = false;
   bool _isGroupNameValid = false;
-  
+
   @override
   void initState() {
     super.initState();
     _groupNameController.addListener(_onGroupNameChanged);
   }
-  
+
   void _onGroupNameChanged() {
     final isValid = _groupNameController.text.trim().isNotEmpty;
     if (isValid != _isGroupNameValid) {
@@ -81,23 +78,27 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
               width: 80.w,
               height: 80.w,
               decoration: BoxDecoration(
-                color: AppColors.colorE2E2E2,
+                color: AppColors.glitch200,
                 shape: BoxShape.circle,
               ),
-              child: _hasGroupImage
-                  ? ClipRRect(
-                      borderRadius: BorderRadius.circular(40.r),
-                      child: Image.asset(
-                       AssetsPaths.icWhiteNoise,
-                        fit: BoxFit.cover,
+              child:
+                  _hasGroupImage
+                      ? ClipRRect(
+                        borderRadius: BorderRadius.circular(40.r),
+                        child: Image.asset(
+                          AssetsPaths.icWhiteNoise,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                      : SvgPicture.asset(
+                        AssetsPaths.icCamera,
+                        width: 42.w,
+                        height: 42.w,
+                        colorFilter: ColorFilter.mode(
+                          AppColors.glitch600,
+                          BlendMode.srcIn,
+                        ),
                       ),
-                    )
-                  : SvgPicture.asset(
-                      AssetsPaths.icCamera,
-                      width: 42.w,
-                      height: 42.w,
-                      colorFilter: ColorFilter.mode(AppColors.color727772, BlendMode.srcIn),
-                    ),
             ),
           ),
         ),
@@ -112,7 +113,7 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.color202320,
+                  color: AppColors.glitch950,
                 ),
               ),
               Gap(8.h),
@@ -132,7 +133,7 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
-              color: AppColors.color202320,
+              color: AppColors.glitch950,
             ),
           ),
         ),
@@ -143,12 +144,10 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
             itemCount: widget.selectedContacts.length,
             itemBuilder: (context, index) {
               final contact = widget.selectedContacts[index];
-              return ContactListTile(
-                contact: contact,
-              );
+              return ContactListTile(contact: contact);
             },
           ),
-        ),    
+        ),
         CustomButton(
           onPressed:
               _isGroupNameValid

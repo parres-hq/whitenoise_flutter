@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
@@ -28,11 +27,19 @@ class CustomTextField extends StatelessWidget {
         autofocus: autofocus,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: TextStyle(color: AppColors.color727772, fontSize: 14.sp),
-          border: OutlineInputBorder(borderSide: BorderSide(color: AppColors.colorE2E2E2)),
-          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.colorE2E2E2)),
-          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.colorE2E2E2)),
-          contentPadding: contentPadding ?? EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          hintStyle: TextStyle(color: AppColors.glitch600, fontSize: 14.sp),
+          border: OutlineInputBorder(
+            borderSide: BorderSide(color: AppColors.glitch200),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: AppColors.glitch200),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(color: AppColors.glitch200),
+          ),
+          contentPadding:
+              contentPadding ??
+              EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         ),
       ),
     );
