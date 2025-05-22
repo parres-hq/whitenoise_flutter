@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 
 class CustomTextField extends StatelessWidget {
@@ -11,6 +12,7 @@ class CustomTextField extends StatelessWidget {
     this.autofocus = true,
     this.hintText,
     this.obscureText = false,
+    this.label,
   });
 
   final TextEditingController textController;
@@ -19,33 +21,37 @@ class CustomTextField extends StatelessWidget {
   final bool autofocus;
   final String? hintText;
   final bool obscureText;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
+    final label = this.label;
     return Padding(
       padding: padding ?? EdgeInsets.symmetric(horizontal: 24.w),
-      child: TextField(
-        controller: textController,
-        autofocus: autofocus,
-        obscureText: obscureText,
-        obscuringCharacter: '•',
-        decoration: InputDecoration(
-          hintText: hintText,
-          hintStyle: TextStyle(color: AppColors.color727772, fontSize: 14.sp),
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.colorE2E2E2),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (label != null) ...[
+            Text(label, style: TextStyle(color: AppColors.color2D312D, fontSize: 14.sp, fontWeight: FontWeight.w500)),
+            Gap(8.h),
+          ],
+          TextField(
+            controller: textController,
+            autofocus: autofocus,
+            obscureText: obscureText,
+            obscuringCharacter: '•',
+            decoration: InputDecoration(
+              hintText: hintText,
+              hintStyle: TextStyle(color: AppColors.color727772, fontSize: 14.sp),
+              border: OutlineInputBorder(borderSide: BorderSide(color: AppColors.colorE2E2E2)),
+              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.colorE2E2E2)),
+              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.colorE2E2E2)),
+              contentPadding: contentPadding ?? EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+            ),
           ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.colorE2E2E2),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.colorE2E2E2),
-          ),
-          contentPadding:
-              contentPadding ??
-              EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-        ),
+        ],
       ),
+      
     );
   }
 }
