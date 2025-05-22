@@ -47,7 +47,10 @@ class _ChatScreenState extends State<GroupchatScreen> {
   }
 
   // add reaction to message
-  void addReactionToMessage({required MessageModel message, required String reaction}) {
+  void addReactionToMessage({
+    required MessageModel message,
+    required String reaction,
+  }) {
     message.reactions.add(reaction);
     // update UI
     setState(() {});
@@ -76,10 +79,16 @@ class _ChatScreenState extends State<GroupchatScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.glitch200),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: AppColors.glitch200,
+          ),
           onPressed: () => GoRouter.of(context).pop(),
         ),
-        title: const ContactInfo(title: "White Noise", imgPath: AssetsPaths.groupLogo),
+        title: const ContactInfo(
+          title: "White Noise",
+          imgPath: AssetsPaths.groupLogo,
+        ),
         actions: [
           GestureDetector(
             onTap: () => Routes.goToChat(context, 'new'),
@@ -108,11 +117,25 @@ class _ChatScreenState extends State<GroupchatScreen> {
                         child: Column(
                           children: [
                             Gap(80),
-                            CircleAvatar(backgroundImage: AssetImage(AssetsPaths.groupLogo), radius: 40),
+                            CircleAvatar(
+                              backgroundImage: AssetImage(
+                                AssetsPaths.groupLogo,
+                              ),
+                              radius: 40,
+                            ),
                             Gap(10),
-                            Text('White Noise', style: TextStyle(color: AppColors.glitch950, fontSize: 23)),
+                            Text(
+                              'White Noise',
+                              style: TextStyle(
+                                color: AppColors.glitch950,
+                                fontSize: 23,
+                              ),
+                            ),
                             Gap(10),
-                            Text('4 members', style: TextStyle(color: AppColors.glitch800)),
+                            Text(
+                              '4 members',
+                              style: TextStyle(color: AppColors.glitch800),
+                            ),
                             Gap(30),
                             StatusMessageItemWidget(
                               icon: CarbonIcons.group,
@@ -160,7 +183,10 @@ class _ChatScreenState extends State<GroupchatScreen> {
                                 return ReactionsDialogWidget(
                                   id: message.id,
                                   // unique id for message
-                                  menuItems: message.isMe ? DefaultData.myMessageMenuItems : DefaultData.menuItems,
+                                  menuItems:
+                                      message.isMe
+                                          ? DefaultData.myMessageMenuItems
+                                          : DefaultData.menuItems,
                                   messageWidget: MessageWidget(
                                     isGroupMessage: true,
                                     message: message,
@@ -174,7 +200,10 @@ class _ChatScreenState extends State<GroupchatScreen> {
                                       showEmojiBottomSheet(message: message);
                                     } else {
                                       // add reaction to message
-                                      addReactionToMessage(message: message, reaction: reaction);
+                                      addReactionToMessage(
+                                        message: message,
+                                        reaction: reaction,
+                                      );
                                     }
                                   },
                                   onContextMenuTap: (menuItem) {
@@ -185,7 +214,10 @@ class _ChatScreenState extends State<GroupchatScreen> {
                                   },
                                   // align widget to the right for my message and to the left for contact message
                                   // default is [Alignment.centerRight]
-                                  widgetAlignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+                                  widgetAlignment:
+                                      message.isMe
+                                          ? Alignment.centerRight
+                                          : Alignment.centerLeft,
                                 );
                               },
                             ),
@@ -194,7 +226,11 @@ class _ChatScreenState extends State<GroupchatScreen> {
                         // wrap message with [Hero] widget
                         child: Hero(
                           tag: message.id,
-                          child: MessageWidget(message: message, isGroupMessage: true, messageIndex: index),
+                          child: MessageWidget(
+                            message: message,
+                            isGroupMessage: true,
+                            messageIndex: index,
+                          ),
                         ),
                       );
                     }
@@ -204,7 +240,10 @@ class _ChatScreenState extends State<GroupchatScreen> {
               // bottom chat input
               Padding(
                 padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                child: ChatInput(padding: const EdgeInsets.all(0), onSend: sendNewMessage), // BottomChatField(),
+                child: ChatInput(
+                  padding: const EdgeInsets.all(0),
+                  onSend: sendNewMessage,
+                ), // BottomChatField(),
               ),
             ],
           ),

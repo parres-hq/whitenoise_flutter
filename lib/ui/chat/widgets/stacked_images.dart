@@ -28,11 +28,11 @@ class StackedImages extends StatelessWidget {
       width: imageSize + overlap,
       child: Stack(
         clipBehavior: Clip.none,
-        children: List.generate(imageUris.length+1, (index) {
-
-          if(index<imageUris.length){
+        children: List.generate(imageUris.length + 1, (index) {
+          if (index < imageUris.length) {
             final uri = imageUris[index];
-            final double rotation = Random().nextDouble() * 10 -
+            final double rotation =
+                Random().nextDouble() * 10 -
                 5; // Random rotation between -5° and 5°
             final double offsetX = index * (overlap); // Overlapping effect
             return Positioned(
@@ -43,38 +43,40 @@ class StackedImages extends StatelessWidget {
                 angle: rotation * (pi / 180), // Convert degrees to radians
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(10),
-                  child: uri.startsWith("http")
-                      ? CachedNetworkImage(
-                    imageUrl: uri,
-                    fit: BoxFit.cover,
-                    width: imageSize,
-                    height: imageSize,
-                  )
-                      : Image.file(
-                    File(uri),
-                    fit: BoxFit.cover,
-                    width: imageSize,
-                    height: imageSize,
-                  ),
+                  child:
+                      uri.startsWith("http")
+                          ? CachedNetworkImage(
+                            imageUrl: uri,
+                            fit: BoxFit.cover,
+                            width: imageSize,
+                            height: imageSize,
+                          )
+                          : Image.file(
+                            File(uri),
+                            fit: BoxFit.cover,
+                            width: imageSize,
+                            height: imageSize,
+                          ),
                 ),
               ),
             );
-          }else{
+          } else {
             return Positioned(
               top: 0,
               right: 0,
               child: GestureDetector(
-                onTap: (){
+                onTap: () {
                   deleteImageCallback();
                 },
                 child: Container(
-                    width: 20,
-                    height: 20,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: AppColors.white, // optional background color
-                    ),
-                    child: Icon(Icons.delete, color: Colors.red, size: 15,)),
+                  width: 20,
+                  height: 20,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.white, // optional background color
+                  ),
+                  child: Icon(Icons.delete, color: Colors.red, size: 15),
+                ),
               ),
             );
           }

@@ -15,7 +15,6 @@ class MessageModel {
   MessageModel? originalMessage;
   ContactModel? senderData;
 
-
   MessageModel({
     required this.messageType,
     required this.id,
@@ -29,8 +28,6 @@ class MessageModel {
     this.imageUrl,
     this.audioPath,
     this.originalMessage,
-    this.senderData
+    this.senderData,
   });
-
-
 }

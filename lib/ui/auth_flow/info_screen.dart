@@ -24,9 +24,18 @@ class InfoScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(subtitle, style: TextStyle(fontSize: 15, color: AppColors.glitch400)),
+                Text(
+                  subtitle,
+                  style: TextStyle(fontSize: 15, color: AppColors.glitch400),
+                ),
               ],
             ),
           ),
@@ -53,16 +62,25 @@ class InfoScreen extends StatelessWidget {
                     child: Text(
                       "What's unique\nabout White Noise",
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 48),
-                  _buildFeatureItem('Private by default', 'No one can trace who you talk to.'),
+                  _buildFeatureItem(
+                    'Private by default',
+                    'No one can trace who you talk to.',
+                  ),
                   _buildFeatureItem(
                     'Cannot be censored',
                     'Even the people who made this application cannot restrict you.',
                   ),
-                  _buildFeatureItem('Super secure', 'Only you are in control of your data.'),
+                  _buildFeatureItem(
+                    'Super secure',
+                    'Only you are in control of your data.',
+                  ),
                 ],
               ),
             ),
@@ -84,7 +102,10 @@ class InfoScreen extends StatelessWidget {
                 onPressed: () => _onContinuePressed(context),
                 child: const Align(
                   alignment: Alignment.topCenter,
-                  child: Text('Continue', style: TextStyle(fontSize: 18, color: AppColors.white)),
+                  child: Text(
+                    'Continue',
+                    style: TextStyle(fontSize: 18, color: AppColors.white),
+                  ),
                 ),
               ),
             ),

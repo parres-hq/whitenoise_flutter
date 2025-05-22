@@ -10,7 +10,12 @@ import 'package:whitenoise/ui/chat/widgets/reaction/stacked_reactions.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 
 class MessageWidget extends StatelessWidget {
-  const MessageWidget({super.key, required this.message, required this.isGroupMessage, required this.messageIndex});
+  const MessageWidget({
+    super.key,
+    required this.message,
+    required this.isGroupMessage,
+    required this.messageIndex,
+  });
 
   final MessageModel message;
   final bool isGroupMessage;
@@ -37,7 +42,10 @@ class MessageWidget extends StatelessWidget {
                         message.senderData != null &&
                         (messageIndex == 0 ||
                             (messageIndex > 0 &&
-                                groupMessages[messageIndex - 1].senderData!.name != message.senderData!.name))
+                                groupMessages[messageIndex - 1]
+                                        .senderData!
+                                        .name !=
+                                    message.senderData!.name))
                     ? Container(
                       margin: EdgeInsets.only(bottom: 20, right: 10),
                       child: ClipRRect(
@@ -50,11 +58,15 @@ class MessageWidget extends StatelessWidget {
                         ),
                       ),
                     )
-                    : Container(width: 30, margin: EdgeInsets.only(bottom: 20, right: 10))
+                    : Container(
+                      width: 30,
+                      margin: EdgeInsets.only(bottom: 20, right: 10),
+                    )
                 : SizedBox(),
             Expanded(
               child: Align(
-                alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+                alignment:
+                    message.isMe ? Alignment.centerRight : Alignment.centerLeft,
                 child: Stack(
                   children: [
                     // message
@@ -76,20 +88,30 @@ class MessageWidget extends StatelessWidget {
     double bottomPadding =
         isGroupMessage == true &&
                 messageIndex > 0 &&
-                groupMessages[messageIndex - 1].senderData!.name == message.senderData!.name
+                groupMessages[messageIndex - 1].senderData!.name ==
+                    message.senderData!.name
             ? message.reactions.isEmpty
                 ? 10
                 : 0
             : 3;
     return isMe
-        ? Positioned(bottom: bottomPadding, left: 40, child: StackedReactions(reactions: message.reactions))
-        : Positioned(bottom: bottomPadding, right: 40, child: StackedReactions(reactions: message.reactions));
+        ? Positioned(
+          bottom: bottomPadding,
+          left: 40,
+          child: StackedReactions(reactions: message.reactions),
+        )
+        : Positioned(
+          bottom: bottomPadding,
+          right: 40,
+          child: StackedReactions(reactions: message.reactions),
+        );
   }
 
   double calculateMessageBottomPadding() {
     if (isGroupMessage &&
         messageIndex > 0 &&
-        groupMessages[messageIndex - 1].senderData?.name == message.senderData?.name) {
+        groupMessages[messageIndex - 1].senderData?.name ==
+            message.senderData?.name) {
       return message.reactions.isEmpty ? 3 : 15;
     }
     return 18;
@@ -134,19 +156,27 @@ class MessageWidget extends StatelessWidget {
           padding: const EdgeInsets.all(10.0),
           child: SingleChildScrollView(
             child: Column(
-              crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment:
+                  message.isMe
+                      ? CrossAxisAlignment.end
+                      : CrossAxisAlignment.start,
               children: [
                 isGroupMessage == true &&
                         message.isMe == false &&
                         message.senderData != null &&
                         (messageIndex == 0 ||
                             (messageIndex < groupMessages.length - 1 &&
-                                groupMessages[messageIndex + 1].senderData!.name != message.senderData!.name))
+                                groupMessages[messageIndex + 1]
+                                        .senderData!
+                                        .name !=
+                                    message.senderData!.name))
                     ? Container(
                       margin: EdgeInsets.only(bottom: 5),
                       child: Text(
                         message.senderData!.name,
-                        style: TextStyle(color: Theme.of(context).colorScheme.error),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                       ),
                     )
                     : SizedBox(),
@@ -157,15 +187,22 @@ class MessageWidget extends StatelessWidget {
                         child: CachedNetworkImage(
                           imageUrl: message.imageUrl ?? "",
                           placeholder:
-                              (context, url) => SizedBox(width: 50, height: 50, child: CircularProgressIndicator()),
-                          errorWidget: (context, url, error) => Icon(Icons.broken_image),
+                              (context, url) => SizedBox(
+                                width: 50,
+                                height: 50,
+                                child: CircularProgressIndicator(),
+                              ),
+                          errorWidget:
+                              (context, url, error) => Icon(Icons.broken_image),
                           fit: BoxFit.fill,
                           // height: 150,
                         ),
                       ),
                     )
                     : SizedBox(),
-                message.isReplyMessage == true ? ChatReplyItem(message: message) : SizedBox(),
+                message.isReplyMessage == true
+                    ? ChatReplyItem(message: message)
+                    : SizedBox(),
                 (message.imageUrl != null || message.isReplyMessage == true) &&
                         message.messageType == 0 &&
                         message.message != null &&
@@ -174,39 +211,67 @@ class MessageWidget extends StatelessWidget {
                     : Gap(0),
                 message.messageType == 0
                     ? Wrap(
-                      alignment: message.isMe ? WrapAlignment.end : WrapAlignment.start,
+                      alignment:
+                          message.isMe
+                              ? WrapAlignment.end
+                              : WrapAlignment.start,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         message.message != null && message.message!.isNotEmpty
-                            ? Text(message.message ?? "", style: TextStyle(color: textColor))
+                            ? Text(
+                              message.message ?? "",
+                              style: TextStyle(color: textColor),
+                            )
                             : SizedBox(),
                         Gap(5),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            message.message != null && message.message!.isNotEmpty ? Gap(10) : Gap(0),
-                            Text(message.timeSent, style: TextStyle(fontSize: 12, color: textColor)),
+                            message.message != null &&
+                                    message.message!.isNotEmpty
+                                ? Gap(10)
+                                : Gap(0),
+                            Text(
+                              message.timeSent,
+                              style: TextStyle(fontSize: 12, color: textColor),
+                            ),
                             const SizedBox(width: 5),
                             message.isMe
-                                ? const Icon(CarbonIcons.checkmark_outline, color: AppColors.glitch200, size: 15)
+                                ? const Icon(
+                                  CarbonIcons.checkmark_outline,
+                                  color: AppColors.glitch200,
+                                  size: 15,
+                                )
                                 : const SizedBox.shrink(),
                           ],
                         ),
                       ],
                     )
                     : Wrap(
-                      alignment: message.isMe ? WrapAlignment.end : WrapAlignment.start,
+                      alignment:
+                          message.isMe
+                              ? WrapAlignment.end
+                              : WrapAlignment.start,
                       crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
-                        message.audioPath != null ? ChatAudioItem(audioPath: message.audioPath ?? "") : SizedBox(),
+                        message.audioPath != null
+                            ? ChatAudioItem(audioPath: message.audioPath ?? "")
+                            : SizedBox(),
                         Gap(5),
                         Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(message.timeSent, style: TextStyle(fontSize: 12, color: textColor)),
+                            Text(
+                              message.timeSent,
+                              style: TextStyle(fontSize: 12, color: textColor),
+                            ),
                             const SizedBox(width: 5),
                             message.isMe
-                                ? const Icon(CarbonIcons.checkmark_outline, color: AppColors.glitch200, size: 15)
+                                ? const Icon(
+                                  CarbonIcons.checkmark_outline,
+                                  color: AppColors.glitch200,
+                                  size: 15,
+                                )
                                 : const SizedBox.shrink(),
                           ],
                         ),

@@ -54,7 +54,12 @@ class _NewGroupChatSheetState extends State<NewGroupChatSheet> {
 
   List<ContactModel> _getFilteredContacts() {
     if (_searchQuery.isEmpty) return dummyContacts;
-    return dummyContacts.where((contact) => contact.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
+    return dummyContacts
+        .where(
+          (contact) =>
+              contact.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+        )
+        .toList();
   }
 
   void _toggleContactSelection(ContactModel contact) {
@@ -71,7 +76,10 @@ class _NewGroupChatSheetState extends State<NewGroupChatSheet> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        CustomTextField(textController: _searchController, hintText: 'Search contact or public key...'),
+        CustomTextField(
+          textController: _searchController,
+          hintText: 'Search contact or public key...',
+        ),
         Expanded(
           child: ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
@@ -95,7 +103,10 @@ class _NewGroupChatSheetState extends State<NewGroupChatSheet> {
                 _selectedContacts.isNotEmpty
                     ? () {
                       Navigator.pop(context);
-                      GroupChatDetailsSheet.show(context: context, selectedContacts: _selectedContacts.toList());
+                      GroupChatDetailsSheet.show(
+                        context: context,
+                        selectedContacts: _selectedContacts.toList(),
+                      );
                     }
                     : null,
             title: 'Continue',

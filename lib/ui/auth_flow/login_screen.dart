@@ -16,7 +16,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _onContinuePressed() {
     final key = _keyController.text.trim();
     if (key.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter something')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter something')));
       return;
     }
     ref.read(authProvider).login();
@@ -37,7 +39,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Center(child: Text('Sign in', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold))),
+                  const Center(
+                    child: Text(
+                      'Sign in',
+                      style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                   const SizedBox(height: 24),
                   const Center(
                     child: Text.rich(
@@ -47,7 +57,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         children: [
                           TextSpan(
                             text: 'Nostr private key',
-                            style: TextStyle(decoration: TextDecoration.underline, color: AppColors.black),
+                            style: TextStyle(
+                              decoration: TextDecoration.underline,
+                              color: AppColors.black,
+                            ),
                           ),
                           TextSpan(text: ' to use.'),
                         ],
@@ -56,7 +69,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                   const SizedBox(height: 32),
-                  const Text('Enter your Nostr private key', style: TextStyle(fontWeight: FontWeight.bold)),
+                  const Text(
+                    'Enter your Nostr private key',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
                   const SizedBox(height: 8),
                   TextField(
                     controller: _keyController,
@@ -64,7 +80,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       hintText: 'nsec...',
                       filled: true,
                       fillColor: AppColors.glitch100,
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(6), borderSide: BorderSide.none),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(6),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -97,7 +116,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 onPressed: _onContinuePressed,
                 child: const Align(
                   alignment: Alignment.topCenter,
-                  child: Text('Continue', style: TextStyle(fontSize: 18, color: AppColors.white)),
+                  child: Text(
+                    'Continue',
+                    style: TextStyle(fontSize: 18, color: AppColors.white),
+                  ),
                 ),
               ),
             ),

@@ -34,7 +34,10 @@ class CustomBottomSheet {
           child:
               blurBackground
                   ? BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+                    filter: ImageFilter.blur(
+                      sigmaX: blurSigma,
+                      sigmaY: blurSigma,
+                    ),
                     child: _buildBottomSheetContent(
                       context: context,
                       builder: builder,
@@ -55,9 +58,15 @@ class CustomBottomSheet {
         );
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        final curvedAnimation = CurvedAnimation(parent: animation, curve: curve);
+        final curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: curve,
+        );
         return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(curvedAnimation),
+          position: Tween<Offset>(
+            begin: const Offset(0, 1),
+            end: Offset.zero,
+          ).animate(curvedAnimation),
           child: child,
         );
       },
@@ -91,13 +100,23 @@ class CustomBottomSheet {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           if (title != null)
-                            Text(title, style: TextStyle(color: AppColors.black, fontSize: 24.sp))
+                            Text(
+                              title,
+                              style: TextStyle(
+                                color: AppColors.black,
+                                fontSize: 24.sp,
+                              ),
+                            )
                           else
                             const Spacer(),
                           if (showCloseButton)
                             GestureDetector(
                               onTap: () => Navigator.pop(context),
-                              child: Icon(Icons.close, color: AppColors.black, size: 24.w),
+                              child: Icon(
+                                Icons.close,
+                                color: AppColors.black,
+                                size: 24.w,
+                              ),
                             ),
                         ],
                       ),

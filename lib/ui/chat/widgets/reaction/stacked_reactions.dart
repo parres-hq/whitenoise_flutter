@@ -30,7 +30,10 @@ class StackedReactions extends StatelessWidget {
       emojiCounts[emoji] = (emojiCounts[emoji] ?? 0) + 1;
     }
 
-    List<Map<String, dynamic>> emojis = emojiCounts.entries.map((e) => {'emoji': e.key, 'count': e.value}).toList();
+    List<Map<String, dynamic>> emojis =
+        emojiCounts.entries
+            .map((e) => {'emoji': e.key, 'count': e.value})
+            .toList();
 
     // Limit the number of displayed reactions to 5 for performance
     final reactionsToShow = emojis.length > 5 ? emojis.sublist(0, 5) : emojis;
@@ -73,7 +76,10 @@ class StackedReactions extends StatelessWidget {
           child: Center(
             child: Material(
               color: Colors.transparent,
-              child: Text(" ${reaction['emoji']}${reaction['count']} ", style: TextStyle(fontSize: size)),
+              child: Text(
+                " ${reaction['emoji']}${reaction['count']} ",
+                style: TextStyle(fontSize: size),
+              ),
             ),
           ),
         );
@@ -94,7 +100,10 @@ class StackedReactions extends StatelessWidget {
           children: [
             Row(
               // Efficiently display reactions based on direction
-              children: direction == TextDirection.ltr ? reactionWidgets.reversed.toList() : reactionWidgets,
+              children:
+                  direction == TextDirection.ltr
+                      ? reactionWidgets.reversed.toList()
+                      : reactionWidgets,
             ),
             // Show remaining count only if there are more than 5 reactions
             if (remaining > 0)
@@ -117,7 +126,10 @@ class StackedReactions extends StatelessWidget {
                     padding: const EdgeInsets.all(2.0),
                     child: Material(
                       color: Colors.transparent,
-                      child: Text('+$remaining', style: const TextStyle(fontSize: 12)),
+                      child: Text(
+                        '+$remaining',
+                        style: const TextStyle(fontSize: 12),
+                      ),
                     ),
                   ),
                 ),
