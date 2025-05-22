@@ -12,10 +12,16 @@ class AssetsPaths {
   static const String icGroupChat = '$_svgsDir/ic_group_chat.svg';
   static const String icCamera = '$_svgsDir/ic_camera.svg';
   static const String icExpand = '$_svgsDir/ic_expand.svg';
+  static const String icDelete = '$_svgsDir/ic_delete.svg';
+  static const String icView = '$_svgsDir/ic_view.svg';
+  static const String icWarning = '$_svgsDir/ic_warning.svg';
+  static const String icEdit = '$_svgsDir/ic_edit.svg';
+  static const String icCopy = '$_svgsDir/ic_copy.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';
   static const String groupLogo = '$_pngsDir/group_logo.png';
   static const String loginSplash = '$_pngsDir/login_splash.png';
   static const String icWhiteNoise = '$_pngsDir/ic_whitenoise.png';
+  static const String profileBackground = '$_pngsDir/profile_background.png';
 }

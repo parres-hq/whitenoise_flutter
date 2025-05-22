@@ -7,7 +7,9 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
+import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 
 class GeneralSettingsScreen extends StatefulWidget {
@@ -52,34 +54,7 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: AppBar(
-        backgroundColor: AppColors.color202320,
-        automaticallyImplyLeading: false,
-        toolbarHeight: 64.h,
-        elevation: 0,
-        titleSpacing: 0,
-        title: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Row(
-            children: [
-              GestureDetector(
-                onTap: () => Navigator.pop(context),
-                child: const Icon(Icons.arrow_back, color: AppColors.white),
-              ),
-              Gap(16.w),
-              Text(
-                'Settings',
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.white,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-
+      appBar: CustomAppBar(title: 'Settings'),
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
         children: [
@@ -117,7 +92,12 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
                 }
               },
             ),
-            _settingsRow(Icons.person_outline, 'Edit Profile', () {}),
+            _settingsRow(Icons.person_outline, 'Edit Profile', () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => EditProfileScreen(profile: _currentProfile)),
+              );
+            }),
             _settingsRow(Icons.vpn_key_outlined, 'Nostr keys', () {}),
             _settingsRow(Icons.network_wifi, 'Network', () {}),
             _settingsRow(
@@ -192,12 +172,12 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
         padding: EdgeInsets.symmetric(vertical: 12.h),
         child: Row(
           children: [
-            Icon(icon, size: 22.sp, color: AppColors.color727772),
+            Icon(icon, size: 22.sp, color: AppColors.glitch600),
             Gap(12.w),
             Expanded(
               child: Text(
                 text,
-                style: TextStyle(fontSize: 17.sp, color: AppColors.color727772),
+                style: TextStyle(fontSize: 17.sp, color: AppColors.glitch600),
               ),
             ),
           ],
