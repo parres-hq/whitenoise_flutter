@@ -37,7 +37,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/auth_provider.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
@@ -76,7 +76,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 ```dart
 // lib/providers/auth_provider.dart
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whitenoise/config/providers/auth_provider.dart';
 
 class AuthState extends ChangeNotifier {
   bool _isAuthenticated = false;

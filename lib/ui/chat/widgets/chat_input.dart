@@ -428,7 +428,7 @@ class _ChatInputState extends State<ChatInput> {
                 child: Icon(
                   Icons.mic,
                   size: 30,
-                  color: AppColors.glitch950 ?? AppColors.glitch200,
+                  color: AppColors.glitch950,
                 ),
               ),
             )
