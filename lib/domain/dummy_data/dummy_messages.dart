@@ -76,6 +76,7 @@ List<MessageModel> messages = [
       Reaction(emoji: '👍', user: marekContact),
       Reaction(emoji: '❤️', user: maxContact),
       Reaction(emoji: '😂', user: marekContact),
+      Reaction(emoji: '😂', user: marekContact),
     ],
   ),
   MessageModel(

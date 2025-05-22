@@ -88,9 +88,9 @@ class MessageWidget extends StatelessWidget {
                           // Reactions
                           if (message.reactions.isNotEmpty)
                             Positioned(
-                              bottom: -10.h,
-                              left: message.isMe ? null : -4.w,
-                              right: message.isMe ? -4.w : null,
+                              bottom: -18.h,
+                              left: message.isMe ? 12.w : null,
+                              right: message.isMe ? null : 12.w,
                               child: StackedReactions(reactions: message.reactions, onReact: onReact),
                             ),
                         ],

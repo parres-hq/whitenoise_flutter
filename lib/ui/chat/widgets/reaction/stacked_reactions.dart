@@ -7,20 +7,19 @@ class StackedReactions extends StatelessWidget {
   const StackedReactions({
     super.key,
     required this.reactions,
-    this.size = 11.0,
-    this.stackedValue = 4.0,
+    this.size = 10.0,
     this.direction = TextDirection.ltr,
     this.maxVisible = 5,
     this.onReact,
+    this.width,
   });
 
-  // List of Reaction objects
   final List<Reaction> reactions;
   final double size;
-  final double stackedValue;
   final TextDirection direction;
   final int maxVisible;
   final VoidCallback? onReact;
+  final double? width;
 
   @override
   Widget build(BuildContext context) {
@@ -39,68 +38,56 @@ class StackedReactions extends StatelessWidget {
     final reactionsToShow = emojiEntries.length > maxVisible ? emojiEntries.sublist(0, maxVisible) : emojiEntries;
     final remaining = emojiEntries.length - reactionsToShow.length;
 
-    // Build reaction widgets with proper stacking
-    final reactionWidgets = <Widget>[];
-    for (int i = 0; i < reactionsToShow.length; i++) {
-      final entry = reactionsToShow[i];
-      final emoji = entry.key;
-      final count = entry.value;
-      final isSingle = count == 1;
-
-      final widget = GestureDetector(
-        onTap: onReact,
-        child: Container(
-          width: isSingle ? 20.w : null,
-          height: 20.h,
-          padding: EdgeInsets.symmetric(horizontal: isSingle ? 0 : 4.w),
-          decoration: BoxDecoration(
-            color: AppColors.colorE2E2E2,
-            border: Border.all(color: AppColors.white, width: 1.w),
-            borderRadius: BorderRadius.circular(20.r),
-          ),
-          child: Center(child: Text(isSingle ? emoji : '$emoji$count', style: TextStyle(fontSize: size.sp))),
-        ),
-      );
-
-      // Apply stacking offset based on direction
-      final offset = direction == TextDirection.ltr ? -i * stackedValue.w : i * stackedValue.w;
-
-      reactionWidgets.add(
-        Positioned(
-          left: direction == TextDirection.ltr ? offset : null,
-          right: direction == TextDirection.rtl ? offset : null,
-          child: widget,
-        ),
-      );
-    }
-
-    return Container(
-      height: 20.h,
-      margin: EdgeInsets.only(top: 4.h),
-      child: Stack(
-        clipBehavior: Clip.none,
+    return SizedBox(
+      width: width,
+      height: 24.h,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        textDirection: direction,
         children: [
-          // Stacked reaction widgets
-          ...reactionWidgets,
+          ...reactionsToShow.map((entry) {
+            final emoji = entry.key;
+            final count = entry.value;
+            final isSingle = count == 1;
 
-          // Remaining counter if needed
-          if (remaining > 0)
-            Positioned(
-              left: direction == TextDirection.ltr ? (maxVisible * stackedValue).w : null,
-              right: direction == TextDirection.rtl ? (maxVisible * stackedValue).w : null,
+            return Padding(
+              padding: EdgeInsets.only(right: 2.w),
               child: GestureDetector(
                 onTap: onReact,
                 child: Container(
-                  width: 24.w,
+                  padding: EdgeInsets.symmetric(horizontal: isSingle ? 0 : 4.w),
                   height: 20.h,
+                  constraints: BoxConstraints(minWidth: 20.w),
                   decoration: BoxDecoration(
                     color: AppColors.colorE2E2E2,
                     border: Border.all(color: AppColors.white, width: 1.w),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: Center(
-                    child: Text('+$remaining', style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      isSingle ? emoji : '$emoji$count',
+                      style: TextStyle(fontSize: size.sp, color: AppColors.color727772),
+                    ),
                   ),
+                ),
+              ),
+            );
+          }),
+
+          // Show remaining count if needed
+          if (remaining > 0)
+            GestureDetector(
+              onTap: onReact,
+              child: Container(
+                width: 24.w,
+                height: 20.h,
+                decoration: BoxDecoration(
+                  color: AppColors.colorE2E2E2,
+                  border: Border.all(color: AppColors.white, width: 1.w),
+                  borderRadius: BorderRadius.circular(20.r),
+                ),
+                child: Center(
+                  child: Text('+$remaining', style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold)),
                 ),
               ),
             ),
