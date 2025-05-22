@@ -1,9 +1,11 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input.dart';
 import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/chat/widgets/message_widget.dart';
@@ -11,35 +13,79 @@ import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_hero_dialog_route.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reactions_dialog_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/status_message_item_widget.dart';
+
 import '../../routing/routes.dart';
 import '../core/themes/assets.dart';
 import '../core/themes/colors.dart';
-import '../../domain/dummy_data/dummy_messages.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  final User contact;
+  final List<MessageModel> initialMessages;
+
+  const ChatScreen({super.key, required this.contact, required this.initialMessages});
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  void showEmojiBottomSheet({
-    required MessageModel message,
-  }) {
+  late List<MessageModel> messages;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    messages = List.from(widget.initialMessages);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.jumpTo(_scrollController.position.minScrollExtent);
+    });
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void showEmojiBottomSheet({required MessageModel message}) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent,
       builder: (context) {
-        return SizedBox(
-          height: 310,
+        return Container(
+          height: 0.4.sh,
+          decoration: BoxDecoration(
+            color: AppColors.color202320,
+            borderRadius: BorderRadius.only(topLeft: Radius.circular(16.r), topRight: Radius.circular(16.r)),
+          ),
           child: EmojiPicker(
+            // config: Config(
+            //   columns: 7,
+            //   emojiSizeMax: 28.sp,
+            //   bgColor: AppColors.color202320,
+            //   indicatorColor: AppColors.blue1,
+            //   iconColor: AppColors.colorE2E2E2,
+            //   iconColorSelected: AppColors.blue1,
+            //   progressIndicatorColor: AppColors.blue1,
+            //   backspaceColor: AppColors.blue1,
+            //   skinToneDialogBgColor: AppColors.color202320,
+            //   skinToneIndicatorColor: AppColors.colorE2E2E2,
+            //   enableSkinTones: true,
+            //   recentsLimit: 28,
+            //   replaceEmojiOnLimitExceed: false,
+            //   noRecents: Text(
+            //     'No Recents',
+            //     style: TextStyle(
+            //       fontSize: 14.sp,
+            //       color: AppColors.colorE2E2E2),
+            //   ),
+            //   tabIndicatorAnimDuration: kTabScrollDuration,
+            //   categoryIcons: const CategoryIcons(),
+            //   buttonMode: ButtonMode.MATERIAL,
+            // ),
             onEmojiSelected: ((category, emoji) {
-              // pop the bottom sheet
               Navigator.pop(context);
-              addReactionToMessage(
-                message: message,
-                reaction: emoji.emoji,
-              );
+              addReactionToMessage(message: message, reaction: emoji.emoji);
             }),
           ),
         );
@@ -47,225 +93,201 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  // add reaction to message
-  void addReactionToMessage({
-    required MessageModel message,
-    required String reaction,
-  }) {
-    message.reactions.add(reaction);
-    // update UI
-    setState(() {});
-  }
-
-  void sendNewMessage(MessageModel newMessage){
+  void addReactionToMessage({required MessageModel message, required String reaction}) {
     setState(() {
-      messages.insert(0,newMessage);
+      message.reactions.add(
+        Reaction(
+          emoji: reaction,
+          user: User(id: 'current_user_id', name: 'You', email: 'current@user.com', publicKey: 'current_public_key'),
+        ),
+      );
     });
   }
 
-
-  @override
-  void initState() {
-    super.initState();
+  void sendNewMessage(MessageModel newMessage) {
+    setState(() {
+      messages.insert(0, newMessage);
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _scrollController.animateTo(
+        _scrollController.position.minScrollExtent,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
+  bool _isSameSender(int index) {
+    if (index <= 0 || index >= messages.length) return false;
+    return messages[index].sender.id == messages[index - 1].sender.id;
+  }
 
-  @override
-  void dispose() {
-    super.dispose();
+  bool _isNextSameSender(int index) {
+    if (index < 0 || index >= messages.length - 1) return false;
+    return messages[index].sender.id == messages[index + 1].sender.id;
   }
 
   @override
   Widget build(BuildContext context) {
+    print(messages);
     return Scaffold(
+      backgroundColor: AppColors.colorF9F9F9,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
+        backgroundColor: AppColors.color202320,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.colorE2E2E2,),
-          onPressed: () {},
+          icon: Icon(Icons.arrow_back_ios_new, size: 20.w, color: AppColors.colorE2E2E2),
+          onPressed: () => context.pop(),
         ),
-        title: const ContactInfo(title: "Marek", imgPath: AssetsPaths.icImage,),
+        title: ContactInfo(
+          title: widget.contact.name,
+          // subtitle: widget.contact.username ?? widget.contact.email,
+          imgPath: widget.contact.imagePath ?? AssetsPaths.icImage,
+        ),
         actions: [
-          GestureDetector(
-            onTap:() => context.go(Routes.newChat),
-            child: Container(margin: EdgeInsets.only(right: 15), child: Icon(CarbonIcons.search, color: AppColors.colorE2E2E2,) ),
+          IconButton(
+            icon: Icon(CarbonIcons.search, size: 20.w, color: AppColors.colorE2E2E2),
+            onPressed: () => context.go(Routes.newChat),
           ),
+          Gap(8.w),
         ],
       ),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.only(
-            left: 8.0,
-            right: 8.0,
-          ),
-          child: Column(
-            children: [
-              Expanded(
-                child: // list view builder for example messages
-                ListView.builder(
-                  reverse: true,
-                  itemCount: messages.length+1,
-                  itemBuilder: (BuildContext context, int index) {
-                    //get chatting user info
-                    if(index == messages.length){
-                      return Container(
-                        padding: EdgeInsets.only(left: 30, right: 30),
-                        child: Column(
-                          children: [
-                            Gap(80),
-                            CircleAvatar(
-                              backgroundImage: AssetImage(AssetsPaths.icImage),
-                              radius: 40,
-                            ),
-                            Gap(10),
-                            Text('Marek', style: TextStyle(color: AppColors.color202320, fontSize: 23),),
-                            Gap(10),
-                            Text('marek@crupek.com', style: TextStyle(color: AppColors.grey2,),),
-                            Gap(10),
-                            Text.rich(
-                              textAlign: TextAlign.center,
-                              TextSpan(
-                                text: 'efaeg ', // Default style
-                                style: TextStyle(color: AppColors.grey2,),
-                                children: <TextSpan>[
-                                  TextSpan(
-                                    text: 'eaeed ',
-                                    style: TextStyle(color: AppColors.color727772),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.grey2),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.color727772),
-                                  ),
-                                  TextSpan(
-                                    text: 'eaeed ',
-                                    style: TextStyle(color: AppColors.grey2),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.color727772),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.grey2),
-                                  ),
-                                  TextSpan(
-                                    text: 'eaeed ',
-                                    style: TextStyle(color: AppColors.color727772),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.grey2),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.color727772),
-                                  ),
-                                  TextSpan(
-                                    text: 'eaeed ',
-                                    style: TextStyle(color: AppColors.grey2),
-                                  ),
-                                  TextSpan(
-                                    text: 'kkase ',
-                                    style: TextStyle(color: AppColors.color727772),
-                                  ),
-                                  TextSpan(
-                                    text: 'kka',
-                                    style: TextStyle(color: AppColors.grey2),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Gap(20),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(CarbonIcons.email, color: AppColors.color727772, size: 14,),
-                                Gap(5),
-                                Text.rich(
-                                  textAlign: TextAlign.center,
-                                  TextSpan(
-                                    text: 'Chat invite sent to ', // Default style
-                                    style: TextStyle(color: AppColors.color727772,),
-                                    children: <TextSpan>[
-                                      TextSpan(
-                                        text: "Marek",
-                                        style: TextStyle(color: AppColors.color202320),
-                                      )
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Gap(10),
-                            StatusMessageItemWidget(icon:  CarbonIcons.checkmark,highlightedContent:  "Marek", content: " accepted the invite"),
-                            Gap(30),
-                          ],
-                        ),
-                      );
-                    }else{
-                      // get message
-                      final message = messages[index];
-                      return GestureDetector(
-                        // wrap your message widget with a [GestureDectector] or [InkWell]
-                        onLongPress: () {
-                          // navigate with a custom [HeroDialogRoute] to [ReactionsDialogWidget]
-                          Navigator.of(context).push(
-                            HeroDialogRoute(
-                              builder: (context) {
-                                return ReactionsDialogWidget(
-                                  id: message.id, // unique id for message
-                                  menuItems: message.isMe?DefaultData.myMessageMenuItems:DefaultData.menuItems,
-                                  messageWidget: MessageWidget(
-                                      message: message, isGroupMessage: false, messageIndex: index,), // message widget
-                                  onReactionTap: (reaction) {
-                                    if (reaction == '⋯') {//'➕'
-                                      // show emoji picker container
-                                      showEmojiBottomSheet(
-                                        message: message,
-                                      );
-                                    } else {
-                                      // add reaction to message
-                                      addReactionToMessage(
-                                        message: message,
-                                        reaction: reaction,
-                                      );
-                                    }
-                                  },
-                                  onContextMenuTap: (menuItem) {
-                                    // handle context menu item
-                                  },
-                                  // align widget to the right for my message and to the left for contact message
-                                  // default is [Alignment.centerRight]
-                                  widgetAlignment: message.isMe
-                                      ? Alignment.centerRight
-                                      : Alignment.centerLeft,
-                                );
-                              },
-                            ),
-                          );
-                        },
-                        // wrap message with [Hero] widget
-                        child: Hero(
-                          tag: message.id,
-                          child: MessageWidget(message: message, isGroupMessage: false,messageIndex: index,),
-                        ),
-                      );
-                    }
-                  },
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                controller: _scrollController,
+                reverse: true,
+                physics: const BouncingScrollPhysics(),
+                padding: EdgeInsets.symmetric(horizontal: 8.w),
+                itemCount: messages.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == messages.length) {
+                    return _buildHeaderInfo();
+                  }
+
+                  final message = messages[index];
+                  return GestureDetector(
+                    onLongPress: () => _showReactionDialog(message, index),
+                    child: Hero(
+                      tag: message.id,
+                      child: MessageWidget(
+                        message: message,
+                        isGroupMessage: false,
+                        isSameSenderAsPrevious: _isSameSender(index),
+                        isSameSenderAsNext: _isNextSameSender(index),
+                        // onReact: (reaction) {
+                        //   if (reaction == '⋯') {
+                        //     showEmojiBottomSheet(message: message);
+                        //   } else {
+                        //     addReactionToMessage(message: message, reaction: reaction);
+                        //   }
+                        // },
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
+              child: ChatInput(
+                currentUser: User(
+                  id: 'current_user_id',
+                  name: 'You',
+                  email: 'current@user.com',
+                  publicKey: 'current_public_key',
                 ),
+                onSend: sendNewMessage,
+                padding: EdgeInsets.zero,
               ),
-              // bottom chat input
-              Padding(
-                padding: const EdgeInsets.only(top: 8.0, bottom: 8.0),
-                child: ChatInput(padding: const EdgeInsets.all(0), onSend: sendNewMessage) // BottomChatField(),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+
+  void _showReactionDialog(MessageModel message, int index) {
+    Navigator.of(context).push(
+      HeroDialogRoute(
+        builder: (context) {
+          return ReactionsDialogWidget(
+            id: message.id,
+            menuItems: message.isMe ? DefaultData.myMessageMenuItems : DefaultData.menuItems,
+            messageWidget: MessageWidget(
+              message: message,
+              isGroupMessage: false,
+              isSameSenderAsPrevious: _isSameSender(index),
+              isSameSenderAsNext: _isNextSameSender(index),
+            ),
+            onReactionTap: (reaction) {
+              if (reaction == '⋯') {
+                showEmojiBottomSheet(message: message);
+              } else {
+                addReactionToMessage(message: message, reaction: reaction);
+              }
+            },
+            onContextMenuTap: (menuItem) {
+              // Handle context menu actions
+            },
+            widgetAlignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHeaderInfo() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        children: [
+          Gap(40.h),
+          CircleAvatar(
+            radius: 40.r,
+            // backgroundImage: CachedNetworkImageProvider(
+            //   widget.contact.imagePath ?? AssetsPaths.icImage,
+            // ),
+            backgroundImage: AssetImage(AssetsPaths.icImage),
+          ),
+          Gap(12.h),
+          Text(
+            widget.contact.name,
+            style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: AppColors.color202320),
+          ),
+          Gap(4.h),
+          Text(widget.contact.email, style: TextStyle(fontSize: 14.sp, color: AppColors.grey2)),
+          Gap(12.h),
+          Text(
+            'Public Key: ${widget.contact.publicKey.substring(0, 8)}...',
+            style: TextStyle(fontSize: 12.sp, color: AppColors.grey2),
+          ),
+          Gap(24.h),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Text(
+              'All messages are end-to-end encrypted. Only you and ${widget.contact.name} can read them.',
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 12.sp, color: AppColors.color727772),
+            ),
+          ),
+          Gap(24.h),
+          StatusMessageItemWidget(
+            icon: CarbonIcons.checkmark,
+            // iconColor: AppColors.blue1,
+            highlightedContent: widget.contact.name,
+            content: " accepted the invite",
+          ),
+          Gap(12.h),
+          StatusMessageItemWidget(
+            icon: Icons.lock,
+            highlightedContent: widget.contact.name,
+            // iconColor: AppColors.green1,
+            content: "End-to-end encrypted",
+          ),
+          Gap(40.h),
+        ],
       ),
     );
   }

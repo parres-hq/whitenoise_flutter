@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:whitenoise/ui/chat/chat_screen.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
+import './../../domain/dummy_data/dummy_messages.dart';
 
 class LoggedInScreen extends StatelessWidget {
   const LoggedInScreen({super.key});
@@ -117,7 +119,13 @@ class LoggedInScreen extends StatelessWidget {
                   overlayColor: WidgetStateProperty.all(AppColors.transparent),
                   padding: WidgetStateProperty.all(EdgeInsets.zero),
                 ),
-                onPressed: () => _onContinuePressed(context),
+                onPressed:
+                    () => {
+                      Navigator.push(
+                        context,
+                       MaterialPageRoute(builder: (_) => ChatScreen(contact: marekContact, initialMessages: messages,)),
+                      ),
+                    },
                 child: const Align(
                   alignment: Alignment.topCenter,
                   child: Text(

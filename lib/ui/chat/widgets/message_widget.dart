@@ -1,245 +1,102 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
-import 'package:whitenoise/domain/dummy_data/dummy_messages.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
-import 'package:whitenoise/ui/chat/widgets/reaction/stacked_reactions.dart';
-import '../../core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
+
 import 'chat_audio_item.dart';
 import 'chat_reply_item.dart';
+import 'reaction/stacked_reactions.dart';
 
 class MessageWidget extends StatelessWidget {
   const MessageWidget({
     super.key,
     required this.message,
     required this.isGroupMessage,
-    required this.messageIndex
+    required this.isSameSenderAsPrevious,
+    required this.isSameSenderAsNext,
+    this.onLongPress,
+    this.onReact,
   });
 
   final MessageModel message;
   final bool isGroupMessage;
-  final int messageIndex;
+  final bool isSameSenderAsPrevious;
+  final bool isSameSenderAsNext;
+  final VoidCallback? onLongPress;
+  // final Function(String)? onReact;
+  final VoidCallback? onReact;
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.8,
-          minWidth: MediaQuery.of(context).size.width * 0.3,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            isGroupMessage?
-              message.isMe==false && message.senderData!=null
-                && (messageIndex==0 || (messageIndex>0 && groupMessages[messageIndex-1].senderData!.name != message.senderData!.name))?
-            Container(
-              margin: EdgeInsets.only(bottom: 20, right: 10),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(15),
-                child: CachedNetworkImage(
-                  imageUrl: message.senderData!.imagePath,
-                  fit: BoxFit.cover,
-                  width: 30,
-                  height: 30,
-                ),
-              ),
-            ): Container(width: 30,margin: EdgeInsets.only(bottom: 20, right: 10),) :SizedBox(),
-            Expanded(
-              child: Align(
-                alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
-                child: Stack(
-                  children: [
-                    // message
-                    buildMessage(
-                      context,
-                    ),
-                    //reactions
-                    buildReactions(
-                      message.isMe,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-
-  // reactions widget
-  Widget buildReactions(bool isMe) {
-    double bottomPadding = isGroupMessage==true && messageIndex>0 && groupMessages[messageIndex-1].senderData!.name == message.senderData!.name? message.reactions.isEmpty? 10 : 0: 3;
-    return isMe
-        ? Positioned(
-      bottom: bottomPadding,
-      left: 40,
-      child: StackedReactions(
-        reactions: message.reactions,
-      ),
-    )
-        : Positioned(
-      bottom:  bottomPadding,
-      right: 40,
-      child: StackedReactions(
-        reactions: message.reactions,
-      ),
-    );
-  }
-
-  double calculateMessageBottomPadding() {
-    if (isGroupMessage && messageIndex > 0 &&
-        groupMessages[messageIndex-1].senderData?.name == message.senderData?.name) {
-      return message.reactions.isEmpty ? 3 : 15;
-    }
-    return 18;
-  }
-  // message widget
-  Widget buildMessage(
-      BuildContext context,
-      ) {
-    //double bottomPadding = isGroupMessage==true && messageIndex>0 && groupMessages[messageIndex-1].senderData!.name == message.senderData!.name? message.reactions.isEmpty? 3 : 15:18;
-    double bottomPadding = calculateMessageBottomPadding();
-
-    // padding for the message card
-    final padding= message.isMe? EdgeInsets.only(top: 0, left: 30.0, bottom: bottomPadding)
-        :  EdgeInsets.only(top: 0, right: 30.0, bottom: bottomPadding);
-    // border radius for the message card
-    final borderRadius = message.isMe
-        ? const BorderRadius.only(
-      topLeft: Radius.circular(7),
-      topRight: Radius.circular(7),
-      bottomLeft: Radius.circular(7),
-    )
-        : const BorderRadius.only(
-      topLeft: Radius.circular(7),
-      topRight: Radius.circular(7),
-      bottomRight: Radius.circular(7),
-    );
-    // car color
-    final cardColor = message.isMe
-        ? AppColors.color202320
-        : AppColors.colorE2E2E2;
-
-    // text color
-    final textColor = message.isMe
-        ? AppColors.colorE2E2E2
-        : AppColors.color202320;
-    return Padding(
-      padding: padding,
-      child: Card(
-        margin: EdgeInsets.all(0),
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: borderRadius,
-        ),
-        color: cardColor,
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: message.isMe
-                  ? CrossAxisAlignment.end
-                  : CrossAxisAlignment.start,
+    return GestureDetector(
+      onLongPress: onLongPress,
+      child: Align(
+        alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 0.8.sw, minWidth: 0.3.sw),
+          child: Padding(
+            padding: EdgeInsets.only(bottom: isSameSenderAsPrevious ? 1.h : 8.h),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                isGroupMessage==true &&
-                  message.isMe==false && message.senderData!=null
-                    && (messageIndex==0 || (messageIndex<groupMessages.length-1 && groupMessages[messageIndex+1].senderData!.name != message.senderData!.name))?
-                Container(
-                  margin: EdgeInsets.only(bottom: 5),
-                  child: Text(
-                    message.senderData!.name,
-                    style: TextStyle(
-                      color: AppColors.red1,
-                    ),
-                  ),
-                ):SizedBox(),
-                message.imageUrl != null?
-                Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(5),
-                    child: CachedNetworkImage(
-                      imageUrl: message.imageUrl??"",
-                      placeholder: (context, url) => SizedBox(width: 50, height: 50, child: CircularProgressIndicator()),
-                      errorWidget: (context, url, error) => Icon(Icons.broken_image),
-                      fit: BoxFit.fill,
-                     // height: 150,
-                    ),
-                  ),
-                ): SizedBox(),
-                message.isReplyMessage==true?
-                ChatReplyItem(message: message,): SizedBox(),
-                ( message.imageUrl != null || message.isReplyMessage==true) && message.messageType==0 && message.message != null && message.message!.isNotEmpty?
-                Gap(5): Gap(0),
-                message.messageType==0?
-                Wrap(
-                  alignment:  message.isMe? WrapAlignment.end: WrapAlignment.start,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    message.message != null && message.message!.isNotEmpty?
-                    Text(
-                      message.message??"",
-                      style: TextStyle(
-                        color: textColor,
+                // Sender avatar for group messages
+                if (isGroupMessage && !message.isMe && !isSameSenderAsNext)
+                  Padding(
+                    padding: EdgeInsets.only(right: 8.w, bottom: 4.h),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15.r),
+                      child: CachedNetworkImage(
+                        imageUrl: message.sender.imagePath ?? '',
+                        width: 30.w,
+                        height: 30.h,
+                        fit: BoxFit.cover,
+                        placeholder:
+                            (context, url) =>
+                                Container(width: 30.w, height: 30.h, color: AppColors.color202320.withOpacity(0.1)),
+                        errorWidget:
+                            (context, url, error) =>
+                                Icon(CarbonIcons.user_avatar, size: 30.w, color: AppColors.colorE2E2E2),
                       ),
-                    ):SizedBox(),
-                    Gap(5),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        message.message!=null && message.message!.isNotEmpty?Gap(10):Gap(0),
-                        Text(
-                          message.timeSent,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: textColor,
+                    ),
+                  )
+                else if (isGroupMessage && !message.isMe)
+                  SizedBox(width: 38.w),
+                // Message content
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    children: [
+                      // Sender name for group messages
+                      if (isGroupMessage && !message.isMe && !isSameSenderAsPrevious)
+                        Padding(
+                          padding: EdgeInsets.only(bottom: 4.h, left: 4.w),
+                          child: Text(
+                            message.sender.name,
+                            style: TextStyle(fontSize: 12.sp, color: AppColors.red1, fontWeight: FontWeight.w600),
                           ),
                         ),
-                        const SizedBox(width: 5),
-                        message.isMe
-                            ? const Icon(
-                          CarbonIcons.checkmark_outline,
-                          color: AppColors.colorE2E2E2,
-                          size: 15,
-                        )
-                            : const SizedBox.shrink(),
-                      ],
-                    ),
-                  ],
-                ):
-                Wrap(
-                  alignment:  message.isMe? WrapAlignment.end: WrapAlignment.start,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    message.audioPath != null?
-                    ChatAudioItem(audioPath: message.audioPath??""): SizedBox(),
-                    Gap(5),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          message.timeSent,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: textColor,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        message.isMe
-                            ? const Icon(
-                          CarbonIcons.checkmark_outline,
-                          color: AppColors.colorE2E2E2,
-                          size: 15,
-                        )
-                            : const SizedBox.shrink(),
-                      ],
-                    ),
-                  ],
+                      // Message bubble with reactions
+                      Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          // Message content
+                          buildMessageContent(context),
+                          // Reactions
+                          if (message.reactions.isNotEmpty)
+                            Positioned(
+                              bottom: -10.h,
+                              left: message.isMe ? null : -4.w,
+                              right: message.isMe ? -4.w : null,
+                              child: StackedReactions(reactions: message.reactions, onReact: onReact),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -247,5 +104,124 @@ class MessageWidget extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget buildMessageContent(BuildContext context) {
+    final borderRadius =
+        message.isMe
+            ? BorderRadius.only(
+              topLeft: Radius.circular(6.r),
+              topRight: Radius.circular(6.r),
+              bottomLeft: Radius.circular(6.r),
+            )
+            : BorderRadius.only(
+              topLeft: Radius.circular(6.r),
+              topRight: Radius.circular(6.r),
+              bottomRight: Radius.circular(6.r),
+            );
+
+    final cardColor = message.isMe ? AppColors.color202320 : AppColors.colorE2E2E2;
+    final textColor = message.isMe ? AppColors.colorE2E2E2 : AppColors.color202320;
+
+    return Container(
+      decoration: BoxDecoration(borderRadius: borderRadius, color: cardColor),
+      padding: EdgeInsets.all(10.w),
+      child: IntrinsicWidth(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Reply message
+            if (message.replyTo != null)
+              ChatReplyItem(
+                message: message.replyTo!,
+                isMe: message.isMe,
+                isOriginalUser: message.replyTo!.sender.id == message.sender.id,
+              ),
+
+            // Image message
+            if (message.type == MessageType.image && message.imageUrl != null)
+              Padding(
+                padding: EdgeInsets.only(bottom: 4.h),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4.r),
+                  child: CachedNetworkImage(
+                    imageUrl: message.imageUrl!,
+                    width: 0.6.sw,
+                    height: 0.3.sh,
+                    fit: BoxFit.cover,
+                    placeholder:
+                        (context, url) => Container(
+                          height: 0.4.sh,
+                          color: AppColors.color202320.withOpacity(0.1),
+                          child: Center(child: CircularProgressIndicator(color: AppColors.colorE2E2E2)),
+                        ),
+                    errorWidget:
+                        (context, url, error) => Container(
+                          height: 0.4.sh,
+                          color: AppColors.color202320.withOpacity(0.1),
+                          child: Icon(CarbonIcons.no_image, color: AppColors.colorE2E2E2, size: 40.w),
+                        ),
+                  ),
+                ),
+              ),
+            // Audio message
+            if (message.type == MessageType.audio && message.audioPath != null)
+              ChatAudioItem(audioPath: message.audioPath!),
+
+            // Text content (for text messages or captions)
+            if ((message.type == MessageType.text || (message.content != null && message.content!.isNotEmpty)) &&
+                message.type != MessageType.audio)
+              Padding(
+                padding: EdgeInsets.only(bottom: 4.h),
+                child: Container(
+                  alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Text(message.content ?? '', style: TextStyle(fontSize: 14.sp, color: textColor)),
+                ),
+              ),
+            // Message status and time - now properly aligned to bottom right
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(message.timeSent, style: TextStyle(fontSize: 10.sp, color: textColor.withOpacity(0.7))),
+                Gap(4.w),
+                if (message.isMe)
+                  Icon(_getStatusIcon(message.status), size: 12.w, color: _getStatusColor(message.status, context)),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  IconData _getStatusIcon(MessageStatus status) {
+    switch (status) {
+      case MessageStatus.sending:
+        return CarbonIcons.time;
+      case MessageStatus.sent:
+        return CarbonIcons.checkmark_outline;
+      case MessageStatus.delivered:
+        return CarbonIcons.checkmark_outline;
+      case MessageStatus.read:
+        return CarbonIcons.checkmark_filled;
+      case MessageStatus.failed:
+        return CarbonIcons.warning;
+    }
+  }
+
+  Color _getStatusColor(MessageStatus status, BuildContext context) {
+    switch (status) {
+      case MessageStatus.sending:
+        return AppColors.colorE2E2E2.withOpacity(0.5);
+      case MessageStatus.sent:
+        return AppColors.colorE2E2E2.withOpacity(0.7);
+      case MessageStatus.delivered:
+        return AppColors.colorE2E2E2;
+      case MessageStatus.read:
+        return AppColors.white1;
+      case MessageStatus.failed:
+        return AppColors.red1;
+    }
   }
 }

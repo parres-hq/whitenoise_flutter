@@ -31,7 +31,7 @@ class ChatAudioItem extends ConsumerWidget {
       }
       return const SizedBox(
         height: 50,
-        child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+        child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.colorE2E2E2)),
       );
     }
 
