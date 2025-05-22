@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/auth_flow/info_screen.dart';
 import 'package:whitenoise/ui/auth_flow/login_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:whitenoise/routing/routes.dart';
 
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
@@ -71,10 +73,7 @@ class WelcomeScreen extends StatelessWidget {
                   padding: WidgetStateProperty.all(EdgeInsets.zero),
                 ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const InfoScreen()),
-                  );
+                  Routes.goToOnboarding(context);
                 },
                 child: const Text(
                   'Create a new profile',
@@ -100,10 +99,7 @@ class WelcomeScreen extends StatelessWidget {
                 padding: WidgetStateProperty.all(EdgeInsets.zero),
               ),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const LoginScreen()),
-                );
+                GoRouter.of(context).go('/login');
               },
               child: const Align(
                 alignment: Alignment.topCenter,

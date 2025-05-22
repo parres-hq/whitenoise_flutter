@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/chat/chat_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import './../../domain/dummy_data/dummy_messages.dart';
 
 class LoggedInScreen extends StatelessWidget {
   const LoggedInScreen({super.key});
 
-  void _onContinuePressed(BuildContext context) {}
+  void _onContinuePressed(BuildContext context) {
+    context.go(Routes.contacts);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +27,7 @@ class LoggedInScreen extends StatelessWidget {
                 children: [
                   const Center(
                     child: Text(
-                      'You’re signed in',
+                      "You're signed in",
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -34,9 +37,12 @@ class LoggedInScreen extends StatelessWidget {
                   const SizedBox(height: 12),
                   const Center(
                     child: Text(
-                      'Let’s see if you already have previous activity.',
+                      "Let's see if you already have previous activity.",
                       textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: AppColors.grey3),
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: AppColors.glitch400,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 48),

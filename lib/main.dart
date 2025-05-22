@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/routing/router.dart';
+import 'package:whitenoise/routing/router_provider.dart';
 import 'package:flutter/services.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 
@@ -11,12 +11,13 @@ Future<void> main() async {
   runApp(ProviderScope(child: const MyApp()));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final width = MediaQuery.of(context).size.width;
+    final router = ref.watch(routerProvider);
 
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
@@ -34,7 +35,8 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             fontFamily: 'OverusedGrotesk',
             appBarTheme: AppBarTheme(
-              backgroundColor: AppColors.color202320, // Default AppBar color for the app
+              backgroundColor:
+                  AppColors.glitch950, // Default AppBar color for the app
             ),
           ),
           routerConfig: router,

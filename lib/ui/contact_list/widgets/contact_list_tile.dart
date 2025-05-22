@@ -32,7 +32,11 @@ class ContactListTile extends StatelessWidget {
               borderRadius: BorderRadius.circular(30.r),
               child:
                   contact.imagePath.isNotEmpty
-                      ? Image.asset(contact.imagePath, width: 56.w, height: 56.w)
+                      ? Image.asset(
+                        contact.imagePath,
+                        width: 56.w,
+                        height: 56.w,
+                      )
                       : Container(
                         width: 56.w,
                         height: 56.w,
@@ -40,7 +44,11 @@ class ContactListTile extends StatelessWidget {
                         alignment: Alignment.center,
                         child: Text(
                           contact.name.substring(0, 1).toUpperCase(),
-                          style: TextStyle(color: AppColors.white, fontSize: 20.sp, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            color: AppColors.white,
+                            fontSize: 20.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
             ),
@@ -53,15 +61,26 @@ class ContactListTile extends StatelessWidget {
                     children: [
                       Text(
                         contact.name,
-                        style: TextStyle(color: AppColors.color2D312D, fontSize: 18.sp, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          color: AppColors.glitch900,
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       Gap(6.w),
-                      SvgPicture.asset(AssetsPaths.icVerifiedUser, height: 12.w, width: 12.w),
+                      SvgPicture.asset(
+                        AssetsPaths.icVerifiedUser,
+                        height: 12.w,
+                        width: 12.w,
+                      ),
                     ],
                   ),
                   Text(
                     contact.publicKey,
-                    style: TextStyle(color: AppColors.color727772, fontSize: 14.sp),
+                    style: TextStyle(
+                      color: AppColors.glitch600,
+                      fontSize: 14.sp,
+                    ),
                   ),
                 ],
               ),
@@ -71,10 +90,17 @@ class ContactListTile extends StatelessWidget {
                 width: 18.w,
                 height: 18.w,
                 decoration: BoxDecoration(
-                  border: Border.all(color: isSelected ? AppColors.color202320 : AppColors.colorE2E2E2, width: 1.5.w),
-                  color: isSelected ? AppColors.color202320 : Colors.transparent,
+                  border: Border.all(
+                    color:
+                        isSelected ? AppColors.glitch950 : AppColors.glitch200,
+                    width: 1.5.w,
+                  ),
+                  color: isSelected ? AppColors.glitch950 : Colors.transparent,
                 ),
-                child: isSelected ? Icon(Icons.check, size: 12.w, color: Colors.white) : null,
+                child:
+                    isSelected
+                        ? Icon(Icons.check, size: 12.w, color: Colors.white)
+                        : null,
               ),
           ],
         ),

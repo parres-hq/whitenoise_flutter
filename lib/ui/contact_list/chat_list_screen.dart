@@ -5,6 +5,8 @@ import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_chats.dart';
 import 'package:whitenoise/ui/contact_list/widgets/chat_list_appbar.dart';
 import 'package:whitenoise/ui/contact_list/widgets/chat_list_tile.dart';
+import 'package:go_router/go_router.dart';
+import 'package:whitenoise/routing/routes.dart';
 
 class ChatListScreen extends StatelessWidget {
   const ChatListScreen({super.key});
