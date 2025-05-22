@@ -78,7 +78,7 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
               width: 80.w,
               height: 80.w,
               decoration: BoxDecoration(
-                color: AppColors.glitch200,
+                color: AppColors.glitch80,
                 shape: BoxShape.circle,
               ),
               child:

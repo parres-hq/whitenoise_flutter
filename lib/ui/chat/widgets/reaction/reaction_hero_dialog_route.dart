@@ -21,7 +21,7 @@ class HeroDialogRoute<T> extends PageRoute<T> {
 
   // The transition for this route lasts 300 milliseconds.
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 300);
+  Duration get transitionDuration => const Duration(milliseconds: 100);
 
   // This route maintains its state when it is not visible.
   @override

@@ -189,7 +189,7 @@ class _ChatInputState extends State<ChatInput> {
         Padding(
           padding: widget.padding,
           child: AnimatedSwitcher(
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 100),
             transitionBuilder:
                 (child, animation) =>
                     FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child)),
@@ -265,7 +265,7 @@ class _ChatInputState extends State<ChatInput> {
         height: 54.h,
         padding: EdgeInsets.symmetric(horizontal: 12.w),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.onPrimaryContainer,
+          color: AppColors.glitch50,
           borderRadius: BorderRadius.circular(27.r),
         ),
         child: Row(
@@ -286,7 +286,7 @@ class _ChatInputState extends State<ChatInput> {
               ),
             ),
             AnimatedContainer(
-              duration: Duration(milliseconds: _isDragging ? 0 : 300),
+              duration: Duration(milliseconds: _isDragging ? 0 : 100),
               transform: Matrix4.translationValues(_dragOffsetX, 0, 0),
               curve: Curves.easeOut,
               child: Container(
@@ -306,7 +306,7 @@ class _ChatInputState extends State<ChatInput> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.onPrimaryContainer,
+        color: AppColors.glitch50,
         borderRadius: BorderRadius.circular(27.r),
       ),
       child: Row(
@@ -349,7 +349,7 @@ class _ChatInputState extends State<ChatInput> {
             GestureDetector(
               onTap: _startRecording,
               child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
+                duration: const Duration(milliseconds: 100),
                 padding: EdgeInsets.all(8.w),
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
@@ -394,7 +394,7 @@ class _ChatInputState extends State<ChatInput> {
   //         verticalSpacing: 0,
   //         horizontalSpacing: 0,
   //         initCategory: Category.RECENT,
-  //         bgColor: Theme.of(context).colorScheme.onPrimaryContainer,
+  //         bgColor: AppColors.glitch50,
   //         indicatorColor:Theme.of(context).colorScheme.primary,
   //         iconColor:  AppColors.glitch600,
   //         iconColorSelected:Theme.of(context).colorScheme.primary,

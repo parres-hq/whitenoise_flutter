@@ -72,7 +72,7 @@ class _ChatScreenState extends State<GroupchatScreen> {
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).colorScheme.onPrimaryContainer),
+          icon: Icon(Icons.arrow_back_ios_new, color: AppColors.glitch50),
           onPressed: () {},
         ),
         title: const ContactInfo(title: "White Noise", imgPath: AssetsPaths.groupLogo),
@@ -81,7 +81,7 @@ class _ChatScreenState extends State<GroupchatScreen> {
             onTap: () => (),
             child: Container(
               margin: EdgeInsets.only(right: 15),
-              child: Icon(CarbonIcons.search, color: Theme.of(context).colorScheme.onPrimaryContainer),
+              child: Icon(CarbonIcons.search, color: AppColors.glitch50),
             ),
           ),
         ],
@@ -94,14 +94,14 @@ class _ChatScreenState extends State<GroupchatScreen> {
   //   return Scaffold(
   //     appBar: AppBar(
   //       backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-  //       leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).colorScheme.onPrimaryContainer), onPressed: () {}),
+  //       leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.glitch50), onPressed: () {}),
   //       title: const ContactInfo(title: "White Noise", imgPath: AssetsPaths.groupLogo),
   //       actions: [
   //         GestureDetector(
   //           onTap: () => (),
   //           child: Container(
   //             margin: EdgeInsets.only(right: 15),
-  //             child: Icon(CarbonIcons.search, color: Theme.of(context).colorScheme.onPrimaryContainer),
+  //             child: Icon(CarbonIcons.search, color: AppColors.glitch50),
   //           ),
   //         ),
   //       ],

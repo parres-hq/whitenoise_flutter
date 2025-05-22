@@ -38,7 +38,16 @@ class MessageWidget extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 0.8.sw, minWidth: 0.3.sw),
           child: Padding(
-            padding: EdgeInsets.only(bottom: isSameSenderAsPrevious ? 1.h : 8.h),
+            padding: EdgeInsets.only(
+              bottom:
+                  isSameSenderAsPrevious
+                      ? message.reactions.isNotEmpty
+                          ? 18.h
+                          : 1.h
+                      : message.reactions.isNotEmpty
+                      ? 18.h
+                      : 8.h,
+            ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
@@ -55,17 +64,11 @@ class MessageWidget extends StatelessWidget {
                         height: 30.h,
                         fit: BoxFit.cover,
                         placeholder:
-                            (context, url) => Container(
-                              width: 30.w,
-                              height: 30.h,
-                              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                            ),
+                            (context, url) =>
+                                Container(width: 30.w, height: 30.h, color: AppColors.glitch950.withOpacity(0.1)),
                         errorWidget:
-                            (context, url, error) => Icon(
-                              CarbonIcons.user_avatar,
-                              size: 30.w,
-                              color: Theme.of(context).colorScheme.onPrimaryContainer,
-                            ),
+                            (context, url, error) =>
+                                Icon(CarbonIcons.user_avatar, size: 30.w, color: AppColors.glitch50),
                       ),
                     ),
                   )
@@ -119,21 +122,23 @@ class MessageWidget extends StatelessWidget {
   Widget buildMessageContent(BuildContext context) {
     final borderRadius =
         message.isMe
-            ? BorderRadius.only(
-              topLeft: Radius.circular(6.r),
-              topRight: Radius.circular(6.r),
-              bottomLeft: Radius.circular(6.r),
-            )
+            ? isSameSenderAsPrevious
+                ? BorderRadius.all(Radius.circular(6.r))
+                : BorderRadius.only(
+                  topLeft: Radius.circular(6.r),
+                  topRight: Radius.circular(6.r),
+                  bottomLeft: Radius.circular(6.r),
+                )
+            : isSameSenderAsPrevious
+            ? BorderRadius.all(Radius.circular(6.r))
             : BorderRadius.only(
               topLeft: Radius.circular(6.r),
               topRight: Radius.circular(6.r),
               bottomRight: Radius.circular(6.r),
             );
 
-    final cardColor =
-        message.isMe ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onPrimaryContainer;
-    final textColor =
-        message.isMe ? Theme.of(context).colorScheme.onPrimaryContainer : Theme.of(context).colorScheme.primary;
+    final cardColor = message.isMe ? AppColors.glitch950 : AppColors.glitch80;
+    final textColor = message.isMe ? AppColors.glitch50 : AppColors.glitch900;
 
     return Container(
       decoration: BoxDecoration(borderRadius: borderRadius, color: cardColor),
@@ -166,19 +171,13 @@ class MessageWidget extends StatelessWidget {
                         (context, url) => Container(
                           height: 0.4.sh,
                           color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                          child: Center(
-                            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimaryContainer),
-                          ),
+                          child: Center(child: CircularProgressIndicator(color: AppColors.glitch50)),
                         ),
                     errorWidget:
                         (context, url, error) => Container(
                           height: 0.4.sh,
                           color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                          child: Icon(
-                            CarbonIcons.no_image,
-                            color: Theme.of(context).colorScheme.onPrimaryContainer,
-                            size: 40.w,
-                          ),
+                          child: Icon(CarbonIcons.no_image, color: AppColors.glitch50, size: 40.w),
                         ),
                   ),
                 ),
@@ -194,19 +193,43 @@ class MessageWidget extends StatelessWidget {
                 padding: EdgeInsets.only(bottom: 4.h),
                 child: Container(
                   alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Text(message.content ?? '', style: TextStyle(fontSize: 14.sp, color: textColor)),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(message.content ?? '', style: TextStyle(fontSize: 14.sp, color: textColor)),
+                      if (message.content!.length < 32)
+                        Row(
+                          children: [
+                            Gap(6.w),
+                            Text(
+                              message.timeSent,
+                              style: TextStyle(fontSize: 10.sp, color: textColor.withOpacity(0.7)),
+                            ),
+                            Gap(4.w),
+                            if (message.isMe)
+                              Icon(
+                                _getStatusIcon(message.status),
+                                size: 12.w,
+                                color: _getStatusColor(message.status, context),
+                              ),
+                          ],
+                        ),
+                    ],
+                  ),
                 ),
               ),
-            // Message status and time - now properly aligned to bottom right
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(message.timeSent, style: TextStyle(fontSize: 10.sp, color: textColor.withOpacity(0.7))),
-                Gap(4.w),
-                if (message.isMe)
-                  Icon(_getStatusIcon(message.status), size: 12.w, color: _getStatusColor(message.status, context)),
-              ],
-            ),
+            //Message status and time - now properly aligned to bottom right
+            if ((message.content != null && message.content!.isNotEmpty && message.content!.length >= 32) ||
+                message.type == MessageType.audio)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(message.timeSent, style: TextStyle(fontSize: 10.sp, color: textColor.withOpacity(0.7))),
+                  Gap(4.w),
+                  if (message.isMe)
+                    Icon(_getStatusIcon(message.status), size: 12.w, color: _getStatusColor(message.status, context)),
+                ],
+              ),
           ],
         ),
       ),
@@ -231,11 +254,11 @@ class MessageWidget extends StatelessWidget {
   Color _getStatusColor(MessageStatus status, BuildContext context) {
     switch (status) {
       case MessageStatus.sending:
-        return Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.5);
+        return AppColors.glitch50.withOpacity(0.5);
       case MessageStatus.sent:
-        return Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7);
+        return AppColors.glitch50.withOpacity(0.7);
       case MessageStatus.delivered:
-        return Theme.of(context).colorScheme.onPrimaryContainer;
+        return AppColors.glitch50;
       case MessageStatus.read:
         return AppColors.glitch100;
       case MessageStatus.failed:

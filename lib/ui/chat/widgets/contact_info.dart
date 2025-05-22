@@ -20,7 +20,7 @@ class ContactInfo extends StatelessWidget {
           backgroundImage: AssetImage(imgPath),
         ),
         Gap(10),
-        Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer)),
+        Text(title, style: TextStyle(color: AppColors.glitch50)),
       ],
     );
   }

@@ -59,7 +59,7 @@ class StackedReactions extends StatelessWidget {
                   height: 20.h,
                   constraints: BoxConstraints(minWidth: 20.w),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                    color: AppColors.glitch80,
                     border: Border.all(color: AppColors.white, width: 1.w),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
@@ -82,7 +82,7 @@ class StackedReactions extends StatelessWidget {
                 width: 24.w,
                 height: 20.h,
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  color: AppColors.glitch50,
                   border: Border.all(color: AppColors.white, width: 1.w),
                   borderRadius: BorderRadius.circular(20.r),
                 ),

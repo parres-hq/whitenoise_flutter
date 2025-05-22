@@ -87,7 +87,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         child: Container(
           width: MediaQuery.of(context).size.width * widget.menuItemsWidth,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
+            color: AppColors.glitch80,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
@@ -106,7 +106,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                             clickedContextMenuIndex = widget.menuItems.indexOf(item);
                           });
 
-                          Future.delayed(const Duration(milliseconds: 500)).whenComplete(() {
+                          Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
                             if (!mounted) return;
                             Navigator.of(context).pop();
                             widget.onContextMenuTap(item);
@@ -118,12 +118,12 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                             Text(
                               item.label,
                               style: TextStyle(
-                                color: item.isDestructive ? Colors.red : Theme.of(context).colorScheme.primary,
+                                color: item.isDestructive ? Colors.red : AppColors.glitch900,
                               ),
                             ),
                             Pulse(
                               infinite: false,
-                              duration: const Duration(milliseconds: 500),
+                              duration: const Duration(milliseconds: 100),
                               animate: clickedContextMenuIndex == widget.menuItems.indexOf(item),
                               child: Icon(
                                 size: 20,
@@ -158,7 +158,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         child: Container(
           padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
+            color: AppColors.glitch80,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -168,8 +168,8 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                 FadeInLeft(
                   from: // first index should be from 0, second from 20, third from 40 and so on
                       0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
-                  duration: const Duration(milliseconds: 500),
-                  delay: const Duration(milliseconds: 200),
+                  duration: const Duration(milliseconds: 100),
+                  delay: const Duration(milliseconds: 100),
                   child: InkWell(
                     onTap: () {
                       setState(() {
@@ -177,7 +177,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                         clickedReactionIndex = widget.reactions.indexOf(reaction);
                       });
                       // delay for 200 milliseconds to allow the animation to complete
-                      Future.delayed(const Duration(milliseconds: 500)).whenComplete(() {
+                      Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
                         // pop the dialog
                         Navigator.of(context).pop();
                         widget.onReactionTap(reaction);
@@ -185,12 +185,12 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                     },
                     child: Pulse(
                       infinite: false,
-                      duration: const Duration(milliseconds: 500),
+                      duration: const Duration(milliseconds: 100),
                       animate: reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction),
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(7.0, 2.0, 7.0, 2),
                         decoration: BoxDecoration(
-                          color: reaction == '⋯' ? AppColors.glitch100 : Colors.transparent,
+                          color: reaction == '⋯' ? AppColors.glitch200 : Colors.transparent,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(reaction, style: const TextStyle(fontSize: 22)),

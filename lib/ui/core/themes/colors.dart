@@ -7,6 +7,7 @@ abstract final class AppColors {
 
   // Glitch Colors
   static const Color glitch50 = Color(0xFFF9F9F9);
+  static const Color glitch80 = Color(0xFFEEEEEE);
   static const Color glitch100 = Color(0xFFF2F2F2);
   static const Color glitch200 = Color(0xFFE2E2E2);
   static const Color glitch300 = Color(0xFFCDCECD);

@@ -19,9 +19,9 @@ class ChatReplyItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = isMe ? AppColors.glitch300 : Theme.of(context).colorScheme.primary;
-    final backgroundColor = isMe ? Theme.of(context).colorScheme.onPrimaryContainer : AppColors.glitch400;
-    final textColor = isMe ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onPrimaryContainer;
+    final borderColor = isMe ? AppColors.glitch400 : AppColors.glitch800;
+    final backgroundColor = isMe ? AppColors.glitch80 : AppColors.glitch600;
+    final textColor = isMe ? AppColors.glitch950 : AppColors.glitch50;
     final senderNameColor = textColor;
 
     return GestureDetector(

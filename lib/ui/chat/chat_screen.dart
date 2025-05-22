@@ -64,12 +64,12 @@ class _ChatScreenState extends State<ChatScreen> {
             //   emojiSizeMax: 28.sp,
             //   bgColor:Theme.of(context).colorScheme.primary,
             //   indicatorColor: AppColors.blue1,
-            //   iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
+            //   iconColor: AppColors.glitch50,
             //   iconColorSelected: AppColors.blue1,
             //   progressIndicatorColor: AppColors.blue1,
             //   backspaceColor: AppColors.blue1,
             //   skinToneDialogBgColor:Theme.of(context).colorScheme.primary,
-            //   skinToneIndicatorColor: Theme.of(context).colorScheme.onPrimaryContainer,
+            //   skinToneIndicatorColor: AppColors.glitch50,
             //   enableSkinTones: true,
             //   recentsLimit: 28,
             //   replaceEmojiOnLimitExceed: false,
@@ -77,7 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
             //     'No Recents',
             //     style: TextStyle(
             //       fontSize: 14.sp,
-            //       color: Theme.of(context).colorScheme.onPrimaryContainer),
+            //       color: AppColors.glitch50),
             //   ),
             //   tabIndicatorAnimDuration: kTabScrollDuration,
             //   categoryIcons: const CategoryIcons(),
@@ -111,7 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
         _scrollController.position.minScrollExtent,
-        duration: const Duration(milliseconds: 200),
+        duration: const Duration(milliseconds: 100),
         curve: Curves.easeOut,
       );
     });
@@ -131,21 +131,17 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     print(messages);
     return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.onPrimary,
+      backgroundColor: AppColors.glitch50,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.primary,
+        backgroundColor: AppColors.glitch950,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, size: 20.w, color: Theme.of(context).colorScheme.onPrimaryContainer),
+          icon: Icon(Icons.arrow_back_ios_new, size: 20.w, color: AppColors.glitch50),
           onPressed: () => context.pop(),
         ),
-        title: ContactInfo(
-          title: widget.contact.name,
-          // subtitle: widget.contact.username ?? widget.contact.email,
-          imgPath: widget.contact.imagePath ?? AssetsPaths.icImage,
-        ),
+        title: ContactInfo(title: widget.contact.name, imgPath: AssetsPaths.icImage),
         actions: [
           IconButton(
-            icon: Icon(CarbonIcons.search, size: 20.w, color: Theme.of(context).colorScheme.onPrimaryContainer),
+            icon: Icon(CarbonIcons.search, size: 20.w, color: AppColors.glitch50),
             onPressed: () => context.go(Routes.newChat),
           ),
           Gap(8.w),
