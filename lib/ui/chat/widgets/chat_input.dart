@@ -210,7 +210,10 @@ class _ChatInputState extends State<ChatInput> {
       child: Row(
         children: [
           IconButton(
-            icon: Icon(_isPlaying ? CarbonIcons.pause_filled : CarbonIcons.play_filled, color: AppColors.color202320),
+            icon: Icon(
+              _isPlaying ? CarbonIcons.pause_filled : CarbonIcons.play_filled,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             onPressed: _togglePlayback,
           ),
           Expanded(
@@ -219,15 +222,15 @@ class _ChatInputState extends State<ChatInput> {
               playerController: _playerController,
               waveformType: WaveformType.fitWidth,
               playerWaveStyle: PlayerWaveStyle(
-                fixedWaveColor: AppColors.color727772,
-                liveWaveColor: AppColors.color202320,
+                fixedWaveColor: AppColors.glitch600,
+                liveWaveColor: Theme.of(context).colorScheme.primary,
                 waveCap: StrokeCap.round,
                 spacing: 2.w,
               ),
             ),
           ),
           IconButton(
-            icon: Icon(CarbonIcons.close, color: AppColors.red1),
+            icon: Icon(CarbonIcons.close, color: AppColors.glitch500),
             onPressed:
                 () => setState(() {
                   _recordedFilePath = null;
@@ -261,18 +264,25 @@ class _ChatInputState extends State<ChatInput> {
       child: Container(
         height: 54.h,
         padding: EdgeInsets.symmetric(horizontal: 12.w),
-        decoration: BoxDecoration(color: AppColors.colorE2E2E2, borderRadius: BorderRadius.circular(27.r)),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.onPrimaryContainer,
+          borderRadius: BorderRadius.circular(27.r),
+        ),
         child: Row(
           children: [
-            Icon(CarbonIcons.microphone_filled, color: AppColors.red1, size: 24.w),
+            Icon(CarbonIcons.microphone_filled, color: Theme.of(context).colorScheme.error, size: 24.w),
             SizedBox(width: 12.w),
             Text(
               _formattedRecordingTime,
-              style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: AppColors.color202320),
+              style: TextStyle(
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.primary,
+              ),
             ),
             Expanded(
               child: Center(
-                child: Text("Swipe left to cancel", style: TextStyle(fontSize: 12.sp, color: AppColors.color727772)),
+                child: Text("Swipe left to cancel", style: TextStyle(fontSize: 12.sp, color: AppColors.glitch600)),
               ),
             ),
             AnimatedContainer(
@@ -282,7 +292,7 @@ class _ChatInputState extends State<ChatInput> {
               child: Container(
                 width: 40.w,
                 height: 40.w,
-                decoration: BoxDecoration(color: AppColors.red1, shape: BoxShape.circle),
+                decoration: BoxDecoration(color: Theme.of(context).colorScheme.error, shape: BoxShape.circle),
                 child: Icon(CarbonIcons.microphone_filled, color: Colors.white, size: 20.w),
               ),
             ),
@@ -295,14 +305,17 @@ class _ChatInputState extends State<ChatInput> {
   Widget _buildTextInputUI() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
-      decoration: BoxDecoration(color: AppColors.colorE2E2E2, borderRadius: BorderRadius.circular(27.r)),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.onPrimaryContainer,
+        borderRadius: BorderRadius.circular(27.r),
+      ),
       child: Row(
         children: [
           // Attachment button
           widget.mediaSelector != null
               ? InkWell(onTap: widget.onAttachmentPressed ?? _pickImages, child: widget.mediaSelector)
               : IconButton(
-                icon: Icon(CarbonIcons.attachment, size: 24.w, color: AppColors.color202320),
+                icon: Icon(CarbonIcons.attachment, size: 24.w, color: Theme.of(context).colorScheme.primary),
                 onPressed: widget.onAttachmentPressed ?? _pickImages,
               ),
 
@@ -313,23 +326,23 @@ class _ChatInputState extends State<ChatInput> {
               focusNode: _focusNode,
               onChanged: (_) => setState(() {}),
               onTap: () => setState(() => _showEmojiPicker = false),
-              cursorColor: widget.cursorColor ?? AppColors.color202320,
+              cursorColor: widget.cursorColor ?? Theme.of(context).colorScheme.primary,
               minLines: 1,
               maxLines: 5,
               decoration: InputDecoration(
                 hintText: "Type a message...",
-                hintStyle: TextStyle(fontSize: 14.sp, color: AppColors.color727772),
+                hintStyle: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
                 border: InputBorder.none,
                 contentPadding: EdgeInsets.symmetric(horizontal: 12.w),
               ),
-              style: TextStyle(fontSize: 14.sp, color: AppColors.color202320),
+              style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.primary),
             ),
           ),
 
           // Emoji or Send button
           if (_hasContent)
             IconButton(
-              icon: Icon(CarbonIcons.send_filled, size: 24.w, color: AppColors.color202320),
+              icon: Icon(CarbonIcons.send_filled, size: 24.w, color: Theme.of(context).colorScheme.primary),
               onPressed: _sendMessage,
             )
           else if (widget.enableAudio)
@@ -341,13 +354,18 @@ class _ChatInputState extends State<ChatInput> {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   boxShadow: [
-                    if (_isRecording) BoxShadow(color: AppColors.red1.withOpacity(0.3), blurRadius: 8, spreadRadius: 2),
+                    if (_isRecording)
+                      BoxShadow(
+                        color: Theme.of(context).colorScheme.error.withOpacity(0.3),
+                        blurRadius: 8,
+                        spreadRadius: 2,
+                      ),
                   ],
                 ),
                 child: Icon(
                   CarbonIcons.microphone_filled,
                   size: 24.w,
-                  color: _isRecording ? AppColors.red1 : AppColors.color202320,
+                  color: _isRecording ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.primary,
                 ),
               ),
             )
@@ -356,7 +374,7 @@ class _ChatInputState extends State<ChatInput> {
               icon: Icon(
                 _showEmojiPicker ? Icons.text_fields_outlined : Icons.emoji_emotions,
                 size: 24.w,
-                color: AppColors.color202320,
+                color: Theme.of(context).colorScheme.primary,
               ),
               onPressed: _toggleEmojiPicker,
             ),
@@ -376,12 +394,12 @@ class _ChatInputState extends State<ChatInput> {
   //         verticalSpacing: 0,
   //         horizontalSpacing: 0,
   //         initCategory: Category.RECENT,
-  //         bgColor: AppColors.colorE2E2E2,
-  //         indicatorColor: AppColors.color202320,
-  //         iconColor: AppColors.color727772,
-  //         iconColorSelected: AppColors.color202320,
-  //         progressIndicatorColor: AppColors.color202320,
-  //         backspaceColor: AppColors.color202320,
+  //         bgColor: Theme.of(context).colorScheme.onPrimaryContainer,
+  //         indicatorColor:Theme.of(context).colorScheme.primary,
+  //         iconColor:  AppColors.glitch600,
+  //         iconColorSelected:Theme.of(context).colorScheme.primary,
+  //         progressIndicatorColor:Theme.of(context).colorScheme.primary,
+  //         backspaceColor:Theme.of(context).colorScheme.primary,
   //         skinToneDialogBgColor: Colors.white,
   //         skinToneIndicatorColor: Colors.grey,
   //         enableSkinTones: true,
@@ -390,7 +408,7 @@ class _ChatInputState extends State<ChatInput> {
   //         noRecentsText: 'No Recents',
   //         noRecentsStyle: TextStyle(
   //           fontSize: 14.sp,
-  //           color: AppColors.color202320,
+  //           color:Theme.of(context).colorScheme.primary,
   //         ),
   //         categoryIcons: const CategoryIcons(),
   //         buttonMode: ButtonMode.MATERIAL,

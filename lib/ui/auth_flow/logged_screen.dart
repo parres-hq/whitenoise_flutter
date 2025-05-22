@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/ui/chat/chat_screen.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import './../../domain/dummy_data/dummy_messages.dart';
 

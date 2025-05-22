@@ -10583,7 +10583,7 @@ class _ChatInputState extends State<ChatInput> {
                   ),
                   child: Row(
                     children: [
-                      Icon(Icons.mic, size: 20, color: AppColors.red1),
+                      Icon(Icons.mic, size: 20, color:Theme.of(context).colorScheme.error),
                       const SizedBox(width: 8),
                       Text(
                         _formattedRecordingTime,
@@ -10636,7 +10636,7 @@ class _ChatInputState extends State<ChatInput> {
                       curve: Curves.easeOut,
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: AppColors.red1,
+                        color:Theme.of(context).colorScheme.error,
                         shape: BoxShape.circle,
                       ),
                       child: Icon(Icons.mic, size: 30, color: AppColors.white),
@@ -11004,7 +11004,7 @@ class MessageWidget extends StatelessWidget {
                   child: Text(
                     message.senderData!.name??"",
                     style: TextStyle(
-                      color: AppColors.red1,
+                      color:Theme.of(context).colorScheme.error,
                     ),
                   ),
                 ):SizedBox(),
@@ -13937,7 +13937,7 @@ abstract final class AppColors {
     surface: AppColors.black1,
     onSurface: Colors.white,
     error: Colors.black,
-    onError: AppColors.red1,
+    onError:Theme.of(context).colorScheme.error,
   );
 }
 </file>

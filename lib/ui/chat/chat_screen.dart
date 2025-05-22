@@ -55,21 +55,21 @@ class _ChatScreenState extends State<ChatScreen> {
         return Container(
           height: 0.4.sh,
           decoration: BoxDecoration(
-            color: AppColors.color202320,
+            color: Theme.of(context).appBarTheme.backgroundColor,
             borderRadius: BorderRadius.only(topLeft: Radius.circular(16.r), topRight: Radius.circular(16.r)),
           ),
           child: EmojiPicker(
             // config: Config(
             //   columns: 7,
             //   emojiSizeMax: 28.sp,
-            //   bgColor: AppColors.color202320,
+            //   bgColor:Theme.of(context).colorScheme.primary,
             //   indicatorColor: AppColors.blue1,
-            //   iconColor: AppColors.colorE2E2E2,
+            //   iconColor: Theme.of(context).colorScheme.onPrimaryContainer,
             //   iconColorSelected: AppColors.blue1,
             //   progressIndicatorColor: AppColors.blue1,
             //   backspaceColor: AppColors.blue1,
-            //   skinToneDialogBgColor: AppColors.color202320,
-            //   skinToneIndicatorColor: AppColors.colorE2E2E2,
+            //   skinToneDialogBgColor:Theme.of(context).colorScheme.primary,
+            //   skinToneIndicatorColor: Theme.of(context).colorScheme.onPrimaryContainer,
             //   enableSkinTones: true,
             //   recentsLimit: 28,
             //   replaceEmojiOnLimitExceed: false,
@@ -77,7 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
             //     'No Recents',
             //     style: TextStyle(
             //       fontSize: 14.sp,
-            //       color: AppColors.colorE2E2E2),
+            //       color: Theme.of(context).colorScheme.onPrimaryContainer),
             //   ),
             //   tabIndicatorAnimDuration: kTabScrollDuration,
             //   categoryIcons: const CategoryIcons(),
@@ -131,11 +131,11 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     print(messages);
     return Scaffold(
-      backgroundColor: AppColors.colorF9F9F9,
+      backgroundColor: Theme.of(context).colorScheme.onPrimary,
       appBar: AppBar(
-        backgroundColor: AppColors.color202320,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, size: 20.w, color: AppColors.colorE2E2E2),
+          icon: Icon(Icons.arrow_back_ios_new, size: 20.w, color: Theme.of(context).colorScheme.onPrimaryContainer),
           onPressed: () => context.pop(),
         ),
         title: ContactInfo(
@@ -145,7 +145,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(CarbonIcons.search, size: 20.w, color: AppColors.colorE2E2E2),
+            icon: Icon(CarbonIcons.search, size: 20.w, color: Theme.of(context).colorScheme.onPrimaryContainer),
             onPressed: () => context.go(Routes.newChat),
           ),
           Gap(8.w),
@@ -254,14 +254,21 @@ class _ChatScreenState extends State<ChatScreen> {
           Gap(12.h),
           Text(
             widget.contact.name,
-            style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: AppColors.color202320),
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.primary,
+            ),
           ),
           Gap(4.h),
-          Text(widget.contact.email, style: TextStyle(fontSize: 14.sp, color: AppColors.grey2)),
+          Text(
+            widget.contact.email,
+            style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onTertiary),
+          ),
           Gap(12.h),
           Text(
             'Public Key: ${widget.contact.publicKey.substring(0, 8)}...',
-            style: TextStyle(fontSize: 12.sp, color: AppColors.grey2),
+            style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onTertiary),
           ),
           Gap(24.h),
           Container(
@@ -269,7 +276,7 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Text(
               'All messages are end-to-end encrypted. Only you and ${widget.contact.name} can read them.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12.sp, color: AppColors.color727772),
+              style: TextStyle(fontSize: 12.sp, color: AppColors.glitch600),
             ),
           ),
           Gap(24.h),

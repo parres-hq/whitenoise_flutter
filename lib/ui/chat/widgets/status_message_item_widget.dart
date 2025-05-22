@@ -14,17 +14,17 @@ class StatusMessageItemWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, color: AppColors.color727772, size: 14,),
+        Icon(icon, color: AppColors.glitch600, size: 14),
         Gap(5),
         Text.rich(
           textAlign: TextAlign.center,
           TextSpan(
             text: highlightedContent,
-            style: TextStyle(color: AppColors.color202320,),
+            style: TextStyle(color: Theme.of(context).colorScheme.primary),
             children: <TextSpan>[
               TextSpan(
                 text: content,
-                style: TextStyle(color: AppColors.color727772),
+                style: TextStyle(color: AppColors.glitch600),
               )
             ],
           ),

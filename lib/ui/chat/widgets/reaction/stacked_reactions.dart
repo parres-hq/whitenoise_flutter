@@ -59,14 +59,14 @@ class StackedReactions extends StatelessWidget {
                   height: 20.h,
                   constraints: BoxConstraints(minWidth: 20.w),
                   decoration: BoxDecoration(
-                    color: AppColors.colorE2E2E2,
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
                     border: Border.all(color: AppColors.white, width: 1.w),
                     borderRadius: BorderRadius.circular(20.r),
                   ),
                   child: Center(
                     child: Text(
                       isSingle ? emoji : '$emoji$count',
-                      style: TextStyle(fontSize: size.sp, color: AppColors.color727772),
+                      style: TextStyle(fontSize: size.sp, color: AppColors.glitch600),
                     ),
                   ),
                 ),
@@ -82,7 +82,7 @@ class StackedReactions extends StatelessWidget {
                 width: 24.w,
                 height: 20.h,
                 decoration: BoxDecoration(
-                  color: AppColors.colorE2E2E2,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
                   border: Border.all(color: AppColors.white, width: 1.w),
                   borderRadius: BorderRadius.circular(20.r),
                 ),

@@ -12,6 +12,7 @@ import 'package:whitenoise/ui/chat/widgets/reaction/reactions_dialog_widget.dart
 import 'package:whitenoise/ui/chat/widgets/status_message_item_widget.dart';
 import '../core/themes/assets.dart';
 import '../core/themes/colors.dart';
+import '../core/themes/theme.dart';
 import '../../domain/dummy_data/dummy_messages.dart';
 
 class GroupchatScreen extends StatefulWidget {
@@ -70,37 +71,37 @@ class _ChatScreenState extends State<GroupchatScreen> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-        leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.colorE2E2E2), onPressed: () {}),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_ios_new, color: Theme.of(context).colorScheme.onPrimaryContainer),
+          onPressed: () {},
+        ),
         title: const ContactInfo(title: "White Noise", imgPath: AssetsPaths.groupLogo),
         actions: [
           GestureDetector(
             onTap: () => (),
             child: Container(
               margin: EdgeInsets.only(right: 15),
-              child: Icon(CarbonIcons.search, color: AppColors.colorE2E2E2),
+              child: Icon(CarbonIcons.search, color: Theme.of(context).colorScheme.onPrimaryContainer),
             ),
           ),
         ],
       ),
-      body: SafeArea(
-        child: Text('hellow world')
-      ),
+      body: SafeArea(child: Text('hello there')),
     );
   }
-
 
   //   Widget build(BuildContext context) {
   //   return Scaffold(
   //     appBar: AppBar(
   //       backgroundColor: Theme.of(context).appBarTheme.backgroundColor,
-  //       leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new, color: AppColors.colorE2E2E2), onPressed: () {}),
+  //       leading: IconButton(icon: const Icon(Icons.arrow_back_ios_new, color: Theme.of(context).colorScheme.onPrimaryContainer), onPressed: () {}),
   //       title: const ContactInfo(title: "White Noise", imgPath: AssetsPaths.groupLogo),
   //       actions: [
   //         GestureDetector(
   //           onTap: () => (),
   //           child: Container(
   //             margin: EdgeInsets.only(right: 15),
-  //             child: Icon(CarbonIcons.search, color: AppColors.colorE2E2E2),
+  //             child: Icon(CarbonIcons.search, color: Theme.of(context).colorScheme.onPrimaryContainer),
   //           ),
   //         ),
   //       ],
@@ -125,9 +126,9 @@ class _ChatScreenState extends State<GroupchatScreen> {
   //                           Gap(80),
   //                           CircleAvatar(backgroundImage: AssetImage(AssetsPaths.groupLogo), radius: 40),
   //                           Gap(10),
-  //                           Text('White Noise', style: TextStyle(color: AppColors.color202320, fontSize: 23)),
+  //                           Text('White Noise', style: TextStyle(color:Theme.of(context).colorScheme.primary, fontSize: 23)),
   //                           Gap(10),
-  //                           Text('4 members', style: TextStyle(color: AppColors.grey2)),
+  //                           Text('4 members', style: TextStyle(color: Theme.of(context).colorScheme.onTertiary)),
   //                           Gap(30),
   //                           StatusMessageItemWidget(
   //                             icon: CarbonIcons.group,

@@ -13,6 +13,8 @@ import 'package:whitenoise/ui/contact_list/chat_list_screen.dart';
 import 'package:whitenoise/ui/chat/chat_screen.dart';
 import 'package:whitenoise/ui/chat/groupchat_screen.dart';
 
+import '../domain/dummy_data/dummy_messages.dart';
+
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
 
@@ -90,7 +92,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) {
               final chatId = state.pathParameters['id']!;
               // TODO: Pass chatData via state.extra if needed
-              return ChatScreen(); // TODO: Pass chatId to ChatScreen if/when supported
+              return ChatScreen(contact: marekContact, initialMessages: messages);
             },
           ),
           GoRoute(

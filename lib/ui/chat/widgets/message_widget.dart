@@ -55,11 +55,17 @@ class MessageWidget extends StatelessWidget {
                         height: 30.h,
                         fit: BoxFit.cover,
                         placeholder:
-                            (context, url) =>
-                                Container(width: 30.w, height: 30.h, color: AppColors.color202320.withOpacity(0.1)),
+                            (context, url) => Container(
+                              width: 30.w,
+                              height: 30.h,
+                              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            ),
                         errorWidget:
-                            (context, url, error) =>
-                                Icon(CarbonIcons.user_avatar, size: 30.w, color: AppColors.colorE2E2E2),
+                            (context, url, error) => Icon(
+                              CarbonIcons.user_avatar,
+                              size: 30.w,
+                              color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            ),
                       ),
                     ),
                   )
@@ -76,7 +82,11 @@ class MessageWidget extends StatelessWidget {
                           padding: EdgeInsets.only(bottom: 4.h, left: 4.w),
                           child: Text(
                             message.sender.name,
-                            style: TextStyle(fontSize: 12.sp, color: AppColors.red1, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Theme.of(context).colorScheme.error,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       // Message bubble with reactions
@@ -120,8 +130,10 @@ class MessageWidget extends StatelessWidget {
               bottomRight: Radius.circular(6.r),
             );
 
-    final cardColor = message.isMe ? AppColors.color202320 : AppColors.colorE2E2E2;
-    final textColor = message.isMe ? AppColors.colorE2E2E2 : AppColors.color202320;
+    final cardColor =
+        message.isMe ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onPrimaryContainer;
+    final textColor =
+        message.isMe ? Theme.of(context).colorScheme.onPrimaryContainer : Theme.of(context).colorScheme.primary;
 
     return Container(
       decoration: BoxDecoration(borderRadius: borderRadius, color: cardColor),
@@ -153,14 +165,20 @@ class MessageWidget extends StatelessWidget {
                     placeholder:
                         (context, url) => Container(
                           height: 0.4.sh,
-                          color: AppColors.color202320.withOpacity(0.1),
-                          child: Center(child: CircularProgressIndicator(color: AppColors.colorE2E2E2)),
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          child: Center(
+                            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                          ),
                         ),
                     errorWidget:
                         (context, url, error) => Container(
                           height: 0.4.sh,
-                          color: AppColors.color202320.withOpacity(0.1),
-                          child: Icon(CarbonIcons.no_image, color: AppColors.colorE2E2E2, size: 40.w),
+                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          child: Icon(
+                            CarbonIcons.no_image,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer,
+                            size: 40.w,
+                          ),
                         ),
                   ),
                 ),
@@ -213,15 +231,15 @@ class MessageWidget extends StatelessWidget {
   Color _getStatusColor(MessageStatus status, BuildContext context) {
     switch (status) {
       case MessageStatus.sending:
-        return AppColors.colorE2E2E2.withOpacity(0.5);
+        return Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.5);
       case MessageStatus.sent:
-        return AppColors.colorE2E2E2.withOpacity(0.7);
+        return Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7);
       case MessageStatus.delivered:
-        return AppColors.colorE2E2E2;
+        return Theme.of(context).colorScheme.onPrimaryContainer;
       case MessageStatus.read:
-        return AppColors.white1;
+        return AppColors.glitch100;
       case MessageStatus.failed:
-        return AppColors.red1;
+        return Theme.of(context).colorScheme.error;
     }
   }
 }

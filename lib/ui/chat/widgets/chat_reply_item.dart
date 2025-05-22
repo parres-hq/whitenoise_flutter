@@ -19,9 +19,9 @@ class ChatReplyItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = isMe ? AppColors.grey3 : AppColors.color202320;
-    final backgroundColor = isMe ? AppColors.colorE2E2E2 : AppColors.grey4;
-    final textColor = isMe ? AppColors.color202320 : AppColors.colorE2E2E2;
+    final borderColor = isMe ? AppColors.glitch300 : Theme.of(context).colorScheme.primary;
+    final backgroundColor = isMe ? Theme.of(context).colorScheme.onPrimaryContainer : AppColors.glitch400;
+    final textColor = isMe ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onPrimaryContainer;
     final senderNameColor = textColor;
 
     return GestureDetector(
@@ -65,7 +65,7 @@ class ChatReplyItem extends StatelessWidget {
                         placeholder: (context, url) => Container(
                           width: 16.w,
                           height: 16.h,
-                          color: AppColors.color202320.withOpacity(0.1),
+                              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
                         ),
                       ),
                     ),
