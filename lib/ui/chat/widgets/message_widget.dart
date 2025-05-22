@@ -196,14 +196,29 @@ class MessageWidget extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(message.content ?? '', style: TextStyle(fontSize: 14.sp, color: textColor)),
+                      Flexible(
+                        child: Text(
+                          message.content ?? '',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: textColor,
+                            decoration: TextDecoration.none,
+                            fontFamily: 'OverusedGrotesk',
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
                       if (message.content!.length < 32)
                         Row(
                           children: [
                             Gap(6.w),
                             Text(
                               message.timeSent,
-                              style: TextStyle(fontSize: 10.sp, color: textColor.withOpacity(0.7)),
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                color: textColor.withOpacity(0.7),
+                                decoration: TextDecoration.none,
+                              ),
                             ),
                             Gap(4.w),
                             if (message.isMe)
@@ -224,7 +239,14 @@ class MessageWidget extends StatelessWidget {
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(message.timeSent, style: TextStyle(fontSize: 10.sp, color: textColor.withOpacity(0.7))),
+                  Text(
+                    message.timeSent,
+                    style: TextStyle(
+                      fontSize: 10.sp,
+                      color: textColor.withOpacity(0.7),
+                      decoration: TextDecoration.none,
+                    ),
+                  ),
                   Gap(4.w),
                   if (message.isMe)
                     Icon(_getStatusIcon(message.status), size: 12.w, color: _getStatusColor(message.status, context)),
