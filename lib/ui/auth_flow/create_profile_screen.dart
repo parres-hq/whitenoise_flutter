@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
-import 'package:whitenoise/ui/auth_flow/key_created_screen.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
 class CreateProfileScreen extends StatefulWidget {
   const CreateProfileScreen({super.key});
@@ -32,25 +31,16 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Center(
-                child: Text(
-                  'Set up your profile',
-                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-                ),
+                child: Text('Set up your profile', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 32),
               const CircleAvatar(backgroundColor: AppColors.black, radius: 40),
               const SizedBox(height: 12),
-              const Text(
-                'Upload photo',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-              ),
+              const Text('Upload photo', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500)),
               const SizedBox(height: 32),
               const Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  'Choose a username',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+                child: Text('Choose a username', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -59,19 +49,13 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   hintText: 'Enter name...',
                   filled: true,
                   fillColor: AppColors.glitch100,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                 ),
               ),
               const SizedBox(height: 24),
               const Align(
                 alignment: Alignment.centerLeft,
-                child: Text(
-                  'Add a short bio',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
+                child: Text('Add a short bio', style: TextStyle(fontWeight: FontWeight.bold)),
               ),
               const SizedBox(height: 8),
               TextField(
@@ -82,10 +66,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   hintText: 'A quick note about you...',
                   filled: true,
                   fillColor: AppColors.glitch100,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    borderSide: BorderSide.none,
-                  ),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: BorderSide.none),
                 ),
               ),
               const SizedBox(height: 32),
@@ -106,10 +87,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           onPressed: _onContinuePressed,
           child: const Align(
             alignment: Alignment.topCenter,
-            child: Text(
-              'Continue',
-              style: TextStyle(fontSize: 18, color: AppColors.white),
-            ),
+            child: Text('Continue', style: TextStyle(fontSize: 18, color: AppColors.white)),
           ),
         ),
       ),
