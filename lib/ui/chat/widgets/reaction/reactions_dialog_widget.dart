@@ -1,4 +1,5 @@
 import 'dart:ui';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
@@ -87,7 +88,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         child: Container(
           width: MediaQuery.of(context).size.width * widget.menuItemsWidth,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
@@ -103,15 +104,11 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                         onTap: () {
                           // set the clicked index for animation
                           setState(() {
-                            clickedContextMenuIndex = widget.menuItems.indexOf(
-                              item,
-                            );
+                            clickedContextMenuIndex = widget.menuItems.indexOf(item);
                           });
 
-                          Future.delayed(
-                            const Duration(milliseconds: 500),
-                          ).whenComplete(() {
-                            if (!mounted) return;
+                          Future.delayed(const Duration(milliseconds: 500)).whenComplete(() {
+                            if (!context.mounted) return;
                             Navigator.of(context).pop();
                             widget.onContextMenuTap(item);
                           });
@@ -121,28 +118,16 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                           children: [
                             Text(
                               item.label,
-                              style: TextStyle(
-                                color:
-                                    item.isDestructive
-                                        ? Colors.red
-                                        : AppColors.glitch950,
-                              ),
+                              style: TextStyle(color: item.isDestructive ? Colors.red : AppColors.glitch950),
                             ),
                             Pulse(
                               infinite: false,
                               duration: const Duration(milliseconds: 500),
-                              animate:
-                                  clickedContextMenuIndex ==
-                                  widget.menuItems.indexOf(item),
+                              animate: clickedContextMenuIndex == widget.menuItems.indexOf(item),
                               child: Icon(
                                 size: 20,
                                 item.icon,
-                                color:
-                                    item.isDestructive
-                                        ? Colors.red
-                                        : Theme.of(
-                                          context,
-                                        ).textTheme.bodyMedium!.color,
+                                color: item.isDestructive ? Colors.red : Theme.of(context).textTheme.bodyMedium!.color,
                               ),
                             ),
                           ],
@@ -150,8 +135,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                       ),
                     ),
 
-                    if (widget.menuItems.last != item)
-                      Container(color: Colors.grey.shade300, height: 1),
+                    if (widget.menuItems.last != item) Container(color: Colors.grey.shade300, height: 1),
                   ],
                 ),
             ],
@@ -162,10 +146,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
   }
 
   Align buildMessage() {
-    return Align(
-      alignment: widget.widgetAlignment,
-      child: Hero(tag: widget.id, child: widget.messageWidget),
-    );
+    return Align(alignment: widget.widgetAlignment, child: Hero(tag: widget.id, child: widget.messageWidget));
   }
 
   Align buildReactions(BuildContext context) {
@@ -176,7 +157,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         child: Container(
           padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.background,
+            color: Theme.of(context).colorScheme.surface,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -192,15 +173,12 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                     onTap: () {
                       setState(() {
                         reactionClicked = true;
-                        clickedReactionIndex = widget.reactions.indexOf(
-                          reaction,
-                        );
+                        clickedReactionIndex = widget.reactions.indexOf(reaction);
                       });
                       // delay for 200 milliseconds to allow the animation to complete
-                      Future.delayed(
-                        const Duration(milliseconds: 500),
-                      ).whenComplete(() {
+                      Future.delayed(const Duration(milliseconds: 500)).whenComplete(() {
                         // pop the dialog
+                        if (!context.mounted) return;
                         Navigator.of(context).pop();
                         widget.onReactionTap(reaction);
                       });
@@ -208,23 +186,14 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                     child: Pulse(
                       infinite: false,
                       duration: const Duration(milliseconds: 500),
-                      animate:
-                          reactionClicked &&
-                          clickedReactionIndex ==
-                              widget.reactions.indexOf(reaction),
+                      animate: reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction),
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(7.0, 2.0, 7.0, 2),
                         decoration: BoxDecoration(
-                          color:
-                              reaction == '⋯'
-                                  ? AppColors.glitch100
-                                  : Colors.transparent,
+                          color: reaction == '⋯' ? AppColors.glitch100 : Colors.transparent,
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: Text(
-                          reaction,
-                          style: const TextStyle(fontSize: 22),
-                        ),
+                        child: Text(reaction, style: const TextStyle(fontSize: 22)),
                       ),
                     ),
                   ),

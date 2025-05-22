@@ -145,7 +145,7 @@ class MessageWidget extends StatelessWidget {
                     ? Container(
                       margin: EdgeInsets.only(bottom: 5),
                       child: Text(
-                        message.senderData!.name ?? "",
+                        message.senderData!.name,
                         style: TextStyle(color: Theme.of(context).colorScheme.error),
                       ),
                     )

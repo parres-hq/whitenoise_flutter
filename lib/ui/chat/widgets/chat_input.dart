@@ -1,20 +1,22 @@
 import 'dart:async';
+
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:date_format/date_format.dart';
+import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/stacked_images.dart';
+
 import '../../../domain/dummy_data/dummy_messages.dart';
 import '../../../domain/models/contact_model.dart';
 import '../../core/themes/colors.dart';
 
 class ChatInput extends StatefulWidget {
   const ChatInput({
-    Key? key,
+    super.key,
     this.onSend,
     //required this.user,
     required this.padding,
@@ -24,7 +26,7 @@ class ChatInput extends StatefulWidget {
     this.mediaSelector,
     this.imageSource = ImageSource.gallery,
     //required this.theme,
-  }) : super(key: key);
+  });
 
   final void Function(MessageModel message)? onSend;
   final void Function()? attachBtnClicked;
@@ -49,8 +51,7 @@ class _ChatInputState extends State<ChatInput> {
   bool showEmoji = false;
   bool isRecording = false;
 
-  bool get hasData =>
-      textController.text.trim().isNotEmpty || images.isNotEmpty;
+  bool get hasData => textController.text.trim().isNotEmpty || images.isNotEmpty;
 
   final imagePicker = ImagePicker();
 
@@ -69,13 +70,7 @@ class _ChatInputState extends State<ChatInput> {
     final id = messages.length + 1;
     final timeSent = DateTime.now().millisecondsSinceEpoch;
     // format the time like 10:00 AM or 10:00 PM using package [date_format]
-    final time = formatDate(DateTime.fromMillisecondsSinceEpoch(timeSent), [
-      hh,
-      ':',
-      nn,
-      ' ',
-      am,
-    ]);
+    final time = formatDate(DateTime.fromMillisecondsSinceEpoch(timeSent), [hh, ':', nn, ' ', am]);
     if (recordedFilePath != null) {
       message = MessageModel(
         id: id.toString(),
@@ -84,15 +79,13 @@ class _ChatInputState extends State<ChatInput> {
         isMe: true,
         reactions: [],
         messageType: 1,
-        audioPath:
-            "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg",
+        audioPath: "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg",
         isReplyMessage: false,
         senderData: ContactModel(
           name: "Me",
           email: "marek@email.com",
           publicKey: "asd fasdfasdfa",
-          imagePath:
-              "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png",
+          imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png",
         ),
       );
     } else {
@@ -109,14 +102,12 @@ class _ChatInputState extends State<ChatInput> {
           name: "Me",
           email: "marek@email.com",
           publicKey: "asd fasdfasdfa",
-          imagePath:
-              "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png",
+          imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png",
         ),
       );
     }
     if (images.isNotEmpty) {
-      message.imageUrl =
-          "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png";
+      message.imageUrl = "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png";
     }
 
     widget.onSend?.call(message);
@@ -131,10 +122,7 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   Future<void> _handleImagePick() async {
-    final result = await imagePicker.pickImage(
-      source: widget.imageSource,
-      imageQuality: 50,
-    );
+    final result = await imagePicker.pickImage(source: widget.imageSource, imageQuality: 50);
     if (result != null) {
       setState(() => images.add(result));
     }
@@ -152,8 +140,7 @@ class _ChatInputState extends State<ChatInput> {
       });
     });
 
-    if (recorderController.hasPermission ||
-        await recorderController.checkPermission()) {
+    if (recorderController.hasPermission || await recorderController.checkPermission()) {
       await recorderController.record(
         androidEncoder: AndroidEncoder.aac,
         androidOutputFormat: AndroidOutputFormat.mpeg4,
@@ -194,14 +181,8 @@ class _ChatInputState extends State<ChatInput> {
   int _recordingDurationInSeconds = 0;
 
   String get _formattedRecordingTime {
-    final minutes = (_recordingDurationInSeconds ~/ 60).toString().padLeft(
-      1,
-      '0',
-    );
-    final seconds = (_recordingDurationInSeconds % 60).toString().padLeft(
-      2,
-      '0',
-    );
+    final minutes = (_recordingDurationInSeconds ~/ 60).toString().padLeft(1, '0');
+    final seconds = (_recordingDurationInSeconds % 60).toString().padLeft(2, '0');
     return "$minutes:$seconds";
   }
 
@@ -235,10 +216,7 @@ class _ChatInputState extends State<ChatInput> {
               ),
               Expanded(
                 child: AudioFileWaveforms(
-                  size: Size(
-                    MediaQuery.of(context).size.width,
-                    MediaQuery.of(context).size.height * 0.05,
-                  ),
+                  size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height * 0.05),
                   playerController: playerController,
                   enableSeekGesture: true,
                   waveformType: WaveformType.fitWidth,
@@ -262,26 +240,17 @@ class _ChatInputState extends State<ChatInput> {
         if (isRecording)
           AudioWaveforms(
             enableGesture: false,
-            size: Size(
-              MediaQuery.of(context).size.width,
-              MediaQuery.of(context).size.height * 0.05,
-            ),
+            size: Size(MediaQuery.of(context).size.width, MediaQuery.of(context).size.height * 0.05),
             recorderController: recorderController,
-            waveStyle: WaveStyle(
-              waveColor: AppColors.glitch600,
-              extendWaveform: true,
-              showMiddleLine: false,
-            ),
+            waveStyle: WaveStyle(waveColor: AppColors.glitch600, extendWaveform: true, showMiddleLine: false),
           ),
         Padding(
           padding: const EdgeInsets.fromLTRB(5, 5, 5, 10),
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 300),
             transitionBuilder:
-                (child, animation) => FadeTransition(
-                  opacity: animation,
-                  child: SizeTransition(sizeFactor: animation, child: child),
-                ),
+                (child, animation) =>
+                    FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child)),
             child:
                 isRecording
                     ? _buildRecordingView() // we'll extract the voice UI into its own method
@@ -302,7 +271,7 @@ class _ChatInputState extends State<ChatInput> {
       key: ValueKey('recording'), // Important for AnimatedSwitcher
       children: [
         Expanded(
-          child: Container(
+          child: SizedBox(
             height: 54,
             child: Stack(
               alignment: AlignmentDirectional.centerStart,
@@ -312,32 +281,19 @@ class _ChatInputState extends State<ChatInput> {
                   height: 35,
                   margin: const EdgeInsets.only(right: 40),
                   padding: const EdgeInsets.symmetric(horizontal: 10),
-                  decoration: BoxDecoration(
-                    color: AppColors.glitch200,
-                    borderRadius: BorderRadius.circular(5),
-                  ),
+                  decoration: BoxDecoration(color: AppColors.glitch200, borderRadius: BorderRadius.circular(5)),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.mic,
-                        size: 20,
-                        color: Theme.of(context).colorScheme.onError,
-                      ),
+                      Icon(Icons.mic, size: 20, color: Theme.of(context).colorScheme.onError),
                       const SizedBox(width: 8),
                       Text(
                         _formattedRecordingTime,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.glitch950,
-                        ),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.glitch950),
                       ),
                       Expanded(
                         child: Container(
                           alignment: Alignment.center,
-                          child: Text(
-                            "<   Swipe to Stop   <",
-                            style: TextStyle(color: AppColors.glitch600),
-                          ),
+                          child: Text("<   Swipe to Stop   <", style: TextStyle(color: AppColors.glitch600)),
                         ),
                       ),
                     ],
@@ -377,10 +333,7 @@ class _ChatInputState extends State<ChatInput> {
                       transform: Matrix4.translationValues(_dragOffsetX, 0, 0),
                       curve: Curves.easeOut,
                       padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.error,
-                        shape: BoxShape.circle,
-                      ),
+                      decoration: BoxDecoration(color: Theme.of(context).colorScheme.error, shape: BoxShape.circle),
                       child: Icon(Icons.mic, size: 30, color: AppColors.white),
                     ),
                   ),
@@ -398,7 +351,7 @@ class _ChatInputState extends State<ChatInput> {
       key: ValueKey('textInput'), // Important for AnimatedSwitcher
       children: [
         widget.mediaSelector != null
-            ? InkWell(child: widget.mediaSelector, onTap: _handleImagePick)
+            ? InkWell(onTap: _handleImagePick, child: widget.mediaSelector)
             : _buildIconBtn(Icons.attach_file, _handleImagePick),
         const SizedBox(width: 5),
         _buildTextField(),
@@ -416,20 +369,10 @@ class _ChatInputState extends State<ChatInput> {
                   shape: BoxShape.circle,
                   boxShadow:
                       isRecording
-                          ? [
-                            BoxShadow(
-                              color: Colors.red.withOpacity(0.6),
-                              blurRadius: 12,
-                              spreadRadius: 2,
-                            ),
-                          ]
+                          ? [BoxShadow(color: Colors.red.withValues(alpha: 0.6), blurRadius: 12, spreadRadius: 2)]
                           : [],
                 ),
-                child: Icon(
-                  Icons.mic,
-                  size: 30,
-                  color: AppColors.glitch950,
-                ),
+                child: Icon(Icons.mic, size: 30, color: AppColors.glitch950),
               ),
             )
             : SizedBox.shrink(),
@@ -438,20 +381,14 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   Widget _buildIconBtn(IconData icon, VoidCallback onTap) {
-    return InkWell(
-      onTap: onTap,
-      child: Icon(icon, size: 25, color: AppColors.glitch950),
-    );
+    return InkWell(onTap: onTap, child: Icon(icon, size: 25, color: AppColors.glitch950));
   }
 
   Widget _buildTextField() {
     final heightFactor = MediaQuery.of(context).size.height * 0.015;
     return Expanded(
       child: Container(
-        decoration: BoxDecoration(
-          color: AppColors.glitch200,
-          borderRadius: BorderRadius.circular(50),
-        ),
+        decoration: BoxDecoration(color: AppColors.glitch200, borderRadius: BorderRadius.circular(50)),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         child: Row(
           children: [
@@ -497,8 +434,7 @@ class _ChatInputState extends State<ChatInput> {
           checkPlatformCompatibility: true,
           emojiViewConfig: EmojiViewConfig(
             // Issue: https://github.com/flutter/flutter/issues/28894
-            emojiSizeMax:
-                28 * (defaultTargetPlatform == TargetPlatform.iOS ? 1.20 : 1.0),
+            emojiSizeMax: 28 * (defaultTargetPlatform == TargetPlatform.iOS ? 1.20 : 1.0),
           ),
           viewOrderConfig: const ViewOrderConfig(
             top: EmojiPickerItem.categoryBar,

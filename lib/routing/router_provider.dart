@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
-import 'package:whitenoise/ui/auth_flow/welcome_screen.dart';
-import 'package:whitenoise/ui/auth_flow/login_screen.dart';
-import 'package:whitenoise/ui/auth_flow/info_screen.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
+import 'package:whitenoise/ui/auth_flow/info_screen.dart';
 import 'package:whitenoise/ui/auth_flow/key_created_screen.dart';
 import 'package:whitenoise/ui/auth_flow/logged_screen.dart';
-import 'package:whitenoise/ui/contact_list/chat_list_screen.dart';
+import 'package:whitenoise/ui/auth_flow/login_screen.dart';
+import 'package:whitenoise/ui/auth_flow/welcome_screen.dart';
 import 'package:whitenoise/ui/chat/chat_screen.dart';
 import 'package:whitenoise/ui/chat/groupchat_screen.dart';
+import 'package:whitenoise/ui/contact_list/chat_list_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authState = ref.watch(authProvider);
@@ -41,26 +41,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.home,
         builder: (context, state) => const WelcomeScreen(),
         routes: [
-          GoRoute(
-            path: 'login',
-            builder: (context, state) => const LoginScreen(),
-          ),
+          GoRoute(path: 'login', builder: (context, state) => const LoginScreen()),
           GoRoute(
             path: 'onboarding',
             builder: (context, state) => const InfoScreen(),
             routes: [
-              GoRoute(
-                path: 'create-profile',
-                builder: (context, state) => const CreateProfileScreen(),
-              ),
-              GoRoute(
-                path: 'key-created',
-                builder: (context, state) => const KeyCreatedScreen(),
-              ),
-              GoRoute(
-                path: 'logged-in',
-                builder: (context, state) => const LoggedInScreen(),
-              ),
+              GoRoute(path: 'create-profile', builder: (context, state) => const CreateProfileScreen()),
+              GoRoute(path: 'key-created', builder: (context, state) => const KeyCreatedScreen()),
+              GoRoute(path: 'logged-in', builder: (context, state) => const LoggedInScreen()),
             ],
           ),
         ],
@@ -74,9 +62,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: ':id',
             builder: (context, state) {
               final contactId = state.pathParameters['id']!;
-              return Scaffold(
-                body: Center(child: Text('Contact Detail: ' + contactId)),
-              );
+              return Scaffold(body: Center(child: Text('Contact Detail: $contactId')));
             },
           ),
         ],
@@ -88,15 +74,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: ':id',
             builder: (context, state) {
-              final chatId = state.pathParameters['id']!;
+              // final chatId = state.pathParameters['id']!;
               // TODO: Pass chatData via state.extra if needed
               return ChatScreen(); // TODO: Pass chatId to ChatScreen if/when supported
             },
           ),
-          GoRoute(
-            path: 'new',
-            builder: (context, state) => const GroupchatScreen(),
-          ),
+          GoRoute(path: 'new', builder: (context, state) => const GroupchatScreen()),
         ],
       ),
       // TODO: Add settings and other routes as needed
