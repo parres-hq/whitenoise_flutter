@@ -55,34 +55,11 @@ class _ChatScreenState extends State<ChatScreen> {
         return Container(
           height: 0.4.sh,
           decoration: BoxDecoration(
-            color: Theme.of(context).appBarTheme.backgroundColor,
+            color: AppColors.glitch50,
             borderRadius: BorderRadius.only(topLeft: Radius.circular(16.r), topRight: Radius.circular(16.r)),
           ),
           child: EmojiPicker(
-            // config: Config(
-            //   columns: 7,
-            //   emojiSizeMax: 28.sp,
-            //   bgColor:Theme.of(context).colorScheme.primary,
-            //   indicatorColor: AppColors.blue1,
-            //   iconColor: AppColors.glitch50,
-            //   iconColorSelected: AppColors.blue1,
-            //   progressIndicatorColor: AppColors.blue1,
-            //   backspaceColor: AppColors.blue1,
-            //   skinToneDialogBgColor:Theme.of(context).colorScheme.primary,
-            //   skinToneIndicatorColor: AppColors.glitch50,
-            //   enableSkinTones: true,
-            //   recentsLimit: 28,
-            //   replaceEmojiOnLimitExceed: false,
-            //   noRecents: Text(
-            //     'No Recents',
-            //     style: TextStyle(
-            //       fontSize: 14.sp,
-            //       color: AppColors.glitch50),
-            //   ),
-            //   tabIndicatorAnimDuration: kTabScrollDuration,
-            //   categoryIcons: const CategoryIcons(),
-            //   buttonMode: ButtonMode.MATERIAL,
-            // ),
+            config: Config(bottomActionBarConfig: BottomActionBarConfig(enabled: false)),
             onEmojiSelected: ((category, emoji) {
               Navigator.pop(context);
               addReactionToMessage(message: message, reaction: emoji.emoji);
@@ -172,13 +149,6 @@ class _ChatScreenState extends State<ChatScreen> {
                         isGroupMessage: false,
                         isSameSenderAsPrevious: _isSameSender(index),
                         isSameSenderAsNext: _isNextSameSender(index),
-                        // onReact: (reaction) {
-                        //   if (reaction == '⋯') {
-                        //     showEmojiBottomSheet(message: message);
-                        //   } else {
-                        //     addReactionToMessage(message: message, reaction: reaction);
-                        //   }
-                        // },
                       ),
                     ),
                   );
@@ -240,13 +210,7 @@ class _ChatScreenState extends State<ChatScreen> {
       child: Column(
         children: [
           Gap(40.h),
-          CircleAvatar(
-            radius: 40.r,
-            // backgroundImage: CachedNetworkImageProvider(
-            //   widget.contact.imagePath ?? AssetsPaths.icImage,
-            // ),
-            backgroundImage: AssetImage(AssetsPaths.icImage),
-          ),
+          CircleAvatar(radius: 40.r, backgroundImage: AssetImage(AssetsPaths.icImage)),
           Gap(12.h),
           Text(
             widget.contact.name,

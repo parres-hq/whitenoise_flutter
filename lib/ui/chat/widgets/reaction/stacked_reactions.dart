@@ -10,7 +10,6 @@ class StackedReactions extends StatelessWidget {
     this.size = 10.0,
     this.direction = TextDirection.ltr,
     this.maxVisible = 5,
-    this.onReact,
     this.width,
   });
 
@@ -18,7 +17,6 @@ class StackedReactions extends StatelessWidget {
   final double size;
   final TextDirection direction;
   final int maxVisible;
-  final VoidCallback? onReact;
   final double? width;
 
   @override
@@ -53,7 +51,6 @@ class StackedReactions extends StatelessWidget {
             return Padding(
               padding: EdgeInsets.only(right: 2.w),
               child: GestureDetector(
-                onTap: onReact,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: isSingle ? 0 : 4.w),
                   height: 20.h,
@@ -77,7 +74,7 @@ class StackedReactions extends StatelessWidget {
           // Show remaining count if needed
           if (remaining > 0)
             GestureDetector(
-              onTap: onReact,
+              // onTap: onReact,
               child: Container(
                 width: 24.w,
                 height: 20.h,

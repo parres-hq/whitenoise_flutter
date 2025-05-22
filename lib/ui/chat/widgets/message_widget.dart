@@ -18,7 +18,6 @@ class MessageWidget extends StatelessWidget {
     required this.isSameSenderAsPrevious,
     required this.isSameSenderAsNext,
     this.onLongPress,
-    this.onReact,
   });
 
   final MessageModel message;
@@ -26,8 +25,6 @@ class MessageWidget extends StatelessWidget {
   final bool isSameSenderAsPrevious;
   final bool isSameSenderAsNext;
   final VoidCallback? onLongPress;
-  // final Function(String)? onReact;
-  final VoidCallback? onReact;
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +101,7 @@ class MessageWidget extends StatelessWidget {
                               bottom: -18.h,
                               left: message.isMe ? 12.w : null,
                               right: message.isMe ? null : 12.w,
-                              child: StackedReactions(reactions: message.reactions, onReact: onReact),
+                              child: StackedReactions(reactions: message.reactions),
                             ),
                         ],
                       ),
