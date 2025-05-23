@@ -37,16 +37,7 @@ class MessageWidget extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 0.8.sw, minWidth: 0.3.sw),
           child: Padding(
-            padding: EdgeInsets.only(
-              bottom:
-                  isSameSenderAsPrevious
-                      ? message.reactions.isNotEmpty
-                          ? 18.h
-                          : 1.h
-                      : message.reactions.isNotEmpty
-                      ? 18.h
-                      : 8.h,
-            ),
+            padding: EdgeInsets.only(bottom: isSameSenderAsPrevious ? 1.w : 8.w),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
@@ -100,7 +91,7 @@ class MessageWidget extends StatelessWidget {
                           // Reactions
                           if (message.reactions.isNotEmpty)
                             Positioned(
-                              bottom: -18.h,
+                              bottom: 0.h,
                               left: message.isMe ? 12.w : null,
                               right: message.isMe ? null : 12.w,
                               child: StackedReactions(reactions: message.reactions, onReactionTap: onReactionTap),
@@ -140,118 +131,122 @@ class MessageWidget extends StatelessWidget {
     final textColor = message.isMe ? AppColors.glitch50 : AppColors.glitch900;
 
     return Container(
-      decoration: BoxDecoration(borderRadius: borderRadius, color: cardColor),
-      padding: EdgeInsets.all(10.w),
-      child: IntrinsicWidth(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Reply message
-            if (message.replyTo != null)
-              ChatReplyItem(
-                message: message.replyTo!,
-                isMe: message.isMe,
-                isOriginalUser: message.replyTo!.sender.id == message.sender.id,
-              ),
-
-            // Image message
-            if (message.type == MessageType.image && message.imageUrl != null)
-              Padding(
-                padding: EdgeInsets.only(bottom: 4.h),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4.r),
-                  child: CachedNetworkImage(
-                    imageUrl: message.imageUrl!,
-                    width: 0.6.sw,
-                    height: 0.3.sh,
-                    fit: BoxFit.cover,
-                    placeholder:
-                        (context, url) => Container(
-                          height: 0.4.sh,
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                          child: Center(child: CircularProgressIndicator(color: AppColors.glitch50)),
-                        ),
-                    errorWidget:
-                        (context, url, error) => Container(
-                          height: 0.4.sh,
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                          child: Icon(CarbonIcons.no_image, color: AppColors.glitch50, size: 40.w),
-                        ),
-                  ),
+      decoration: BoxDecoration(borderRadius: borderRadius),
+      padding: EdgeInsets.only(bottom: message.reactions.isNotEmpty ? 18.h : 0.w),
+      child: Container(
+        decoration: BoxDecoration(borderRadius: borderRadius, color: cardColor),
+        padding: EdgeInsets.only(top: 10.w, left: 10.w, right: 10.w, bottom: 10.w),
+        child: IntrinsicWidth(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Reply message
+              if (message.replyTo != null)
+                ChatReplyItem(
+                  message: message.replyTo!,
+                  isMe: message.isMe,
+                  isOriginalUser: message.replyTo!.sender.id == message.sender.id,
                 ),
-              ),
-            // Audio message
-            if (message.type == MessageType.audio && message.audioPath != null)
-              ChatAudioItem(audioPath: message.audioPath!),
 
-            // Text content (for text messages or captions)
-            if ((message.type == MessageType.text || (message.content != null && message.content!.isNotEmpty)) &&
-                message.type != MessageType.audio)
-              Padding(
-                padding: EdgeInsets.only(bottom: 4.h),
-                child: Container(
-                  alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Flexible(
-                        child: Text(
-                          message.content ?? '',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: textColor,
-                            decoration: TextDecoration.none,
-                            fontFamily: 'OverusedGrotesk',
-                            fontWeight: FontWeight.normal,
+              // Image message
+              if (message.type == MessageType.image && message.imageUrl != null)
+                Padding(
+                  padding: EdgeInsets.only(bottom: 4.h),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(4.r),
+                    child: CachedNetworkImage(
+                      imageUrl: message.imageUrl!,
+                      width: 0.6.sw,
+                      height: 0.3.sh,
+                      fit: BoxFit.cover,
+                      placeholder:
+                          (context, url) => Container(
+                            height: 0.4.sh,
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            child: Center(child: CircularProgressIndicator(color: AppColors.glitch50)),
                           ),
-                        ),
-                      ),
-                      if (message.content!.length < 32)
-                        Row(
-                          children: [
-                            Gap(6.w),
-                            Text(
-                              message.timeSent,
-                              style: TextStyle(
-                                fontSize: 10.sp,
-                                color: textColor.withOpacity(0.7),
-                                decoration: TextDecoration.none,
-                              ),
-                            ),
-                            Gap(4.w),
-                            if (message.isMe)
-                              Icon(
-                                _getStatusIcon(message.status),
-                                size: 12.w,
-                                color: _getStatusColor(message.status, context),
-                              ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            //Message status and time - now properly aligned to bottom right
-            if ((message.content != null && message.content!.isNotEmpty && message.content!.length >= 32) ||
-                message.type == MessageType.audio)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    message.timeSent,
-                    style: TextStyle(
-                      fontSize: 10.sp,
-                      color: textColor.withOpacity(0.7),
-                      decoration: TextDecoration.none,
+                      errorWidget:
+                          (context, url, error) => Container(
+                            height: 0.4.sh,
+                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            child: Icon(CarbonIcons.no_image, color: AppColors.glitch50, size: 40.w),
+                          ),
                     ),
                   ),
-                  Gap(4.w),
-                  if (message.isMe)
-                    Icon(_getStatusIcon(message.status), size: 12.w, color: _getStatusColor(message.status, context)),
-                ],
-              ),
-          ],
+                ),
+              // Audio message
+              if (message.type == MessageType.audio && message.audioPath != null)
+                ChatAudioItem(audioPath: message.audioPath!),
+
+              // Text content (for text messages or captions)
+              if ((message.type == MessageType.text || (message.content != null && message.content!.isNotEmpty)) &&
+                  message.type != MessageType.audio)
+                Padding(
+                  padding: EdgeInsets.only(bottom: 4.h),
+                  child: Container(
+                    alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Flexible(
+                          child: Text(
+                            message.content ?? '',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: textColor,
+                              decoration: TextDecoration.none,
+                              fontFamily: 'OverusedGrotesk',
+                              fontWeight: FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                        if (message.content!.length < 32)
+                          Row(
+                            children: [
+                              Gap(6.w),
+                              Text(
+                                message.timeSent,
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  color: textColor.withOpacity(0.7),
+                                  decoration: TextDecoration.none,
+                                ),
+                              ),
+                              Gap(4.w),
+                              if (message.isMe)
+                                Icon(
+                                  _getStatusIcon(message.status),
+                                  size: 12.w,
+                                  color: _getStatusColor(message.status, context),
+                                ),
+                            ],
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              //Message status and time - now properly aligned to bottom right
+              if ((message.content != null && message.content!.isNotEmpty && message.content!.length >= 32) ||
+                  message.type == MessageType.audio)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      message.timeSent,
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        color: textColor.withOpacity(0.7),
+                        decoration: TextDecoration.none,
+                      ),
+                    ),
+                    Gap(4.w),
+                    if (message.isMe)
+                      Icon(_getStatusIcon(message.status), size: 12.w, color: _getStatusColor(message.status, context)),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );
