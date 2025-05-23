@@ -7,9 +7,9 @@ import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
-import 'package:whitenoise/shared/custom_bottom_sheet.dart';
-import 'package:whitenoise/shared/custom_button.dart';
-import 'package:whitenoise/shared/custom_textfield.dart';
+import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/custom_button.dart';
+import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class GroupChatDetailsSheet extends StatefulWidget {
   final List<ContactModel> selectedContacts;
@@ -25,6 +25,10 @@ class GroupChatDetailsSheet extends StatefulWidget {
       title: 'Group chat details',
       heightFactor: 0.9,
       backgroundColor: Colors.white,
+      blurBackground: true,
+      blurSigma: 8.0,
+      transitionDuration: const Duration(milliseconds: 400),
+      barrierColor: Colors.transparent,
       builder:
           (context) =>
               GroupChatDetailsSheet(selectedContacts: selectedContacts),

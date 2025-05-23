@@ -48,69 +48,65 @@ class InfoScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: Stack(
-        children: [
-          SafeArea(
-            top: true,
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 120),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Center(
-                    child: Text(
-                      "What's unique\nabout White Noise",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(
+                      child: Text(
+                        "What's unique\nabout White Noise",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 48),
-                  _buildFeatureItem(
-                    'Private by default',
-                    'No one can trace who you talk to.',
-                  ),
-                  _buildFeatureItem(
-                    'Cannot be censored',
-                    'Even the people who made this application cannot restrict you.',
-                  ),
-                  _buildFeatureItem(
-                    'Super secure',
-                    'Only you are in control of your data.',
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 96,
-              color: AppColors.black,
-              padding: const EdgeInsets.only(top: 20),
-              child: TextButton(
-                style: ButtonStyle(
-                  splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.all(AppColors.transparent),
-                  padding: WidgetStateProperty.all(EdgeInsets.zero),
-                ),
-                onPressed: () => _onContinuePressed(context),
-                child: const Align(
-                  alignment: Alignment.topCenter,
-                  child: Text(
-                    'Continue',
-                    style: TextStyle(fontSize: 18, color: AppColors.white),
-                  ),
+                    const SizedBox(height: 48),
+                    _buildFeatureItem(
+                      'Private by default',
+                      'No one can trace who you talk to.',
+                    ),
+                    _buildFeatureItem(
+                      'Cannot be censored',
+                      'Even the people who made this application cannot restrict you.',
+                    ),
+                    _buildFeatureItem(
+                      'Super secure',
+                      'Only you are in control of your data.',
+                    ),
+                  ],
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.black,
+              foregroundColor: AppColors.white,
+              minimumSize: const Size(double.infinity, 56),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
+            onPressed: () => _onContinuePressed(context),
+            child: const Text(
+              'Continue',
+              style: TextStyle(fontSize: 18),
+            ),
           ),
-        ],
+        ),
       ),
     );
   }

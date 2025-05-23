@@ -15,100 +15,123 @@ class WelcomeScreen extends StatelessWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            height: screenHeight * 0.55,
-            width: double.infinity,
-            child: ShaderMask(
-              shaderCallback: (Rect bounds) {
-                return const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Colors.black, Colors.transparent],
-                  stops: [0.7, 1.0],
-                ).createShader(bounds);
-              },
-              blendMode: BlendMode.dstIn,
-              child: Image.asset(AssetsPaths.loginSplash, fit: BoxFit.cover),
+          Expanded(
+            flex: 5,
+            child: SizedBox(
+              width: double.infinity,
+              child: ShaderMask(
+                shaderCallback: (Rect bounds) {
+                  return const LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Colors.black, Colors.transparent],
+                    stops: [0.7, 1.0],
+                  ).createShader(bounds);
+                },
+                blendMode: BlendMode.dstIn,
+                child: Image.asset(AssetsPaths.loginSplash, fit: BoxFit.cover),
+              ),
             ),
           ),
-
-          Padding(
-            padding: const EdgeInsets.fromLTRB(24, 44, 24, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
-                Text(
-                  'Welcome to',
-                  style: TextStyle(fontSize: 24, color: Colors.black87),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'White Noise',
-                  style: TextStyle(
-                    fontSize: 42,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black,
+          Expanded(
+            flex: 5,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Welcome to',
+                    style: TextStyle(
+                      fontSize: 36,
+                      fontWeight: FontWeight.w400,
+                      color: Colors.black,
+                      height: 1.1,
+                    ),
                   ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Private messaging made easy.',
-                  style: TextStyle(fontSize: 18, color: Colors.grey),
-                ),
-              ],
+                  const Text(
+                    'White Noise',
+                    style: TextStyle(
+                      fontSize: 46,
+                      fontWeight: FontWeight.w800,
+                      color: Colors.black,
+                      height: 1.1,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Secure. Distributed. Uncensorable.',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w400,
+                      color: Color(0xFF666666),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
-
-          const Spacer(),
-
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: Center(
-              child: TextButton(
+        ],
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextButton(
                 style: ButtonStyle(
                   splashFactory: NoSplash.splashFactory,
                   overlayColor: WidgetStateProperty.all(Colors.transparent),
-                  padding: WidgetStateProperty.all(EdgeInsets.zero),
+                  padding: WidgetStateProperty.all(const EdgeInsets.symmetric(vertical: 16)),
+                  minimumSize: WidgetStateProperty.all(const Size(double.infinity, 56)),
                 ),
                 onPressed: () {
-                  Routes.goToOnboarding(context);
+                  GoRouter.of(context).go('/login');
                 },
                 child: const Text(
-                  'Create a new profile',
+                  'Sign In',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w500,
                     color: Colors.black,
                     decoration: TextDecoration.none,
                   ),
                 ),
               ),
-            ),
-          ),
-
-          Container(
-            height: 96,
-            width: double.infinity,
-            color: Colors.black,
-            padding: const EdgeInsets.only(top: 20),
-            child: TextButton(
-              style: ButtonStyle(
-                splashFactory: NoSplash.splashFactory,
-                overlayColor: WidgetStateProperty.all(Colors.transparent),
-                padding: WidgetStateProperty.all(EdgeInsets.zero),
-              ),
-              onPressed: () {
-                GoRouter.of(context).go('/login');
-              },
-              child: const Align(
-                alignment: Alignment.topCenter,
-                child: Text(
-                  'Sign in',
-                  style: TextStyle(fontSize: 18, color: Colors.white),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.black,
+                  foregroundColor: Colors.white,
+                  minimumSize: const Size(double.infinity, 56),
+                  elevation: 0,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.zero,
+                  ),
+                ),
+                onPressed: () {
+                  Routes.goToOnboarding(context);
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Text(
+                      'Create Account',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    SizedBox(width: 8),
+                    Icon(Icons.arrow_forward, size: 20),
+                  ],
                 ),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

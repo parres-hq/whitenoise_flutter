@@ -14,128 +14,124 @@ class LoggedInScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      body: Stack(
-        children: [
-          SafeArea(
-            top: true,
-            bottom: false,
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 120),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  const Center(
-                    child: Text(
-                      "You're signed in",
-                      style: TextStyle(
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+      body: SafeArea(
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    const Center(
+                      child: Text(
+                        "You're signed in",
+                        style: TextStyle(
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  const Center(
-                    child: Text(
-                      "Let's see if you already have previous activity.",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: AppColors.glitch400,
+                    const SizedBox(height: 12),
+                    const Center(
+                      child: Text(
+                        "Let's see if you already have previous activity.",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppColors.glitch400,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 48),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 20,
-                    ),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: AppColors.black,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Row(
-                      children: [
-                        SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.white,
+                    const SizedBox(height: 48),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 20,
+                      ),
+                      margin: const EdgeInsets.only(bottom: 16),
+                      decoration: const BoxDecoration(
+                        color: AppColors.black,
+                        borderRadius: BorderRadius.zero,
+                      ),
+                      child: const Row(
+                        children: [
+                          SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.white,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          'Looking for your contacts',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: AppColors.white,
+                          SizedBox(width: 12),
+                          Text(
+                            'Looking for your contacts',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: AppColors.white,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 20,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.black,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Row(
-                      children: [
-                        SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: AppColors.white,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 20,
+                      ),
+                      decoration: const BoxDecoration(
+                        color: AppColors.black,
+                        borderRadius: BorderRadius.zero,
+                      ),
+                      child: const Row(
+                        children: [
+                          SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: AppColors.white,
+                            ),
                           ),
-                        ),
-                        SizedBox(width: 12),
-                        Text(
-                          'Looking for chats',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: AppColors.white,
+                          SizedBox(width: 12),
+                          Text(
+                            'Looking for chats',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: AppColors.white,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Container(
-              height: 96,
-              color: AppColors.black,
-              padding: const EdgeInsets.only(top: 20),
-              child: TextButton(
-                style: ButtonStyle(
-                  splashFactory: NoSplash.splashFactory,
-                  overlayColor: WidgetStateProperty.all(AppColors.transparent),
-                  padding: WidgetStateProperty.all(EdgeInsets.zero),
-                ),
-                onPressed: () => _onContinuePressed(context),
-                child: const Align(
-                  alignment: Alignment.topCenter,
-                  child: Text(
-                    'Continue',
-                    style: TextStyle(fontSize: 18, color: AppColors.white),
-                  ),
+                  ],
                 ),
               ),
             ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.black,
+              foregroundColor: AppColors.white,
+              minimumSize: const Size(double.infinity, 56),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
+            onPressed: () => _onContinuePressed(context),
+            child: const Text(
+              'Continue',
+              style: TextStyle(fontSize: 18),
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
