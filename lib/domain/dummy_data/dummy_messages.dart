@@ -19,7 +19,7 @@ final User maxContact = User(
 );
 
 final User meContact = User(
-  id: '3',
+  id: 'current_user_id',
   name: "Me",
   email: "me@email.com",
   publicKey: "zxcvzxcvzxcv",
@@ -245,89 +245,5 @@ List<MessageModel> messages = [
     isMe: false,
     status: MessageStatus.read,
     reactions: [],
-  ),
-];
-
-// Group chat messages
-List<MessageModel> groupMessages = [
-  MessageModel(
-    id: '10',
-    content: 'Goodbye',
-    type: MessageType.text,
-    createdAt: DateTime.now().subtract(const Duration(minutes: 11)),
-    sender: meContact,
-    isMe: true,
-    status: MessageStatus.read,
-    reactions: [Reaction(emoji: '👍', user: marekContact)],
-  ),
-  MessageModel(
-    id: '9',
-    content: 'Bye',
-    type: MessageType.text,
-    createdAt: DateTime.now().subtract(const Duration(minutes: 12)),
-    sender: marekContact,
-    isMe: false,
-    status: MessageStatus.read,
-    reactions: [
-      Reaction(emoji: '👍', user: meContact),
-      Reaction(emoji: '💗', user: meContact),
-      Reaction(emoji: '😂', user: meContact),
-    ],
-  ),
-  MessageModel(
-    id: '8',
-    content: 'Yes',
-    type: MessageType.text,
-    createdAt: DateTime.now().subtract(const Duration(minutes: 13)),
-    sender: marekContact,
-    isMe: false,
-    status: MessageStatus.read,
-  ),
-  MessageModel(
-    id: '7',
-    content: 'Good to hear that',
-    type: MessageType.text,
-    createdAt: DateTime.now().subtract(const Duration(minutes: 14)),
-    sender: marekContact,
-    isMe: false,
-    status: MessageStatus.read,
-    reactions: [Reaction(emoji: '👍', user: meContact)],
-  ),
-  MessageModel(
-    id: '6',
-    content: 'I am also fine',
-    type: MessageType.text,
-    createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
-    sender: maxContact,
-    isMe: false,
-    imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png",
-    status: MessageStatus.read,
-    reactions: [
-      Reaction(emoji: '👍', user: marekContact),
-      Reaction(emoji: '❤️', user: meContact),
-      Reaction(emoji: '😂', user: marekContact),
-      Reaction(emoji: '👍', user: meContact),
-      Reaction(emoji: '👍', user: marekContact),
-    ],
-  ),
-  MessageModel(
-    id: '2',
-    content: 'Yooo. nice to be here',
-    type: MessageType.text,
-    createdAt: DateTime.now().subtract(const Duration(minutes: 16)),
-    sender: marekContact,
-    isMe: false,
-    status: MessageStatus.read,
-    reactions: [Reaction(emoji: '👍', user: meContact)],
-  ),
-  MessageModel(
-    id: '1',
-    content: 'Hey all. welcome to new group',
-    type: MessageType.text,
-    createdAt: DateTime.now().subtract(const Duration(minutes: 20)),
-    sender: meContact,
-    isMe: true,
-    status: MessageStatus.read,
-    reactions: [Reaction(emoji: '😍', user: marekContact)],
   ),
 ];
