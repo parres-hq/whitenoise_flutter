@@ -31,6 +31,12 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   late List<MessageModel> messages;
   final ScrollController _scrollController = ScrollController();
+  final currentUser = User(
+    id: 'current_user_id',
+    name: 'You',
+    email: 'current@user.com',
+    publicKey: 'current_public_key',
+  );
 
   @override
   void initState() {
@@ -47,7 +53,7 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
-  void showEmojiBottomSheet({required MessageModel message}) {
+  void _showEmojiBottomSheet({required MessageModel message}) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
@@ -62,7 +68,7 @@ class _ChatScreenState extends State<ChatScreen> {
             config: Config(bottomActionBarConfig: BottomActionBarConfig(enabled: false)),
             onEmojiSelected: ((category, emoji) {
               Navigator.pop(context);
-              addReactionToMessage(message: message, reaction: emoji.emoji);
+              _updateMessageReaction(message: message, reaction: emoji.emoji);
             }),
           ),
         );
@@ -70,18 +76,26 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void addReactionToMessage({required MessageModel message, required String reaction}) {
+  void _updateMessageReaction({required MessageModel message, required String reaction}) {
     setState(() {
-      message.reactions.add(
-        Reaction(
-          emoji: reaction,
-          user: User(id: 'current_user_id', name: 'You', email: 'current@user.com', publicKey: 'current_public_key'),
-        ),
+      final existingReactionIndex = message.reactions.indexWhere(
+        (r) => r.emoji == reaction && r.user.id == currentUser.id,
       );
+
+      if (existingReactionIndex != -1) {
+        // Remove reaction if user already reacted with same emoji
+        final newReactions = List<Reaction>.from(message.reactions)..removeAt(existingReactionIndex);
+        messages = _updateMessage(message.copyWith(reactions: newReactions));
+      } else {
+        // Add new reaction
+        final newReaction = Reaction(emoji: reaction, user: currentUser);
+        final newReactions = List<Reaction>.from(message.reactions)..add(newReaction);
+        messages = _updateMessage(message.copyWith(reactions: newReactions));
+      }
     });
   }
 
-  void sendNewMessage(MessageModel newMessage) {
+  void _sendNewMessage(MessageModel newMessage) {
     setState(() {
       messages.insert(0, newMessage);
     });
@@ -92,6 +106,12 @@ class _ChatScreenState extends State<ChatScreen> {
         curve: Curves.easeOut,
       );
     });
+  }
+
+  List<MessageModel> _updateMessage(MessageModel updatedMessage) {
+    return messages.map((msg) {
+      return msg.id == updatedMessage.id ? updatedMessage : msg;
+    }).toList();
   }
 
   bool _isSameSender(int index) {
@@ -149,6 +169,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         isGroupMessage: false,
                         isSameSenderAsPrevious: _isSameSender(index),
                         isSameSenderAsNext: _isNextSameSender(index),
+                        onReactionTap: (reaction) {
+                          _updateMessageReaction(message: message, reaction: reaction);
+                        },
                       ),
                     ),
                   );
@@ -164,7 +187,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   email: 'current@user.com',
                   publicKey: 'current_public_key',
                 ),
-                onSend: sendNewMessage,
+                onSend: _sendNewMessage,
                 padding: EdgeInsets.zero,
               ),
             ),
@@ -189,9 +212,9 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             onReactionTap: (reaction) {
               if (reaction == '⋯') {
-                showEmojiBottomSheet(message: message);
+                _showEmojiBottomSheet(message: message);
               } else {
-                addReactionToMessage(message: message, reaction: reaction);
+                _updateMessageReaction(message: message, reaction: reaction);
               }
             },
             onContextMenuTap: (menuItem) {

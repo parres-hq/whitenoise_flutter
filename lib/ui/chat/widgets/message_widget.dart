@@ -11,6 +11,13 @@ import 'chat_reply_item.dart';
 import 'reaction/stacked_reactions.dart';
 
 class MessageWidget extends StatelessWidget {
+  final MessageModel message;
+  final bool isGroupMessage;
+  final bool isSameSenderAsPrevious;
+  final bool isSameSenderAsNext;
+  final VoidCallback? onLongPress;
+  final Function(String)? onReactionTap;
+
   const MessageWidget({
     super.key,
     required this.message,
@@ -18,13 +25,8 @@ class MessageWidget extends StatelessWidget {
     required this.isSameSenderAsPrevious,
     required this.isSameSenderAsNext,
     this.onLongPress,
+    this.onReactionTap,
   });
-
-  final MessageModel message;
-  final bool isGroupMessage;
-  final bool isSameSenderAsPrevious;
-  final bool isSameSenderAsNext;
-  final VoidCallback? onLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +103,7 @@ class MessageWidget extends StatelessWidget {
                               bottom: -18.h,
                               left: message.isMe ? 12.w : null,
                               right: message.isMe ? null : 12.w,
-                              child: StackedReactions(reactions: message.reactions),
+                              child: StackedReactions(reactions: message.reactions, onReactionTap: onReactionTap),
                             ),
                         ],
                       ),

@@ -11,7 +11,7 @@ class MessageModel {
   final String? audioPath;
   final String? imageUrl;
   final MessageModel? replyTo;
-  final List<Reaction> reactions;
+  late final List<Reaction> reactions;
   final String? roomId;
   final MessageStatus status;
 
@@ -26,10 +26,42 @@ class MessageModel {
     this.audioPath,
     this.imageUrl,
     this.replyTo,
-    this.reactions = const [],
+    List<Reaction> reactions = const [],
     this.roomId,
     this.status = MessageStatus.sent,
-  });
+  }) : reactions = List.unmodifiable(reactions);
+
+  MessageModel copyWith({
+    String? id,
+    String? content,
+    MessageType? type,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    User? sender,
+    bool? isMe,
+    String? audioPath,
+    String? imageUrl,
+    MessageModel? replyTo,
+    List<Reaction>? reactions,
+    String? roomId,
+    MessageStatus? status,
+  }) {
+    return MessageModel(
+      id: id ?? this.id,
+      content: content ?? this.content,
+      type: type ?? this.type,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      sender: sender ?? this.sender,
+      isMe: isMe ?? this.isMe,
+      audioPath: audioPath ?? this.audioPath,
+      imageUrl: imageUrl ?? this.imageUrl,
+      replyTo: replyTo ?? this.replyTo,
+      reactions: reactions ?? this.reactions,
+      roomId: roomId ?? this.roomId,
+      status: status ?? this.status,
+    );
+  }
 
   String get timeSent {
     final now = DateTime.now();
@@ -65,9 +97,7 @@ class MessageModel {
       audioPath: json['audio_path'],
       imageUrl: json['image_url'],
       replyTo: json['reply_to'] != null ? MessageModel.fromJson(json['reply_to']) : null,
-      reactions: (json['reactions'] as List<dynamic>?)
-          ?.map((e) => Reaction.fromJson(e))
-          .toList() ?? [],
+      reactions: (json['reactions'] as List<dynamic>?)?.map((e) => Reaction.fromJson(e)).toList() ?? [],
       roomId: json['room_id'],
       status: MessageStatus.values.firstWhere(
         (e) => e.toString() == 'MessageStatus.${json['status']}',
@@ -98,39 +128,31 @@ class MessageModel {
 class Reaction {
   final String emoji;
   final User user;
+  final DateTime createdAt;
 
-  Reaction({
-    required this.emoji,
-    required this.user,
-  });
+  Reaction({required this.emoji, required this.user, DateTime? createdAt}) : createdAt = createdAt ?? DateTime.now();
 
   factory Reaction.fromJson(Map<String, dynamic> json) {
     return Reaction(
       emoji: json['emoji'],
       user: User.fromJson(json['user']),
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'emoji': emoji,
-      'user': user.toJson(),
-    };
+    return {'emoji': emoji, 'user': user.toJson(), 'created_at': createdAt.toIso8601String()};
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Reaction && runtimeType == other.runtimeType && emoji == other.emoji && user.id == other.user.id;
+
+  @override
+  int get hashCode => emoji.hashCode ^ user.id.hashCode;
 }
 
-enum MessageType {
-  text,
-  image,
-  audio,
-  video,
-  file,
-}
+enum MessageType { text, image, audio, video, file }
 
-enum MessageStatus {
-  sending,
-  sent,
-  delivered,
-  read,
-  failed,
-}
+enum MessageStatus { sending, sent, delivered, read, failed }
