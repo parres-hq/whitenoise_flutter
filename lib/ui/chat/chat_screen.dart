@@ -126,6 +126,13 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Ensure status bar has light icons on this dark background
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light, // for Android
+      statusBarBrightness: Brightness.dark, // for iOS
+    ));
+    
     return Scaffold(
       backgroundColor: AppColors.glitch50,
       appBar: AppBar(

@@ -23,6 +23,13 @@ class MyApp extends ConsumerWidget {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+    
+    // Set status bar to light text for dark backgrounds
+    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light, // for Android
+      statusBarBrightness: Brightness.dark, // for iOS
+    ));
 
     return ScreenUtilInit(
       designSize: width > 600 ? const Size(600, 1024) : const Size(390, 844),
@@ -35,8 +42,12 @@ class MyApp extends ConsumerWidget {
           theme: ThemeData(
             fontFamily: 'OverusedGrotesk',
             appBarTheme: AppBarTheme(
-              backgroundColor:
-                  AppColors.glitch950, // Default AppBar color for the app
+              backgroundColor: AppColors.glitch950, // Default AppBar color for the app
+              systemOverlayStyle: SystemUiOverlayStyle(
+                statusBarColor: Colors.transparent,
+                statusBarIconBrightness: Brightness.light, // for Android
+                statusBarBrightness: Brightness.dark, // for iOS
+              ),
             ),
           ),
           routerConfig: router,

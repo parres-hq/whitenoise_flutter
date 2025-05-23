@@ -22,6 +22,9 @@ class SearchChatBottomSheet extends StatefulWidget {
       title: 'Search',
       barrierDismissible: true,
       barrierColor: Colors.transparent,
+      blurBackground: true,
+      blurSigma: 8.0,
+      transitionDuration: const Duration(milliseconds: 400),
       builder: (_) => const SearchChatBottomSheet(),
     );
   }

@@ -24,6 +24,9 @@ class NewChatBottomSheet extends StatefulWidget {
       title: 'New chat',
       barrierDismissible: true,
       barrierColor: Colors.transparent,
+      blurBackground: true,
+      blurSigma: 8.0,
+      transitionDuration: const Duration(milliseconds: 400),
       builder: (context) => const NewChatBottomSheet(),
     );
   }

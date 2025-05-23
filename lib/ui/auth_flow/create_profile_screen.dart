@@ -58,8 +58,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   hintText: 'Enter name...',
                   filled: true,
                   fillColor: AppColors.glitch100,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
                     borderSide: BorderSide.none,
                   ),
                 ),
@@ -81,8 +81,8 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   hintText: 'A quick note about you...',
                   filled: true,
                   fillColor: AppColors.glitch100,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
+                  border: const OutlineInputBorder(
+                    borderRadius: BorderRadius.zero,
                     borderSide: BorderSide.none,
                   ),
                 ),
@@ -92,22 +92,23 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Container(
-        height: 96,
-        color: AppColors.black,
-        padding: const EdgeInsets.only(top: 20),
-        child: TextButton(
-          style: ButtonStyle(
-            splashFactory: NoSplash.splashFactory,
-            overlayColor: WidgetStateProperty.all(AppColors.transparent),
-            padding: WidgetStateProperty.all(EdgeInsets.zero),
-          ),
-          onPressed: _onContinuePressed,
-          child: const Align(
-            alignment: Alignment.topCenter,
-            child: Text(
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.black,
+              foregroundColor: AppColors.white,
+              minimumSize: const Size(double.infinity, 56),
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.zero,
+              ),
+            ),
+            onPressed: _onContinuePressed,
+            child: const Text(
               'Continue',
-              style: TextStyle(fontSize: 18, color: AppColors.white),
+              style: TextStyle(fontSize: 18),
             ),
           ),
         ),

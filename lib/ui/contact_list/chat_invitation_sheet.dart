@@ -3,8 +3,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/shared/custom_bottom_sheet.dart';
-import 'package:whitenoise/shared/custom_button.dart';
+import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/custom_button.dart';
 
 class ChatInvitationSheet extends StatelessWidget {
   final String name;
@@ -35,6 +35,10 @@ class ChatInvitationSheet extends StatelessWidget {
       title: 'Invitation to join secure chat',
       heightFactor: 0.55,
       backgroundColor: Colors.white,
+      blurBackground: true,
+      blurSigma: 8.0,
+      transitionDuration: const Duration(milliseconds: 400),
+      barrierColor: Colors.transparent,
       builder:
           (context) => ChatInvitationSheet(
             name: name,
