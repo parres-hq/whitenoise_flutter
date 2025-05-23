@@ -22,7 +22,6 @@ class DefaultData {
   ];
 
   static const List<MenuItem> myMessageMenuItems = [
-    reply,
     forward,
     edit,
     copy,
