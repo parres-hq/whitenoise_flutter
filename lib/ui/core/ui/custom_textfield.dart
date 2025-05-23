@@ -6,22 +6,24 @@ import 'package:whitenoise/ui/core/themes/colors.dart';
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,
-    required this.textController,
+    this.textController,
     this.padding,
     this.contentPadding,
     this.autofocus = true,
     this.hintText,
     this.obscureText = false,
     this.label,
+    this.readOnly = false,
   });
 
-  final TextEditingController textController;
+  final TextEditingController? textController;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? contentPadding;
   final bool autofocus;
   final String? hintText;
   final bool obscureText;
   final String? label;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -40,6 +42,7 @@ class CustomTextField extends StatelessWidget {
             autofocus: autofocus,
             obscureText: obscureText,
             obscuringCharacter: '•',
+            readOnly: readOnly,
             decoration: InputDecoration(
               hintText: hintText,
               hintStyle: TextStyle(color: AppColors.glitch600, fontSize: 14.sp),

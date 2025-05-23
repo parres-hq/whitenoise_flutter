@@ -12,6 +12,7 @@ abstract final class AppColors {
   static const Color glitch200 = Color(0xFFE2E2E2);
   static const Color glitch300 = Color(0xFFCDCECD);
   static const Color glitch400 = Color(0xFFAFB1AF);
+  static const Color colorDC2626 = Color(0xFFDC2626);
   static const Color glitch500 = Color(0xFF8C908C);
   static const Color glitch600 = Color(0xFF727772);
   static const Color glitch700 = Color(0xFF5A605A);
