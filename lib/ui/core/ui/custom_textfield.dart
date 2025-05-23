@@ -37,19 +37,31 @@ class CustomTextField extends StatelessWidget {
             Text(label, style: TextStyle(color: AppColors.color2D312D, fontSize: 14.sp, fontWeight: FontWeight.w500)),
             Gap(8.h),
           ],
-          TextField(
-            controller: textController,
-            autofocus: autofocus,
-            obscureText: obscureText,
-            obscuringCharacter: '•',
-            readOnly: readOnly,
-            decoration: InputDecoration(
-              hintText: hintText,
-              hintStyle: TextStyle(color: AppColors.color727772, fontSize: 14.sp),
-              border: OutlineInputBorder(borderSide: BorderSide(color: AppColors.colorE2E2E2)),
-              enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.colorE2E2E2)),
-              focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.colorE2E2E2)),
-              contentPadding: contentPadding ?? EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          SizedBox(
+            height: 40.h,
+            child: TextField(
+              controller: textController,
+              autofocus: autofocus,
+              obscureText: obscureText,
+              obscuringCharacter: '•',
+              readOnly: readOnly,
+              decoration: InputDecoration(
+                hintText: hintText,
+                hintStyle: TextStyle(color: AppColors.color727772, fontSize: 14.sp),
+                border: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.colorE2E2E2),
+                  borderRadius: BorderRadius.zero,
+                ),
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.colorE2E2E2),
+                  borderRadius: BorderRadius.zero,
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: AppColors.colorE2E2E2),
+                  borderRadius: BorderRadius.zero,
+                ),
+                contentPadding: contentPadding ?? EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              ),
             ),
           ),
         ],
