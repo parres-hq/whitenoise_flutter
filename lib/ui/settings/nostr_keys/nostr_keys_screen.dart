@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
@@ -126,26 +127,14 @@ class _NostrKeysScreenState extends State<NostrKeysScreen> {
                 children: [
                   Expanded(child: CustomTextField(obscureText: _obscurePrivateKey, readOnly: true)),
                   Gap(8.w),
-                  GestureDetector(
+                  CustomIconButton(
                     onTap: _copyPrivateKey,
-                    child: Container(
-                      decoration: BoxDecoration(border: Border.all(color: AppColors.glitch200)),
-                      child: Padding(
-                        padding: EdgeInsets.all(12.w),
-                        child: SvgPicture.asset(AssetsPaths.icCopy, width: 16.w, height: 16.w),
-                      ),
-                    ),
+                    iconPath: AssetsPaths.icCopy,
                   ),
                   Gap(8.w),
-                  GestureDetector(
+                  CustomIconButton(
                     onTap: _togglePrivateKeyVisibility,
-                    child: Container(
-                      decoration: BoxDecoration(border: Border.all(color: AppColors.glitch200)),
-                      child: Padding(
-                        padding: EdgeInsets.all(12.w),
-                        child: SvgPicture.asset(AssetsPaths.icView, width: 16.w, height: 16.w),
-                      ),
-                    ),
+                    iconPath: AssetsPaths.icView,
                   ),
                 ],
               ),

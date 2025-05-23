@@ -57,4 +57,4 @@ class CustomFilledButton extends StatelessWidget {
   }
 }
 
-enum ButtonType { primary, secondary }
+enum ButtonType { primary, secondary, tertiary }
