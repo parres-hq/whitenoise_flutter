@@ -12,7 +12,6 @@ import 'package:whitenoise/ui/auth_flow/welcome_screen.dart';
 import 'package:whitenoise/ui/chat/chat_screen.dart';
 
 import '../domain/dummy_data/dummy_messages.dart';
-import 'package:whitenoise/ui/chat/groupchat_screen.dart';
 import 'package:whitenoise/ui/contact_list/chat_list_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
