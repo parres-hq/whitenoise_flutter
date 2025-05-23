@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 
 import '../../core/themes/colors.dart';
@@ -9,13 +10,8 @@ class ChatReplyItem extends StatelessWidget {
   final MessageModel message;
   final bool isMe;
   final bool isOriginalUser;
-  
-  const ChatReplyItem({
-    super.key, 
-    required this.message,
-    required this.isMe,
-    this.isOriginalUser = false,
-  });
+
+  const ChatReplyItem({super.key, required this.message, required this.isMe, this.isOriginalUser = false});
 
   @override
   Widget build(BuildContext context) {
@@ -37,12 +33,7 @@ class ChatReplyItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(4.r),
-          border: Border(
-            left: BorderSide(
-              color: borderColor,
-              width: 3.w,
-            ),
-          ),
+          border: Border(left: BorderSide(color: borderColor, width: 3.w)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -62,11 +53,12 @@ class ChatReplyItem extends StatelessWidget {
                         width: 16.w,
                         height: 16.h,
                         fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          width: 16.w,
-                          height: 16.h,
+                        placeholder:
+                            (context, url) => Container(
+                              width: 16.w,
+                              height: 16.h,
                               color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-                        ),
+                            ),
                       ),
                     ),
                   ),
@@ -86,9 +78,7 @@ class ChatReplyItem extends StatelessWidget {
             ),
             SizedBox(height: 4.h),
             // Message content preview
-            Flexible(
-              child: _buildContentPreview(message, textColor),
-            ),
+            Flexible(child: _buildContentPreview(message, textColor)),
           ],
         ),
       ),
@@ -101,86 +91,38 @@ class ChatReplyItem extends StatelessWidget {
         return Text(
           message.content ?? '',
           maxLines: 2,
-          style: TextStyle(
-            fontSize: 12.sp,
-            color: textColor,
-            overflow: TextOverflow.ellipsis,
-          ),
+          style: TextStyle(fontSize: 12.sp, color: textColor, overflow: TextOverflow.ellipsis),
         );
       case MessageType.image:
         return Row(
           children: [
-            Icon(
-              Icons.image_outlined,
-              size: 14.w,
-              color: textColor,
-            ),
+            Icon(CarbonIcons.image, size: 14.w, color: textColor),
             SizedBox(width: 4.w),
-            Text(
-              'Photo',
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: textColor,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
+            Text('Photo', style: TextStyle(fontSize: 12.sp, color: textColor, fontStyle: FontStyle.italic)),
           ],
         );
       case MessageType.audio:
         return Row(
           children: [
-            Icon(
-              Icons.mic_none_outlined,
-              size: 14.w,
-              color: textColor,
-            ),
+            Icon(CarbonIcons.document_audio, size: 14.w, color: textColor),
             SizedBox(width: 4.w),
-            Text(
-              'Audio message',
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: textColor,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
+            Text('Audio message', style: TextStyle(fontSize: 12.sp, color: textColor, fontStyle: FontStyle.italic)),
           ],
         );
       case MessageType.video:
         return Row(
           children: [
-            Icon(
-              Icons.videocam_outlined,
-              size: 14.w,
-              color: textColor,
-            ),
+            Icon(CarbonIcons.video, size: 14.w, color: textColor),
             SizedBox(width: 4.w),
-            Text(
-              'Video',
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: textColor,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
+            Text('Video', style: TextStyle(fontSize: 12.sp, color: textColor, fontStyle: FontStyle.italic)),
           ],
         );
       case MessageType.file:
         return Row(
           children: [
-            Icon(
-              Icons.insert_drive_file_outlined,
-              size: 14.w,
-              color: textColor,
-            ),
+            Icon(CarbonIcons.document, size: 14.w, color: textColor),
             SizedBox(width: 4.w),
-            Text(
-              'File',
-              style: TextStyle(
-                fontSize: 12.sp,
-                color: textColor,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
+            Text('File', style: TextStyle(fontSize: 12.sp, color: textColor, fontStyle: FontStyle.italic)),
           ],
         );
     }

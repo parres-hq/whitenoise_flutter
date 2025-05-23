@@ -257,13 +257,13 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Gap(24.h),
           StatusMessageItemWidget(
-            icon: Icons.mail_outline,
+            icon: CarbonIcons.email,
             content: 'Chat invite sent to ${widget.contact.name}',
             boldText: widget.contact.name,
           ),
           Gap(12.h),
           StatusMessageItemWidget(
-            icon: Icons.check,
+            icon: CarbonIcons.checkmark,
             content: '${widget.contact.name} accepted the invite',
             boldText: widget.contact.name,
           ),

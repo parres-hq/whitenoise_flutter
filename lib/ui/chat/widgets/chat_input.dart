@@ -372,7 +372,7 @@ class _ChatInputState extends State<ChatInput> {
           else
             IconButton(
               icon: Icon(
-                _showEmojiPicker ? Icons.text_fields_outlined : Icons.emoji_emotions,
+                _showEmojiPicker ? CarbonIcons.text_scale : CarbonIcons.face_activated_add,
                 size: 24.w,
                 color: Theme.of(context).colorScheme.primary,
               ),

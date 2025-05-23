@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import '../../core/themes/colors.dart';
 import '../notifiers/chat_audio_notifier.dart';
 
@@ -47,8 +48,7 @@ class ChatAudioItem extends ConsumerWidget {
           ),
           child: IconButton(
             icon: Icon(
-              isThisPlaying ? Icons.stop : Icons.play_arrow,
-              color: AppColors.white,
+              isThisPlaying ? CarbonIcons.pause_filled : CarbonIcons.play_filled, color: AppColors.glitch50,
             ),
             onPressed: () => notifier.togglePlayback(),
           ),
@@ -61,8 +61,8 @@ class ChatAudioItem extends ConsumerWidget {
             waveformType: WaveformType.fitWidth,
             enableSeekGesture: true,
             playerWaveStyle: const PlayerWaveStyle(
-              fixedWaveColor: Colors.grey,
-              liveWaveColor: Colors.white,
+              fixedWaveColor: AppColors.glitch400,
+              liveWaveColor: AppColors.glitch50,
               spacing: 6,
             ),
           ),
