@@ -56,7 +56,6 @@ class StackedReactions extends StatelessWidget {
               isSingle: isSingle,
               size: size,
               onTap: () {
-                debugPrint(emoji);
                 onReactionTap?.call(emoji);
               },
             );

@@ -126,7 +126,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(messages);
     return Scaffold(
       backgroundColor: AppColors.glitch50,
       appBar: AppBar(
