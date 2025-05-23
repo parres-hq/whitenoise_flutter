@@ -177,7 +177,7 @@ class MessageWidget extends StatelessWidget {
                 ),
               // Audio message
               if (message.type == MessageType.audio && message.audioPath != null)
-                ChatAudioItem(audioPath: message.audioPath!),
+                ChatAudioItem(audioPath: message.audioPath!, isMe: message.isMe),
 
               // Text content (for text messages or captions)
               if ((message.type == MessageType.text || (message.content != null && message.content!.isNotEmpty)) &&
