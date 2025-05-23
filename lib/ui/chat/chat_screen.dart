@@ -232,26 +232,19 @@ class _ChatScreenState extends State<ChatScreen> {
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
-          Gap(40.h),
+          Gap(60.h),
           CircleAvatar(radius: 40.r, backgroundImage: AssetImage(AssetsPaths.icImage)),
           Gap(12.h),
           Text(
             widget.contact.name,
-            style: TextStyle(
-              fontSize: 20.sp,
-              fontWeight: FontWeight.w600,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ),
-          Gap(4.h),
-          Text(
-            widget.contact.email,
-            style: TextStyle(fontSize: 14.sp, color: Theme.of(context).colorScheme.onTertiary),
+            style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: AppColors.glitch950),
           ),
           Gap(12.h),
+          Text(widget.contact.email, style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600)),
+          Gap(8.h),
           Text(
             'Public Key: ${widget.contact.publicKey.substring(0, 8)}...',
-            style: TextStyle(fontSize: 12.sp, color: Theme.of(context).colorScheme.onTertiary),
+            style: TextStyle(fontSize: 12.sp, color: AppColors.glitch600),
           ),
           Gap(24.h),
           Container(
@@ -264,17 +257,15 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Gap(24.h),
           StatusMessageItemWidget(
-            icon: CarbonIcons.checkmark,
-            // iconColor: AppColors.blue1,
-            highlightedContent: widget.contact.name,
-            content: " accepted the invite",
+            icon: Icons.mail_outline,
+            content: 'Chat invite sent to ${widget.contact.name}',
+            boldText: widget.contact.name,
           ),
           Gap(12.h),
           StatusMessageItemWidget(
-            icon: Icons.lock,
-            highlightedContent: widget.contact.name,
-            // iconColor: AppColors.green1,
-            content: "End-to-end encrypted",
+            icon: Icons.check,
+            content: '${widget.contact.name} accepted the invite',
+            boldText: widget.contact.name,
           ),
           Gap(40.h),
         ],
