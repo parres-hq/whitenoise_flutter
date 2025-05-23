@@ -26,20 +26,20 @@ final authProvider = ChangeNotifierProvider<AuthState>((ref) {
 // Note: In actual implementation, you should consider using a more modern approach
 // with StateNotifier/StateNotifierProvider or AsyncNotifier/AsyncNotifierProvider
 // and adapting the GoRouter to work with that instead of requiring a Listenable.
-// 
+//
 // Example of modern approach (requires changes in router_provider.dart):
-// 
+//
 // class AuthState {
 //   final bool isAuthenticated;
 //   AuthState({this.isAuthenticated = false});
 // }
-// 
+//
 // class AuthNotifier extends Notifier<AuthState> {
 //   @override
 //   AuthState build() => AuthState();
-//   
+//
 //   void login() => state = AuthState(isAuthenticated: true);
 //   void logout() => state = AuthState(isAuthenticated: false);
 // }
-// 
+//
 // final authNotifierProvider = NotifierProvider<AuthNotifier, AuthState>(() => AuthNotifier());

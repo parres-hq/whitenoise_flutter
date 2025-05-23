@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});

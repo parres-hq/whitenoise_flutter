@@ -1,4 +1,5 @@
 import 'dart:ui';
+
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
@@ -179,6 +180,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                       // delay for 200 milliseconds to allow the animation to complete
                       Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
                         // pop the dialog
+                        if (!context.mounted) return;
                         Navigator.of(context).pop();
                         widget.onReactionTap(reaction);
                       });

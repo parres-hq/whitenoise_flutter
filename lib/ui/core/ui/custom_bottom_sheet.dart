@@ -27,13 +27,26 @@ class CustomBottomSheet {
       transitionDuration: transitionDuration,
       pageBuilder: (context, animation, secondaryAnimation) {
         final bottomSheetHeight = 1.sh * heightFactor;
-        
+
         return Material(
           color: Colors.transparent,
-          child: blurBackground
-              ? BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-                  child: _buildBottomSheetContent(
+          child:
+              blurBackground
+                  ? BackdropFilter(
+                    filter: ImageFilter.blur(
+                      sigmaX: blurSigma,
+                      sigmaY: blurSigma,
+                    ),
+                    child: _buildBottomSheetContent(
+                      context: context,
+                      builder: builder,
+                      title: title,
+                      showCloseButton: showCloseButton,
+                      bottomSheetHeight: bottomSheetHeight,
+                      backgroundColor: backgroundColor,
+                    ),
+                  )
+                  : _buildBottomSheetContent(
                     context: context,
                     builder: builder,
                     title: title,
@@ -41,27 +54,24 @@ class CustomBottomSheet {
                     bottomSheetHeight: bottomSheetHeight,
                     backgroundColor: backgroundColor,
                   ),
-                )
-              : _buildBottomSheetContent(
-                  context: context,
-                  builder: builder,
-                  title: title,
-                  showCloseButton: showCloseButton,
-                  bottomSheetHeight: bottomSheetHeight,
-                  backgroundColor: backgroundColor,
-                ),
         );
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        final curvedAnimation = CurvedAnimation(parent: animation, curve: curve);
+        final curvedAnimation = CurvedAnimation(
+          parent: animation,
+          curve: curve,
+        );
         return SlideTransition(
-          position: Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(curvedAnimation),
+          position: Tween<Offset>(
+            begin: const Offset(0, 1),
+            end: Offset.zero,
+          ).animate(curvedAnimation),
           child: child,
         );
       },
     );
   }
-  
+
   static Widget _buildBottomSheetContent({
     required BuildContext context,
     required Widget Function(BuildContext) builder,
@@ -79,9 +89,7 @@ class CustomBottomSheet {
           children: [
             Container(
               height: bottomSheetHeight,
-              decoration: BoxDecoration(
-                color: backgroundColor,
-              ),
+              decoration: BoxDecoration(color: backgroundColor),
               child: Column(
                 children: [
                   if (title != null || showCloseButton)
@@ -93,21 +101,26 @@ class CustomBottomSheet {
                           if (title != null)
                             Text(
                               title,
-                              style: TextStyle(color: Colors.black, fontSize: 24.sp),
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 24.sp,
+                              ),
                             )
                           else
                             const Spacer(),
                           if (showCloseButton)
                             GestureDetector(
                               onTap: () => Navigator.pop(context),
-                              child: Icon(Icons.close, color: Colors.black, size: 24.w),
+                              child: Icon(
+                                Icons.close,
+                                color: Colors.black,
+                                size: 24.w,
+                              ),
                             ),
                         ],
                       ),
                     ),
-                  Expanded(
-                    child: builder(context),
-                  ),
+                  Expanded(child: builder(context)),
                 ],
               ),
             ),

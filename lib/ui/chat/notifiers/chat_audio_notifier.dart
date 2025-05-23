@@ -6,7 +6,6 @@ import 'package:dio/dio.dart';
 
 final currentlyPlayingAudioProvider = StateProvider<String?>((ref) => null);
 
-
 class ChatAudioState {
   final PlayerController? playerController;
   final bool isReady;
@@ -72,8 +71,6 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
     }
   }
 
-
-
   Future<String> _downloadAudioToFile(String url) async {
     final dir = await getTemporaryDirectory();
     final filePath = '${dir.path}/${url.hashCode}.m4a';
@@ -98,7 +95,9 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
       ref.read(currentlyPlayingAudioProvider.notifier).state = null;
     } else {
       if (currentPlayingUrl != null && currentPlayingUrl != audioUrl) {
-        final previousNotifier = ref.read(chatAudioProvider(currentPlayingUrl).notifier);
+        final previousNotifier = ref.read(
+          chatAudioProvider(currentPlayingUrl).notifier,
+        );
         await previousNotifier.stopPlaybackSilently();
       }
 
@@ -111,8 +110,6 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
     }
   }
 
-
-
   Future<void> stopPlaybackSilently() async {
     final controller = state.playerController;
     if (controller == null || !state.isPlaying) return;
@@ -120,7 +117,6 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
     await controller.stopPlayer();
     state = state.copyWith(isPlaying: false);
     debugPrint('Stopping playback silently for $audioUrl');
-
   }
 
   @override
@@ -129,9 +125,9 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
     state.playerController?.dispose();
     super.dispose();
   }
-
 }
 
-final chatAudioProvider = StateNotifierProvider.family<ChatAudioNotifier, ChatAudioState, String>(
+final chatAudioProvider =
+    StateNotifierProvider.family<ChatAudioNotifier, ChatAudioState, String>(
       (ref, audioUrl) => ChatAudioNotifier(ref, audioUrl),
-);
+    );
