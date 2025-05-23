@@ -17,6 +17,10 @@ class AssetsPaths {
   static const String icWarning = '$_svgsDir/ic_warning.svg';
   static const String icEdit = '$_svgsDir/ic_edit.svg';
   static const String icCopy = '$_svgsDir/ic_copy.svg';
+  static const String icHelp = '$_svgsDir/ic_help.svg';
+  static const String icConnected = '$_svgsDir/ic_connected.svg';
+  static const String icDisconnected = '$_svgsDir/ic_disconnected.svg';
+  static const String icPaste = '$_svgsDir/ic_paste.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';
