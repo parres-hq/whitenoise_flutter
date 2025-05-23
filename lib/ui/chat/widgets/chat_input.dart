@@ -52,7 +52,7 @@ class _ChatInputState extends State<ChatInput> {
   final _imagePicker = ImagePicker();
 
   String? _recordedFilePath;
-  bool _isPlaying = false;
+  // bool _isPlaying = false;
   bool _showEmojiPicker = false;
   bool _isRecording = false;
   Timer? _recordingTimer;
@@ -131,14 +131,14 @@ class _ChatInputState extends State<ChatInput> {
     });
   }
 
-  void _togglePlayback() async {
-    if (_isPlaying) {
-      await _playerController.pausePlayer();
-    } else {
-      await _playerController.startPlayer();
-    }
-    setState(() => _isPlaying = !_isPlaying);
-  }
+  // void _togglePlayback() async {
+  //   if (_isPlaying) {
+  //     await _playerController.pausePlayer();
+  //   } else {
+  //     await _playerController.startPlayer();
+  //   }
+  //   setState(() => _isPlaying = !_isPlaying);
+  // }
 
   void _toggleEmojiPicker() async {
     if (_showEmojiPicker) {
@@ -175,7 +175,7 @@ class _ChatInputState extends State<ChatInput> {
     setState(() {
       _selectedImages.clear();
       _recordedFilePath = null;
-      _isPlaying = false;
+      // _isPlaying = false;
       _showEmojiPicker = false;
     });
   }
