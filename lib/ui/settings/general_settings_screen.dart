@@ -8,6 +8,7 @@ import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
+import 'package:whitenoise/ui/settings/nostr_keys/nostr_keys_screen.dart';
 import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
@@ -98,7 +99,12 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
                 MaterialPageRoute(builder: (context) => EditProfileScreen(profile: _currentProfile)),
               );
             }),
-            _settingsRow(Icons.vpn_key_outlined, 'Nostr keys', () {}),
+            _settingsRow(Icons.vpn_key_outlined, 'Nostr keys', () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const NostrKeysScreen()),
+              );
+            }),
             _settingsRow(Icons.network_wifi, 'Network', () {}),
             _settingsRow(
               Icons.account_balance_wallet_outlined,

@@ -6,18 +6,20 @@ import 'package:whitenoise/ui/core/themes/colors.dart';
 class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,
-    required this.textController,
+    this.textController,
     this.padding,
     this.contentPadding,
     this.autofocus = true,
+    this.readOnly = false,
     this.hintText,
   });
 
-  final TextEditingController textController;
+  final TextEditingController? textController;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? contentPadding;
   final bool autofocus;
   final String? hintText;
+  final bool readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -26,6 +28,7 @@ class CustomTextField extends StatelessWidget {
       child: TextField(
         controller: textController,
         autofocus: autofocus,
+        readOnly: readOnly,
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(color: AppColors.color727772, fontSize: 14.sp),

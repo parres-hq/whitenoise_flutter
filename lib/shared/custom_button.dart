@@ -8,23 +8,29 @@ class CustomButton extends StatelessWidget {
     required this.onPressed,
     required this.title,
     this.buttonType = ButtonType.primary,
+    this.buttonColor,
   });
 
   final void Function()? onPressed;
   final String title;
   final ButtonType buttonType;
+  final Color? buttonColor;
 
   @override
   Widget build(BuildContext context) {
     final isPrimary = buttonType == ButtonType.primary;
+    final isSecondary = buttonType == ButtonType.secondary;
+    final isTertiary = buttonType == ButtonType.tertiary;
+
     return SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: isPrimary ? AppColors.color202320 : AppColors.colorF2F2F2,
-          foregroundColor: isPrimary ? AppColors.colorF9F9F9 : AppColors.color2D312D,
+          backgroundColor: isPrimary ? AppColors.color202320 : isSecondary ? AppColors.colorF2F2F2 : AppColors
+              .colorDC2626,
+          foregroundColor: isPrimary || isTertiary ? AppColors.colorF9F9F9 : AppColors.color2D312D,
           disabledBackgroundColor: isPrimary ? AppColors.color202320.withValues(alpha: 0.5) : AppColors.colorF2F2F2,
           disabledForegroundColor: isPrimary ? AppColors.colorF9F9F9 : AppColors.color2D312D,
           padding: EdgeInsets.symmetric(vertical: 16.h),
@@ -44,4 +50,4 @@ class CustomButton extends StatelessWidget {
   }
 }
 
-enum ButtonType { primary, secondary }
+enum ButtonType { primary, secondary, tertiary }
