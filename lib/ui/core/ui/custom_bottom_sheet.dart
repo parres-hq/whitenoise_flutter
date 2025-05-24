@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 
 /// A utility class for showing custom bottom sheets with a smooth slide-up animation.
 class CustomBottomSheet {
@@ -140,35 +142,21 @@ class CustomBottomSheet {
   }) {
     return Container(
       height: bottomSheetHeight,
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16.r)),
-      ),
+      decoration: BoxDecoration(color: backgroundColor),
       child: Column(
         children: [
-          // Add a visible drag handle
-          Container(
-            margin: EdgeInsets.only(top: 8.h),
-            width: 40.w,
-            height: 4.h,
-            decoration: BoxDecoration(
-              color: Colors.grey.shade300,
-              borderRadius: BorderRadius.circular(2.r),
-            ),
-          ),
           if (title != null || showCloseButton)
             Padding(
               padding: EdgeInsets.fromLTRB(24.w, 16.h, 16.w, 24.h),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (title != null)
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w600,
+                    Flexible(
+                      child: Text(
+                        title,
+                        style: TextStyle(color: Colors.black, fontSize: 24.sp, fontWeight: FontWeight.w600),
                       ),
                     )
                   else
@@ -176,16 +164,13 @@ class CustomBottomSheet {
                   if (showCloseButton)
                     GestureDetector(
                       onTap: () => Navigator.pop(context),
-                      child: Icon(
-                        Icons.close,
-                        color: Colors.black,
-                        size: 24.w,
-                      ),
+                      child: Icon(Icons.close, color: Colors.black, size: 24.w),
                     ),
                 ],
               ),
             ),
           Expanded(child: builder(context)),
+           if(Platform.isAndroid) Gap(40.h) else Gap(16.h),
         ],
       ),
     );

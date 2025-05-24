@@ -33,7 +33,7 @@ class ChatInvitationSheet extends StatelessWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'Invitation to join secure chat',
-      heightFactor: 0.55,
+      heightFactor: 0.65,
       backgroundColor: Colors.white,
       blurBackground: true,
       blurSigma: 8.0,

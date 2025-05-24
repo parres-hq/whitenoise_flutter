@@ -1,4 +1,5 @@
 class ChatModel {
+  final String id;
   final String name;
   final String lastMessage;
   final String time;
@@ -7,6 +8,7 @@ class ChatModel {
   final String imagePath;
 
   ChatModel({
+    required this.id,
     required this.name,
     required this.lastMessage,
     required this.time,

@@ -100,20 +100,16 @@ class _NewGroupChatSheetState extends State<NewGroupChatSheet> {
             },
           ),
         ),
-        SafeArea(
-          child: CustomFilledButton(
-            onPressed:
-                _selectedContacts.isNotEmpty
-                    ? () {
-                      Navigator.pop(context);
-                      GroupChatDetailsSheet.show(
-                        context: context,
-                        selectedContacts: _selectedContacts.toList(),
-                      );
-                    }
-                    : null,
-            title: 'Continue',
-          ),
+        CustomFilledButton(
+          onPressed:
+              _selectedContacts.isNotEmpty
+                  ? () {
+                    Navigator.pop(context);
+                    GroupChatDetailsSheet.show(context: context, selectedContacts: _selectedContacts.toList());
+                  }
+                  : null,
+          title: 'Continue',
+          bottomPadding: 16.h,
         ),
       ],
     );
