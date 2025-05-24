@@ -28,18 +28,10 @@ class CustomTextField extends StatelessWidget {
         decoration: InputDecoration(
           hintText: hintText,
           hintStyle: TextStyle(color: AppColors.glitch600, fontSize: 14.sp),
-          border: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.glitch200),
-          ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.glitch200),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: AppColors.glitch200),
-          ),
-          contentPadding:
-              contentPadding ??
-              EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          border: OutlineInputBorder(borderSide: BorderSide(color: AppColors.glitch200)),
+          enabledBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.glitch200)),
+          focusedBorder: OutlineInputBorder(borderSide: BorderSide(color: AppColors.glitch200)),
+          contentPadding: contentPadding ?? EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
         ),
       ),
     );
