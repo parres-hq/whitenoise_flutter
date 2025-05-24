@@ -13,6 +13,7 @@ import 'package:whitenoise/ui/settings/nostr_keys/nostr_keys_screen.dart';
 import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
+import 'package:whitenoise/ui/settings/wallet/wallet_screen.dart';
 
 class GeneralSettingsScreen extends StatefulWidget {
   const GeneralSettingsScreen({super.key});
@@ -115,7 +116,9 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
             _settingsRow(
               Icons.account_balance_wallet_outlined,
               'Wallet',
-              () {},
+              () {
+              Navigator.push(context, MaterialPageRoute(builder: (context) => const WalletScreen()));
+            },
             ),
             _settingsRow(Icons.logout, 'Sign out', () {}),
             Gap(32.h),
