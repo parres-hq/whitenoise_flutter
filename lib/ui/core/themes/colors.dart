@@ -11,6 +11,7 @@ abstract final class AppColors {
   static const Color colorF9F9F9 = Color(0xFFF9F9F9);
   static const Color colorF2F2F2 = Color(0xFFF2F2F2);
   static const Color colorDC2626 = Color(0xFFDC2626);
+  static const Color colorEA580C = Color(0xFFEA580C);
 
   static const black1 = Color(0xFF101010);
   static const white1 = Color(0xFFFFF7FA);
@@ -47,5 +48,7 @@ abstract final class AppColors {
     error: Colors.black,
     onError: AppColors.red1,
   );
+
+
 
 }
