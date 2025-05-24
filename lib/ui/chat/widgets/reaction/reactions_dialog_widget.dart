@@ -108,7 +108,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                           });
 
                           Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
-                            if (!mounted) return;
+                            if (!context.mounted) return;
                             Navigator.of(context).pop();
                             widget.onContextMenuTap(item);
                           });

@@ -55,7 +55,7 @@ class MessageWidget extends StatelessWidget {
                         fit: BoxFit.cover,
                         placeholder:
                             (context, url) =>
-                                Container(width: 30.w, height: 30.h, color: AppColors.glitch950.withOpacity(0.1)),
+                                Container(width: 30.w, height: 30.h, color: AppColors.glitch950.withValues(alpha: 0.1)),
                         errorWidget:
                             (context, url, error) =>
                                 Icon(CarbonIcons.user_avatar, size: 30.w, color: AppColors.glitch50),
@@ -163,13 +163,13 @@ class MessageWidget extends StatelessWidget {
                       placeholder:
                           (context, url) => Container(
                             height: 0.4.sh,
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
                             child: Center(child: CircularProgressIndicator(color: AppColors.glitch50)),
                           ),
                       errorWidget:
                           (context, url, error) => Container(
                             height: 0.4.sh,
-                            color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
                             child: Icon(CarbonIcons.no_image, color: AppColors.glitch50, size: 40.w),
                           ),
                     ),
@@ -209,7 +209,7 @@ class MessageWidget extends StatelessWidget {
                                 message.timeSent,
                                 style: TextStyle(
                                   fontSize: 10.sp,
-                                  color: textColor.withOpacity(0.7),
+                                  color: textColor.withValues(alpha:0.7),
                                   decoration: TextDecoration.none,
                                 ),
                               ),
@@ -236,7 +236,7 @@ class MessageWidget extends StatelessWidget {
                       message.timeSent,
                       style: TextStyle(
                         fontSize: 10.sp,
-                        color: textColor.withOpacity(0.7),
+                        color: textColor.withValues(alpha:0.7),
                         decoration: TextDecoration.none,
                       ),
                     ),
@@ -270,9 +270,9 @@ class MessageWidget extends StatelessWidget {
   Color _getStatusColor(MessageStatus status, BuildContext context) {
     switch (status) {
       case MessageStatus.sending:
-        return AppColors.glitch50.withOpacity(0.5);
+        return AppColors.glitch50.withValues(alpha:0.5);
       case MessageStatus.sent:
-        return AppColors.glitch50.withOpacity(0.7);
+        return AppColors.glitch50.withValues(alpha:0.7);
       case MessageStatus.delivered:
         return AppColors.glitch50;
       case MessageStatus.read:

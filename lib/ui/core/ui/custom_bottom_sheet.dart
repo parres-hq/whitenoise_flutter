@@ -67,7 +67,7 @@ class CustomBottomSheet {
                         ? () => Navigator.of(context).pop() 
                         : null,
                     child: Container(
-                      color: Colors.black.withOpacity(
+                      color: Colors.black.withValues(alpha:
                           barrierOpacityAnimation.value),
                     ),
                   );

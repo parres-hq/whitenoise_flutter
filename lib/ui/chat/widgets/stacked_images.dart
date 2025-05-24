@@ -66,7 +66,7 @@ class StackedImages extends StatelessWidget {
                         height: 20.h,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.white.withOpacity(0.9),
+                          color: AppColors.white.withValues(alpha: 0.9),
                           boxShadow: [BoxShadow(color: AppColors.glitch600, blurRadius: 4.r, offset: Offset(0, 2.h))],
                         ),
                         child: Icon(Icons.close, size: 12.sp, color: Colors.red),

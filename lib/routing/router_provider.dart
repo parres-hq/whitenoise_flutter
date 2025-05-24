@@ -63,10 +63,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: ':id',
             builder: (context, state) {
               final contactId = state.pathParameters['id']!;
-              return Scaffold(body: Center(child: Text('Contact Detail: ' + contactId)));
-              return Scaffold(
-                body: Center(child: Text('Contact Detail: $contactId')),
-              );
+              return Scaffold(body: Center(child: Text('Contact Detail: $contactId')));
             },
           ),
         ],

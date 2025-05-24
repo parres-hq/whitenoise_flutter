@@ -57,7 +57,7 @@ class ChatReplyItem extends StatelessWidget {
                             (context, url) => Container(
                               width: 16.w,
                               height: 16.h,
-                              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                             ),
                       ),
                     ),

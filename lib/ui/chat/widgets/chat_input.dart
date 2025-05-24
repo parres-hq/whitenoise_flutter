@@ -59,7 +59,7 @@ class _ChatInputState extends State<ChatInput> {
   int _recordingDurationSeconds = 0;
   double _dragOffsetX = 0;
   bool _isDragging = false;
-  List<XFile> _selectedImages = [];
+  final List<XFile> _selectedImages = [];
 
   @override
   void dispose() {
@@ -375,84 +375,82 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   Widget _buildTextInputUI() {
-    return Container(
-      child: Row(
-        children: [
-          // Attachment button
-          if (widget.mediaSelector != null || widget.enableImages)
-            widget.mediaSelector ??
-                IconButton(
-                  padding: EdgeInsets.all(1.sp),
-                  icon: Icon(CarbonIcons.add, size: 28.w, color: AppColors.glitch500),
-                  onPressed: widget.onAttachmentPressed ?? _pickImages,
-                  splashRadius: 0.1,
-                ),
-
-          // Text field
-          Expanded(
-            child: Container(
-              decoration: BoxDecoration(color: AppColors.glitch80),
-              child: TextField(
-                controller: _textController,
-                focusNode: _focusNode,
-                onChanged: (_) => setState(() {}),
-                onTap: () => setState(() => _showEmojiPicker = false),
-                cursorColor: widget.cursorColor ?? AppColors.glitch500,
-                minLines: 1,
-                maxLines: 5,
-                decoration: InputDecoration(
-                  hintText: "Type a message...",
-                  hintStyle: TextStyle(fontSize: 14.sp, color: AppColors.glitch500),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.w),
-                ),
-                style: TextStyle(fontSize: 14.sp, color: AppColors.glitch700),
+    return Row(
+      children: [
+        // Attachment button
+        if (widget.mediaSelector != null || widget.enableImages)
+          widget.mediaSelector ??
+              IconButton(
+                padding: EdgeInsets.all(1.sp),
+                icon: Icon(CarbonIcons.add, size: 28.w, color: AppColors.glitch500),
+                onPressed: widget.onAttachmentPressed ?? _pickImages,
+                splashRadius: 0.1,
               ),
+
+        // Text field
+        Expanded(
+          child: Container(
+            decoration: BoxDecoration(color: AppColors.glitch80),
+            child: TextField(
+              controller: _textController,
+              focusNode: _focusNode,
+              onChanged: (_) => setState(() {}),
+              onTap: () => setState(() => _showEmojiPicker = false),
+              cursorColor: widget.cursorColor ?? AppColors.glitch500,
+              minLines: 1,
+              maxLines: 5,
+              decoration: InputDecoration(
+                hintText: "Type a message...",
+                hintStyle: TextStyle(fontSize: 14.sp, color: AppColors.glitch500),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.w),
+              ),
+              style: TextStyle(fontSize: 14.sp, color: AppColors.glitch700),
             ),
           ),
+        ),
 
-          // Action buttons
-          if (_hasContent)
-            IconButton(icon: Icon(CarbonIcons.send, size: 24.w, color: AppColors.glitch500), onPressed: _sendMessage)
-          else
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Emoji picker toggle
+        // Action buttons
+        if (_hasContent)
+          IconButton(icon: Icon(CarbonIcons.send, size: 24.w, color: AppColors.glitch500), onPressed: _sendMessage)
+        else
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Emoji picker toggle
+              IconButton(
+                icon: Icon(
+                  _showEmojiPicker ? CarbonIcons.text_scale : CarbonIcons.flash,
+                  size: 24.w,
+                  color: AppColors.glitch500,
+                ),
+                onPressed: _toggleEmojiPicker,
+                padding: EdgeInsets.zero,
+              ),
+
+              // Camera button (if enabled)
+              if (widget.enableImages)
                 IconButton(
-                  icon: Icon(
-                    _showEmojiPicker ? CarbonIcons.text_scale : CarbonIcons.flash,
-                    size: 24.w,
-                    color: AppColors.glitch500,
-                  ),
-                  onPressed: _toggleEmojiPicker,
+                  icon: Icon(CarbonIcons.camera, size: 24.w, color: AppColors.glitch500),
+                  onPressed: _pickImages,
                   padding: EdgeInsets.zero,
                 ),
 
-                // Camera button (if enabled)
-                if (widget.enableImages)
-                  IconButton(
-                    icon: Icon(CarbonIcons.camera, size: 24.w, color: AppColors.glitch500),
-                    onPressed: _pickImages,
-                    padding: EdgeInsets.zero,
+              // Microphone button (if enabled)
+              if (widget.enableAudio)
+                IconButton(
+                  icon: Icon(
+                    CarbonIcons.microphone,
+                    size: 24.w,
+                    color: _isRecording ? Theme.of(context).colorScheme.error : AppColors.glitch500,
                   ),
-
-                // Microphone button (if enabled)
-                if (widget.enableAudio)
-                  IconButton(
-                    icon: Icon(
-                      CarbonIcons.microphone,
-                      size: 24.w,
-                      color: _isRecording ? Theme.of(context).colorScheme.error : AppColors.glitch500,
-                    ),
-                    onPressed: _startRecording,
-                    padding: EdgeInsets.zero,
-                  ),
-              ],
-            ),
-        ],
-      ),
+                  onPressed: _startRecording,
+                  padding: EdgeInsets.zero,
+                ),
+            ],
+          ),
+      ],
     );
   }
 
