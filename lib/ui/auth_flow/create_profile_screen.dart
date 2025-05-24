@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 
 class CreateProfileScreen extends StatefulWidget {
   const CreateProfileScreen({super.key});
@@ -94,24 +95,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
       ),
       bottomNavigationBar: SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.black,
-              foregroundColor: AppColors.white,
-              minimumSize: const Size(double.infinity, 56),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.zero,
-              ),
-            ),
-            onPressed: _onContinuePressed,
-            child: const Text(
-              'Continue',
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
-        ),
+        child: CustomFilledButton(onPressed: _onContinuePressed, title: 'Continue'),
       ),
     );
   }

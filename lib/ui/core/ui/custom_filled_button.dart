@@ -2,23 +2,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 
-class CustomButton extends StatelessWidget {
-  const CustomButton({
+/// ```title``` is the title of the button
+/// 
+/// ```buttonType``` is the type of the button
+/// 
+/// ```child``` is the widget to be displayed if you desire to use a custom widget as title
+class CustomFilledButton extends StatelessWidget {
+  const CustomFilledButton({
     super.key,
     required this.onPressed,
-    required this.title,
+    this.title,
     this.buttonType = ButtonType.primary,
     this.addPadding = true,
     this.horizontalPadding = 24.0,
     this.bottomPadding = 24.0,
+    this.child,
   });
 
   final void Function()? onPressed;
-  final String title;
+  final String? title;
   final ButtonType buttonType;
   final bool addPadding;
   final double horizontalPadding;
   final double bottomPadding;
+  final Widget? child;
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +41,9 @@ class CustomButton extends StatelessWidget {
           disabledBackgroundColor: isPrimary ? AppColors.glitch950.withValues(alpha: 0.5) : AppColors.glitch100,
           disabledForegroundColor: isPrimary ? AppColors.glitch50 : AppColors.glitch900,
           padding: EdgeInsets.symmetric(vertical: 16.h),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.r)),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         ),
-        child: Text(title, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500)),
+        child: child ?? Text(title ?? '', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500)),
       ),
     );
 

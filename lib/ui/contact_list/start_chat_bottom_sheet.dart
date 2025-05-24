@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/ui/core/ui/custom_button.dart';
+import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
@@ -85,7 +85,7 @@ class StartSecureChatBottomSheet extends StatelessWidget {
             ],
           ),
         ),
-        CustomButton(
+        CustomFilledButton(
           onPressed: () {
             Navigator.pop(context);
             if (onStartChat != null) {

@@ -8,7 +8,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/custom_button.dart';
+import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class GroupChatDetailsSheet extends StatefulWidget {
@@ -152,7 +152,7 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
             },
           ),
         ),
-        CustomButton(
+        CustomFilledButton(
           onPressed:
               _isGroupNameValid
                   ? () {
