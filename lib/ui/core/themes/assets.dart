@@ -21,6 +21,7 @@ class AssetsPaths {
   static const String icConnected = '$_svgsDir/ic_connected.svg';
   static const String icDisconnected = '$_svgsDir/ic_disconnected.svg';
   static const String icPaste = '$_svgsDir/ic_paste.svg';
+  static const String icScan = '$_svgsDir/ic_scan.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';
