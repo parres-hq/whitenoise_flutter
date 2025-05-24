@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
+import 'package:whitenoise/shared/info_box.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
@@ -86,56 +87,19 @@ class _NostrKeysScreenState extends State<NostrKeysScreen> {
                 description: 'Private key works like a secret password that grants access to your Nostr identity.',
               ),
               Gap(16.h),
-              Container(
-                padding: EdgeInsets.all(16.w),
-                decoration: BoxDecoration(color: const Color(0xFFEA580C).withValues(alpha: 0.1)),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 4.w),
-                      child: SvgPicture.asset(
-                        AssetsPaths.icWarning,
-                        width: 16.w,
-                        height: 16.w,
-                        colorFilter: ColorFilter.mode(Color(0xFFEA580C), BlendMode.srcIn),
-                      ),
-                    ),
-                    Gap(12.w),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Keep your private key safe!',
-                            style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w600, color: Color(0xFFEA580C)),
-                          ),
-                          Gap(8.h),
-                          Text(
-                            'Don\'t share your private key publicly, and use it only to log in to other Nostr apps.',
-                            style: TextStyle(fontSize: 14.sp, color: Color(0xFFEA580C)),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+              InfoBox(
+                colorTheme: AppColors.colorEA580C,
+                title: 'Keep your private key safe!',
+                description: 'Don\'t share your private key publicly, and use it only to log in to other Nostr apps.',
               ),
               Gap(16.h),
               Row(
                 children: [
                   Expanded(child: CustomTextField(obscureText: _obscurePrivateKey, readOnly: true)),
                   Gap(8.w),
-                  CustomIconButton(
-                    onTap: _copyPrivateKey,
-                    iconPath: AssetsPaths.icCopy,
-                  ),
+                  CustomIconButton(onTap: _copyPrivateKey, iconPath: AssetsPaths.icCopy),
                   Gap(8.w),
-                  CustomIconButton(
-                    onTap: _togglePrivateKeyVisibility,
-                    iconPath: AssetsPaths.icView,
-                  ),
+                  CustomIconButton(onTap: _togglePrivateKeyVisibility, iconPath: AssetsPaths.icView),
                 ],
               ),
               Gap(48.h),
