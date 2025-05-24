@@ -77,27 +77,23 @@ class WelcomeScreen extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              CustomTextButton(onPressed: () => GoRouter.of(context).go('/login'), title: 'Sign In'),
-              Gap(16.w),
-              CustomFilledButton(
-                onPressed: () => Routes.goToOnboarding(context),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Create Account', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500)),
-                    Gap(8.w),
-                    Icon(Icons.arrow_forward, size: 16.sp),
-                  ],
-                ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomTextButton(onPressed: () => GoRouter.of(context).go('/login'), title: 'Sign In'),
+            Gap(16.w),
+            CustomFilledButton(
+              onPressed: () => Routes.goToOnboarding(context),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Create Account', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500)),
+                  Gap(8.w),
+                  Icon(Icons.arrow_forward, size: 16.sp),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
