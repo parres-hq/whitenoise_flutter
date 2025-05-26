@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/shared/custom_button.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class AddProfileBottomSheet extends StatefulWidget {
@@ -56,7 +56,7 @@ class _AddProfileBottomSheetState extends State<AddProfileBottomSheet> {
                 'Your Nostr private key will be only stored securely on this device.',
                 style: TextStyle(
                   fontSize: 18.sp,
-                  color: AppColors.color727772,
+                  color: AppColors.glitch600,
                 ),
               ),
               Gap(24.h),
@@ -64,7 +64,7 @@ class _AddProfileBottomSheetState extends State<AddProfileBottomSheet> {
                 'Sign in with your Nostr private key',
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: AppColors.color202320,
+                  color: AppColors.glitch950,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -82,7 +82,7 @@ class _AddProfileBottomSheetState extends State<AddProfileBottomSheet> {
           ),
         ),
         Gap(40.h),
-        CustomButton(
+        CustomFilledButton(
           onPressed: () {
             if (_privateKeyController.text.isNotEmpty) {
               Navigator.pop(context);

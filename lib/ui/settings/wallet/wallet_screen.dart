@@ -48,7 +48,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           'Connect bitcoin lightning wallet to send and receive payments within White Noise.',
                           style: TextStyle(
                             fontSize: 18.sp,
-                            color: AppColors.color2D312D,
+                            color: AppColors.glitch900,
                           ),
                         ),
                         Gap(24.h),
@@ -57,7 +57,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           style: TextStyle(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.color2D312D,
+                            color: AppColors.glitch900,
                           ),
                         ),
                         Gap(8.h),
@@ -97,7 +97,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: InfoBox(
-                      colorTheme: AppColors.color2D312D,
+                      colorTheme: AppColors.glitch900,
                       title: 'What wallet can I connect?',
                       description: 'You can connect any wallet that supports Nostr Wallet Connect. See full list of such wallets here.',
                     ),
