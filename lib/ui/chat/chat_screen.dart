@@ -13,6 +13,7 @@ import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_hero_dialog_route.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reactions_dialog_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/status_message_item_widget.dart';
+import 'package:flutter/services.dart';
 
 import '../../routing/routes.dart';
 import '../core/themes/assets.dart';
@@ -127,11 +128,13 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     // Ensure status bar has light icons on this dark background
-    // SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    //   statusBarColor: Colors.transparent,
-    //   statusBarIconBrightness: Brightness.light, // for Android
-    //   statusBarBrightness: Brightness.dark, // for iOS
-    // ));
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light, // for Android
+        statusBarBrightness: Brightness.dark, // for iOS
+      ),
+    );
 
     return Scaffold(
       backgroundColor: AppColors.glitch50,
