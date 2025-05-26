@@ -36,7 +36,10 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
               Gap(24.w),
               GestureDetector(
                 onTap: () => NewChatBottomSheet.show(context),
-                child: SvgPicture.asset(AssetsPaths.icAdd),
+                child: SvgPicture.asset(
+                  AssetsPaths.icAdd,
+                  colorFilter: ColorFilter.mode(AppColors.glitch50, BlendMode.srcIn),
+                ),
               ),
             ],
           ),

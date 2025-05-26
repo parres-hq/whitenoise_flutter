@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
 /// A utility class for showing custom bottom sheets with a smooth slide-up animation.
 class CustomBottomSheet {
@@ -156,7 +157,7 @@ class CustomBottomSheet {
                     Flexible(
                       child: Text(
                         title,
-                        style: TextStyle(color: Colors.black, fontSize: 24.sp, fontWeight: FontWeight.w600),
+                        style: TextStyle(color: AppColors.glitch950, fontSize: 24.sp, fontWeight: FontWeight.w600),
                       ),
                     )
                   else
