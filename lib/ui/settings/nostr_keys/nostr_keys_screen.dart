@@ -95,7 +95,9 @@ class _NostrKeysScreenState extends State<NostrKeysScreen> {
               Gap(16.h),
               Row(
                 children: [
-                  Expanded(child: CustomTextField(obscureText: _obscurePrivateKey, readOnly: true)),
+                  Expanded(
+                    child: CustomTextField(obscureText: _obscurePrivateKey, readOnly: true, padding: EdgeInsets.zero),
+                  ),
                   Gap(8.w),
                   CustomIconButton(onTap: _copyPrivateKey, iconPath: AssetsPaths.icCopy),
                   Gap(8.w),

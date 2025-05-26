@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
@@ -27,7 +29,14 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
         child: SafeArea(
           child: Row(
             children: [
-              Image.asset(AssetsPaths.icImage, width: 32.w, height: 32.w),
+              GestureDetector(
+                onTap: () => GoRouter.of(context).go(Routes.settings),
+                child: Image.asset(
+                  AssetsPaths.icImage,
+                  width: 32.w,
+                  height: 32.w,
+                ),
+              ),
               const Spacer(),
               GestureDetector(
                 onTap: () => SearchChatBottomSheet.show(context),

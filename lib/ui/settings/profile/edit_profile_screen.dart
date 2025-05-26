@@ -190,10 +190,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: Padding(
-        padding: EdgeInsets.only(bottom: MediaQuery.of(context).padding.bottom),
-        child: CustomFilledButton(onPressed: _saveChanges, title: 'Save Changes'),
-      ),
+      bottomNavigationBar: CustomFilledButton(onPressed: _saveChanges, title: 'Save Changes'),
     );
   }
 }

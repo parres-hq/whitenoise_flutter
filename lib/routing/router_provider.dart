@@ -10,8 +10,14 @@ import 'package:whitenoise/ui/auth_flow/logged_screen.dart';
 import 'package:whitenoise/ui/auth_flow/login_screen.dart';
 import 'package:whitenoise/ui/auth_flow/welcome_screen.dart';
 import 'package:whitenoise/ui/chat/chat_screen.dart';
+import 'package:whitenoise/ui/settings/general_settings_screen.dart';
+import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
+import 'package:whitenoise/ui/settings/network/network_screen.dart';
+import 'package:whitenoise/ui/settings/nostr_keys/nostr_keys_screen.dart';
+import 'package:whitenoise/ui/settings/wallet/wallet_screen.dart';
 
 import '../domain/dummy_data/dummy_messages.dart';
+import '../domain/dummy_data/dummy_contacts.dart';
 import 'package:whitenoise/ui/contact_list/chat_list_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -82,7 +88,29 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
-      // TODO: Add settings and other routes as needed
+      // Settings
+      GoRoute(
+        path: Routes.settings,
+        builder: (context, state) => const GeneralSettingsScreen(),
+        routes: [
+          GoRoute(
+            path: 'profile',
+            builder: (context, state) => EditProfileScreen(profile: dummyContacts.first),
+          ),
+          GoRoute(
+            path: 'network',
+            builder: (context, state) => const NetworkScreen(),
+          ),
+          GoRoute(
+            path: 'keys',
+            builder: (context, state) => const NostrKeysScreen(),
+          ),
+          GoRoute(
+            path: 'wallet',
+            builder: (context, state) => const WalletScreen(),
+          ),
+        ],
+      ),
     ],
   );
 });

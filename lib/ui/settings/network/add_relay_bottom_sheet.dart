@@ -105,8 +105,8 @@ class _AddRelayBottomSheetState extends State<AddRelayBottomSheet> {
           onPressed: _isUrlValid ? _addRelay : null,
           title: 'Add Relay',
           buttonType: ButtonType.primary,
+          bottomPadding: 0,
         ),
-        Gap(24.h),
       ],
     );
   }
