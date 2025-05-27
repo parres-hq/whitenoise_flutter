@@ -57,7 +57,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
   @override
   Widget build(BuildContext context) {
     return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
       child: Center(
         child: Padding(
           padding: const EdgeInsets.only(right: 20.0, left: 20.0),
@@ -87,10 +87,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         color: Colors.transparent,
         child: Container(
           width: MediaQuery.of(context).size.width * widget.menuItemsWidth,
-          decoration: BoxDecoration(
-            color: AppColors.glitch80,
-            borderRadius: BorderRadius.circular(8),
-          ),
+          decoration: BoxDecoration(color: AppColors.glitch80, borderRadius: BorderRadius.circular(8)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             mainAxisSize: MainAxisSize.min,
@@ -102,25 +99,19 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                       padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
                       child: InkWell(
                         onTap: () {
-                          // set the clicked index for animation
                           setState(() {
                             clickedContextMenuIndex = widget.menuItems.indexOf(item);
                           });
 
-                          Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
-                            if (!context.mounted) return;
-                            Navigator.of(context).pop();
-                            widget.onContextMenuTap(item);
-                          });
+                          Navigator.of(context).pop();
+                          widget.onContextMenuTap(item);
                         },
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
                               item.label,
-                              style: TextStyle(
-                                color: item.isDestructive ? Colors.red : AppColors.glitch900,
-                              ),
+                              style: TextStyle(color: item.isDestructive ? Colors.red : AppColors.glitch900),
                             ),
                             Pulse(
                               infinite: false,
@@ -158,36 +149,27 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         color: Colors.transparent,
         child: Container(
           padding: const EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            color: AppColors.glitch80,
-            borderRadius: BorderRadius.circular(8),
-          ),
+          decoration: BoxDecoration(color: AppColors.glitch80, borderRadius: BorderRadius.circular(8)),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               for (var reaction in widget.reactions)
                 FadeInLeft(
-                  from: // first index should be from 0, second from 20, third from 40 and so on
-                      0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
-                  duration: const Duration(milliseconds: 100),
-                  delay: const Duration(milliseconds: 100),
+                  from: 0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
+                  duration: const Duration(milliseconds: 50),
+                  delay: const Duration(milliseconds: 0),
                   child: InkWell(
                     onTap: () {
                       setState(() {
                         reactionClicked = true;
                         clickedReactionIndex = widget.reactions.indexOf(reaction);
                       });
-                      // delay for 200 milliseconds to allow the animation to complete
-                      Future.delayed(const Duration(milliseconds: 100)).whenComplete(() {
-                        // pop the dialog
-                        if (!context.mounted) return;
-                        Navigator.of(context).pop();
-                        widget.onReactionTap(reaction);
-                      });
+                      Navigator.of(context).pop();
+                      widget.onReactionTap(reaction);
                     },
                     child: Pulse(
                       infinite: false,
-                      duration: const Duration(milliseconds: 100),
+                      duration: const Duration(milliseconds: 50),
                       animate: reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction),
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(7.0, 2.0, 7.0, 2),
