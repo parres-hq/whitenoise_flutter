@@ -15,7 +15,7 @@ class MessageWidget extends StatelessWidget {
   final bool isGroupMessage;
   final bool isSameSenderAsPrevious;
   final bool isSameSenderAsNext;
-  final VoidCallback? onLongPress;
+  final VoidCallback? onTap;
   final Function(String)? onReactionTap;
 
   const MessageWidget({
@@ -24,14 +24,14 @@ class MessageWidget extends StatelessWidget {
     required this.isGroupMessage,
     required this.isSameSenderAsPrevious,
     required this.isSameSenderAsNext,
-    this.onLongPress,
+    this.onTap,
     this.onReactionTap,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onLongPress: onLongPress,
+      onTap: onTap,
       child: Align(
         alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
         child: ConstrainedBox(

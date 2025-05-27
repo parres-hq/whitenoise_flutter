@@ -203,7 +203,7 @@ void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
 
                   final message = messages[index];
                   return GestureDetector(
-                    onLongPress: () => _showReactionDialog(message, index),
+                    onTap: () => _showReactionDialog(message, index),
                     child: Hero(
                       tag: message.id,
                       child: MessageWidget(
