@@ -201,27 +201,27 @@ class MessageWidget extends StatelessWidget {
                             ),
                           ),
                         ),
-                        // if (message.content!.length < 32) SizedBox(width: 38.w),
-                        Row(
-                          children: [
-                            Gap(6.w),
-                            Text(
-                              message.timeSent,
-                              style: TextStyle(
-                                fontSize: 10.sp,
-                                color: textColor.withValues(alpha: 0.7),
-                                decoration: TextDecoration.none,
+                        if (message.content!.length < 32)
+                          Row(
+                            children: [
+                              Gap(6.w),
+                              Text(
+                                message.timeSent,
+                                style: TextStyle(
+                                  fontSize: 10.sp,
+                                  color: textColor.withValues(alpha: 0.7),
+                                  decoration: TextDecoration.none,
+                                ),
                               ),
-                            ),
-                            Gap(4.w),
-                            if (message.isMe)
-                              Icon(
-                                _getStatusIcon(message.status),
-                                size: 12.w,
-                                color: _getStatusColor(message.status, context),
-                              ),
-                          ],
-                        ),
+                              Gap(4.w),
+                              if (message.isMe)
+                                Icon(
+                                  _getStatusIcon(message.status),
+                                  size: 12.w,
+                                  color: _getStatusColor(message.status, context),
+                                ),
+                            ],
+                          ),
                       ],
                     ),
                   ),

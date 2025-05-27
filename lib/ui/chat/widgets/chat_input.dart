@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
@@ -272,17 +273,25 @@ class _ChatInputState extends State<ChatInput> {
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: AppColors.glitch100,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(8.r)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(6.r)),
       ),
       child: Row(
         children: [
           Icon(_replyingTo != null ? CarbonIcons.reply : CarbonIcons.edit, size: 16.w, color: AppColors.glitch500),
           SizedBox(width: 8.w),
+          Gap(6),
           Expanded(
-            child: Text(
-              _replyingTo != null ? "Replying to ${_replyingTo!.sender.name}" : "Editing message",
-              style: TextStyle(fontSize: 12.sp, color: AppColors.glitch700, fontWeight: FontWeight.w500),
-              overflow: TextOverflow.ellipsis,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _replyingTo != null ? "Replying to ${_replyingTo!.sender.name}" : "Editing message",
+                  style: TextStyle(fontSize: 12.sp, color: AppColors.glitch700, fontWeight: FontWeight.w500),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                if (_replyingTo?.type == MessageType.text && _replyingTo?.content != null)
+                  Text(_replyingTo?.content ?? '', style: TextStyle(fontSize: 12.sp, color: AppColors.glitch700)),
+              ],
             ),
           ),
           GestureDetector(
