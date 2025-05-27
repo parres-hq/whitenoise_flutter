@@ -163,13 +163,13 @@ class MessageWidget extends StatelessWidget {
                       placeholder:
                           (context, url) => Container(
                             height: 0.4.sh,
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                             child: Center(child: CircularProgressIndicator(color: AppColors.glitch50)),
                           ),
                       errorWidget:
                           (context, url, error) => Container(
                             height: 0.4.sh,
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
+                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                             child: Icon(CarbonIcons.no_image, color: AppColors.glitch50, size: 40.w),
                           ),
                     ),
@@ -187,7 +187,7 @@ class MessageWidget extends StatelessWidget {
                   child: Container(
                     alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
                     child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                      // mainAxisSize: MainAxisSize.min,
                       children: [
                         Flexible(
                           child: Text(
@@ -201,31 +201,32 @@ class MessageWidget extends StatelessWidget {
                             ),
                           ),
                         ),
-                        if (message.content!.length < 32)
-                          Row(
-                            children: [
-                              Gap(6.w),
-                              Text(
-                                message.timeSent,
-                                style: TextStyle(
-                                  fontSize: 10.sp,
-                                  color: textColor.withValues(alpha:0.7),
-                                  decoration: TextDecoration.none,
-                                ),
+                        // if (message.content!.length < 32) SizedBox(width: 38.w),
+                        Row(
+                          children: [
+                            Gap(6.w),
+                            Text(
+                              message.timeSent,
+                              style: TextStyle(
+                                fontSize: 10.sp,
+                                color: textColor.withValues(alpha: 0.7),
+                                decoration: TextDecoration.none,
                               ),
-                              Gap(4.w),
-                              if (message.isMe)
-                                Icon(
-                                  _getStatusIcon(message.status),
-                                  size: 12.w,
-                                  color: _getStatusColor(message.status, context),
-                                ),
-                            ],
-                          ),
+                            ),
+                            Gap(4.w),
+                            if (message.isMe)
+                              Icon(
+                                _getStatusIcon(message.status),
+                                size: 12.w,
+                                color: _getStatusColor(message.status, context),
+                              ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ),
+
               //Message status and time - now properly aligned to bottom right
               if ((message.content != null && message.content!.isNotEmpty && message.content!.length >= 32) ||
                   message.type == MessageType.audio)
@@ -236,7 +237,7 @@ class MessageWidget extends StatelessWidget {
                       message.timeSent,
                       style: TextStyle(
                         fontSize: 10.sp,
-                        color: textColor.withValues(alpha:0.7),
+                        color: textColor.withValues(alpha: 0.7),
                         decoration: TextDecoration.none,
                       ),
                     ),
@@ -270,9 +271,9 @@ class MessageWidget extends StatelessWidget {
   Color _getStatusColor(MessageStatus status, BuildContext context) {
     switch (status) {
       case MessageStatus.sending:
-        return AppColors.glitch50.withValues(alpha:0.5);
+        return AppColors.glitch50.withValues(alpha: 0.5);
       case MessageStatus.sent:
-        return AppColors.glitch50.withValues(alpha:0.7);
+        return AppColors.glitch50.withValues(alpha: 0.7);
       case MessageStatus.delivered:
         return AppColors.glitch50;
       case MessageStatus.read:

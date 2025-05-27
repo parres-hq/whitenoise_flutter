@@ -1,138 +1,121 @@
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 
-// Sample contacts
 final User marekContact = User(
   id: '1',
-  name: "Marek",
-  email: "marek@email.com",
-  publicKey: "asdfasdfasdfa",
+  name: "Marek Kowalski",
+  email: "marek.kowalski@email.com",
+  publicKey: "pk_marek_123456789",
   imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png",
 );
 
 final User maxContact = User(
   id: '2',
   name: "Max Hillebrand",
-  email: "max@email.com",
-  publicKey: "qwerqwerqwer",
+  email: "max.hillebrand@email.com",
+  publicKey: "pk_max_987654321",
   imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png",
 );
 
-final User meContact = User(
+final User currentUser = User(
   id: 'current_user_id',
-  name: "Me",
-  email: "me@email.com",
-  publicKey: "zxcvzxcvzxcv",
+  name: "Alex Johnson",
+  email: "alex.johnson@email.com",
+  publicKey: "pk_alex_456123789",
   imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_2_11_15_39.png",
 );
 
 // Original messages for replies
-final MessageModel originalMessage1 = MessageModel(
+final MessageModel _originalMessage1 = MessageModel(
   id: '100',
-  content: 'I am also fine',
+  content: 'I am also doing well',
   type: MessageType.text,
   createdAt: DateTime.now().subtract(const Duration(minutes: 25)),
   sender: marekContact,
   isMe: false,
-  imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png",
   status: MessageStatus.read,
 );
 
-final MessageModel originalMessage2 = MessageModel(
+final MessageModel _originalMessage2 = MessageModel(
   id: '101',
   content: 'Good to hear that',
   type: MessageType.text,
   createdAt: DateTime.now().subtract(const Duration(minutes: 26)),
   sender: maxContact,
   isMe: false,
-  imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png",
   status: MessageStatus.read,
 );
 
-final MessageModel originalMessage3 = MessageModel(
-  id: '1',
-  content: 'Good to hear that',
-  type: MessageType.text,
-  createdAt: DateTime.now().subtract(const Duration(minutes: 26)),
-  sender: maxContact,
-  isMe: false,
-  imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png",
-  status: MessageStatus.read,
-);
-
-// Individual chat messages
-List<MessageModel> messages = [
+// Chat conversation
+final List<MessageModel> messages = [
+  // Recent messages
   MessageModel(
     id: '17',
-    content: 'This message is delivered',
+    content: 'This message has been delivered',
     type: MessageType.text,
     createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
-    sender: meContact,
+    sender: currentUser,
     isMe: true,
-    imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png",
     status: MessageStatus.delivered,
     reactions: [],
   ),
   MessageModel(
     id: '18',
-    content: 'This message is failed to send',
+    content: 'This message failed to send',
     type: MessageType.text,
     createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
-    sender: meContact,
+    sender: currentUser,
     isMe: true,
-    imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png",
     status: MessageStatus.failed,
     reactions: [],
   ),
   MessageModel(
     id: '19',
-    content: 'This message is sending',
+    content: 'This message is being sent',
     type: MessageType.text,
     createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
-    sender: meContact,
+    sender: currentUser,
     isMe: true,
-    imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png",
     status: MessageStatus.sending,
     reactions: [],
   ),
   MessageModel(
     id: '11',
-    content: 'This message is read',
+    content: 'This message has been read',
     type: MessageType.text,
     createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
-    sender: meContact,
+    sender: currentUser,
     isMe: true,
-    imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png",
     status: MessageStatus.read,
     reactions: [],
   ),
+
+  // Message with multiple reactions
   MessageModel(
     id: '12',
-    content: 'Over flowing reaction icons',
+    content: 'Testing reaction overflow',
     type: MessageType.text,
     createdAt: DateTime.now().subtract(const Duration(minutes: 16)),
     sender: marekContact,
     isMe: false,
-    imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png",
     status: MessageStatus.read,
     reactions: [
-      Reaction(emoji: '👍', user: meContact),
+      Reaction(emoji: '👍', user: currentUser),
       Reaction(emoji: '❤️', user: maxContact),
-      Reaction(emoji: '👍', user: meContact),
+      Reaction(emoji: '👍', user: currentUser),
       Reaction(emoji: '😀', user: marekContact),
       Reaction(emoji: '🙏', user: marekContact),
       Reaction(emoji: '🔥', user: marekContact),
-      Reaction(emoji: '🔥', user: marekContact),
-      Reaction(emoji: '😱', user: marekContact),
-      Reaction(emoji: '😂', user: marekContact),
     ],
   ),
+
+  // Conversation flow
   MessageModel(
     id: '10',
     content: 'Goodbye',
     type: MessageType.text,
     createdAt: DateTime.now().subtract(const Duration(minutes: 11)),
-    sender: meContact,
+    sender: currentUser,
     isMe: true,
     status: MessageStatus.read,
     reactions: [Reaction(emoji: '👍', user: marekContact)],
@@ -146,17 +129,15 @@ List<MessageModel> messages = [
     isMe: false,
     status: MessageStatus.read,
     reactions: [
-      Reaction(emoji: '👍', user: meContact),
-      Reaction(emoji: '💗', user: meContact),
-      Reaction(emoji: '😂', user: meContact),
-    ],
+        Reaction(emoji: '👍', user: currentUser), Reaction(emoji: '💗', user: currentUser)],
   ),
+
+  // Audio messages
   MessageModel(
     id: '8',
-    content: 'Yes',
     type: MessageType.audio,
     createdAt: DateTime.now().subtract(const Duration(minutes: 13)),
-    sender: meContact,
+    sender: currentUser,
     isMe: true,
     audioPath: "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg",
     status: MessageStatus.read,
@@ -164,24 +145,24 @@ List<MessageModel> messages = [
   ),
   MessageModel(
     id: '7',
-    content: 'Good to hear that',
     type: MessageType.audio,
     createdAt: DateTime.now().subtract(const Duration(minutes: 14)),
     sender: marekContact,
     isMe: false,
-    audioPath: "https://rpg.hamsterrepublic.com/wiki-images/f/f1/BigBossDeath.ogg",
+    audioPath: "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg",
     status: MessageStatus.read,
     reactions: [],
   ),
+
+  // Messages with replies
   MessageModel(
     id: '6',
-    content: 'I am also fine',
+    content: 'I am also doing well',
     type: MessageType.text,
     createdAt: DateTime.now().subtract(const Duration(minutes: 15)),
-    sender: meContact,
+    sender: currentUser,
     isMe: true,
-    replyTo: originalMessage2,
-    imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png",
+    replyTo: _originalMessage2,
     status: MessageStatus.read,
     reactions: [],
   ),
@@ -192,14 +173,14 @@ List<MessageModel> messages = [
     createdAt: DateTime.now().subtract(const Duration(minutes: 16)),
     sender: marekContact,
     isMe: false,
-    replyTo: originalMessage1,
-    imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png",
+    replyTo: _originalMessage1,
     status: MessageStatus.read,
     reactions: [],
   ),
+
+  // Image message
   MessageModel(
     id: '5',
-    content: 'Please check this image',
     type: MessageType.image,
     createdAt: DateTime.now().subtract(const Duration(minutes: 16)),
     sender: marekContact,
@@ -208,12 +189,14 @@ List<MessageModel> messages = [
     status: MessageStatus.read,
     reactions: [],
   ),
+
+  // Initial conversation
   MessageModel(
     id: '4',
     content: 'I am fine, thank you',
     type: MessageType.text,
     createdAt: DateTime.now().subtract(const Duration(minutes: 17)),
-    sender: meContact,
+    sender: currentUser,
     isMe: true,
     status: MessageStatus.read,
   ),
@@ -228,10 +211,10 @@ List<MessageModel> messages = [
   ),
   MessageModel(
     id: '2',
-    content: 'Hi',
+    content: 'Hi there',
     type: MessageType.text,
     createdAt: DateTime.now().subtract(const Duration(minutes: 19)),
-    sender: meContact,
+    sender: currentUser,
     isMe: true,
     status: MessageStatus.read,
     reactions: [],

@@ -28,6 +28,10 @@ class ChatInput extends StatefulWidget {
     this.mediaSelector,
     this.imageSource = ImageSource.gallery,
     this.padding = const EdgeInsets.all(4.0),
+    this.replyingTo,
+    this.editingMessage,
+    this.onCancelReply,
+    this.onCancelEdit,
   });
 
   final User currentUser;
@@ -39,6 +43,10 @@ class ChatInput extends StatefulWidget {
   final bool enableImages;
   final Widget? mediaSelector;
   final ImageSource imageSource;
+  final MessageModel? replyingTo;
+  final MessageModel? editingMessage;
+  final VoidCallback? onCancelReply;
+  final VoidCallback? onCancelEdit;
 
   @override
   State<ChatInput> createState() => _ChatInputState();
@@ -60,6 +68,18 @@ class _ChatInputState extends State<ChatInput> {
   double _dragOffsetX = 0;
   bool _isDragging = false;
   final List<XFile> _selectedImages = [];
+  MessageModel? _replyingTo;
+  MessageModel? _editingMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _replyingTo = widget.replyingTo;
+    _editingMessage = widget.editingMessage;
+    if (_editingMessage != null) {
+      _textController.text = _editingMessage!.content ?? '';
+    }
+  }
 
   @override
   void dispose() {
@@ -69,6 +89,24 @@ class _ChatInputState extends State<ChatInput> {
     _focusNode.dispose();
     _recordingTimer?.cancel();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ChatInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.replyingTo != oldWidget.replyingTo) {
+      setState(() => _replyingTo = widget.replyingTo);
+    }
+    if (widget.editingMessage != oldWidget.editingMessage) {
+      setState(() {
+        _editingMessage = widget.editingMessage;
+        if (_editingMessage != null) {
+          _textController.text = _editingMessage!.content ?? '';
+        } else {
+          _textController.clear();
+        }
+      });
+    }
   }
 
   bool get _hasTextContent => _textController.text.trim().isNotEmpty;
@@ -152,7 +190,7 @@ class _ChatInputState extends State<ChatInput> {
 
   void _sendMessage() {
     final message = MessageModel(
-      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      id: _editingMessage?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       content: _textController.text.trim(),
       type:
           _recordedFilePath != null
@@ -160,12 +198,14 @@ class _ChatInputState extends State<ChatInput> {
               : _selectedImages.isNotEmpty
               ? MessageType.image
               : MessageType.text,
-      createdAt: DateTime.now(),
+      createdAt: _editingMessage?.createdAt ?? DateTime.now(),
+      updatedAt: _editingMessage != null ? DateTime.now() : null,
       sender: widget.currentUser,
       isMe: true,
       status: MessageStatus.sending,
       audioPath: _recordedFilePath,
       imageUrl: _selectedImages.isNotEmpty ? _selectedImages.first.path : null,
+      replyTo: _replyingTo, // Add reply reference
     );
 
     widget.onSend(message);
@@ -175,8 +215,15 @@ class _ChatInputState extends State<ChatInput> {
     setState(() {
       _selectedImages.clear();
       _recordedFilePath = null;
-      // _isPlaying = false;
       _showEmojiPicker = false;
+      if (_replyingTo != null) {
+        _replyingTo = null;
+        widget.onCancelReply?.call();
+      }
+      if (_editingMessage != null) {
+        _editingMessage = null;
+        widget.onCancelEdit?.call();
+      }
     });
   }
 
@@ -184,6 +231,9 @@ class _ChatInputState extends State<ChatInput> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // Reply/Edit header
+        _buildReplyOrEditHeader(),
+
         // Selected images preview
         if (_selectedImages.isNotEmpty)
           Padding(
@@ -212,6 +262,45 @@ class _ChatInputState extends State<ChatInput> {
         // Emoji picker
         if (_showEmojiPicker) _buildEmojiPicker(),
       ],
+    );
+  }
+
+  Widget _buildReplyOrEditHeader() {
+    if (_replyingTo == null && _editingMessage == null) return const SizedBox.shrink();
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: AppColors.glitch100,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(8.r)),
+      ),
+      child: Row(
+        children: [
+          Icon(_replyingTo != null ? CarbonIcons.reply : CarbonIcons.edit, size: 16.w, color: AppColors.glitch500),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: Text(
+              _replyingTo != null ? "Replying to ${_replyingTo!.sender.name}" : "Editing message",
+              style: TextStyle(fontSize: 12.sp, color: AppColors.glitch700, fontWeight: FontWeight.w500),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              setState(() {
+                if (_replyingTo != null) {
+                  _replyingTo = null;
+                  widget.onCancelReply?.call();
+                } else {
+                  _editingMessage = null;
+                  widget.onCancelEdit?.call();
+                }
+              });
+            },
+            child: Icon(CarbonIcons.close, size: 16.w, color: AppColors.glitch500),
+          ),
+        ],
+      ),
     );
   }
 

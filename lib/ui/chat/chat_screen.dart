@@ -39,6 +39,9 @@ class _ChatScreenState extends State<ChatScreen> {
     publicKey: 'current_public_key',
   );
 
+  MessageModel? _replyingTo;
+  MessageModel? _editingMessage;
+
   @override
   void initState() {
     super.initState();
@@ -107,6 +110,21 @@ class _ChatScreenState extends State<ChatScreen> {
         curve: Curves.easeOut,
       );
     });
+  }
+
+  void _handleReply(MessageModel message) {
+    setState(() {
+      _replyingTo = message;
+      _editingMessage = null;
+    });
+  }
+
+  void _cancelReply() {
+    setState(() => _replyingTo = null);
+  }
+
+  void _cancelEdit() {
+    setState(() => _editingMessage = null);
   }
 
   List<MessageModel> _updateMessage(MessageModel updatedMessage) {
@@ -190,14 +208,13 @@ class _ChatScreenState extends State<ChatScreen> {
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
               child: ChatInput(
-                currentUser: User(
-                  id: 'current_user_id',
-                  name: 'You',
-                  email: 'current@user.com',
-                  publicKey: 'current_public_key',
-                ),
+                currentUser: currentUser,
                 onSend: _sendNewMessage,
                 padding: EdgeInsets.zero,
+                replyingTo: _replyingTo,
+                editingMessage: _editingMessage,
+                onCancelReply: _cancelReply,
+                onCancelEdit: _cancelEdit,
               ),
             ),
           ],
@@ -227,7 +244,9 @@ class _ChatScreenState extends State<ChatScreen> {
               }
             },
             onContextMenuTap: (menuItem) {
-              // Handle context menu actions
+              if (menuItem.label == 'Reply') {
+                _handleReply(message);
+              }
             },
             widgetAlignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
           );
