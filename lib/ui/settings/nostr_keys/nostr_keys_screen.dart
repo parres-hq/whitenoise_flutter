@@ -8,6 +8,7 @@ import 'package:whitenoise/shared/info_box.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
+import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/settings/nostr_keys/remove_nostr_keys_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
@@ -80,7 +81,27 @@ class _NostrKeysScreenState extends State<NostrKeysScreen> {
                   ],
                 ),
               ),
-              SettingsButton(title: 'Copy Public Key', iconPath: AssetsPaths.icCopy, onTap: _copyPublicKey),
+              CustomFilledButton(
+                buttonType: ButtonType.secondary,
+                onPressed: _copyPublicKey,
+                title: 'Copy Public Key',
+                addPadding: false,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(AssetsPaths.icCopy),
+                    Gap(8.w),
+                    Text(
+                      'Copy Public Key',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.glitch950,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Gap(48.h),
               SectionWidget(
                 title: 'Private Key',
@@ -110,12 +131,25 @@ class _NostrKeysScreenState extends State<NostrKeysScreen> {
                 description: 'This will permanently erase this profile Nostr keys from White Noise.',
               ),
               Gap(16.h),
-              SettingsButton(
-                title: 'Remove Nostr Keys',
-                iconPath: AssetsPaths.icDelete,
-                onTap: _removeNostrKeys,
-                buttonColor: AppColors.colorDC2626,
-                titleColor: AppColors.white,
+              CustomFilledButton(
+                onPressed: _removeNostrKeys,
+                buttonType: ButtonType.tertiary,
+                addPadding: false,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset(AssetsPaths.icDelete),
+                    Gap(8.w),
+                    Text(
+                      'Remove Nostr Keys',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.glitch50,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               Gap(48.h),
             ],
@@ -141,55 +175,6 @@ class SectionWidget extends StatelessWidget {
         Gap(8.h),
         Text(description, style: TextStyle(fontSize: 16.sp, color: AppColors.glitch600)),
       ],
-    );
-  }
-}
-
-class SettingsButton extends StatelessWidget {
-  final String title;
-  final String iconPath;
-  final void Function()? onTap;
-  final Color? buttonColor;
-  final Color? titleColor;
-
-  const SettingsButton({
-    required this.title,
-    required this.iconPath,
-    required this.onTap,
-    this.buttonColor,
-    this.titleColor,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.symmetric(vertical: 12.h),
-      decoration: BoxDecoration(color: buttonColor ?? AppColors.glitch100),
-      child: InkWell(
-        onTap: onTap,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            SvgPicture.asset(
-              iconPath,
-              width: 16.w,
-              height: 16.w,
-              colorFilter: ColorFilter.mode(titleColor ?? AppColors.glitch950, BlendMode.srcIn),
-            ),
-            Gap(8.w),
-            Text(
-              title,
-              style: TextStyle(
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w500,
-                color: titleColor ?? AppColors.glitch950,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

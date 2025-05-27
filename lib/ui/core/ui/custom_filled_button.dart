@@ -30,15 +30,28 @@ class CustomFilledButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPrimary = buttonType == ButtonType.primary;
+    final isSecondary = buttonType == ButtonType.secondary;
+    final isTertiary = buttonType == ButtonType.tertiary;
+
     final button = SizedBox(
       width: double.infinity,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           elevation: 0,
-          backgroundColor: isPrimary ? AppColors.glitch950 : AppColors.glitch100,
-          foregroundColor: isPrimary ? AppColors.glitch50 : AppColors.glitch900,
-          disabledBackgroundColor: isPrimary ? AppColors.glitch950.withValues(alpha: 0.5) : AppColors.glitch100,
+          backgroundColor:
+              isPrimary
+                  ? AppColors.glitch950
+                  : isSecondary
+                  ? AppColors.glitch100
+                  : AppColors.colorEA580C,
+          foregroundColor: isPrimary || isTertiary ? AppColors.glitch50 : AppColors.glitch900,
+          disabledBackgroundColor:
+              isPrimary
+                  ? AppColors.glitch950.withValues(alpha: 0.5)
+                  : isSecondary
+                  ? AppColors.glitch100
+                  : AppColors.colorEA580C.withValues(alpha: 0.5),
           disabledForegroundColor: isPrimary ? AppColors.glitch50 : AppColors.glitch900,
           padding: EdgeInsets.symmetric(vertical: 16.h),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
