@@ -15,10 +15,9 @@ class DefaultData {
   ];
 
   // The default list of menuItems
-  static const List<MenuItem> menuItems = [reply, forward, copy, delete];
+  static const List<MenuItem> menuItems = [reply, copy, delete];
 
   static const List<MenuItem> myMessageMenuItems = [
-    forward,
     edit,
     copy,
     delete,
@@ -30,11 +29,6 @@ class DefaultData {
   );
 
   static const MenuItem copy = MenuItem(label: 'Copy', icon: CarbonIcons.copy);
-
-  static const MenuItem forward = MenuItem(
-    label: 'Forward',
-    icon: CarbonIcons.send,
-  );
 
   static const MenuItem edit = MenuItem(label: 'Edit', icon: CarbonIcons.edit);
 
