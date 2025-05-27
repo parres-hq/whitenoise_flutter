@@ -99,10 +99,18 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void _sendNewMessage(MessageModel newMessage) {
+void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
     setState(() {
-      messages.insert(0, newMessage);
+      if (isEditing) {
+        final index = messages.indexWhere((m) => m.id == msg.id);
+        if (index != -1) {
+          messages[index] = msg;
+        }
+      } else {
+        messages.insert(0, msg);
+      }
     });
+  
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
         _scrollController.position.minScrollExtent,
@@ -216,7 +224,7 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
               child: ChatInput(
                 currentUser: currentUser,
-                onSend: _sendNewMessage,
+                onSend: _sendNewMessageOrEdit,
                 padding: EdgeInsets.zero,
                 replyingTo: _replyingTo,
                 editingMessage: _editingMessage,

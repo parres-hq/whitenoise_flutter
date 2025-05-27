@@ -36,7 +36,7 @@ class ChatInput extends StatefulWidget {
   });
 
   final User currentUser;
-  final void Function(MessageModel message) onSend;
+  final void Function(MessageModel message, bool isEditing) onSend;
   final VoidCallback? onAttachmentPressed;
   final EdgeInsetsGeometry padding;
   final Color? cursorColor;
@@ -190,6 +190,8 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   void _sendMessage() {
+    final isEditing = _editingMessage != null;
+
     final message = MessageModel(
       id: _editingMessage?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       content: _textController.text.trim(),
@@ -206,10 +208,10 @@ class _ChatInputState extends State<ChatInput> {
       status: MessageStatus.sending,
       audioPath: _recordedFilePath,
       imageUrl: _selectedImages.isNotEmpty ? _selectedImages.first.path : null,
-      replyTo: _replyingTo, // Add reply reference
+      replyTo: _replyingTo,
     );
 
-    widget.onSend(message);
+    widget.onSend(message, isEditing);
 
     // Reset input state
     _textController.clear();
