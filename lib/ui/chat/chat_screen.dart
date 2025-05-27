@@ -119,6 +119,13 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  void _handleEdit(MessageModel message) {
+    setState(() {
+      _editingMessage = message;
+      _replyingTo = null;
+    });
+  }
+
   void _cancelReply() {
     setState(() => _replyingTo = null);
   }
@@ -246,6 +253,8 @@ class _ChatScreenState extends State<ChatScreen> {
             onContextMenuTap: (menuItem) {
               if (menuItem.label == 'Reply') {
                 _handleReply(message);
+              } else if (menuItem.label == 'Edit') {
+                _handleEdit(message);
               }
             },
             widgetAlignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
