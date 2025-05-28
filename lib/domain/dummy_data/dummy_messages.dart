@@ -192,7 +192,7 @@ final List<MessageModel> messages = [
 
   // Initial conversation
   MessageModel(
-    id: '4',
+    id: '3',
     content: 'I am fine, thank you',
     type: MessageType.text,
     createdAt: DateTime.now().subtract(const Duration(minutes: 17)),
@@ -201,7 +201,7 @@ final List<MessageModel> messages = [
     status: MessageStatus.read,
   ),
   MessageModel(
-    id: '3',
+    id: '2',
     content: 'How are you?',
     type: MessageType.text,
     createdAt: DateTime.now().subtract(const Duration(minutes: 18)),
@@ -220,7 +220,7 @@ final List<MessageModel> messages = [
     reactions: [],
   ),
   MessageModel(
-    id: '1',
+    id: '0',
     content: 'Hello',
     type: MessageType.text,
     createdAt: DateTime.now().subtract(const Duration(minutes: 20)),
