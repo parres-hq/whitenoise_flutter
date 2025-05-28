@@ -13,7 +13,7 @@ class RemoveNostrKeysBottomSheet extends StatelessWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'Remove Nostr Keys',
-      heightFactor: 0.4,
+      heightFactor: 0.42,
       backgroundColor: Colors.white,
       builder: (context) => RemoveNostrKeysBottomSheet(onRemove: onRemove),
     );
