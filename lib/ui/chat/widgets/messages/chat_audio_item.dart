@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
-import 'package:whitenoise/ui/core/ui/skelenton_box.dart';
+import 'package:whitenoise/ui/core/ui/skeleton_box.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../core/themes/colors.dart';
-import '../notifiers/chat_audio_notifier.dart';
+import '../../../core/themes/colors.dart';
+import '../../notifiers/chat_audio_notifier.dart';
 
 class ChatAudioItem extends ConsumerWidget {
   final String audioPath;

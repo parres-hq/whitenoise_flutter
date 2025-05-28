@@ -181,6 +181,7 @@ final List<MessageModel> messages = [
   // Image message
   MessageModel(
     id: '5',
+    content: 'Check this image',
     type: MessageType.image,
     createdAt: DateTime.now().subtract(const Duration(minutes: 16)),
     sender: marekContact,
