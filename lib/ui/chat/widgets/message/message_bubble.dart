@@ -65,7 +65,7 @@ class MessageBubble extends StatelessWidget {
                 ),
               ),
             ),
-            if (message.content != null && message.content!.length < 32)
+            if (message.content != null && message.content!.length < 32 && message.type != MessageType.audio)
               Positioned(
                 bottom: message.reactions.isNotEmpty? 34.h: 16.h,
                 right: 8.w,

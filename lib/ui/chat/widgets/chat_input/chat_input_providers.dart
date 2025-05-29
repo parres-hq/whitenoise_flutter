@@ -1,4 +1,5 @@
-// chat_input_providers.dart
+import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -15,6 +16,7 @@ class ChatInputState {
   final int recordingDurationSeconds;
   final double dragOffsetX;
   final bool isDragging;
+  final RecorderController? recorderController;
 
   ChatInputState({
     this.message = '',
@@ -25,6 +27,7 @@ class ChatInputState {
     this.recordingDurationSeconds = 0,
     this.dragOffsetX = 0,
     this.isDragging = false,
+    this.recorderController,
   });
 
   ChatInputState copyWith({
@@ -36,6 +39,7 @@ class ChatInputState {
     int? recordingDurationSeconds,
     double? dragOffsetX,
     bool? isDragging,
+    RecorderController? recorderController,
   }) {
     return ChatInputState(
       message: message ?? this.message,
@@ -46,12 +50,29 @@ class ChatInputState {
       recordingDurationSeconds: recordingDurationSeconds ?? this.recordingDurationSeconds,
       dragOffsetX: dragOffsetX ?? this.dragOffsetX,
       isDragging: isDragging ?? this.isDragging,
+      recorderController: recorderController ?? this.recorderController,
     );
   }
 }
 
 class ChatInputNotifier extends StateNotifier<ChatInputState> {
-  ChatInputNotifier() : super(ChatInputState());
+  ChatInputNotifier() : super(ChatInputState()) {
+    // Initialize recorder controller
+    state = state.copyWith(
+      recorderController:
+          RecorderController()
+            ..androidEncoder = AndroidEncoder.aac
+            ..androidOutputFormat = AndroidOutputFormat.mpeg4
+            ..iosEncoder = IosEncoder.kAudioFormatMPEG4AAC
+            ..sampleRate = 44100,
+    );
+  }
+
+  @override
+  void dispose() {
+    state.recorderController?.dispose();
+    super.dispose();
+  }
 
   void updateMessage(String message) {
     state = state.copyWith(message: message);
@@ -72,23 +93,57 @@ class ChatInputNotifier extends StateNotifier<ChatInputState> {
     state = state.copyWith(selectedImages: []);
   }
 
-  void startRecording() {
-    state = state.copyWith(
-      isRecording: true,
-      recordingDurationSeconds: 0,
-    );
+  Future<void> startRecording() async {
+    try {
+      await state.recorderController?.record();
+      state = state.copyWith(
+        isRecording: true,
+        recordingDurationSeconds: 0,
+        recordedFilePath: null,
+      );
+      
+      // Start timer for recording duration
+      _startRecordingTimer();
+    } catch (e) {
+      print('Error starting recording: $e');
+    }
   }
 
-  void updateRecordingTime() {
-    state = state.copyWith(recordingDurationSeconds: state.recordingDurationSeconds + 1);
+  void _startRecordingTimer() {
+    // Update recording time every second
+    Future.delayed(const Duration(seconds: 1), () {
+      if (state.isRecording) {
+        state = state.copyWith(
+          recordingDurationSeconds: state.recordingDurationSeconds + 1,
+        );
+        _startRecordingTimer();
+      }
+    });
   }
 
-  void stopRecording({bool cancel = false}) {
-    state = state.copyWith(
-      isRecording: false,
-      recordedFilePath: cancel ? null : "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg",
-      dragOffsetX: 0,
-    );
+  Future<void> stopRecording({bool cancel = true}) async {
+    try {
+      if (cancel) {
+        debugPrint("cancel");
+        await state.recorderController?.stop();
+        state = state.copyWith(
+          isRecording: false,
+          recordedFilePath: null,
+          dragOffsetX: 0,
+        );
+      } else {
+        debugPrint("send");
+        // final path = await state.recorderController?.stop();
+        final path = "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg";
+        state = state.copyWith(
+          isRecording: false,
+          recordedFilePath: path,
+          dragOffsetX: 0,
+        );
+      }
+    } catch (e) {
+      print('Error stopping recording: $e');
+    }
   }
 
   void handleDragStart() {
@@ -103,7 +158,7 @@ class ChatInputNotifier extends StateNotifier<ChatInputState> {
 
   void handleDragEnd() {
     if (state.dragOffsetX < -60) {
-      stopRecording(cancel: true);
+      stopRecording(cancel: false);
     } else {
       state = state.copyWith(dragOffsetX: 0);
     }
@@ -115,6 +170,13 @@ class ChatInputNotifier extends StateNotifier<ChatInputState> {
   }
 
   void resetState() {
-    state = ChatInputState();
+    state = ChatInputState(
+      recorderController:
+          RecorderController()
+            ..androidEncoder = AndroidEncoder.aac
+            ..androidOutputFormat = AndroidOutputFormat.mpeg4
+            ..iosEncoder = IosEncoder.kAudioFormatMPEG4AAC
+            ..sampleRate = 44100,
+    );
   }
 }

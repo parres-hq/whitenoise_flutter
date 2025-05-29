@@ -143,17 +143,6 @@ final List<MessageModel> messages = [
     status: MessageStatus.read,
     reactions: [],
   ),
-  MessageModel(
-    id: '7',
-    type: MessageType.audio,
-    createdAt: DateTime.now().subtract(const Duration(minutes: 14)),
-    sender: marekContact,
-    isMe: false,
-    audioPath: "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg",
-    status: MessageStatus.read,
-    reactions: [],
-  ),
-
   // Messages with replies
   MessageModel(
     id: '6',

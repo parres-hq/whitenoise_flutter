@@ -155,6 +155,8 @@ class ChatInput extends ConsumerWidget {
     final notifier = ref.read(chatInputStateProvider.notifier);
     final isEditing = editingMessage != null;
 
+    debugPrint(state.message.trim());
+
     final message = MessageModel(
       id: editingMessage?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       content: state.message.trim(),
