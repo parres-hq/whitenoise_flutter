@@ -1,4 +1,4 @@
-// chat_input.dart
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -6,7 +6,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input/stacked_images.dart';
-
 import 'chat_input_providers.dart';
 import 'components/audio_player_widget.dart';
 import 'components/emoji_picker_widget.dart';
@@ -14,7 +13,7 @@ import 'components/reply_edit_header.dart';
 import 'components/recording_ui.dart';
 import 'components/text_input_ui.dart';
 
-class ChatInput extends ConsumerWidget {
+class ChatInput extends ConsumerStatefulWidget {
   const ChatInput({
     super.key,
     required this.currentUser,
@@ -47,14 +46,113 @@ class ChatInput extends ConsumerWidget {
   final VoidCallback? onCancelEdit;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ChatInput> createState() => _ChatInputState();
+}
+
+class _ChatInputState extends ConsumerState<ChatInput> {
+  late FocusNode _focusNode;
+  bool _isInitializing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = FocusNode();
+    _initializeForEditing();
+  }
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(covariant ChatInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.editingMessage != oldWidget.editingMessage) {
+      _initializeForEditing();
+    }
+  }
+
+  Future<void> _initializeForEditing() async {
+    if (widget.editingMessage == null) return;
+
+    setState(() => _isInitializing = true);
+    final notifier = ref.read(chatInputStateProvider.notifier);
+
+    try {
+      // Initialize basic message content
+      notifier.updateMessage(widget.editingMessage!.content ?? '');
+
+      // Handle different message types
+      switch (widget.editingMessage!.type) {
+        case MessageType.audio:
+          if (widget.editingMessage!.audioPath != null) {
+            notifier.state = notifier.state.copyWith(
+              recordedFilePath: widget.editingMessage!.audioPath,
+            );
+          }
+          break;
+
+        case MessageType.image:
+          if (widget.editingMessage!.imageUrl != null) {
+            final xFile = await _createXFileFromUrl(widget.editingMessage!.imageUrl!);
+            if (xFile != null) {
+              notifier.state = notifier.state.copyWith(selectedImages: [xFile]);
+            }
+          }
+          break;
+
+        case MessageType.text:
+        default:
+          // No additional handling needed for text messages
+          break;
+      }
+
+      // Focus the input field
+      _focusNode.requestFocus();
+    } catch (e) {
+      debugPrint('Error initializing for editing: $e');
+    } finally {
+      setState(() => _isInitializing = false);
+    }
+  }
+
+  Future<XFile?> _createXFileFromUrl(String url) async {
+    try {
+      if (url.startsWith('http')) {
+        // For network images - download first
+        final response = await HttpClient().getUrl(Uri.parse(url));
+        final request = await response.close();
+        final bytes = await request.fold(
+          <int>[],
+          (List<int> accumulator, List<int> bytes) => accumulator..addAll(bytes),
+        );
+
+        final tempDir = Directory.systemTemp;
+        final file = File('${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg');
+        await file.writeAsBytes(bytes);
+        return XFile(file.path);
+      } else {
+        // For local files
+        return XFile(url);
+      }
+    } catch (e) {
+      debugPrint('Error creating XFile from URL: $e');
+      return null;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isInitializing) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     final state = ref.watch(chatInputStateProvider);
     final notifier = ref.read(chatInputStateProvider.notifier);
 
-    // Format recording time
     final formattedRecordingTime = _formatRecordingTime(state.recordingDurationSeconds);
-
-    // Determine if we have content
     final hasTextContent = state.message.trim().isNotEmpty;
     final hasMediaContent = state.selectedImages.isNotEmpty || state.recordedFilePath != null;
     final hasContent = hasTextContent || hasMediaContent;
@@ -62,16 +160,17 @@ class ChatInput extends ConsumerWidget {
     return Column(
       children: [
         // Reply/Edit header
-        if (replyingTo != null || editingMessage != null)
+        if (widget.replyingTo != null || widget.editingMessage != null)
           ReplyEditHeader(
-            replyingTo: replyingTo,
-            editingMessage: editingMessage,
+            replyingTo: widget.replyingTo,
+            editingMessage: widget.editingMessage,
             onCancel: () {
-              if (replyingTo != null) {
-                onCancelReply?.call();
+              if (widget.replyingTo != null) {
+                widget.onCancelReply?.call();
               } else {
-                onCancelEdit?.call();
+                widget.onCancelEdit?.call();
               }
+              notifier.resetState();
             },
           ),
 
@@ -94,12 +193,14 @@ class ChatInput extends ConsumerWidget {
 
         // Main input area
         Padding(
-          padding: padding,
+          padding: widget.padding,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 100),
             transitionBuilder:
-                (child, animation) =>
-                    FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child)),
+                (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SizeTransition(sizeFactor: animation, child: child),
+                ),
             child:
                 state.isRecording
                     ? RecordingUI(
@@ -113,19 +214,19 @@ class ChatInput extends ConsumerWidget {
                     : TextInputUI(
                       message: state.message,
                       onMessageChanged: notifier.updateMessage,
-                      focusNode: FocusNode(),
+                      focusNode: _focusNode,
                       showEmojiPicker: state.showEmojiPicker,
                       hasContent: hasContent,
-                      enableAudio: enableAudio,
-                      enableImages: enableImages,
+                      enableAudio: widget.enableAudio,
+                      enableImages: widget.enableImages,
                       isRecording: state.isRecording,
-                      mediaSelector: mediaSelector,
-                      cursorColor: cursorColor,
-                      onPickImages: () => notifier.pickImages(imageSource),
+                      mediaSelector: widget.mediaSelector,
+                      cursorColor: widget.cursorColor,
+                      onPickImages: () => notifier.pickImages(widget.imageSource),
                       onSendMessage: () => _sendMessage(ref),
                       onToggleEmojiPicker: notifier.toggleEmojiPicker,
                       onStartRecording: notifier.startRecording,
-                      onAttachmentPressed: onAttachmentPressed,
+                      onAttachmentPressed: widget.onAttachmentPressed,
                     ),
           ),
         ),
@@ -155,10 +256,10 @@ class ChatInput extends ConsumerWidget {
   void _sendMessage(WidgetRef ref) {
     final state = ref.read(chatInputStateProvider);
     final notifier = ref.read(chatInputStateProvider.notifier);
-    final isEditing = editingMessage != null;
+    final isEditing = widget.editingMessage != null;
 
     final message = MessageModel(
-      id: editingMessage?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      id: widget.editingMessage?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       content: state.message.trim(),
       type:
           state.recordedFilePath != null
@@ -166,23 +267,23 @@ class ChatInput extends ConsumerWidget {
               : state.selectedImages.isNotEmpty
               ? MessageType.image
               : MessageType.text,
-      createdAt: editingMessage?.createdAt ?? DateTime.now(),
-      updatedAt: editingMessage != null ? DateTime.now() : null,
-      sender: currentUser,
+      createdAt: widget.editingMessage?.createdAt ?? DateTime.now(),
+      updatedAt: isEditing ? DateTime.now() : null,
+      sender: widget.currentUser,
       isMe: true,
-      status: MessageStatus.sending,
+      status: isEditing ? widget.editingMessage!.status : MessageStatus.sending,
       audioPath: state.recordedFilePath,
       imageUrl: state.selectedImages.isNotEmpty ? state.selectedImages.first.path : null,
-      replyTo: replyingTo,
+      replyTo: widget.replyingTo,
     );
 
-    onSend(message, isEditing);
+    widget.onSend(message, isEditing);
     notifier.resetState();
 
-    if (replyingTo != null) {
-      onCancelReply?.call();
-    } else if (editingMessage != null) {
-      onCancelEdit?.call();
+    if (widget.replyingTo != null) {
+      widget.onCancelReply?.call();
+    } else if (isEditing) {
+      widget.onCancelEdit?.call();
     }
   }
 }
