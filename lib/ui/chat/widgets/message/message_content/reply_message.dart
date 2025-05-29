@@ -8,14 +8,15 @@ import 'package:whitenoise/ui/core/themes/colors.dart';
 class ReplyMessage extends StatelessWidget {
   final MessageModel message;
   final bool isOriginalUser;
+  final bool isMe;
 
-  const ReplyMessage({super.key, required this.message, this.isOriginalUser = false});
+  const ReplyMessage({super.key, required this.message, this.isOriginalUser = false, required this.isMe});
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = message.isMe ? AppColors.glitch400 : AppColors.glitch800;
-    final backgroundColor = message.isMe ? AppColors.glitch80 : AppColors.glitch600;
-    final textColor = message.isMe ? AppColors.glitch950 : AppColors.glitch50;
+    final borderColor = isMe ? AppColors.glitch400 : AppColors.glitch800;
+    final backgroundColor = isMe ? AppColors.glitch80 : AppColors.glitch600;
+    final textColor = isMe ? AppColors.glitch950 : AppColors.glitch50;
     final senderNameColor = textColor;
 
     return GestureDetector(

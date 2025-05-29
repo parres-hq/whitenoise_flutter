@@ -97,34 +97,36 @@ class ChatInput extends ConsumerWidget {
           padding: padding,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 100),
-            transitionBuilder: (child, animation) =>
-                FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child)),
-            child: state.isRecording
-                ? RecordingUI(
-                    recordingTime: formattedRecordingTime,
-                    onDragUpdate: (details) => notifier.handleDragUpdate(details.delta.dx),
-                    onDragEnd: (_) => notifier.handleDragEnd(),
-                    onDragStart: (_) => notifier.handleDragStart(),
-                    dragOffsetX: state.dragOffsetX,
-                    isDragging: state.isDragging,
-                  )
-                : TextInputUI(
-                    message: state.message,
-                    onMessageChanged: notifier.updateMessage,
-                    focusNode: FocusNode(),
-                    showEmojiPicker: state.showEmojiPicker,
-                    hasContent: hasContent,
-                    enableAudio: enableAudio,
-                    enableImages: enableImages,
-                    isRecording: state.isRecording,
-                    mediaSelector: mediaSelector,
-                    cursorColor: cursorColor,
-                    onPickImages: () => notifier.pickImages(imageSource),
-                    onSendMessage: () => _sendMessage(ref),
-                    onToggleEmojiPicker: notifier.toggleEmojiPicker,
-                    onStartRecording: notifier.startRecording,
-                    onAttachmentPressed: onAttachmentPressed,
-                  ),
+            transitionBuilder:
+                (child, animation) =>
+                    FadeTransition(opacity: animation, child: SizeTransition(sizeFactor: animation, child: child)),
+            child:
+                state.isRecording
+                    ? RecordingUI(
+                      recordingTime: formattedRecordingTime,
+                      onDragUpdate: (details) => notifier.handleDragUpdate(details.delta.dx),
+                      onDragEnd: (_) => notifier.handleDragEnd(),
+                      onDragStart: (_) => notifier.handleDragStart(),
+                      dragOffsetX: state.dragOffsetX,
+                      isDragging: state.isDragging,
+                    )
+                    : TextInputUI(
+                      message: state.message,
+                      onMessageChanged: notifier.updateMessage,
+                      focusNode: FocusNode(),
+                      showEmojiPicker: state.showEmojiPicker,
+                      hasContent: hasContent,
+                      enableAudio: enableAudio,
+                      enableImages: enableImages,
+                      isRecording: state.isRecording,
+                      mediaSelector: mediaSelector,
+                      cursorColor: cursorColor,
+                      onPickImages: () => notifier.pickImages(imageSource),
+                      onSendMessage: () => _sendMessage(ref),
+                      onToggleEmojiPicker: notifier.toggleEmojiPicker,
+                      onStartRecording: notifier.startRecording,
+                      onAttachmentPressed: onAttachmentPressed,
+                    ),
           ),
         ),
 
@@ -155,14 +157,13 @@ class ChatInput extends ConsumerWidget {
     final notifier = ref.read(chatInputStateProvider.notifier);
     final isEditing = editingMessage != null;
 
-    debugPrint(state.message.trim());
-
     final message = MessageModel(
       id: editingMessage?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       content: state.message.trim(),
-      type: state.recordedFilePath != null
-          ? MessageType.audio
-          : state.selectedImages.isNotEmpty
+      type:
+          state.recordedFilePath != null
+              ? MessageType.audio
+              : state.selectedImages.isNotEmpty
               ? MessageType.image
               : MessageType.text,
       createdAt: editingMessage?.createdAt ?? DateTime.now(),
@@ -177,5 +178,11 @@ class ChatInput extends ConsumerWidget {
 
     onSend(message, isEditing);
     notifier.resetState();
+
+    if (replyingTo != null) {
+      onCancelReply?.call();
+    } else if (editingMessage != null) {
+      onCancelEdit?.call();
+    }
   }
 }

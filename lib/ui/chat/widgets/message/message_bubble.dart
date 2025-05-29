@@ -49,9 +49,12 @@ class MessageBubble extends StatelessWidget {
                 child: IntrinsicWidth(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (message.replyTo != null) ReplyMessage(message: message),
+                      if (message.replyTo != null)
+                        ReplyMessage(
+                          message: message.replyTo!,
+                          isMe: message.isMe,
+                        ),
                       if (message.type == MessageType.image && message.imageUrl != null) ImageMessage(message: message),
                       if (message.type == MessageType.audio && message.audioPath != null)
                         AudioMessage(
