@@ -171,7 +171,8 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                       isRecording: state.isRecording,
                       mediaSelector: widget.mediaSelector,
                       cursorColor: widget.cursorColor,
-                      onPickImages: () => notifier.pickImages(widget.imageSource),
+                      onPickImages: () => notifier.pickImages(ImageSource.gallery),
+                      onTakePhoto: () => notifier.pickImages(ImageSource.camera),
                       onSendMessage: () => _sendMessage(ref),
                       onToggleEmojiPicker: notifier.toggleEmojiPicker,
                       onStartRecording: notifier.startRecording,
@@ -207,6 +208,8 @@ class _ChatInputState extends ConsumerState<ChatInput> {
     final notifier = ref.read(chatInputStateProvider.notifier);
     final isEditing = widget.editingMessage != null;
 
+    if (state.selectedImages.isNotEmpty) debugPrint(state.selectedImages.first.path);
+
     final message = MessageModel(
       id: widget.editingMessage?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       content: state.message.trim(),
@@ -222,7 +225,8 @@ class _ChatInputState extends ConsumerState<ChatInput> {
       isMe: true,
       status: isEditing ? widget.editingMessage!.status : MessageStatus.sending,
       audioPath: state.recordedFilePath,
-      imageUrl: state.selectedImages.isNotEmpty ? state.selectedImages.first.path : null,
+      imageUrl:
+          state.selectedImages.isNotEmpty ? "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png" : null,
       replyTo: widget.replyingTo,
     );
 

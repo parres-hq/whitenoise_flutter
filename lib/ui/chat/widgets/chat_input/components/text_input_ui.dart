@@ -20,6 +20,7 @@ class TextInputUI extends StatelessWidget {
     required this.onSendMessage,
     required this.onToggleEmojiPicker,
     required this.onStartRecording,
+    required this.onTakePhoto,
     this.onAttachmentPressed,
   });
 
@@ -37,6 +38,7 @@ class TextInputUI extends StatelessWidget {
   final VoidCallback onSendMessage;
   final VoidCallback onToggleEmojiPicker;
   final VoidCallback onStartRecording;
+  final VoidCallback onTakePhoto;
   final VoidCallback? onAttachmentPressed;
 
   @override
@@ -102,7 +104,7 @@ class TextInputUI extends StatelessWidget {
               if (enableImages)
                 IconButton(
                   icon: Icon(CarbonIcons.camera, size: 24.w, color: AppColors.glitch500),
-                  onPressed: onPickImages,
+                  onPressed: onTakePhoto,
                   padding: EdgeInsets.zero,
                 ),
 
