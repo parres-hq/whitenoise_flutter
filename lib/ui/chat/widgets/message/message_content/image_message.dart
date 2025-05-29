@@ -28,7 +28,7 @@ class ImageMessage extends StatelessWidget {
               placeholder:
                   (context, url) => Container(
                     height: 0.4.sh,
-                    color: AppColors.glitch950.withOpacity(0.1),
+                    color: AppColors.glitch950.withValues(alpha: 0.1),
                     child: Center(
                       child: CircularProgressIndicator(
                         color: AppColors.glitch50,
@@ -38,7 +38,7 @@ class ImageMessage extends StatelessWidget {
               errorWidget:
                   (context, url, error) => Container(
                     height: 0.4.sh,
-                    color: AppColors.glitch950.withOpacity(0.1),
+                    color: AppColors.glitch950.withValues(alpha: 0.1),
                     child: Icon(
                       CarbonIcons.no_image,
                       color: AppColors.glitch50,

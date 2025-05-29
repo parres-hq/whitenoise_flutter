@@ -204,7 +204,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   return GestureDetector(
                     onTap: () => _showReactionDialog(message, index),
                     child: Hero(
-                      tag: '${message.id}--${index}',
+                      tag: '${message.id}-${index}',
                       child: MessageWidget(
                         message: message,
                         isGroupMessage: false,
@@ -242,7 +242,7 @@ class _ChatScreenState extends State<ChatScreen> {
       HeroDialogRoute(
         builder: (context) {
           return ReactionsDialogWidget(
-            id: '${message.id}--${index}',
+            id: '${message.id}-${index}',
             menuItems: message.isMe ? DefaultData.myMessageMenuItems : DefaultData.menuItems,
             messageWidget: MessageWidget(
               message: message,

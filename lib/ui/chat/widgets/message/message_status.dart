@@ -21,7 +21,7 @@ class MessageStatusWidget extends StatelessWidget {
           message.timeSent,
           style: TextStyle(
             fontSize: 10.sp,
-            color: textColor.withOpacity(0.7),
+            color: textColor.withValues(alpha: 0.7),
             decoration: TextDecoration.none,
           ),
         ),
@@ -53,9 +53,9 @@ class MessageStatusWidget extends StatelessWidget {
   Color _getStatusColor(MessageStatus status, BuildContext context) {
     switch (status) {
       case MessageStatus.sending:
-        return AppColors.glitch50.withOpacity(0.5);
+        return AppColors.glitch50.withValues(alpha: 0.5);
       case MessageStatus.sent:
-        return AppColors.glitch50.withOpacity(0.7);
+        return AppColors.glitch50.withValues(alpha: 0.7);
       case MessageStatus.delivered:
         return AppColors.glitch50;
       case MessageStatus.read:

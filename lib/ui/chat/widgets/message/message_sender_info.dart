@@ -31,7 +31,7 @@ class MessageSenderInfo extends StatelessWidget {
           placeholder: (context, url) => Container(
             width: 30.w,
             height: 30.h,
-            color: AppColors.glitch950.withOpacity(0.1),
+                color: AppColors.glitch950.withValues(alpha: 0.1),
           ),
           errorWidget: (context, url, error) => Icon(
             CarbonIcons.user_avatar,

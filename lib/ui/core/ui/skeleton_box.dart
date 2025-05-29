@@ -43,8 +43,8 @@ class _SkeletonBoxState extends State<SkeletonBox> with SingleTickerProviderStat
 
   @override
   Widget build(BuildContext context) {
-    final baseColor = widget.baseColor ?? AppColors.glitch800.withOpacity(0.4);
-    final highlightColor = widget.highlightColor ?? AppColors.glitch800.withOpacity(0.2);
+    final baseColor = widget.baseColor ?? AppColors.glitch800.withValues(alpha: 0.4);
+    final highlightColor = widget.highlightColor ?? AppColors.glitch800.withValues(alpha: 0.2);
 
     return AnimatedBuilder(
       animation: _controller,
