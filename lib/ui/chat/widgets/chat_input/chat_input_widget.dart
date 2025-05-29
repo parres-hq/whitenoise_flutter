@@ -69,7 +69,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
   void didUpdateWidget(covariant ChatInput oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.editingMessage != oldWidget.editingMessage) {
-      _initializeForEditing();
+      Future.microtask(() => _initializeForEditing());
     }
   }
 
