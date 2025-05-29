@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -84,62 +83,12 @@ class _ChatInputState extends ConsumerState<ChatInput> {
       // Initialize basic message content
       notifier.updateMessage(widget.editingMessage!.content ?? '');
 
-      // Handle different message types
-      switch (widget.editingMessage!.type) {
-        case MessageType.audio:
-          if (widget.editingMessage!.audioPath != null) {
-            notifier.state = notifier.state.copyWith(
-              recordedFilePath: widget.editingMessage!.audioPath,
-            );
-          }
-          break;
-
-        case MessageType.image:
-          if (widget.editingMessage!.imageUrl != null) {
-            final xFile = await _createXFileFromUrl(widget.editingMessage!.imageUrl!);
-            if (xFile != null) {
-              notifier.state = notifier.state.copyWith(selectedImages: [xFile]);
-            }
-          }
-          break;
-
-        case MessageType.text:
-        default:
-          // No additional handling needed for text messages
-          break;
-      }
-
       // Focus the input field
       _focusNode.requestFocus();
     } catch (e) {
       debugPrint('Error initializing for editing: $e');
     } finally {
       setState(() => _isInitializing = false);
-    }
-  }
-
-  Future<XFile?> _createXFileFromUrl(String url) async {
-    try {
-      if (url.startsWith('http')) {
-        // For network images - download first
-        final response = await HttpClient().getUrl(Uri.parse(url));
-        final request = await response.close();
-        final bytes = await request.fold(
-          <int>[],
-          (List<int> accumulator, List<int> bytes) => accumulator..addAll(bytes),
-        );
-
-        final tempDir = Directory.systemTemp;
-        final file = File('${tempDir.path}/${DateTime.now().millisecondsSinceEpoch}.jpg');
-        await file.writeAsBytes(bytes);
-        return XFile(file.path);
-      } else {
-        // For local files
-        return XFile(url);
-      }
-    } catch (e) {
-      debugPrint('Error creating XFile from URL: $e');
-      return null;
     }
   }
 
