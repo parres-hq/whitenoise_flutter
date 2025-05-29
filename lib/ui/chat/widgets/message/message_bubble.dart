@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
-import 'package:whitenoise/ui/chat/widgets/messages/message_status.dart';
+import 'package:whitenoise/ui/chat/widgets/message/message_status.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 
 import 'message_content/text_message.dart';
