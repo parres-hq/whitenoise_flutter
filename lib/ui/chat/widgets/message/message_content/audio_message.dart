@@ -16,8 +16,6 @@ class AudioMessage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(chatAudioProvider(message.audioPath!));
-    final notifier = ref.read(chatAudioProvider(message.audioPath!).notifier);
-
     final currentlyPlaying = ref.watch(currentlyPlayingAudioProvider);
 
     final isThisPlaying = currentlyPlaying == message.audioPath && state.isPlaying;
@@ -67,7 +65,10 @@ class AudioMessage extends ConsumerWidget {
                   isThisPlaying ? CarbonIcons.pause_filled : CarbonIcons.play_filled_alt,
                   color: AppColors.glitch50,
                 ),
-                onPressed: () => notifier.togglePlayback(),
+                onPressed: () {
+                  final notifier = ref.read(chatAudioProvider(message.audioPath!).notifier);
+                  notifier.togglePlayback();
+                },
               ),
             ),
             Padding(
