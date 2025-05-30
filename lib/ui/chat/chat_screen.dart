@@ -38,6 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
     email: 'current@user.com',
     publicKey: 'current_public_key',
   );
+  final bool isGroupMessage = true;
 
   MessageModel? _replyingTo;
   MessageModel? _editingMessage;
@@ -202,12 +203,12 @@ class _ChatScreenState extends State<ChatScreen> {
 
                   final message = messages[index];
                   return GestureDetector(
-                    onTap: () => _showReactionDialog(message, index),
+                    onTap: () => _showReactionDialog(message, index, isGroupMessage),
                     child: Hero(
                       tag: '${message.id}-${index}',
                       child: MessageWidget(
                         message: message,
-                        isGroupMessage: true,
+                        isGroupMessage: isGroupMessage,
                         isSameSenderAsPrevious: _isSameSender(index),
                         isSameSenderAsNext: _isNextSameSender(index),
                         onReactionTap: (reaction) {
@@ -237,7 +238,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _showReactionDialog(MessageModel message, int index) {
+  void _showReactionDialog(MessageModel message, int index, bool isGroupMessage) {
     Navigator.of(context).push(
       HeroDialogRoute(
         builder: (context) {
@@ -246,7 +247,7 @@ class _ChatScreenState extends State<ChatScreen> {
             menuItems: message.isMe ? DefaultData.myMessageMenuItems : DefaultData.menuItems,
             messageWidget: MessageWidget(
               message: message,
-              isGroupMessage: false,
+              isGroupMessage: isGroupMessage,
               isSameSenderAsPrevious: _isSameSender(index),
               isSameSenderAsNext: _isNextSameSender(index),
             ),

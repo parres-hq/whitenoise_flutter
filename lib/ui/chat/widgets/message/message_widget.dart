@@ -46,16 +46,14 @@ class MessageWidget extends StatelessWidget {
                   MessageSenderInfo(
                     message: message,
                     isSameSenderAsNext: isSameSenderAsNext,
-                    isSameSenderAsPrevious: isSameSenderAsPrevious
-                  ),
-                Expanded(
-                  child: MessageBubble(
-                    message: message,
-                    isGroupMessage: isGroupMessage,
                     isSameSenderAsPrevious: isSameSenderAsPrevious,
-                    isSameSenderAsNext: isSameSenderAsNext,
-                    onReactionTap: onReactionTap,
                   ),
+                MessageBubble(
+                  message: message,
+                  isGroupMessage: isGroupMessage,
+                  isSameSenderAsPrevious: isSameSenderAsPrevious,
+                  isSameSenderAsNext: isSameSenderAsNext,
+                  onReactionTap: onReactionTap,
                 ),
               ],
             ),

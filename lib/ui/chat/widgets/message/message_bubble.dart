@@ -48,7 +48,7 @@ class MessageBubble extends StatelessWidget {
                 ),
                 padding: EdgeInsets.all(10.w),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     IntrinsicWidth(
                       child: Column(
@@ -113,6 +113,8 @@ class MessageBubble extends StatelessWidget {
           fontSize: 12.sp,
           color: Theme.of(context).colorScheme.error,
           fontWeight: FontWeight.w600,
+          decoration: TextDecoration.none,
+          fontFamily: 'OverusedGrotesk',
         ),
       ),
     );
