@@ -14,7 +14,7 @@ class TextMessage extends StatelessWidget {
     final textColor = message.isMe ? AppColors.glitch50 : AppColors.glitch900;
     final content = message.content ?? '';
     final needsPadding = content.length < _minLengthForPadding;
-    final double padding = message.isMe ? 56.w : 46.w;
+    final double padding = message.isMe ? 58.w : 46.w;
 
     return Padding(
       padding: EdgeInsets.only(

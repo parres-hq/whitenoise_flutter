@@ -8,19 +8,21 @@ import 'package:whitenoise/ui/core/themes/colors.dart';
 class MessageSenderInfo extends StatelessWidget {
   final MessageModel message;
   final bool isSameSenderAsNext;
+  final bool isSameSenderAsPrevious;
 
   const MessageSenderInfo({
     super.key,
     required this.message,
     required this.isSameSenderAsNext,
+    required this.isSameSenderAsPrevious,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (isSameSenderAsNext) return SizedBox(width: 38.w);
+    if (isSameSenderAsPrevious) return SizedBox(width: 38.w);
 
     return Padding(
-      padding: EdgeInsets.only(right: 8.w, bottom: 4.h),
+      padding: EdgeInsets.only(right: 8.w, bottom: message.reactions.isNotEmpty ? 18.h : 2.h),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(15.r),
         child: CachedNetworkImage(

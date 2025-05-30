@@ -207,7 +207,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       tag: '${message.id}-${index}',
                       child: MessageWidget(
                         message: message,
-                        isGroupMessage: false,
+                        isGroupMessage: true,
                         isSameSenderAsPrevious: _isSameSender(index),
                         isSameSenderAsNext: _isNextSameSender(index),
                         onReactionTap: (reaction) {

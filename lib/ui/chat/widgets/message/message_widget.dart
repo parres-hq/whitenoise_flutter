@@ -36,7 +36,7 @@ class MessageWidget extends StatelessWidget {
           ),
           child: Padding(
             padding: EdgeInsets.only(
-              bottom: isSameSenderAsPrevious ? 1.w : 8.w,
+              bottom: isSameSenderAsPrevious ? 1.h : 8.h,
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
@@ -46,12 +46,14 @@ class MessageWidget extends StatelessWidget {
                   MessageSenderInfo(
                     message: message,
                     isSameSenderAsNext: isSameSenderAsNext,
+                    isSameSenderAsPrevious: isSameSenderAsPrevious
                   ),
                 Expanded(
                   child: MessageBubble(
                     message: message,
                     isGroupMessage: isGroupMessage,
                     isSameSenderAsPrevious: isSameSenderAsPrevious,
+                    isSameSenderAsNext: isSameSenderAsNext,
                     onReactionTap: onReactionTap,
                   ),
                 ),

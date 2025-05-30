@@ -14,6 +14,7 @@ class MessageBubble extends StatelessWidget {
   final MessageModel message;
   final bool isGroupMessage;
   final bool isSameSenderAsPrevious;
+  final bool isSameSenderAsNext;
   final Function(String)? onReactionTap;
 
   const MessageBubble({
@@ -21,6 +22,7 @@ class MessageBubble extends StatelessWidget {
     required this.message,
     required this.isGroupMessage,
     required this.isSameSenderAsPrevious,
+    required this.isSameSenderAsNext,
     this.onReactionTap,
   });
 
@@ -29,7 +31,6 @@ class MessageBubble extends StatelessWidget {
     return Column(
       crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
       children: [
-        if (isGroupMessage && !message.isMe && !isSameSenderAsPrevious) _buildSenderName(context),
         Stack(
           clipBehavior: Clip.none,
           children: [
@@ -46,26 +47,37 @@ class MessageBubble extends StatelessWidget {
                   color: message.isMe ? AppColors.glitch950 : AppColors.glitch80,
                 ),
                 padding: EdgeInsets.all(10.w),
-                child: IntrinsicWidth(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      if (message.replyTo != null)
-                        ReplyMessage(
-                          message: message.replyTo!,
-                          isMe: message.isMe,
-                        ),
-                      if (message.type == MessageType.image && message.imageUrl != null) ImageMessage(message: message),
-                      if (message.type == MessageType.audio && message.audioPath != null)
-                        AudioMessage(
-                          message: message,
-                        ),
-                      if (message.content != null && message.content!.isNotEmpty) TextMessage(message: message),
-                      if ((message.content != null && message.content!.length >= 32) || message.type == MessageType.audio)
-                        MessageStatusWidget(message: message),
-                    ],
-                  ),
-                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    IntrinsicWidth(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (isGroupMessage && !message.isMe && !isSameSenderAsNext) _buildSenderName(context),
+                          if (message.replyTo != null)
+                            ReplyMessage(
+                              message: message.replyTo!,
+                              isMe: message.isMe,
+                            ),
+                          if (message.type == MessageType.image && message.imageUrl != null)
+                            ImageMessage(message: message),
+                          if (message.type == MessageType.audio && message.audioPath != null)
+                            AudioMessage(
+                              message: message,
+                            ),
+                          if (message.content != null && message.content!.isNotEmpty) TextMessage(message: message),
+                        ],
+                      ),
+                    ),
+                    if ((message.content != null && message.content!.length >= 32) || message.type == MessageType.audio)
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: MessageStatusWidget(message: message),
+                      ),
+                  ],
+                )
+
               ),
             ),
             if (message.content != null && message.content!.length < 32 && message.type != MessageType.audio)
@@ -92,7 +104,9 @@ class MessageBubble extends StatelessWidget {
 
   Widget _buildSenderName(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: 4.h, left: 4.w),
+      padding: EdgeInsets.only(
+        bottom: 2.h,
+      ),
       child: Text(
         message.sender.name,
         style: TextStyle(
