@@ -6,9 +6,9 @@ import 'package:go_router/go_router.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_input.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_input/chat_input_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
-import 'package:whitenoise/ui/chat/widgets/message_widget.dart';
+import 'package:whitenoise/ui/chat/widgets/message/message_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_hero_dialog_route.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reactions_dialog_widget.dart';
@@ -38,6 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
     email: 'current@user.com',
     publicKey: 'current_public_key',
   );
+  final bool isGroupMessage = true;
 
   MessageModel? _replyingTo;
   MessageModel? _editingMessage;
@@ -107,7 +108,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
+  void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
     setState(() {
       if (isEditing) {
         final index = messages.indexWhere((m) => m.id == msg.id);
@@ -118,7 +119,7 @@ void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
         messages.insert(0, msg);
       }
     });
-  
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
         _scrollController.position.minScrollExtent,
@@ -202,12 +203,12 @@ void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
 
                   final message = messages[index];
                   return GestureDetector(
-                    onTap: () => _showReactionDialog(message, index),
+                    onTap: () => _showReactionDialog(message, index, isGroupMessage),
                     child: Hero(
-                      tag: message.id,
+                      tag: '${message.id}-${index}',
                       child: MessageWidget(
                         message: message,
-                        isGroupMessage: false,
+                        isGroupMessage: isGroupMessage,
                         isSameSenderAsPrevious: _isSameSender(index),
                         isSameSenderAsNext: _isNextSameSender(index),
                         onReactionTap: (reaction) {
@@ -237,16 +238,16 @@ void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
     );
   }
 
-  void _showReactionDialog(MessageModel message, int index) {
+  void _showReactionDialog(MessageModel message, int index, bool isGroupMessage) {
     Navigator.of(context).push(
       HeroDialogRoute(
         builder: (context) {
           return ReactionsDialogWidget(
-            id: message.id,
+            id: '${message.id}-${index}',
             menuItems: message.isMe ? DefaultData.myMessageMenuItems : DefaultData.menuItems,
             messageWidget: MessageWidget(
               message: message,
-              isGroupMessage: false,
+              isGroupMessage: isGroupMessage,
               isSameSenderAsPrevious: _isSameSender(index),
               isSameSenderAsNext: _isNextSameSender(index),
             ),

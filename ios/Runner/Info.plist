@@ -45,5 +45,15 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<key>NSCameraUsageDescription</key>
+	<string>Whitenoise needs access to your camera to capture photos and videos</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Whitenoise needs access to your microphone to record audio messages</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Whitenoise needs access to your photo library to save and share media</string>
+
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Whitenoise needs permission to save media to your photo library</string>
 </dict>
 </plist>

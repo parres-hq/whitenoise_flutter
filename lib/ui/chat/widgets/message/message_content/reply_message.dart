@@ -3,15 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
-import '../../core/themes/colors.dart';
-
-class ChatReplyItem extends StatelessWidget {
+class ReplyMessage extends StatelessWidget {
   final MessageModel message;
-  final bool isMe;
   final bool isOriginalUser;
+  final bool isMe;
 
-  const ChatReplyItem({super.key, required this.message, required this.isMe, this.isOriginalUser = false});
+  const ReplyMessage({super.key, required this.message, this.isOriginalUser = false, required this.isMe});
 
   @override
   Widget build(BuildContext context) {

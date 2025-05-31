@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 
-class StackedReactions extends StatelessWidget {
+class MessageReactions extends StatelessWidget {
   final List<Reaction> reactions;
   final double size;
   final TextDirection direction;
@@ -11,7 +11,7 @@ class StackedReactions extends StatelessWidget {
   final double? width;
   final Function(String)? onReactionTap;
 
-  const StackedReactions({
+  const MessageReactions({
     super.key,
     required this.reactions,
     this.size = 10.0,
