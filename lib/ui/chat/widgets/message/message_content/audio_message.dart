@@ -23,8 +23,14 @@ class AudioMessage extends ConsumerWidget {
     if (!state.isReady) {
       if (state.error != null) {
         return SizedBox(
-          height: 40.h,
-          child: Center(child: Text(state.error!, style: const TextStyle(color: Colors.red, fontSize: 12))),
+          child: Center(
+            child: Text(
+              state.error!,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+              softWrap: true,
+              overflow: TextOverflow.visible,
+            ),
+          ),
         );
       }
 

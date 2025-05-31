@@ -38,24 +38,28 @@ class MessageWidget extends StatelessWidget {
             padding: EdgeInsets.only(
               bottom: isSameSenderAsPrevious ? 1.h : 8.h,
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (isGroupMessage && !message.isMe)
-                  MessageSenderInfo(
-                    message: message,
-                    isSameSenderAsNext: isSameSenderAsNext,
-                    isSameSenderAsPrevious: isSameSenderAsPrevious,
+            child: IntrinsicWidth(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (isGroupMessage && !message.isMe)
+                    MessageSenderInfo(
+                      message: message,
+                      isSameSenderAsNext: isSameSenderAsNext,
+                      isSameSenderAsPrevious: isSameSenderAsPrevious,
+                    ),
+                  Flexible(
+                    child: MessageBubble(
+                      message: message,
+                      isGroupMessage: isGroupMessage,
+                      isSameSenderAsPrevious: isSameSenderAsPrevious,
+                      isSameSenderAsNext: isSameSenderAsNext,
+                      onReactionTap: onReactionTap,
+                    ),
                   ),
-                MessageBubble(
-                  message: message,
-                  isGroupMessage: isGroupMessage,
-                  isSameSenderAsPrevious: isSameSenderAsPrevious,
-                  isSameSenderAsNext: isSameSenderAsNext,
-                  onReactionTap: onReactionTap,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

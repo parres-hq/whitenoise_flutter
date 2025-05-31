@@ -32,6 +32,8 @@ class TextMessage extends StatelessWidget {
             fontFamily: 'OverusedGrotesk',
             fontWeight: FontWeight.normal,
           ),
+          softWrap: true,
+          overflow: TextOverflow.visible,
         ),
       ),
     );

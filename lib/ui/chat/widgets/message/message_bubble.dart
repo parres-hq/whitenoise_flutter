@@ -30,6 +30,7 @@ class MessageBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
         Stack(
           clipBehavior: Clip.none,
