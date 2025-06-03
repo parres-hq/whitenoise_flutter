@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_chats.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/contact_list/widgets/chat_list_appbar.dart';
@@ -13,7 +14,7 @@ class ChatListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ChatListAppBar(),
+      appBar: ChatListAppBar(onSettingsTap: () => context.push(Routes.settings)),
       body: ColoredBox(
         color: AppColors.white,
         child: ListView.separated(
@@ -22,7 +23,7 @@ class ChatListScreen extends StatelessWidget {
           itemBuilder: (context, index) {
             final chat = dummyChats[index];
             return InkWell(
-              onTap: () => Routes.goToChat(context, chat.id),
+              onTap: () => context.push('${Routes.chats}/${chat.id}'),
               child: ChatListTile(chat: chat),
             );
           },

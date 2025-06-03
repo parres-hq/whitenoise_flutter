@@ -2,18 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
-import 'package:whitenoise/ui/settings/network/network_screen.dart';
-import 'package:whitenoise/ui/settings/nostr_keys/nostr_keys_screen.dart';
 import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
-import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
-import 'package:whitenoise/ui/settings/wallet/wallet_screen.dart';
+import 'package:whitenoise/routing/routes.dart';
 
 class GeneralSettingsScreen extends StatefulWidget {
   const GeneralSettingsScreen({super.key});
@@ -30,9 +28,7 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
   ContactModel _currentProfile = dummyContacts.first;
 
   void _deleteAllData() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("All data deleted")));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("All data deleted")));
   }
 
   void _publishKeyPackage() {
@@ -48,16 +44,14 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
   }
 
   void _testNotifications() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("Test notification sent")));
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Test notification sent")));
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: CustomAppBar(title: 'Settings'),
+      appBar: const CustomAppBar(title: 'Settings'),
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
         children: [
@@ -96,30 +90,17 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
               },
             ),
             _settingsRow(Icons.person_outline, 'Edit Profile', () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => EditProfileScreen(profile: _currentProfile)),
-              );
+              context.push('${Routes.settings}/profile');
             }),
             _settingsRow(Icons.vpn_key_outlined, 'Nostr keys', () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const NostrKeysScreen()),
-              );
+              context.push('${Routes.settings}/keys');
             }),
             _settingsRow(Icons.network_wifi, 'Network', () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const NetworkScreen()),
-              );
+              context.push('${Routes.settings}/network');
             }),
-            _settingsRow(
-              Icons.account_balance_wallet_outlined,
-              'Wallet',
-              () {
-              Navigator.push(context, MaterialPageRoute(builder: (context) => const WalletScreen()));
-            },
-            ),
+            _settingsRow(Icons.account_balance_wallet_outlined, 'Wallet', () {
+              context.push('${Routes.settings}/wallet');
+            }),
             _settingsRow(Icons.logout, 'Sign out', () {}),
             Gap(32.h),
           ] else
@@ -129,11 +110,7 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
             setState(() => _privacyExpanded = !_privacyExpanded);
           }),
           if (_privacyExpanded) ...[
-            _settingsRow(
-              Icons.delete_outline,
-              'Delete all data',
-              _deleteAllData,
-            ),
+            _settingsRow(Icons.delete_outline, 'Delete all data', _deleteAllData),
             Gap(32.h),
           ] else
             Gap(40.h),
@@ -142,21 +119,9 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
             setState(() => _developerExpanded = !_developerExpanded);
           }),
           if (_developerExpanded) ...[
-            _settingsRow(
-              Icons.vpn_key_outlined,
-              'Publish a key package event',
-              _publishKeyPackage,
-            ),
-            _settingsRow(
-              Icons.delete_outline,
-              'Delete all key package events',
-              _deleteKeyPackages,
-            ),
-            _settingsRow(
-              Icons.notifications_none,
-              'Test Notifications',
-              _testNotifications,
-            ),
+            _settingsRow(Icons.vpn_key_outlined, 'Publish a key package event', _publishKeyPackage),
+            _settingsRow(Icons.delete_outline, 'Delete all key package events', _deleteKeyPackages),
+            _settingsRow(Icons.notifications_none, 'Test Notifications', _testNotifications),
           ],
         ],
       ),

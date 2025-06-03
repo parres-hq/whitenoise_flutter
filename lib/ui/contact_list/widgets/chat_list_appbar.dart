@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/routing/routes.dart';
@@ -11,17 +11,18 @@ import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/search_chat_bottom_sheet.dart';
 
 class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const ChatListAppBar({super.key});
+  final VoidCallback? onSettingsTap;
+
+  const ChatListAppBar({super.key, this.onSettingsTap});
 
   @override
   Widget build(BuildContext context) {
-    // Ensure status bar has light icons on this dark background
     SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
-      statusBarIconBrightness: Brightness.light, // for Android
-      statusBarBrightness: Brightness.dark, // for iOS
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
     ));
-    
+
     return ColoredBox(
       color: AppColors.glitch950,
       child: Padding(
@@ -30,7 +31,7 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
           child: Row(
             children: [
               GestureDetector(
-                onTap: () => GoRouter.of(context).go(Routes.settings),
+                onTap: onSettingsTap ?? () => context.push(Routes.settings),
                 child: Image.asset(
                   AssetsPaths.icImage,
                   width: 32.w,
