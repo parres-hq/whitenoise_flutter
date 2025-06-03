@@ -55,6 +55,7 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
           Row(
             children: [
               const Spacer(),
+              //TODO: looks weird, needs touch
               GestureDetector(
                 onTap: () => AddProfileBottomSheet.show(context: context),
                 child: Row(
