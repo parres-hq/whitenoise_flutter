@@ -3,6 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -21,10 +22,6 @@ class GeneralSettingsScreen extends StatefulWidget {
 }
 
 class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
-  bool _profileExpanded = true;
-  bool _privacyExpanded = false;
-  bool _developerExpanded = false;
-
   ContactModel _currentProfile = dummyContacts.first;
 
   void _deleteAllData() {
@@ -56,103 +53,109 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _sectionHeader('Profile', _profileExpanded, () {
-                setState(() => _profileExpanded = !_profileExpanded);
-              }),
-              if (_profileExpanded)
-                Padding(
-                  padding: EdgeInsets.only(bottom: 12.h),
-                  child: GestureDetector(
-                    onTap: () => AddProfileBottomSheet.show(context: context),
-                    child: SvgPicture.asset(AssetsPaths.icAdd, height: 16.5.w, width: 16.5.w),
-                  ),
+              const Spacer(),
+              GestureDetector(
+                onTap: () => AddProfileBottomSheet.show(context: context),
+                child: Row(
+                  children: [
+                    Text('Add Profile', style: TextStyle(fontSize: 18.sp, color: AppColors.glitch600)),
+                    Gap(12.w),
+                    SvgPicture.asset(AssetsPaths.icAdd, height: 16.w, width: 16.w),
+                  ],
                 ),
+              ),
             ],
           ),
-          if (_profileExpanded) ...[
-            ContactListTile(
-              contact: _currentProfile,
-              showExpansionArrow: dummyContacts.length > 1,
-              onTap: () {
-                if (dummyContacts.length > 1) {
-                  SwitchProfileBottomSheet.show(
-                    context: context,
-                    profiles: dummyContacts,
-                    onProfileSelected: (selectedProfile) {
-                      setState(() {
-                        _currentProfile = selectedProfile;
-                      });
-                    },
-                  );
-                }
-              },
-            ),
-            _settingsRow(Icons.person_outline, 'Edit Profile', () {
-              context.push('${Routes.settings}/profile');
-            }),
-            _settingsRow(Icons.vpn_key_outlined, 'Nostr keys', () {
-              context.push('${Routes.settings}/keys');
-            }),
-            _settingsRow(Icons.network_wifi, 'Network', () {
-              context.push('${Routes.settings}/network');
-            }),
-            _settingsRow(Icons.account_balance_wallet_outlined, 'Wallet', () {
-              context.push('${Routes.settings}/wallet');
-            }),
-            _settingsRow(Icons.logout, 'Sign out', () {}),
-            Gap(32.h),
-          ] else
-            Gap(40.h),
-
-          _sectionHeader('Privacy & Security', _privacyExpanded, () {
-            setState(() => _privacyExpanded = !_privacyExpanded);
-          }),
-          if (_privacyExpanded) ...[
-            _settingsRow(Icons.delete_outline, 'Delete all data', _deleteAllData),
-            Gap(32.h),
-          ] else
-            Gap(40.h),
-
-          _sectionHeader('Developer Settings', _developerExpanded, () {
-            setState(() => _developerExpanded = !_developerExpanded);
-          }),
-          if (_developerExpanded) ...[
-            _settingsRow(Icons.vpn_key_outlined, 'Publish a key package event', _publishKeyPackage),
-            _settingsRow(Icons.delete_outline, 'Delete all key package events', _deleteKeyPackages),
-            _settingsRow(Icons.notifications_none, 'Test Notifications', _testNotifications),
-          ],
+          ContactListTile(
+            contact: _currentProfile,
+            showExpansionArrow: dummyContacts.length > 1,
+            onTap: () {
+              if (dummyContacts.length > 1) {
+                SwitchProfileBottomSheet.show(
+                  context: context,
+                  profiles: dummyContacts,
+                  onProfileSelected: (selectedProfile) {
+                    setState(() {
+                      _currentProfile = selectedProfile;
+                    });
+                  },
+                );
+              }
+            },
+          ),
+          SettingsListTile(
+            icon: CarbonIcons.user,
+            text: 'Edit Profile',
+            onTap: () => context.push('${Routes.settings}/profile'),
+          ),
+          SettingsListTile(
+            icon: CarbonIcons.password,
+            text: 'Nostr keys',
+            onTap: () => context.push('${Routes.settings}/keys'),
+          ),
+          SettingsListTile(
+            icon: CarbonIcons.satellite,
+            text: 'Network',
+            onTap: () => context.push('${Routes.settings}/network'),
+          ),
+          SettingsListTile(
+            icon: CarbonIcons.wallet,
+            text: 'Wallet',
+            onTap: () => context.push('${Routes.settings}/wallet'),
+          ),
+          SettingsListTile(
+            icon: CarbonIcons.logout,
+            text: 'Sign out',
+            onTap: () {},
+          ),
+          SettingsListTile(
+            icon: CarbonIcons.delete,
+            text: 'Delete all data',
+            onTap: _deleteAllData,
+          ),
+          SettingsListTile(
+            icon: CarbonIcons.password,
+            text: 'Publish a key package event',
+            onTap: _publishKeyPackage,
+          ),
+          SettingsListTile(
+            icon: CarbonIcons.delete,
+            text: 'Delete all key package events',
+            onTap: _deleteKeyPackages,
+          ),
+          SettingsListTile(
+            icon: CarbonIcons.notification,
+            text: 'Test Notifications',
+            onTap: _testNotifications,
+          ),
         ],
       ),
     );
   }
+}
 
-  Widget _sectionHeader(String title, bool expanded, VoidCallback onTap) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.only(bottom: expanded ? 12.h : 0),
-        child: Text(
-          title,
-          style: TextStyle(
-            fontSize: 20.sp,
-            fontWeight: FontWeight.w600,
-            color: AppColors.black,
-          ),
-        ),
-      ),
-    );
-  }
+class SettingsListTile extends StatelessWidget {
+  const SettingsListTile({
+    super.key,
+    required this.icon,
+    required this.text,
+    required this.onTap,
+  });
 
-  Widget _settingsRow(IconData icon, String text, VoidCallback onTap) {
+  final IconData icon;
+  final String text;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 12.h),
         child: Row(
           children: [
-            Icon(icon, size: 22.sp, color: AppColors.glitch600),
+            Icon(icon, size: 24.w, color: AppColors.glitch600),
             Gap(12.w),
             Expanded(
               child: Text(
