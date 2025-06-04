@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
@@ -52,22 +50,6 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
         children: [
-          Row(
-            children: [
-              const Spacer(),
-              //TODO: looks weird, needs touch
-              GestureDetector(
-                onTap: () => AddProfileBottomSheet.show(context: context),
-                child: Row(
-                  children: [
-                    Text('Add Profile', style: TextStyle(fontSize: 18.sp, color: AppColors.glitch600)),
-                    Gap(12.w),
-                    SvgPicture.asset(AssetsPaths.icAdd, height: 16.w, width: 16.w),
-                  ],
-                ),
-              ),
-            ],
-          ),
           ContactListTile(
             contact: _currentProfile,
             showExpansionArrow: dummyContacts.length > 1,
@@ -84,6 +66,11 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
                 );
               }
             },
+          ),
+          SettingsListTile(
+            icon: CarbonIcons.add,
+            text: 'Add Profile',
+            onTap: () => AddProfileBottomSheet.show(context: context),
           ),
           SettingsListTile(
             icon: CarbonIcons.user,
