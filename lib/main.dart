@@ -7,10 +7,8 @@ import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'dart:io';
-import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
 import 'package:logging/logging.dart';
-import 'dart:developer' as dev;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
