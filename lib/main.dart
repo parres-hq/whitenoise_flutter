@@ -7,15 +7,25 @@ import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'dart:io';
+import 'dart:convert';
 import 'package:path_provider/path_provider.dart';
+import 'package:logging/logging.dart';
+import 'dart:developer' as dev;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Initialize logging
+  Logger.root.level = Level.ALL;
+  Logger.root.onRecord.listen((record) {
+    debugPrint('${record.level.name}: ${record.time}: ${record.message}');
+  });
+  final log = Logger('Whitenoise');
+
   // Initialize the Rust library
   try {
     await RustLib.init();
-    print('✅ Rust library initialized successfully');
+    log.info('Rust library initialized successfully');
 
     // Initialize Whitenoise with proper config
     try {
@@ -28,27 +38,46 @@ Future<void> main() async {
       await Directory(dataDir).create(recursive: true);
       await Directory(logsDir).create(recursive: true);
 
-      print('📁 Data directory: $dataDir');
-      print('📁 Logs directory: $logsDir');
+      log.info('Data directory: $dataDir');
+      log.info('Logs directory: $logsDir');
 
       // Create WhitenoiseConfig
       final config = await createWhitenoiseConfig(
         dataDir: dataDir,
         logsDir: logsDir,
       );
-      print('✅ WhitenoiseConfig created successfully');
+      log.info('WhitenoiseConfig created successfully');
 
       // Initialize Whitenoise
       final whitenoise = await initializeWhitenoise(config: config);
-      print('🚀 Whitenoise initialized successfully!');
-      print('📱 White Noise is ready to use');
+      log.info('Whitenoise initialized successfully!');
+      log.info('White Noise is ready to use');
+
+      // Get the whitenoise data and log it for console debugging
+      final whitenoiseData = await getWhitenoiseData(whitenoise: whitenoise);
+
+      // Log detailed object info to console
+      log.info('WhitenoiseData Details:');
+      log.info('Config - Data Dir: ${whitenoiseData.config.dataDir}');
+      log.info('Config - Logs Dir: ${whitenoiseData.config.logsDir}');
+      log.info('Accounts: ${whitenoiseData.accounts.length}');
+      log.info('Active Account: ${whitenoiseData.activeAccount}');
+
+      if (whitenoiseData.accounts.isNotEmpty) {
+        whitenoiseData.accounts.forEach((pubkey, account) {
+          log.info('Account $pubkey:');
+          log.info('  Settings: darkTheme=${account.settings.darkTheme}, devMode=${account.settings.devMode}, lockdownMode=${account.settings.lockdownMode}');
+          log.info('  Onboarding: inboxRelays=${account.onboarding.inboxRelays}, keyPackageRelays=${account.onboarding.keyPackageRelays}, keyPackagePublished=${account.onboarding.keyPackagePublished}');
+          log.info('  Last Synced: ${account.lastSynced}');
+        });
+      }
 
     } catch (e) {
-      print('⚠️ Whitenoise initialization failed: $e');
-      print('   Check if all dependencies are properly configured');
+      log.warning('Whitenoise initialization failed: $e');
+      log.warning('Check if all dependencies are properly configured');
     }
   } catch (e) {
-    print('❌ Failed to initialize Rust library: $e');
+    log.severe('Failed to initialize Rust library: $e');
   }
 
   runApp(ProviderScope(child: const MyApp()));

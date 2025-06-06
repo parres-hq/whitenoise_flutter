@@ -6,6 +6,21 @@
 import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+
+Future<WhitenoiseData> convertWhitenoiseToData({
+  required Whitenoise whitenoise,
+}) => RustLib.instance.api.crateApiConvertWhitenoiseToData(
+  whitenoise: whitenoise,
+);
+
+Future<WhitenoiseConfigData> convertConfigToData({
+  required WhitenoiseConfig config,
+}) => RustLib.instance.api.crateApiConvertConfigToData(config: config);
+
+Future<AccountData> convertAccountToData({required Account account}) =>
+    RustLib.instance.api.crateApiConvertAccountToData(account: account);
+
 Future<WhitenoiseConfig> createWhitenoiseConfig({
   required String dataDir,
   required String logsDir,
@@ -17,6 +32,46 @@ Future<WhitenoiseConfig> createWhitenoiseConfig({
 Future<Whitenoise> initializeWhitenoise({required WhitenoiseConfig config}) =>
     RustLib.instance.api.crateApiInitializeWhitenoise(config: config);
 
+Future<WhitenoiseData> getWhitenoiseData({required Whitenoise whitenoise}) =>
+    RustLib.instance.api.crateApiGetWhitenoiseData(whitenoise: whitenoise);
+
+Future<AccountData> getAccountData({required Account account}) =>
+    RustLib.instance.api.crateApiGetAccountData(account: account);
+
+Future<WhitenoiseConfigData> getConfigData({
+  required WhitenoiseConfig config,
+}) => RustLib.instance.api.crateApiGetConfigData(config: config);
+
+Future<Account> createIdentity({required Whitenoise whitenoise}) =>
+    RustLib.instance.api.crateApiCreateIdentity(whitenoise: whitenoise);
+
+Future<Account> login({
+  required Whitenoise whitenoise,
+  required String nsecOrHexPrivkey,
+}) => RustLib.instance.api.crateApiLogin(
+  whitenoise: whitenoise,
+  nsecOrHexPrivkey: nsecOrHexPrivkey,
+);
+
+Future<void> logout({
+  required Whitenoise whitenoise,
+  required Account account,
+}) => RustLib.instance.api.crateApiLogout(
+  whitenoise: whitenoise,
+  account: account,
+);
+
+Future<Account> updateActiveAccount({
+  required Whitenoise whitenoise,
+  required Account account,
+}) => RustLib.instance.api.crateApiUpdateActiveAccount(
+  whitenoise: whitenoise,
+  account: account,
+);
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>>
+abstract class Account implements RustOpaqueInterface {}
+
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>>
 abstract class Whitenoise implements RustOpaqueInterface {}
 
@@ -25,3 +80,129 @@ abstract class WhitenoiseConfig implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<WhitenoiseError>>
 abstract class WhitenoiseError implements RustOpaqueInterface {}
+
+class AccountData {
+  final String pubkey;
+  final AccountSettings settings;
+  final OnboardingState onboarding;
+  final BigInt lastSynced;
+
+  const AccountData({
+    required this.pubkey,
+    required this.settings,
+    required this.onboarding,
+    required this.lastSynced,
+  });
+
+  @override
+  int get hashCode =>
+      pubkey.hashCode ^
+      settings.hashCode ^
+      onboarding.hashCode ^
+      lastSynced.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AccountData &&
+          runtimeType == other.runtimeType &&
+          pubkey == other.pubkey &&
+          settings == other.settings &&
+          onboarding == other.onboarding &&
+          lastSynced == other.lastSynced;
+}
+
+class AccountSettings {
+  final bool darkTheme;
+  final bool devMode;
+  final bool lockdownMode;
+
+  const AccountSettings({
+    required this.darkTheme,
+    required this.devMode,
+    required this.lockdownMode,
+  });
+
+  @override
+  int get hashCode =>
+      darkTheme.hashCode ^ devMode.hashCode ^ lockdownMode.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AccountSettings &&
+          runtimeType == other.runtimeType &&
+          darkTheme == other.darkTheme &&
+          devMode == other.devMode &&
+          lockdownMode == other.lockdownMode;
+}
+
+class OnboardingState {
+  final bool inboxRelays;
+  final bool keyPackageRelays;
+  final bool keyPackagePublished;
+
+  const OnboardingState({
+    required this.inboxRelays,
+    required this.keyPackageRelays,
+    required this.keyPackagePublished,
+  });
+
+  @override
+  int get hashCode =>
+      inboxRelays.hashCode ^
+      keyPackageRelays.hashCode ^
+      keyPackagePublished.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OnboardingState &&
+          runtimeType == other.runtimeType &&
+          inboxRelays == other.inboxRelays &&
+          keyPackageRelays == other.keyPackageRelays &&
+          keyPackagePublished == other.keyPackagePublished;
+}
+
+class WhitenoiseConfigData {
+  final String dataDir;
+  final String logsDir;
+
+  const WhitenoiseConfigData({required this.dataDir, required this.logsDir});
+
+  @override
+  int get hashCode => dataDir.hashCode ^ logsDir.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WhitenoiseConfigData &&
+          runtimeType == other.runtimeType &&
+          dataDir == other.dataDir &&
+          logsDir == other.logsDir;
+}
+
+class WhitenoiseData {
+  final WhitenoiseConfigData config;
+  final Map<String, AccountData> accounts;
+  final String? activeAccount;
+
+  const WhitenoiseData({
+    required this.config,
+    required this.accounts,
+    this.activeAccount,
+  });
+
+  @override
+  int get hashCode =>
+      config.hashCode ^ accounts.hashCode ^ activeAccount.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WhitenoiseData &&
+          runtimeType == other.runtimeType &&
+          config == other.config &&
+          accounts == other.accounts &&
+          activeAccount == other.activeAccount;
+}

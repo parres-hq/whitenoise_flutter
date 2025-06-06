@@ -30,6 +30,7 @@ environment:
 dependencies:
     flutter:
         sdk: flutter
+    logging: ^1.2.0
 
     # The following adds the Cupertino Icons font to your application.
     # Use with the CupertinoIcons class for iOS style icons.
@@ -50,7 +51,7 @@ dependencies:
     dio: ^5.8.0+1
     flutter_screenutil: ^5.9.3
     go_router: ^15.1.2
-    animate_do: ^3.3.9
+    animate_do: ^4.2.0
     supa_carbon_icons: ^0.0.1+6
 
 dev_dependencies:
@@ -62,7 +63,7 @@ dev_dependencies:
     # activated in the `analysis_options.yaml` file located at the root of your
     # package. See that file for information about deactivating specific lint
     # rules and activating additional ones.
-    flutter_lints: ^5.0.0
+    flutter_lints: ^6.0.0
     integration_test:
         sdk: flutter
 

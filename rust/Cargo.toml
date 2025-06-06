@@ -8,7 +8,7 @@ crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
 flutter_rust_bridge = "=2.10.0"
-whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", branch = "master" }
+whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "272e2c672de74be6c4a7bae0b27592e163961616" }
 tokio = { version = "1.44", features = ["rt", "rt-multi-thread"] }
 
 [lints.rust]

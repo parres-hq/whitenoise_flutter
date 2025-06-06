@@ -16,7 +16,7 @@ Use the following commands to get AI assistance:
 **Ask Command Options:**
 --provider=<provider>: AI provider to use (openai, anthropic, perplexity, gemini, modelbox, openrouter, or xai)
 --model=<model>: Model to use (required for the ask command)
---reasoning-effort=<low|medium|high>: Control the depth of reasoning for supported models (OpenAI o1/o3-mini models and Claude 3.7 Sonnet). Higher values produce more thorough responses for complex questions.
+--reasoning-effort=<low|medium|high>: Control the depth of reasoning for supported models (OpenAI o1/o3-mini models and Claude 4 Sonnet). Higher values produce more thorough responses for complex questions.
 --with-doc=<doc_url>: Fetch content from one or more document URLs and include it as context. Can be specified multiple times (e.g., `--with-doc=<url1> --with-doc=<url2>`).
 
 **Implementation Planning:**
@@ -36,7 +36,9 @@ The plan command uses multiple AI models to:
 **Web Search:**
 `vibe-tools web "<your question>"` - Get answers from the web using a provider that supports web search (e.g., Perplexity models and Gemini Models either directly or from OpenRouter or ModelBox) (e.g., `vibe-tools web "latest shadcn/ui installation instructions"`)
 Note: web is a smart autonomous agent with access to the internet and an extensive up to date knowledge base. Web is NOT a web search engine. Always ask the agent for what you want using a proper sentence, do not just send it a list of keywords. In your question to web include the context and the goal that you're trying to acheive so that it can help you most effectively.
-when using web for complex queries suggest writing the output to a file somewhere like local-research/<query summary>.md. However if user provides a specific url, you should always use any command with --with-doc instead of web.
+when using web for complex queries suggest writing the output to a file somewhere like local-research/<query summary>.md.
+
+**IMPORTANT: Do NOT use the `web` command for specific URLs.** If a user provides a specific URL (documentation link, GitHub repo, article, etc.), you should always use commands that support the `--with-doc` parameter instead, such as `repo`, `plan`, `doc`, or `ask`. Using `--with-doc` ensures the exact content of the URL is processed correctly and completely.
 
 **Web Command Options:**
 --provider=<provider>: AI provider to use (perplexity, gemini, modelbox, or openrouter)
@@ -59,12 +61,15 @@ Note: The YouTube command requires a `GEMINI_API_KEY` to be set in your environm
 **ClickUp Information:**
 `vibe-tools clickup task <task_id>` - Get detailed information about a ClickUp task including description, comments, status, assignees, and metadata (e.g., `vibe-tools clickup task "task_id"`)
 
+**Wait Command:**
+`vibe-tools wait <seconds>` - Pauses execution for the specified number of seconds (e.g., `vibe-tools wait 5` to wait for 5 seconds).
+
 **Model Context Protocol (MCP) Commands:**
 Use the following commands to interact with MCP servers and their specialized tools:
-`vibe-tools mcp search "<query>"` - Search the MCP Marketplace for available servers that match your needs (e.g., `vibe-tools mcp search "git repository management"`)
+`vibe-tools mcp search "<query>"` - Search the MCP Marketplace and GitHub for available servers that match your needs (e.g., `vibe-tools mcp search "git repository management"`)
 `vibe-tools mcp run "<query>"` - Execute MCP server tools using natural language queries (e.g., `vibe-tools mcp run "list files in the current directory" --provider=openrouter`). The query must include sufficient information for vibe-tools to determine which server to use, provide plenty of context.
 
-The `search` command helps you discover servers in the MCP Marketplace based on their capabilities and your requirements. The `run` command automatically selects and executes appropriate tools from these servers based on your natural language queries. If you want to use a specific server include the server name in your query. E.g. `vibe-tools mcp run "using the mcp-server-sqlite list files in directory --provider=openrouter"`
+The `search` command helps you discover servers in the MCP Marketplace and on GitHub based on their capabilities and your requirements. The `run` command automatically selects and executes appropriate tools from these servers based on your natural language queries. If you want to use a specific server include the server name in your query. E.g. `vibe-tools mcp run "using the mcp-server-sqlite list files in directory --provider=openrouter"`
 
 **Notes on MCP Commands:**
 - MCP commands require `ANTHROPIC_API_KEY` or `OPENROUTER_API_KEY` to be set in your environment
@@ -78,9 +83,11 @@ The `search` command helps you discover servers in the MCP Marketplace based on 
 `vibe-tools browser act "<instruction>" --url=<url | 'current'> [options]` - Execute actions on a webpage using natural language instructions (e.g., `vibe-tools browser act "Click Login" --url=https://example.com`)
 `vibe-tools browser observe "<instruction>" --url=<url> [options]` - Observe interactive elements on a webpage and suggest possible actions (e.g., `vibe-tools browser observe "interactive elements" --url=https://example.com`)
 `vibe-tools browser extract "<instruction>" --url=<url> [options]` - Extract data from a webpage based on natural language instructions (e.g., `vibe-tools browser extract "product names" --url=https://example.com/products`)
+`vibe-tools browser mac-chrome [options]` - Start a Chrome instance with remote debugging (macOS only) (e.g., `vibe-tools browser mac-chrome --debug`, `vibe-tools browser mac-chrome --lite`)
 
 **Notes on Browser Commands:**
 - All browser commands are stateless unless --connect-to is used to connect to a long-lived interactive session. In disconnected mode each command starts with a fresh browser instance and closes it when done.
+- If you want to start a new long-lived session 
 - When using `--connect-to`, special URL values are supported:
   - `current`: Use the existing page without reloading
   - `reload-current`: Use the existing page and refresh it (useful in development)
@@ -97,8 +104,8 @@ The `search` command helps you discover servers in the MCP Marketplace based on 
 - `vibe-tools youtube` analyzes YouTube videos to generate summaries, transcripts, implementation plans, or custom analyses
 - `vibe-tools browser` is useful for testing and debugging web apps and uses Stagehand
 - `vibe-tools mcp` enables interaction with specialized tools through MCP servers (e.g., for Git operations, file system tasks, or custom tools)
+- **URLS:** For any specific URL (documentation, article, reference, spec, GitHub repo, etc.), ALWAYS use a command with the `--with-doc=<url>` parameter rather than the `web` command. Examples: `vibe-tools repo "How should I implement this feature based on the spec?" --with-doc=https://example.com/spec.pdf` or `vibe-tools ask "What does this document say about authentication?" --with-doc=https://example.com/auth-doc.html`
 - When implementing features based on documentation, specifications, or any external content, always use the `--with-doc=<url>` flag instead of built-in web search. For example: `vibe-tools plan "Implement login page according to specs" --with-doc=https://example.com/specs.pdf` or `vibe-tools repo "How should I implement this feature?" --with-doc=https://example.com/feature-spec.md`.
-
 - When a user provides a specific URL for documentation or reference material, always use the `--with-doc=<url>` flag with that URL rather than attempting to search for or summarize the content independently. This ensures the exact document is used as context.
 
 **Running Commands:**
@@ -110,6 +117,7 @@ The `search` command helps you discover servers in the MCP Marketplace based on 
 --max-tokens=<number>: Control response length
 --save-to=<file path>: Save command output to a file (in *addition* to displaying it)
 --debug: Show detailed logs and error information
+--web: Enable web search capabilities for supported models (currently Gemini models) across all commands
 
 **Repository Command Options:**
 --provider=<provider>: AI provider to use (gemini, openai, openrouter, perplexity, modelbox, anthropic, or xai)
@@ -178,5 +186,5 @@ If people say "ask Gemini" or "ask Perplexity" or "ask Stagehand" they mean to u
 - **Remember:** You're part of a team of superhuman expert AIs. Work together to solve complex problems.
 - **Repomix Configuration:** You can customize which files are included/excluded during repository analysis by creating a `repomix.config.json` file in your project root. This file will be automatically detected by `repo`, `plan`, and `doc` commands.
 
-<!-- vibe-tools-version: 0.60.9 -->
+<!-- vibe-tools-version: 0.62.4 -->
 </vibe-tools Integration>
