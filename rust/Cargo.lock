@@ -2956,6 +2956,7 @@ name = "rust_lib_whitenoise"
 version = "0.1.0"
 dependencies = [
  "flutter_rust_bridge",
+ "tokio",
  "whitenoise",
 ]
 
