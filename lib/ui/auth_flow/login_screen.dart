@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -21,7 +20,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       ).showSnackBar(const SnackBar(content: Text('Please enter something')));
       return;
     }
-    ref.read(authProvider).login();
     // go_router will handle redirect to contacts
   }
 
