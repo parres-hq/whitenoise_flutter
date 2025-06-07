@@ -5,7 +5,6 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
-import 'package:whitenoise/ui/frb_example_screens/frb_general_screen.dart';
 import 'package:whitenoise/ui/core/ui/custom_text_button.dart';
 
 class WelcomeScreen extends StatelessWidget {
@@ -81,14 +80,6 @@ class WelcomeScreen extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CustomTextButton(
-              onPressed:
-                  () => Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const FrbGeneralScreen()),
-                  ),
-              title: 'Go to FRB Test Screens',
-            ),
-            Gap(16.w),
             CustomTextButton(onPressed: () => GoRouter.of(context).go('/login'), title: 'Sign In'),
             Gap(16.w),
             CustomFilledButton(
