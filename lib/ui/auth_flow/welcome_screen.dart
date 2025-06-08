@@ -24,7 +24,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
     if (auth.isAuthenticated && auth.error == null) {
       if (!mounted) return;
-      context.go('/onboarding/key-created');
+context.go('/onboarding');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(auth.error ?? 'Unknown error')),
