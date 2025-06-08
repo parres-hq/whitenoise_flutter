@@ -14,10 +14,9 @@ import 'package:whitenoise/ui/chat/widgets/reaction/reaction_hero_dialog_route.d
 import 'package:whitenoise/ui/chat/widgets/reaction/reactions_dialog_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/status_message_item_widget.dart';
 import 'package:flutter/services.dart';
-
-import '../../routing/routes.dart';
-import '../core/themes/assets.dart';
-import '../core/themes/colors.dart';
+import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
 class ChatScreen extends StatefulWidget {
   final User contact;

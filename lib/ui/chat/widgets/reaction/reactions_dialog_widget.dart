@@ -2,10 +2,11 @@ import 'dart:ui';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
-
-import '../../../core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
 class ReactionsDialogWidget extends StatefulWidget {
   const ReactionsDialogWidget({
@@ -20,28 +21,13 @@ class ReactionsDialogWidget extends StatefulWidget {
     this.menuItemsWidth = 0.50,
   });
 
-  // Id for the hero widget
   final String id;
-
-  // The message widget to be displayed in the dialog
   final Widget messageWidget;
-
-  // The callback function to be called when a reaction is tapped
   final Function(String) onReactionTap;
-
-  // The callback function to be called when a context menu item is tapped
   final Function(MenuItem) onContextMenuTap;
-
-  // The list of menu items to be displayed in the context menu
   final List<MenuItem> menuItems;
-
-  // The list of reactions to be displayed
   final List<String> reactions;
-
-  // The alignment of the widget
   final Alignment widgetAlignment;
-
-  // The width of the menu items
   final double menuItemsWidth;
 
   @override
@@ -49,7 +35,6 @@ class ReactionsDialogWidget extends StatefulWidget {
 }
 
 class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
-  // state variables for activating the animation
   bool reactionClicked = false;
   int? clickedReactionIndex;
   int? clickedContextMenuIndex;
@@ -64,48 +49,87 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // reactions
-              buildReactions(context),
-              const SizedBox(height: 10),
-              // message
-              buildMessage(),
-              const SizedBox(height: 10),
-              // context menu
-              buildMenuItems(context),
+              ReactionsRow(
+                reactions: widget.reactions,
+                widgetAlignment: widget.widgetAlignment,
+                onReactionTap: widget.onReactionTap,
+                reactionClicked: reactionClicked,
+                clickedReactionIndex: clickedReactionIndex,
+                onReactionSelected: (index) {
+                  setState(() {
+                    reactionClicked = true;
+                    clickedReactionIndex = index;
+                  });
+                  Navigator.of(context).pop();
+                },
+              ),
+              Gap(10.h),
+              Align(
+                alignment: widget.widgetAlignment,
+                child: Hero(
+                  tag: widget.id,
+                  child: widget.messageWidget,
+                ),
+              ),
+              Gap(10.h),
+              ContextMenuItems(
+                menuItems: widget.menuItems,
+                widgetAlignment: widget.widgetAlignment,
+                menuItemsWidth: widget.menuItemsWidth,
+                clickedContextMenuIndex: clickedContextMenuIndex,
+                onContextMenuTap: (item) {
+                  setState(() {
+                    clickedContextMenuIndex = widget.menuItems.indexOf(item);
+                  });
+                  Navigator.of(context).pop();
+                  widget.onContextMenuTap(item);
+                },
+              ),
             ],
           ),
         ),
       ),
     );
   }
+}
 
-  Align buildMenuItems(BuildContext context) {
+/// A widget that displays context menu items for chat messages.
+class ContextMenuItems extends StatelessWidget {
+  const ContextMenuItems({
+    super.key,
+    required this.menuItems,
+    required this.widgetAlignment,
+    required this.onContextMenuTap,
+    required this.menuItemsWidth,
+    this.clickedContextMenuIndex,
+  });
+
+  final List<MenuItem> menuItems;
+  final Alignment widgetAlignment;
+  final Function(MenuItem) onContextMenuTap;
+  final double menuItemsWidth;
+  final int? clickedContextMenuIndex;
+
+  @override
+  Widget build(BuildContext context) {
     return Align(
-      alignment: widget.widgetAlignment,
-      child: // contextMenu for reply, copy, delete
-          Material(
+      alignment: widgetAlignment,
+      child: Material(
         color: Colors.transparent,
         child: Container(
-          width: MediaQuery.of(context).size.width * widget.menuItemsWidth,
+          width: MediaQuery.of(context).size.width * menuItemsWidth,
           decoration: BoxDecoration(color: AppColors.glitch80, borderRadius: BorderRadius.circular(8)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             mainAxisSize: MainAxisSize.min,
             children: [
-              for (var item in widget.menuItems)
+              for (var item in menuItems)
                 Column(
                   children: [
                     Padding(
                       padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
                       child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            clickedContextMenuIndex = widget.menuItems.indexOf(item);
-                          });
-
-                          Navigator.of(context).pop();
-                          widget.onContextMenuTap(item);
-                        },
+                        onTap: () => onContextMenuTap(item),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -116,7 +140,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                             Pulse(
                               infinite: false,
                               duration: const Duration(milliseconds: 100),
-                              animate: clickedContextMenuIndex == widget.menuItems.indexOf(item),
+                              animate: clickedContextMenuIndex == menuItems.indexOf(item),
                               child: Icon(
                                 size: 20,
                                 item.icon,
@@ -127,8 +151,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                         ),
                       ),
                     ),
-
-                    if (widget.menuItems.last != item) Container(color: Colors.grey.shade300, height: 1),
+                    if (menuItems.last != item) Container(color: Colors.grey.shade300, height: 1),
                   ],
                 ),
             ],
@@ -137,14 +160,31 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
       ),
     );
   }
+}
 
-  Align buildMessage() {
-    return Align(alignment: widget.widgetAlignment, child: Hero(tag: widget.id, child: widget.messageWidget));
-  }
+/// A widget that displays a row of reaction emojis.
+class ReactionsRow extends StatelessWidget {
+  const ReactionsRow({
+    super.key,
+    required this.reactions,
+    required this.widgetAlignment,
+    required this.onReactionTap,
+    required this.onReactionSelected,
+    this.reactionClicked = false,
+    this.clickedReactionIndex,
+  });
 
-  Align buildReactions(BuildContext context) {
+  final List<String> reactions;
+  final Alignment widgetAlignment;
+  final Function(String) onReactionTap;
+  final Function(int) onReactionSelected;
+  final bool reactionClicked;
+  final int? clickedReactionIndex;
+
+  @override
+  Widget build(BuildContext context) {
     return Align(
-      alignment: widget.widgetAlignment,
+      alignment: widgetAlignment,
       child: Material(
         color: Colors.transparent,
         child: Container(
@@ -153,24 +193,21 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              for (var reaction in widget.reactions)
+              for (var reaction in reactions)
                 FadeInLeft(
-                  from: 0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
+                  from: 0 + (reactions.indexOf(reaction) * 20).toDouble(),
                   duration: const Duration(milliseconds: 50),
                   delay: const Duration(milliseconds: 0),
                   child: InkWell(
                     onTap: () {
-                      setState(() {
-                        reactionClicked = true;
-                        clickedReactionIndex = widget.reactions.indexOf(reaction);
-                      });
-                      Navigator.of(context).pop();
-                      widget.onReactionTap(reaction);
+                      final index = reactions.indexOf(reaction);
+                      onReactionSelected(index);
+                      onReactionTap(reaction);
                     },
                     child: Pulse(
                       infinite: false,
                       duration: const Duration(milliseconds: 50),
-                      animate: reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction),
+                      animate: reactionClicked && clickedReactionIndex == reactions.indexOf(reaction),
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(7.0, 2.0, 7.0, 2),
                         decoration: BoxDecoration(
