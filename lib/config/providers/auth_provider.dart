@@ -1,45 +1,78 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/frb_generated.dart';
 
-// Define the state class
 class AuthState with ChangeNotifier {
   bool _isAuthenticated = false;
+  bool _isLoading = false;
+  String? _error;
+
+  Whitenoise? _whitenoise;
 
   bool get isAuthenticated => _isAuthenticated;
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+  Whitenoise? get whitenoise => _whitenoise;
 
-  void login() {
-    _isAuthenticated = true;
-    notifyListeners();
+  /// Initialize the Rust side and start Whitenoise with the config
+  Future<void> initialize() async {
+    _setLoading(true);
+    _error = null;
+
+    try {
+      // Load RustLib
+      await RustLib.init();
+
+      final dir = await getApplicationDocumentsDirectory();
+      final dataDir = '${dir.path}/whitenoise/data';
+      final logsDir = '${dir.path}/whitenoise/logs';
+
+      await Directory(dataDir).create(recursive: true);
+      await Directory(logsDir).create(recursive: true);
+
+      final config = await createWhitenoiseConfig(dataDir: dataDir, logsDir: logsDir);
+      _whitenoise = await initializeWhitenoise(config: config);
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Create a new account and set it as active
+  Future<void> createAccount() async {
+    if (_whitenoise == null) {
+      _error = "Whitenoise not initialized";
+      notifyListeners();
+      return;
+    }
+
+    _setLoading(true);
+    _error = null;
+
+    try {
+      final account = await createIdentity(whitenoise: _whitenoise!);
+      await updateActiveAccount(whitenoise: _whitenoise!, account: account);
+      _isAuthenticated = true;
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _setLoading(false);
+    }
   }
 
   void logout() {
     _isAuthenticated = false;
     notifyListeners();
   }
+
+  void _setLoading(bool val) {
+    _isLoading = val;
+    notifyListeners();
+  }
 }
 
-// Define the provider
-final authProvider = ChangeNotifierProvider<AuthState>((ref) {
-  return AuthState();
-});
-
-// Note: In actual implementation, you should consider using a more modern approach
-// with StateNotifier/StateNotifierProvider or AsyncNotifier/AsyncNotifierProvider
-// and adapting the GoRouter to work with that instead of requiring a Listenable.
-//
-// Example of modern approach (requires changes in router_provider.dart):
-//
-// class AuthState {
-//   final bool isAuthenticated;
-//   AuthState({this.isAuthenticated = false});
-// }
-//
-// class AuthNotifier extends Notifier<AuthState> {
-//   @override
-//   AuthState build() => AuthState();
-//
-//   void login() => state = AuthState(isAuthenticated: true);
-//   void logout() => state = AuthState(isAuthenticated: false);
-// }
-//
-// final authNotifierProvider = NotifierProvider<AuthNotifier, AuthState>(() => AuthNotifier());
+final authProvider = ChangeNotifierProvider<AuthState>((ref) => AuthState());
