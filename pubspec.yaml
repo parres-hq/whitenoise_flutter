@@ -53,6 +53,7 @@ dependencies:
     go_router: ^15.1.2
     animate_do: ^4.2.0
     supa_carbon_icons: ^0.0.1+6
+    freezed_annotation: ^2.4.1
 
 dev_dependencies:
     flutter_test:
@@ -66,6 +67,8 @@ dev_dependencies:
     flutter_lints: ^6.0.0
     integration_test:
         sdk: flutter
+    build_runner: ^2.4.8
+    freezed: ^2.4.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

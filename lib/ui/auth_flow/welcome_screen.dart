@@ -17,24 +17,25 @@ class WelcomeScreen extends ConsumerStatefulWidget {
 
 class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   Future<void> _handleCreateAccount(BuildContext context) async {
-    final auth = ref.read(authProvider);
+    final authNotifier = ref.read(authProvider.notifier);
 
-    await auth.initialize();
-    await auth.createAccount();
-
-    if (auth.isAuthenticated && auth.error == null) {
+    await authNotifier.initialize();
+    await authNotifier.createAccount();
+    
+    final authState = ref.read(authProvider);
+    if (authState.isAuthenticated && authState.error == null) {
       if (!mounted) return;
-context.go('/onboarding');
+      context.go('/onboarding');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(auth.error ?? 'Unknown error')),
+        SnackBar(content: Text(authState.error ?? 'Unknown error')),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final auth = ref.watch(authProvider);
+    final authState = ref.watch(authProvider);
 
     return Stack(
       children: [
@@ -97,7 +98,7 @@ context.go('/onboarding');
                 ),
                 Gap(16.w),
                 CustomFilledButton(
-                  onPressed: auth.isLoading ? null : () => _handleCreateAccount(context),
+                  onPressed: authState.isLoading ? null : () => _handleCreateAccount(context),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -111,9 +112,9 @@ context.go('/onboarding');
             ),
           ),
         ),
-        if (auth.isLoading)
+        if (authState.isLoading)
           Container(
-            color: Colors.black.withOpacity(0.5),
+            color: Colors.black.withValues(alpha: 0.5),
             child: const Center(
               child: CircularProgressIndicator(color: Colors.black),
             ),

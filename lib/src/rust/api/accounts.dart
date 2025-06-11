@@ -8,12 +8,12 @@ import '../frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 Future<Account> createIdentity({required Whitenoise whitenoise}) =>
-    RustLib.instance.api.crateApiAccountsCreateIdentity(whitenoise: whitenoise);
+    RustLib.instance.api.crateApiCreateIdentity(whitenoise: whitenoise);
 
 Future<Account> login({
   required Whitenoise whitenoise,
   required String nsecOrHexPrivkey,
-}) => RustLib.instance.api.crateApiAccountsLogin(
+}) => RustLib.instance.api.crateApiLogin(
   whitenoise: whitenoise,
   nsecOrHexPrivkey: nsecOrHexPrivkey,
 );
@@ -21,7 +21,7 @@ Future<Account> login({
 Future<void> logout({
   required Whitenoise whitenoise,
   required Account account,
-}) => RustLib.instance.api.crateApiAccountsLogout(
+}) => RustLib.instance.api.crateApiLogout(
   whitenoise: whitenoise,
   account: account,
 );
@@ -29,7 +29,7 @@ Future<void> logout({
 Future<Account> updateActiveAccount({
   required Whitenoise whitenoise,
   required Account account,
-}) => RustLib.instance.api.crateApiAccountsUpdateActiveAccount(
+}) => RustLib.instance.api.crateApiUpdateActiveAccount(
   whitenoise: whitenoise,
   account: account,
 );

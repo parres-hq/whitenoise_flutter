@@ -18,10 +18,10 @@ Future<void> main() async {
   final log = Logger('Whitenoise');
 
   final container = ProviderContainer();
-  final auth = container.read(authProvider);
+  final authNotifier = container.read(authProvider.notifier);
 
   try {
-    await auth.initialize();
+    await authNotifier.initialize();
     log.info('Whitenoise initialized via authProvider');
   } catch (e) {
     log.severe('Initialization failed: $e');
@@ -30,7 +30,7 @@ Future<void> main() async {
   runApp(
     UncontrolledProviderScope(
       container: container,
-      child: const ProviderScope(child: MyApp()),
+      child: MyApp(),
     ),
   );
 }

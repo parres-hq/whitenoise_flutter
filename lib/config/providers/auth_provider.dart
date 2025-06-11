@@ -1,29 +1,21 @@
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 
-class AuthState with ChangeNotifier {
-  bool _isAuthenticated = false;
-  bool _isLoading = false;
-  String? _error;
-
-  Whitenoise? _whitenoise;
-
-  bool get isAuthenticated => _isAuthenticated;
-  bool get isLoading => _isLoading;
-  String? get error => _error;
-  Whitenoise? get whitenoise => _whitenoise;
+class AuthNotifier extends Notifier<AuthState> {
+  @override
+  AuthState build() {
+    return const AuthState();
+  }
 
   /// Initialize the Rust side and start Whitenoise with the config
   Future<void> initialize() async {
-    _setLoading(true);
-    _error = null;
+    state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // Load RustLib
       await RustLib.init();
 
       final dir = await getApplicationDocumentsDirectory();
@@ -34,45 +26,44 @@ class AuthState with ChangeNotifier {
       await Directory(logsDir).create(recursive: true);
 
       final config = await createWhitenoiseConfig(dataDir: dataDir, logsDir: logsDir);
-      _whitenoise = await initializeWhitenoise(config: config);
+      final whitenoise = await initializeWhitenoise(config: config);
+
+      state = state.copyWith(whitenoise: whitenoise);
     } catch (e) {
-      _error = e.toString();
+      state = state.copyWith(error: e.toString());
     } finally {
-      _setLoading(false);
+      state = state.copyWith(isLoading: false);
     }
   }
 
   /// Create a new account and set it as active
   Future<void> createAccount() async {
-    if (_whitenoise == null) {
-      _error = "Whitenoise not initialized";
-      notifyListeners();
+    if (state.whitenoise == null) {
+      await initialize();
+    }
+
+    if (state.whitenoise == null) {
+      final previousError = state.error;
+      state = state.copyWith(error: "Could not initialize Whitenoise: $previousError, account creation failed.");
       return;
     }
 
-    _setLoading(true);
-    _error = null;
+    state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final account = await createIdentity(whitenoise: _whitenoise!);
-      await updateActiveAccount(whitenoise: _whitenoise!, account: account);
-      _isAuthenticated = true;
+      final account = await createIdentity(whitenoise: state.whitenoise!);
+      await updateActiveAccount(whitenoise: state.whitenoise!, account: account);
+      state = state.copyWith(isAuthenticated: true);
     } catch (e) {
-      _error = e.toString();
+      state = state.copyWith(error: e.toString());
     } finally {
-      _setLoading(false);
+      state = state.copyWith(isLoading: false);
     }
   }
 
   void logout() {
-    _isAuthenticated = false;
-    notifyListeners();
-  }
-
-  void _setLoading(bool val) {
-    _isLoading = val;
-    notifyListeners();
+    state = state.copyWith(isAuthenticated: false);
   }
 }
 
-final authProvider = ChangeNotifierProvider<AuthState>((ref) => AuthState());
+final authProvider = NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
