@@ -107,7 +107,7 @@ class _ChatScreenState extends State<ChatScreen> {
     });
   }
 
-void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
+  void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
     setState(() {
       if (isEditing) {
         final index = messages.indexWhere((m) => m.id == msg.id);
@@ -118,7 +118,7 @@ void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
         messages.insert(0, msg);
       }
     });
-  
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
         _scrollController.position.minScrollExtent,
@@ -201,18 +201,36 @@ void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
                   }
 
                   final message = messages[index];
-                  return GestureDetector(
-                    onTap: () => _showReactionDialog(message, index),
-                    child: Hero(
-                      tag: message.id,
-                      child: MessageWidget(
-                        message: message,
-                        isGroupMessage: false,
-                        isSameSenderAsPrevious: _isSameSender(index),
-                        isSameSenderAsNext: _isNextSameSender(index),
-                        onReactionTap: (reaction) {
-                          _updateMessageReaction(message: message, reaction: reaction);
-                        },
+                  return Dismissible(
+                    key: Key('dismissible-${message.id}'),
+                    direction: DismissDirection.startToEnd,
+                    background: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          CarbonIcons.reply,
+                          color: AppColors.glitch950,
+                          size: 12.w,
+                        ),
+                      ],
+                    ),
+                    confirmDismiss: (direction) async {
+                      _handleReply(message);
+                      return false;
+                    },
+                    child: GestureDetector(
+                      onTap: () => _showReactionDialog(message, index),
+                      child: Hero(
+                        tag: message.id,
+                        child: MessageWidget(
+                          message: message,
+                          isGroupMessage: false,
+                          isSameSenderAsPrevious: _isSameSender(index),
+                          isSameSenderAsNext: _isNextSameSender(index),
+                          onReactionTap: (reaction) {
+                            _updateMessageReaction(message: message, reaction: reaction);
+                          },
+                        ),
                       ),
                     ),
                   );
