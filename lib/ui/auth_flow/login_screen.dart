@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -68,7 +69,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 alignment: Alignment.bottomCenter,
                 children: [
                   Image.asset(
-                    'assets/pngs/hands.png',
+                    AssetsPaths.hands,
                     height: 320,
                     fit: BoxFit.contain,
                     width: double.infinity,

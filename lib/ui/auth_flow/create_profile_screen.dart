@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 
 class CreateProfileScreen extends StatefulWidget {
   const CreateProfileScreen({super.key});
@@ -54,7 +55,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                 children: [
                   CircleAvatar(
                     radius: 50.r,
-                    backgroundImage: AssetImage('assets/pngs/avatar_placeholder.png'),
+                    backgroundImage: const AssetImage(AssetsPaths.avatarPlaceholder),
                   ),
                   Container(
                     decoration: BoxDecoration(

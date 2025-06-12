@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
@@ -78,18 +79,18 @@ class InfoScreen extends StatelessWidget {
               ),
               const SizedBox(height: 32),
               _buildFeatureItem(
-                imagePath: 'assets/pngs/blue_hoodie.png',
+                imagePath: AssetsPaths.blueHoodie,
                 title: 'Privacy & Security',
                 subtitle: 'Keep your conversations private. Even in case of a breach, your messages remain secure.',
               ),
               _buildFeatureItem(
-                imagePath: 'assets/pngs/purple_woman.png',
+                imagePath: AssetsPaths.purpleWoman,
                 title: 'Identity–Free',
                 subtitle:
                     'Chat without revealing your phone number or email. Choose your identity: real name, pseudonym, or anonymous.',
               ),
               _buildFeatureItem(
-                imagePath: 'assets/pngs/green_bird.png',
+                imagePath: AssetsPaths.greenBird,
                 title: 'Decentralized & Permissionless',
                 subtitle:
                     'No central authority controls your communication—no permissions needed, no censorship possible.',
