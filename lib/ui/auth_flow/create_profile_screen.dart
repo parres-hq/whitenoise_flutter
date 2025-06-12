@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 
@@ -33,57 +34,58 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
+          padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const Text(
+              Text(
                 'Setup Your Profile',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 30,
+                  fontSize: 30.sp,
                   fontWeight: FontWeight.w500,
                   color: AppColors.glitch800,
                 ),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
 
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
-                  const CircleAvatar(
-                    radius: 50,
+                  CircleAvatar(
+                    radius: 50.r,
                     backgroundImage: AssetImage('assets/pngs/avatar_placeholder.png'),
                   ),
                   Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
+                      border: Border.all(color: AppColors.glitch100, width: 1.w)
                     ),
-                    padding: const EdgeInsets.all(4),
-                    child: const Icon(Icons.edit, size: 18),
+                    padding: EdgeInsets.all(4.r),
+                    child: Icon(Icons.edit, size: 18.sp, color: AppColors.glitch800),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: 12.h),
 
-              const Text(
+              Text(
                 'Upload Avatar',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColors.glitch950,
                 ),
               ),
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
 
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Choose a Name',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color: Colors.black,
                   ),
                 ),
@@ -95,36 +97,36 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   hintText: 'Satoshi Nakamoto',
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1),
+                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1),
+                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1),
+                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 24),
+              SizedBox(height: 24.h),
 
-              const Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   'Introduce yourself',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 14,
+                    fontSize: 14.sp,
                     color: Colors.black,
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
+              SizedBox(height: 8.h),
               TextField(
                 controller: _bioController,
                 maxLines: 3,
@@ -132,10 +134,10 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   hintText: 'A few words about you',
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1),
+                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
@@ -143,12 +145,12 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1),
+                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
                   ),
                 ),
               ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
             ],
           ),
         ),
