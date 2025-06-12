@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::path::Path;
 pub use whitenoise::{
     Account, AccountSettings, Event, Metadata, OnboardingState, PublicKey, RelayType, RelayUrl,
-    SecretKey, Whitenoise, WhitenoiseConfig, WhitenoiseError,
+    Whitenoise, WhitenoiseConfig, WhitenoiseError,
 };
 
 use flutter_rust_bridge::frb;
@@ -145,8 +145,23 @@ pub fn update_active_account(
 pub fn export_account_nsec(
     whitenoise: &Whitenoise,
     account: &Account,
-) -> Result<SecretKey, WhitenoiseError> {
+) -> Result<String, WhitenoiseError> {
     whitenoise.export_account_nsec(account)
+}
+
+pub fn export_account_npub(
+    whitenoise: &Whitenoise,
+    account: &Account,
+) -> Result<String, WhitenoiseError> {
+    whitenoise.export_account_npub(account)
+}
+
+pub fn get_active_account(whitenoise: &Whitenoise) -> Result<Option<Account>, WhitenoiseError> {
+    if let Some(active_account) = whitenoise.active_account {
+        Ok(whitenoise.accounts.get(&active_account).cloned())
+    } else {
+        Ok(None)
+    }
 }
 
 // ================================

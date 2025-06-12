@@ -72,13 +72,24 @@ Future<Account> updateActiveAccount({
   account: account,
 );
 
-Future<SecretKey> exportAccountNsec({
+Future<String> exportAccountNsec({
   required Whitenoise whitenoise,
   required Account account,
 }) => RustLib.instance.api.crateApiExportAccountNsec(
   whitenoise: whitenoise,
   account: account,
 );
+
+Future<String> exportAccountNpub({
+  required Whitenoise whitenoise,
+  required Account account,
+}) => RustLib.instance.api.crateApiExportAccountNpub(
+  whitenoise: whitenoise,
+  account: account,
+);
+
+Future<Account?> getActiveAccount({required Whitenoise whitenoise}) =>
+    RustLib.instance.api.crateApiGetActiveAccount(whitenoise: whitenoise);
 
 Future<Metadata?> loadMetadata({
   required Whitenoise whitenoise,
@@ -179,9 +190,6 @@ abstract class RelayType implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>>
 abstract class RelayUrl implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SecretKey>>
-abstract class SecretKey implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>>
 abstract class Whitenoise implements RustOpaqueInterface {}
