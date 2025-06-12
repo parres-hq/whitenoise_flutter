@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -15,12 +19,39 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   void _onContinuePressed() {
     final key = _keyController.text.trim();
     if (key.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter something')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter your private key')),
+      );
       return;
     }
-    // go_router will handle redirect to contacts
+
+    if (mounted) {
+      context.go(Routes.chats);
+    }
+  }
+
+  Future<void> _pasteFromClipboard() async {
+    final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+    if (clipboardData != null && clipboardData.text != null) {
+      _keyController.text = clipboardData.text!;
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Pasted from clipboard')),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nothing to paste from clipboard')),
+        );
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    _keyController.dispose();
+    super.dispose();
   }
 
   @override
@@ -28,95 +59,103 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Center(
-                      child: Text(
-                        'Sign in',
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(24, 120, 24, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Stack(
+                alignment: Alignment.bottomCenter,
+                children: [
+                  Image.asset(
+                    'assets/pngs/hands.png',
+                    height: 320,
+                    fit: BoxFit.contain,
+                    width: double.infinity,
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 4),
+                    child: Text(
+                      'Login to White Noise',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.glitch800,
+                        height: 1.0,
+                      ),
+                      textHeightBehavior: TextHeightBehavior(
+                        applyHeightToFirstAscent: false,
+                        applyHeightToLastDescent: false,
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    const Center(
-                      child: Text.rich(
-                        TextSpan(
-                          text: 'White Noise requires a ',
-                          style: TextStyle(fontSize: 16, color: AppColors.black),
-                          children: [
-                            TextSpan(
-                              text: 'Nostr private key',
-                              style: TextStyle(
-                                decoration: TextDecoration.underline,
-                                color: AppColors.black,
-                              ),
-                            ),
-                            TextSpan(text: ' to use.'),
-                          ],
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    const Text(
-                      'Enter your Nostr private key',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    TextField(
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+
+              const Text(
+                'Enter Your Private Key',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 14,
+                  color: Colors.black,
+                ),
+              ),
+              const SizedBox(height: 6),
+
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
                       controller: _keyController,
                       decoration: InputDecoration(
                         hintText: 'nsec...',
                         filled: true,
-                        fillColor: AppColors.glitch100,
-                        border: const OutlineInputBorder(
+                        fillColor: Colors.white,
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                        border: OutlineInputBorder(
                           borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide.none,
+                          borderSide: BorderSide(color: AppColors.glitch700, width: 1),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.zero,
+                          borderSide: BorderSide(color: AppColors.glitch700, width: 1),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.zero,
+                          borderSide: BorderSide(color: AppColors.glitch700, width: 1),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    const Center(
-                      child: Text(
-                        'Your key will be encrypted and only\nstored on your device.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: AppColors.glitch400),
-                      ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    height: 56,
+                    width: 56,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(color: AppColors.glitch700, width: 1),
                     ),
-                  ],
-                ),
+                    child: IconButton(
+                      icon: const Icon(Icons.paste, size: 20),
+                      onPressed: _pasteFromClipboard,
+                    ),
+                  ),
+                ],
               ),
-            ),
-          ],
+
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
+
       bottomNavigationBar: SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 0, 24, 40),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.black,
-              foregroundColor: AppColors.white,
-              minimumSize: const Size(double.infinity, 56),
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.zero,
-              ),
-            ),
-            onPressed: _onContinuePressed,
-            child: const Text(
-              'Continue',
-              style: TextStyle(fontSize: 18),
-            ),
-          ),
+        child: CustomFilledButton(
+          onPressed: _onContinuePressed,
+          title: 'Login',
         ),
       ),
     );
