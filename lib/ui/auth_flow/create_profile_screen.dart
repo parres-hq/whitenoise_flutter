@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 
 class CreateProfileScreen extends StatefulWidget {
   const CreateProfileScreen({super.key});
@@ -37,7 +37,6 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
         child: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
                 'Setup Your Profile',
@@ -55,16 +54,25 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                 children: [
                   CircleAvatar(
                     radius: 50.r,
-                    backgroundImage: const AssetImage(AssetsPaths.avatarPlaceholder),
+                    backgroundImage: const AssetImage(
+                      AssetsPaths.avatarPlaceholder,
+                    ),
                   ),
                   Container(
                     decoration: BoxDecoration(
                       color: Colors.white,
                       shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.glitch100, width: 1.w)
+                      border: Border.all(
+                        color: AppColors.glitch100,
+                        width: 1.w,
+                      ),
                     ),
                     padding: EdgeInsets.all(4.r),
-                    child: Icon(Icons.edit, size: 18.sp, color: AppColors.glitch800),
+                    child: Icon(
+                      Icons.edit,
+                      size: 18.sp,
+                      color: AppColors.glitch800,
+                    ),
                   ),
                 ],
               ),
@@ -98,18 +106,30 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   hintText: 'Satoshi Nakamoto',
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 16.h,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
+                    borderSide: BorderSide(
+                      color: AppColors.glitch700,
+                      width: 1.w,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
+                    borderSide: BorderSide(
+                      color: AppColors.glitch700,
+                      width: 1.w,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
+                    borderSide: BorderSide(
+                      color: AppColors.glitch700,
+                      width: 1.w,
+                    ),
                   ),
                 ),
               ),
@@ -135,18 +155,29 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   hintText: 'A few words about you',
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+                  contentPadding: EdgeInsets.symmetric(
+                    horizontal: 12.w,
+                    vertical: 12.h,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
+                    borderSide: BorderSide(
+                      color: AppColors.glitch700,
+                      width: 1.w,
+                    ),
                   ),
-                  enabledBorder: OutlineInputBorder(
+                  enabledBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1),
+                    borderSide: BorderSide(
+                      color: AppColors.glitch700,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
+                    borderSide: BorderSide(
+                      color: AppColors.glitch700,
+                      width: 1.w,
+                    ),
                   ),
                 ),
               ),

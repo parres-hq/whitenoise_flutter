@@ -23,11 +23,11 @@ class SwitchProfileBottomSheet extends StatelessWidget {
       context: context,
       title: 'Switch profile',
       heightFactor: 0.32,
-      backgroundColor: Colors.white,
-      builder: (context) => SwitchProfileBottomSheet(
-        profiles: profiles,
-        onProfileSelected: onProfileSelected,
-      ),
+      builder:
+          (context) => SwitchProfileBottomSheet(
+            profiles: profiles,
+            onProfileSelected: onProfileSelected,
+          ),
     );
   }
 

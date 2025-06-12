@@ -1,5 +1,6 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -13,7 +14,6 @@ import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_hero_dialog_route.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reactions_dialog_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/status_message_item_widget.dart';
-import 'package:flutter/services.dart';
 
 import '../../routing/routes.dart';
 import '../core/themes/assets.dart';
@@ -23,7 +23,11 @@ class ChatScreen extends StatefulWidget {
   final User contact;
   final List<MessageModel> initialMessages;
 
-  const ChatScreen({super.key, required this.contact, required this.initialMessages});
+  const ChatScreen({
+    super.key,
+    required this.contact,
+    required this.initialMessages,
+  });
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -74,10 +78,15 @@ class _ChatScreenState extends State<ChatScreen> {
           height: 0.4.sh,
           decoration: BoxDecoration(
             color: AppColors.glitch50,
-            borderRadius: BorderRadius.only(topLeft: Radius.circular(16.r), topRight: Radius.circular(16.r)),
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(16.r),
+              topRight: Radius.circular(16.r),
+            ),
           ),
           child: EmojiPicker(
-            config: Config(bottomActionBarConfig: BottomActionBarConfig(enabled: false)),
+            config: const Config(
+              bottomActionBarConfig: BottomActionBarConfig(enabled: false),
+            ),
             onEmojiSelected: ((category, emoji) {
               Navigator.pop(context);
               _updateMessageReaction(message: message, reaction: emoji.emoji);
@@ -88,7 +97,10 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  void _updateMessageReaction({required MessageModel message, required String reaction}) {
+  void _updateMessageReaction({
+    required MessageModel message,
+    required String reaction,
+  }) {
     setState(() {
       final existingReactionIndex = message.reactions.indexWhere(
         (r) => r.emoji == reaction && r.user.id == currentUser.id,
@@ -96,18 +108,20 @@ class _ChatScreenState extends State<ChatScreen> {
 
       if (existingReactionIndex != -1) {
         // Remove reaction if user already reacted with same emoji
-        final newReactions = List<Reaction>.from(message.reactions)..removeAt(existingReactionIndex);
+        final newReactions = List<Reaction>.from(message.reactions)
+          ..removeAt(existingReactionIndex);
         messages = _updateMessage(message.copyWith(reactions: newReactions));
       } else {
         // Add new reaction
         final newReaction = Reaction(emoji: reaction, user: currentUser);
-        final newReactions = List<Reaction>.from(message.reactions)..add(newReaction);
+        final newReactions = List<Reaction>.from(message.reactions)
+          ..add(newReaction);
         messages = _updateMessage(message.copyWith(reactions: newReactions));
       }
     });
   }
 
-void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
+  void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
     setState(() {
       if (isEditing) {
         final index = messages.indexWhere((m) => m.id == msg.id);
@@ -118,7 +132,7 @@ void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
         messages.insert(0, msg);
       }
     });
-  
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
         _scrollController.position.minScrollExtent,
@@ -173,13 +187,24 @@ void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
       appBar: AppBar(
         backgroundColor: AppColors.glitch950,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new, size: 20.w, color: AppColors.glitch50),
+          icon: Icon(
+            Icons.arrow_back_ios_new,
+            size: 20.w,
+            color: AppColors.glitch50,
+          ),
           onPressed: () => context.pop(),
         ),
-        title: ContactInfo(title: widget.contact.name, imgPath: AssetsPaths.icImage),
+        title: ContactInfo(
+          title: widget.contact.name,
+          imgPath: AssetsPaths.icImage,
+        ),
         actions: [
           IconButton(
-            icon: Icon(CarbonIcons.search, size: 20.w, color: AppColors.glitch50),
+            icon: Icon(
+              CarbonIcons.search,
+              size: 20.w,
+              color: AppColors.glitch50,
+            ),
             onPressed: () => context.go(Routes.newChat),
           ),
           Gap(8.w),
@@ -211,7 +236,10 @@ void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
                         isSameSenderAsPrevious: _isSameSender(index),
                         isSameSenderAsNext: _isNextSameSender(index),
                         onReactionTap: (reaction) {
-                          _updateMessageReaction(message: message, reaction: reaction);
+                          _updateMessageReaction(
+                            message: message,
+                            reaction: reaction,
+                          );
                         },
                       ),
                     ),
@@ -243,7 +271,10 @@ void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
         builder: (context) {
           return ReactionsDialogWidget(
             id: message.id,
-            menuItems: message.isMe ? DefaultData.myMessageMenuItems : DefaultData.menuItems,
+            menuItems:
+                message.isMe
+                    ? DefaultData.myMessageMenuItems
+                    : DefaultData.menuItems,
             messageWidget: MessageWidget(
               message: message,
               isGroupMessage: false,
@@ -264,7 +295,8 @@ void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
                 _handleEdit(message);
               }
             },
-            widgetAlignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+            widgetAlignment:
+                message.isMe ? Alignment.centerRight : Alignment.centerLeft,
           );
         },
       ),
@@ -277,14 +309,24 @@ void _sendNewMessageOrEdit(MessageModel msg, bool isEditing) {
       child: Column(
         children: [
           Gap(60.h),
-          CircleAvatar(radius: 40.r, backgroundImage: AssetImage(AssetsPaths.icImage)),
+          CircleAvatar(
+            radius: 40.r,
+            backgroundImage: const AssetImage(AssetsPaths.icImage),
+          ),
           Gap(12.h),
           Text(
             widget.contact.name,
-            style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: AppColors.glitch950),
+            style: TextStyle(
+              fontSize: 20.sp,
+              fontWeight: FontWeight.w600,
+              color: AppColors.glitch950,
+            ),
           ),
           Gap(12.h),
-          Text(widget.contact.email, style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600)),
+          Text(
+            widget.contact.email,
+            style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
+          ),
           Gap(8.h),
           Text(
             'Public Key: ${widget.contact.publicKey.substring(0, 8)}...',

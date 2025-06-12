@@ -48,11 +48,13 @@ class MyApp extends ConsumerWidget {
       DeviceOrientation.portraitDown,
     ]);
 
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
-    ));
+      ),
+    );
 
     return ScreenUtilInit(
       designSize: width > 600 ? const Size(600, 1024) : const Size(390, 844),
@@ -64,9 +66,9 @@ class MyApp extends ConsumerWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             fontFamily: 'OverusedGrotesk',
-            appBarTheme: AppBarTheme(
+            appBarTheme: const AppBarTheme(
               backgroundColor: AppColors.glitch950,
-              systemOverlayStyle: const SystemUiOverlayStyle(
+              systemOverlayStyle: SystemUiOverlayStyle(
                 statusBarColor: Colors.transparent,
                 statusBarIconBrightness: Brightness.light,
                 statusBarBrightness: Brightness.dark,

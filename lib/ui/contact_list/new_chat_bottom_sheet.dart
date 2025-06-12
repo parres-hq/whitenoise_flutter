@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
@@ -22,9 +22,7 @@ class NewChatBottomSheet extends StatefulWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'New chat',
-      barrierDismissible: true,
       barrierColor: Colors.transparent,
-      blurBackground: true,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder: (context) => const NewChatBottomSheet(),
@@ -88,7 +86,7 @@ class _NewChatBottomSheetState extends State<NewChatBottomSheet> {
               children: [
                 SvgPicture.asset(
                   AssetsPaths.icGroupChat,
-                  colorFilter: ColorFilter.mode(
+                  colorFilter: const ColorFilter.mode(
                     AppColors.glitch600,
                     BlendMode.srcIn,
                   ),
@@ -107,7 +105,7 @@ class _NewChatBottomSheetState extends State<NewChatBottomSheet> {
                 ),
                 SvgPicture.asset(
                   AssetsPaths.icChevronRight,
-                  colorFilter: ColorFilter.mode(
+                  colorFilter: const ColorFilter.mode(
                     AppColors.glitch600,
                     BlendMode.srcIn,
                   ),

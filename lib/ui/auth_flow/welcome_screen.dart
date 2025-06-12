@@ -17,13 +17,14 @@ class WelcomeScreen extends ConsumerStatefulWidget {
 }
 
 class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
-  Future<void> _handleCreateAccount(BuildContext context) async {
+  Future<void> _handleCreateAccount() async {
     final auth = ref.read(authProvider);
     await auth.initialize();
     await auth.createAccount();
 
+    if (!mounted) return;
+
     if (auth.isAuthenticated && auth.error == null) {
-      if (!mounted) return;
       context.go('/onboarding');
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -44,7 +45,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Padding(
-                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).padding.top,
+                ),
                 child: SizedBox(
                   height: 360.h,
                   width: double.infinity,
@@ -53,7 +56,11 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                       return const LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Colors.black, Colors.transparent],
+                        colors: [
+                          Colors.transparent,
+                          Colors.black,
+                          Colors.transparent,
+                        ],
                         stops: [0.0, 0.5, 1.0],
                       ).createShader(bounds);
                     },
@@ -70,8 +77,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                child: const Column(
                   children: [
                     Text(
                       'Welcome to',
@@ -85,7 +91,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                         color: AppColors.glitch600,
                       ),
                     ),
-                    const SizedBox(height: 10),
+                    SizedBox(height: 10),
                     Text(
                       'White Noise',
                       textAlign: TextAlign.center,
@@ -98,7 +104,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                         color: AppColors.glitch950,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    SizedBox(height: 8),
                     Text(
                       'Secure. Distributed. Uncensorable.',
                       textAlign: TextAlign.center,
@@ -132,10 +138,12 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                 auth.isLoading
                     ? const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(child: CircularProgressIndicator(color: Colors.black)),
+                      child: Center(
+                        child: CircularProgressIndicator(color: Colors.black),
+                      ),
                     )
                     : CustomFilledButton(
-                      onPressed: () => _handleCreateAccount(context),
+                      onPressed: _handleCreateAccount,
                       title: 'Sign Up',
                     ),
               ],

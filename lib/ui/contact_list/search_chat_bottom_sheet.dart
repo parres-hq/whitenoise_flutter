@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/domain/models/chat_model.dart';
-import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_chats.dart';
+import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
+import 'package:whitenoise/domain/models/chat_model.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/widgets/chat_list_tile.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
-import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class SearchChatBottomSheet extends StatefulWidget {
   const SearchChatBottomSheet({super.key});
@@ -20,9 +20,7 @@ class SearchChatBottomSheet extends StatefulWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'Search',
-      barrierDismissible: true,
       barrierColor: Colors.transparent,
-      blurBackground: true,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder: (_) => const SearchChatBottomSheet(),

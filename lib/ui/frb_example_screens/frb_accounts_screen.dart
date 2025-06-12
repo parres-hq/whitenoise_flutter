@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:whitenoise/src/rust/api.dart';
@@ -33,14 +34,21 @@ class _FrbAccountsScreenState extends State<FrbAccountsScreen> {
       final dataDir = '${dir.path}/whitenoise/data';
       final logsDir = '${dir.path}/whitenoise/logs';
 
+      // ignore: avoid_slow_async_io
       if (!await Directory(dataDir).exists()) {
+        // ignore: avoid_slow_async_io
         await Directory(dataDir).create(recursive: true);
       }
+      // ignore: avoid_slow_async_io
       if (!await Directory(logsDir).exists()) {
+        // ignore: avoid_slow_async_io
         await Directory(logsDir).create(recursive: true);
       }
 
-      final config = await createWhitenoiseConfig(dataDir: dataDir, logsDir: logsDir);
+      final config = await createWhitenoiseConfig(
+        dataDir: dataDir,
+        logsDir: logsDir,
+      );
       _whitenoise = await initializeWhitenoise(config: config);
 
       await _loadData();
@@ -68,6 +76,8 @@ class _FrbAccountsScreenState extends State<FrbAccountsScreen> {
   }
 
   Future<void> _createAccount() async {
+    if (!mounted) return;
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -79,11 +89,14 @@ class _FrbAccountsScreenState extends State<FrbAccountsScreen> {
       await updateActiveAccount(whitenoise: _whitenoise, account: account);
       await _loadData();
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Account creation failed: $e")),
+        SnackBar(content: Text('Account creation failed: $e')),
       );
     } finally {
-      Navigator.of(context, rootNavigator: true).pop();
+      if (mounted) {
+        Navigator.of(context, rootNavigator: true).pop();
+      }
     }
   }
 
@@ -117,7 +130,10 @@ class _FrbAccountsScreenState extends State<FrbAccountsScreen> {
                 'Active Account:',
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
-              Text(data.activeAccount ?? 'None', style: const TextStyle(fontSize: 16)),
+              Text(
+                data.activeAccount ?? 'None',
+                style: const TextStyle(fontSize: 16),
+              ),
               const SizedBox(height: 20),
               const Text(
                 'Accounts:',
@@ -128,7 +144,7 @@ class _FrbAccountsScreenState extends State<FrbAccountsScreen> {
                   margin: const EdgeInsets.symmetric(vertical: 8),
                   child: ListTile(
                     title: Text(entry.value.pubkey),
-                    subtitle: Text("Synced: ${entry.value.lastSynced}"),
+                    subtitle: Text('Synced: ${entry.value.lastSynced}'),
                   ),
                 ),
               const SizedBox(height: 80),
@@ -138,8 +154,8 @@ class _FrbAccountsScreenState extends State<FrbAccountsScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _createAccount,
-        child: const Icon(Icons.add),
         tooltip: 'Create New Account',
+        child: const Icon(Icons.add),
       ),
     );
   }

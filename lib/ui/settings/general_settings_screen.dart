@@ -5,12 +5,12 @@ import 'package:go_router/go_router.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
-import 'package:whitenoise/routing/routes.dart';
 
 class GeneralSettingsScreen extends StatefulWidget {
   const GeneralSettingsScreen({super.key});
@@ -23,23 +23,27 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
   ContactModel _currentProfile = dummyContacts.first;
 
   void _deleteAllData() {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("All data deleted")));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('All data deleted')));
   }
 
   void _publishKeyPackage() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Key package event published")),
+      const SnackBar(content: Text('Key package event published')),
     );
   }
 
   void _deleteKeyPackages() {
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("All key package events deleted")),
+      const SnackBar(content: Text('All key package events deleted')),
     );
   }
 
   void _testNotifications() {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Test notification sent")));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Test notification sent')));
   }
 
   @override

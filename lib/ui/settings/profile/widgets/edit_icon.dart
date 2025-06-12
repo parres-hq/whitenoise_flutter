@@ -15,7 +15,7 @@ class EditIconWidget extends StatelessWidget {
       onTap: onTap,
       child: Container(
         padding: EdgeInsets.all(4.w),
-        decoration: BoxDecoration(color: AppColors.glitch100),
+        decoration: const BoxDecoration(color: AppColors.glitch100),
         child: SvgPicture.asset(AssetsPaths.icEdit, width: 16.w, height: 16.w),
       ),
     );

@@ -9,12 +9,14 @@ class RemoveNostrKeysBottomSheet extends StatelessWidget {
 
   const RemoveNostrKeysBottomSheet({super.key, required this.onRemove});
 
-  static Future<void> show({required BuildContext context, required VoidCallback onRemove}) {
+  static Future<void> show({
+    required BuildContext context,
+    required VoidCallback onRemove,
+  }) {
     return CustomBottomSheet.show(
       context: context,
       title: 'Remove Nostr Keys',
       heightFactor: 0.42,
-      backgroundColor: Colors.white,
       builder: (context) => RemoveNostrKeysBottomSheet(onRemove: onRemove),
     );
   }
@@ -31,8 +33,12 @@ class RemoveNostrKeysBottomSheet extends StatelessWidget {
             style: TextStyle(fontSize: 16.sp, color: AppColors.glitch600),
           ),
         ),
-        CustomFilledButton(onPressed: Navigator.of(context).pop, title: 'Cancel'),
-        CustomFilledButton(onPressed: onRemove,
+        CustomFilledButton(
+          onPressed: Navigator.of(context).pop,
+          title: 'Cancel',
+        ),
+        CustomFilledButton(
+          onPressed: onRemove,
           title: 'Remove Permanently',
           buttonType: ButtonType.tertiary,
         ),

@@ -3,26 +3,26 @@ import 'package:whitenoise/domain/models/user_model.dart';
 
 final User marekContact = User(
   id: '1',
-  name: "Marek Kowalski",
-  email: "marek.kowalski@email.com",
-  publicKey: "pk_marek_123456789",
-  imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png",
+  name: 'Marek Kowalski',
+  email: 'marek.kowalski@email.com',
+  publicKey: 'pk_marek_123456789',
+  imagePath: 'https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png',
 );
 
 final User maxContact = User(
   id: '2',
-  name: "Max Hillebrand",
-  email: "max.hillebrand@email.com",
-  publicKey: "pk_max_987654321",
-  imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png",
+  name: 'Max Hillebrand',
+  email: 'max.hillebrand@email.com',
+  publicKey: 'pk_max_987654321',
+  imagePath: 'https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png',
 );
 
 final User currentUser = User(
   id: 'current_user_id',
-  name: "Alex Johnson",
-  email: "alex.johnson@email.com",
-  publicKey: "pk_alex_456123789",
-  imagePath: "https://civilogs.com/uploads/jobs/513/Site_photo_2_11_15_39.png",
+  name: 'Alex Johnson',
+  email: 'alex.johnson@email.com',
+  publicKey: 'pk_alex_456123789',
+  imagePath: 'https://civilogs.com/uploads/jobs/513/Site_photo_2_11_15_39.png',
 );
 
 // Original messages for replies
@@ -129,7 +129,9 @@ final List<MessageModel> messages = [
     isMe: false,
     status: MessageStatus.read,
     reactions: [
-        Reaction(emoji: '👍', user: currentUser), Reaction(emoji: '💗', user: currentUser)],
+      Reaction(emoji: '👍', user: currentUser),
+      Reaction(emoji: '💗', user: currentUser),
+    ],
   ),
 
   // Audio messages
@@ -139,7 +141,8 @@ final List<MessageModel> messages = [
     createdAt: DateTime.now().subtract(const Duration(minutes: 13)),
     sender: currentUser,
     isMe: true,
-    audioPath: "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg",
+    audioPath:
+        'https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg',
     status: MessageStatus.read,
     reactions: [],
   ),
@@ -149,7 +152,8 @@ final List<MessageModel> messages = [
     createdAt: DateTime.now().subtract(const Duration(minutes: 14)),
     sender: marekContact,
     isMe: false,
-    audioPath: "https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg",
+    audioPath:
+        'https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg',
     status: MessageStatus.read,
     reactions: [],
   ),
@@ -185,7 +189,7 @@ final List<MessageModel> messages = [
     createdAt: DateTime.now().subtract(const Duration(minutes: 16)),
     sender: marekContact,
     isMe: false,
-    imageUrl: "https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png",
+    imageUrl: 'https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png',
     status: MessageStatus.read,
     reactions: [],
   ),

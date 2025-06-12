@@ -36,8 +36,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     _displayNameController = TextEditingController(text: 'Satoshi Nakamoto');
     _aboutController = TextEditingController(text: 'A few words about you');
     _websiteController = TextEditingController(text: 'https://');
-    _nostrAddressController = TextEditingController(text: 'satoshi@nakamoto.com');
-    _lightningAddressController = TextEditingController(text: 'satoshi@nakamoto.com');
+    _nostrAddressController = TextEditingController(
+      text: 'satoshi@nakamoto.com',
+    );
+    _lightningAddressController = TextEditingController(
+      text: 'satoshi@nakamoto.com',
+    );
     _profileImagePath = widget.profile.imagePath;
   }
 
@@ -60,7 +64,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: CustomAppBar(title: 'Profile'),
+      appBar: const CustomAppBar(title: 'Profile'),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -77,12 +81,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         color: AppColors.glitch200.withValues(alpha: 0.5),
                         image:
                             _bannerImagePath.isNotEmpty
-                                ? DecorationImage(image: AssetImage(_bannerImagePath), fit: BoxFit.cover)
+                                ? DecorationImage(
+                                  image: AssetImage(_bannerImagePath),
+                                  fit: BoxFit.cover,
+                                )
                                 : null,
                       ),
-                      child: Image.asset(AssetsPaths.profileBackground, fit: BoxFit.cover),
+                      child: Image.asset(
+                        AssetsPaths.profileBackground,
+                        fit: BoxFit.cover,
+                      ),
                     ),
-                    Positioned(right: 16.w, top: 16.h, child: EditIconWidget()),
+                    Positioned(
+                      right: 16.w,
+                      top: 16.h,
+                      child: const EditIconWidget(),
+                    ),
                   ],
                 ),
                 Positioned(
@@ -93,7 +107,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     alignment: Alignment.bottomCenter,
                     children: [
                       Container(
-                        decoration: BoxDecoration(color: AppColors.white, shape: BoxShape.circle),
+                        decoration: const BoxDecoration(
+                          color: AppColors.white,
+                          shape: BoxShape.circle,
+                        ),
                         child: Container(
                           width: 80.w,
                           height: 80.w,
@@ -102,7 +119,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             shape: BoxShape.circle,
                             image:
                                 _profileImagePath.isNotEmpty
-                                    ? DecorationImage(image: AssetImage(_profileImagePath), fit: BoxFit.cover)
+                                    ? DecorationImage(
+                                      image: AssetImage(_profileImagePath),
+                                      fit: BoxFit.cover,
+                                    )
                                     : null,
                           ),
                           child:
@@ -120,7 +140,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                   : null,
                         ),
                       ),
-                      Positioned(left: 1.sw * 0.5 + 2.w, bottom: 4.h, width: 24.w, child: EditIconWidget()),
+                      Positioned(
+                        left: 1.sw * 0.5 + 2.w,
+                        bottom: 4.h,
+                        width: 24.w,
+                        child: const EditIconWidget(),
+                      ),
                     ],
                   ),
                 ),
@@ -153,24 +178,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     CustomTextField(
                       textController: _aboutController,
                       padding: EdgeInsets.zero,
-                      contentPadding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 16.h,
+                      ),
                       autofocus: false,
                       hintText: 'A few words about you',
                       label: 'About',
                     ),
                     Gap(16.h),
                     CustomTextField(
-                      textController: _websiteController, 
-                      padding: EdgeInsets.zero, 
-                      autofocus: false, 
+                      textController: _websiteController,
+                      padding: EdgeInsets.zero,
+                      autofocus: false,
                       hintText: 'https://...',
                       label: 'Website',
                     ),
                     Gap(16.h),
                     CustomTextField(
-                      textController: _nostrAddressController, 
-                      padding: EdgeInsets.zero, 
-                      autofocus: false, 
+                      textController: _nostrAddressController,
+                      padding: EdgeInsets.zero,
+                      autofocus: false,
                       hintText: 'satoshi@nakamoto.com',
                       label: 'Nostr Address (NIP-05)',
                     ),
@@ -190,7 +218,10 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: CustomFilledButton(onPressed: _saveChanges, title: 'Save Changes'),
+      bottomNavigationBar: CustomFilledButton(
+        onPressed: _saveChanges,
+        title: 'Save Changes',
+      ),
     );
   }
 }

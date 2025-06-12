@@ -1,7 +1,8 @@
+import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+
 import '../../core/themes/colors.dart';
 import '../notifiers/chat_audio_notifier.dart';
 
@@ -23,12 +24,22 @@ class ChatAudioItem extends ConsumerWidget {
       if (state.error != null) {
         return SizedBox(
           height: 50,
-          child: Center(child: Text(state.error!, style: const TextStyle(color: Colors.red, fontSize: 12))),
+          child: Center(
+            child: Text(
+              state.error!,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
         );
       }
       return const SizedBox(
         height: 50,
-        child: Center(child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.glitch50)),
+        child: Center(
+          child: CircularProgressIndicator(
+            strokeWidth: 2,
+            color: AppColors.glitch50,
+          ),
+        ),
       );
     }
 
@@ -38,10 +49,15 @@ class ChatAudioItem extends ConsumerWidget {
         Container(
           width: 40,
           height: 40,
-          decoration: BoxDecoration(shape: BoxShape.circle, color: isMe ? AppColors.glitch600 : AppColors.glitch800),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: isMe ? AppColors.glitch600 : AppColors.glitch800,
+          ),
           child: IconButton(
             icon: Icon(
-              isThisPlaying ? CarbonIcons.pause_filled : CarbonIcons.play_filled_alt,
+              isThisPlaying
+                  ? CarbonIcons.pause_filled
+                  : CarbonIcons.play_filled_alt,
               color: AppColors.glitch50,
             ),
             onPressed: () => notifier.togglePlayback(),
@@ -53,7 +69,6 @@ class ChatAudioItem extends ConsumerWidget {
             playerController: state.playerController!,
             size: Size(MediaQuery.of(context).size.width * 0.4, 20),
             waveformType: WaveformType.fitWidth,
-            enableSeekGesture: true,
             playerWaveStyle: PlayerWaveStyle(
               fixedWaveColor: AppColors.glitch400,
               liveWaveColor: isMe ? AppColors.glitch50 : AppColors.glitch800,

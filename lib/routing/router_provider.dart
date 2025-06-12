@@ -9,13 +9,13 @@ import 'package:whitenoise/ui/auth_flow/welcome_screen.dart';
 import 'package:whitenoise/ui/chat/chat_screen.dart';
 import 'package:whitenoise/ui/contact_list/chat_list_screen.dart';
 import 'package:whitenoise/ui/settings/general_settings_screen.dart';
-import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/ui/settings/network/network_screen.dart';
 import 'package:whitenoise/ui/settings/nostr_keys/nostr_keys_screen.dart';
+import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/ui/settings/wallet/wallet_screen.dart';
 
-import '../domain/dummy_data/dummy_messages.dart';
 import '../domain/dummy_data/dummy_contacts.dart';
+import '../domain/dummy_data/dummy_messages.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -38,7 +38,6 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'create-profile',
                 builder: (context, state) => const CreateProfileScreen(),
               ),
-
             ],
           ),
         ],
@@ -52,7 +51,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: ':id',
             builder: (context, state) {
               final contactId = state.pathParameters['id']!;
-              return Scaffold(body: Center(child: Text('Contact Detail: $contactId')));
+              return Scaffold(
+                body: Center(child: Text('Contact Detail: $contactId')),
+              );
             },
           ),
         ],
@@ -65,7 +66,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: ':id',
             builder: (context, state) {
-              return ChatScreen(contact: marekContact, initialMessages: messages);
+              return ChatScreen(
+                contact: marekContact,
+                initialMessages: messages,
+              );
             },
           ),
         ],
@@ -77,7 +81,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: 'profile',
-            builder: (context, state) => EditProfileScreen(profile: dummyContacts.first),
+            builder:
+                (context, state) =>
+                    EditProfileScreen(profile: dummyContacts.first),
           ),
           GoRoute(
             path: 'network',

@@ -3,13 +3,15 @@
 
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
-import 'api.dart';
 import 'dart:async';
 import 'dart:convert';
+
+import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
+
+import 'api.dart';
 import 'frb_generated.dart';
 import 'frb_generated.io.dart'
     if (dart.library.js_interop) 'frb_generated.web.dart';
-import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 /// Main entrypoint of the Rust API
 class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
@@ -308,8 +310,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiAddContactConstMeta => const TaskConstMeta(
-    debugName: "add_contact",
-    argNames: ["whitenoise", "account", "contactPubkey"],
+    debugName: 'add_contact',
+    argNames: ['whitenoise', 'account', 'contactPubkey'],
   );
 
   @override
@@ -342,8 +344,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiConvertAccountToDataConstMeta =>
       const TaskConstMeta(
-        debugName: "convert_account_to_data",
-        argNames: ["account"],
+        debugName: 'convert_account_to_data',
+        argNames: ['account'],
       );
 
   @override
@@ -378,8 +380,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiConvertConfigToDataConstMeta =>
       const TaskConstMeta(
-        debugName: "convert_config_to_data",
-        argNames: ["config"],
+        debugName: 'convert_config_to_data',
+        argNames: ['config'],
       );
 
   @override
@@ -414,8 +416,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiConvertWhitenoiseToDataConstMeta =>
       const TaskConstMeta(
-        debugName: "convert_whitenoise_to_data",
-        argNames: ["whitenoise"],
+        debugName: 'convert_whitenoise_to_data',
+        argNames: ['whitenoise'],
       );
 
   @override
@@ -449,8 +451,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiCreateIdentityConstMeta => const TaskConstMeta(
-    debugName: "create_identity",
-    argNames: ["whitenoise"],
+    debugName: 'create_identity',
+    argNames: ['whitenoise'],
   );
 
   @override
@@ -485,8 +487,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiCreateWhitenoiseConfigConstMeta =>
       const TaskConstMeta(
-        debugName: "create_whitenoise_config",
-        argNames: ["dataDir", "logsDir"],
+        debugName: 'create_whitenoise_config',
+        argNames: ['dataDir', 'logsDir'],
       );
 
   @override
@@ -519,8 +521,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiDeleteAllDataConstMeta => const TaskConstMeta(
-    debugName: "delete_all_data",
-    argNames: ["whitenoise"],
+    debugName: 'delete_all_data',
+    argNames: ['whitenoise'],
   );
 
   @override
@@ -560,8 +562,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiExportAccountNpubConstMeta => const TaskConstMeta(
-    debugName: "export_account_npub",
-    argNames: ["whitenoise", "account"],
+    debugName: 'export_account_npub',
+    argNames: ['whitenoise', 'account'],
   );
 
   @override
@@ -601,8 +603,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiExportAccountNsecConstMeta => const TaskConstMeta(
-    debugName: "export_account_nsec",
-    argNames: ["whitenoise", "account"],
+    debugName: 'export_account_nsec',
+    argNames: ['whitenoise', 'account'],
   );
 
   @override
@@ -634,8 +636,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiGetAccountDataConstMeta => const TaskConstMeta(
-    debugName: "get_account_data",
-    argNames: ["account"],
+    debugName: 'get_account_data',
+    argNames: ['account'],
   );
 
   @override
@@ -669,8 +671,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiGetActiveAccountConstMeta => const TaskConstMeta(
-    debugName: "get_active_account",
-    argNames: ["whitenoise"],
+    debugName: 'get_active_account',
+    argNames: ['whitenoise'],
   );
 
   @override
@@ -704,8 +706,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiGetConfigDataConstMeta => const TaskConstMeta(
-    debugName: "get_config_data",
-    argNames: ["config"],
+    debugName: 'get_config_data',
+    argNames: ['config'],
   );
 
   @override
@@ -739,8 +741,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiGetWhitenoiseDataConstMeta => const TaskConstMeta(
-    debugName: "get_whitenoise_data",
-    argNames: ["whitenoise"],
+    debugName: 'get_whitenoise_data',
+    argNames: ['whitenoise'],
   );
 
   @override
@@ -777,8 +779,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiInitializeWhitenoiseConstMeta =>
       const TaskConstMeta(
-        debugName: "initialize_whitenoise",
-        argNames: ["config"],
+        debugName: 'initialize_whitenoise',
+        argNames: ['config'],
       );
 
   @override
@@ -819,8 +821,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiLoadContactListConstMeta => const TaskConstMeta(
-    debugName: "load_contact_list",
-    argNames: ["whitenoise", "pubkey"],
+    debugName: 'load_contact_list',
+    argNames: ['whitenoise', 'pubkey'],
   );
 
   @override
@@ -861,8 +863,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiLoadKeyPackageConstMeta => const TaskConstMeta(
-    debugName: "load_key_package",
-    argNames: ["whitenoise", "pubkey"],
+    debugName: 'load_key_package',
+    argNames: ['whitenoise', 'pubkey'],
   );
 
   @override
@@ -903,8 +905,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiLoadMetadataConstMeta => const TaskConstMeta(
-    debugName: "load_metadata",
-    argNames: ["whitenoise", "pubkey"],
+    debugName: 'load_metadata',
+    argNames: ['whitenoise', 'pubkey'],
   );
 
   @override
@@ -945,8 +947,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiLoadOnboardingStateConstMeta =>
       const TaskConstMeta(
-        debugName: "load_onboarding_state",
-        argNames: ["whitenoise", "pubkey"],
+        debugName: 'load_onboarding_state',
+        argNames: ['whitenoise', 'pubkey'],
       );
 
   @override
@@ -992,8 +994,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiLoadRelaysConstMeta => const TaskConstMeta(
-    debugName: "load_relays",
-    argNames: ["whitenoise", "pubkey", "relayType"],
+    debugName: 'load_relays',
+    argNames: ['whitenoise', 'pubkey', 'relayType'],
   );
 
   @override
@@ -1031,8 +1033,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiLoginConstMeta => const TaskConstMeta(
-    debugName: "login",
-    argNames: ["whitenoise", "nsecOrHexPrivkey"],
+    debugName: 'login',
+    argNames: ['whitenoise', 'nsecOrHexPrivkey'],
   );
 
   @override
@@ -1072,8 +1074,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiLogoutConstMeta => const TaskConstMeta(
-    debugName: "logout",
-    argNames: ["whitenoise", "account"],
+    debugName: 'logout',
+    argNames: ['whitenoise', 'account'],
   );
 
   @override
@@ -1118,8 +1120,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiRemoveContactConstMeta => const TaskConstMeta(
-    debugName: "remove_contact",
-    argNames: ["whitenoise", "account", "contactPubkey"],
+    debugName: 'remove_contact',
+    argNames: ['whitenoise', 'account', 'contactPubkey'],
   );
 
   @override
@@ -1161,8 +1163,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiUpdateActiveAccountConstMeta =>
       const TaskConstMeta(
-        debugName: "update_active_account",
-        argNames: ["whitenoise", "account"],
+        debugName: 'update_active_account',
+        argNames: ['whitenoise', 'account'],
       );
 
   @override
@@ -1207,8 +1209,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiUpdateContactsConstMeta => const TaskConstMeta(
-    debugName: "update_contacts",
-    argNames: ["whitenoise", "account", "contactPubkeys"],
+    debugName: 'update_contacts',
+    argNames: ['whitenoise', 'account', 'contactPubkeys'],
   );
 
   @override
@@ -1253,8 +1255,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   TaskConstMeta get kCrateApiUpdateMetadataConstMeta => const TaskConstMeta(
-    debugName: "update_metadata",
-    argNames: ["whitenoise", "metadata", "account"],
+    debugName: 'update_metadata',
+    argNames: ['whitenoise', 'metadata', 'account'],
   );
 
   RustArcIncrementStrongCountFnType
@@ -2000,7 +2002,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var inner =
+    final inner =
         sse_decode_list_record_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_public_key_opt_box_autoadd_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_metadata(
           deserializer,
         );
@@ -2012,7 +2014,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var inner = sse_decode_list_record_string_account_data(deserializer);
+    final inner = sse_decode_list_record_string_account_data(deserializer);
     return Map.fromEntries(inner.map((e) => MapEntry(e.$1, e.$2)));
   }
 
@@ -2127,17 +2129,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   String sse_decode_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var inner = sse_decode_list_prim_u_8_strict(deserializer);
+    final inner = sse_decode_list_prim_u_8_strict(deserializer);
     return utf8.decoder.convert(inner);
   }
 
   @protected
   AccountData sse_decode_account_data(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_pubkey = sse_decode_String(deserializer);
-    var var_settings = sse_decode_account_settings(deserializer);
-    var var_onboarding = sse_decode_onboarding_state(deserializer);
-    var var_lastSynced = sse_decode_u_64(deserializer);
+    final var_pubkey = sse_decode_String(deserializer);
+    final var_settings = sse_decode_account_settings(deserializer);
+    final var_onboarding = sse_decode_onboarding_state(deserializer);
+    final var_lastSynced = sse_decode_u_64(deserializer);
     return AccountData(
       pubkey: var_pubkey,
       settings: var_settings,
@@ -2149,9 +2151,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   AccountSettings sse_decode_account_settings(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_darkTheme = sse_decode_bool(deserializer);
-    var var_devMode = sse_decode_bool(deserializer);
-    var var_lockdownMode = sse_decode_bool(deserializer);
+    final var_darkTheme = sse_decode_bool(deserializer);
+    final var_devMode = sse_decode_bool(deserializer);
+    final var_lockdownMode = sse_decode_bool(deserializer);
     return AccountSettings(
       darkTheme: var_darkTheme,
       devMode: var_devMode,
@@ -2205,8 +2207,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
-    var len_ = sse_decode_i_32(deserializer);
-    var ans_ = <PublicKey>[];
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <PublicKey>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(
         sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
@@ -2224,8 +2226,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
-    var len_ = sse_decode_i_32(deserializer);
-    var ans_ = <RelayUrl>[];
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <RelayUrl>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(
         sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
@@ -2239,7 +2241,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var len_ = sse_decode_i_32(deserializer);
+    final len_ = sse_decode_i_32(deserializer);
     return deserializer.buffer.getUint8List(len_);
   }
 
@@ -2250,8 +2252,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
-    var len_ = sse_decode_i_32(deserializer);
-    var ans_ = <(PublicKey, Metadata?)>[];
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <(PublicKey, Metadata?)>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(
         sse_decode_record_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_public_key_opt_box_autoadd_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_metadata(
@@ -2268,8 +2270,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
-    var len_ = sse_decode_i_32(deserializer);
-    var ans_ = <(String, AccountData)>[];
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <(String, AccountData)>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_record_string_account_data(deserializer));
     }
@@ -2279,9 +2281,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   OnboardingState sse_decode_onboarding_state(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_inboxRelays = sse_decode_bool(deserializer);
-    var var_keyPackageRelays = sse_decode_bool(deserializer);
-    var var_keyPackagePublished = sse_decode_bool(deserializer);
+    final var_inboxRelays = sse_decode_bool(deserializer);
+    final var_keyPackageRelays = sse_decode_bool(deserializer);
+    final var_keyPackagePublished = sse_decode_bool(deserializer);
     return OnboardingState(
       inboxRelays: var_inboxRelays,
       keyPackageRelays: var_keyPackageRelays,
@@ -2354,11 +2356,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_field0 =
+    final var_field0 =
         sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
           deserializer,
         );
-    var var_field1 =
+    final var_field1 =
         sse_decode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
           deserializer,
         );
@@ -2370,8 +2372,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_field0 = sse_decode_String(deserializer);
-    var var_field1 = sse_decode_account_data(deserializer);
+    final var_field0 = sse_decode_String(deserializer);
+    final var_field1 = sse_decode_account_data(deserializer);
     return (var_field0, var_field1);
   }
 
@@ -2403,17 +2405,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_dataDir = sse_decode_String(deserializer);
-    var var_logsDir = sse_decode_String(deserializer);
+    final var_dataDir = sse_decode_String(deserializer);
+    final var_logsDir = sse_decode_String(deserializer);
     return WhitenoiseConfigData(dataDir: var_dataDir, logsDir: var_logsDir);
   }
 
   @protected
   WhitenoiseData sse_decode_whitenoise_data(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    var var_config = sse_decode_whitenoise_config_data(deserializer);
-    var var_accounts = sse_decode_Map_String_account_data_None(deserializer);
-    var var_activeAccount = sse_decode_opt_String(deserializer);
+    final var_config = sse_decode_whitenoise_config_data(deserializer);
+    final var_accounts = sse_decode_Map_String_account_data_None(deserializer);
+    final var_activeAccount = sse_decode_opt_String(deserializer);
     return WhitenoiseData(
       config: var_config,
       accounts: var_accounts,
@@ -2641,10 +2643,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-      (self as AccountImpl).frbInternalSseEncode(move: null),
-      serializer,
-    );
+    sse_encode_usize((self as AccountImpl).frbInternalSseEncode(), serializer);
   }
 
   @protected
@@ -2654,10 +2653,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-      (self as EventImpl).frbInternalSseEncode(move: null),
-      serializer,
-    );
+    sse_encode_usize((self as EventImpl).frbInternalSseEncode(), serializer);
   }
 
   @protected
@@ -2667,10 +2663,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-      (self as MetadataImpl).frbInternalSseEncode(move: null),
-      serializer,
-    );
+    sse_encode_usize((self as MetadataImpl).frbInternalSseEncode(), serializer);
   }
 
   @protected
@@ -2681,7 +2674,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
-      (self as PublicKeyImpl).frbInternalSseEncode(move: null),
+      (self as PublicKeyImpl).frbInternalSseEncode(),
       serializer,
     );
   }
@@ -2694,7 +2687,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
-      (self as RelayTypeImpl).frbInternalSseEncode(move: null),
+      (self as RelayTypeImpl).frbInternalSseEncode(),
       serializer,
     );
   }
@@ -2706,10 +2699,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-      (self as RelayUrlImpl).frbInternalSseEncode(move: null),
-      serializer,
-    );
+    sse_encode_usize((self as RelayUrlImpl).frbInternalSseEncode(), serializer);
   }
 
   @protected
@@ -2720,7 +2710,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
-      (self as WhitenoiseImpl).frbInternalSseEncode(move: null),
+      (self as WhitenoiseImpl).frbInternalSseEncode(),
       serializer,
     );
   }
@@ -2733,7 +2723,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
-      (self as WhitenoiseConfigImpl).frbInternalSseEncode(move: null),
+      (self as WhitenoiseConfigImpl).frbInternalSseEncode(),
       serializer,
     );
   }
@@ -2746,7 +2736,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
-      (self as WhitenoiseErrorImpl).frbInternalSseEncode(move: null),
+      (self as WhitenoiseErrorImpl).frbInternalSseEncode(),
       serializer,
     );
   }

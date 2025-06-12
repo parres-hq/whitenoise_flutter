@@ -31,15 +31,22 @@ class CustomTextButton extends StatelessWidget {
           disabledBackgroundColor: AppColors.transparent,
           disabledForegroundColor: AppColors.glitch900,
           padding: EdgeInsets.symmetric(vertical: 16.h),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          shape: const RoundedRectangleBorder(),
         ),
-        child: Text(title, style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500)),
+        child: Text(
+          title,
+          style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+        ),
       ),
     );
 
     if (addPadding) {
       return Padding(
-        padding: EdgeInsets.only(left: horizontalPadding.w, right: horizontalPadding.w, bottom: bottomPadding.h),
+        padding: EdgeInsets.only(
+          left: horizontalPadding.w,
+          right: horizontalPadding.w,
+          bottom: bottomPadding.h,
+        ),
         child: button,
       );
     }

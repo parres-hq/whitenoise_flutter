@@ -30,7 +30,8 @@ class StackedImages extends StatelessWidget {
     final double responsiveImageSize = imageSize.w;
     final double overlap = responsiveImageSize * overlapPercentage;
     final int imagesToShow = min(imageUris.length, maxImagesToShow);
-    final double totalWidth = responsiveImageSize + (overlap * (imagesToShow - 1));
+    final double totalWidth =
+        responsiveImageSize + (overlap * (imagesToShow - 1));
 
     return Padding(
       padding: const EdgeInsets.only(left: 8),
@@ -50,7 +51,10 @@ class StackedImages extends StatelessWidget {
 
                   return Positioned(
                     left: offsetX,
-                    child: Transform.rotate(angle: rotation * (pi / 180), child: _buildImage(uri, responsiveImageSize)),
+                    child: Transform.rotate(
+                      angle: rotation * (pi / 180),
+                      child: _buildImage(uri, responsiveImageSize),
+                    ),
                   );
                 }),
 
@@ -67,9 +71,19 @@ class StackedImages extends StatelessWidget {
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           color: AppColors.white.withValues(alpha: 0.9),
-                          boxShadow: [BoxShadow(color: AppColors.glitch600, blurRadius: 4.r, offset: Offset(0, 2.h))],
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.glitch600,
+                              blurRadius: 4.r,
+                              offset: Offset(0, 2.h),
+                            ),
+                          ],
                         ),
-                        child: Icon(Icons.close, size: 12.sp, color: Colors.red),
+                        child: Icon(
+                          Icons.close,
+                          size: 12.sp,
+                          color: Colors.red,
+                        ),
                       ),
                     ),
                   ),
@@ -83,15 +97,22 @@ class StackedImages extends StatelessWidget {
 
   Widget _buildImage(String uri, double size) {
     return Container(
-      decoration: BoxDecoration(border: Border.all(color: AppColors.glitch80, width: 4)),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.glitch80, width: 4),
+      ),
       child:
-          uri.startsWith("http")
+          uri.startsWith('http')
               ? CachedNetworkImage(
                 imageUrl: uri,
                 fit: BoxFit.cover,
                 width: size,
                 height: size,
-                placeholder: (context, url) => Container(color: Colors.grey[200], width: size, height: size),
+                placeholder:
+                    (context, url) => Container(
+                      color: Colors.grey[200],
+                      width: size,
+                      height: size,
+                    ),
                 errorWidget:
                     (context, url, error) => Container(
                       color: Colors.grey[300],
@@ -100,8 +121,12 @@ class StackedImages extends StatelessWidget {
                       child: Icon(Icons.error, size: 24.sp),
                     ),
               )
-              : Image.file(File(uri), fit: BoxFit.cover, width: size, height: size),
+              : Image.file(
+                File(uri),
+                fit: BoxFit.cover,
+                width: size,
+                height: size,
+              ),
     );
   }
 }
-

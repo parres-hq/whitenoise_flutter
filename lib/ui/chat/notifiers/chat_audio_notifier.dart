@@ -1,8 +1,8 @@
+import 'package:audio_waveforms/audio_waveforms.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:dio/dio.dart';
 
 final currentlyPlayingAudioProvider = StateProvider<String?>((ref) => null);
 
@@ -50,10 +50,9 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
 
       await controller.preparePlayer(
         path: localPath,
-        shouldExtractWaveform: true,
       );
 
-      controller.setFinishMode(finishMode: FinishMode.stop);
+      controller.setFinishMode();
 
       if (!_hasCompletionListener) {
         _hasCompletionListener = true;
@@ -104,7 +103,7 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
       // Always seek to start before play
       await controller.seekTo(0);
 
-      await controller.startPlayer(forceRefresh: true);
+      await controller.startPlayer();
       state = state.copyWith(isPlaying: true);
       ref.read(currentlyPlayingAudioProvider.notifier).state = audioUrl;
     }

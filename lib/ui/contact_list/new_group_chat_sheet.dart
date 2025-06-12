@@ -18,9 +18,7 @@ class NewGroupChatSheet extends StatefulWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'New group chat',
-      barrierDismissible: true,
       barrierColor: Colors.transparent,
-      blurBackground: true,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder: (context) => const NewGroupChatSheet(),
@@ -105,7 +103,10 @@ class _NewGroupChatSheetState extends State<NewGroupChatSheet> {
               _selectedContacts.isNotEmpty
                   ? () {
                     Navigator.pop(context);
-                    GroupChatDetailsSheet.show(context: context, selectedContacts: _selectedContacts.toList());
+                    GroupChatDetailsSheet.show(
+                      context: context,
+                      selectedContacts: _selectedContacts.toList(),
+                    );
                   }
                   : null,
           title: 'Continue',

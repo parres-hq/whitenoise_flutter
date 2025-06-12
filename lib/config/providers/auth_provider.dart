@@ -33,7 +33,10 @@ class AuthState with ChangeNotifier {
       await Directory(dataDir).create(recursive: true);
       await Directory(logsDir).create(recursive: true);
 
-      final config = await createWhitenoiseConfig(dataDir: dataDir, logsDir: logsDir);
+      final config = await createWhitenoiseConfig(
+        dataDir: dataDir,
+        logsDir: logsDir,
+      );
       _whitenoise = await initializeWhitenoise(config: config);
     } catch (e) {
       _error = e.toString();
@@ -45,7 +48,7 @@ class AuthState with ChangeNotifier {
   /// Create a new account and set it as active
   Future<void> createAccount() async {
     if (_whitenoise == null) {
-      _error = "Whitenoise not initialized";
+      _error = 'Whitenoise not initialized';
       notifyListeners();
       return;
     }

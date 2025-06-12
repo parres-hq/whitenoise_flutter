@@ -11,7 +11,12 @@ class ChatReplyItem extends StatelessWidget {
   final bool isMe;
   final bool isOriginalUser;
 
-  const ChatReplyItem({super.key, required this.message, required this.isMe, this.isOriginalUser = false});
+  const ChatReplyItem({
+    super.key,
+    required this.message,
+    required this.isMe,
+    this.isOriginalUser = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +62,9 @@ class ChatReplyItem extends StatelessWidget {
                             (context, url) => Container(
                               width: 16.w,
                               height: 16.h,
-                              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withValues(alpha: 0.1),
                             ),
                       ),
                     ),
@@ -91,14 +98,25 @@ class ChatReplyItem extends StatelessWidget {
         return Text(
           message.content ?? '',
           maxLines: 2,
-          style: TextStyle(fontSize: 12.sp, color: textColor, overflow: TextOverflow.ellipsis),
+          style: TextStyle(
+            fontSize: 12.sp,
+            color: textColor,
+            overflow: TextOverflow.ellipsis,
+          ),
         );
       case MessageType.image:
         return Row(
           children: [
             Icon(CarbonIcons.image, size: 14.w, color: textColor),
             SizedBox(width: 4.w),
-            Text('Photo', style: TextStyle(fontSize: 12.sp, color: textColor, fontStyle: FontStyle.italic)),
+            Text(
+              'Photo',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: textColor,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
           ],
         );
       case MessageType.audio:
@@ -106,7 +124,14 @@ class ChatReplyItem extends StatelessWidget {
           children: [
             Icon(CarbonIcons.document_audio, size: 14.w, color: textColor),
             SizedBox(width: 4.w),
-            Text('Audio message', style: TextStyle(fontSize: 12.sp, color: textColor, fontStyle: FontStyle.italic)),
+            Text(
+              'Audio message',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: textColor,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
           ],
         );
       case MessageType.video:
@@ -114,7 +139,14 @@ class ChatReplyItem extends StatelessWidget {
           children: [
             Icon(CarbonIcons.video, size: 14.w, color: textColor),
             SizedBox(width: 4.w),
-            Text('Video', style: TextStyle(fontSize: 12.sp, color: textColor, fontStyle: FontStyle.italic)),
+            Text(
+              'Video',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: textColor,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
           ],
         );
       case MessageType.file:
@@ -122,7 +154,14 @@ class ChatReplyItem extends StatelessWidget {
           children: [
             Icon(CarbonIcons.document, size: 14.w, color: textColor),
             SizedBox(width: 4.w),
-            Text('File', style: TextStyle(fontSize: 12.sp, color: textColor, fontStyle: FontStyle.italic)),
+            Text(
+              'File',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: textColor,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
           ],
         );
     }

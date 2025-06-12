@@ -5,10 +5,10 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/search_chat_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 
 class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback? onSettingsTap;
@@ -17,11 +17,13 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-      statusBarColor: Colors.transparent,
+    SystemChrome.setSystemUIOverlayStyle(
+      const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
-    ));
+      ),
+    );
 
     return ColoredBox(
       color: AppColors.glitch950,
@@ -48,7 +50,10 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
                 onTap: () => NewChatBottomSheet.show(context),
                 child: SvgPicture.asset(
                   AssetsPaths.icAdd,
-                  colorFilter: ColorFilter.mode(AppColors.glitch50, BlendMode.srcIn),
+                  colorFilter: const ColorFilter.mode(
+                    AppColors.glitch50,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ],

@@ -34,7 +34,14 @@ class CustomTextField extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (label != null) ...[
-            Text(label, style: TextStyle(color: AppColors.glitch900, fontSize: 14.sp, fontWeight: FontWeight.w500)),
+            Text(
+              label,
+              style: TextStyle(
+                color: AppColors.glitch900,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             Gap(8.h),
           ],
           SizedBox(
@@ -43,24 +50,28 @@ class CustomTextField extends StatelessWidget {
               controller: textController,
               autofocus: autofocus,
               obscureText: obscureText,
-              obscuringCharacter: '•',
               readOnly: readOnly,
               decoration: InputDecoration(
                 hintText: hintText,
-                hintStyle: TextStyle(color: AppColors.glitch600, fontSize: 14.sp),
-                border: OutlineInputBorder(
+                hintStyle: TextStyle(
+                  color: AppColors.glitch600,
+                  fontSize: 14.sp,
+                ),
+                border: const OutlineInputBorder(
                   borderSide: BorderSide(color: AppColors.glitch200),
                   borderRadius: BorderRadius.zero,
                 ),
-                enabledBorder: OutlineInputBorder(
+                enabledBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: AppColors.glitch200),
                   borderRadius: BorderRadius.zero,
                 ),
-                focusedBorder: OutlineInputBorder(
+                focusedBorder: const OutlineInputBorder(
                   borderSide: BorderSide(color: AppColors.glitch200),
                   borderRadius: BorderRadius.zero,
                 ),
-                contentPadding: contentPadding ?? EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                contentPadding:
+                    contentPadding ??
+                    EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               ),
             ),
           ),
