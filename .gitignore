@@ -46,3 +46,4 @@ app.*.map.json
 
 # Rust documentation build cache
 rust/tmp_docs/
+RUST_FFI_GUIDE.md

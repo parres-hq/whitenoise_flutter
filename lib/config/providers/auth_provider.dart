@@ -51,8 +51,7 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final account = await createIdentity(whitenoise: state.whitenoise!);
-      await updateActiveAccount(whitenoise: state.whitenoise!, account: account);
+      await createIdentity(whitenoise: state.whitenoise!);
       state = state.copyWith(isAuthenticated: true);
     } catch (e) {
       state = state.copyWith(error: e.toString());
