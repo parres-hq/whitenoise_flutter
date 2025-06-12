@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_text_button.dart';
 
@@ -45,99 +44,70 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Padding(
-                padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
+              Expanded(
+                flex: 5,
                 child: SizedBox(
-                  height: 360.h,
                   width: double.infinity,
                   child: ShaderMask(
                     shaderCallback: (Rect bounds) {
                       return const LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Colors.black, Colors.transparent],
-                        stops: [0.0, 0.5, 1.0],
+                        colors: [Colors.black, Colors.transparent],
+                        stops: [0.7, 1.0],
                       ).createShader(bounds);
                     },
                     blendMode: BlendMode.dstIn,
-                    child: Image.asset(
-                      AssetsPaths.loginSplash,
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image.asset(AssetsPaths.loginSplash, fit: BoxFit.cover),
                   ),
                 ),
               ),
-
-              const SizedBox(height: 32),
-
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Welcome to',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Overused Grotesk',
-                        fontWeight: FontWeight.w400,
-                        fontSize: 34,
-                        height: 1.0,
-                        letterSpacing: -0.72,
-                        color: AppColors.glitch600,
+              Expanded(
+                flex: 5,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Text(
+                        'Welcome to',
+                        style: TextStyle(fontSize: 36, fontWeight: FontWeight.w400, color: Colors.black, height: 1.1),
                       ),
-                    ),
-                    const SizedBox(height: 10),
-                    Text(
-                      'White Noise',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Overused Grotesk',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 50,
-                        height: 1.0,
-                        letterSpacing: -1.02,
-                        color: AppColors.glitch950,
+                      Text(
+                        'White Noise',
+                        style: TextStyle(fontSize: 46, fontWeight: FontWeight.w800, color: Colors.black, height: 1.1),
                       ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Secure. Distributed. Uncensorable.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Sans',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14,
-                        height: 1.0,
-                        letterSpacing: 0,
-                        color: AppColors.glitch950,
+                      SizedBox(height: 12),
+                      Text(
+                        'Secure. Distributed. Uncensorable.',
+                        style: TextStyle(fontSize: 20, fontWeight: FontWeight.w400, color: Color(0xFF666666)),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-              const Spacer(),
             ],
           ),
           bottomNavigationBar: SafeArea(
-            top: false,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 CustomTextButton(
-                  onPressed: () => context.go('/login'),
-                  title: 'Login',
+                  onPressed: () => GoRouter.of(context).go('/login'),
+                  title: 'Sign In',
                 ),
-                Gap(16.h),
-                authState.isLoading
-                    ? const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(child: CircularProgressIndicator(color: Colors.black)),
-                    )
-                    : CustomFilledButton(
-                      onPressed: () => _handleCreateAccount(context),
-                      title: 'Sign Up',
-                    ),
+                Gap(16.w),
+                CustomFilledButton(
+                  onPressed: authState.isLoading ? null : () => _handleCreateAccount(context),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text('Create Account', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500)),
+                      Gap(8.w),
+                      Icon(Icons.arrow_forward, size: 16.sp),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

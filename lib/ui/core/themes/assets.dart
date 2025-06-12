@@ -29,9 +29,4 @@ class AssetsPaths {
   static const String loginSplash = '$_pngsDir/login_splash.png';
   static const String icWhiteNoise = '$_pngsDir/ic_whitenoise.png';
   static const String profileBackground = '$_pngsDir/profile_background.png';
-  static const String avatarPlaceholder = '$_pngsDir/avatar_placeholder.png';
-  static const String blueHoodie = '$_pngsDir/blue_hoodie.png';
-  static const String purpleWoman = '$_pngsDir/purple_woman.png';
-  static const String greenBird = '$_pngsDir/green_bird.png';
-  static const String hands = '$_pngsDir/hands.png';
 }

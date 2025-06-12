@@ -42,9 +42,6 @@ Future<WhitenoiseConfigData> getConfigData({
   required WhitenoiseConfig config,
 }) => RustLib.instance.api.crateApiGetConfigData(config: config);
 
-Future<void> deleteAllData({required Whitenoise whitenoise}) =>
-    RustLib.instance.api.crateApiDeleteAllData(whitenoise: whitenoise);
-
 Future<Account> createIdentity({required Whitenoise whitenoise}) =>
     RustLib.instance.api.crateApiCreateIdentity(whitenoise: whitenoise);
 
@@ -72,116 +69,8 @@ Future<Account> updateActiveAccount({
   account: account,
 );
 
-Future<SecretKey> exportAccountNsec({
-  required Whitenoise whitenoise,
-  required Account account,
-}) => RustLib.instance.api.crateApiExportAccountNsec(
-  whitenoise: whitenoise,
-  account: account,
-);
-
-Future<Metadata?> loadMetadata({
-  required Whitenoise whitenoise,
-  required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiLoadMetadata(
-  whitenoise: whitenoise,
-  pubkey: pubkey,
-);
-
-Future<void> updateMetadata({
-  required Whitenoise whitenoise,
-  required Metadata metadata,
-  required Account account,
-}) => RustLib.instance.api.crateApiUpdateMetadata(
-  whitenoise: whitenoise,
-  metadata: metadata,
-  account: account,
-);
-
-Future<List<RelayUrl>> loadRelays({
-  required Whitenoise whitenoise,
-  required PublicKey pubkey,
-  required RelayType relayType,
-}) => RustLib.instance.api.crateApiLoadRelays(
-  whitenoise: whitenoise,
-  pubkey: pubkey,
-  relayType: relayType,
-);
-
-Future<Event?> loadKeyPackage({
-  required Whitenoise whitenoise,
-  required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiLoadKeyPackage(
-  whitenoise: whitenoise,
-  pubkey: pubkey,
-);
-
-Future<OnboardingState> loadOnboardingState({
-  required Whitenoise whitenoise,
-  required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiLoadOnboardingState(
-  whitenoise: whitenoise,
-  pubkey: pubkey,
-);
-
-Future<Map<PublicKey, Metadata?>> loadContactList({
-  required Whitenoise whitenoise,
-  required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiLoadContactList(
-  whitenoise: whitenoise,
-  pubkey: pubkey,
-);
-
-Future<void> addContact({
-  required Whitenoise whitenoise,
-  required Account account,
-  required PublicKey contactPubkey,
-}) => RustLib.instance.api.crateApiAddContact(
-  whitenoise: whitenoise,
-  account: account,
-  contactPubkey: contactPubkey,
-);
-
-Future<void> removeContact({
-  required Whitenoise whitenoise,
-  required Account account,
-  required PublicKey contactPubkey,
-}) => RustLib.instance.api.crateApiRemoveContact(
-  whitenoise: whitenoise,
-  account: account,
-  contactPubkey: contactPubkey,
-);
-
-Future<void> updateContacts({
-  required Whitenoise whitenoise,
-  required Account account,
-  required List<PublicKey> contactPubkeys,
-}) => RustLib.instance.api.crateApiUpdateContacts(
-  whitenoise: whitenoise,
-  account: account,
-  contactPubkeys: contactPubkeys,
-);
-
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>>
 abstract class Account implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
-abstract class Event implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Metadata>>
-abstract class Metadata implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>
-abstract class PublicKey implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayType>>
-abstract class RelayType implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>>
-abstract class RelayUrl implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<SecretKey>>
-abstract class SecretKey implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>>
 abstract class Whitenoise implements RustOpaqueInterface {}
@@ -279,10 +168,7 @@ class WhitenoiseConfigData {
   final String dataDir;
   final String logsDir;
 
-  const WhitenoiseConfigData({
-    required this.dataDir,
-    required this.logsDir,
-  });
+  const WhitenoiseConfigData({required this.dataDir, required this.logsDir});
 
   @override
   int get hashCode => dataDir.hashCode ^ logsDir.hashCode;

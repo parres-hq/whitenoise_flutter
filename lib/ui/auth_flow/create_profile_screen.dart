@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 
 class CreateProfileScreen extends StatefulWidget {
   const CreateProfileScreen({super.key});
@@ -16,16 +14,10 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
 
-  void _onFinishPressed() {
-    final username = _usernameController.text.trim();
+  void _onContinuePressed() {
+    _usernameController.text.trim();
     _bioController.text.trim();
-    if (username.isNotEmpty) {
-      context.go('/chats');
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a name')),
-      );
-    }
+    context.go('/onboarding/key-created');
   }
 
   @override
@@ -35,134 +27,75 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 0),
+          padding: const EdgeInsets.fromLTRB(24, 32, 24, 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(
-                'Setup Your Profile',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 30.sp,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.glitch800,
+              const Center(
+                child: Text(
+                  'Set up your profile',
+                  style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
                 ),
               ),
-              SizedBox(height: 32.h),
-
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  CircleAvatar(
-                    radius: 50.r,
-                    backgroundImage: const AssetImage(AssetsPaths.avatarPlaceholder),
-                  ),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(color: AppColors.glitch100, width: 1.w)
-                    ),
-                    padding: EdgeInsets.all(4.r),
-                    child: Icon(Icons.edit, size: 18.sp, color: AppColors.glitch800),
-                  ),
-                ],
+              const SizedBox(height: 32),
+              const CircleAvatar(backgroundColor: AppColors.black, radius: 40),
+              const SizedBox(height: 12),
+              const Text(
+                'Upload photo',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
               ),
-              SizedBox(height: 12.h),
-
-              Text(
-                'Upload Avatar',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColors.glitch950,
-                ),
-              ),
-              SizedBox(height: 32.h),
-
-              Align(
+              const SizedBox(height: 32),
+              const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Choose a Name',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14.sp,
-                    color: Colors.black,
-                  ),
+                  'Choose a username',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: _usernameController,
                 decoration: InputDecoration(
-                  hintText: 'Satoshi Nakamoto',
+                  hintText: 'Enter name...',
                   filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 16.h),
-                  border: OutlineInputBorder(
+                  fillColor: AppColors.glitch100,
+                  border: const OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),
-
-              SizedBox(height: 24.h),
-
-              Align(
+              const SizedBox(height: 24),
+              const Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
-                  'Introduce yourself',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14.sp,
-                    color: Colors.black,
-                  ),
+                  'Add a short bio',
+                  style: TextStyle(fontWeight: FontWeight.bold),
                 ),
               ),
-              SizedBox(height: 8.h),
+              const SizedBox(height: 8),
               TextField(
                 controller: _bioController,
-                maxLines: 3,
+                maxLines: 1,
+                textInputAction: TextInputAction.done,
                 decoration: InputDecoration(
-                  hintText: 'A few words about you',
+                  hintText: 'A quick note about you...',
                   filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-                  border: OutlineInputBorder(
+                  fillColor: AppColors.glitch100,
+                  border: const OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700, width: 1.w),
+                    borderSide: BorderSide.none,
                   ),
                 ),
               ),
-
-              SizedBox(height: 32.h),
+              const SizedBox(height: 32),
             ],
           ),
         ),
       ),
-
       bottomNavigationBar: SafeArea(
         top: false,
-        child: CustomFilledButton(
-          onPressed: _onFinishPressed,
-          title: 'Finish',
-        ),
+        child: CustomFilledButton(onPressed: _onContinuePressed, title: 'Continue'),
       ),
     );
   }

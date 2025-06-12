@@ -1,8 +1,5 @@
 // Re-export the types from whitenoise crate for use in the bridge
-pub use whitenoise::{
-    Account, AccountSettings, Event, Metadata, OnboardingState, PublicKey, RelayType, RelayUrl,
-    SecretKey, Whitenoise, WhitenoiseConfig, WhitenoiseError,
-};
+pub use whitenoise::{Account, AccountSettings, OnboardingState, Whitenoise, WhitenoiseConfig, WhitenoiseError};
 
 pub mod api;
 
