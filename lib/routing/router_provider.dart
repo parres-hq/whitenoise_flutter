@@ -4,8 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
 import 'package:whitenoise/ui/auth_flow/info_screen.dart';
-import 'package:whitenoise/ui/auth_flow/key_created_screen.dart';
-import 'package:whitenoise/ui/auth_flow/logged_screen.dart';
 import 'package:whitenoise/ui/auth_flow/login_screen.dart';
 import 'package:whitenoise/ui/auth_flow/welcome_screen.dart';
 import 'package:whitenoise/ui/chat/chat_screen.dart';
@@ -40,14 +38,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: 'create-profile',
                 builder: (context, state) => const CreateProfileScreen(),
               ),
-              GoRoute(
-                path: 'key-created',
-                builder: (context, state) => const KeyCreatedScreen(),
-              ),
-              GoRoute(
-                path: 'logged-in',
-                builder: (context, state) => const LoggedInScreen(),
-              ),
+
             ],
           ),
         ],
