@@ -60,6 +60,18 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
+  /// Get the active account if available
+  Future<Account?> getCurrentActiveAccount() async {
+    if (state.whitenoise == null) return null;
+    
+    try {
+      return await getActiveAccount(whitenoise: state.whitenoise!);
+    } catch (e) {
+      state = state.copyWith(error: e.toString());
+    }
+    return null;
+  }
+
   void logout() {
     state = state.copyWith(isAuthenticated: false);
   }

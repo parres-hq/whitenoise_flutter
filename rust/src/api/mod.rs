@@ -1,10 +1,12 @@
 // pub mod accounts;
 
 // Re-export everything from the whitenoise crate
-pub use whitenoise::{Account, AccountSettings, OnboardingState, Whitenoise, WhitenoiseConfig, WhitenoiseError};
-
-use std::path::Path;
 use std::collections::HashMap;
+use std::path::Path;
+pub use whitenoise::{
+    Account, AccountSettings, Event, Metadata, OnboardingState, PublicKey, RelayType, RelayUrl,
+    Whitenoise, WhitenoiseConfig, WhitenoiseError,
+};
 
 use flutter_rust_bridge::frb;
 
@@ -91,7 +93,9 @@ pub fn create_whitenoise_config(data_dir: String, logs_dir: String) -> Whitenois
 
 // Wrapper for Whitenoise::initialize_whitenoise to make it available to Dart
 // Returns the original Whitenoise object so you can call methods on it
-pub async fn initialize_whitenoise(config: WhitenoiseConfig) -> Result<Whitenoise, WhitenoiseError> {
+pub async fn initialize_whitenoise(
+    config: WhitenoiseConfig,
+) -> Result<Whitenoise, WhitenoiseError> {
     Whitenoise::initialize_whitenoise(config).await
 }
 
@@ -108,12 +112,22 @@ pub fn get_config_data(config: &WhitenoiseConfig) -> WhitenoiseConfigData {
     convert_config_to_data(config)
 }
 
-// Original wrapper methods - these return opaque types for method calls
+pub async fn delete_all_data(whitenoise: &mut Whitenoise) -> Result<(), WhitenoiseError> {
+    whitenoise.delete_all_data().await
+}
+
+// ================================
+// Account methods
+// ================================
+
 pub async fn create_identity(whitenoise: &mut Whitenoise) -> Result<Account, WhitenoiseError> {
     whitenoise.create_identity().await
 }
 
-pub async fn login(whitenoise: &mut Whitenoise, nsec_or_hex_privkey: String) -> Result<Account, WhitenoiseError> {
+pub async fn login(
+    whitenoise: &mut Whitenoise,
+    nsec_or_hex_privkey: String,
+) -> Result<Account, WhitenoiseError> {
     whitenoise.login(nsec_or_hex_privkey).await
 }
 
@@ -121,6 +135,107 @@ pub async fn logout(whitenoise: &mut Whitenoise, account: &Account) -> Result<()
     whitenoise.logout(account).await
 }
 
-pub fn update_active_account(whitenoise: &mut Whitenoise, account: &Account) -> Result<Account, WhitenoiseError> {
+pub fn update_active_account(
+    whitenoise: &mut Whitenoise,
+    account: &Account,
+) -> Result<Account, WhitenoiseError> {
     whitenoise.update_active_account(account)
+}
+
+pub fn export_account_nsec(
+    whitenoise: &Whitenoise,
+    account: &Account,
+) -> Result<String, WhitenoiseError> {
+    whitenoise.export_account_nsec(account)
+}
+
+pub fn export_account_npub(
+    whitenoise: &Whitenoise,
+    account: &Account,
+) -> Result<String, WhitenoiseError> {
+    whitenoise.export_account_npub(account)
+}
+
+pub fn get_active_account(whitenoise: &Whitenoise) -> Result<Option<Account>, WhitenoiseError> {
+    if let Some(active_account) = whitenoise.active_account {
+        Ok(whitenoise.accounts.get(&active_account).cloned())
+    } else {
+        Ok(None)
+    }
+}
+
+// ================================
+// Data loading methods
+// ================================
+
+pub async fn load_metadata(
+    whitenoise: &Whitenoise,
+    pubkey: PublicKey,
+) -> Result<Option<Metadata>, WhitenoiseError> {
+    whitenoise.load_metadata(pubkey).await
+}
+
+pub async fn update_metadata(
+    whitenoise: &Whitenoise,
+    metadata: &Metadata,
+    account: &Account,
+) -> Result<(), WhitenoiseError> {
+    whitenoise.update_metadata(metadata, account).await
+}
+
+pub async fn load_relays(
+    whitenoise: &Whitenoise,
+    pubkey: PublicKey,
+    relay_type: RelayType,
+) -> Result<Vec<RelayUrl>, WhitenoiseError> {
+    whitenoise.load_relays(pubkey, relay_type).await
+}
+
+pub async fn load_key_package(
+    whitenoise: &Whitenoise,
+    pubkey: PublicKey,
+) -> Result<Option<Event>, WhitenoiseError> {
+    whitenoise.load_key_package(pubkey).await
+}
+
+pub async fn load_onboarding_state(
+    whitenoise: &Whitenoise,
+    pubkey: PublicKey,
+) -> Result<OnboardingState, WhitenoiseError> {
+    whitenoise.load_onboarding_state(pubkey).await
+}
+
+// ================================
+// Contact methods
+// ================================
+
+pub async fn load_contact_list(
+    whitenoise: &Whitenoise,
+    pubkey: PublicKey,
+) -> Result<HashMap<PublicKey, Option<Metadata>>, WhitenoiseError> {
+    whitenoise.load_contact_list(pubkey).await
+}
+
+pub async fn add_contact(
+    whitenoise: &Whitenoise,
+    account: &Account,
+    contact_pubkey: PublicKey,
+) -> Result<(), WhitenoiseError> {
+    whitenoise.add_contact(account, contact_pubkey).await
+}
+
+pub async fn remove_contact(
+    whitenoise: &Whitenoise,
+    account: &Account,
+    contact_pubkey: PublicKey,
+) -> Result<(), WhitenoiseError> {
+    whitenoise.remove_contact(account, contact_pubkey).await
+}
+
+pub async fn update_contacts(
+    whitenoise: &Whitenoise,
+    account: &Account,
+    contact_pubkeys: Vec<PublicKey>,
+) -> Result<(), WhitenoiseError> {
+    whitenoise.update_contacts(account, contact_pubkeys).await
 }
