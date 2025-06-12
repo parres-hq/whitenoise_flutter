@@ -45,7 +45,7 @@ class InfoScreen extends StatelessWidget {
                   subtitle,
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.grey.shade700,
+                    color: AppColors.glitch700,
                     height: 1.5,
                   ),
                 ),
