@@ -70,14 +70,14 @@ class AuthState with ChangeNotifier {
   /// Get the active account if available
   Future<Account?> getCurrentActiveAccount() async {
     if (_whitenoise == null) return null;
-    
+
     try {
       return await getActiveAccount(whitenoise: _whitenoise!);
     } catch (e) {
       _error = e.toString();
       notifyListeners();
     }
-    
+
     return null;
   }
 

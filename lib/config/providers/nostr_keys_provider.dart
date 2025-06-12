@@ -22,14 +22,14 @@ class NostrKeysState with ChangeNotifier {
   }) async {
     _setLoading(true);
     _error = null;
-    
+
     try {
       // Get the nsec string directly from the rust side (updated bridge method)
       final nsecString = await exportAccountNsec(
-        whitenoise: whitenoise, 
+        whitenoise: whitenoise,
         account: account,
       );
-      
+
       _nsec = nsecString;
     } catch (e) {
       _error = e.toString();
@@ -51,7 +51,7 @@ class NostrKeysState with ChangeNotifier {
         whitenoise: whitenoise,
         account: account,
       );
-      
+
       _npub = npubString;
       notifyListeners();
     } catch (e) {
@@ -68,7 +68,7 @@ class NostrKeysState with ChangeNotifier {
     _error = null;
     notifyListeners();
   }
-  
+
   /// Clear all keys from memory (both private and public)
   void clearAllKeys() {
     _nsec = null;
@@ -76,7 +76,7 @@ class NostrKeysState with ChangeNotifier {
     _error = null;
     notifyListeners();
   }
-  
+
   void _setLoading(bool loading) {
     _isLoading = loading;
     notifyListeners();
@@ -93,22 +93,22 @@ class NostrKeysState with ChangeNotifier {
 // Provider for NostrKeysState
 final nostrKeysProvider = ChangeNotifierProvider<NostrKeysState>((ref) {
   final keys = NostrKeysState();
-  
+
   // Auto-dispose and clear when the provider is disposed
   ref.onDispose(() {
     keys.clearAllKeys();
   });
-  
+
   return keys;
 });
 
 // Helper provider that automatically exports nsec when we have an account
 final currentAccountProvider = FutureProvider<Account?>((ref) async {
   final auth = ref.watch(authProvider);
-  
+
   if (auth.whitenoise != null) {
     return await auth.getCurrentActiveAccount();
   }
-  
+
   return null;
 });

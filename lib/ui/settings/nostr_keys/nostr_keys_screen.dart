@@ -13,7 +13,6 @@ import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
-import 'package:whitenoise/ui/settings/nostr_keys/remove_nostr_keys_bottom_sheet.dart';
 
 class NostrKeysScreen extends ConsumerStatefulWidget {
   const NostrKeysScreen({super.key});
@@ -75,7 +74,9 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
       Clipboard.setData(ClipboardData(text: npub));
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Public key copied to clipboard')));
+      ).showSnackBar(
+        const SnackBar(content: Text('Public key copied to clipboard')),
+      );
     }
   }
 
@@ -85,7 +86,9 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
       Clipboard.setData(ClipboardData(text: nsec));
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Private key copied to clipboard')));
+      ).showSnackBar(
+        const SnackBar(content: Text('Private key copied to clipboard')),
+      );
     }
   }
 
@@ -93,17 +96,6 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
     setState(() {
       _obscurePrivateKey = !_obscurePrivateKey;
     });
-  }
-
-  void _removeNostrKeys() {
-    RemoveNostrKeysBottomSheet.show(
-      context: context,
-      onRemove: () {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Nostr keys removed')));
-      },
-    );
   }
 
   @override
@@ -168,11 +160,17 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                           nostrKeys.npub != null
                               ? Text(
                                 _formatPublicKey(nostrKeys.npub!),
-                                style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: AppColors.glitch600,
+                                ),
                               )
                               : Text(
                                 'Loading public key...',
-                                style: TextStyle(fontSize: 14.sp, color: AppColors.glitch400),
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: AppColors.glitch400,
+                                ),
                               ),
                     ),
                   ],
@@ -191,7 +189,10 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                       colorFilter:
                           nostrKeys.npub != null
                               ? null
-                              : const ColorFilter.mode(AppColors.glitch400, BlendMode.srcIn),
+                              : const ColorFilter.mode(
+                                AppColors.glitch400,
+                                BlendMode.srcIn,
+                              ),
                     ),
                     Gap(8.w),
                     Text(
@@ -199,7 +200,10 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
-                        color: nostrKeys.npub != null ? AppColors.glitch950 : AppColors.glitch400,
+                        color:
+                            nostrKeys.npub != null
+                                ? AppColors.glitch950
+                                : AppColors.glitch400,
                       ),
                     ),
                   ],
@@ -233,13 +237,18 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                           width: 20.w,
                           child: const CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.glitch600),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppColors.glitch600,
+                            ),
                           ),
                         ),
                         Gap(12.w),
                         Text(
                           'Loading private key...',
-                          style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AppColors.glitch600,
+                          ),
                         ),
                       ],
                     ),
@@ -257,7 +266,10 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                         Expanded(
                           child: Text(
                             'Error loading private key: ${nostrKeys.error}',
-                            style: TextStyle(fontSize: 14.sp, color: Colors.red),
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.red,
+                            ),
                           ),
                         ),
                       ],
@@ -276,7 +288,10 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                       ),
                     ),
                     Gap(8.w),
-                    CustomIconButton(onTap: _copyPrivateKey, iconPath: AssetsPaths.icCopy),
+                    CustomIconButton(
+                      onTap: _copyPrivateKey,
+                      iconPath: AssetsPaths.icCopy,
+                    ),
                     Gap(8.w),
                     CustomIconButton(
                       onTap: _togglePrivateKeyVisibility,
