@@ -379,7 +379,8 @@ class _SwipeToReplyWidget extends StatefulWidget {
   State<_SwipeToReplyWidget> createState() => _SwipeToReplyWidgetState();
 }
 
-class _SwipeToReplyWidgetState extends State<_SwipeToReplyWidget> with SingleTickerProviderStateMixin {
+class _SwipeToReplyWidgetState extends State<_SwipeToReplyWidget>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   double _dragExtent = 0.0;
   final double _dragThreshold = 60.0;
@@ -412,11 +413,13 @@ class _SwipeToReplyWidgetState extends State<_SwipeToReplyWidget> with SingleTic
   void _handleDragUpdate(DragUpdateDetails details) {
     // For messages from others (left side), allow right swipe
     // For my messages (right side), allow left swipe
-    if ((!widget.message.isMe && details.delta.dx > 0) || (widget.message.isMe && details.delta.dx < 0)) {
+    if ((!widget.message.isMe && details.delta.dx > 0) ||
+        (widget.message.isMe && details.delta.dx < 0)) {
       setState(() {
         // For my messages, we need to track negative drag extent
         if (widget.message.isMe) {
-          _dragExtent -= details.delta.dx; // Negative for right-aligned messages
+          _dragExtent -=
+              details.delta.dx; // Negative for right-aligned messages
         } else {
           _dragExtent += details.delta.dx; // Positive for left-aligned messages
         }
@@ -451,7 +454,6 @@ class _SwipeToReplyWidgetState extends State<_SwipeToReplyWidget> with SingleTic
             // Adjust bottom to account for reactions
             bottom: widget.message.reactions.isNotEmpty ? 18.h : 0,
             child: Align(
-              alignment: Alignment.center,
               child: Icon(
                 CarbonIcons.reply,
                 color: AppColors.glitch950,
