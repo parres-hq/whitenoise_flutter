@@ -58,9 +58,9 @@ class MyApp extends ConsumerWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             fontFamily: 'OverusedGrotesk',
-            appBarTheme: AppBarTheme(
+            appBarTheme: const AppBarTheme(
               backgroundColor: AppColors.glitch950,
-              systemOverlayStyle: const SystemUiOverlayStyle(
+              systemOverlayStyle: SystemUiOverlayStyle(
                 statusBarColor: Colors.transparent,
                 statusBarIconBrightness: Brightness.light,
                 statusBarBrightness: Brightness.dark,

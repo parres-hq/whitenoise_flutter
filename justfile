@@ -26,6 +26,10 @@ build: clean-all regenerate deps build-rust-debug deps-flutter analyze
 # Production build workflow
 build-release: clean-all regenerate deps build-rust-release deps-flutter
 
+# Pre-commit checks: run the same checks as CI locally
+precommit: check-rust-format check-dart-format lint-rust analyze test-rust
+    @echo "✅ All pre-commit checks passed!"
+
 # ==============================================================================
 # CODE GENERATION
 # ==============================================================================
@@ -89,10 +93,15 @@ format-rust:
     @echo "💅 Formatting Rust code..."
     cd rust && cargo fmt
 
+# Check Rust code formatting (CI-style check)
+check-rust-format:
+    @echo "🔍 Checking Rust code formatting..."
+    cd rust && cargo fmt --check
+
 # Lint Rust code
 lint-rust:
     @echo "🧹 Linting Rust code..."
-    cd rust && cargo clippy -- -D warnings
+    cd rust && cargo clippy --package rust_lib_whitenoise -- -D warnings
 
 # Run Rust documentation
 docs-rust:
@@ -155,15 +164,27 @@ analyze:
     @echo "🔍 Running Flutter analyzer..."
     flutter analyze
 
+
+
 # Format Dart code
 format-dart:
     @echo "💅 Formatting Dart code..."
-    dart format lib/ test/
+    dart format lib/ integration_test/
+
+# Check Dart code formatting (CI-style check)
+check-dart-format:
+    @echo "🔍 Checking Dart code formatting..."
+    dart format --set-exit-if-changed lib/ integration_test/
 
 # Test Flutter code
 test-flutter:
     @echo "🧪 Testing Flutter code..."
-    flutter test
+    @if [ -d "test" ]; then flutter test; else echo "No test directory found. Create tests in test/ directory."; fi
+
+# Test integration tests
+test-integration:
+    @echo "🧪 Running integration tests..."
+    flutter test integration_test/
 
 # ==============================================================================
 # CLEANING
@@ -173,10 +194,7 @@ test-flutter:
 clean-bridge:
     @echo "🧹 Cleaning generated bridge files..."
     rm -f rust/src/frb_generated.rs
-    rm -f lib/src/rust/api.dart
-    rm -f lib/src/rust/frb_generated.dart
-    rm -f lib/src/rust/frb_generated.io.dart
-    rm -f lib/src/rust/frb_generated.web.dart
+    rm -rf lib/src/rust/
 
 # Clean Flutter build cache
 clean-flutter:

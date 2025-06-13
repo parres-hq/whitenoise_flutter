@@ -5,11 +5,7 @@ import '../../core/themes/colors.dart';
 class ContactInfo extends StatelessWidget {
   final String imgPath;
   final String title;
-  const ContactInfo({
-    super.key,
-    required this.title,
-    required this.imgPath
-  });
+  const ContactInfo({super.key, required this.title, required this.imgPath});
 
   @override
   Widget build(BuildContext context) {
@@ -19,8 +15,8 @@ class ContactInfo extends StatelessWidget {
           radius: 20,
           backgroundImage: AssetImage(imgPath),
         ),
-        Gap(10),
-        Text(title, style: TextStyle(color: AppColors.glitch50)),
+        const Gap(10),
+        Text(title, style: const TextStyle(color: AppColors.glitch50)),
       ],
     );
   }

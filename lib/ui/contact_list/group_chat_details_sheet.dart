@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/ui/contact_list/chat_invitation_sheet.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/ui/contact_list/chat_invitation_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
@@ -23,9 +23,6 @@ class GroupChatDetailsSheet extends StatefulWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'Group chat details',
-      heightFactor: 0.9,
-      backgroundColor: Colors.white,
-      blurBackground: true,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       barrierColor: Colors.transparent,
@@ -81,7 +78,7 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
             child: Container(
               width: 80.w,
               height: 80.w,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.glitch80,
                 shape: BoxShape.circle,
               ),
@@ -98,7 +95,7 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
                         AssetsPaths.icCamera,
                         width: 42.w,
                         height: 42.w,
-                        colorFilter: ColorFilter.mode(
+                        colorFilter: const ColorFilter.mode(
                           AppColors.glitch600,
                           BlendMode.srcIn,
                         ),

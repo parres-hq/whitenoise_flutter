@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
@@ -43,7 +43,7 @@ class InfoScreen extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 14,
                     color: AppColors.glitch700,
                     height: 1.5,
@@ -65,7 +65,6 @@ class InfoScreen extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const Text(
                 'Security Without\nCompromise',
@@ -81,7 +80,8 @@ class InfoScreen extends StatelessWidget {
               _buildFeatureItem(
                 imagePath: AssetsPaths.blueHoodie,
                 title: 'Privacy & Security',
-                subtitle: 'Keep your conversations private. Even in case of a breach, your messages remain secure.',
+                subtitle:
+                    'Keep your conversations private. Even in case of a breach, your messages remain secure.',
               ),
               _buildFeatureItem(
                 imagePath: AssetsPaths.purpleWoman,

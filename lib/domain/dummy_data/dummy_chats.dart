@@ -53,7 +53,6 @@ final List<ChatModel> dummyChats = [
     lastMessage: 'A święta gdzie planujesz ?',
     time: 'Mon',
     unreadCount: 2,
-    imagePath: '',
   ),
   ChatModel(
     id: '8',

@@ -37,7 +37,9 @@ class MessageWidget extends StatelessWidget {
         child: ConstrainedBox(
           constraints: BoxConstraints(maxWidth: 0.8.sw, minWidth: 0.3.sw),
           child: Padding(
-            padding: EdgeInsets.only(bottom: isSameSenderAsPrevious ? 1.w : 8.w),
+            padding: EdgeInsets.only(
+              bottom: isSameSenderAsPrevious ? 1.w : 8.w,
+            ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisSize: MainAxisSize.min,
@@ -54,11 +56,17 @@ class MessageWidget extends StatelessWidget {
                         height: 30.h,
                         fit: BoxFit.cover,
                         placeholder:
-                            (context, url) =>
-                                Container(width: 30.w, height: 30.h, color: AppColors.glitch950.withValues(alpha: 0.1)),
+                            (context, url) => Container(
+                              width: 30.w,
+                              height: 30.h,
+                              color: AppColors.glitch950.withValues(alpha: 0.1),
+                            ),
                         errorWidget:
-                            (context, url, error) =>
-                                Icon(CarbonIcons.user_avatar, size: 30.w, color: AppColors.glitch50),
+                            (context, url, error) => Icon(
+                              CarbonIcons.user_avatar,
+                              size: 30.w,
+                              color: AppColors.glitch50,
+                            ),
                       ),
                     ),
                   )
@@ -67,10 +75,15 @@ class MessageWidget extends StatelessWidget {
                 // Message content
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        message.isMe
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
                     children: [
                       // Sender name for group messages
-                      if (isGroupMessage && !message.isMe && !isSameSenderAsPrevious)
+                      if (isGroupMessage &&
+                          !message.isMe &&
+                          !isSameSenderAsPrevious)
                         Padding(
                           padding: EdgeInsets.only(bottom: 4.h, left: 4.w),
                           child: Text(
@@ -94,7 +107,10 @@ class MessageWidget extends StatelessWidget {
                               bottom: 0.h,
                               left: message.isMe ? 12.w : null,
                               right: message.isMe ? null : 12.w,
-                              child: StackedReactions(reactions: message.reactions, onReactionTap: onReactionTap),
+                              child: StackedReactions(
+                                reactions: message.reactions,
+                                onReactionTap: onReactionTap,
+                              ),
                             ),
                         ],
                       ),
@@ -132,10 +148,17 @@ class MessageWidget extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(borderRadius: borderRadius),
-      padding: EdgeInsets.only(bottom: message.reactions.isNotEmpty ? 18.h : 0.w),
+      padding: EdgeInsets.only(
+        bottom: message.reactions.isNotEmpty ? 18.h : 0.w,
+      ),
       child: Container(
         decoration: BoxDecoration(borderRadius: borderRadius, color: cardColor),
-        padding: EdgeInsets.only(top: 10.w, left: 10.w, right: 10.w, bottom: 10.w),
+        padding: EdgeInsets.only(
+          top: 10.w,
+          left: 10.w,
+          right: 10.w,
+          bottom: 10.w,
+        ),
         child: IntrinsicWidth(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -146,7 +169,8 @@ class MessageWidget extends StatelessWidget {
                 ChatReplyItem(
                   message: message.replyTo!,
                   isMe: message.isMe,
-                  isOriginalUser: message.replyTo!.sender.id == message.sender.id,
+                  isOriginalUser:
+                      message.replyTo!.sender.id == message.sender.id,
                 ),
 
               // Image message
@@ -163,29 +187,50 @@ class MessageWidget extends StatelessWidget {
                       placeholder:
                           (context, url) => Container(
                             height: 0.4.sh,
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                            child: Center(child: CircularProgressIndicator(color: AppColors.glitch50)),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.1),
+                            child: const Center(
+                              child: CircularProgressIndicator(
+                                color: AppColors.glitch50,
+                              ),
+                            ),
                           ),
                       errorWidget:
                           (context, url, error) => Container(
                             height: 0.4.sh,
-                            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                            child: Icon(CarbonIcons.no_image, color: AppColors.glitch50, size: 40.w),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.1),
+                            child: Icon(
+                              CarbonIcons.no_image,
+                              color: AppColors.glitch50,
+                              size: 40.w,
+                            ),
                           ),
                     ),
                   ),
                 ),
               // Audio message
-              if (message.type == MessageType.audio && message.audioPath != null)
-                ChatAudioItem(audioPath: message.audioPath!, isMe: message.isMe),
+              if (message.type == MessageType.audio &&
+                  message.audioPath != null)
+                ChatAudioItem(
+                  audioPath: message.audioPath!,
+                  isMe: message.isMe,
+                ),
 
               // Text content (for text messages or captions)
-              if ((message.type == MessageType.text || (message.content != null && message.content!.isNotEmpty)) &&
+              if ((message.type == MessageType.text ||
+                      (message.content != null &&
+                          message.content!.isNotEmpty)) &&
                   message.type != MessageType.audio)
                 Padding(
                   padding: EdgeInsets.only(bottom: 4.h),
                   child: Container(
-                    alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+                    alignment:
+                        message.isMe
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
                     child: Row(
                       // mainAxisSize: MainAxisSize.min,
                       children: [
@@ -218,7 +263,10 @@ class MessageWidget extends StatelessWidget {
                                 Icon(
                                   _getStatusIcon(message.status),
                                   size: 12.w,
-                                  color: _getStatusColor(message.status, context),
+                                  color: _getStatusColor(
+                                    message.status,
+                                    context,
+                                  ),
                                 ),
                             ],
                           ),
@@ -228,7 +276,9 @@ class MessageWidget extends StatelessWidget {
                 ),
 
               //Message status and time - now properly aligned to bottom right
-              if ((message.content != null && message.content!.isNotEmpty && message.content!.length >= 32) ||
+              if ((message.content != null &&
+                      message.content!.isNotEmpty &&
+                      message.content!.length >= 32) ||
                   message.type == MessageType.audio)
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -243,7 +293,11 @@ class MessageWidget extends StatelessWidget {
                     ),
                     Gap(4.w),
                     if (message.isMe)
-                      Icon(_getStatusIcon(message.status), size: 12.w, color: _getStatusColor(message.status, context)),
+                      Icon(
+                        _getStatusIcon(message.status),
+                        size: 12.w,
+                        color: _getStatusColor(message.status, context),
+                      ),
                   ],
                 ),
             ],

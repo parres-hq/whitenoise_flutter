@@ -12,7 +12,11 @@ class AddRelayBottomSheet extends StatefulWidget {
   final Function(String) onRelayAdded;
   final String title;
 
-  const AddRelayBottomSheet({super.key, required this.onRelayAdded, required this.title});
+  const AddRelayBottomSheet({
+    super.key,
+    required this.onRelayAdded,
+    required this.title,
+  });
 
   @override
   State<AddRelayBottomSheet> createState() => _AddRelayBottomSheetState();
@@ -25,9 +29,10 @@ class AddRelayBottomSheet extends StatefulWidget {
     await CustomBottomSheet.show(
       context: context,
       title: title,
-      blurBackground: true,
       heightFactor: 0.35,
-      builder: (context) => AddRelayBottomSheet(onRelayAdded: onRelayAdded, title: title),
+      builder:
+          (context) =>
+              AddRelayBottomSheet(onRelayAdded: onRelayAdded, title: title),
     );
   }
 }
@@ -73,7 +78,11 @@ class _AddRelayBottomSheetState extends State<AddRelayBottomSheet> {
             children: [
               Text(
                 'Paste your relay address',
-                style: TextStyle(fontSize: 14.sp, fontWeight: FontWeight.w500, color: AppColors.glitch900),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w500,
+                  color: AppColors.glitch900,
+                ),
               ),
               Gap(8.h),
               Row(
@@ -82,7 +91,6 @@ class _AddRelayBottomSheetState extends State<AddRelayBottomSheet> {
                     child: CustomTextField(
                       textController: _relayUrlController,
                       hintText: 'wss://',
-                      autofocus: true,
                       padding: EdgeInsets.zero,
                     ),
                   ),
@@ -94,7 +102,10 @@ class _AddRelayBottomSheetState extends State<AddRelayBottomSheet> {
               if (!_isUrlValid) ...[
                 Text(
                   'Invalid format: must start with wss://',
-                  style: TextStyle(fontSize: 14.sp, color: AppColors.colorDC2626),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: AppColors.colorDC2626,
+                  ),
                 ),
               ],
               Gap(16.h),
@@ -104,7 +115,6 @@ class _AddRelayBottomSheetState extends State<AddRelayBottomSheet> {
         CustomFilledButton(
           onPressed: _isUrlValid ? _addRelay : null,
           title: 'Add Relay',
-          buttonType: ButtonType.primary,
           bottomPadding: 0,
         ),
       ],

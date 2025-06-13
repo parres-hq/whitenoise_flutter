@@ -3,8 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -110,22 +110,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   Expanded(
                     child: TextField(
                       controller: _keyController,
-                      decoration: InputDecoration(
+                      decoration: const InputDecoration(
                         hintText: 'nsec...',
                         filled: true,
                         fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 16,
+                        ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(color: AppColors.glitch700, width: 1),
+                          borderSide: BorderSide(
+                            color: AppColors.glitch700,
+                          ),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(color: AppColors.glitch700, width: 1),
+                          borderSide: BorderSide(
+                            color: AppColors.glitch700,
+                          ),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(color: AppColors.glitch700, width: 1),
+                          borderSide: BorderSide(
+                            color: AppColors.glitch700,
+                          ),
                         ),
                       ),
                     ),
@@ -136,7 +145,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     width: 56,
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      border: Border.all(color: AppColors.glitch700, width: 1),
+                      border: Border.all(color: AppColors.glitch700),
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.paste, size: 20),

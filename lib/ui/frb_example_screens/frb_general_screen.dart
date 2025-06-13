@@ -24,7 +24,9 @@ class FrbGeneralScreen extends StatelessWidget {
               child: ElevatedButton(
                 onPressed: () {
                   Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const FrbAccountsScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const FrbAccountsScreen(),
+                    ),
                   );
                 },
                 child: const Text('Go to Accounts'),

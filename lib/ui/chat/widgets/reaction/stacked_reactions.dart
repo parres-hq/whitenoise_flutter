@@ -35,7 +35,10 @@ class StackedReactions extends StatelessWidget {
     final emojiEntries = emojiCounts.entries.toList();
 
     // Determine which reactions to show
-    final reactionsToShow = emojiEntries.length > maxVisible ? emojiEntries.sublist(0, maxVisible) : emojiEntries;
+    final reactionsToShow =
+        emojiEntries.length > maxVisible
+            ? emojiEntries.sublist(0, maxVisible)
+            : emojiEntries;
     final remaining = emojiEntries.length - reactionsToShow.length;
 
     return SizedBox(
@@ -134,7 +137,11 @@ class _RemainingCount extends StatelessWidget {
           borderRadius: BorderRadius.circular(20.r),
         ),
         child: Center(
-          child: Text('+$remaining', style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold))),
+          child: Text(
+            '+$remaining',
+            style: TextStyle(fontSize: 10.sp, fontWeight: FontWeight.bold),
+          ),
+        ),
       ),
     );
   }

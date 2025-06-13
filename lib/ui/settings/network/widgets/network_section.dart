@@ -31,17 +31,28 @@ class NetworkSection extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(title, style: TextStyle(fontSize: 24.sp, color: AppColors.glitch900)),
+              Text(
+                title,
+                style: TextStyle(fontSize: 24.sp, color: AppColors.glitch900),
+              ),
               Row(
                 children: [
                   GestureDetector(
                     onTap: onInfoPressed,
-                    child: SvgPicture.asset(AssetsPaths.icHelp, width: 14.w, height: 14.w),
+                    child: SvgPicture.asset(
+                      AssetsPaths.icHelp,
+                      width: 14.w,
+                      height: 14.w,
+                    ),
                   ),
                   Gap(16.w),
                   GestureDetector(
                     onTap: onAddPressed,
-                    child: SvgPicture.asset(AssetsPaths.icAdd, height: 14.w, width: 14.w),
+                    child: SvgPicture.asset(
+                      AssetsPaths.icAdd,
+                      height: 14.w,
+                      width: 14.w,
+                    ),
                   ),
                 ],
               ),
@@ -51,7 +62,10 @@ class NetworkSection extends StatelessWidget {
         if (items.isEmpty)
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
-            child: Text(emptyText, style: TextStyle(fontSize: 17.sp, color: AppColors.glitch600)),
+            child: Text(
+              emptyText,
+              style: TextStyle(fontSize: 17.sp, color: AppColors.glitch600),
+            ),
           )
         else
           ListView.builder(
@@ -80,11 +94,16 @@ class RelayItem extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(relay.url, style: TextStyle(fontSize: 18.sp, color: AppColors.glitch900)),
+          Text(
+            relay.url,
+            style: TextStyle(fontSize: 18.sp, color: AppColors.glitch900),
+          ),
           Row(
             children: [
               SvgPicture.asset(
-                relay.connected ? AssetsPaths.icConnected : AssetsPaths.icDisconnected,
+                relay.connected
+                    ? AssetsPaths.icConnected
+                    : AssetsPaths.icDisconnected,
                 width: 8.w,
                 height: 8.w,
               ),

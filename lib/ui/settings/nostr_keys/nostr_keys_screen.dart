@@ -28,7 +28,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
   @override
   void initState() {
     super.initState();
-    
+
     // Load keys when the screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadKeys();
@@ -51,7 +51,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
           whitenoise: authState.whitenoise!,
           account: account,
         );
-        
+
         // Export the nsec (only when needed)
         await nostrKeys.exportNsec(
           whitenoise: authState.whitenoise!,
@@ -73,7 +73,11 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
     final npub = ref.read(nostrKeysProvider).npub;
     if (npub != null) {
       Clipboard.setData(ClipboardData(text: npub));
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Public key copied to clipboard')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(
+        const SnackBar(content: Text('Public key copied to clipboard')),
+      );
     }
   }
 
@@ -81,7 +85,11 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
     final nsec = ref.read(nostrKeysProvider).nsec;
     if (nsec != null) {
       Clipboard.setData(ClipboardData(text: nsec));
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Private key copied to clipboard')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(
+        const SnackBar(content: Text('Private key copied to clipboard')),
+      );
     }
   }
 
@@ -102,7 +110,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
   /// Format public key for display by adding spaces for readability
   String _formatPublicKey(String key) {
     if (key.length <= 20) return key;
-    
+
     // Add space every 5 characters for readability
     String formatted = '';
     for (int i = 0; i < key.length; i += 5) {
@@ -117,22 +125,22 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
   Widget build(BuildContext context) {
     // Watch the providers for reactive updates
     final nostrKeys = ref.watch(nostrKeysProvider);
-    
+
     // Update text field when nsec is available
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _updateTextField();
     });
-    
+
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: CustomAppBar(title: 'Nostr Keys'),
+      appBar: const CustomAppBar(title: 'Nostr Keys'),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              SectionWidget(
+              const SectionWidget(
                 title: 'Public Key',
                 description:
                     'Your public key is your unique identifier in the Nostr network, enabling others to verify and recognize your messages. Share it openly!',
@@ -141,19 +149,30 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                 padding: EdgeInsets.symmetric(vertical: 24.h),
                 child: Row(
                   children: [
-                    CircleAvatar(radius: 28.r, backgroundImage: AssetImage(AssetsPaths.profileBackground)),
+                    CircleAvatar(
+                      radius: 28.r,
+                      backgroundImage: const AssetImage(
+                        AssetsPaths.profileBackground,
+                      ),
+                    ),
                     Gap(12.w),
                     Expanded(
-                      child: 
-                        nostrKeys.npub != null 
-                          ? Text(
-                              _formatPublicKey(nostrKeys.npub!), 
-                              style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600)
-                            )
-                          : Text(
-                              'Loading public key...', 
-                              style: TextStyle(fontSize: 14.sp, color: AppColors.glitch400)
-                            ),
+                      child:
+                          nostrKeys.npub != null
+                              ? Text(
+                                _formatPublicKey(nostrKeys.npub!),
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: AppColors.glitch600,
+                                ),
+                              )
+                              : Text(
+                                'Loading public key...',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: AppColors.glitch400,
+                                ),
+                              ),
                     ),
                   ],
                 ),
@@ -168,9 +187,13 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                   children: [
                     SvgPicture.asset(
                       AssetsPaths.icCopy,
-                      colorFilter: nostrKeys.npub != null 
-                        ? null 
-                        : ColorFilter.mode(AppColors.glitch400, BlendMode.srcIn),
+                      colorFilter:
+                          nostrKeys.npub != null
+                              ? null
+                              : const ColorFilter.mode(
+                                AppColors.glitch400,
+                                BlendMode.srcIn,
+                              ),
                     ),
                     Gap(8.w),
                     Text(
@@ -178,25 +201,30 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
-                        color: nostrKeys.npub != null ? AppColors.glitch950 : AppColors.glitch400,
+                        color:
+                            nostrKeys.npub != null
+                                ? AppColors.glitch950
+                                : AppColors.glitch400,
                       ),
                     ),
                   ],
                 ),
               ),
               Gap(48.h),
-              SectionWidget(
+              const SectionWidget(
                 title: 'Private Key',
-                description: 'Private key works like a secret password that grants access to your Nostr identity.',
+                description:
+                    'Private key works like a secret password that grants access to your Nostr identity.',
               ),
               Gap(16.h),
-              InfoBox(
+              const InfoBox(
                 colorTheme: AppColors.colorEA580C,
                 title: 'Keep your private key safe!',
-                description: 'Don\'t share your private key publicly, and use it only to log in to other Nostr apps.',
+                description:
+                    'Don\'t share your private key publicly, and use it only to log in to other Nostr apps.',
               ),
               Gap(16.h),
-              
+
               // Show loading state or private key input
               if (nostrKeys.isLoading)
                 SizedBox(
@@ -208,15 +236,20 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                         SizedBox(
                           height: 20.h,
                           width: 20.w,
-                          child: CircularProgressIndicator(
+                          child: const CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(AppColors.glitch600),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppColors.glitch600,
+                            ),
                           ),
                         ),
                         Gap(12.w),
                         Text(
                           'Loading private key...',
-                          style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: AppColors.glitch600,
+                          ),
                         ),
                       ],
                     ),
@@ -234,7 +267,10 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                         Expanded(
                           child: Text(
                             'Error loading private key: ${nostrKeys.error}',
-                            style: TextStyle(fontSize: 14.sp, color: Colors.red),
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: Colors.red,
+                            ),
                           ),
                         ),
                       ],
@@ -247,15 +283,21 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                     Expanded(
                       child: CustomTextField(
                         textController: _privateKeyController,
-                        obscureText: _obscurePrivateKey, 
-                        readOnly: true, 
+                        obscureText: _obscurePrivateKey,
+                        readOnly: true,
                         padding: EdgeInsets.zero,
                       ),
                     ),
                     Gap(8.w),
-                    CustomIconButton(onTap: _copyPrivateKey, iconPath: AssetsPaths.icCopy),
+                    CustomIconButton(
+                      onTap: _copyPrivateKey,
+                      iconPath: AssetsPaths.icCopy,
+                    ),
                     Gap(8.w),
-                    CustomIconButton(onTap: _togglePrivateKeyVisibility, iconPath: AssetsPaths.icView),
+                    CustomIconButton(
+                      onTap: _togglePrivateKeyVisibility,
+                      iconPath: AssetsPaths.icView,
+                    ),
                   ],
                 ),
               Gap(48.h),
@@ -271,16 +313,26 @@ class SectionWidget extends StatelessWidget {
   final String title;
   final String description;
 
-  const SectionWidget({required this.title, required this.description, super.key});
+  const SectionWidget({
+    required this.title,
+    required this.description,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(fontSize: 24.sp, color: AppColors.glitch900)),
+        Text(
+          title,
+          style: TextStyle(fontSize: 24.sp, color: AppColors.glitch900),
+        ),
         Gap(8.h),
-        Text(description, style: TextStyle(fontSize: 16.sp, color: AppColors.glitch600)),
+        Text(
+          description,
+          style: TextStyle(fontSize: 16.sp, color: AppColors.glitch600),
+        ),
       ],
     );
   }

@@ -18,7 +18,8 @@ class WalletScreen extends ConsumerStatefulWidget {
 }
 
 class _WalletScreenState extends ConsumerState<WalletScreen> {
-  final TextEditingController _connectionSecretController = TextEditingController();
+  final TextEditingController _connectionSecretController =
+      TextEditingController();
 
   @override
   void dispose() {
@@ -68,16 +69,26 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                 textController: _connectionSecretController,
                                 hintText: 'nostr+walletconnect://...',
                                 padding: EdgeInsets.zero,
-                                contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 16.w,
+                                ),
                               ),
                             ),
-                                  Gap(8.w),
+                            Gap(8.w),
                             CustomIconButton(
                               iconPath: AssetsPaths.icCopy,
                               onTap: () {
-                                Clipboard.setData(ClipboardData(text: _connectionSecretController.text));
+                                Clipboard.setData(
+                                  ClipboardData(
+                                    text: _connectionSecretController.text,
+                                  ),
+                                );
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('Connection secret copied to clipboard')),
+                                  const SnackBar(
+                                    content: Text(
+                                      'Connection secret copied to clipboard',
+                                    ),
+                                  ),
                                 );
                               },
                             ),
@@ -96,10 +107,11 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: InfoBox(
+                    child: const InfoBox(
                       colorTheme: AppColors.glitch900,
                       title: 'What wallet can I connect?',
-                      description: 'You can connect any wallet that supports Nostr Wallet Connect. See full list of such wallets here.',
+                      description:
+                          'You can connect any wallet that supports Nostr Wallet Connect. See full list of such wallets here.',
                     ),
                   ),
                 ],

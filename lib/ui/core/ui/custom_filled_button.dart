@@ -3,9 +3,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 
 /// ```title``` is the title of the button
-/// 
+///
 /// ```buttonType``` is the type of the button
-/// 
+///
 /// ```child``` is the widget to be displayed if you desire to use a custom widget as title
 class CustomFilledButton extends StatelessWidget {
   const CustomFilledButton({
@@ -45,24 +45,37 @@ class CustomFilledButton extends StatelessWidget {
                   : isSecondary
                   ? AppColors.glitch100
                   : AppColors.colorEA580C,
-          foregroundColor: isPrimary || isTertiary ? AppColors.glitch50 : AppColors.glitch900,
+          foregroundColor:
+              isPrimary || isTertiary
+                  ? AppColors.glitch50
+                  : AppColors.glitch900,
           disabledBackgroundColor:
               isPrimary
                   ? AppColors.glitch950.withValues(alpha: 0.5)
                   : isSecondary
                   ? AppColors.glitch100
                   : AppColors.colorEA580C.withValues(alpha: 0.5),
-          disabledForegroundColor: isPrimary ? AppColors.glitch50 : AppColors.glitch900,
+          disabledForegroundColor:
+              isPrimary ? AppColors.glitch50 : AppColors.glitch900,
           padding: EdgeInsets.symmetric(vertical: 16.h),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.zero),
+          shape: const RoundedRectangleBorder(),
         ),
-        child: child ?? Text(title ?? '', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500)),
+        child:
+            child ??
+            Text(
+              title ?? '',
+              style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+            ),
       ),
     );
 
     if (addPadding) {
       return Padding(
-        padding: EdgeInsets.only(left: horizontalPadding.w, right: horizontalPadding.w, bottom: bottomPadding.h),
+        padding: EdgeInsets.only(
+          left: horizontalPadding.w,
+          right: horizontalPadding.w,
+          bottom: bottomPadding.h,
+        ),
         child: button,
       );
     }

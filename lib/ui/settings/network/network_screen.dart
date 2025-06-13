@@ -16,12 +16,14 @@ class NetworkScreen extends StatefulWidget {
 
 class _NetworkScreenState extends State<NetworkScreen> {
   final List<RelayInfo> _relays = [
-    RelayInfo(url: 'wss://purplepag.es', connected: true),
-    RelayInfo(url: 'wss://nostr.wine', connected: true),
-    RelayInfo(url: 'wss://localhost:8080', connected: false),
+    const RelayInfo(url: 'wss://purplepag.es', connected: true),
+    const RelayInfo(url: 'wss://nostr.wine', connected: true),
+    const RelayInfo(url: 'wss://localhost:8080', connected: false),
   ];
 
-  final List<RelayInfo> _inboxRelays = [RelayInfo(url: 'wss://auth.nostr1.com', connected: true)];
+  final List<RelayInfo> _inboxRelays = [
+    const RelayInfo(url: 'wss://auth.nostr1.com', connected: true),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -104,7 +106,11 @@ class _NetworkScreenState extends State<NetworkScreen> {
             items: const [],
             emptyText: "You don't have any key package relays configured.",
             onAddPressed: () {
-              AddRelayBottomSheet.show(context: context, title: 'Add Key Package Relay', onRelayAdded: (url) {});
+              AddRelayBottomSheet.show(
+                context: context,
+                title: 'Add Key Package Relay',
+                onRelayAdded: (url) {},
+              );
             },
             onInfoPressed: () {
               RelayInfoDialog.show(

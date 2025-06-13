@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 
 class StartSecureChatBottomSheet extends StatelessWidget {
   final String name;
@@ -30,8 +30,6 @@ class StartSecureChatBottomSheet extends StatelessWidget {
       context: context,
       title: 'Start secure chat',
       heightFactor: 0.55,
-      backgroundColor: Colors.white,
-      blurBackground: true,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       barrierColor: Colors.transparent,
@@ -56,7 +54,7 @@ class StartSecureChatBottomSheet extends StatelessWidget {
               Gap(48.h),
               CircleAvatar(
                 radius: 40.r,
-                backgroundImage: AssetImage(AssetsPaths.icImage),
+                backgroundImage: const AssetImage(AssetsPaths.icImage),
               ),
               Gap(12.h),
               Text(

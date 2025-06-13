@@ -91,13 +91,23 @@ class MessageModel {
         orElse: () => MessageType.text,
       ),
       createdAt: DateTime.parse(json['created_at']),
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
+      updatedAt:
+          json['updated_at'] != null
+              ? DateTime.parse(json['updated_at'])
+              : null,
       sender: User.fromJson(json['sender']),
       isMe: json['is_me'] ?? false,
       audioPath: json['audio_path'],
       imageUrl: json['image_url'],
-      replyTo: json['reply_to'] != null ? MessageModel.fromJson(json['reply_to']) : null,
-      reactions: (json['reactions'] as List<dynamic>?)?.map((e) => Reaction.fromJson(e)).toList() ?? [],
+      replyTo:
+          json['reply_to'] != null
+              ? MessageModel.fromJson(json['reply_to'])
+              : null,
+      reactions:
+          (json['reactions'] as List<dynamic>?)
+              ?.map((e) => Reaction.fromJson(e))
+              .toList() ??
+          [],
       roomId: json['room_id'],
       status: MessageStatus.values.firstWhere(
         (e) => e.toString() == 'MessageStatus.${json['status']}',
@@ -130,24 +140,35 @@ class Reaction {
   final User user;
   final DateTime createdAt;
 
-  Reaction({required this.emoji, required this.user, DateTime? createdAt}) : createdAt = createdAt ?? DateTime.now();
+  Reaction({required this.emoji, required this.user, DateTime? createdAt})
+    : createdAt = createdAt ?? DateTime.now();
 
   factory Reaction.fromJson(Map<String, dynamic> json) {
     return Reaction(
       emoji: json['emoji'],
       user: User.fromJson(json['user']),
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
+      createdAt:
+          json['created_at'] != null
+              ? DateTime.parse(json['created_at'])
+              : null,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {'emoji': emoji, 'user': user.toJson(), 'created_at': createdAt.toIso8601String()};
+    return {
+      'emoji': emoji,
+      'user': user.toJson(),
+      'created_at': createdAt.toIso8601String(),
+    };
   }
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Reaction && runtimeType == other.runtimeType && emoji == other.emoji && user.id == other.user.id;
+      other is Reaction &&
+          runtimeType == other.runtimeType &&
+          emoji == other.emoji &&
+          user.id == other.user.id;
 
   @override
   int get hashCode => emoji.hashCode ^ user.id.hashCode;

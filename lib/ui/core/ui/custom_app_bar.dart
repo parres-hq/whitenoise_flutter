@@ -33,7 +33,14 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               child: const Icon(Icons.arrow_back, color: AppColors.white),
             ),
             Gap(16.w),
-            Text(title, style: TextStyle(fontSize: 20.sp, fontWeight: FontWeight.w600, color: AppColors.white)),
+            Text(
+              title,
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColors.white,
+              ),
+            ),
           ],
         ),
       ),

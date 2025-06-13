@@ -13,3 +13,6 @@ tokio = { version = "1.44", features = ["rt", "rt-multi-thread"] }
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
+
+[lints.clippy]
+not_unsafe_ptr_arg_deref = "allow"

@@ -1,5 +1,5 @@
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 
 // Dummy contacts for search results
 final List<ContactModel> dummyContacts = [

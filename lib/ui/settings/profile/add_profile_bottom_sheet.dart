@@ -8,7 +8,7 @@ import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class AddProfileBottomSheet extends StatefulWidget {
   final VoidCallback? onSignIn;
-  
+
   const AddProfileBottomSheet({
     super.key,
     this.onSignIn,
@@ -22,10 +22,10 @@ class AddProfileBottomSheet extends StatefulWidget {
       context: context,
       title: 'Add new profile',
       heightFactor: 0.42,
-      backgroundColor: Colors.white,
-      builder: (context) => AddProfileBottomSheet(
-        onSignIn: onSignIn,
-      ),
+      builder:
+          (context) => AddProfileBottomSheet(
+            onSignIn: onSignIn,
+          ),
     );
   }
 

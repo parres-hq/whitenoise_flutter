@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 
-
 /// A utility class for showing custom bottom sheets with a smooth slide-up animation.
 class CustomBottomSheet {
   static Future<T?> show<T>({
@@ -38,25 +37,25 @@ class CustomBottomSheet {
           parent: animation,
           curve: curve,
         );
-        
+
         // Create an animated blur effect
         final blurAnimation = Tween<double>(
           begin: 0.0,
           end: blurSigma,
         ).animate(curvedAnimation);
-        
+
         // Create an animated opacity for the barrier
         final barrierOpacityAnimation = Tween<double>(
           begin: 0.0,
           end: 0.5, // Semi-transparent barrier
         ).animate(curvedAnimation);
-        
+
         // Create a slide animation for the bottom sheet
         final slideAnimation = Tween<Offset>(
           begin: const Offset(0, 1),
           end: Offset.zero,
         ).animate(curvedAnimation);
-        
+
         return Material(
           color: Colors.transparent,
           child: Stack(
@@ -67,17 +66,19 @@ class CustomBottomSheet {
                 animation: barrierOpacityAnimation,
                 builder: (context, child) {
                   return GestureDetector(
-                    onTap: barrierDismissible 
-                        ? () => Navigator.of(context).pop() 
-                        : null,
+                    onTap:
+                        barrierDismissible
+                            ? () => Navigator.of(context).pop()
+                            : null,
                     child: Container(
-                      color: Colors.black.withValues(alpha:
-                          barrierOpacityAnimation.value),
+                      color: Colors.black.withValues(
+                        alpha: barrierOpacityAnimation.value,
+                      ),
                     ),
                   );
                 },
               ),
-              
+
               // Positioned bottom sheet with slide animation
               Positioned.fill(
                 child: Column(
@@ -88,25 +89,35 @@ class CustomBottomSheet {
                       builder: (context, child) {
                         return Transform.translate(
                           offset: Offset(
-                            0, 
+                            0,
                             bottomSheetHeight * (1 - curvedAnimation.value),
                           ),
                           child: child,
                         );
                       },
-                      child: blurBackground
-                          ? AnimatedBuilder(
-                              animation: blurAnimation,
-                              builder: (context, child) {
-                                return BackdropFilter(
-                                  filter: ImageFilter.blur(
-                                    sigmaX: blurAnimation.value,
-                                    sigmaY: blurAnimation.value,
-                                  ),
-                                  child: child,
-                                );
-                              },
-                              child: _buildBottomSheetContent(
+                      child:
+                          blurBackground
+                              ? AnimatedBuilder(
+                                animation: blurAnimation,
+                                builder: (context, child) {
+                                  return BackdropFilter(
+                                    filter: ImageFilter.blur(
+                                      sigmaX: blurAnimation.value,
+                                      sigmaY: blurAnimation.value,
+                                    ),
+                                    child: child,
+                                  );
+                                },
+                                child: _buildBottomSheetContent(
+                                  context: context,
+                                  builder: builder,
+                                  title: title,
+                                  showCloseButton: showCloseButton,
+                                  bottomSheetHeight: bottomSheetHeight,
+                                  backgroundColor: backgroundColor,
+                                ),
+                              )
+                              : _buildBottomSheetContent(
                                 context: context,
                                 builder: builder,
                                 title: title,
@@ -114,15 +125,6 @@ class CustomBottomSheet {
                                 bottomSheetHeight: bottomSheetHeight,
                                 backgroundColor: backgroundColor,
                               ),
-                            )
-                          : _buildBottomSheetContent(
-                              context: context,
-                              builder: builder,
-                              title: title,
-                              showCloseButton: showCloseButton,
-                              bottomSheetHeight: bottomSheetHeight,
-                              backgroundColor: backgroundColor,
-                            ),
                     ),
                   ],
                 ),
@@ -158,7 +160,11 @@ class CustomBottomSheet {
                     Flexible(
                       child: Text(
                         title,
-                        style: TextStyle(color: AppColors.glitch950, fontSize: 24.sp, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          color: AppColors.glitch950,
+                          fontSize: 24.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     )
                   else
@@ -172,7 +178,7 @@ class CustomBottomSheet {
               ),
             ),
           Expanded(child: builder(context)),
-           if(Platform.isAndroid) Gap(40.h) else Gap(16.h),
+          if (Platform.isAndroid) Gap(40.h) else Gap(16.h),
         ],
       ),
     );

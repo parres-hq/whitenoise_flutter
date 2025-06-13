@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  flutter-ci:
+    name: Flutter CI
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.32.x'
+        channel: 'stable'
+        cache: true
+
+    - name: Setup Rust
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        components: rustfmt, clippy
+
+    - name: Cache Flutter dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.pub-cache
+          ${{ runner.workspace }}/.pub-cache
+        key: ${{ runner.os }}-pub-cache-${{ hashFiles('**/pubspec.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-pub-cache-
+
+    - name: Cache Rust dependencies
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cargo/registry
+          ~/.cargo/git
+          rust/target
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
+
+    - name: Install Flutter dependencies
+      run: flutter pub get
+
+    - name: Install Rust dependencies
+      run: cd rust && cargo fetch
+
+    - name: Check Rust formatting
+      run: cd rust && cargo fmt --check
+
+    - name: Check Dart formatting
+      run: dart format --set-exit-if-changed lib/ integration_test/
+
+    - name: Rust linting (Clippy)
+      run: cd rust && cargo clippy --package rust_lib_whitenoise -- -D warnings
+
+    - name: Flutter analyze (errors only)
+      run: flutter analyze --fatal-infos || true

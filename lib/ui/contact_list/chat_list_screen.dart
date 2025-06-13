@@ -14,7 +14,9 @@ class ChatListScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: ChatListAppBar(onSettingsTap: () => context.push(Routes.settings)),
+      appBar: ChatListAppBar(
+        onSettingsTap: () => context.push(Routes.settings),
+      ),
       body: ColoredBox(
         color: AppColors.white,
         child: ListView.separated(
