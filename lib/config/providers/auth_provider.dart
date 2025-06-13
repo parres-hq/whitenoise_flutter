@@ -57,7 +57,8 @@ class AuthNotifier extends Notifier<AuthState> {
     if (state.whitenoise == null) {
       final previousError = state.error;
       state = state.copyWith(
-        error: 'Could not initialize Whitenoise: $previousError, account creation failed.',
+        error:
+            'Could not initialize Whitenoise: $previousError, account creation failed.',
       );
       return;
     }
@@ -92,7 +93,10 @@ class AuthNotifier extends Notifier<AuthState> {
       );
 
       /// 2. Mark the account as active
-      await updateActiveAccount(whitenoise: state.whitenoise!, account: account);
+      await updateActiveAccount(
+        whitenoise: state.whitenoise!,
+        account: account,
+      );
       state = state.copyWith(isAuthenticated: true);
     } catch (e, st) {
       state = state.copyWith(error: e.toString());
