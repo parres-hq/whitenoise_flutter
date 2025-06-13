@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_contacts.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
@@ -12,20 +14,46 @@ import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 
-class GeneralSettingsScreen extends StatefulWidget {
+class GeneralSettingsScreen extends ConsumerStatefulWidget {
   const GeneralSettingsScreen({super.key});
 
   @override
-  State<GeneralSettingsScreen> createState() => _GeneralSettingsScreenState();
+  ConsumerState<GeneralSettingsScreen> createState() =>
+      _GeneralSettingsScreenState();
 }
 
-class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
+class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   ContactModel _currentProfile = dummyContacts.first;
 
+  Future<void> _handleLogout() async {
+    final authNotifier = ref.read(authProvider.notifier);
+    final authState = ref.read(authProvider);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    await authNotifier.logoutCurrentAccount();
+
+    if (!mounted) return;
+    Navigator.of(context).pop();
+
+    if (authState.error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authState.error!)),
+      );
+      return;
+    }
+
+    context.go(Routes.home);
+  }
+
   void _deleteAllData() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('All data deleted')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('All data deleted')),
+    );
   }
 
   void _publishKeyPackage() {
@@ -41,9 +69,9 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
   }
 
   void _testNotifications() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Test notification sent')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Test notification sent')),
+    );
   }
 
   @override
@@ -63,9 +91,7 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
                   context: context,
                   profiles: dummyContacts,
                   onProfileSelected: (selectedProfile) {
-                    setState(() {
-                      _currentProfile = selectedProfile;
-                    });
+                    setState(() => _currentProfile = selectedProfile);
                   },
                 );
               }
@@ -99,7 +125,7 @@ class _GeneralSettingsScreenState extends State<GeneralSettingsScreen> {
           SettingsListTile(
             icon: CarbonIcons.logout,
             text: 'Sign out',
-            onTap: () {},
+            onTap: _handleLogout,
           ),
           SettingsListTile(
             icon: CarbonIcons.delete,

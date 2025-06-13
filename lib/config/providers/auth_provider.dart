@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
@@ -11,13 +12,15 @@ class AuthNotifier extends Notifier<AuthState> {
     return const AuthState();
   }
 
-  /// Initialize the Rust side and start Whitenoise with the config
+  /// Initialize Whitenoise and Rust backend
   Future<void> initialize() async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
+      // 1. Initialize Rust library
       await RustLib.init();
 
+      /// 2. Create data and logs directories
       final dir = await getApplicationDocumentsDirectory();
       final dataDir = '${dir.path}/whitenoise/data';
       final logsDir = '${dir.path}/whitenoise/logs';
@@ -25,6 +28,7 @@ class AuthNotifier extends Notifier<AuthState> {
       await Directory(dataDir).create(recursive: true);
       await Directory(logsDir).create(recursive: true);
 
+      /// 3. Create config and initialize Whitenoise instance
       final config = await createWhitenoiseConfig(
         dataDir: dataDir,
         logsDir: logsDir,
@@ -32,7 +36,12 @@ class AuthNotifier extends Notifier<AuthState> {
       final whitenoise = await initializeWhitenoise(config: config);
 
       state = state.copyWith(whitenoise: whitenoise);
-    } catch (e) {
+
+      /// 4. Auto-login if an account is already active
+      final active = await getActiveAccount(whitenoise: state.whitenoise!);
+      state = state.copyWith(isAuthenticated: active != null);
+    } catch (e, st) {
+      debugPrintStack(label: 'AuthState.initialize', stackTrace: st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);
@@ -48,8 +57,7 @@ class AuthNotifier extends Notifier<AuthState> {
     if (state.whitenoise == null) {
       final previousError = state.error;
       state = state.copyWith(
-        error:
-            "Could not initialize Whitenoise: $previousError, account creation failed.",
+        error: 'Could not initialize Whitenoise: $previousError, account creation failed.',
       );
       return;
     }
@@ -59,27 +67,74 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       await createIdentity(whitenoise: state.whitenoise!);
       state = state.copyWith(isAuthenticated: true);
-    } catch (e) {
+    } catch (e, st) {
+      debugPrintStack(label: 'AuthState.createAccount', stackTrace: st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);
     }
   }
 
-  /// Get the active account if available
-  Future<Account?> getCurrentActiveAccount() async {
-    if (state.whitenoise == null) return null;
+  /// Login with a private key (nsec or hex)
+  Future<void> loginWithKey(String nsecOrPrivkey) async {
+    if (state.whitenoise == null) {
+      await initialize();
+      return;
+    }
 
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      /// 1. Perform login using Rust API
+      final account = await login(
+        whitenoise: state.whitenoise!,
+        nsecOrHexPrivkey: nsecOrPrivkey.trim(),
+      );
+
+      /// 2. Mark the account as active
+      await updateActiveAccount(whitenoise: state.whitenoise!, account: account);
+      state = state.copyWith(isAuthenticated: true);
+    } catch (e, st) {
+      state = state.copyWith(error: e.toString());
+      debugPrintStack(label: 'AuthState.loginWithKey', stackTrace: st);
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  /// Get the currently active account (if any)
+  Future<Account?> getCurrentActiveAccount() async {
+    if (state.whitenoise == null) {
+      await initialize();
+    }
     try {
       return await getActiveAccount(whitenoise: state.whitenoise!);
     } catch (e) {
       state = state.copyWith(error: e.toString());
+      return null;
     }
-    return null;
   }
 
-  void logout() {
-    state = state.copyWith(isAuthenticated: false);
+  /// Logout the currently active account (if any)
+  Future<void> logoutCurrentAccount() async {
+    if (state.whitenoise == null) {
+      state = state.copyWith(isAuthenticated: false);
+      return;
+    }
+
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      final active = await getActiveAccount(whitenoise: state.whitenoise!);
+      if (active != null) {
+        await logout(whitenoise: state.whitenoise!, account: active);
+      }
+    } catch (e, st) {
+      state = state.copyWith(error: e.toString());
+      debugPrintStack(label: 'AuthState.logoutCurrentAccount', stackTrace: st);
+    } finally {
+      state = state.copyWith(isAuthenticated: false, isLoading: false);
+    }
   }
 }
 

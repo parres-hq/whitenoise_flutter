@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
@@ -17,8 +18,9 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController _keyController = TextEditingController();
 
-  void _onContinuePressed() {
+  Future<void> _onContinuePressed() async {
     final key = _keyController.text.trim();
+
     if (key.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter your private key')),
@@ -26,8 +28,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       return;
     }
 
-    if (mounted) {
+    final authNotifier = ref.read(authProvider.notifier);
+    final authState = ref.read(authProvider);
+    await authNotifier.loginWithKey(key);
+
+    if (!mounted) return;
+
+    if (authState.isAuthenticated && authState.error == null) {
       context.go(Routes.chats);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(authState.error ?? 'Login failed')),
+      );
     }
   }
 
@@ -57,6 +69,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authProvider);
+
     return Scaffold(
       backgroundColor: AppColors.white,
       body: SafeArea(
@@ -163,10 +177,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
       bottomNavigationBar: SafeArea(
         top: false,
-        child: CustomFilledButton(
-          onPressed: _onContinuePressed,
-          title: 'Login',
-        ),
+        child:
+            authState.isLoading
+                ? const Padding(
+                  padding: EdgeInsets.all(16),
+                  child: Center(
+                    child: CircularProgressIndicator(color: Colors.black),
+                  ),
+                )
+                : CustomFilledButton(
+                  onPressed: _onContinuePressed,
+                  title: 'Login',
+                ),
       ),
     );
   }
