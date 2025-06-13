@@ -20,6 +20,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   Future<void> _handleCreateAccount() async {
     final auth = ref.read(authProvider);
     await auth.initialize();
+
     await auth.createAccount();
 
     if (!mounted) return;
@@ -27,6 +28,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     if (auth.isAuthenticated && auth.error == null) {
       context.go('/onboarding');
     } else {
+      
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(auth.error ?? 'Unknown error')),
       );
@@ -44,6 +46,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              
               Padding(
                 padding: EdgeInsets.only(
                   top: MediaQuery.of(context).padding.top,
@@ -130,11 +133,13 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                
                 CustomTextButton(
                   onPressed: () => context.go('/login'),
                   title: 'Login',
                 ),
                 Gap(16.h),
+                
                 auth.isLoading
                     ? const Padding(
                       padding: EdgeInsets.symmetric(vertical: 16),
