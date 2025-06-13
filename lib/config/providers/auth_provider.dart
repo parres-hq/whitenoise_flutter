@@ -25,7 +25,10 @@ class AuthNotifier extends Notifier<AuthState> {
       await Directory(dataDir).create(recursive: true);
       await Directory(logsDir).create(recursive: true);
 
-      final config = await createWhitenoiseConfig(dataDir: dataDir, logsDir: logsDir);
+      final config = await createWhitenoiseConfig(
+        dataDir: dataDir,
+        logsDir: logsDir,
+      );
       final whitenoise = await initializeWhitenoise(config: config);
 
       state = state.copyWith(whitenoise: whitenoise);
@@ -44,7 +47,10 @@ class AuthNotifier extends Notifier<AuthState> {
 
     if (state.whitenoise == null) {
       final previousError = state.error;
-      state = state.copyWith(error: "Could not initialize Whitenoise: $previousError, account creation failed.");
+      state = state.copyWith(
+        error:
+            "Could not initialize Whitenoise: $previousError, account creation failed.",
+      );
       return;
     }
 
@@ -63,7 +69,7 @@ class AuthNotifier extends Notifier<AuthState> {
   /// Get the active account if available
   Future<Account?> getCurrentActiveAccount() async {
     if (state.whitenoise == null) return null;
-    
+
     try {
       return await getActiveAccount(whitenoise: state.whitenoise!);
     } catch (e) {
@@ -77,4 +83,6 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 }
 
-final authProvider = NotifierProvider<AuthNotifier, AuthState>(AuthNotifier.new);
+final authProvider = NotifierProvider<AuthNotifier, AuthState>(
+  AuthNotifier.new,
+);

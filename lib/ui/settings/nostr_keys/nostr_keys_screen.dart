@@ -40,11 +40,10 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
     final authNotifier = ref.read(authProvider.notifier);
     final authState = ref.read(authProvider);
     final nostrKeys = ref.read(nostrKeysProvider);
-    
+
     if (authState.whitenoise != null) {
       // Get the active account
       final account = await authNotifier.getCurrentActiveAccount();
-      
       if (account != null) {
         // Load the public key first (safe to display) using the new exportAccountNpub method
         await nostrKeys.loadPublicKey(

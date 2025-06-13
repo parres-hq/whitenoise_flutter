@@ -106,7 +106,7 @@ final nostrKeysProvider = ChangeNotifierProvider<NostrKeysState>((ref) {
 final currentAccountProvider = FutureProvider<Account?>((ref) async {
   final authNotifier = ref.watch(authProvider.notifier);
   final authState = ref.watch(authProvider);
-  
+
   if (authState.whitenoise != null) {
     return await authNotifier.getCurrentActiveAccount();
   }

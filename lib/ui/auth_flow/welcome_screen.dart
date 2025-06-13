@@ -22,12 +22,13 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
     await authNotifier.initialize();
     await authNotifier.createAccount();
-    
+
     final authState = ref.read(authProvider);
     if (authState.isAuthenticated && authState.error == null) {
-      if (!mounted) return;
+      if (!context.mounted) return;
       context.go('/onboarding');
     } else {
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(authState.error ?? 'Unknown error')),
       );
