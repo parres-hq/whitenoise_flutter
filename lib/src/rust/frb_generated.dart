@@ -68,7 +68,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.10.0';
 
   @override
-  int get rustContentHash => -1042482667;
+  int get rustContentHash => -728671789;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -114,6 +114,32 @@ abstract class RustLibApi extends BaseApi {
     required Account account,
   });
 
+  Future<Map<PublicKey, Metadata?>> crateApiFetchContacts({
+    required Whitenoise whitenoise,
+    required PublicKey pubkey,
+  });
+
+  Future<Event?> crateApiFetchKeyPackage({
+    required Whitenoise whitenoise,
+    required PublicKey pubkey,
+  });
+
+  Future<Metadata?> crateApiFetchMetadata({
+    required Whitenoise whitenoise,
+    required PublicKey pubkey,
+  });
+
+  Future<OnboardingState> crateApiFetchOnboardingState({
+    required Whitenoise whitenoise,
+    required PublicKey pubkey,
+  });
+
+  Future<List<RelayUrl>> crateApiFetchRelays({
+    required Whitenoise whitenoise,
+    required PublicKey pubkey,
+    required RelayType relayType,
+  });
+
   Future<AccountData> crateApiGetAccountData({required Account account});
 
   Future<Account?> crateApiGetActiveAccount({required Whitenoise whitenoise});
@@ -128,32 +154,6 @@ abstract class RustLibApi extends BaseApi {
 
   Future<Whitenoise> crateApiInitializeWhitenoise({
     required WhitenoiseConfig config,
-  });
-
-  Future<Map<PublicKey, Metadata?>> crateApiLoadContactList({
-    required Whitenoise whitenoise,
-    required PublicKey pubkey,
-  });
-
-  Future<Event?> crateApiLoadKeyPackage({
-    required Whitenoise whitenoise,
-    required PublicKey pubkey,
-  });
-
-  Future<Metadata?> crateApiLoadMetadata({
-    required Whitenoise whitenoise,
-    required PublicKey pubkey,
-  });
-
-  Future<OnboardingState> crateApiLoadOnboardingState({
-    required Whitenoise whitenoise,
-    required PublicKey pubkey,
-  });
-
-  Future<List<RelayUrl>> crateApiLoadRelays({
-    required Whitenoise whitenoise,
-    required PublicKey pubkey,
-    required RelayType relayType,
   });
 
   Future<Account> crateApiLogin({
@@ -187,6 +187,13 @@ abstract class RustLibApi extends BaseApi {
     required Whitenoise whitenoise,
     required Metadata metadata,
     required Account account,
+  });
+
+  Future<void> crateApiUpdateRelays({
+    required Whitenoise whitenoise,
+    required Account account,
+    required RelayType relayType,
+    required List<RelayUrl> relays,
   });
 
   RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_Account;
@@ -608,6 +615,221 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
+  Future<Map<PublicKey, Metadata?>> crateApiFetchContacts({
+    required Whitenoise whitenoise,
+    required PublicKey pubkey,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
+            whitenoise,
+            serializer,
+          );
+          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
+            pubkey,
+            serializer,
+          );
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 10,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData:
+              sse_decode_Map_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata_None,
+          decodeErrorData:
+              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
+        ),
+        constMeta: kCrateApiFetchContactsConstMeta,
+        argValues: [whitenoise, pubkey],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFetchContactsConstMeta => const TaskConstMeta(
+    debugName: 'fetch_contacts',
+    argNames: ['whitenoise', 'pubkey'],
+  );
+
+  @override
+  Future<Event?> crateApiFetchKeyPackage({
+    required Whitenoise whitenoise,
+    required PublicKey pubkey,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
+            whitenoise,
+            serializer,
+          );
+          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
+            pubkey,
+            serializer,
+          );
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 11,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData:
+              sse_decode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent,
+          decodeErrorData:
+              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
+        ),
+        constMeta: kCrateApiFetchKeyPackageConstMeta,
+        argValues: [whitenoise, pubkey],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFetchKeyPackageConstMeta => const TaskConstMeta(
+    debugName: 'fetch_key_package',
+    argNames: ['whitenoise', 'pubkey'],
+  );
+
+  @override
+  Future<Metadata?> crateApiFetchMetadata({
+    required Whitenoise whitenoise,
+    required PublicKey pubkey,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
+            whitenoise,
+            serializer,
+          );
+          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
+            pubkey,
+            serializer,
+          );
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 12,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData:
+              sse_decode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata,
+          decodeErrorData:
+              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
+        ),
+        constMeta: kCrateApiFetchMetadataConstMeta,
+        argValues: [whitenoise, pubkey],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFetchMetadataConstMeta => const TaskConstMeta(
+    debugName: 'fetch_metadata',
+    argNames: ['whitenoise', 'pubkey'],
+  );
+
+  @override
+  Future<OnboardingState> crateApiFetchOnboardingState({
+    required Whitenoise whitenoise,
+    required PublicKey pubkey,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
+            whitenoise,
+            serializer,
+          );
+          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
+            pubkey,
+            serializer,
+          );
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 13,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_onboarding_state,
+          decodeErrorData:
+              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
+        ),
+        constMeta: kCrateApiFetchOnboardingStateConstMeta,
+        argValues: [whitenoise, pubkey],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFetchOnboardingStateConstMeta =>
+      const TaskConstMeta(
+        debugName: 'fetch_onboarding_state',
+        argNames: ['whitenoise', 'pubkey'],
+      );
+
+  @override
+  Future<List<RelayUrl>> crateApiFetchRelays({
+    required Whitenoise whitenoise,
+    required PublicKey pubkey,
+    required RelayType relayType,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
+            whitenoise,
+            serializer,
+          );
+          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
+            pubkey,
+            serializer,
+          );
+          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType(
+            relayType,
+            serializer,
+          );
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 14,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData:
+              sse_decode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl,
+          decodeErrorData:
+              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
+        ),
+        constMeta: kCrateApiFetchRelaysConstMeta,
+        argValues: [whitenoise, pubkey, relayType],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiFetchRelaysConstMeta => const TaskConstMeta(
+    debugName: 'fetch_relays',
+    argNames: ['whitenoise', 'pubkey', 'relayType'],
+  );
+
+  @override
   Future<AccountData> crateApiGetAccountData({required Account account}) {
     return handler.executeNormal(
       NormalTask(
@@ -620,7 +842,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 10,
+            funcId: 15,
             port: port_,
           );
         },
@@ -653,7 +875,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 11,
+            funcId: 16,
             port: port_,
           );
         },
@@ -690,7 +912,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 12,
+            funcId: 17,
             port: port_,
           );
         },
@@ -725,7 +947,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 13,
+            funcId: 18,
             port: port_,
           );
         },
@@ -760,7 +982,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 14,
+            funcId: 19,
             port: port_,
           );
         },
@@ -782,221 +1004,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         debugName: 'initialize_whitenoise',
         argNames: ['config'],
       );
-
-  @override
-  Future<Map<PublicKey, Metadata?>> crateApiLoadContactList({
-    required Whitenoise whitenoise,
-    required PublicKey pubkey,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
-            whitenoise,
-            serializer,
-          );
-          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
-            pubkey,
-            serializer,
-          );
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 15,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData:
-              sse_decode_Map_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata_None,
-          decodeErrorData:
-              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
-        ),
-        constMeta: kCrateApiLoadContactListConstMeta,
-        argValues: [whitenoise, pubkey],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiLoadContactListConstMeta => const TaskConstMeta(
-    debugName: 'load_contact_list',
-    argNames: ['whitenoise', 'pubkey'],
-  );
-
-  @override
-  Future<Event?> crateApiLoadKeyPackage({
-    required Whitenoise whitenoise,
-    required PublicKey pubkey,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
-            whitenoise,
-            serializer,
-          );
-          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
-            pubkey,
-            serializer,
-          );
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 16,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData:
-              sse_decode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent,
-          decodeErrorData:
-              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
-        ),
-        constMeta: kCrateApiLoadKeyPackageConstMeta,
-        argValues: [whitenoise, pubkey],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiLoadKeyPackageConstMeta => const TaskConstMeta(
-    debugName: 'load_key_package',
-    argNames: ['whitenoise', 'pubkey'],
-  );
-
-  @override
-  Future<Metadata?> crateApiLoadMetadata({
-    required Whitenoise whitenoise,
-    required PublicKey pubkey,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
-            whitenoise,
-            serializer,
-          );
-          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
-            pubkey,
-            serializer,
-          );
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 17,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData:
-              sse_decode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata,
-          decodeErrorData:
-              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
-        ),
-        constMeta: kCrateApiLoadMetadataConstMeta,
-        argValues: [whitenoise, pubkey],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiLoadMetadataConstMeta => const TaskConstMeta(
-    debugName: 'load_metadata',
-    argNames: ['whitenoise', 'pubkey'],
-  );
-
-  @override
-  Future<OnboardingState> crateApiLoadOnboardingState({
-    required Whitenoise whitenoise,
-    required PublicKey pubkey,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
-            whitenoise,
-            serializer,
-          );
-          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
-            pubkey,
-            serializer,
-          );
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 18,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_onboarding_state,
-          decodeErrorData:
-              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
-        ),
-        constMeta: kCrateApiLoadOnboardingStateConstMeta,
-        argValues: [whitenoise, pubkey],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiLoadOnboardingStateConstMeta =>
-      const TaskConstMeta(
-        debugName: 'load_onboarding_state',
-        argNames: ['whitenoise', 'pubkey'],
-      );
-
-  @override
-  Future<List<RelayUrl>> crateApiLoadRelays({
-    required Whitenoise whitenoise,
-    required PublicKey pubkey,
-    required RelayType relayType,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
-            whitenoise,
-            serializer,
-          );
-          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
-            pubkey,
-            serializer,
-          );
-          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType(
-            relayType,
-            serializer,
-          );
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 19,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData:
-              sse_decode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl,
-          decodeErrorData:
-              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
-        ),
-        constMeta: kCrateApiLoadRelaysConstMeta,
-        argValues: [whitenoise, pubkey, relayType],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiLoadRelaysConstMeta => const TaskConstMeta(
-    debugName: 'load_relays',
-    argNames: ['whitenoise', 'pubkey', 'relayType'],
-  );
 
   @override
   Future<Account> crateApiLogin({
@@ -1257,6 +1264,57 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiUpdateMetadataConstMeta => const TaskConstMeta(
     debugName: 'update_metadata',
     argNames: ['whitenoise', 'metadata', 'account'],
+  );
+
+  @override
+  Future<void> crateApiUpdateRelays({
+    required Whitenoise whitenoise,
+    required Account account,
+    required RelayType relayType,
+    required List<RelayUrl> relays,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
+            whitenoise,
+            serializer,
+          );
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+            account,
+            serializer,
+          );
+          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType(
+            relayType,
+            serializer,
+          );
+          sse_encode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
+            relays,
+            serializer,
+          );
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 26,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData:
+              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
+        ),
+        constMeta: kCrateApiUpdateRelaysConstMeta,
+        argValues: [whitenoise, account, relayType, relays],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiUpdateRelaysConstMeta => const TaskConstMeta(
+    debugName: 'update_relays',
+    argNames: ['whitenoise', 'account', 'relayType', 'relays'],
   );
 
   RustArcIncrementStrongCountFnType

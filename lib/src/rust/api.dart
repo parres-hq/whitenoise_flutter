@@ -92,10 +92,10 @@ Future<String> exportAccountNpub({
 Future<Account?> getActiveAccount({required Whitenoise whitenoise}) =>
     RustLib.instance.api.crateApiGetActiveAccount(whitenoise: whitenoise);
 
-Future<Metadata?> loadMetadata({
+Future<Metadata?> fetchMetadata({
   required Whitenoise whitenoise,
   required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiLoadMetadata(
+}) => RustLib.instance.api.crateApiFetchMetadata(
   whitenoise: whitenoise,
   pubkey: pubkey,
 );
@@ -110,36 +110,48 @@ Future<void> updateMetadata({
   account: account,
 );
 
-Future<List<RelayUrl>> loadRelays({
+Future<List<RelayUrl>> fetchRelays({
   required Whitenoise whitenoise,
   required PublicKey pubkey,
   required RelayType relayType,
-}) => RustLib.instance.api.crateApiLoadRelays(
+}) => RustLib.instance.api.crateApiFetchRelays(
   whitenoise: whitenoise,
   pubkey: pubkey,
   relayType: relayType,
 );
 
-Future<Event?> loadKeyPackage({
+Future<void> updateRelays({
+  required Whitenoise whitenoise,
+  required Account account,
+  required RelayType relayType,
+  required List<RelayUrl> relays,
+}) => RustLib.instance.api.crateApiUpdateRelays(
+  whitenoise: whitenoise,
+  account: account,
+  relayType: relayType,
+  relays: relays,
+);
+
+Future<Event?> fetchKeyPackage({
   required Whitenoise whitenoise,
   required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiLoadKeyPackage(
+}) => RustLib.instance.api.crateApiFetchKeyPackage(
   whitenoise: whitenoise,
   pubkey: pubkey,
 );
 
-Future<OnboardingState> loadOnboardingState({
+Future<OnboardingState> fetchOnboardingState({
   required Whitenoise whitenoise,
   required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiLoadOnboardingState(
+}) => RustLib.instance.api.crateApiFetchOnboardingState(
   whitenoise: whitenoise,
   pubkey: pubkey,
 );
 
-Future<Map<PublicKey, Metadata?>> loadContactList({
+Future<Map<PublicKey, Metadata?>> fetchContacts({
   required Whitenoise whitenoise,
   required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiLoadContactList(
+}) => RustLib.instance.api.crateApiFetchContacts(
   whitenoise: whitenoise,
   pubkey: pubkey,
 );
