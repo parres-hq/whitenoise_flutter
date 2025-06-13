@@ -1,5 +1,3 @@
-// pub mod accounts;
-
 // Re-export everything from the whitenoise crate
 use std::collections::HashMap;
 use std::path::Path;
@@ -168,11 +166,11 @@ pub fn get_active_account(whitenoise: &Whitenoise) -> Result<Option<Account>, Wh
 // Data loading methods
 // ================================
 
-pub async fn load_metadata(
+pub async fn fetch_metadata(
     whitenoise: &Whitenoise,
     pubkey: PublicKey,
 ) -> Result<Option<Metadata>, WhitenoiseError> {
-    whitenoise.load_metadata(pubkey).await
+    whitenoise.fetch_metadata(pubkey).await
 }
 
 pub async fn update_metadata(
@@ -183,37 +181,46 @@ pub async fn update_metadata(
     whitenoise.update_metadata(metadata, account).await
 }
 
-pub async fn load_relays(
+pub async fn fetch_relays(
     whitenoise: &Whitenoise,
     pubkey: PublicKey,
     relay_type: RelayType,
 ) -> Result<Vec<RelayUrl>, WhitenoiseError> {
-    whitenoise.load_relays(pubkey, relay_type).await
+    whitenoise.fetch_relays(pubkey, relay_type).await
 }
 
-pub async fn load_key_package(
+pub async fn update_relays(
+    whitenoise: &Whitenoise,
+    account: &Account,
+    relay_type: RelayType,
+    relays: Vec<RelayUrl>,
+) -> Result<(), WhitenoiseError> {
+    whitenoise.update_relays(account, relay_type, relays).await
+}
+
+pub async fn fetch_key_package(
     whitenoise: &Whitenoise,
     pubkey: PublicKey,
 ) -> Result<Option<Event>, WhitenoiseError> {
-    whitenoise.load_key_package(pubkey).await
+    whitenoise.fetch_key_package(pubkey).await
 }
 
-pub async fn load_onboarding_state(
+pub async fn fetch_onboarding_state(
     whitenoise: &Whitenoise,
     pubkey: PublicKey,
 ) -> Result<OnboardingState, WhitenoiseError> {
-    whitenoise.load_onboarding_state(pubkey).await
+    whitenoise.fetch_onboarding_state(pubkey).await
 }
 
 // ================================
 // Contact methods
 // ================================
 
-pub async fn load_contact_list(
+pub async fn fetch_contacts(
     whitenoise: &Whitenoise,
     pubkey: PublicKey,
 ) -> Result<HashMap<PublicKey, Option<Metadata>>, WhitenoiseError> {
-    whitenoise.load_contact_list(pubkey).await
+    whitenoise.fetch_contacts(pubkey).await
 }
 
 pub async fn add_contact(
