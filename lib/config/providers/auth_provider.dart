@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
+
 /// Rust-generated bridge API
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
@@ -27,6 +28,7 @@ class AuthState with ChangeNotifier {
     try {
       // 1. Initialize Rust library
       await RustLib.init();
+
       /// 2. Create data and logs directories
       final dir = await getApplicationDocumentsDirectory();
       final dataDir = '${dir.path}/whitenoise/data';
@@ -34,12 +36,14 @@ class AuthState with ChangeNotifier {
 
       await Directory(dataDir).create(recursive: true);
       await Directory(logsDir).create(recursive: true);
+
       /// 3. Create config and initialize Whitenoise instance
       final config = await createWhitenoiseConfig(
         dataDir: dataDir,
         logsDir: logsDir,
       );
       _whitenoise = await initializeWhitenoise(config: config);
+
       /// 4. Auto-login if an account is already active
       final active = await getActiveAccount(whitenoise: _whitenoise!);
       _isAuthenticated = active != null;
@@ -148,5 +152,6 @@ class AuthState with ChangeNotifier {
     notifyListeners();
   }
 }
+
 /// Riverpod provider for authentication state
 final authProvider = ChangeNotifierProvider<AuthState>((ref) => AuthState());

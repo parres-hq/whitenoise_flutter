@@ -18,7 +18,8 @@ class GeneralSettingsScreen extends ConsumerStatefulWidget {
   const GeneralSettingsScreen({super.key});
 
   @override
-  ConsumerState<GeneralSettingsScreen> createState() => _GeneralSettingsScreenState();
+  ConsumerState<GeneralSettingsScreen> createState() =>
+      _GeneralSettingsScreenState();
 }
 
 class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {

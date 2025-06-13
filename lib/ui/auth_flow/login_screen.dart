@@ -180,7 +180,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             auth.isLoading
                 ? const Padding(
                   padding: EdgeInsets.all(16),
-                  child: Center(child: CircularProgressIndicator(color: Colors.black)),
+                  child: Center(
+                    child: CircularProgressIndicator(color: Colors.black),
+                  ),
                 )
                 : CustomFilledButton(
                   onPressed: _onContinuePressed,
