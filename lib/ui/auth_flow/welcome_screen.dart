@@ -144,7 +144,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                       ),
                     )
                     : CustomFilledButton(
-                      onPressed: _handleCreateAccount,
+                      onPressed: () => _handleCreateAccount(context),
                       title: 'Sign Up',
                     ),
               ],
