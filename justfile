@@ -101,7 +101,7 @@ check-rust-format:
 # Lint Rust code
 lint-rust:
     @echo "🧹 Linting Rust code..."
-    cd rust && cargo clippy -- -D warnings
+    cd rust && cargo clippy --package rust_lib_whitenoise -- -D warnings
 
 # Run Rust documentation
 docs-rust:

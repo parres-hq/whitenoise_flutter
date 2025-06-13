@@ -61,7 +61,7 @@ jobs:
       run: dart format --set-exit-if-changed lib/ integration_test/
 
     - name: Rust linting (Clippy)
-      run: cd rust && cargo clippy -- -D warnings
+      run: cd rust && cargo clippy --package rust_lib_whitenoise -- -D warnings
 
     - name: Flutter analyze (errors only)
       run: flutter analyze --fatal-infos || true
