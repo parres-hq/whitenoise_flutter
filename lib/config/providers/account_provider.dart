@@ -4,9 +4,9 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/src/rust/api.dart';
 
 class AccountState {
-  final Account? account;                      
-  final String? pubkey;                      
-  final Map<String, AccountData>? accounts;  
+  final Account? account;
+  final String? pubkey;
+  final Map<String, AccountData>? accounts;
   final bool isLoading;
   final String? error;
 
@@ -24,14 +24,13 @@ class AccountState {
     Map<String, AccountData>? accounts,
     bool? isLoading,
     String? error,
-  }) =>
-      AccountState(
-        account: account ?? this.account,
-        pubkey: pubkey ?? this.pubkey,
-        accounts: accounts ?? this.accounts,
-        isLoading: isLoading ?? this.isLoading,
-        error: error ?? this.error,
-      );
+  }) => AccountState(
+    account: account ?? this.account,
+    pubkey: pubkey ?? this.pubkey,
+    accounts: accounts ?? this.accounts,
+    isLoading: isLoading ?? this.isLoading,
+    error: error ?? this.error,
+  );
 }
 
 class AccountNotifier extends Notifier<AccountState> {
@@ -112,7 +111,7 @@ class AccountNotifier extends Notifier<AccountState> {
 
   // Update metadata for the current account
   Future<void> updateAccountMetadata(Metadata metadata) async {
-    final wn   = ref.read(authProvider).whitenoise;
+    final wn = ref.read(authProvider).whitenoise;
     final acct = state.account;
     if (wn == null || acct == null) return;
 
@@ -128,5 +127,6 @@ class AccountNotifier extends Notifier<AccountState> {
   }
 }
 
-final accountProvider =
-    NotifierProvider<AccountNotifier, AccountState>(AccountNotifier.new);
+final accountProvider = NotifierProvider<AccountNotifier, AccountState>(
+  AccountNotifier.new,
+);
