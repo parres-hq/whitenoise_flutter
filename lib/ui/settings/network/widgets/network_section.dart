@@ -13,6 +13,9 @@ class NetworkSection extends StatelessWidget {
     required this.emptyText,
     required this.onAddPressed,
     required this.onInfoPressed,
+    this.isLoading = false,
+    this.error,
+    this.onRefresh,
   });
 
   final String title;
@@ -20,6 +23,9 @@ class NetworkSection extends StatelessWidget {
   final String emptyText;
   final VoidCallback onAddPressed;
   final VoidCallback onInfoPressed;
+  final bool isLoading;
+  final String? error;
+  final VoidCallback? onRefresh;
 
   @override
   Widget build(BuildContext context) {
@@ -37,6 +43,20 @@ class NetworkSection extends StatelessWidget {
               ),
               Row(
                 children: [
+                  if (onRefresh != null) ...[
+                    GestureDetector(
+                      onTap: isLoading ? null : onRefresh,
+                      child: Icon(
+                        Icons.refresh,
+                        size: 18.w,
+                        color:
+                            isLoading
+                                ? AppColors.glitch400
+                                : AppColors.glitch600,
+                      ),
+                    ),
+                    Gap(16.w),
+                  ],
                   GestureDetector(
                     onTap: onInfoPressed,
                     child: SvgPicture.asset(
@@ -59,7 +79,50 @@ class NetworkSection extends StatelessWidget {
             ],
           ),
         ),
-        if (items.isEmpty)
+        if (error != null)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
+            child: Container(
+              padding: EdgeInsets.all(12.w),
+              decoration: BoxDecoration(
+                color: Colors.red.shade50,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(color: Colors.red.shade200),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    color: Colors.red.shade600,
+                    size: 16.w,
+                  ),
+                  Gap(8.w),
+                  Expanded(
+                    child: Text(
+                      error!,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: Colors.red.shade700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        if (isLoading)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+            child: Center(
+              child: CircularProgressIndicator(
+                strokeWidth: 2.w,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.glitch600,
+                ),
+              ),
+            ),
+          )
+        else if (items.isEmpty && error == null)
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
             child: Text(
@@ -67,7 +130,7 @@ class NetworkSection extends StatelessWidget {
               style: TextStyle(fontSize: 17.sp, color: AppColors.glitch600),
             ),
           )
-        else
+        else if (!isLoading)
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),

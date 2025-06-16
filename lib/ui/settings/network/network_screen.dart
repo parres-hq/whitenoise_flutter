@@ -1,32 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/network/relay_info_dialog.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 
-class NetworkScreen extends StatefulWidget {
+class NetworkScreen extends ConsumerWidget {
   const NetworkScreen({super.key});
 
   @override
-  State<NetworkScreen> createState() => _NetworkScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final normalRelaysState = ref.watch(normalRelaysProvider);
+    final inboxRelaysState = ref.watch(inboxRelaysProvider);
+    final keyPackageRelaysState = ref.watch(keyPackageRelaysProvider);
 
-class _NetworkScreenState extends State<NetworkScreen> {
-  final List<RelayInfo> _relays = [
-    const RelayInfo(url: 'wss://purplepag.es', connected: true),
-    const RelayInfo(url: 'wss://nostr.wine', connected: true),
-    const RelayInfo(url: 'wss://localhost:8080', connected: false),
-  ];
-
-  final List<RelayInfo> _inboxRelays = [
-    const RelayInfo(url: 'wss://auth.nostr1.com', connected: true),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(title: 'Network'),
@@ -35,16 +26,16 @@ class _NetworkScreenState extends State<NetworkScreen> {
           Gap(24.w),
           NetworkSection(
             title: 'Relays',
-            items: _relays,
+            items: normalRelaysState.relays,
+            isLoading: normalRelaysState.isLoading,
+            error: normalRelaysState.error,
             emptyText: "You don't have any relays configured.",
             onAddPressed: () {
               AddRelayBottomSheet.show(
                 context: context,
                 title: 'Add Relay',
                 onRelayAdded: (url) {
-                  setState(() {
-                    _relays.add(RelayInfo(url: url, connected: false));
-                  });
+                  ref.read(normalRelaysProvider.notifier).addRelay(url);
                 },
               );
             },
@@ -55,41 +46,22 @@ class _NetworkScreenState extends State<NetworkScreen> {
                 'Relays are servers that help the Nostr network transmit and store your encrypted messages. Connect to multiple relays for better reliability.',
               );
             },
-          ),
-          NetworkSection(
-            title: 'Relay List',
-            items: const [],
-            emptyText: "You don't have any normal relays configured.",
-            onAddPressed: () {
-              AddRelayBottomSheet.show(
-                context: context,
-                title: 'Add Relay List',
-                onRelayAdded: (url) {
-                  // Logic to add to relay list would go here
-                  // This is placeholder since we don't have a real implementation
-                },
-              );
-            },
-            onInfoPressed: () {
-              RelayInfoDialog.show(
-                context,
-                'About Relay List',
-                'Relay lists allow you to share a collection of relays with others or subscribe to someone else\'s relay list.',
-              );
+            onRefresh: () {
+              ref.read(normalRelaysProvider.notifier).loadRelays();
             },
           ),
           NetworkSection(
             title: 'Inbox Relay List',
-            items: _inboxRelays,
+            items: inboxRelaysState.relays,
+            isLoading: inboxRelaysState.isLoading,
+            error: inboxRelaysState.error,
             emptyText: "You don't have any inbox relays configured.",
             onAddPressed: () {
               AddRelayBottomSheet.show(
                 context: context,
                 title: 'Add Inbox Relay',
                 onRelayAdded: (url) {
-                  setState(() {
-                    _inboxRelays.add(RelayInfo(url: url, connected: false));
-                  });
+                  ref.read(inboxRelaysProvider.notifier).addRelay(url);
                 },
               );
             },
@@ -100,16 +72,23 @@ class _NetworkScreenState extends State<NetworkScreen> {
                 'Inbox relays are used specifically for receiving messages addressed to you. These relays should be reliable and have high uptime.',
               );
             },
+            onRefresh: () {
+              ref.read(inboxRelaysProvider.notifier).loadRelays();
+            },
           ),
           NetworkSection(
             title: 'Key Package Relay List',
-            items: const [],
+            items: keyPackageRelaysState.relays,
+            isLoading: keyPackageRelaysState.isLoading,
+            error: keyPackageRelaysState.error,
             emptyText: "You don't have any key package relays configured.",
             onAddPressed: () {
               AddRelayBottomSheet.show(
                 context: context,
                 title: 'Add Key Package Relay',
-                onRelayAdded: (url) {},
+                onRelayAdded: (url) {
+                  ref.read(keyPackageRelaysProvider.notifier).addRelay(url);
+                },
               );
             },
             onInfoPressed: () {
@@ -118,6 +97,9 @@ class _NetworkScreenState extends State<NetworkScreen> {
                 'About Key Package Relay List',
                 'Key package relays store your encryption key packages for secure communication. They help others establish encrypted channels with you.',
               );
+            },
+            onRefresh: () {
+              ref.read(keyPackageRelaysProvider.notifier).loadRelays();
             },
           ),
         ],
