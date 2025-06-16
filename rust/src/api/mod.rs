@@ -47,7 +47,34 @@ pub struct _OnboardingState {
     pub key_package_published: bool,
 }
 
-// Conversion functions
+// ================================
+// Type Helpers & Conversion Methods
+// ================================
+
+pub fn relay_type_nostr() -> RelayType {
+    RelayType::Nostr
+}
+
+pub fn relay_type_inbox() -> RelayType {
+    RelayType::Inbox
+}
+
+pub fn relay_type_key_package() -> RelayType {
+    RelayType::KeyPackage
+}
+
+pub fn public_key_from_string(public_key_string: String) -> Result<PublicKey, WhitenoiseError> {
+    PublicKey::parse(&public_key_string).map_err(WhitenoiseError::from)
+}
+
+pub fn relay_url_from_string(url: String) -> Result<RelayUrl, WhitenoiseError> {
+    RelayUrl::parse(&url).map_err(WhitenoiseError::from)
+}
+
+pub fn get_relay_url_string(relay_url: &RelayUrl) -> String {
+    relay_url.to_string()
+}
+
 pub fn convert_whitenoise_to_data(whitenoise: &Whitenoise) -> WhitenoiseData {
     let mut accounts = HashMap::new();
 

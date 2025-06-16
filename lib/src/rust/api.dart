@@ -9,6 +9,26 @@ import 'frb_generated.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
+Future<RelayType> relayTypeNostr() =>
+    RustLib.instance.api.crateApiRelayTypeNostr();
+
+Future<RelayType> relayTypeInbox() =>
+    RustLib.instance.api.crateApiRelayTypeInbox();
+
+Future<RelayType> relayTypeKeyPackage() =>
+    RustLib.instance.api.crateApiRelayTypeKeyPackage();
+
+Future<PublicKey> publicKeyFromString({required String publicKeyString}) =>
+    RustLib.instance.api.crateApiPublicKeyFromString(
+      publicKeyString: publicKeyString,
+    );
+
+Future<RelayUrl> relayUrlFromString({required String url}) =>
+    RustLib.instance.api.crateApiRelayUrlFromString(url: url);
+
+Future<String> getRelayUrlString({required RelayUrl relayUrl}) =>
+    RustLib.instance.api.crateApiGetRelayUrlString(relayUrl: relayUrl);
+
 Future<WhitenoiseData> convertWhitenoiseToData({
   required Whitenoise whitenoise,
 }) => RustLib.instance.api.crateApiConvertWhitenoiseToData(
