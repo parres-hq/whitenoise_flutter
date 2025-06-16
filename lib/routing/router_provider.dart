@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/domain/dummy_data/dummy_messages.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
 import 'package:whitenoise/ui/auth_flow/info_screen.dart';
@@ -13,9 +14,6 @@ import 'package:whitenoise/ui/settings/network/network_screen.dart';
 import 'package:whitenoise/ui/settings/nostr_keys/nostr_keys_screen.dart';
 import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/ui/settings/wallet/wallet_screen.dart';
-
-import '../domain/dummy_data/dummy_contacts.dart';
-import '../domain/dummy_data/dummy_messages.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -81,9 +79,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         routes: [
           GoRoute(
             path: 'profile',
-            builder:
-                (context, state) =>
-                    EditProfileScreen(profile: dummyContacts.first),
+            builder: (context, state) => const EditProfileScreen(),
           ),
           GoRoute(
             path: 'network',

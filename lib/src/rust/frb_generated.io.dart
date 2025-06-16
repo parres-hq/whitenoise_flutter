@@ -233,6 +233,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  MetadataData dco_decode_box_autoadd_metadata_data(dynamic raw);
+
+  @protected
   List<PublicKey>
   dco_decode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
     dynamic raw,
@@ -259,6 +262,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  MetadataData dco_decode_metadata_data(dynamic raw);
+
+  @protected
   OnboardingState dco_decode_onboarding_state(dynamic raw);
 
   @protected
@@ -281,6 +287,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   dco_decode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
     dynamic raw,
   );
+
+  @protected
+  MetadataData? dco_decode_opt_box_autoadd_metadata_data(dynamic raw);
 
   @protected
   (PublicKey, Metadata?)
@@ -495,6 +504,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  MetadataData sse_decode_box_autoadd_metadata_data(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<PublicKey>
   sse_decode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
     SseDeserializer deserializer,
@@ -521,6 +535,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  MetadataData sse_decode_metadata_data(SseDeserializer deserializer);
+
+  @protected
   OnboardingState sse_decode_onboarding_state(SseDeserializer deserializer);
 
   @protected
@@ -541,6 +558,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   Metadata?
   sse_decode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  MetadataData? sse_decode_opt_box_autoadd_metadata_data(
     SseDeserializer deserializer,
   );
 
@@ -796,6 +818,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_metadata_data(
+    MetadataData self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void
   sse_encode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
     List<PublicKey> self,
@@ -829,6 +857,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_metadata_data(MetadataData self, SseSerializer serializer);
+
+  @protected
   void sse_encode_onboarding_state(
     OnboardingState self,
     SseSerializer serializer,
@@ -855,6 +886,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void
   sse_encode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
     Metadata? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_metadata_data(
+    MetadataData? self,
     SseSerializer serializer,
   );
 

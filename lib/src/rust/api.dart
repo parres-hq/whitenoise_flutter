@@ -42,6 +42,9 @@ Future<WhitenoiseConfigData> convertConfigToData({
 Future<AccountData> convertAccountToData({required Account account}) =>
     RustLib.instance.api.crateApiConvertAccountToData(account: account);
 
+Future<MetadataData?> convertMetadataToData({Metadata? metadata}) =>
+    RustLib.instance.api.crateApiConvertMetadataToData(metadata: metadata);
+
 Future<WhitenoiseConfig> createWhitenoiseConfig({
   required String dataDir,
   required String logsDir,
@@ -287,6 +290,49 @@ class AccountSettings {
           darkTheme == other.darkTheme &&
           devMode == other.devMode &&
           lockdownMode == other.lockdownMode;
+}
+
+class MetadataData {
+  final String? name;
+  final String? displayName;
+  final String? about;
+  final String? picture;
+  final String? banner;
+  final String? nip05;
+  final String? lud16;
+
+  const MetadataData({
+    this.name,
+    this.displayName,
+    this.about,
+    this.picture,
+    this.banner,
+    this.nip05,
+    this.lud16,
+  });
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      displayName.hashCode ^
+      about.hashCode ^
+      picture.hashCode ^
+      banner.hashCode ^
+      nip05.hashCode ^
+      lud16.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MetadataData &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          displayName == other.displayName &&
+          about == other.about &&
+          picture == other.picture &&
+          banner == other.banner &&
+          nip05 == other.nip05 &&
+          lud16 == other.lud16;
 }
 
 class OnboardingState {
