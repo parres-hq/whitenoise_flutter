@@ -1,10 +1,7 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
@@ -31,11 +28,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   String _profileImagePath = '';
   String _bannerImagePath = '';
 
-  // For storing the selected image files
-  File? _profileImageFile;
-  File? _bannerImageFile;
-  final ImagePicker _imagePicker = ImagePicker();
-
   @override
   void initState() {
     super.initState();
@@ -51,38 +43,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     });
   }
 
-  Future<void> _loadProfileData() async {
-    try {
-      // Load profile data from the provider
-      await ref.read(profileProvider.notifier).fetchProfileData();
-
-      // Get the profile data
-      final profileData = ref.read(profileProvider);
-
-      // Update UI with profile data
-      profileData.whenData((profile) {
-        setState(() {
-          _usernameController.text = profile.name ?? '';
-          _displayNameController.text = profile.displayName ?? '';
-          _aboutController.text = profile.about ?? '';
-          _websiteController.text = profile.website ?? '';
-          _nostrAddressController.text = profile.nip05 ?? '';
-          _lightningAddressController.text = profile.lud16 ?? '';
-          _profileImagePath = profile.picture ?? '';
-          _bannerImagePath = profile.banner ?? '';
-        });
-        print(
-          '+: Name: ${profile.name}, Display Name: ${profile.displayName}, About: ${profile.about}, Website: ${profile.website}, NIP05: ${profile.nip05}, lud16: ${profile.lud16}, npub: ${profile.npub}',
-        );
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load profile: ${e.toString()}')),
-      );
-    } finally {}
-  }
-
   @override
   void dispose() {
     _usernameController.dispose();
@@ -94,42 +54,43 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _pickProfileImage() async {
-    final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _profileImageFile = File(image.path);
-        _profileImagePath = image.path;
+  Future<void> _loadProfileData() async {
+    try {
+      await ref.read(profileProvider.notifier).fetchProfileData();
+
+      final profileData = ref.read(profileProvider);
+
+      profileData.whenData((profile) {
+        setState(() {
+          _usernameController.text = profile.name ?? '';
+          _displayNameController.text = profile.displayName ?? '';
+          _aboutController.text = profile.about ?? '';
+          _websiteController.text = profile.website ?? '';
+          _nostrAddressController.text = profile.nip05 ?? '';
+          _lightningAddressController.text = profile.lud16 ?? '';
+          _profileImagePath = profile.picture ?? '';
+          _bannerImagePath = profile.banner ?? '';
+        });
       });
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to load profile: ${e.toString()}')),
+      );
     }
   }
 
-  Future<void> _pickBannerImage() async {
-    final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
-      setState(() {
-        _bannerImageFile = File(image.path);
-        _bannerImagePath = image.path;
-      });
-    }
-  }
-
+  //TODO
   Future<void> _saveChanges() async {
     try {
-      // TODO: For now, we'll just use the local paths or existing URLs
-      final String profileImageUrl = _profileImageFile != null ? _profileImagePath : _profileImagePath;
-      final String bannerImageUrl = _bannerImageFile != null ? _bannerImagePath : _bannerImagePath;
-
-      // Update profile data via the provider
       await ref
           .read(profileProvider.notifier)
           .updateProfileData(
             name: _usernameController.text,
             displayName: _displayNameController.text,
             about: _aboutController.text,
-            picture: profileImageUrl,
-            banner: bannerImageUrl,
-            website: _websiteController.text,
+            picture: _profileImagePath,
+            banner: _bannerImagePath,
             nip05: _nostrAddressController.text,
             lud16: _lightningAddressController.text,
           );
@@ -147,13 +108,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to update profile: ${e.toString()}')),
       );
-    } finally {}
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final profileState = ref.watch(profileProvider);
-    
+
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: const CustomAppBar(title: 'Profile'),
@@ -191,13 +152,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       color: AppColors.glitch200.withValues(alpha: 0.5),
                                     ),
                                     child:
-                                        _bannerImageFile != null
-                                            ? Image.file(
-                                              _bannerImageFile!,
-                                              fit: BoxFit.cover,
-                                              width: double.infinity,
-                                            )
-                                            : _bannerImagePath.isNotEmpty
+                                        _bannerImagePath.isNotEmpty
                                             ? Image.network(
                                               _bannerImagePath,
                                               fit: BoxFit.cover,
@@ -217,7 +172,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     right: 16.w,
                                     top: 16.h,
                                     child: EditIconWidget(
-                                      onTap: _pickBannerImage,
+                                      onTap: ref.read(profileProvider.notifier).pickBannerImage,
                                     ),
                                   ),
                                 ],
@@ -242,16 +197,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                           shape: BoxShape.circle,
                                         ),
                                         child:
-                                            _profileImageFile != null
-                                                ? ClipOval(
-                                                  child: Image.file(
-                                                    _profileImageFile!,
-                                                    fit: BoxFit.cover,
-                                                    width: 80.w,
-                                                    height: 80.w,
-                                                  ),
-                                                )
-                                                : _profileImagePath.isNotEmpty
+                                            _profileImagePath.isNotEmpty
                                                 ? ClipOval(
                                                   child: Image.network(
                                                     _profileImagePath,
@@ -288,7 +234,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       bottom: 4.h,
                                       width: 24.w,
                                       child: EditIconWidget(
-                                        onTap: _pickProfileImage,
+                                        onTap: ref.read(profileProvider.notifier).pickProfileImage,
                                       ),
                                     ),
                                   ],
