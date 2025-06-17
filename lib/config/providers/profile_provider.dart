@@ -7,7 +7,7 @@ import 'package:whitenoise/src/rust/api.dart';
 
 class ProfileNotifier extends AsyncNotifier<ProfileState> {
   final ImagePicker _imagePicker = ImagePicker();
-  
+
   @override
   Future<ProfileState> build() async {
     return const ProfileState();
@@ -26,7 +26,8 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
-      final account = await ref.read(authProvider.notifier).getCurrentActiveAccount();
+      final account =
+          await ref.read(authProvider.notifier).getCurrentActiveAccount();
 
       if (account == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
@@ -37,9 +38,12 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         whitenoise: authState.whitenoise!,
         account: account,
       );
-      
+
       final publicKey = await publicKeyFromString(publicKeyString: npub);
-      final metadata = await fetchMetadata(whitenoise: authState.whitenoise!, pubkey: publicKey);
+      final metadata = await fetchMetadata(
+        whitenoise: authState.whitenoise!,
+        pubkey: publicKey,
+      );
 
       final metadataData = await convertMetadataToData(metadata: metadata);
 
@@ -54,7 +58,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         lud16: metadataData?.lud16,
         npub: npub,
       );
-      
+
       state = AsyncValue.data(profileState);
     } catch (e, st) {
       debugPrintStack(label: 'ProfileNotifier.loadProfileData', stackTrace: st);
@@ -64,20 +68,27 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
 
   Future<String?> pickProfileImage() async {
     try {
-      final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
       if (image != null) {
         return image.path;
       }
       return null;
     } catch (e, st) {
-      debugPrintStack(label: 'ProfileNotifier.pickProfileImage', stackTrace: st);
+      debugPrintStack(
+        label: 'ProfileNotifier.pickProfileImage',
+        stackTrace: st,
+      );
       return null;
     }
   }
 
   Future<String?> pickBannerImage() async {
     try {
-      final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
+      final XFile? image = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+      );
       if (image != null) {
         return image.path;
       }
@@ -106,7 +117,8 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
-      final account = await ref.read(authProvider.notifier).getCurrentActiveAccount();
+      final account =
+          await ref.read(authProvider.notifier).getCurrentActiveAccount();
       if (account == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
@@ -117,10 +129,15 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         account: account,
       );
       final publicKey = await publicKeyFromString(publicKeyString: npub);
-      final currentMetadata = await fetchMetadata(whitenoise: authState.whitenoise!, pubkey: publicKey);
+      final currentMetadata = await fetchMetadata(
+        whitenoise: authState.whitenoise!,
+        pubkey: publicKey,
+      );
 
       if (currentMetadata != null) {
-        final currentData = await convertMetadataToData(metadata: currentMetadata);
+        final currentData = await convertMetadataToData(
+          metadata: currentMetadata,
+        );
 
         final updatedData = MetadataData(
           name: name ?? currentData?.name,
@@ -155,13 +172,21 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
           ),
         );
       } else {
-        state = AsyncValue.error('Failed to get current metadata', StackTrace.current);
+        state = AsyncValue.error(
+          'Failed to get current metadata',
+          StackTrace.current,
+        );
       }
     } catch (e, st) {
-      debugPrintStack(label: 'ProfileNotifier.updateProfileData', stackTrace: st);
+      debugPrintStack(
+        label: 'ProfileNotifier.updateProfileData',
+        stackTrace: st,
+      );
       state = AsyncValue.error(e.toString(), st);
     }
   }
 }
 
-final profileProvider = AsyncNotifierProvider<ProfileNotifier, ProfileState>(ProfileNotifier.new);
+final profileProvider = AsyncNotifierProvider<ProfileNotifier, ProfileState>(
+  ProfileNotifier.new,
+);

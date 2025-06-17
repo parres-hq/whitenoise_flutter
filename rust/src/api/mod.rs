@@ -123,16 +123,14 @@ pub fn convert_account_to_data(account: &Account) -> AccountData {
 }
 
 pub fn convert_metadata_to_data(metadata: &Option<Metadata>) -> Option<MetadataData> {
-    metadata.as_ref().map(|m| {
-        MetadataData {
-            name: m.name.clone(),
-            display_name: m.display_name.clone(),
-            about: m.about.clone(),
-            picture: m.picture.clone(),
-            banner: m.banner.clone(),
-            nip05: m.nip05.clone(),
-            lud16: m.lud16.clone(),
-        }
+    metadata.as_ref().map(|m| MetadataData {
+        name: m.name.clone(),
+        display_name: m.display_name.clone(),
+        about: m.about.clone(),
+        picture: m.picture.clone(),
+        banner: m.banner.clone(),
+        nip05: m.nip05.clone(),
+        lud16: m.lud16.clone(),
     })
 }
 

@@ -149,7 +149,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     height: 128.h,
                                     width: double.infinity,
                                     decoration: BoxDecoration(
-                                      color: AppColors.glitch200.withValues(alpha: 0.5),
+                                      color: AppColors.glitch200.withValues(
+                                        alpha: 0.5,
+                                      ),
                                     ),
                                     child:
                                         _bannerImagePath.isNotEmpty
@@ -158,8 +160,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                               fit: BoxFit.cover,
                                               width: double.infinity,
                                               errorBuilder:
-                                                  (context, error, stackTrace) => Image.asset(
-                                                    AssetsPaths.profileBackground,
+                                                  (
+                                                    context,
+                                                    error,
+                                                    stackTrace,
+                                                  ) => Image.asset(
+                                                    AssetsPaths
+                                                        .profileBackground,
                                                     fit: BoxFit.cover,
                                                   ),
                                             )
@@ -172,7 +179,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     right: 16.w,
                                     top: 16.h,
                                     child: EditIconWidget(
-                                      onTap: ref.read(profileProvider.notifier).pickBannerImage,
+                                      onTap:
+                                          ref
+                                              .read(profileProvider.notifier)
+                                              .pickBannerImage,
                                     ),
                                   ),
                                 ],
@@ -205,13 +215,21 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                     width: 80.w,
                                                     height: 80.w,
                                                     errorBuilder:
-                                                        (context, error, stackTrace) => Center(
+                                                        (
+                                                          context,
+                                                          error,
+                                                          stackTrace,
+                                                        ) => Center(
                                                           child: Text(
                                                             'S',
                                                             style: TextStyle(
                                                               fontSize: 32.sp,
-                                                              fontWeight: FontWeight.bold,
-                                                              color: AppColors.glitch600,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              color:
+                                                                  AppColors
+                                                                      .glitch600,
                                                             ),
                                                           ),
                                                         ),
@@ -222,8 +240,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                     'S',
                                                     style: TextStyle(
                                                       fontSize: 32.sp,
-                                                      fontWeight: FontWeight.bold,
-                                                      color: AppColors.glitch600,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          AppColors.glitch600,
                                                     ),
                                                   ),
                                                 ),
@@ -234,7 +254,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       bottom: 4.h,
                                       width: 24.w,
                                       child: EditIconWidget(
-                                        onTap: ref.read(profileProvider.notifier).pickProfileImage,
+                                        onTap:
+                                            ref
+                                                .read(profileProvider.notifier)
+                                                .pickProfileImage,
                                       ),
                                     ),
                                   ],
@@ -314,7 +337,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   right: 0.w,
                   child: CustomFilledButton(
                     onPressed: profileState.isLoading ? null : _saveChanges,
-                    title: profileState.isLoading ? 'Saving...' : 'Save Changes',
+                    title:
+                        profileState.isLoading ? 'Saving...' : 'Save Changes',
                   ),
                 ),
               ],
