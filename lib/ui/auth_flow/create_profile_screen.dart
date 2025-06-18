@@ -42,7 +42,6 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
       // TODO: optimising this in the next PR - unify auth and acct, single provider for current account.
       await ref.read(accountProvider.notifier).loadAccountData();
       _usernameController.text = ref.read(accountProvider).metadata?.displayName ?? '';
-      print('+: ${ref.read(accountProvider).metadata?.displayName}');
     });
   }
 
