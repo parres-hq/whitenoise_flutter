@@ -39,7 +39,7 @@ class AccountNotifier extends Notifier<AccountState> {
 
   // Load the currently active account
   Future<void> loadAccount() async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     final wn = ref.read(authProvider).whitenoise;
     if (wn == null) {
       state = state.copyWith(
@@ -86,7 +86,7 @@ class AccountNotifier extends Notifier<AccountState> {
     final wn = ref.read(authProvider).whitenoise;
     if (wn == null) return;
 
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final updated = await updateActiveAccount(
         whitenoise: wn,

@@ -26,7 +26,9 @@ class TypographyThemeExt extends ThemeExtension<TypographyThemeExt> {
 
   @override
   ThemeExtension<TypographyThemeExt> lerp(
-      covariant TypographyThemeExt? other, double t) {
+    covariant TypographyThemeExt? other,
+    double t,
+  ) {
     if (other == null) return this;
     return TypographyThemeExt(
       labelLargeB: TextStyle.lerp(labelLargeB, other.labelLargeB, t)!,
