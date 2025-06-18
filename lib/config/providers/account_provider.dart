@@ -62,13 +62,19 @@ class AccountNotifier extends Notifier<AccountState> {
       } else {
         final accountData = await getAccountData(account: acct);
 
-        final publicKey = await publicKeyFromString(publicKeyString: accountData.pubkey);
+        final publicKey = await publicKeyFromString(
+          publicKeyString: accountData.pubkey,
+        );
         final metadata = await fetchMetadata(
           whitenoise: wn,
           pubkey: publicKey,
         );
 
-        state = state.copyWith(account: acct, metadata: metadata, pubkey: accountData.pubkey);
+        state = state.copyWith(
+          account: acct,
+          metadata: metadata,
+          pubkey: accountData.pubkey,
+        );
       }
     } catch (e, st) {
       debugPrintStack(label: 'loadAccountData', stackTrace: st);
@@ -132,13 +138,18 @@ class AccountNotifier extends Notifier<AccountState> {
     try {
       final accountMetadata = state.metadata;
       if (accountMetadata != null) {
-        if (displayName.isNotEmpty && displayName != accountMetadata.displayName) {
+        if (displayName.isNotEmpty &&
+            displayName != accountMetadata.displayName) {
           accountMetadata.displayName = displayName;
           //TODO: impl bio for Metadata
           // accountMetadata.bio = bio;
 
           final updatedMetadata = accountMetadata;
-          await updateMetadata(whitenoise: wn, metadata: updatedMetadata, account: acct);
+          await updateMetadata(
+            whitenoise: wn,
+            metadata: updatedMetadata,
+            account: acct,
+          );
         }
       } else {
         throw Exception('No metadata found');
