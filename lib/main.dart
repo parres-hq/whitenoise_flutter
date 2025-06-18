@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/router_provider.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+
+import 'ui/core/themes/src/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -56,17 +57,9 @@ class MyApp extends ConsumerWidget {
         return MaterialApp.router(
           title: 'White Noise',
           debugShowCheckedModeBanner: false,
-          theme: ThemeData(
-            fontFamily: 'OverusedGrotesk',
-            appBarTheme: const AppBarTheme(
-              backgroundColor: AppColors.glitch950,
-              systemOverlayStyle: SystemUiOverlayStyle(
-                statusBarColor: Colors.transparent,
-                statusBarIconBrightness: Brightness.light,
-                statusBarBrightness: Brightness.dark,
-              ),
-            ),
-          ),
+          theme: lightTheme,
+          darkTheme: darkTheme,
+
           routerConfig: router,
         );
       },
