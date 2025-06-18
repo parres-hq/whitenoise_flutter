@@ -30,15 +30,19 @@ pub struct AccountData {
     pub last_synced: u64,
 }
 
+#[frb(mirror(Metadata))]
 #[derive(Debug, Clone)]
-pub struct MetadataData {
+pub struct _Metadata {
     pub name: Option<String>,
     pub display_name: Option<String>,
     pub about: Option<String>,
     pub picture: Option<String>,
     pub banner: Option<String>,
+    pub website: Option<String>,
     pub nip05: Option<String>,
+    pub lud06: Option<String>,
     pub lud16: Option<String>,
+    pub custom: HashMap<String, String>,
 }
 
 // Mirror structs for simple types that can be used directly
@@ -120,18 +124,6 @@ pub fn convert_account_to_data(account: &Account) -> AccountData {
         onboarding: account.onboarding.clone(),
         last_synced: account.last_synced.as_u64(),
     }
-}
-
-pub fn convert_metadata_to_data(metadata: &Option<Metadata>) -> Option<MetadataData> {
-    metadata.as_ref().map(|m| MetadataData {
-        name: m.name.clone(),
-        display_name: m.display_name.clone(),
-        about: m.about.clone(),
-        picture: m.picture.clone(),
-        banner: m.banner.clone(),
-        nip05: m.nip05.clone(),
-        lud16: m.lud16.clone(),
-    })
 }
 
 // Helper function to create a WhitenoiseConfig from String paths (since Dart can't pass &Path directly)

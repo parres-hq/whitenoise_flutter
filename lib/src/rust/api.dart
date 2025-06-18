@@ -7,7 +7,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'frb_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 Future<RelayType> relayTypeNostr() =>
     RustLib.instance.api.crateApiRelayTypeNostr();
@@ -41,9 +41,6 @@ Future<WhitenoiseConfigData> convertConfigToData({
 
 Future<AccountData> convertAccountToData({required Account account}) =>
     RustLib.instance.api.crateApiConvertAccountToData(account: account);
-
-Future<MetadataData?> convertMetadataToData({Metadata? metadata}) =>
-    RustLib.instance.api.crateApiConvertMetadataToData(metadata: metadata);
 
 Future<WhitenoiseConfig> createWhitenoiseConfig({
   required String dataDir,
@@ -215,9 +212,6 @@ abstract class Account implements RustOpaqueInterface {}
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
 abstract class Event implements RustOpaqueInterface {}
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Metadata>>
-abstract class Metadata implements RustOpaqueInterface {}
-
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>
 abstract class PublicKey implements RustOpaqueInterface {}
 
@@ -292,23 +286,29 @@ class AccountSettings {
           lockdownMode == other.lockdownMode;
 }
 
-class MetadataData {
+class Metadata {
   final String? name;
   final String? displayName;
   final String? about;
   final String? picture;
   final String? banner;
+  final String? website;
   final String? nip05;
+  final String? lud06;
   final String? lud16;
+  final Map<String, String> custom;
 
-  const MetadataData({
+  const Metadata({
     this.name,
     this.displayName,
     this.about,
     this.picture,
     this.banner,
+    this.website,
     this.nip05,
+    this.lud06,
     this.lud16,
+    required this.custom,
   });
 
   @override
@@ -318,21 +318,27 @@ class MetadataData {
       about.hashCode ^
       picture.hashCode ^
       banner.hashCode ^
+      website.hashCode ^
       nip05.hashCode ^
-      lud16.hashCode;
+      lud06.hashCode ^
+      lud16.hashCode ^
+      custom.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is MetadataData &&
+      other is Metadata &&
           runtimeType == other.runtimeType &&
           name == other.name &&
           displayName == other.displayName &&
           about == other.about &&
           picture == other.picture &&
           banner == other.banner &&
+          website == other.website &&
           nip05 == other.nip05 &&
-          lud16 == other.lud16;
+          lud06 == other.lud06 &&
+          lud16 == other.lud16 &&
+          custom == other.custom;
 }
 
 class OnboardingState {

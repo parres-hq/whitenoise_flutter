@@ -26,8 +26,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
-      final account =
-          await ref.read(authProvider.notifier).getCurrentActiveAccount();
+      final account = await ref.read(authProvider.notifier).getCurrentActiveAccount();
 
       if (account == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
@@ -45,17 +44,15 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         pubkey: publicKey,
       );
 
-      final metadataData = await convertMetadataToData(metadata: metadata);
-
       final profileState = ProfileState(
-        name: metadataData?.name,
-        displayName: metadataData?.displayName,
-        about: metadataData?.about,
-        picture: metadataData?.picture,
-        banner: metadataData?.banner,
-        website: null, // TODO: update metadataData to include website
-        nip05: metadataData?.nip05,
-        lud16: metadataData?.lud16,
+        name: metadata?.name,
+        displayName: metadata?.displayName,
+        about: metadata?.about,
+        picture: metadata?.picture,
+        banner: metadata?.banner,
+        website: metadata?.website,
+        nip05: metadata?.nip05,
+        lud16: metadata?.lud16,
         npub: npub,
       );
 
@@ -117,8 +114,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
-      final account =
-          await ref.read(authProvider.notifier).getCurrentActiveAccount();
+      final account = await ref.read(authProvider.notifier).getCurrentActiveAccount();
       if (account == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
@@ -128,55 +124,39 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         whitenoise: authState.whitenoise!,
         account: account,
       );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
-      final currentMetadata = await fetchMetadata(
-        whitenoise: authState.whitenoise!,
-        pubkey: publicKey,
+
+      final updatedData = Metadata(
+        name: name ?? state.value?.name,
+        displayName: displayName ?? state.value?.displayName,
+        about: about ?? state.value?.about,
+        picture: picture ?? state.value?.picture,
+        banner: banner ?? state.value?.banner,
+        nip05: nip05 ?? state.value?.nip05,
+        lud16: lud16 ?? state.value?.lud16,
+        custom: {},
       );
 
-      if (currentMetadata != null) {
-        final currentData = await convertMetadataToData(
-          metadata: currentMetadata,
-        );
+      await updateMetadata(
+        whitenoise: authState.whitenoise!,
+        metadata: updatedData,
+        account: account,
+      );
 
-        final updatedData = MetadataData(
-          name: name ?? currentData?.name,
-          displayName: displayName ?? currentData?.displayName,
-          about: about ?? currentData?.about,
-          picture: picture ?? currentData?.picture,
-          banner: banner ?? currentData?.banner,
-          nip05: nip05 ?? currentData?.nip05,
-          lud16: lud16 ?? currentData?.lud16,
-        );
-        //TODO: impl helper for this
-        await updateMetadata(
-          whitenoise: authState.whitenoise!,
-          metadata: currentMetadata,
-          account: account,
-        );
+      await fetchProfileData();
 
-        await fetchProfileData();
-
-        state = AsyncValue.data(
-          ProfileState(
-            name: updatedData.name,
-            displayName: updatedData.displayName,
-            about: updatedData.about,
-            picture: updatedData.picture,
-            banner: updatedData.banner,
-            //TODO: website field is not in MetadataData, so we keep the current value
-            website: state.value?.website,
-            nip05: updatedData.nip05,
-            lud16: updatedData.lud16,
-            npub: npub,
-          ),
-        );
-      } else {
-        state = AsyncValue.error(
-          'Failed to get current metadata',
-          StackTrace.current,
-        );
-      }
+      state = AsyncValue.data(
+        ProfileState(
+          name: updatedData.name,
+          displayName: updatedData.displayName,
+          about: updatedData.about,
+          picture: updatedData.picture,
+          banner: updatedData.banner,
+          website: state.value?.website,
+          nip05: updatedData.nip05,
+          lud16: updatedData.lud16,
+          npub: npub,
+        ),
+      );
     } catch (e, st) {
       debugPrintStack(
         label: 'ProfileNotifier.updateProfileData',
