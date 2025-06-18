@@ -141,28 +141,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       metadata?.nip05 = nip05;
       metadata?.lud16 = lud16;
 
-      final updatedData = metadata;
-
-      await updateMetadata(
-        whitenoise: authState.whitenoise!,
-        metadata: updatedData!,
-        account: account,
-      );
-
-      await fetchProfileData();
-
-      state = AsyncValue.data(
-        ProfileState(
-          name: updatedData.name,
-          displayName: updatedData.displayName,
-          about: updatedData.about,
-          picture: updatedData.picture,
-          banner: updatedData.banner,
-          nip05: updatedData.nip05,
-          lud16: updatedData.lud16,
-          npub: npub,
-        ),
-      );
+      final updatedData = metadata!;
 
       await updateMetadata(
         whitenoise: authState.whitenoise!,
