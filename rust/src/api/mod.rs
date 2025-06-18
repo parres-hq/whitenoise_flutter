@@ -1,4 +1,6 @@
 // Re-export everything from the whitenoise crate
+use serde_json::Value;
+use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::path::Path;
 pub use whitenoise::{
@@ -42,7 +44,7 @@ pub struct _Metadata {
     pub nip05: Option<String>,
     pub lud06: Option<String>,
     pub lud16: Option<String>,
-    pub custom: HashMap<String, String>,
+    pub custom: BTreeMap<String, Value>,
 }
 
 // Mirror structs for simple types that can be used directly

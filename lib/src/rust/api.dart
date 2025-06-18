@@ -209,8 +209,54 @@ Future<void> updateContacts({
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>>
 abstract class Account implements RustOpaqueInterface {}
 
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<BTreeMap < String , Value >>>
+abstract class BTreeMapStringValue implements RustOpaqueInterface {}
+
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
 abstract class Event implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Metadata>>
+abstract class Metadata implements RustOpaqueInterface {
+  String? get about;
+
+  String? get banner;
+
+  BTreeMapStringValue get custom;
+
+  String? get displayName;
+
+  String? get lud06;
+
+  String? get lud16;
+
+  String? get name;
+
+  String? get nip05;
+
+  String? get picture;
+
+  String? get website;
+
+  set about(String? about);
+
+  set banner(String? banner);
+
+  set custom(BTreeMapStringValue custom);
+
+  set displayName(String? displayName);
+
+  set lud06(String? lud06);
+
+  set lud16(String? lud16);
+
+  set name(String? name);
+
+  set nip05(String? nip05);
+
+  set picture(String? picture);
+
+  set website(String? website);
+}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>
 abstract class PublicKey implements RustOpaqueInterface {}
@@ -284,61 +330,6 @@ class AccountSettings {
           darkTheme == other.darkTheme &&
           devMode == other.devMode &&
           lockdownMode == other.lockdownMode;
-}
-
-class Metadata {
-  final String? name;
-  final String? displayName;
-  final String? about;
-  final String? picture;
-  final String? banner;
-  final String? website;
-  final String? nip05;
-  final String? lud06;
-  final String? lud16;
-  final Map<String, String> custom;
-
-  const Metadata({
-    this.name,
-    this.displayName,
-    this.about,
-    this.picture,
-    this.banner,
-    this.website,
-    this.nip05,
-    this.lud06,
-    this.lud16,
-    required this.custom,
-  });
-
-  @override
-  int get hashCode =>
-      name.hashCode ^
-      displayName.hashCode ^
-      about.hashCode ^
-      picture.hashCode ^
-      banner.hashCode ^
-      website.hashCode ^
-      nip05.hashCode ^
-      lud06.hashCode ^
-      lud16.hashCode ^
-      custom.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Metadata &&
-          runtimeType == other.runtimeType &&
-          name == other.name &&
-          displayName == other.displayName &&
-          about == other.about &&
-          picture == other.picture &&
-          banner == other.banner &&
-          website == other.website &&
-          nip05 == other.nip05 &&
-          lud06 == other.lud06 &&
-          lud16 == other.lud16 &&
-          custom == other.custom;
 }
 
 class OnboardingState {
