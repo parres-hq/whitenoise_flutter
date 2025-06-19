@@ -40,7 +40,6 @@ class ContactsNotifier extends Notifier<ContactsState> {
     return wn;
   }
 
-
   // Fetch contacts for a given public key (hex string)
   Future<void> loadContacts(String ownerHex) async {
     state = state.copyWith(isLoading: true, error: null);
@@ -59,7 +58,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
       // Use the raw map directly without converting keys to strings
       debugPrint('Loaded ${raw.length} contacts');
       for (final entry in raw.entries) {
-        debugPrint('Contact metadata: ${entry.value?.name ?? entry.value?.displayName ?? 'No name'}');
+        debugPrint(
+          'Contact metadata: ${entry.value?.name ?? entry.value?.displayName ?? 'No name'}',
+        );
       }
 
       state = state.copyWith(contacts: raw);
@@ -89,7 +90,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
       }
 
       // Handle both hex and npub formats
-      final contactPk = await publicKeyFromString(publicKeyString: contactKey.trim());
+      final contactPk = await publicKeyFromString(
+        publicKeyString: contactKey.trim(),
+      );
       await addContact(whitenoise: wn, account: acct, contactPubkey: contactPk);
 
       // Refresh the complete list to get updated contacts with metadata
@@ -121,7 +124,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
       }
 
       // Handle both hex and npub formats
-      final contactPk = await publicKeyFromString(publicKeyString: contactKey.trim());
+      final contactPk = await publicKeyFromString(
+        publicKeyString: contactKey.trim(),
+      );
       await removeContact(
         whitenoise: wn,
         account: acct,

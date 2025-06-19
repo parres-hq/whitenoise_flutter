@@ -36,7 +36,8 @@ class NewChatBottomSheet extends ConsumerStatefulWidget {
 class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  final Map<String, PublicKey> _publicKeyMap = {}; // Map ContactModel.publicKey to real PublicKey
+  final Map<String, PublicKey> _publicKeyMap =
+      {}; // Map ContactModel.publicKey to real PublicKey
 
   @override
   void initState() {
@@ -103,14 +104,21 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
     // Filter contacts based on search query
     if (_searchQuery.isEmpty) return contactModels;
-    
+
     return contactModels
         .where(
           (contact) =>
               contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              contact.displayNameOrName.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              (contact.nip05?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false) ||
-              contact.publicKey.toLowerCase().contains(_searchQuery.toLowerCase()),
+              contact.displayNameOrName.toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              ) ||
+              (contact.nip05?.toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ) ??
+                  false) ||
+              contact.publicKey.toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              ),
         )
         .toList();
   }
@@ -118,7 +126,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   bool _isValidPublicKey(String input) {
     final trimmed = input.trim();
     // Check if it's a hex key (64 characters) or npub format
-    return (trimmed.length == 64 && RegExp(r'^[0-9a-fA-F]+$').hasMatch(trimmed)) ||
+    return (trimmed.length == 64 &&
+            RegExp(r'^[0-9a-fA-F]+$').hasMatch(trimmed)) ||
         (trimmed.startsWith('npub1') && trimmed.length > 10);
   }
 
@@ -142,12 +151,14 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
     final filteredContacts = _getFilteredContacts(contactsState.contacts);
-    final showAddOption = _searchQuery.isNotEmpty && _isValidPublicKey(_searchQuery) && filteredContacts.isEmpty;
+    final showAddOption =
+        _searchQuery.isNotEmpty &&
+        _isValidPublicKey(_searchQuery) &&
+        filteredContacts.isEmpty;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -239,7 +250,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                           onTap: () => _addNewContact(_searchQuery),
                           child: Container(
                             margin: EdgeInsets.symmetric(horizontal: 24.w),
-                            padding: EdgeInsets.symmetric(vertical: 12.h, horizontal: 16.w),
+                            padding: EdgeInsets.symmetric(
+                              vertical: 12.h,
+                              horizontal: 16.w,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.glitch50,
                               border: Border.all(color: AppColors.glitch200),
@@ -255,7 +269,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                 Gap(12.w),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Add as contact',
@@ -266,7 +281,9 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                         ),
                                       ),
                                       Text(
-                                        _searchQuery.length > 20 ? '${_searchQuery.substring(0, 20)}...' : _searchQuery,
+                                        _searchQuery.length > 20
+                                            ? '${_searchQuery.substring(0, 20)}...'
+                                            : _searchQuery,
                                         style: TextStyle(
                                           color: AppColors.glitch600,
                                           fontSize: 12.sp,
@@ -288,7 +305,9 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                             filteredContacts.isEmpty && !showAddOption
                                 ? Center(
                                   child: Text(
-                                    _searchQuery.isEmpty ? 'No contacts found' : 'No contacts match your search',
+                                    _searchQuery.isEmpty
+                                        ? 'No contacts found'
+                                        : 'No contacts match your search',
                                     style: TextStyle(
                                       color: AppColors.glitch600,
                                       fontSize: 16.sp,
@@ -296,7 +315,9 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                   ),
                                 )
                                 : ListView.builder(
-                                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 24.w,
+                                  ),
                                   itemCount: filteredContacts.length,
                                   itemBuilder: (context, index) {
                                     final contact = filteredContacts[index];
@@ -311,7 +332,9 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                           bio: contact.about,
                                           imagePath: contact.imagePath,
                                           onStartChat: () {
-                                            ScaffoldMessenger.of(context).showSnackBar(
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
                                               SnackBar(
                                                 content: Text(
                                                   'Started secure chat with ${contact.displayNameOrName}',
@@ -324,21 +347,38 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                       onDelete: () async {
                                         try {
                                           // Get the real PublicKey from our map
-                                          final realPublicKey = _publicKeyMap[contact.publicKey];
+                                          final realPublicKey =
+                                              _publicKeyMap[contact.publicKey];
                                           if (realPublicKey != null) {
                                             // Use the proper method to remove contact from Rust backend
-                                            await ref.read(contactsProvider.notifier).removeContactByPublicKey(realPublicKey);
+                                            await ref
+                                                .read(contactsProvider.notifier)
+                                                .removeContactByPublicKey(
+                                                  realPublicKey,
+                                                );
 
                                             if (mounted) {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(content: Text('Contact removed successfully')),
+                                              ScaffoldMessenger.of(
+                                                context,
+                                              ).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text(
+                                                    'Contact removed successfully',
+                                                  ),
+                                                ),
                                               );
                                             }
                                           }
                                         } catch (e) {
                                           if (mounted) {
-                                            ScaffoldMessenger.of(context).showSnackBar(
-                                              SnackBar(content: Text('Failed to remove contact: $e')),
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Failed to remove contact: $e',
+                                                ),
+                                              ),
                                             );
                                           }
                                         }

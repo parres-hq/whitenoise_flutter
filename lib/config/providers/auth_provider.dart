@@ -69,7 +69,7 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       await createIdentity(whitenoise: state.whitenoise!);
       state = state.copyWith(isAuthenticated: true);
-      
+
       // Load account data after creating identity
       await ref.read(accountProvider.notifier).loadAccount();
     } catch (e, st) {
@@ -102,7 +102,7 @@ class AuthNotifier extends Notifier<AuthState> {
         account: account,
       );
       state = state.copyWith(isAuthenticated: true);
-      
+
       // Load account data after login
       await ref.read(accountProvider.notifier).loadAccount();
     } catch (e, st) {

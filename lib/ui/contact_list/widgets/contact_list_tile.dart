@@ -44,13 +44,26 @@ class ContactListTile extends StatelessWidget {
                   color: Colors.orange,
                   borderRadius: BorderRadius.circular(30.r),
                 ),
-                child: contact.imagePath != null && contact.imagePath!.isNotEmpty
-                    ? Image.network(
-                        contact.imagePath!,
-                        width: 56.w,
-                        height: 56.w,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Center(
+                child:
+                    contact.imagePath != null && contact.imagePath!.isNotEmpty
+                        ? Image.network(
+                          contact.imagePath!,
+                          width: 56.w,
+                          height: 56.w,
+                          fit: BoxFit.cover,
+                          errorBuilder:
+                              (context, error, stackTrace) => Center(
+                                child: Text(
+                                  contact.avatarLetter,
+                                  style: TextStyle(
+                                    color: AppColors.white,
+                                    fontSize: 20.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                        )
+                        : Center(
                           child: Text(
                             contact.avatarLetter,
                             style: TextStyle(
@@ -60,17 +73,6 @@ class ContactListTile extends StatelessWidget {
                             ),
                           ),
                         ),
-                      )
-                    : Center(
-                        child: Text(
-                          contact.avatarLetter,
-                          style: TextStyle(
-                            color: AppColors.white,
-                            fontSize: 20.sp,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
               ),
             ),
             Gap(12.w),
@@ -144,7 +146,8 @@ class ContactListTile extends StatelessWidget {
                     ),
                   ],
                   // Show website if available
-                  if (contact.website != null && contact.website!.isNotEmpty) ...[
+                  if (contact.website != null &&
+                      contact.website!.isNotEmpty) ...[
                     Gap(2.h),
                     Text(
                       contact.website!,
@@ -208,21 +211,24 @@ class ContactListTile extends StatelessWidget {
           // Show confirmation dialog
           return await showDialog<bool>(
             context: context,
-            builder: (context) => AlertDialog(
-              title: const Text('Remove Contact'),
-              content: Text('Are you sure you want to remove ${contact.displayNameOrName} from your contacts?'),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel'),
+            builder:
+                (context) => AlertDialog(
+                  title: const Text('Remove Contact'),
+                  content: Text(
+                    'Are you sure you want to remove ${contact.displayNameOrName} from your contacts?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(false),
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(true),
+                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                      child: const Text('Remove'),
+                    ),
+                  ],
                 ),
-                TextButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  style: TextButton.styleFrom(foregroundColor: Colors.red),
-                  child: const Text('Remove'),
-                ),
-              ],
-            ),
           );
         },
         onDismissed: (direction) {

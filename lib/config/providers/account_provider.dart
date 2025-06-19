@@ -59,7 +59,7 @@ class AccountNotifier extends Notifier<AccountState> {
       } else {
         final data = await getAccountData(account: acct);
         state = state.copyWith(account: acct, pubkey: data.pubkey);
-        
+
         // Automatically load contacts for the active account
         try {
           await ref.read(contactsProvider.notifier).loadContacts(data.pubkey);
@@ -104,7 +104,7 @@ class AccountNotifier extends Notifier<AccountState> {
       );
       final data = await getAccountData(account: updated);
       state = state.copyWith(account: updated, pubkey: data.pubkey);
-      
+
       // Automatically load contacts for the newly active account
       try {
         await ref.read(contactsProvider.notifier).loadContacts(data.pubkey);

@@ -40,7 +40,7 @@ class ContactModel {
 
   // Get display name with fallback
   String get displayNameOrName => displayName ?? name;
-  
+
   // Get first letter for avatar
   String get avatarLetter => name.isNotEmpty ? name[0].toUpperCase() : '?';
 }

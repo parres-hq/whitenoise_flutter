@@ -74,7 +74,9 @@ class StartSecureChatBottomSheet extends StatelessWidget {
                             errorBuilder:
                                 (context, error, stackTrace) => Center(
                                   child: Text(
-                                    name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                    name.isNotEmpty
+                                        ? name[0].toUpperCase()
+                                        : '?',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 32.sp,
@@ -116,7 +118,10 @@ class StartSecureChatBottomSheet extends StatelessWidget {
                   child: Text(
                     bio!,
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      color: AppColors.glitch600,
+                    ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                   ),
