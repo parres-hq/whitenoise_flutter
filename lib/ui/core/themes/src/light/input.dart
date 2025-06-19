@@ -32,7 +32,7 @@ InputDecorationTheme buildInputDecorationThemeData() {
 
       if (state.contains(WidgetState.disabled)) {
         return tTheme.copyWith(
-          color: lightColorsExt.primaryBackground,
+          color: lightColorsExt.primaryForeground,
         );
       }
 
