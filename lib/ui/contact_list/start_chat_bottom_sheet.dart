@@ -1,29 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 
 class StartSecureChatBottomSheet extends StatelessWidget {
   final String name;
-  final String email;
-  final String publicKey;
+  final String nip05;
+  final String? bio;
+  final String? imagePath;
   final VoidCallback? onStartChat;
   const StartSecureChatBottomSheet({
     super.key,
     required this.name,
-    required this.email,
-    required this.publicKey,
+    required this.nip05,
+    this.bio,
+    this.imagePath,
     this.onStartChat,
   });
 
   static Future<void> show({
     required BuildContext context,
     required String name,
-    required String email,
-    required String publicKey,
+    required String nip05,
+    String? bio,
+    String? imagePath,
     VoidCallback? onStartChat,
   }) {
     return CustomBottomSheet.show(
@@ -36,8 +38,9 @@ class StartSecureChatBottomSheet extends StatelessWidget {
       builder:
           (context) => StartSecureChatBottomSheet(
             name: name,
-            email: email,
-            publicKey: publicKey,
+            nip05: nip05,
+            bio: bio,
+            imagePath: imagePath,
             onStartChat: onStartChat,
           ),
     );
@@ -52,9 +55,45 @@ class StartSecureChatBottomSheet extends StatelessWidget {
           child: Column(
             children: [
               Gap(48.h),
-              CircleAvatar(
-                radius: 40.r,
-                backgroundImage: const AssetImage(AssetsPaths.icImage),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(40.r),
+                child: Container(
+                  width: 80.w,
+                  height: 80.w,
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.circular(40.r),
+                  ),
+                  child:
+                      imagePath != null && imagePath!.isNotEmpty
+                          ? Image.network(
+                            imagePath!,
+                            width: 80.w,
+                            height: 80.w,
+                            fit: BoxFit.cover,
+                            errorBuilder:
+                                (context, error, stackTrace) => Center(
+                                  child: Text(
+                                    name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 32.sp,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                          )
+                          : Center(
+                            child: Text(
+                              name.isNotEmpty ? name[0].toUpperCase() : '?',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 32.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                ),
               ),
               Gap(12.h),
               Text(
@@ -67,18 +106,22 @@ class StartSecureChatBottomSheet extends StatelessWidget {
               ),
               Gap(12.h),
               Text(
-                email,
+                nip05,
                 style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
               ),
-              Gap(8.h),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Text(
-                  publicKey,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
+              if (bio != null && bio!.isNotEmpty) ...[
+                Gap(8.h),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Text(
+                    bio!,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ),
+              ],
               Gap(48.h),
             ],
           ),

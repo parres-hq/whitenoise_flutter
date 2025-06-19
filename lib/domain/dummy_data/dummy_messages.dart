@@ -4,7 +4,7 @@ import 'package:whitenoise/domain/models/user_model.dart';
 final User marekContact = User(
   id: '1',
   name: 'Marek Kowalski',
-  email: 'marek.kowalski@email.com',
+  nip05: 'marek@kowalski.com',
   publicKey: 'pk_marek_123456789',
   imagePath: 'https://civilogs.com/uploads/jobs/513/Site_photo_3_11_15_39.png',
 );
@@ -12,7 +12,7 @@ final User marekContact = User(
 final User maxContact = User(
   id: '2',
   name: 'Max Hillebrand',
-  email: 'max.hillebrand@email.com',
+  nip05: 'max@hillebrand.com',
   publicKey: 'pk_max_987654321',
   imagePath: 'https://civilogs.com/uploads/jobs/513/Site_photo_1_11_15_39.png',
 );
@@ -20,7 +20,7 @@ final User maxContact = User(
 final User currentUser = User(
   id: 'current_user_id',
   name: 'Alex Johnson',
-  email: 'alex.johnson@email.com',
+  nip05: 'alex@johnson.com',
   publicKey: 'pk_alex_456123789',
   imagePath: 'https://civilogs.com/uploads/jobs/513/Site_photo_2_11_15_39.png',
 );

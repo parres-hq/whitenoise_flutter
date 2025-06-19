@@ -3,6 +3,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/src/rust/api.dart';
 
 class AccountState {
@@ -58,6 +59,13 @@ class AccountNotifier extends Notifier<AccountState> {
       } else {
         final data = await getAccountData(account: acct);
         state = state.copyWith(account: acct, pubkey: data.pubkey);
+        
+        // Automatically load contacts for the active account
+        try {
+          await ref.read(contactsProvider.notifier).loadContacts(data.pubkey);
+        } catch (e) {
+          debugPrint('Failed to load contacts: $e');
+        }
       }
     } catch (e, st) {
       debugPrintStack(label: 'loadAccount', stackTrace: st);
@@ -96,6 +104,13 @@ class AccountNotifier extends Notifier<AccountState> {
       );
       final data = await getAccountData(account: updated);
       state = state.copyWith(account: updated, pubkey: data.pubkey);
+      
+      // Automatically load contacts for the newly active account
+      try {
+        await ref.read(contactsProvider.notifier).loadContacts(data.pubkey);
+      } catch (e) {
+        debugPrint('Failed to load contacts: $e');
+      }
     } catch (e, st) {
       debugPrintStack(label: 'setActiveAccount', stackTrace: st);
       state = state.copyWith(error: e.toString());

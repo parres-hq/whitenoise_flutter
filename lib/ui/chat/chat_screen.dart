@@ -39,7 +39,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final currentUser = User(
     id: 'current_user_id',
     name: 'You',
-    email: 'current@user.com',
+    nip05: 'current@user.com',
     publicKey: 'current_public_key',
   );
 
@@ -326,7 +326,7 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Gap(12.h),
           Text(
-            widget.contact.email,
+            widget.contact.nip05,
             style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
           ),
           Gap(8.h),

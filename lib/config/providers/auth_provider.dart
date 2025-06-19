@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
@@ -68,6 +69,9 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       await createIdentity(whitenoise: state.whitenoise!);
       state = state.copyWith(isAuthenticated: true);
+      
+      // Load account data after creating identity
+      await ref.read(accountProvider.notifier).loadAccount();
     } catch (e, st) {
       debugPrintStack(label: 'AuthState.createAccount', stackTrace: st);
       state = state.copyWith(error: e.toString());
@@ -98,6 +102,9 @@ class AuthNotifier extends Notifier<AuthState> {
         account: account,
       );
       state = state.copyWith(isAuthenticated: true);
+      
+      // Load account data after login
+      await ref.read(accountProvider.notifier).loadAccount();
     } catch (e, st) {
       state = state.copyWith(error: e.toString());
       debugPrintStack(label: 'AuthState.loginWithKey', stackTrace: st);

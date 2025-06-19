@@ -8,7 +8,7 @@ import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 
 class ChatInvitationSheet extends StatelessWidget {
   final String name;
-  final String email;
+  final String nip05;
   final String publicKey;
   final VoidCallback? onAccept;
   final VoidCallback? onDecline;
@@ -16,7 +16,7 @@ class ChatInvitationSheet extends StatelessWidget {
   const ChatInvitationSheet({
     super.key,
     required this.name,
-    required this.email,
+    required this.nip05,
     required this.publicKey,
     this.onAccept,
     this.onDecline,
@@ -25,7 +25,7 @@ class ChatInvitationSheet extends StatelessWidget {
   static Future<void> show({
     required BuildContext context,
     required String name,
-    required String email,
+    required String nip05,
     required String publicKey,
     VoidCallback? onAccept,
     VoidCallback? onDecline,
@@ -40,7 +40,7 @@ class ChatInvitationSheet extends StatelessWidget {
       builder:
           (context) => ChatInvitationSheet(
             name: name,
-            email: email,
+            nip05: nip05,
             publicKey: publicKey,
             onAccept: onAccept,
             onDecline: onDecline,
@@ -72,7 +72,7 @@ class ChatInvitationSheet extends StatelessWidget {
               ),
               Gap(12.h),
               Text(
-                email,
+                nip05,
                 style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
               ),
               Gap(8.h),
