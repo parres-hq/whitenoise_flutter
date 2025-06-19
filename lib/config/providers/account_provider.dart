@@ -105,7 +105,7 @@ class AccountNotifier extends Notifier<AccountState> {
     final wn = ref.read(authProvider).whitenoise;
     if (wn == null) return;
 
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
       final updated = await updateActiveAccount(
         whitenoise: wn,
