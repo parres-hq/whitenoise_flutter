@@ -1,7 +1,7 @@
 class User {
   final String id;
   final String name;
-  final String email;
+  final String nip05;
   final String publicKey;
   final String? imagePath;
   final String? username;
@@ -9,7 +9,7 @@ class User {
   User({
     required this.id,
     required this.name,
-    required this.email,
+    required this.nip05,
     required this.publicKey,
     this.imagePath,
     this.username,
@@ -19,7 +19,7 @@ class User {
     return User(
       id: json['id'],
       name: json['name'],
-      email: json['email'],
+      nip05: json['nip05'],
       publicKey: json['publicKey'],
       imagePath: json['image_path'],
       username: json['username'],
@@ -30,7 +30,7 @@ class User {
     return {
       'id': id,
       'name': name,
-      'email': email,
+      'nip05': nip05,
       'publicKey': publicKey,
       'image_path': imagePath,
       'username': username,

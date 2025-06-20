@@ -7,7 +7,16 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'frb_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+
+Future<MetadataData> convertMetadataToData({required Metadata metadata}) =>
+    RustLib.instance.api.crateApiConvertMetadataToData(metadata: metadata);
+
+Future<Metadata> convertMetadataDataToMetadata({
+  required MetadataData metadataData,
+}) => RustLib.instance.api.crateApiConvertMetadataDataToMetadata(
+  metadataData: metadataData,
+);
 
 Future<RelayType> relayTypeNostr() =>
     RustLib.instance.api.crateApiRelayTypeNostr();
@@ -30,7 +39,7 @@ Future<String> getRelayUrlString({required RelayUrl relayUrl}) =>
     RustLib.instance.api.crateApiGetRelayUrlString(relayUrl: relayUrl);
 
 Future<WhitenoiseData> convertWhitenoiseToData({
-  required Whitenoise whitenoise,
+  required ArcWhitenoise whitenoise,
 }) => RustLib.instance.api.crateApiConvertWhitenoiseToData(
   whitenoise: whitenoise,
 );
@@ -42,6 +51,15 @@ Future<WhitenoiseConfigData> convertConfigToData({
 Future<AccountData> convertAccountToData({required Account account}) =>
     RustLib.instance.api.crateApiConvertAccountToData(account: account);
 
+Future<String> groupIdToString({required GroupId groupId}) =>
+    RustLib.instance.api.crateApiGroupIdToString(groupId: groupId);
+
+Future<GroupId> groupIdFromString({required String hexString}) =>
+    RustLib.instance.api.crateApiGroupIdFromString(hexString: hexString);
+
+Future<GroupData> convertGroupToData({required Group group}) =>
+    RustLib.instance.api.crateApiConvertGroupToData(group: group);
+
 Future<WhitenoiseConfig> createWhitenoiseConfig({
   required String dataDir,
   required String logsDir,
@@ -50,10 +68,11 @@ Future<WhitenoiseConfig> createWhitenoiseConfig({
   logsDir: logsDir,
 );
 
-Future<Whitenoise> initializeWhitenoise({required WhitenoiseConfig config}) =>
-    RustLib.instance.api.crateApiInitializeWhitenoise(config: config);
+Future<ArcWhitenoise> initializeWhitenoise({
+  required WhitenoiseConfig config,
+}) => RustLib.instance.api.crateApiInitializeWhitenoise(config: config);
 
-Future<WhitenoiseData> getWhitenoiseData({required Whitenoise whitenoise}) =>
+Future<WhitenoiseData> getWhitenoiseData({required ArcWhitenoise whitenoise}) =>
     RustLib.instance.api.crateApiGetWhitenoiseData(whitenoise: whitenoise);
 
 Future<AccountData> getAccountData({required Account account}) =>
@@ -79,19 +98,9 @@ Future<Account> login({
 
 Future<void> logout({
   required Whitenoise whitenoise,
-  required Account account,
-}) => RustLib.instance.api.crateApiLogout(
-  whitenoise: whitenoise,
-  account: account,
-);
-
-Future<Account> updateActiveAccount({
-  required Whitenoise whitenoise,
-  required Account account,
-}) => RustLib.instance.api.crateApiUpdateActiveAccount(
-  whitenoise: whitenoise,
-  account: account,
-);
+  required PublicKey pubkey,
+}) =>
+    RustLib.instance.api.crateApiLogout(whitenoise: whitenoise, pubkey: pubkey);
 
 Future<String> exportAccountNsec({
   required Whitenoise whitenoise,
@@ -109,10 +118,7 @@ Future<String> exportAccountNpub({
   account: account,
 );
 
-Future<Account?> getActiveAccount({required Whitenoise whitenoise}) =>
-    RustLib.instance.api.crateApiGetActiveAccount(whitenoise: whitenoise);
-
-Future<Metadata?> fetchMetadata({
+Future<MetadataData?> fetchMetadata({
   required Whitenoise whitenoise,
   required PublicKey pubkey,
 }) => RustLib.instance.api.crateApiFetchMetadata(
@@ -122,7 +128,7 @@ Future<Metadata?> fetchMetadata({
 
 Future<void> updateMetadata({
   required Whitenoise whitenoise,
-  required Metadata metadata,
+  required MetadataData metadata,
   required Account account,
 }) => RustLib.instance.api.crateApiUpdateMetadata(
   whitenoise: whitenoise,
@@ -168,7 +174,7 @@ Future<OnboardingState> fetchOnboardingState({
   pubkey: pubkey,
 );
 
-Future<Map<PublicKey, Metadata?>> fetchContacts({
+Future<Map<PublicKey, MetadataData?>> fetchContacts({
   required Whitenoise whitenoise,
   required PublicKey pubkey,
 }) => RustLib.instance.api.crateApiFetchContacts(
@@ -206,22 +212,60 @@ Future<void> updateContacts({
   contactPubkeys: contactPubkeys,
 );
 
+/// Fetch all active groups for an account
+Future<List<GroupData>> fetchGroups({
+  required Whitenoise whitenoise,
+  required Account account,
+}) => RustLib.instance.api.crateApiFetchGroups(
+  whitenoise: whitenoise,
+  account: account,
+);
+
+/// Fetch group members for a group
+Future<List<PublicKey>> fetchGroupMembers({
+  required Whitenoise whitenoise,
+  required Account account,
+  required GroupId groupId,
+}) => RustLib.instance.api.crateApiFetchGroupMembers(
+  whitenoise: whitenoise,
+  account: account,
+  groupId: groupId,
+);
+
+/// Fetch groups admins for a group
+Future<List<PublicKey>> fetchGroupAdmins({
+  required Whitenoise whitenoise,
+  required Account account,
+  required GroupId groupId,
+}) => RustLib.instance.api.crateApiFetchGroupAdmins(
+  whitenoise: whitenoise,
+  account: account,
+  groupId: groupId,
+);
+
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>>
 abstract class Account implements RustOpaqueInterface {}
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<BTreeMap < String , Value >>>
-abstract class BTreeMapStringValue implements RustOpaqueInterface {}
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc < Whitenoise >>>
+abstract class ArcWhitenoise implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
 abstract class Event implements RustOpaqueInterface {}
 
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Group>>
+abstract class Group implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>>
+abstract class GroupId implements RustOpaqueInterface {}
+
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Metadata>>
-abstract class Metadata implements RustOpaqueInterface {
+abstract class Metadata implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MetadataData>>
+abstract class MetadataData implements RustOpaqueInterface {
   String? get about;
 
   String? get banner;
-
-  BTreeMapStringValue get custom;
 
   String? get displayName;
 
@@ -241,8 +285,6 @@ abstract class Metadata implements RustOpaqueInterface {
 
   set banner(String? banner);
 
-  set custom(BTreeMapStringValue custom);
-
   set displayName(String? displayName);
 
   set lud06(String? lud06);
@@ -256,6 +298,10 @@ abstract class Metadata implements RustOpaqueInterface {
   set picture(String? picture);
 
   set website(String? website);
+
+  Future<Map<String, String>> getCustom();
+
+  Future<void> setCustom({required Map<String, String> customMap});
 }
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>
@@ -332,6 +378,72 @@ class AccountSettings {
           lockdownMode == other.lockdownMode;
 }
 
+class GroupData {
+  final String mlsGroupId;
+  final String nostrGroupId;
+  final String name;
+  final String description;
+  final List<String> adminPubkeys;
+  final String? lastMessageId;
+  final BigInt? lastMessageAt;
+  final GroupType groupType;
+  final BigInt epoch;
+  final GroupState state;
+
+  const GroupData({
+    required this.mlsGroupId,
+    required this.nostrGroupId,
+    required this.name,
+    required this.description,
+    required this.adminPubkeys,
+    this.lastMessageId,
+    this.lastMessageAt,
+    required this.groupType,
+    required this.epoch,
+    required this.state,
+  });
+
+  @override
+  int get hashCode =>
+      mlsGroupId.hashCode ^
+      nostrGroupId.hashCode ^
+      name.hashCode ^
+      description.hashCode ^
+      adminPubkeys.hashCode ^
+      lastMessageId.hashCode ^
+      lastMessageAt.hashCode ^
+      groupType.hashCode ^
+      epoch.hashCode ^
+      state.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GroupData &&
+          runtimeType == other.runtimeType &&
+          mlsGroupId == other.mlsGroupId &&
+          nostrGroupId == other.nostrGroupId &&
+          name == other.name &&
+          description == other.description &&
+          adminPubkeys == other.adminPubkeys &&
+          lastMessageId == other.lastMessageId &&
+          lastMessageAt == other.lastMessageAt &&
+          groupType == other.groupType &&
+          epoch == other.epoch &&
+          state == other.state;
+}
+
+enum GroupState {
+  active,
+  inactive,
+  pending,
+}
+
+enum GroupType {
+  directMessage,
+  group,
+}
+
 class OnboardingState {
   final bool inboxRelays;
   final bool keyPackageRelays;
@@ -383,17 +495,14 @@ class WhitenoiseConfigData {
 class WhitenoiseData {
   final WhitenoiseConfigData config;
   final Map<String, AccountData> accounts;
-  final String? activeAccount;
 
   const WhitenoiseData({
     required this.config,
     required this.accounts,
-    this.activeAccount,
   });
 
   @override
-  int get hashCode =>
-      config.hashCode ^ accounts.hashCode ^ activeAccount.hashCode;
+  int get hashCode => config.hashCode ^ accounts.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -401,6 +510,5 @@ class WhitenoiseData {
       other is WhitenoiseData &&
           runtimeType == other.runtimeType &&
           config == other.config &&
-          accounts == other.accounts &&
-          activeAccount == other.activeAccount;
+          accounts == other.accounts;
 }
