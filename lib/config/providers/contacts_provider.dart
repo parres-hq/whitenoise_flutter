@@ -4,7 +4,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/src/rust/api.dart';
 
 class ContactsState {
-  final Map<String, Metadata?>? contacts;
+  final Map<PublicKey, Metadata?>? contacts;
   final bool isLoading;
   final String? error;
 
@@ -15,7 +15,7 @@ class ContactsState {
   });
 
   ContactsState copyWith({
-    Map<String, Metadata?>? contacts,
+    Map<PublicKey, Metadata?>? contacts,
     bool? isLoading,
     String? error,
   }) {
@@ -54,11 +54,16 @@ class ContactsNotifier extends Notifier<ContactsState> {
       final ownerPk = await publicKeyFromString(publicKeyString: ownerHex);
       final raw = await fetchContacts(whitenoise: wn, pubkey: ownerPk);
 
-      // Convert PublicKey to hex string for map keys
-      final mapped = <String, Metadata?>{};
-      raw.forEach((k, v) => mapped[k.toString()] = v);
+      // fetchContacts already returns Map<PublicKey, Metadata?> with metadata included
+      // Use the raw map directly without converting keys to strings
+      debugPrint('Loaded ${raw.length} contacts');
+      for (final entry in raw.entries) {
+        debugPrint(
+          'Contact metadata: ${entry.value?.name ?? entry.value?.displayName ?? 'No name'}',
+        );
+      }
 
-      state = state.copyWith(contacts: mapped);
+      state = state.copyWith(contacts: raw);
     } catch (e, st) {
       debugPrintStack(label: 'loadContacts', stackTrace: st);
       state = state.copyWith(error: e.toString());
@@ -67,8 +72,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
     }
   }
 
-  // Add a new contact (by hex public key) to the active account
-  Future<void> addContactByHex(String contactHex) async {
+  // Add a new contact (by hex or npub public key) to the active account
+  Future<void> addContactByHex(String contactKey) async {
     state = state.copyWith(isLoading: true, error: null);
 
     final wn = await _wn();
@@ -84,10 +89,13 @@ class ContactsNotifier extends Notifier<ContactsState> {
         return;
       }
 
-      final contactPk = await publicKeyFromString(publicKeyString: contactHex);
+      // Handle both hex and npub formats
+      final contactPk = await publicKeyFromString(
+        publicKeyString: contactKey.trim(),
+      );
       await addContact(whitenoise: wn, account: acct, contactPubkey: contactPk);
 
-      // Refresh the list
+      // Refresh the complete list to get updated contacts with metadata
       final acctData = await getAccountData(account: acct);
       await loadContacts(acctData.pubkey);
     } catch (e, st) {
@@ -98,8 +106,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
     }
   }
 
-  // Remove a contact (by hex public key)
-  Future<void> removeContactByHex(String contactHex) async {
+  // Remove a contact (by hex or npub public key)
+  Future<void> removeContactByHex(String contactKey) async {
     state = state.copyWith(isLoading: true, error: null);
 
     final wn = await _wn();
@@ -115,7 +123,10 @@ class ContactsNotifier extends Notifier<ContactsState> {
         return;
       }
 
-      final contactPk = await publicKeyFromString(publicKeyString: contactHex);
+      // Handle both hex and npub formats
+      final contactPk = await publicKeyFromString(
+        publicKeyString: contactKey.trim(),
+      );
       await removeContact(
         whitenoise: wn,
         account: acct,
@@ -166,6 +177,50 @@ class ContactsNotifier extends Notifier<ContactsState> {
       await loadContacts(acctData.pubkey);
     } catch (e, st) {
       debugPrintStack(label: 'replaceContacts', stackTrace: st);
+      state = state.copyWith(error: e.toString());
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
+  // Remove a contact directly from the current state (for UI operations)
+  void removeContactFromState(PublicKey publicKey) {
+    final currentContacts = state.contacts;
+    if (currentContacts != null) {
+      final updatedContacts = Map<PublicKey, Metadata?>.from(currentContacts);
+      updatedContacts.remove(publicKey);
+      state = state.copyWith(contacts: updatedContacts);
+    }
+  }
+
+  // Remove a contact using PublicKey (calls Rust API directly)
+  Future<void> removeContactByPublicKey(PublicKey publicKey) async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    final wn = await _wn();
+    if (wn == null) {
+      state = state.copyWith(isLoading: false);
+      return;
+    }
+
+    try {
+      final acct = await getActiveAccount(whitenoise: wn);
+      if (acct == null) {
+        state = state.copyWith(error: 'No active account');
+        return;
+      }
+
+      await removeContact(
+        whitenoise: wn,
+        account: acct,
+        contactPubkey: publicKey,
+      );
+
+      // Refresh the list
+      final acctData = await getAccountData(account: acct);
+      await loadContacts(acctData.pubkey);
+    } catch (e, st) {
+      debugPrintStack(label: 'removeContactByPublicKey', stackTrace: st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);

@@ -156,7 +156,7 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
                     ChatInvitationSheet.show(
                       context: context,
                       name: 'John Doe',
-                      email: 'john.doe@example.com',
+                      nip05: 'john@example.com',
                       publicKey: '1234567890',
                       onAccept: () {},
                       onDecline: () {},
