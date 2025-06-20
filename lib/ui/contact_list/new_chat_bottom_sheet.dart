@@ -3,17 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
-import 'package:whitenoise/config/providers/account_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/src/rust/api.dart';
-import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
-import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
-import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
+
+import '../../config/providers/account_provider.dart';
+import '../../config/providers/contacts_provider.dart';
+import '../../domain/models/contact_model.dart';
+import '../../src/rust/api.dart';
+import '../core/themes/assets.dart';
+import '../core/themes/src/extensions.dart';
+import '../core/ui/custom_bottom_sheet.dart';
+import '../core/ui/custom_textfield.dart';
+import 'new_group_chat_sheet.dart';
+import 'start_chat_bottom_sheet.dart';
+import 'widgets/contact_list_tile.dart';
 
 class NewChatBottomSheet extends ConsumerStatefulWidget {
   const NewChatBottomSheet({super.key});
@@ -179,8 +180,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
               children: [
                 SvgPicture.asset(
                   AssetsPaths.icGroupChat,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.glitch600,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.mutedForeground,
                     BlendMode.srcIn,
                   ),
                   width: 20.w,
@@ -191,15 +192,15 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                   child: Text(
                     'New Group Chat',
                     style: TextStyle(
-                      color: AppColors.glitch600,
+                      color: context.colors.mutedForeground,
                       fontSize: 18.sp,
                     ),
                   ),
                 ),
                 SvgPicture.asset(
                   AssetsPaths.icChevronRight,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.glitch600,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.mutedForeground,
                     BlendMode.srcIn,
                   ),
                   width: 8.55.w,
@@ -221,7 +222,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                         Text(
                           'Error loading contacts',
                           style: TextStyle(
-                            color: AppColors.glitch600,
+                            color: context.colors.mutedForeground,
                             fontSize: 16.sp,
                           ),
                         ),
@@ -229,7 +230,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                         Text(
                           contactsState.error!,
                           style: TextStyle(
-                            color: AppColors.glitch400,
+                            color: context.colors.mutedForeground,
                             fontSize: 12.sp,
                           ),
                           textAlign: TextAlign.center,
@@ -255,15 +256,17 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                               horizontal: 16.w,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.glitch50,
-                              border: Border.all(color: AppColors.glitch200),
+                              color: context.colors.primaryForeground,
+                              border: Border.all(
+                                color: context.colors.baseMuted,
+                              ),
                               borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: Row(
                               children: [
                                 Icon(
                                   Icons.person_add,
-                                  color: AppColors.glitch600,
+                                  color: context.colors.mutedForeground,
                                   size: 20.w,
                                 ),
                                 Gap(12.w),
@@ -275,7 +278,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                       Text(
                                         'Add as contact',
                                         style: TextStyle(
-                                          color: AppColors.glitch900,
+                                          color:
+                                              context
+                                                  .colors
+                                                  .secondaryForeground,
                                           fontSize: 16.sp,
                                           fontWeight: FontWeight.w500,
                                         ),
@@ -285,7 +291,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                             ? '${_searchQuery.substring(0, 20)}...'
                                             : _searchQuery,
                                         style: TextStyle(
-                                          color: AppColors.glitch600,
+                                          color: context.colors.mutedForeground,
                                           fontSize: 12.sp,
                                         ),
                                       ),
@@ -309,7 +315,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                         ? 'No contacts found'
                                         : 'No contacts match your search',
                                     style: TextStyle(
-                                      color: AppColors.glitch600,
+                                      color: context.colors.mutedForeground,
                                       fontSize: 16.sp,
                                     ),
                                   ),

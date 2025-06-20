@@ -7,8 +7,8 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/contact_list/group_chat_details_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class NewGroupChatSheet extends ConsumerStatefulWidget {
@@ -134,112 +134,124 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     final contactsState = ref.watch(contactsProvider);
     final filteredContacts = _getFilteredContacts(contactsState.contacts);
 
-    return Column(
-      children: [
-        CustomTextField(
-          textController: _searchController,
-          hintText: 'Search contact or public key...',
-        ),
-        Expanded(
-          child:
-              contactsState.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : contactsState.error != null
-                  ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Error loading contacts',
-                          style: TextStyle(fontSize: 16.sp),
-                        ),
-                        Text(
-                          contactsState.error!,
-                          style: TextStyle(fontSize: 12.sp, color: Colors.grey),
-                          textAlign: TextAlign.center,
-                        ),
-                        ElevatedButton(
-                          onPressed: _loadContacts,
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  )
-                  : filteredContacts.isEmpty
-                  ? Center(
-                    child: Text(
-                      _searchQuery.isEmpty
-                          ? 'No contacts found'
-                          : 'No contacts match your search',
-                      style: TextStyle(fontSize: 16.sp),
-                    ),
-                  )
-                  : ListView.builder(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 16.w,
-                      vertical: 8.h,
-                    ),
-                    itemCount: filteredContacts.length,
-                    itemBuilder: (context, index) {
-                      final contact = filteredContacts[index];
-                      final isSelected = _selectedContacts.contains(contact);
+    return Padding(
+      padding: EdgeInsets.only(bottom: 16.h),
+      child: Column(
+        children: [
+          CustomTextField(
+            textController: _searchController,
+            hintText: 'Search contact or public key...',
+          ),
+          Expanded(
+            child:
+                contactsState.isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : contactsState.error != null
+                    ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Error loading contacts',
+                            style: TextStyle(fontSize: 16.sp),
+                          ),
+                          Text(
+                            contactsState.error!,
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              color: Colors.grey,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          ElevatedButton(
+                            onPressed: _loadContacts,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    )
+                    : filteredContacts.isEmpty
+                    ? Center(
+                      child: Text(
+                        _searchQuery.isEmpty
+                            ? 'No contacts found'
+                            : 'No contacts match your search',
+                        style: TextStyle(fontSize: 16.sp),
+                      ),
+                    )
+                    : ListView.builder(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16.w,
+                        vertical: 8.h,
+                      ),
+                      itemCount: filteredContacts.length,
+                      itemBuilder: (context, index) {
+                        final contact = filteredContacts[index];
+                        final isSelected = _selectedContacts.contains(contact);
 
-                      return ContactListTile(
-                        contact: contact,
-                        isSelected: isSelected,
-                        onTap: () => _toggleContactSelection(contact),
-                        enableSwipeToDelete: true,
-                        onDelete: () async {
-                          try {
-                            // Get the real PublicKey from our map
-                            final realPublicKey =
-                                _publicKeyMap[contact.publicKey];
-                            if (realPublicKey != null) {
-                              // Use the proper method to remove contact from Rust backend
-                              await ref
-                                  .read(contactsProvider.notifier)
-                                  .removeContactByPublicKey(realPublicKey);
+                        return ContactListTile(
+                          contact: contact,
+                          isSelected: isSelected,
+                          onTap: () => _toggleContactSelection(contact),
+                          enableSwipeToDelete: true,
+                          onDelete: () async {
+                            try {
+                              // Get the real PublicKey from our map
+                              final realPublicKey =
+                                  _publicKeyMap[contact.publicKey];
+                              if (realPublicKey != null) {
+                                // Use the proper method to remove contact from Rust backend
+                                await ref
+                                    .read(contactsProvider.notifier)
+                                    .removeContactByPublicKey(realPublicKey);
 
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Contact removed successfully',
+                                      ),
+                                    ),
+                                  );
+                                }
+                              }
+                            } catch (e) {
                               if (mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
+                                  SnackBar(
                                     content: Text(
-                                      'Contact removed successfully',
+                                      'Failed to remove contact: $e',
                                     ),
                                   ),
                                 );
                               }
                             }
-                          } catch (e) {
-                            if (mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Failed to remove contact: $e'),
-                                ),
-                              );
-                            }
-                          }
-                        },
-                        showCheck: true,
-                      );
-                    },
-                  ),
-        ),
-        CustomFilledButton(
-          onPressed:
-              _selectedContacts.isNotEmpty
-                  ? () {
-                    Navigator.pop(context);
-                    GroupChatDetailsSheet.show(
-                      context: context,
-                      selectedContacts: _selectedContacts.toList(),
-                    );
-                  }
-                  : null,
-          title: 'Continue',
-          bottomPadding: 16.h,
-        ),
-      ],
+                          },
+                          showCheck: true,
+                        );
+                      },
+                    ),
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 16.w,
+            ).copyWith(bottom: 32.h),
+            child: AppFilledButton(
+              onPressed:
+                  _selectedContacts.isNotEmpty
+                      ? () {
+                        Navigator.pop(context);
+                        GroupChatDetailsSheet.show(
+                          context: context,
+                          selectedContacts: _selectedContacts.toList(),
+                        );
+                      }
+                      : null,
+              title: 'Continue',
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

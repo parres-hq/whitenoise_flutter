@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class AddProfileBottomSheet extends StatefulWidget {
@@ -45,7 +45,7 @@ class _AddProfileBottomSheetState extends State<AddProfileBottomSheet> {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -56,7 +56,7 @@ class _AddProfileBottomSheetState extends State<AddProfileBottomSheet> {
                 'Your Nostr private key will be only stored securely on this device.',
                 style: TextStyle(
                   fontSize: 18.sp,
-                  color: AppColors.glitch600,
+                  color: context.colors.mutedForeground,
                 ),
               ),
               Gap(24.h),
@@ -64,7 +64,7 @@ class _AddProfileBottomSheetState extends State<AddProfileBottomSheet> {
                 'Sign in with your Nostr private key',
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: AppColors.glitch950,
+                  color: context.colors.primary,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -82,16 +82,19 @@ class _AddProfileBottomSheetState extends State<AddProfileBottomSheet> {
           ),
         ),
         Gap(40.h),
-        CustomFilledButton(
-          onPressed: () {
-            if (_privateKeyController.text.isNotEmpty) {
-              Navigator.pop(context);
-              if (widget.onSignIn != null) {
-                widget.onSignIn!();
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: AppFilledButton(
+            onPressed: () {
+              if (_privateKeyController.text.isNotEmpty) {
+                Navigator.pop(context);
+                if (widget.onSignIn != null) {
+                  widget.onSignIn!();
+                }
               }
-            }
-          },
-          title: 'Sign In',
+            },
+            title: 'Sign In',
+          ),
         ),
       ],
     );

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({super.key, required this.title});
@@ -13,7 +12,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: AppColors.glitch950,
+      backgroundColor: context.colors.primary,
       automaticallyImplyLeading: false,
       toolbarHeight: 64.h,
       elevation: 0,
@@ -30,7 +29,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                   context.go(Routes.contacts);
                 }
               },
-              child: const Icon(Icons.arrow_back, color: AppColors.white),
+              child: Icon(Icons.arrow_back, color: context.colors.neutral),
             ),
             Gap(16.w),
             Text(
@@ -38,7 +37,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
               style: TextStyle(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.white,
+                color: context.colors.neutral,
               ),
             ),
           ],

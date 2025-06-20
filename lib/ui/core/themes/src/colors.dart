@@ -8,7 +8,7 @@ class LightAppColors {
   static const secondary = Color(0xffF2F2F2);
   static const tertiary = Color(0xFFE9F1FE);
   static const neutral = Color(0xFFFFFFFF);
-  static const neutralVariant = Color(0xFFF4F6F9);
+  static const neutralVariant = Color(0xFF5A605A);
 
   /// base/background
   static const primaryForeground = Color(0xffF9F9F9);
@@ -54,7 +54,7 @@ class DarkAppColors {
   static const secondary = Color(0xff202320);
   static const tertiary = Color(0xFF1A2B4B);
   static const neutral = Color(0xFF121212);
-  static const neutralVariant = Color(0xFF2C2C2C);
+  static const neutralVariant = Color(0xFF5A605A);
 
   /// base/background
   static const primaryBackground = Color(0xff2D312D);
@@ -63,7 +63,7 @@ class DarkAppColors {
   static const secondaryForeground = Color(0xffF2F2F2);
 
   /// base/muted-foreground
-  static const mutedForeground = Color(0xFFAFB1AF);
+  static const mutedForeground = Color(0xFF727772);
 
   /// base/muted, base/input
   static const baseMuted = Color(0xff474C47);
@@ -187,7 +187,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? tertiary,
     Color? neutral,
     Color? neutralVariant,
-    Color? primaryBackground,
+    Color? primaryForeground,
     Color? secondaryForeground,
     Color? mutedForeground,
     Color? baseMuted,
@@ -208,7 +208,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       tertiary: tertiary ?? this.tertiary,
       neutral: neutral ?? this.neutral,
       neutralVariant: neutralVariant ?? this.neutralVariant,
-      primaryForeground: primaryBackground ?? this.primaryForeground,
+      primaryForeground: primaryForeground ?? this.primaryForeground,
       secondaryForeground: secondaryForeground ?? this.secondaryForeground,
       mutedForeground: mutedForeground ?? this.mutedForeground,
       baseMuted: baseMuted ?? this.baseMuted,

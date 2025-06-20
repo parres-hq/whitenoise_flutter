@@ -6,9 +6,9 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/chat_invitation_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class GroupChatDetailsSheet extends StatefulWidget {
@@ -78,8 +78,8 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
             child: Container(
               width: 80.w,
               height: 80.w,
-              decoration: const BoxDecoration(
-                color: AppColors.glitch80,
+              decoration: BoxDecoration(
+                color: context.colors.baseMuted,
                 shape: BoxShape.circle,
               ),
               child:
@@ -95,8 +95,8 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
                         AssetsPaths.icCamera,
                         width: 42.w,
                         height: 42.w,
-                        colorFilter: const ColorFilter.mode(
-                          AppColors.glitch600,
+                        colorFilter: ColorFilter.mode(
+                          context.colors.mutedForeground,
                           BlendMode.srcIn,
                         ),
                       ),
@@ -114,7 +114,7 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.glitch950,
+                  color: context.colors.primary,
                 ),
               ),
               Gap(8.h),
@@ -134,7 +134,7 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
-              color: AppColors.glitch950,
+              color: context.colors.primary,
             ),
           ),
         ),
@@ -149,7 +149,7 @@ class _GroupChatDetailsSheetState extends State<GroupChatDetailsSheet> {
             },
           ),
         ),
-        CustomFilledButton(
+        AppFilledButton(
           onPressed:
               _isGroupNameValid
                   ? () {

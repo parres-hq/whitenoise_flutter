@@ -71,11 +71,11 @@ class AppTextButton extends AppButton {
     final effectiveStyle = (style ?? TextButton.styleFrom())
         .merge(
           TextButton.styleFrom(
-            minimumSize: size.value,
+            minimumSize: Size(size.value.width.w, size.value.height.h),
             iconColor: visualState.backgroundColor(context),
-            foregroundColor: AppColors.glitch900,
-            disabledBackgroundColor: AppColors.transparent,
-            disabledForegroundColor: AppColors.glitch900,
+            foregroundColor: visualState.foregroundColor(context),
+            disabledBackgroundColor: Colors.transparent,
+            disabledForegroundColor: context.colors.secondaryForeground,
             padding: EdgeInsets.symmetric(vertical: 16.h),
             shape: const RoundedRectangleBorder(),
           ),

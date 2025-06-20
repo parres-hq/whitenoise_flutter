@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 import 'chat_audio_item.dart';
 import 'chat_reply_item.dart';
@@ -55,18 +55,16 @@ class MessageWidget extends StatelessWidget {
                         width: 30.w,
                         height: 30.h,
                         fit: BoxFit.cover,
-                        placeholder:
-                            (context, url) => Container(
-                              width: 30.w,
-                              height: 30.h,
-                              color: AppColors.glitch950.withValues(alpha: 0.1),
-                            ),
-                        errorWidget:
-                            (context, url, error) => Icon(
-                              CarbonIcons.user_avatar,
-                              size: 30.w,
-                              color: AppColors.glitch50,
-                            ),
+                        placeholder: (context, url) => Container(
+                          width: 30.w,
+                          height: 30.h,
+                          color: context.colors.primary.withOpacity(0.1),
+                        ),
+                        errorWidget: (context, url, error) => Icon(
+                          CarbonIcons.user_avatar,
+                          size: 30.w,
+                          color: context.colors.primaryForeground,
+                        ),
                       ),
                     ),
                   )
@@ -75,10 +73,9 @@ class MessageWidget extends StatelessWidget {
                 // Message content
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        message.isMe
-                            ? CrossAxisAlignment.end
-                            : CrossAxisAlignment.start,
+                    crossAxisAlignment: message.isMe
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
                     children: [
                       // Sender name for group messages
                       if (isGroupMessage &&
@@ -90,7 +87,7 @@ class MessageWidget extends StatelessWidget {
                             message.sender.name,
                             style: TextStyle(
                               fontSize: 12.sp,
-                              color: Theme.of(context).colorScheme.error,
+                              color: context.colorScheme.error,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -126,25 +123,28 @@ class MessageWidget extends StatelessWidget {
   }
 
   Widget buildMessageContent(BuildContext context) {
-    final borderRadius =
-        message.isMe
-            ? isSameSenderAsPrevious
-                ? BorderRadius.all(Radius.circular(6.r))
-                : BorderRadius.only(
+    final borderRadius = message.isMe
+        ? isSameSenderAsPrevious
+              ? BorderRadius.all(Radius.circular(6.r))
+              : BorderRadius.only(
                   topLeft: Radius.circular(6.r),
                   topRight: Radius.circular(6.r),
                   bottomLeft: Radius.circular(6.r),
                 )
-            : isSameSenderAsPrevious
-            ? BorderRadius.all(Radius.circular(6.r))
-            : BorderRadius.only(
-              topLeft: Radius.circular(6.r),
-              topRight: Radius.circular(6.r),
-              bottomRight: Radius.circular(6.r),
-            );
+        : isSameSenderAsPrevious
+        ? BorderRadius.all(Radius.circular(6.r))
+        : BorderRadius.only(
+            topLeft: Radius.circular(6.r),
+            topRight: Radius.circular(6.r),
+            bottomRight: Radius.circular(6.r),
+          );
 
-    final cardColor = message.isMe ? AppColors.glitch950 : AppColors.glitch80;
-    final textColor = message.isMe ? AppColors.glitch50 : AppColors.glitch900;
+    final cardColor = message.isMe
+        ? context.colors.primary
+        : context.colors.baseMuted;
+    final textColor = message.isMe
+        ? context.colors.primaryForeground
+        : context.colors.secondaryForeground;
 
     return Container(
       decoration: BoxDecoration(borderRadius: borderRadius),
@@ -184,30 +184,24 @@ class MessageWidget extends StatelessWidget {
                       width: 0.6.sw,
                       height: 0.3.sh,
                       fit: BoxFit.cover,
-                      placeholder:
-                          (context, url) => Container(
-                            height: 0.4.sh,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.1),
-                            child: const Center(
-                              child: CircularProgressIndicator(
-                                color: AppColors.glitch50,
-                              ),
-                            ),
+                      placeholder: (context, url) => Container(
+                        height: 0.4.sh,
+                        color: context.colors.primary.withOpacity(0.1),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: context.colors.primaryForeground,
                           ),
-                      errorWidget:
-                          (context, url, error) => Container(
-                            height: 0.4.sh,
-                            color: Theme.of(
-                              context,
-                            ).colorScheme.primary.withValues(alpha: 0.1),
-                            child: Icon(
-                              CarbonIcons.no_image,
-                              color: AppColors.glitch50,
-                              size: 40.w,
-                            ),
-                          ),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        height: 0.4.sh,
+                        color: context.colors.primary.withOpacity(0.1),
+                        child: Icon(
+                          CarbonIcons.no_image,
+                          color: context.colors.primaryForeground,
+                          size: 40.w,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -227,10 +221,9 @@ class MessageWidget extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(bottom: 4.h),
                   child: Container(
-                    alignment:
-                        message.isMe
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
+                    alignment: message.isMe
+                        ? Alignment.centerRight
+                        : Alignment.centerLeft,
                     child: Row(
                       // mainAxisSize: MainAxisSize.min,
                       children: [
@@ -254,7 +247,7 @@ class MessageWidget extends StatelessWidget {
                                 message.timeSent,
                                 style: TextStyle(
                                   fontSize: 10.sp,
-                                  color: textColor.withValues(alpha: 0.7),
+                                  color: textColor.withOpacity(0.7),
                                   decoration: TextDecoration.none,
                                 ),
                               ),
@@ -287,7 +280,7 @@ class MessageWidget extends StatelessWidget {
                       message.timeSent,
                       style: TextStyle(
                         fontSize: 10.sp,
-                        color: textColor.withValues(alpha: 0.7),
+                        color: textColor.withOpacity(0.7),
                         decoration: TextDecoration.none,
                       ),
                     ),
@@ -325,15 +318,15 @@ class MessageWidget extends StatelessWidget {
   Color _getStatusColor(MessageStatus status, BuildContext context) {
     switch (status) {
       case MessageStatus.sending:
-        return AppColors.glitch50.withValues(alpha: 0.5);
+        return context.colors.primaryForeground.withOpacity(0.5);
       case MessageStatus.sent:
-        return AppColors.glitch50.withValues(alpha: 0.7);
+        return context.colors.primaryForeground.withOpacity(0.7);
       case MessageStatus.delivered:
-        return AppColors.glitch50;
+        return context.colors.primaryForeground;
       case MessageStatus.read:
-        return AppColors.glitch100;
+        return context.colors.secondary;
       case MessageStatus.failed:
-        return Theme.of(context).colorScheme.error;
+        return context.colorScheme.error;
     }
   }
 }

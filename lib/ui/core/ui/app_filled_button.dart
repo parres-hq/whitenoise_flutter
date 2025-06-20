@@ -1,12 +1,12 @@
 part of 'app_button.dart';
 
 class AppFilledButton extends AppButton {
-  AppFilledButton(
-    String title, {
+  AppFilledButton({
     super.key,
     super.size,
     super.visualState,
     this.loading = false,
+    required String title,
     required super.onPressed,
   }) : super(
          ignorePointer: loading,
@@ -46,7 +46,7 @@ class AppFilledButton extends AppButton {
     final effectiveStyle = (style ?? FilledButton.styleFrom())
         .merge(
           FilledButton.styleFrom(
-            minimumSize: size.value,
+            minimumSize: Size(size.value.width.w, size.value.height.h),
             backgroundColor: visualState.backgroundColor(context),
             foregroundColor: visualState.foregroundColor(context),
             disabledBackgroundColor: visualState.disabledBackgroundColor(

@@ -3,9 +3,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+
+import '../../../domain/models/contact_model.dart';
+import '../../core/themes/assets.dart';
+import '../../core/themes/src/extensions.dart';
 
 class ContactListTile extends StatelessWidget {
   final ContactModel contact;
@@ -56,7 +57,7 @@ class ContactListTile extends StatelessWidget {
                                 child: Text(
                                   contact.avatarLetter,
                                   style: TextStyle(
-                                    color: AppColors.white,
+                                    color: context.colors.neutral,
                                     fontSize: 20.sp,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -67,7 +68,7 @@ class ContactListTile extends StatelessWidget {
                           child: Text(
                             contact.avatarLetter,
                             style: TextStyle(
-                              color: AppColors.white,
+                              color: context.colors.neutral,
                               fontSize: 20.sp,
                               fontWeight: FontWeight.bold,
                             ),
@@ -86,7 +87,7 @@ class ContactListTile extends StatelessWidget {
                         child: Text(
                           contact.displayNameOrName,
                           style: TextStyle(
-                            color: AppColors.glitch900,
+                            color: context.colors.secondaryForeground,
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w500,
                           ),
@@ -110,7 +111,7 @@ class ContactListTile extends StatelessWidget {
                     Text(
                       contact.displayName!,
                       style: TextStyle(
-                        color: AppColors.glitch700,
+                        color: context.colors.mutedForeground,
                         fontSize: 14.sp,
                         fontStyle: FontStyle.italic,
                       ),
@@ -125,7 +126,7 @@ class ContactListTile extends StatelessWidget {
                           ? '${contact.about!.substring(0, 60)}...'
                           : contact.about!,
                       style: TextStyle(
-                        color: AppColors.glitch600,
+                        color: context.colors.mutedForeground,
                         fontSize: 12.sp,
                       ),
                       maxLines: 2,
@@ -138,7 +139,7 @@ class ContactListTile extends StatelessWidget {
                     Text(
                       contact.nip05!,
                       style: TextStyle(
-                        color: AppColors.glitch500,
+                        color: context.colors.mutedForeground,
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -152,7 +153,7 @@ class ContactListTile extends StatelessWidget {
                     Text(
                       contact.website!,
                       style: TextStyle(
-                        color: AppColors.glitch500,
+                        color: context.colors.mutedForeground,
                         fontSize: 11.sp,
                         decoration: TextDecoration.underline,
                       ),
@@ -165,7 +166,7 @@ class ContactListTile extends StatelessWidget {
                     Text(
                       '⚡ ${contact.lud16!}',
                       style: TextStyle(
-                        color: AppColors.glitch500,
+                        color: context.colors.mutedForeground,
                         fontSize: 11.sp,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -183,10 +184,13 @@ class ContactListTile extends StatelessWidget {
                 decoration: BoxDecoration(
                   border: Border.all(
                     color:
-                        isSelected ? AppColors.glitch950 : AppColors.glitch200,
+                        isSelected
+                            ? context.colors.primary
+                            : context.colors.baseMuted,
                     width: 1.5.w,
                   ),
-                  color: isSelected ? AppColors.glitch950 : Colors.transparent,
+                  color:
+                      isSelected ? context.colors.primary : Colors.transparent,
                 ),
                 child:
                     isSelected

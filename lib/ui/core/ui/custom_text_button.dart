@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+
+import '../themes/src/extensions.dart';
 
 class CustomTextButton extends StatelessWidget {
   const CustomTextButton({
@@ -26,10 +27,10 @@ class CustomTextButton extends StatelessWidget {
         onPressed: onPressed,
         style: TextButton.styleFrom(
           elevation: 0,
-          backgroundColor: AppColors.transparent,
-          foregroundColor: AppColors.glitch900,
-          disabledBackgroundColor: AppColors.transparent,
-          disabledForegroundColor: AppColors.glitch900,
+          backgroundColor: Colors.transparent,
+          foregroundColor: context.colors.secondaryForeground,
+          disabledBackgroundColor: Colors.transparent,
+          disabledForegroundColor: context.colors.secondaryForeground,
           padding: EdgeInsets.symmetric(vertical: 16.h),
           shape: const RoundedRectangleBorder(),
         ),

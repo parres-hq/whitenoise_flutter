@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 
 class ChatInvitationSheet extends StatelessWidget {
   final String name;
@@ -67,13 +67,16 @@ class ChatInvitationSheet extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24.sp,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.glitch950,
+                  color: context.colors.primary,
                 ),
               ),
               Gap(12.h),
               Text(
                 nip05,
-                style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: context.colors.mutedForeground,
+                ),
               ),
               Gap(8.h),
               Padding(
@@ -81,7 +84,10 @@ class ChatInvitationSheet extends StatelessWidget {
                 child: Text(
                   publicKey,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: context.colors.mutedForeground,
+                  ),
                 ),
               ),
               Gap(48.h),
@@ -89,8 +95,8 @@ class ChatInvitationSheet extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        CustomFilledButton(
-          buttonType: ButtonType.secondary,
+        AppFilledButton(
+          visualState: AppButtonVisualState.secondary,
           onPressed: () {
             Navigator.pop(context);
             if (onDecline != null) {
@@ -99,7 +105,7 @@ class ChatInvitationSheet extends StatelessWidget {
           },
           title: 'Decline',
         ),
-        CustomFilledButton(
+        AppFilledButton(
           onPressed: () {
             Navigator.pop(context);
             if (onAccept != null) {

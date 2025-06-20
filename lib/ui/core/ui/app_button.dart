@@ -7,7 +7,7 @@ part 'app_filled_button.dart';
 part 'app_text_button.dart';
 
 const kMinimumButtonSize = Size(358, 64);
-const kMinimumSmallButtonSize = Size(358, 46);
+const kMinimumSmallButtonSize = Size(358, 40);
 
 enum AppButtonSize {
   large(kMinimumButtonSize),
@@ -33,7 +33,7 @@ enum AppButtonVisualState {
       AppButtonVisualState.success => colors.success,
       AppButtonVisualState.warning => colors.warning,
       AppButtonVisualState.primary => colors.primary,
-      AppButtonVisualState.secondary => colors.warning,
+      AppButtonVisualState.secondary => colors.secondary,
       AppButtonVisualState.tertiary => colors.tertiary,
     };
   }

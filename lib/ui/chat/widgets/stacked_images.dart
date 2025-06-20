@@ -3,8 +3,7 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
-import '../../core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class StackedImages extends StatelessWidget {
   final List<String> imageUris;
@@ -53,7 +52,7 @@ class StackedImages extends StatelessWidget {
                     left: offsetX,
                     child: Transform.rotate(
                       angle: rotation * (pi / 180),
-                      child: _buildImage(uri, responsiveImageSize),
+                      child: _buildImage(uri, responsiveImageSize, context),
                     ),
                   );
                 }),
@@ -70,10 +69,10 @@ class StackedImages extends StatelessWidget {
                         height: 20.h,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: AppColors.white.withValues(alpha: 0.9),
+                          color: context.colors.neutral.withOpacity(0.9),
                           boxShadow: [
                             BoxShadow(
-                              color: AppColors.glitch600,
+                              color: context.colors.mutedForeground,
                               blurRadius: 4.r,
                               offset: Offset(0, 2.h),
                             ),
@@ -95,10 +94,13 @@ class StackedImages extends StatelessWidget {
     );
   }
 
-  Widget _buildImage(String uri, double size) {
+  Widget _buildImage(String uri, double size, [BuildContext? context]) {
     return Container(
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.glitch80, width: 4),
+        border: Border.all(
+          color: context?.colors.baseMuted ?? Colors.grey,
+          width: 4,
+        ),
       ),
       child:
           uri.startsWith('http')
