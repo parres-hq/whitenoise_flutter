@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
+
+import '../core/themes/assets.dart';
+import '../core/themes/src/extensions.dart';
 
 class InfoScreen extends StatelessWidget {
   const InfoScreen({super.key});
@@ -11,7 +13,8 @@ class InfoScreen extends StatelessWidget {
     context.go('/onboarding/create-profile');
   }
 
-  Widget _buildFeatureItem({
+  Widget _buildFeatureItem(
+    BuildContext context, {
     required String imagePath,
     required String title,
     required String subtitle,
@@ -43,9 +46,9 @@ class InfoScreen extends StatelessWidget {
                 const SizedBox(height: 6),
                 Text(
                   subtitle,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppColors.glitch700,
+                    color: context.colors.mutedForeground,
                     height: 1.5,
                   ),
                 ),
@@ -60,36 +63,39 @@ class InfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.colors.neutral,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 32, 24, 0),
           child: Column(
             children: [
-              const Text(
+              Text(
                 'Security Without\nCompromise',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 30,
                   fontWeight: FontWeight.w500,
                   height: 1.3,
-                  color: AppColors.glitch700,
+                  color: context.colors.mutedForeground,
                 ),
               ),
               const SizedBox(height: 32),
               _buildFeatureItem(
+                context,
                 imagePath: AssetsPaths.blueHoodie,
                 title: 'Privacy & Security',
                 subtitle:
                     'Keep your conversations private. Even in case of a breach, your messages remain secure.',
               ),
               _buildFeatureItem(
+                context,
                 imagePath: AssetsPaths.purpleWoman,
                 title: 'Identity–Free',
                 subtitle:
                     'Chat without revealing your phone number or email. Choose your identity: real name, pseudonym, or anonymous.',
               ),
               _buildFeatureItem(
+                context,
                 imagePath: AssetsPaths.greenBird,
                 title: 'Decentralized & Permissionless',
                 subtitle:
@@ -101,9 +107,14 @@ class InfoScreen extends StatelessWidget {
       ),
       bottomNavigationBar: SafeArea(
         top: false,
-        child: CustomFilledButton(
-          onPressed: () => _onContinuePressed(context),
-          title: 'Setup Your Profile',
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+          ).copyWith(bottom: 32.h),
+          child: AppFilledButton(
+            onPressed: () => _onContinuePressed(context),
+            title: 'Setup Your Profile',
+          ),
         ),
       ),
     );

@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/domain/models/chat_model.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+
+import '../../../domain/models/chat_model.dart';
+import '../../core/themes/assets.dart';
+import '../../core/themes/src/extensions.dart';
 
 class ChatListTile extends StatelessWidget {
   final ChatModel chat;
@@ -53,7 +54,7 @@ class ChatListTile extends StatelessWidget {
                     Text(
                       chat.name,
                       style: TextStyle(
-                        color: AppColors.glitch900,
+                        color: context.colors.secondaryForeground,
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w500,
                       ),
@@ -62,7 +63,7 @@ class ChatListTile extends StatelessWidget {
                       chat.time,
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: AppColors.glitch600,
+                        color: context.colors.mutedForeground,
                       ),
                     ),
                   ],
@@ -74,7 +75,7 @@ class ChatListTile extends StatelessWidget {
                         chat.lastMessage,
                         style: TextStyle(
                           fontSize: 14.sp,
-                          color: AppColors.glitch600,
+                          color: context.colors.mutedForeground,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -83,14 +84,14 @@ class ChatListTile extends StatelessWidget {
                     if (chat.unreadCount > 0)
                       Container(
                         padding: EdgeInsets.all(6.r),
-                        decoration: const BoxDecoration(
-                          color: AppColors.glitch950,
+                        decoration: BoxDecoration(
+                          color: context.colors.primary,
                           shape: BoxShape.circle,
                         ),
                         child: Text(
                           chat.unreadCount.toString(),
                           style: TextStyle(
-                            color: AppColors.white,
+                            color: context.colors.neutral,
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w500,
                           ),

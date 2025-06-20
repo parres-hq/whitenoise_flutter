@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 
 class StartSecureChatBottomSheet extends StatelessWidget {
   final String name;
@@ -103,13 +103,16 @@ class StartSecureChatBottomSheet extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24.sp,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.glitch950,
+                  color: context.colors.primary,
                 ),
               ),
               Gap(12.h),
               Text(
                 nip05,
-                style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: context.colors.mutedForeground,
+                ),
               ),
               if (bio != null && bio!.isNotEmpty) ...[
                 Gap(8.h),
@@ -120,7 +123,7 @@ class StartSecureChatBottomSheet extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14.sp,
-                      color: AppColors.glitch600,
+                      color: context.colors.mutedForeground,
                     ),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
@@ -131,7 +134,7 @@ class StartSecureChatBottomSheet extends StatelessWidget {
             ],
           ),
         ),
-        CustomFilledButton(
+        AppFilledButton(
           onPressed: () {
             Navigator.pop(context);
             if (onStartChat != null) {

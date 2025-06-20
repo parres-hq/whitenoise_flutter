@@ -63,7 +63,7 @@ final baseTextTheme = TextTheme(
 
   // Title
   titleLarge: TextStyle(
-    fontSize: 22.sp,
+    fontSize: 24.sp,
     height: 26 / 22,
     fontWeight: semiBold,
     letterSpacing: letterSpacing,

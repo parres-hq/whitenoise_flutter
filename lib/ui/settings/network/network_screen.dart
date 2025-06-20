@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/network/relay_info_dialog.dart';
@@ -19,7 +19,7 @@ class NetworkScreen extends ConsumerWidget {
     final keyPackageRelaysState = ref.watch(keyPackageRelaysProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.colors.neutral,
       appBar: const CustomAppBar(title: 'Network'),
       body: ListView(
         children: [

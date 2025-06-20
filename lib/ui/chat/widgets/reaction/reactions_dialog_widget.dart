@@ -4,8 +4,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
-
-import '../../../core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class ReactionsDialogWidget extends StatefulWidget {
   const ReactionsDialogWidget({
@@ -88,7 +87,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         child: Container(
           width: MediaQuery.of(context).size.width * widget.menuItemsWidth,
           decoration: BoxDecoration(
-            color: AppColors.glitch80,
+            color: context.colors.baseMuted,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Column(
@@ -120,7 +119,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                                 color:
                                     item.isDestructive
                                         ? Colors.red
-                                        : AppColors.glitch900,
+                                        : context.colors.secondaryForeground,
                               ),
                             ),
                             Pulse(
@@ -133,10 +132,8 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                                 item.icon,
                                 color:
                                     item.isDestructive
-                                        ? Colors.red
-                                        : Theme.of(
-                                          context,
-                                        ).textTheme.bodyMedium!.color,
+                                        ? context.colors.destructive
+                                        : context.textTheme.bodyMedium!.color,
                               ),
                             ),
                           ],
@@ -170,7 +167,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         child: Container(
           padding: const EdgeInsets.all(5),
           decoration: BoxDecoration(
-            color: AppColors.glitch80,
+            color: context.colors.baseMuted,
             borderRadius: BorderRadius.circular(8),
           ),
           child: Row(
@@ -203,7 +200,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                         decoration: BoxDecoration(
                           color:
                               reaction == '⋯'
-                                  ? AppColors.glitch200
+                                  ? context.colors.baseMuted
                                   : Colors.transparent,
                           borderRadius: BorderRadius.circular(4),
                         ),

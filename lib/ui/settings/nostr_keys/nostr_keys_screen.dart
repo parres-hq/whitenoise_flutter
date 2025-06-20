@@ -9,9 +9,9 @@ import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/shared/info_box.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class NostrKeysScreen extends ConsumerStatefulWidget {
@@ -131,7 +131,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
     });
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.colors.neutral,
       appBar: const CustomAppBar(title: 'Nostr Keys'),
       body: SingleChildScrollView(
         child: Padding(
@@ -162,25 +162,23 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                                 _formatPublicKey(nostrKeys.npub!),
                                 style: TextStyle(
                                   fontSize: 14.sp,
-                                  color: AppColors.glitch600,
+                                  color: context.colors.mutedForeground,
                                 ),
                               )
                               : Text(
                                 'Loading public key...',
                                 style: TextStyle(
                                   fontSize: 14.sp,
-                                  color: AppColors.glitch400,
+                                  color: context.colors.baseMuted,
                                 ),
                               ),
                     ),
                   ],
                 ),
               ),
-              CustomFilledButton(
-                buttonType: ButtonType.secondary,
+              AppFilledButton.child(
+                visualState: AppButtonVisualState.secondary,
                 onPressed: nostrKeys.npub != null ? _copyPublicKey : null,
-                title: 'Copy Public Key',
-                addPadding: false,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -189,12 +187,12 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                       colorFilter:
                           nostrKeys.npub != null
                               ? null
-                              : const ColorFilter.mode(
-                                AppColors.glitch400,
+                              : ColorFilter.mode(
+                                context.colors.mutedForeground,
                                 BlendMode.srcIn,
                               ),
                     ),
-                    Gap(8.w),
+                    SizedBox(width: 8.w),
                     Text(
                       'Copy Public Key',
                       style: TextStyle(
@@ -202,8 +200,8 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                         fontWeight: FontWeight.w500,
                         color:
                             nostrKeys.npub != null
-                                ? AppColors.glitch950
-                                : AppColors.glitch400,
+                                ? context.colors.primary
+                                : context.colors.mutedForeground,
                       ),
                     ),
                   ],
@@ -216,8 +214,8 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                     'Private key works like a secret password that grants access to your Nostr identity.',
               ),
               Gap(16.h),
-              const InfoBox(
-                colorTheme: AppColors.colorEA580C,
+              InfoBox(
+                colorTheme: context.colors.warning,
                 title: 'Keep your private key safe!',
                 description:
                     'Don\'t share your private key publicly, and use it only to log in to other Nostr apps.',
@@ -235,10 +233,10 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                         SizedBox(
                           height: 20.h,
                           width: 20.w,
-                          child: const CircularProgressIndicator(
+                          child: CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              AppColors.glitch600,
+                              context.colors.mutedForeground,
                             ),
                           ),
                         ),
@@ -247,7 +245,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                           'Loading private key...',
                           style: TextStyle(
                             fontSize: 14.sp,
-                            color: AppColors.glitch600,
+                            color: context.colors.mutedForeground,
                           ),
                         ),
                       ],
@@ -261,14 +259,18 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.error, color: Colors.red, size: 20.r),
+                        Icon(
+                          Icons.error,
+                          color: context.colors.destructive,
+                          size: 20.r,
+                        ),
                         Gap(12.w),
                         Expanded(
                           child: Text(
                             'Error loading private key: ${nostrKeys.error}',
                             style: TextStyle(
                               fontSize: 14.sp,
-                              color: Colors.red,
+                              color: context.colors.destructive,
                             ),
                           ),
                         ),
@@ -325,12 +327,18 @@ class SectionWidget extends StatelessWidget {
       children: [
         Text(
           title,
-          style: TextStyle(fontSize: 24.sp, color: AppColors.glitch900),
+          style: TextStyle(
+            fontSize: 24.sp,
+            color: context.colors.mutedForeground,
+          ),
         ),
         Gap(8.h),
         Text(
           description,
-          style: TextStyle(fontSize: 16.sp, color: AppColors.glitch600),
+          style: TextStyle(
+            fontSize: 16.sp,
+            color: context.colors.mutedForeground,
+          ),
         ),
       ],
     );

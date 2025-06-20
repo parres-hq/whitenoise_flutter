@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import '../../core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class StatusMessageItemWidget extends StatelessWidget {
   final IconData icon;
@@ -21,7 +21,7 @@ class StatusMessageItemWidget extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(icon, color: AppColors.glitch600, size: 14),
+        Icon(icon, color: context.colors.mutedForeground, size: 14),
         const Gap(5),
         Text.rich(
           textAlign: TextAlign.center,
@@ -35,7 +35,7 @@ class StatusMessageItemWidget extends StatelessWidget {
                 ),
               TextSpan(text: textParts.length > 1 ? textParts[1] : content),
             ],
-            style: const TextStyle(color: AppColors.glitch600),
+            style: TextStyle(color: context.colors.mutedForeground),
           ),
         ),
       ],

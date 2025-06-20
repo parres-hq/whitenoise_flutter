@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 
 class CreateProfileScreen extends StatefulWidget {
   const CreateProfileScreen({super.key});
@@ -31,7 +31,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.colors.neutral,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -44,7 +44,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                 style: TextStyle(
                   fontSize: 30.sp,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.glitch800,
+                  color: context.colors.neutralVariant,
                 ),
               ),
               SizedBox(height: 32.h),
@@ -63,7 +63,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                       color: Colors.white,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppColors.glitch100,
+                        color: context.colors.secondary,
                         width: 1.w,
                       ),
                     ),
@@ -71,7 +71,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                     child: Icon(
                       Icons.edit,
                       size: 18.sp,
-                      color: AppColors.glitch800,
+                      color: context.colors.neutralVariant,
                     ),
                   ),
                 ],
@@ -83,7 +83,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.glitch950,
+                  color: context.colors.primary,
                 ),
               ),
               SizedBox(height: 32.h),
@@ -113,21 +113,21 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(
-                      color: AppColors.glitch700,
+                      color: context.colors.neutralVariant,
                       width: 1.w,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(
-                      color: AppColors.glitch700,
+                      color: context.colors.neutralVariant,
                       width: 1.w,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(
-                      color: AppColors.glitch700,
+                      color: context.colors.neutralVariant,
                       width: 1.w,
                     ),
                   ),
@@ -162,20 +162,20 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(
-                      color: AppColors.glitch700,
+                      color: context.colors.neutralVariant,
                       width: 1.w,
                     ),
                   ),
-                  enabledBorder: const OutlineInputBorder(
+                  enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(
-                      color: AppColors.glitch700,
+                      color: context.colors.neutralVariant,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(
-                      color: AppColors.glitch700,
+                      color: context.colors.neutralVariant,
                       width: 1.w,
                     ),
                   ),
@@ -190,9 +190,14 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
 
       bottomNavigationBar: SafeArea(
         top: false,
-        child: CustomFilledButton(
-          onPressed: _onFinishPressed,
-          title: 'Finish',
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+          ).copyWith(bottom: 32.h),
+          child: AppFilledButton(
+            onPressed: _onFinishPressed,
+            title: 'Finish',
+          ),
         ),
       ),
     );

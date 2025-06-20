@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import '../../core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class ContactInfo extends StatelessWidget {
   final String imgPath;
@@ -16,7 +16,7 @@ class ContactInfo extends StatelessWidget {
           backgroundImage: AssetImage(imgPath),
         ),
         const Gap(10),
-        Text(title, style: const TextStyle(color: AppColors.glitch50)),
+        Text(title, style: TextStyle(color: context.colors.primaryForeground)),
       ],
     );
   }
