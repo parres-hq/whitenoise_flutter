@@ -229,7 +229,7 @@ whitenoise_flutter/
 
 1. **Bridge generation fails**
    ```bash
-   just clean-bridge 
+   just clean-bridge
    just regenerate
    ```
 

@@ -55,16 +55,18 @@ class MessageWidget extends StatelessWidget {
                         width: 30.w,
                         height: 30.h,
                         fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          width: 30.w,
-                          height: 30.h,
-                          color: context.colors.primary.withOpacity(0.1),
-                        ),
-                        errorWidget: (context, url, error) => Icon(
-                          CarbonIcons.user_avatar,
-                          size: 30.w,
-                          color: context.colors.primaryForeground,
-                        ),
+                        placeholder:
+                            (context, url) => Container(
+                              width: 30.w,
+                              height: 30.h,
+                              color: context.colors.primary.withOpacity(0.1),
+                            ),
+                        errorWidget:
+                            (context, url, error) => Icon(
+                              CarbonIcons.user_avatar,
+                              size: 30.w,
+                              color: context.colors.primaryForeground,
+                            ),
                       ),
                     ),
                   )
@@ -73,9 +75,10 @@ class MessageWidget extends StatelessWidget {
                 // Message content
                 Expanded(
                   child: Column(
-                    crossAxisAlignment: message.isMe
-                        ? CrossAxisAlignment.end
-                        : CrossAxisAlignment.start,
+                    crossAxisAlignment:
+                        message.isMe
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
                     children: [
                       // Sender name for group messages
                       if (isGroupMessage &&
@@ -123,28 +126,29 @@ class MessageWidget extends StatelessWidget {
   }
 
   Widget buildMessageContent(BuildContext context) {
-    final borderRadius = message.isMe
-        ? isSameSenderAsPrevious
-              ? BorderRadius.all(Radius.circular(6.r))
-              : BorderRadius.only(
+    final borderRadius =
+        message.isMe
+            ? isSameSenderAsPrevious
+                ? BorderRadius.all(Radius.circular(6.r))
+                : BorderRadius.only(
                   topLeft: Radius.circular(6.r),
                   topRight: Radius.circular(6.r),
                   bottomLeft: Radius.circular(6.r),
                 )
-        : isSameSenderAsPrevious
-        ? BorderRadius.all(Radius.circular(6.r))
-        : BorderRadius.only(
-            topLeft: Radius.circular(6.r),
-            topRight: Radius.circular(6.r),
-            bottomRight: Radius.circular(6.r),
-          );
+            : isSameSenderAsPrevious
+            ? BorderRadius.all(Radius.circular(6.r))
+            : BorderRadius.only(
+              topLeft: Radius.circular(6.r),
+              topRight: Radius.circular(6.r),
+              bottomRight: Radius.circular(6.r),
+            );
 
-    final cardColor = message.isMe
-        ? context.colors.primary
-        : context.colors.baseMuted;
-    final textColor = message.isMe
-        ? context.colors.primaryForeground
-        : context.colors.secondaryForeground;
+    final cardColor =
+        message.isMe ? context.colors.primary : context.colors.baseMuted;
+    final textColor =
+        message.isMe
+            ? context.colors.primaryForeground
+            : context.colors.secondaryForeground;
 
     return Container(
       decoration: BoxDecoration(borderRadius: borderRadius),
@@ -184,24 +188,26 @@ class MessageWidget extends StatelessWidget {
                       width: 0.6.sw,
                       height: 0.3.sh,
                       fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        height: 0.4.sh,
-                        color: context.colors.primary.withOpacity(0.1),
-                        child: Center(
-                          child: CircularProgressIndicator(
-                            color: context.colors.primaryForeground,
+                      placeholder:
+                          (context, url) => Container(
+                            height: 0.4.sh,
+                            color: context.colors.primary.withOpacity(0.1),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: context.colors.primaryForeground,
+                              ),
+                            ),
                           ),
-                        ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        height: 0.4.sh,
-                        color: context.colors.primary.withOpacity(0.1),
-                        child: Icon(
-                          CarbonIcons.no_image,
-                          color: context.colors.primaryForeground,
-                          size: 40.w,
-                        ),
-                      ),
+                      errorWidget:
+                          (context, url, error) => Container(
+                            height: 0.4.sh,
+                            color: context.colors.primary.withOpacity(0.1),
+                            child: Icon(
+                              CarbonIcons.no_image,
+                              color: context.colors.primaryForeground,
+                              size: 40.w,
+                            ),
+                          ),
                     ),
                   ),
                 ),
@@ -221,9 +227,10 @@ class MessageWidget extends StatelessWidget {
                 Padding(
                   padding: EdgeInsets.only(bottom: 4.h),
                   child: Container(
-                    alignment: message.isMe
-                        ? Alignment.centerRight
-                        : Alignment.centerLeft,
+                    alignment:
+                        message.isMe
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
                     child: Row(
                       // mainAxisSize: MainAxisSize.min,
                       children: [

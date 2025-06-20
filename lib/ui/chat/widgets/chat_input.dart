@@ -206,11 +206,12 @@ class _ChatInputState extends State<ChatInput> {
           _editingMessage?.id ??
           DateTime.now().millisecondsSinceEpoch.toString(),
       content: _textController.text.trim(),
-      type: _recordedFilePath != null
-          ? MessageType.audio
-          : _selectedImages.isNotEmpty
-          ? MessageType.image
-          : MessageType.text,
+      type:
+          _recordedFilePath != null
+              ? MessageType.audio
+              : _selectedImages.isNotEmpty
+              ? MessageType.image
+              : MessageType.text,
       createdAt: _editingMessage?.createdAt ?? DateTime.now(),
       updatedAt: _editingMessage != null ? DateTime.now() : null,
       sender: widget.currentUser,
@@ -265,10 +266,11 @@ class _ChatInputState extends State<ChatInput> {
           padding: widget.padding,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 100),
-            transitionBuilder: (child, animation) => FadeTransition(
-              opacity: animation,
-              child: SizeTransition(sizeFactor: animation, child: child),
-            ),
+            transitionBuilder:
+                (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: SizeTransition(sizeFactor: animation, child: child),
+                ),
             child: _isRecording ? _buildRecordingUI() : _buildTextInputUI(),
           ),
         ),
@@ -639,9 +641,10 @@ class _ChatInputState extends State<ChatInput> {
                   icon: Icon(
                     CarbonIcons.microphone,
                     size: 24.w,
-                    color: _isRecording
-                        ? context.colorScheme.error
-                        : context.colors.mutedForeground,
+                    color:
+                        _isRecording
+                            ? context.colorScheme.error
+                            : context.colors.mutedForeground,
                   ),
                   onPressed: _startRecording,
                   padding: EdgeInsets.zero,
