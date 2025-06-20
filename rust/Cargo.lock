@@ -2967,6 +2967,7 @@ name = "rust_lib_whitenoise"
 version = "0.1.0"
 dependencies = [
  "flutter_rust_bridge",
+ "hex",
  "serde_json",
  "tokio",
  "whitenoise",
@@ -4313,7 +4314,7 @@ checksum = "a751b3277700db47d3e574514de2eced5e54dc8a5436a3bf7a0b248b2cee16f3"
 [[package]]
 name = "whitenoise"
 version = "0.1.0"
-source = "git+https://github.com/parres-hq/whitenoise?rev=d4d404e1c72b11e818b3c1b85e9ab67f4c11a948#d4d404e1c72b11e818b3c1b85e9ab67f4c11a948"
+source = "git+https://github.com/parres-hq/whitenoise?rev=6dd69d39766f0b29039ab6de52a3272f1963db3b#6dd69d39766f0b29039ab6de52a3272f1963db3b"
 dependencies = [
  "anyhow",
  "async-trait",

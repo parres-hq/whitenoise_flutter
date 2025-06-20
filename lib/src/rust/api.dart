@@ -7,7 +7,16 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'frb_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+
+Future<MetadataData> convertMetadataToData({required Metadata metadata}) =>
+    RustLib.instance.api.crateApiConvertMetadataToData(metadata: metadata);
+
+Future<Metadata> convertMetadataDataToMetadata({
+  required MetadataData metadataData,
+}) => RustLib.instance.api.crateApiConvertMetadataDataToMetadata(
+  metadataData: metadataData,
+);
 
 Future<RelayType> relayTypeNostr() =>
     RustLib.instance.api.crateApiRelayTypeNostr();
@@ -41,6 +50,15 @@ Future<WhitenoiseConfigData> convertConfigToData({
 
 Future<AccountData> convertAccountToData({required Account account}) =>
     RustLib.instance.api.crateApiConvertAccountToData(account: account);
+
+Future<String> groupIdToString({required GroupId groupId}) =>
+    RustLib.instance.api.crateApiGroupIdToString(groupId: groupId);
+
+Future<GroupId> groupIdFromString({required String hexString}) =>
+    RustLib.instance.api.crateApiGroupIdFromString(hexString: hexString);
+
+Future<GroupData> convertGroupToData({required Group group}) =>
+    RustLib.instance.api.crateApiConvertGroupToData(group: group);
 
 Future<WhitenoiseConfig> createWhitenoiseConfig({
   required String dataDir,
@@ -100,7 +118,7 @@ Future<String> exportAccountNpub({
   account: account,
 );
 
-Future<Metadata?> fetchMetadata({
+Future<MetadataData?> fetchMetadata({
   required Whitenoise whitenoise,
   required PublicKey pubkey,
 }) => RustLib.instance.api.crateApiFetchMetadata(
@@ -110,7 +128,7 @@ Future<Metadata?> fetchMetadata({
 
 Future<void> updateMetadata({
   required Whitenoise whitenoise,
-  required Metadata metadata,
+  required MetadataData metadata,
   required Account account,
 }) => RustLib.instance.api.crateApiUpdateMetadata(
   whitenoise: whitenoise,
@@ -156,7 +174,7 @@ Future<OnboardingState> fetchOnboardingState({
   pubkey: pubkey,
 );
 
-Future<Map<PublicKey, Metadata?>> fetchContacts({
+Future<Map<PublicKey, MetadataData?>> fetchContacts({
   required Whitenoise whitenoise,
   required PublicKey pubkey,
 }) => RustLib.instance.api.crateApiFetchContacts(
@@ -195,7 +213,7 @@ Future<void> updateContacts({
 );
 
 /// Fetch all active groups for an account
-Future<List<Group>> fetchGroups({
+Future<List<GroupData>> fetchGroups({
   required Whitenoise whitenoise,
   required Account account,
 }) => RustLib.instance.api.crateApiFetchGroups(
@@ -225,23 +243,6 @@ Future<List<PublicKey>> fetchGroupAdmins({
   groupId: groupId,
 );
 
-/// Create a group
-Future<Group> createGroup({
-  required Whitenoise whitenoise,
-  required Account creatorAccount,
-  required List<PublicKey> memberPubkeys,
-  required List<PublicKey> adminPubkeys,
-  required String groupName,
-  required String groupDescription,
-}) => RustLib.instance.api.crateApiCreateGroup(
-  whitenoise: whitenoise,
-  creatorAccount: creatorAccount,
-  memberPubkeys: memberPubkeys,
-  adminPubkeys: adminPubkeys,
-  groupName: groupName,
-  groupDescription: groupDescription,
-);
-
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>>
 abstract class Account implements RustOpaqueInterface {}
 
@@ -251,11 +252,57 @@ abstract class ArcWhitenoise implements RustOpaqueInterface {}
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
 abstract class Event implements RustOpaqueInterface {}
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner< Group>>
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Group>>
 abstract class Group implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>>
 abstract class GroupId implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Metadata>>
+abstract class Metadata implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MetadataData>>
+abstract class MetadataData implements RustOpaqueInterface {
+  String? get about;
+
+  String? get banner;
+
+  String? get displayName;
+
+  String? get lud06;
+
+  String? get lud16;
+
+  String? get name;
+
+  String? get nip05;
+
+  String? get picture;
+
+  String? get website;
+
+  set about(String? about);
+
+  set banner(String? banner);
+
+  set displayName(String? displayName);
+
+  set lud06(String? lud06);
+
+  set lud16(String? lud16);
+
+  set name(String? name);
+
+  set nip05(String? nip05);
+
+  set picture(String? picture);
+
+  set website(String? website);
+
+  Future<Map<String, String>> getCustom();
+
+  Future<void> setCustom({required Map<String, String> customMap});
+}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>
 abstract class PublicKey implements RustOpaqueInterface {}
@@ -331,55 +378,70 @@ class AccountSettings {
           lockdownMode == other.lockdownMode;
 }
 
-class Metadata {
-  final String? name;
-  final String? displayName;
-  final String? about;
-  final String? picture;
-  final String? banner;
-  final String? website;
-  final String? nip05;
-  final String? lud06;
-  final String? lud16;
+class GroupData {
+  final String mlsGroupId;
+  final String nostrGroupId;
+  final String name;
+  final String description;
+  final List<String> adminPubkeys;
+  final String? lastMessageId;
+  final BigInt? lastMessageAt;
+  final GroupType groupType;
+  final BigInt epoch;
+  final GroupState state;
 
-  const Metadata({
-    this.name,
-    this.displayName,
-    this.about,
-    this.picture,
-    this.banner,
-    this.website,
-    this.nip05,
-    this.lud06,
-    this.lud16,
+  const GroupData({
+    required this.mlsGroupId,
+    required this.nostrGroupId,
+    required this.name,
+    required this.description,
+    required this.adminPubkeys,
+    this.lastMessageId,
+    this.lastMessageAt,
+    required this.groupType,
+    required this.epoch,
+    required this.state,
   });
 
   @override
   int get hashCode =>
+      mlsGroupId.hashCode ^
+      nostrGroupId.hashCode ^
       name.hashCode ^
-      displayName.hashCode ^
-      about.hashCode ^
-      picture.hashCode ^
-      banner.hashCode ^
-      website.hashCode ^
-      nip05.hashCode ^
-      lud06.hashCode ^
-      lud16.hashCode;
+      description.hashCode ^
+      adminPubkeys.hashCode ^
+      lastMessageId.hashCode ^
+      lastMessageAt.hashCode ^
+      groupType.hashCode ^
+      epoch.hashCode ^
+      state.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Metadata &&
+      other is GroupData &&
           runtimeType == other.runtimeType &&
+          mlsGroupId == other.mlsGroupId &&
+          nostrGroupId == other.nostrGroupId &&
           name == other.name &&
-          displayName == other.displayName &&
-          about == other.about &&
-          picture == other.picture &&
-          banner == other.banner &&
-          website == other.website &&
-          nip05 == other.nip05 &&
-          lud06 == other.lud06 &&
-          lud16 == other.lud16;
+          description == other.description &&
+          adminPubkeys == other.adminPubkeys &&
+          lastMessageId == other.lastMessageId &&
+          lastMessageAt == other.lastMessageAt &&
+          groupType == other.groupType &&
+          epoch == other.epoch &&
+          state == other.state;
+}
+
+enum GroupState {
+  active,
+  inactive,
+  pending,
+}
+
+enum GroupType {
+  directMessage,
+  group,
 }
 
 class OnboardingState {

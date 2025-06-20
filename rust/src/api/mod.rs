@@ -1,13 +1,14 @@
 // Re-export everything from the whitenoise crate
-use std::collections::HashMap;
+use std::collections::{BTreeMap, HashMap};
 use std::path::Path;
 use std::sync::Arc;
 pub use whitenoise::{
-    Account, AccountSettings, Event, Metadata, OnboardingState, PublicKey, RelayType, RelayUrl,
-    Whitenoise, WhitenoiseConfig, WhitenoiseError,
+    Account, AccountSettings, Event, Group, GroupId, GroupState, GroupType, Metadata,
+    OnboardingState, PublicKey, RelayType, RelayUrl, Whitenoise, WhitenoiseConfig, WhitenoiseError,
 };
 
 use flutter_rust_bridge::frb;
+use hex;
 
 // Flutter-compatible wrapper structs
 #[derive(Debug, Clone)]
@@ -30,9 +31,8 @@ pub struct AccountData {
     pub last_synced: u64,
 }
 
-#[frb(mirror(Metadata))]
 #[derive(Debug, Clone)]
-pub struct _Metadata {
+pub struct MetadataData {
     pub name: Option<String>,
     pub display_name: Option<String>,
     pub about: Option<String>,
@@ -42,6 +42,36 @@ pub struct _Metadata {
     pub nip05: Option<String>,
     pub lud06: Option<String>,
     pub lud16: Option<String>,
+    // Private field to avoid Flutter Rust Bridge auto-generation issues
+    custom: BTreeMap<String, String>,
+}
+
+// Manual getter/setter for the custom field to convert to/from Map<String, String>
+impl MetadataData {
+    pub fn get_custom(&self) -> HashMap<String, String> {
+        self.custom
+            .iter()
+            .map(|(k, v)| (k.clone(), v.clone()))
+            .collect()
+    }
+
+    pub fn set_custom(&mut self, custom_map: HashMap<String, String>) {
+        self.custom = custom_map.into_iter().collect();
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct GroupData {
+    pub mls_group_id: String,
+    pub nostr_group_id: String,
+    pub name: String,
+    pub description: String,
+    pub admin_pubkeys: Vec<String>,
+    pub last_message_id: Option<String>,
+    pub last_message_at: Option<u64>,
+    pub group_type: GroupType,
+    pub epoch: u64,
+    pub state: GroupState,
 }
 
 // Mirror structs for simple types that can be used directly
@@ -59,6 +89,79 @@ pub struct _OnboardingState {
     pub inbox_relays: bool,
     pub key_package_relays: bool,
     pub key_package_published: bool,
+}
+
+pub fn convert_metadata_to_data(metadata: &Metadata) -> MetadataData {
+    // Convert BTreeMap<String, serde_json::Value> to BTreeMap<String, String>
+    let custom_string_map = metadata
+        .custom
+        .iter()
+        .map(|(key, value)| {
+            let string_value = match value {
+                serde_json::Value::String(s) => s.clone(),
+                serde_json::Value::Number(n) => n.to_string(),
+                serde_json::Value::Bool(b) => b.to_string(),
+                serde_json::Value::Null => "null".to_string(),
+                _ => value.to_string(), // Arrays and objects become JSON strings
+            };
+            (key.clone(), string_value)
+        })
+        .collect();
+
+    MetadataData {
+        name: metadata.name.clone(),
+        display_name: metadata.display_name.clone(),
+        about: metadata.about.clone(),
+        picture: metadata.picture.clone(),
+        banner: metadata.banner.clone(),
+        website: metadata.website.clone(),
+        nip05: metadata.nip05.clone(),
+        lud06: metadata.lud06.clone(),
+        lud16: metadata.lud16.clone(),
+        custom: custom_string_map,
+    }
+}
+
+pub fn convert_metadata_data_to_metadata(metadata_data: &MetadataData) -> Metadata {
+    // Convert BTreeMap<String, String> back to BTreeMap<String, serde_json::Value>
+    let custom_value_map = metadata_data
+        .custom
+        .iter()
+        .map(|(key, value)| {
+            // Try to parse as JSON first, fall back to string
+            let json_value = serde_json::from_str(value)
+                .unwrap_or_else(|_| serde_json::Value::String(value.clone()));
+            (key.clone(), json_value)
+        })
+        .collect();
+
+    Metadata {
+        name: metadata_data.name.clone(),
+        display_name: metadata_data.display_name.clone(),
+        about: metadata_data.about.clone(),
+        picture: metadata_data.picture.clone(),
+        banner: metadata_data.banner.clone(),
+        website: metadata_data.website.clone(),
+        nip05: metadata_data.nip05.clone(),
+        lud06: metadata_data.lud06.clone(),
+        lud16: metadata_data.lud16.clone(),
+        custom: custom_value_map,
+    }
+}
+
+#[frb(mirror(GroupType))]
+#[derive(Debug, Clone)]
+pub enum _GroupType {
+    DirectMessage,
+    Group,
+}
+
+#[frb(mirror(GroupState))]
+#[derive(Debug, Clone)]
+pub enum _GroupState {
+    Active,
+    Inactive,
+    Pending,
 }
 
 // ================================
@@ -122,6 +225,38 @@ pub fn convert_account_to_data(account: &Account) -> AccountData {
     }
 }
 
+pub fn group_id_to_string(group_id: &GroupId) -> String {
+    // Convert GroupId to hex string using as_slice() method and hex crate
+    hex::encode(group_id.as_slice())
+}
+
+pub fn group_id_from_string(hex_string: String) -> Result<GroupId, WhitenoiseError> {
+    // Convert hex string back to GroupId using from_slice() method and hex crate
+    let bytes = hex::decode(hex_string).map_err(|e| {
+        let json_error = serde_json::Error::io(std::io::Error::new(
+            std::io::ErrorKind::InvalidData,
+            format!("Hex decode error: {}", e),
+        ));
+        WhitenoiseError::from(json_error)
+    })?;
+    Ok(GroupId::from_slice(&bytes))
+}
+
+pub fn convert_group_to_data(group: &Group) -> GroupData {
+    GroupData {
+        mls_group_id: group_id_to_string(&group.mls_group_id),
+        nostr_group_id: hex::encode(group.nostr_group_id),
+        name: group.name.clone(),
+        description: group.description.clone(),
+        admin_pubkeys: group.admin_pubkeys.iter().map(|pk| pk.to_hex()).collect(),
+        last_message_id: group.last_message_id.map(|id| id.to_hex()),
+        last_message_at: group.last_message_at.map(|at| at.as_u64()),
+        group_type: group.group_type,
+        epoch: group.epoch,
+        state: group.state,
+    }
+}
+
 // Helper function to create a WhitenoiseConfig from String paths (since Dart can't pass &Path directly)
 pub fn create_whitenoise_config(data_dir: String, logs_dir: String) -> WhitenoiseConfig {
     WhitenoiseConfig::new(Path::new(&data_dir), Path::new(&logs_dir))
@@ -167,7 +302,10 @@ pub async fn login(
     whitenoise.login(nsec_or_hex_privkey).await
 }
 
-pub async fn logout(whitenoise: &mut Whitenoise, pubkey: &PublicKey) -> Result<(), WhitenoiseError> {
+pub async fn logout(
+    whitenoise: &mut Whitenoise,
+    pubkey: &PublicKey,
+) -> Result<(), WhitenoiseError> {
     whitenoise.logout(pubkey).await
 }
 
@@ -192,16 +330,19 @@ pub async fn export_account_npub(
 pub async fn fetch_metadata(
     whitenoise: &Whitenoise,
     pubkey: PublicKey,
-) -> Result<Option<Metadata>, WhitenoiseError> {
-    whitenoise.fetch_metadata(pubkey).await
+) -> Result<Option<MetadataData>, WhitenoiseError> {
+    let metadata = whitenoise.fetch_metadata(pubkey).await?;
+    Ok(metadata.map(|m| convert_metadata_to_data(&m)))
 }
 
 pub async fn update_metadata(
     whitenoise: &Whitenoise,
-    metadata: &Metadata,
+    metadata: &MetadataData,
     account: &Account,
 ) -> Result<(), WhitenoiseError> {
-    whitenoise.update_metadata(metadata, account).await
+    // Convert MetadataData back to Metadata for the whitenoise API
+    let metadata_to_save = convert_metadata_data_to_metadata(metadata);
+    whitenoise.update_metadata(&metadata_to_save, account).await
 }
 
 pub async fn fetch_relays(
@@ -242,8 +383,16 @@ pub async fn fetch_onboarding_state(
 pub async fn fetch_contacts(
     whitenoise: &Whitenoise,
     pubkey: PublicKey,
-) -> Result<HashMap<PublicKey, Option<Metadata>>, WhitenoiseError> {
-    whitenoise.fetch_contacts(pubkey).await
+) -> Result<HashMap<PublicKey, Option<MetadataData>>, WhitenoiseError> {
+    let contacts = whitenoise.fetch_contacts(pubkey).await?;
+    let converted_contacts = contacts
+        .into_iter()
+        .map(|(pk, metadata_opt)| {
+            let converted_metadata = metadata_opt.map(|m| convert_metadata_to_data(&m));
+            (pk, converted_metadata)
+        })
+        .collect();
+    Ok(converted_contacts)
 }
 
 pub async fn add_contact(
@@ -278,8 +427,9 @@ pub async fn update_contacts(
 pub async fn fetch_groups(
     whitenoise: &Whitenoise,
     account: &Account,
-) -> Result<Vec<whitenoise::Group>, WhitenoiseError> {
-    whitenoise.fetch_groups(account, true).await
+) -> Result<Vec<GroupData>, WhitenoiseError> {
+    let groups = whitenoise.fetch_groups(account, true).await?;
+    Ok(groups.iter().map(convert_group_to_data).collect())
 }
 
 /// Fetch group members for a group
@@ -300,14 +450,24 @@ pub async fn fetch_group_admins(
     whitenoise.fetch_group_admins(account, &group_id).await
 }
 
-/// Create a group
-pub async fn create_group(
-    whitenoise: &Whitenoise,
-    creator_account: &Account,
-    member_pubkeys: Vec<PublicKey>,
-    admin_pubkeys: Vec<PublicKey>,
-    group_name: String,
-    group_description: String,
-) -> Result<whitenoise::Group, WhitenoiseError> {
-    whitenoise.create_group(creator_account, member_pubkeys, admin_pubkeys, group_name, group_description).await
-}
+// TODO: Temporarily commented out due to thread safety issues with SQLite RefCell in whitenoise crate
+// /// Create a group
+// pub async fn create_group(
+//     whitenoise: &mut Whitenoise,
+//     creator_account: &Account,
+//     member_pubkeys: Vec<PublicKey>,
+//     admin_pubkeys: Vec<PublicKey>,
+//     group_name: String,
+//     group_description: String,
+// ) -> Result<GroupData, WhitenoiseError> {
+//     let group = whitenoise
+//         .create_group(
+//             creator_account,
+//             member_pubkeys,
+//             admin_pubkeys,
+//             group_name,
+//             group_description,
+//         )
+//         .await?;
+//     Ok(convert_group_to_data(&group))
+// }
