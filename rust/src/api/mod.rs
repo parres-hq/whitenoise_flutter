@@ -1,8 +1,7 @@
 // Re-export everything from the whitenoise crate
-use serde_json::Value;
-use std::collections::BTreeMap;
 use std::collections::HashMap;
 use std::path::Path;
+use std::sync::Arc;
 pub use whitenoise::{
     Account, AccountSettings, Event, Metadata, OnboardingState, PublicKey, RelayType, RelayUrl,
     Whitenoise, WhitenoiseConfig, WhitenoiseError,
@@ -15,7 +14,6 @@ use flutter_rust_bridge::frb;
 pub struct WhitenoiseData {
     pub config: WhitenoiseConfigData,
     pub accounts: HashMap<String, AccountData>,
-    pub active_account: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -44,7 +42,6 @@ pub struct _Metadata {
     pub nip05: Option<String>,
     pub lud06: Option<String>,
     pub lud16: Option<String>,
-    pub custom: BTreeMap<String, Value>,
 }
 
 // Mirror structs for simple types that can be used directly
@@ -92,23 +89,20 @@ pub fn get_relay_url_string(relay_url: &RelayUrl) -> String {
     relay_url.to_string()
 }
 
-pub fn convert_whitenoise_to_data(whitenoise: &Whitenoise) -> WhitenoiseData {
-    let mut accounts = HashMap::new();
+pub async fn convert_whitenoise_to_data(whitenoise: &Arc<Whitenoise>) -> WhitenoiseData {
+    let mut converted_accounts = HashMap::new();
 
     // Convert accounts from HashMap<PublicKey, Account> to HashMap<String, AccountData>
-    for (pubkey, account) in &whitenoise.accounts {
+    let accounts_guard = whitenoise.accounts.read().await;
+    for (pubkey, account) in accounts_guard.iter() {
         let pubkey_string = pubkey.to_hex();
         let account_data = convert_account_to_data(account);
-        accounts.insert(pubkey_string, account_data);
+        converted_accounts.insert(pubkey_string, account_data);
     }
-
-    // Convert active_account from Option<PublicKey> to Option<String>
-    let active_account = whitenoise.active_account.as_ref().map(|pk| pk.to_hex());
 
     WhitenoiseData {
         config: convert_config_to_data(&whitenoise.config),
-        accounts,
-        active_account,
+        accounts: converted_accounts,
     }
 }
 
@@ -137,13 +131,13 @@ pub fn create_whitenoise_config(data_dir: String, logs_dir: String) -> Whitenois
 // Returns the original Whitenoise object so you can call methods on it
 pub async fn initialize_whitenoise(
     config: WhitenoiseConfig,
-) -> Result<Whitenoise, WhitenoiseError> {
+) -> Result<Arc<Whitenoise>, WhitenoiseError> {
     Whitenoise::initialize_whitenoise(config).await
 }
 
 // Data extraction methods - use these when Flutter needs to access fields
-pub fn get_whitenoise_data(whitenoise: &Whitenoise) -> WhitenoiseData {
-    convert_whitenoise_to_data(whitenoise)
+pub async fn get_whitenoise_data(whitenoise: &Arc<Whitenoise>) -> WhitenoiseData {
+    convert_whitenoise_to_data(whitenoise).await
 }
 
 pub fn get_account_data(account: &Account) -> AccountData {
@@ -173,37 +167,22 @@ pub async fn login(
     whitenoise.login(nsec_or_hex_privkey).await
 }
 
-pub async fn logout(whitenoise: &mut Whitenoise, account: &Account) -> Result<(), WhitenoiseError> {
-    whitenoise.logout(account).await
+pub async fn logout(whitenoise: &mut Whitenoise, pubkey: &PublicKey) -> Result<(), WhitenoiseError> {
+    whitenoise.logout(pubkey).await
 }
 
-pub fn update_active_account(
-    whitenoise: &mut Whitenoise,
-    account: &Account,
-) -> Result<Account, WhitenoiseError> {
-    whitenoise.update_active_account(account)
-}
-
-pub fn export_account_nsec(
+pub async fn export_account_nsec(
     whitenoise: &Whitenoise,
     account: &Account,
 ) -> Result<String, WhitenoiseError> {
-    whitenoise.export_account_nsec(account)
+    whitenoise.export_account_nsec(account).await
 }
 
-pub fn export_account_npub(
+pub async fn export_account_npub(
     whitenoise: &Whitenoise,
     account: &Account,
 ) -> Result<String, WhitenoiseError> {
-    whitenoise.export_account_npub(account)
-}
-
-pub fn get_active_account(whitenoise: &Whitenoise) -> Result<Option<Account>, WhitenoiseError> {
-    if let Some(active_account) = whitenoise.active_account {
-        Ok(whitenoise.accounts.get(&active_account).cloned())
-    } else {
-        Ok(None)
-    }
+    whitenoise.export_account_npub(account).await
 }
 
 // ================================
@@ -246,7 +225,7 @@ pub async fn fetch_key_package(
     whitenoise: &Whitenoise,
     pubkey: PublicKey,
 ) -> Result<Option<Event>, WhitenoiseError> {
-    whitenoise.fetch_key_package(pubkey).await
+    whitenoise.fetch_key_package_event(pubkey).await
 }
 
 pub async fn fetch_onboarding_state(
@@ -289,4 +268,46 @@ pub async fn update_contacts(
     contact_pubkeys: Vec<PublicKey>,
 ) -> Result<(), WhitenoiseError> {
     whitenoise.update_contacts(account, contact_pubkeys).await
+}
+
+// ================================
+// Group methods
+// ================================
+
+/// Fetch all active groups for an account
+pub async fn fetch_groups(
+    whitenoise: &Whitenoise,
+    account: &Account,
+) -> Result<Vec<whitenoise::Group>, WhitenoiseError> {
+    whitenoise.fetch_groups(account, true).await
+}
+
+/// Fetch group members for a group
+pub async fn fetch_group_members(
+    whitenoise: &Whitenoise,
+    account: &Account,
+    group_id: whitenoise::GroupId,
+) -> Result<Vec<PublicKey>, WhitenoiseError> {
+    whitenoise.fetch_group_members(account, &group_id).await
+}
+
+/// Fetch groups admins for a group
+pub async fn fetch_group_admins(
+    whitenoise: &Whitenoise,
+    account: &Account,
+    group_id: whitenoise::GroupId,
+) -> Result<Vec<PublicKey>, WhitenoiseError> {
+    whitenoise.fetch_group_admins(account, &group_id).await
+}
+
+/// Create a group
+pub async fn create_group(
+    whitenoise: &Whitenoise,
+    creator_account: &Account,
+    member_pubkeys: Vec<PublicKey>,
+    admin_pubkeys: Vec<PublicKey>,
+    group_name: String,
+    group_description: String,
+) -> Result<whitenoise::Group, WhitenoiseError> {
+    whitenoise.create_group(creator_account, member_pubkeys, admin_pubkeys, group_name, group_description).await
 }
