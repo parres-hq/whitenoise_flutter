@@ -308,7 +308,6 @@ final inboxRelaysProvider = NotifierProvider<InboxRelaysNotifier, RelayState>(
   InboxRelaysNotifier.new,
 );
 
-final keyPackageRelaysProvider =
-    NotifierProvider<KeyPackageRelaysNotifier, RelayState>(
-      KeyPackageRelaysNotifier.new,
-    );
+final keyPackageRelaysProvider = NotifierProvider<KeyPackageRelaysNotifier, RelayState>(
+  KeyPackageRelaysNotifier.new,
+);

@@ -49,10 +49,7 @@ class NetworkSection extends StatelessWidget {
                       child: Icon(
                         Icons.refresh,
                         size: 18.w,
-                        color:
-                            isLoading
-                                ? AppColors.glitch400
-                                : AppColors.glitch600,
+                        color: isLoading ? AppColors.glitch400 : AppColors.glitch600,
                       ),
                     ),
                     Gap(16.w),
@@ -164,9 +161,7 @@ class RelayItem extends StatelessWidget {
           Row(
             children: [
               SvgPicture.asset(
-                relay.connected
-                    ? AssetsPaths.icConnected
-                    : AssetsPaths.icDisconnected,
+                relay.connected ? AssetsPaths.icConnected : AssetsPaths.icDisconnected,
                 width: 8.w,
                 height: 8.w,
               ),

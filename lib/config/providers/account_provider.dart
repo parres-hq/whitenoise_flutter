@@ -66,10 +66,7 @@ class AccountNotifier extends Notifier<AccountState> {
         final publicKey = await publicKeyFromString(
           publicKeyString: accountData.pubkey,
         );
-        final metadata = await fetchMetadata(
-          whitenoise: wn,
-          pubkey: publicKey,
-        );
+        final metadata = await fetchMetadata(whitenoise: wn, pubkey: publicKey);
 
         state = state.copyWith(
           account: acct,
@@ -153,8 +150,7 @@ class AccountNotifier extends Notifier<AccountState> {
     try {
       final accountMetadata = state.metadata;
       if (accountMetadata != null) {
-        if (displayName.isNotEmpty &&
-            displayName != accountMetadata.displayName) {
+        if (displayName.isNotEmpty && displayName != accountMetadata.displayName) {
           accountMetadata.displayName = displayName;
           //TODO: impl bio for Metadata
           // accountMetadata.bio = bio;

@@ -14,10 +14,7 @@ class FrbGeneralScreen extends StatelessWidget {
           children: [
             const Text(
               'Whitenoise FRB Tests',
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 32),
             Center(

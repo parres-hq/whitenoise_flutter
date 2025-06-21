@@ -45,18 +45,14 @@ class CustomFilledButton extends StatelessWidget {
                   : isSecondary
                   ? AppColors.glitch100
                   : AppColors.colorEA580C,
-          foregroundColor:
-              isPrimary || isTertiary
-                  ? AppColors.glitch50
-                  : AppColors.glitch900,
+          foregroundColor: isPrimary || isTertiary ? AppColors.glitch50 : AppColors.glitch900,
           disabledBackgroundColor:
               isPrimary
                   ? AppColors.glitch950.withValues(alpha: 0.5)
                   : isSecondary
                   ? AppColors.glitch100
                   : AppColors.colorEA580C.withValues(alpha: 0.5),
-          disabledForegroundColor:
-              isPrimary ? AppColors.glitch50 : AppColors.glitch900,
+          disabledForegroundColor: isPrimary ? AppColors.glitch50 : AppColors.glitch900,
           padding: EdgeInsets.symmetric(vertical: 16.h),
           shape: const RoundedRectangleBorder(),
         ),

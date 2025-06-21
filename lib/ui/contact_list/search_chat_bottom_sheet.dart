@@ -16,8 +16,7 @@ class SearchChatBottomSheet extends ConsumerStatefulWidget {
   const SearchChatBottomSheet({super.key});
 
   @override
-  ConsumerState<SearchChatBottomSheet> createState() =>
-      _SearchChatBottomSheetState();
+  ConsumerState<SearchChatBottomSheet> createState() => _SearchChatBottomSheetState();
 
   static Future<void> show(BuildContext context) {
     return CustomBottomSheet.show(
@@ -35,8 +34,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   bool _hasSearchResults = false;
-  final Map<String, PublicKey> _publicKeyMap =
-      {}; // Map ContactModel.publicKey to real PublicKey
+  final Map<String, PublicKey> _publicKeyMap = {}; // Map ContactModel.publicKey to real PublicKey
 
   @override
   void initState() {
@@ -166,16 +164,12 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
                       leading: CircleAvatar(
                         radius: 20.r,
                         backgroundImage:
-                            chat.imagePath.isNotEmpty
-                                ? AssetImage(chat.imagePath)
-                                : null,
+                            chat.imagePath.isNotEmpty ? AssetImage(chat.imagePath) : null,
                         backgroundColor: Colors.orange,
                         child:
                             chat.imagePath.isEmpty
                                 ? Text(
-                                  chat.name.isNotEmpty
-                                      ? chat.name[0].toUpperCase()
-                                      : '?',
+                                  chat.name.isNotEmpty ? chat.name[0].toUpperCase() : '?',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16.sp,
@@ -261,8 +255,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
                       onDelete: () async {
                         try {
                           // Get the real PublicKey from our map
-                          final realPublicKey =
-                              _publicKeyMap[contact.publicKey];
+                          final realPublicKey = _publicKeyMap[contact.publicKey];
                           if (realPublicKey != null) {
                             // Use the proper method to remove contact from Rust backend
                             await ref

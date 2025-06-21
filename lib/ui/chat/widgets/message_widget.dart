@@ -76,14 +76,10 @@ class MessageWidget extends StatelessWidget {
                 Expanded(
                   child: Column(
                     crossAxisAlignment:
-                        message.isMe
-                            ? CrossAxisAlignment.end
-                            : CrossAxisAlignment.start,
+                        message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
                     children: [
                       // Sender name for group messages
-                      if (isGroupMessage &&
-                          !message.isMe &&
-                          !isSameSenderAsPrevious)
+                      if (isGroupMessage && !message.isMe && !isSameSenderAsPrevious)
                         Padding(
                           padding: EdgeInsets.only(bottom: 4.h, left: 4.w),
                           child: Text(
@@ -169,8 +165,7 @@ class MessageWidget extends StatelessWidget {
                 ChatReplyItem(
                   message: message.replyTo!,
                   isMe: message.isMe,
-                  isOriginalUser:
-                      message.replyTo!.sender.id == message.sender.id,
+                  isOriginalUser: message.replyTo!.sender.id == message.sender.id,
                 ),
 
               // Image message
@@ -212,8 +207,7 @@ class MessageWidget extends StatelessWidget {
                   ),
                 ),
               // Audio message
-              if (message.type == MessageType.audio &&
-                  message.audioPath != null)
+              if (message.type == MessageType.audio && message.audioPath != null)
                 ChatAudioItem(
                   audioPath: message.audioPath!,
                   isMe: message.isMe,
@@ -221,16 +215,12 @@ class MessageWidget extends StatelessWidget {
 
               // Text content (for text messages or captions)
               if ((message.type == MessageType.text ||
-                      (message.content != null &&
-                          message.content!.isNotEmpty)) &&
+                      (message.content != null && message.content!.isNotEmpty)) &&
                   message.type != MessageType.audio)
                 Padding(
                   padding: EdgeInsets.only(bottom: 4.h),
                   child: Container(
-                    alignment:
-                        message.isMe
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
+                    alignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
                     child: Row(
                       // mainAxisSize: MainAxisSize.min,
                       children: [

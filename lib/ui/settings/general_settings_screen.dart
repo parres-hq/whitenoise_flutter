@@ -18,8 +18,7 @@ class GeneralSettingsScreen extends ConsumerStatefulWidget {
   const GeneralSettingsScreen({super.key});
 
   @override
-  ConsumerState<GeneralSettingsScreen> createState() =>
-      _GeneralSettingsScreenState();
+  ConsumerState<GeneralSettingsScreen> createState() => _GeneralSettingsScreenState();
 }
 
 class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
@@ -41,9 +40,9 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     Navigator.of(context).pop();
 
     if (authState.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(authState.error!)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(authState.error!)));
       return;
     }
 
@@ -51,9 +50,9 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   }
 
   void _deleteAllData() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('All data deleted')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('All data deleted')));
   }
 
   void _publishKeyPackage() {
@@ -69,9 +68,9 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   }
 
   void _testNotifications() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Test notification sent')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Test notification sent')));
   }
 
   @override

@@ -72,9 +72,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
     final npub = ref.read(nostrKeysProvider).npub;
     if (npub != null) {
       Clipboard.setData(ClipboardData(text: npub));
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Public key copied to clipboard')),
       );
     }
@@ -84,9 +82,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
     final nsec = ref.read(nostrKeysProvider).nsec;
     if (nsec != null) {
       Clipboard.setData(ClipboardData(text: nsec));
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Private key copied to clipboard')),
       );
     }
@@ -200,10 +196,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                       style: TextStyle(
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
-                        color:
-                            nostrKeys.npub != null
-                                ? AppColors.glitch950
-                                : AppColors.glitch400,
+                        color: nostrKeys.npub != null ? AppColors.glitch950 : AppColors.glitch400,
                       ),
                     ),
                   ],

@@ -24,7 +24,7 @@ class ContactModel {
   // Create ContactModel from Rust API Metadata
   factory ContactModel.fromMetadata({
     required String publicKey,
-    Metadata? metadata,
+    MetadataData? metadata,
   }) {
     return ContactModel(
       name: metadata?.name ?? metadata?.displayName ?? 'Unknown',

@@ -12,8 +12,7 @@ class CreateProfileScreen extends ConsumerStatefulWidget {
   const CreateProfileScreen({super.key});
 
   @override
-  ConsumerState<CreateProfileScreen> createState() =>
-      _CreateProfileScreenState();
+  ConsumerState<CreateProfileScreen> createState() => _CreateProfileScreenState();
 }
 
 class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
@@ -24,17 +23,15 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
     final username = _usernameController.text.trim();
     final bio = _bioController.text.trim();
     // TODO: authProvider
-    await ref
-        .read(accountProvider.notifier)
-        .updateAccountMetadata(username, bio);
+    await ref.read(accountProvider.notifier).updateAccountMetadata(username, bio);
     if (username.isNotEmpty) {
       if (!mounted) return;
       context.go('/chats');
     } else {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a name')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a name')));
     }
   }
 
@@ -44,8 +41,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // TODO: optimising this in the next PR - unify auth and acct, single provider for current account.
       await ref.read(accountProvider.notifier).loadAccountData();
-      _usernameController.text =
-          ref.read(accountProvider).metadata?.displayName ?? '';
+      _usernameController.text = ref.read(accountProvider).metadata?.displayName ?? '';
     });
   }
 
@@ -193,9 +189,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                   ),
                   enabledBorder: const OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(
-                      color: AppColors.glitch700,
-                    ),
+                    borderSide: BorderSide(color: AppColors.glitch700),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,

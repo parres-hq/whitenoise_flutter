@@ -55,9 +55,7 @@ class ChatAudioItem extends ConsumerWidget {
           ),
           child: IconButton(
             icon: Icon(
-              isThisPlaying
-                  ? CarbonIcons.pause_filled
-                  : CarbonIcons.play_filled_alt,
+              isThisPlaying ? CarbonIcons.pause_filled : CarbonIcons.play_filled_alt,
               color: AppColors.glitch50,
             ),
             onPressed: () => notifier.togglePlayback(),

@@ -36,8 +36,7 @@ class NewChatBottomSheet extends ConsumerStatefulWidget {
 class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  final Map<String, PublicKey> _publicKeyMap =
-      {}; // Map ContactModel.publicKey to real PublicKey
+  final Map<String, PublicKey> _publicKeyMap = {}; // Map ContactModel.publicKey to real PublicKey
 
   @override
   void initState() {
@@ -126,8 +125,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   bool _isValidPublicKey(String input) {
     final trimmed = input.trim();
     // Check if it's a hex key (64 characters) or npub format
-    return (trimmed.length == 64 &&
-            RegExp(r'^[0-9a-fA-F]+$').hasMatch(trimmed)) ||
+    return (trimmed.length == 64 && RegExp(r'^[0-9a-fA-F]+$').hasMatch(trimmed)) ||
         (trimmed.startsWith('npub1') && trimmed.length > 10);
   }
 
@@ -144,9 +142,9 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to add contact: $e')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Failed to add contact: $e')));
       }
     }
   }
@@ -156,9 +154,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     final contactsState = ref.watch(contactsProvider);
     final filteredContacts = _getFilteredContacts(contactsState.contacts);
     final showAddOption =
-        _searchQuery.isNotEmpty &&
-        _isValidPublicKey(_searchQuery) &&
-        filteredContacts.isEmpty;
+        _searchQuery.isNotEmpty && _isValidPublicKey(_searchQuery) && filteredContacts.isEmpty;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -269,8 +265,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                 Gap(12.w),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'Add as contact',
@@ -347,8 +342,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                       onDelete: () async {
                                         try {
                                           // Get the real PublicKey from our map
-                                          final realPublicKey =
-                                              _publicKeyMap[contact.publicKey];
+                                          final realPublicKey = _publicKeyMap[contact.publicKey];
                                           if (realPublicKey != null) {
                                             // Use the proper method to remove contact from Rust backend
                                             await ref

@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 class HeroDialogRoute<T> extends PageRoute<T> {
   // The constructor takes a WidgetBuilder and an optional fullscreenDialog flag.
   // The WidgetBuilder is assigned to _builder and the fullscreenDialog flag is passed to the superclass constructor.
-  HeroDialogRoute({required WidgetBuilder builder, super.fullscreenDialog})
-    : _builder = builder;
+  HeroDialogRoute({required WidgetBuilder builder, super.fullscreenDialog}) : _builder = builder;
 
   // This is the builder for creating the widget that will be displayed by the route.
   final WidgetBuilder _builder;

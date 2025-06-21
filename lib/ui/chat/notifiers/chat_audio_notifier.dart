@@ -48,9 +48,7 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
 
       final localPath = await _downloadAudioToFile(audioUrl);
 
-      await controller.preparePlayer(
-        path: localPath,
-      );
+      await controller.preparePlayer(path: localPath);
 
       controller.setFinishMode();
 
@@ -126,7 +124,6 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
   }
 }
 
-final chatAudioProvider =
-    StateNotifierProvider.family<ChatAudioNotifier, ChatAudioState, String>(
-      (ref, audioUrl) => ChatAudioNotifier(ref, audioUrl),
-    );
+final chatAudioProvider = StateNotifierProvider.family<ChatAudioNotifier, ChatAudioState, String>(
+  (ref, audioUrl) => ChatAudioNotifier(ref, audioUrl),
+);

@@ -90,9 +90,9 @@ class _FrbAccountsScreenState extends State<FrbAccountsScreen> {
       await _loadData();
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Account creation failed: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Account creation failed: $e')));
     } finally {
       if (mounted) {
         Navigator.of(context, rootNavigator: true).pop();
@@ -103,15 +103,11 @@ class _FrbAccountsScreenState extends State<FrbAccountsScreen> {
   @override
   Widget build(BuildContext context) {
     if (_loading) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
     if (_error != null) {
-      return Scaffold(
-        body: Center(child: Text('Error: $_error')),
-      );
+      return Scaffold(body: Center(child: Text('Error: $_error')));
     }
 
     final data = _data!;

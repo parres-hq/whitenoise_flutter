@@ -9,10 +9,7 @@ import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 class AddProfileBottomSheet extends StatefulWidget {
   final VoidCallback? onSignIn;
 
-  const AddProfileBottomSheet({
-    super.key,
-    this.onSignIn,
-  });
+  const AddProfileBottomSheet({super.key, this.onSignIn});
 
   static Future<void> show({
     required BuildContext context,
@@ -22,10 +19,7 @@ class AddProfileBottomSheet extends StatefulWidget {
       context: context,
       title: 'Add new profile',
       heightFactor: 0.42,
-      builder:
-          (context) => AddProfileBottomSheet(
-            onSignIn: onSignIn,
-          ),
+      builder: (context) => AddProfileBottomSheet(onSignIn: onSignIn),
     );
   }
 
@@ -54,10 +48,7 @@ class _AddProfileBottomSheetState extends State<AddProfileBottomSheet> {
             children: [
               Text(
                 'Your Nostr private key will be only stored securely on this device.',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  color: AppColors.glitch600,
-                ),
+                style: TextStyle(fontSize: 18.sp, color: AppColors.glitch600),
               ),
               Gap(24.h),
               Text(

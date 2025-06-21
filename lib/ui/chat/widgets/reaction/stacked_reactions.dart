@@ -36,9 +36,7 @@ class StackedReactions extends StatelessWidget {
 
     // Determine which reactions to show
     final reactionsToShow =
-        emojiEntries.length > maxVisible
-            ? emojiEntries.sublist(0, maxVisible)
-            : emojiEntries;
+        emojiEntries.length > maxVisible ? emojiEntries.sublist(0, maxVisible) : emojiEntries;
     final remaining = emojiEntries.length - reactionsToShow.length;
 
     return SizedBox(

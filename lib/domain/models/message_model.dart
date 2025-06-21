@@ -91,23 +91,14 @@ class MessageModel {
         orElse: () => MessageType.text,
       ),
       createdAt: DateTime.parse(json['created_at']),
-      updatedAt:
-          json['updated_at'] != null
-              ? DateTime.parse(json['updated_at'])
-              : null,
+      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
       sender: User.fromJson(json['sender']),
       isMe: json['is_me'] ?? false,
       audioPath: json['audio_path'],
       imageUrl: json['image_url'],
-      replyTo:
-          json['reply_to'] != null
-              ? MessageModel.fromJson(json['reply_to'])
-              : null,
+      replyTo: json['reply_to'] != null ? MessageModel.fromJson(json['reply_to']) : null,
       reactions:
-          (json['reactions'] as List<dynamic>?)
-              ?.map((e) => Reaction.fromJson(e))
-              .toList() ??
-          [],
+          (json['reactions'] as List<dynamic>?)?.map((e) => Reaction.fromJson(e)).toList() ?? [],
       roomId: json['room_id'],
       status: MessageStatus.values.firstWhere(
         (e) => e.toString() == 'MessageStatus.${json['status']}',
@@ -147,10 +138,7 @@ class Reaction {
     return Reaction(
       emoji: json['emoji'],
       user: User.fromJson(json['user']),
-      createdAt:
-          json['created_at'] != null
-              ? DateTime.parse(json['created_at'])
-              : null,
+      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
     );
   }
 

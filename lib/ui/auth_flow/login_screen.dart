@@ -48,9 +48,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (clipboardData != null && clipboardData.text != null) {
       _keyController.text = clipboardData.text!;
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pasted from clipboard')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Pasted from clipboard')));
       }
     } else {
       if (mounted) {
@@ -134,21 +134,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(
-                            color: AppColors.glitch700,
-                          ),
+                          borderSide: BorderSide(color: AppColors.glitch700),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(
-                            color: AppColors.glitch700,
-                          ),
+                          borderSide: BorderSide(color: AppColors.glitch700),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(
-                            color: AppColors.glitch700,
-                          ),
+                          borderSide: BorderSide(color: AppColors.glitch700),
                         ),
                       ),
                     ),

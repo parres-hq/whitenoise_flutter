@@ -74,9 +74,7 @@ class StartSecureChatBottomSheet extends StatelessWidget {
                             errorBuilder:
                                 (context, error, stackTrace) => Center(
                                   child: Text(
-                                    name.isNotEmpty
-                                        ? name[0].toUpperCase()
-                                        : '?',
+                                    name.isNotEmpty ? name[0].toUpperCase() : '?',
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 32.sp,

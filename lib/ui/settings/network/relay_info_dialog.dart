@@ -25,10 +25,7 @@ class RelayInfoDialog {
               children: [
                 Text(
                   content,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    color: AppColors.glitch600,
-                  ),
+                  style: TextStyle(fontSize: 16.sp, color: AppColors.glitch600),
                 ),
               ],
             ),

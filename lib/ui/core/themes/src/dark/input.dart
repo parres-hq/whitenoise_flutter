@@ -1,9 +1,7 @@
 part of 'dark.dart';
 
 InputDecorationTheme buildDarkInputDecorationThemeData() {
-  const borderSide = BorderSide(
-    color: LightAppColors.baseMuted,
-  );
+  const borderSide = BorderSide(color: LightAppColors.baseMuted);
   final border = OutlineInputBorder(
     borderRadius: AppDimension.borderRadius,
     borderSide: borderSide,
@@ -19,15 +17,11 @@ InputDecorationTheme buildDarkInputDecorationThemeData() {
       const tTheme = TextStyle();
 
       if (state.contains(WidgetState.error)) {
-        return tTheme.copyWith(
-          color: lightColorsExt.destructive,
-        );
+        return tTheme.copyWith(color: lightColorsExt.destructive);
       }
 
       if (state.contains(WidgetState.focused)) {
-        return tTheme.copyWith(
-          color: lightColorsExt.primary,
-        );
+        return tTheme.copyWith(color: lightColorsExt.primary);
       }
 
       if (state.contains(WidgetState.disabled)) {
@@ -44,15 +38,11 @@ InputDecorationTheme buildDarkInputDecorationThemeData() {
       const tTheme = TextStyle();
 
       if (state.contains(WidgetState.error)) {
-        return tTheme.copyWith(
-          color: lightColorsExt.destructive,
-        );
+        return tTheme.copyWith(color: lightColorsExt.destructive);
       }
 
       if (state.contains(WidgetState.focused)) {
-        return tTheme.copyWith(
-          color: lightColorsExt.primary,
-        );
+        return tTheme.copyWith(color: lightColorsExt.primary);
       }
 
       if (state.contains(WidgetState.disabled)) {
@@ -66,16 +56,12 @@ InputDecorationTheme buildDarkInputDecorationThemeData() {
 
     //
     focusedBorder: border.copyWith(
-      borderSide: borderSide.copyWith(
-        color: lightColorsExt.primary,
-      ),
+      borderSide: borderSide.copyWith(color: lightColorsExt.primary),
     ),
 
     //
     errorBorder: border.copyWith(
-      borderSide: borderSide.copyWith(
-        color: lightColorsExt.destructive,
-      ),
+      borderSide: borderSide.copyWith(color: lightColorsExt.destructive),
     ),
 
     //
@@ -84,9 +70,7 @@ InputDecorationTheme buildDarkInputDecorationThemeData() {
 
     //
     focusedErrorBorder: border.copyWith(
-      borderSide: borderSide.copyWith(
-        color: lightColorsExt.destructive,
-      ),
+      borderSide: borderSide.copyWith(color: lightColorsExt.destructive),
     ),
 
     border: border,

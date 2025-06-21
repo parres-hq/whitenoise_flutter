@@ -66,10 +66,7 @@ class CustomBottomSheet {
                 animation: barrierOpacityAnimation,
                 builder: (context, child) {
                   return GestureDetector(
-                    onTap:
-                        barrierDismissible
-                            ? () => Navigator.of(context).pop()
-                            : null,
+                    onTap: barrierDismissible ? () => Navigator.of(context).pop() : null,
                     child: Container(
                       color: Colors.black.withValues(
                         alpha: barrierOpacityAnimation.value,

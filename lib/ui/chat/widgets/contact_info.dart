@@ -11,10 +11,7 @@ class ContactInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        CircleAvatar(
-          radius: 20,
-          backgroundImage: AssetImage(imgPath),
-        ),
+        CircleAvatar(radius: 20, backgroundImage: AssetImage(imgPath)),
         const Gap(10),
         Text(title, style: const TextStyle(color: AppColors.glitch50)),
       ],

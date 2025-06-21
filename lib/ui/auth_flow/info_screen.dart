@@ -21,12 +21,7 @@ class InfoScreen extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(
-            imagePath,
-            width: 130,
-            height: 130,
-            fit: BoxFit.contain,
-          ),
+          Image.asset(imagePath, width: 130, height: 130, fit: BoxFit.contain),
           const SizedBox(width: 20),
           Expanded(
             child: Column(

@@ -141,8 +141,7 @@ final List<MessageModel> messages = [
     createdAt: DateTime.now().subtract(const Duration(minutes: 13)),
     sender: currentUser,
     isMe: true,
-    audioPath:
-        'https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg',
+    audioPath: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg',
     status: MessageStatus.read,
     reactions: [],
   ),
@@ -152,8 +151,7 @@ final List<MessageModel> messages = [
     createdAt: DateTime.now().subtract(const Duration(minutes: 14)),
     sender: marekContact,
     isMe: false,
-    audioPath:
-        'https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg',
+    audioPath: 'https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg',
     status: MessageStatus.read,
     reactions: [],
   ),

@@ -114,8 +114,7 @@ class _ChatScreenState extends State<ChatScreen> {
       } else {
         // Add new reaction
         final newReaction = Reaction(emoji: reaction, user: currentUser);
-        final newReactions = List<Reaction>.from(message.reactions)
-          ..add(newReaction);
+        final newReactions = List<Reaction>.from(message.reactions)..add(newReaction);
         messages = _updateMessage(message.copyWith(reactions: newReactions));
       }
     });
@@ -273,10 +272,7 @@ class _ChatScreenState extends State<ChatScreen> {
         builder: (context) {
           return ReactionsDialogWidget(
             id: message.id,
-            menuItems:
-                message.isMe
-                    ? DefaultData.myMessageMenuItems
-                    : DefaultData.menuItems,
+            menuItems: message.isMe ? DefaultData.myMessageMenuItems : DefaultData.menuItems,
             messageWidget: MessageWidget(
               message: message,
               isGroupMessage: false,
@@ -297,8 +293,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 _handleEdit(message);
               }
             },
-            widgetAlignment:
-                message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+            widgetAlignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
           );
         },
       ),
@@ -418,8 +413,7 @@ class _SwipeToReplyWidgetState extends State<_SwipeToReplyWidget>
       setState(() {
         // For my messages, we need to track negative drag extent
         if (widget.message.isMe) {
-          _dragExtent -=
-              details.delta.dx; // Negative for right-aligned messages
+          _dragExtent -= details.delta.dx; // Negative for right-aligned messages
         } else {
           _dragExtent += details.delta.dx; // Positive for left-aligned messages
         }

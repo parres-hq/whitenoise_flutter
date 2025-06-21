@@ -117,17 +117,12 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                             Text(
                               item.label,
                               style: TextStyle(
-                                color:
-                                    item.isDestructive
-                                        ? Colors.red
-                                        : AppColors.glitch900,
+                                color: item.isDestructive ? Colors.red : AppColors.glitch900,
                               ),
                             ),
                             Pulse(
                               duration: const Duration(milliseconds: 100),
-                              animate:
-                                  clickedContextMenuIndex ==
-                                  widget.menuItems.indexOf(item),
+                              animate: clickedContextMenuIndex == widget.menuItems.indexOf(item),
                               child: Icon(
                                 size: 20,
                                 item.icon,
@@ -178,8 +173,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
             children: [
               for (var reaction in widget.reactions)
                 FadeInLeft(
-                  from:
-                      0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
+                  from: 0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
                   duration: const Duration(milliseconds: 50),
                   child: InkWell(
                     onTap: () {
@@ -196,15 +190,11 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                       duration: const Duration(milliseconds: 50),
                       animate:
                           reactionClicked &&
-                          clickedReactionIndex ==
-                              widget.reactions.indexOf(reaction),
+                          clickedReactionIndex == widget.reactions.indexOf(reaction),
                       child: Container(
                         padding: const EdgeInsets.fromLTRB(7.0, 2.0, 7.0, 2),
                         decoration: BoxDecoration(
-                          color:
-                              reaction == '⋯'
-                                  ? AppColors.glitch200
-                                  : Colors.transparent,
+                          color: reaction == '⋯' ? AppColors.glitch200 : Colors.transparent,
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(

@@ -38,7 +38,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.10.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1990933627;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1467017672;
 
 // Section: executor
 
@@ -1045,9 +1045,6 @@ fn wire__crate__api__add_contact_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_account = <RustOpaqueMoi<
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>,
             >>::sse_decode(&mut deserializer);
@@ -1056,44 +1053,28 @@ fn wire__crate__api__add_contact_impl(
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
                         let mut api_account_guard = None;
                         let decode_indices_ =
                             flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_whitenoise,
-                                        0,
-                                        false,
-                                    ),
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_account,
-                                        1,
-                                        false,
-                                    ),
-                                ],
+                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                    &api_account,
+                                    0,
+                                    false,
+                                )],
                             );
                         for i in decode_indices_ {
                             match i {
                                 0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                1 => {
                                     api_account_guard =
                                         Some(api_account.lockable_decode_async_ref().await)
                                 }
                                 _ => unreachable!(),
                             }
                         }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
                         let api_account_guard = api_account_guard.unwrap();
-                        let output_ok = crate::api::add_contact(
-                            &*api_whitenoise_guard,
-                            &*api_account_guard,
-                            api_contact_pubkey,
-                        )
-                        .await?;
+                        let output_ok =
+                            crate::api::add_contact(&*api_account_guard, api_contact_pubkey)
+                                .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1367,7 +1348,7 @@ fn wire__crate__api__convert_metadata_to_data_impl(
         },
     )
 }
-fn wire__crate__api__convert_whitenoise_to_data_impl(
+fn wire__crate__api__create_group_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -1375,7 +1356,7 @@ fn wire__crate__api__convert_whitenoise_to_data_impl(
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "convert_whitenoise_to_data",
+            debug_name: "create_group",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
@@ -1389,35 +1370,23 @@ fn wire__crate__api__convert_whitenoise_to_data_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc<Whitenoise>>,
-            >>::sse_decode(&mut deserializer);
+            let api_creator_account = <Account>::sse_decode(&mut deserializer);
+            let api_member_pubkeys = <Vec<PublicKey>>::sse_decode(&mut deserializer);
+            let api_admin_pubkeys = <Vec<PublicKey>>::sse_decode(&mut deserializer);
+            let api_group_name = <String>::sse_decode(&mut deserializer);
+            let api_group_description = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
-                transform_result_sse::<_, ()>(
+                transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
-                        let decode_indices_ =
-                            flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                    &api_whitenoise,
-                                    0,
-                                    false,
-                                )],
-                            );
-                        for i in decode_indices_ {
-                            match i {
-                                0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                _ => unreachable!(),
-                            }
-                        }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
-                        let output_ok = Result::<_, ()>::Ok(
-                            crate::api::convert_whitenoise_to_data(&*api_whitenoise_guard).await,
-                        )?;
+                        let output_ok = crate::api::create_group(
+                            api_creator_account,
+                            api_member_pubkeys,
+                            api_admin_pubkeys,
+                            api_group_name,
+                            api_group_description,
+                        )
+                        .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1448,34 +1417,11 @@ fn wire__crate__api__create_identity_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
-                        let decode_indices_ =
-                            flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                    &api_whitenoise,
-                                    0,
-                                    true,
-                                )],
-                            );
-                        for i in decode_indices_ {
-                            match i {
-                                0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref_mut().await)
-                                }
-                                _ => unreachable!(),
-                            }
-                        }
-                        let mut api_whitenoise_guard = api_whitenoise_guard.unwrap();
-                        let output_ok =
-                            crate::api::create_identity(&mut *api_whitenoise_guard).await?;
+                        let output_ok = crate::api::create_identity().await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1543,34 +1489,11 @@ fn wire__crate__api__delete_all_data_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
-                        let decode_indices_ =
-                            flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                    &api_whitenoise,
-                                    0,
-                                    true,
-                                )],
-                            );
-                        for i in decode_indices_ {
-                            match i {
-                                0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref_mut().await)
-                                }
-                                _ => unreachable!(),
-                            }
-                        }
-                        let mut api_whitenoise_guard = api_whitenoise_guard.unwrap();
-                        let output_ok =
-                            crate::api::delete_all_data(&mut *api_whitenoise_guard).await?;
+                        let output_ok = crate::api::delete_all_data().await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1601,9 +1524,6 @@ fn wire__crate__api__export_account_npub_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_account = <RustOpaqueMoi<
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>,
             >>::sse_decode(&mut deserializer);
@@ -1611,43 +1531,27 @@ fn wire__crate__api__export_account_npub_impl(
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
                         let mut api_account_guard = None;
                         let decode_indices_ =
                             flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_whitenoise,
-                                        0,
-                                        false,
-                                    ),
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_account,
-                                        1,
-                                        false,
-                                    ),
-                                ],
+                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                    &api_account,
+                                    0,
+                                    false,
+                                )],
                             );
                         for i in decode_indices_ {
                             match i {
                                 0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                1 => {
                                     api_account_guard =
                                         Some(api_account.lockable_decode_async_ref().await)
                                 }
                                 _ => unreachable!(),
                             }
                         }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
                         let api_account_guard = api_account_guard.unwrap();
-                        let output_ok = crate::api::export_account_npub(
-                            &*api_whitenoise_guard,
-                            &*api_account_guard,
-                        )
-                        .await?;
+                        let output_ok =
+                            crate::api::export_account_npub(&*api_account_guard).await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1678,9 +1582,6 @@ fn wire__crate__api__export_account_nsec_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_account = <RustOpaqueMoi<
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>,
             >>::sse_decode(&mut deserializer);
@@ -1688,43 +1589,62 @@ fn wire__crate__api__export_account_nsec_impl(
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
                         let mut api_account_guard = None;
                         let decode_indices_ =
                             flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_whitenoise,
-                                        0,
-                                        false,
-                                    ),
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_account,
-                                        1,
-                                        false,
-                                    ),
-                                ],
+                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                    &api_account,
+                                    0,
+                                    false,
+                                )],
                             );
                         for i in decode_indices_ {
                             match i {
                                 0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                1 => {
                                     api_account_guard =
                                         Some(api_account.lockable_decode_async_ref().await)
                                 }
                                 _ => unreachable!(),
                             }
                         }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
                         let api_account_guard = api_account_guard.unwrap();
-                        let output_ok = crate::api::export_account_nsec(
-                            &*api_whitenoise_guard,
-                            &*api_account_guard,
-                        )
-                        .await?;
+                        let output_ok =
+                            crate::api::export_account_nsec(&*api_account_guard).await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__fetch_accounts_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "fetch_accounts",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, WhitenoiseError>(
+                    (move || async move {
+                        let output_ok = crate::api::fetch_accounts().await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1755,35 +1675,12 @@ fn wire__crate__api__fetch_contacts_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_pubkey = <PublicKey>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
-                        let decode_indices_ =
-                            flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                    &api_whitenoise,
-                                    0,
-                                    false,
-                                )],
-                            );
-                        for i in decode_indices_ {
-                            match i {
-                                0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                _ => unreachable!(),
-                            }
-                        }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
-                        let output_ok =
-                            crate::api::fetch_contacts(&*api_whitenoise_guard, api_pubkey).await?;
+                        let output_ok = crate::api::fetch_contacts(api_pubkey).await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1814,9 +1711,6 @@ fn wire__crate__api__fetch_group_admins_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_account = <RustOpaqueMoi<
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>,
             >>::sse_decode(&mut deserializer);
@@ -1825,44 +1719,28 @@ fn wire__crate__api__fetch_group_admins_impl(
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
                         let mut api_account_guard = None;
                         let decode_indices_ =
                             flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_whitenoise,
-                                        0,
-                                        false,
-                                    ),
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_account,
-                                        1,
-                                        false,
-                                    ),
-                                ],
+                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                    &api_account,
+                                    0,
+                                    false,
+                                )],
                             );
                         for i in decode_indices_ {
                             match i {
                                 0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                1 => {
                                     api_account_guard =
                                         Some(api_account.lockable_decode_async_ref().await)
                                 }
                                 _ => unreachable!(),
                             }
                         }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
                         let api_account_guard = api_account_guard.unwrap();
-                        let output_ok = crate::api::fetch_group_admins(
-                            &*api_whitenoise_guard,
-                            &*api_account_guard,
-                            api_group_id,
-                        )
-                        .await?;
+                        let output_ok =
+                            crate::api::fetch_group_admins(&*api_account_guard, api_group_id)
+                                .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1893,9 +1771,6 @@ fn wire__crate__api__fetch_group_members_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_account = <RustOpaqueMoi<
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>,
             >>::sse_decode(&mut deserializer);
@@ -1904,44 +1779,28 @@ fn wire__crate__api__fetch_group_members_impl(
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
                         let mut api_account_guard = None;
                         let decode_indices_ =
                             flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_whitenoise,
-                                        0,
-                                        false,
-                                    ),
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_account,
-                                        1,
-                                        false,
-                                    ),
-                                ],
+                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                    &api_account,
+                                    0,
+                                    false,
+                                )],
                             );
                         for i in decode_indices_ {
                             match i {
                                 0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                1 => {
                                     api_account_guard =
                                         Some(api_account.lockable_decode_async_ref().await)
                                 }
                                 _ => unreachable!(),
                             }
                         }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
                         let api_account_guard = api_account_guard.unwrap();
-                        let output_ok = crate::api::fetch_group_members(
-                            &*api_whitenoise_guard,
-                            &*api_account_guard,
-                            api_group_id,
-                        )
-                        .await?;
+                        let output_ok =
+                            crate::api::fetch_group_members(&*api_account_guard, api_group_id)
+                                .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1972,9 +1831,6 @@ fn wire__crate__api__fetch_groups_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_account = <RustOpaqueMoi<
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>,
             >>::sse_decode(&mut deserializer);
@@ -1982,41 +1838,26 @@ fn wire__crate__api__fetch_groups_impl(
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
                         let mut api_account_guard = None;
                         let decode_indices_ =
                             flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_whitenoise,
-                                        0,
-                                        false,
-                                    ),
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_account,
-                                        1,
-                                        false,
-                                    ),
-                                ],
+                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                    &api_account,
+                                    0,
+                                    false,
+                                )],
                             );
                         for i in decode_indices_ {
                             match i {
                                 0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                1 => {
                                     api_account_guard =
                                         Some(api_account.lockable_decode_async_ref().await)
                                 }
                                 _ => unreachable!(),
                             }
                         }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
                         let api_account_guard = api_account_guard.unwrap();
-                        let output_ok =
-                            crate::api::fetch_groups(&*api_whitenoise_guard, &*api_account_guard)
-                                .await?;
+                        let output_ok = crate::api::fetch_groups(&*api_account_guard).await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -2047,36 +1888,12 @@ fn wire__crate__api__fetch_key_package_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_pubkey = <PublicKey>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
-                        let decode_indices_ =
-                            flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                    &api_whitenoise,
-                                    0,
-                                    false,
-                                )],
-                            );
-                        for i in decode_indices_ {
-                            match i {
-                                0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                _ => unreachable!(),
-                            }
-                        }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
-                        let output_ok =
-                            crate::api::fetch_key_package(&*api_whitenoise_guard, api_pubkey)
-                                .await?;
+                        let output_ok = crate::api::fetch_key_package(api_pubkey).await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -2107,35 +1924,12 @@ fn wire__crate__api__fetch_metadata_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_pubkey = <PublicKey>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
-                        let decode_indices_ =
-                            flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                    &api_whitenoise,
-                                    0,
-                                    false,
-                                )],
-                            );
-                        for i in decode_indices_ {
-                            match i {
-                                0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                _ => unreachable!(),
-                            }
-                        }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
-                        let output_ok =
-                            crate::api::fetch_metadata(&*api_whitenoise_guard, api_pubkey).await?;
+                        let output_ok = crate::api::fetch_metadata(api_pubkey).await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -2166,36 +1960,12 @@ fn wire__crate__api__fetch_onboarding_state_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_pubkey = <PublicKey>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
-                        let decode_indices_ =
-                            flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                    &api_whitenoise,
-                                    0,
-                                    false,
-                                )],
-                            );
-                        for i in decode_indices_ {
-                            match i {
-                                0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                _ => unreachable!(),
-                            }
-                        }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
-                        let output_ok =
-                            crate::api::fetch_onboarding_state(&*api_whitenoise_guard, api_pubkey)
-                                .await?;
+                        let output_ok = crate::api::fetch_onboarding_state(api_pubkey).await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -2226,40 +1996,14 @@ fn wire__crate__api__fetch_relays_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_pubkey = <PublicKey>::sse_decode(&mut deserializer);
             let api_relay_type = <RelayType>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
-                        let decode_indices_ =
-                            flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                    &api_whitenoise,
-                                    0,
-                                    false,
-                                )],
-                            );
-                        for i in decode_indices_ {
-                            match i {
-                                0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                _ => unreachable!(),
-                            }
-                        }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
-                        let output_ok = crate::api::fetch_relays(
-                            &*api_whitenoise_guard,
-                            api_pubkey,
-                            api_relay_type,
-                        )
-                        .await?;
+                        let output_ok =
+                            crate::api::fetch_relays(api_pubkey, api_relay_type).await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -2427,65 +2171,6 @@ fn wire__crate__api__get_relay_url_string_impl(
         },
     )
 }
-fn wire__crate__api__get_whitenoise_data_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "get_whitenoise_data",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc<Whitenoise>>,
-            >>::sse_decode(&mut deserializer);
-            deserializer.end();
-            move |context| async move {
-                transform_result_sse::<_, ()>(
-                    (move || async move {
-                        let mut api_whitenoise_guard = None;
-                        let decode_indices_ =
-                            flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                    &api_whitenoise,
-                                    0,
-                                    false,
-                                )],
-                            );
-                        for i in decode_indices_ {
-                            match i {
-                                0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                _ => unreachable!(),
-                            }
-                        }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
-                        let output_ok = Result::<_, ()>::Ok(
-                            crate::api::get_whitenoise_data(&*api_whitenoise_guard).await,
-                        )?;
-                        Ok(output_ok)
-                    })()
-                    .await,
-                )
-            }
-        },
-    )
-}
 fn wire__crate__api__group_id_from_string_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -2629,36 +2314,12 @@ fn wire__crate__api__login_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_nsec_or_hex_privkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
-                        let decode_indices_ =
-                            flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                    &api_whitenoise,
-                                    0,
-                                    true,
-                                )],
-                            );
-                        for i in decode_indices_ {
-                            match i {
-                                0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref_mut().await)
-                                }
-                                _ => unreachable!(),
-                            }
-                        }
-                        let mut api_whitenoise_guard = api_whitenoise_guard.unwrap();
-                        let output_ok =
-                            crate::api::login(&mut *api_whitenoise_guard, api_nsec_or_hex_privkey)
-                                .await?;
+                        let output_ok = crate::api::login(api_nsec_or_hex_privkey).await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -2689,9 +2350,6 @@ fn wire__crate__api__logout_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_pubkey = <RustOpaqueMoi<
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>,
             >>::sse_decode(&mut deserializer);
@@ -2699,41 +2357,26 @@ fn wire__crate__api__logout_impl(
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
                         let mut api_pubkey_guard = None;
                         let decode_indices_ =
                             flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_whitenoise,
-                                        0,
-                                        true,
-                                    ),
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_pubkey,
-                                        1,
-                                        false,
-                                    ),
-                                ],
+                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                    &api_pubkey,
+                                    0,
+                                    false,
+                                )],
                             );
                         for i in decode_indices_ {
                             match i {
                                 0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref_mut().await)
-                                }
-                                1 => {
                                     api_pubkey_guard =
                                         Some(api_pubkey.lockable_decode_async_ref().await)
                                 }
                                 _ => unreachable!(),
                             }
                         }
-                        let mut api_whitenoise_guard = api_whitenoise_guard.unwrap();
                         let api_pubkey_guard = api_pubkey_guard.unwrap();
-                        let output_ok =
-                            crate::api::logout(&mut *api_whitenoise_guard, &*api_pubkey_guard)
-                                .await?;
+                        let output_ok = crate::api::logout(&*api_pubkey_guard).await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -2926,9 +2569,6 @@ fn wire__crate__api__remove_contact_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_account = <RustOpaqueMoi<
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>,
             >>::sse_decode(&mut deserializer);
@@ -2937,44 +2577,28 @@ fn wire__crate__api__remove_contact_impl(
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
                         let mut api_account_guard = None;
                         let decode_indices_ =
                             flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_whitenoise,
-                                        0,
-                                        false,
-                                    ),
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_account,
-                                        1,
-                                        false,
-                                    ),
-                                ],
+                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                    &api_account,
+                                    0,
+                                    false,
+                                )],
                             );
                         for i in decode_indices_ {
                             match i {
                                 0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                1 => {
                                     api_account_guard =
                                         Some(api_account.lockable_decode_async_ref().await)
                                 }
                                 _ => unreachable!(),
                             }
                         }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
                         let api_account_guard = api_account_guard.unwrap();
-                        let output_ok = crate::api::remove_contact(
-                            &*api_whitenoise_guard,
-                            &*api_account_guard,
-                            api_contact_pubkey,
-                        )
-                        .await?;
+                        let output_ok =
+                            crate::api::remove_contact(&*api_account_guard, api_contact_pubkey)
+                                .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -3005,9 +2629,6 @@ fn wire__crate__api__update_contacts_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_account = <RustOpaqueMoi<
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>,
             >>::sse_decode(&mut deserializer);
@@ -3016,44 +2637,28 @@ fn wire__crate__api__update_contacts_impl(
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
                         let mut api_account_guard = None;
                         let decode_indices_ =
                             flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_whitenoise,
-                                        0,
-                                        false,
-                                    ),
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_account,
-                                        1,
-                                        false,
-                                    ),
-                                ],
+                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                    &api_account,
+                                    0,
+                                    false,
+                                )],
                             );
                         for i in decode_indices_ {
                             match i {
                                 0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                1 => {
                                     api_account_guard =
                                         Some(api_account.lockable_decode_async_ref().await)
                                 }
                                 _ => unreachable!(),
                             }
                         }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
                         let api_account_guard = api_account_guard.unwrap();
-                        let output_ok = crate::api::update_contacts(
-                            &*api_whitenoise_guard,
-                            &*api_account_guard,
-                            api_contact_pubkeys,
-                        )
-                        .await?;
+                        let output_ok =
+                            crate::api::update_contacts(&*api_account_guard, api_contact_pubkeys)
+                                .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -3084,9 +2689,6 @@ fn wire__crate__api__update_metadata_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_metadata = <RustOpaqueMoi<
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MetadataData>,
             >>::sse_decode(&mut deserializer);
@@ -3097,25 +2699,19 @@ fn wire__crate__api__update_metadata_impl(
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
                         let mut api_metadata_guard = None;
                         let mut api_account_guard = None;
                         let decode_indices_ =
                             flutter_rust_bridge::for_generated::lockable_compute_decode_order(
                                 vec![
                                     flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_whitenoise,
+                                        &api_metadata,
                                         0,
                                         false,
                                     ),
                                     flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_metadata,
-                                        1,
-                                        false,
-                                    ),
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
                                         &api_account,
-                                        2,
+                                        1,
                                         false,
                                     ),
                                 ],
@@ -3123,29 +2719,21 @@ fn wire__crate__api__update_metadata_impl(
                         for i in decode_indices_ {
                             match i {
                                 0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                1 => {
                                     api_metadata_guard =
                                         Some(api_metadata.lockable_decode_async_ref().await)
                                 }
-                                2 => {
+                                1 => {
                                     api_account_guard =
                                         Some(api_account.lockable_decode_async_ref().await)
                                 }
                                 _ => unreachable!(),
                             }
                         }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
                         let api_metadata_guard = api_metadata_guard.unwrap();
                         let api_account_guard = api_account_guard.unwrap();
-                        let output_ok = crate::api::update_metadata(
-                            &*api_whitenoise_guard,
-                            &*api_metadata_guard,
-                            &*api_account_guard,
-                        )
-                        .await?;
+                        let output_ok =
+                            crate::api::update_metadata(&*api_metadata_guard, &*api_account_guard)
+                                .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -3176,9 +2764,6 @@ fn wire__crate__api__update_relays_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_whitenoise = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>,
-            >>::sse_decode(&mut deserializer);
             let api_account = <RustOpaqueMoi<
                 flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>,
             >>::sse_decode(&mut deserializer);
@@ -3188,40 +2773,26 @@ fn wire__crate__api__update_relays_impl(
             move |context| async move {
                 transform_result_sse::<_, WhitenoiseError>(
                     (move || async move {
-                        let mut api_whitenoise_guard = None;
                         let mut api_account_guard = None;
                         let decode_indices_ =
                             flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_whitenoise,
-                                        0,
-                                        false,
-                                    ),
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_account,
-                                        1,
-                                        false,
-                                    ),
-                                ],
+                                vec![flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                    &api_account,
+                                    0,
+                                    false,
+                                )],
                             );
                         for i in decode_indices_ {
                             match i {
                                 0 => {
-                                    api_whitenoise_guard =
-                                        Some(api_whitenoise.lockable_decode_async_ref().await)
-                                }
-                                1 => {
                                     api_account_guard =
                                         Some(api_account.lockable_decode_async_ref().await)
                                 }
                                 _ => unreachable!(),
                             }
                         }
-                        let api_whitenoise_guard = api_whitenoise_guard.unwrap();
                         let api_account_guard = api_account_guard.unwrap();
                         let output_ok = crate::api::update_relays(
-                            &*api_whitenoise_guard,
                             &*api_account_guard,
                             api_relay_type,
                             api_relays,
@@ -3260,9 +2831,6 @@ flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
-    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc<Whitenoise>>
-);
-flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
@@ -3287,9 +2855,6 @@ flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
-    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>
-);
-flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<WhitenoiseConfig>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
@@ -3303,16 +2868,6 @@ impl SseDecode for Account {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <RustOpaqueMoi<
             flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>,
-        >>::sse_decode(deserializer);
-        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
-    }
-}
-
-impl SseDecode for Arc<Whitenoise> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut inner = <RustOpaqueMoi<
-            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc<Whitenoise>>,
         >>::sse_decode(deserializer);
         return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
     }
@@ -3424,25 +2979,7 @@ impl SseDecode for std::collections::HashMap<String, String> {
     }
 }
 
-impl SseDecode for std::collections::HashMap<String, crate::api::AccountData> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut inner = <Vec<(String, crate::api::AccountData)>>::sse_decode(deserializer);
-        return inner.into_iter().collect();
-    }
-}
-
 impl SseDecode for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut inner = <usize>::sse_decode(deserializer);
-        return decode_rust_opaque_moi(inner);
-    }
-}
-
-impl SseDecode
-    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc<Whitenoise>>>
-{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <usize>::sse_decode(deserializer);
@@ -3516,16 +3053,6 @@ impl SseDecode
 
 impl SseDecode
     for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>>
-{
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut inner = <usize>::sse_decode(deserializer);
-        return decode_rust_opaque_moi(inner);
-    }
-}
-
-impl SseDecode
-    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>>
 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3695,6 +3222,18 @@ impl SseDecode for Vec<String> {
     }
 }
 
+impl SseDecode for Vec<crate::api::AccountData> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::AccountData>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::api::GroupData> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3726,20 +3265,6 @@ impl SseDecode for Vec<(PublicKey, Option<MetadataData>)> {
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
             ans_.push(<(PublicKey, Option<MetadataData>)>::sse_decode(
-                deserializer,
-            ));
-        }
-        return ans_;
-    }
-}
-
-impl SseDecode for Vec<(String, crate::api::AccountData)> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut len_ = <i32>::sse_decode(deserializer);
-        let mut ans_ = vec![];
-        for idx_ in 0..len_ {
-            ans_.push(<(String, crate::api::AccountData)>::sse_decode(
                 deserializer,
             ));
         }
@@ -3826,15 +3351,6 @@ impl SseDecode for (PublicKey, Option<MetadataData>) {
     }
 }
 
-impl SseDecode for (String, crate::api::AccountData) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_field0 = <String>::sse_decode(deserializer);
-        let mut var_field1 = <crate::api::AccountData>::sse_decode(deserializer);
-        return (var_field0, var_field1);
-    }
-}
-
 impl SseDecode for (String, String) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3882,19 +3398,6 @@ impl SseDecode for crate::api::WhitenoiseConfigData {
     }
 }
 
-impl SseDecode for crate::api::WhitenoiseData {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_config = <crate::api::WhitenoiseConfigData>::sse_decode(deserializer);
-        let mut var_accounts =
-            <std::collections::HashMap<String, crate::api::AccountData>>::sse_decode(deserializer);
-        return crate::api::WhitenoiseData {
-            config: var_config,
-            accounts: var_accounts,
-        };
-    }
-}
-
 fn pde_ffi_dispatcher_primary_impl(
     func_id: i32,
     port: flutter_rust_bridge::for_generated::MessagePort,
@@ -3917,24 +3420,24 @@ fn pde_ffi_dispatcher_primary_impl(
             data_len,
         ),
         26 => wire__crate__api__convert_metadata_to_data_impl(port, ptr, rust_vec_len, data_len),
-        27 => wire__crate__api__convert_whitenoise_to_data_impl(port, ptr, rust_vec_len, data_len),
+        27 => wire__crate__api__create_group_impl(port, ptr, rust_vec_len, data_len),
         28 => wire__crate__api__create_identity_impl(port, ptr, rust_vec_len, data_len),
         29 => wire__crate__api__create_whitenoise_config_impl(port, ptr, rust_vec_len, data_len),
         30 => wire__crate__api__delete_all_data_impl(port, ptr, rust_vec_len, data_len),
         31 => wire__crate__api__export_account_npub_impl(port, ptr, rust_vec_len, data_len),
         32 => wire__crate__api__export_account_nsec_impl(port, ptr, rust_vec_len, data_len),
-        33 => wire__crate__api__fetch_contacts_impl(port, ptr, rust_vec_len, data_len),
-        34 => wire__crate__api__fetch_group_admins_impl(port, ptr, rust_vec_len, data_len),
-        35 => wire__crate__api__fetch_group_members_impl(port, ptr, rust_vec_len, data_len),
-        36 => wire__crate__api__fetch_groups_impl(port, ptr, rust_vec_len, data_len),
-        37 => wire__crate__api__fetch_key_package_impl(port, ptr, rust_vec_len, data_len),
-        38 => wire__crate__api__fetch_metadata_impl(port, ptr, rust_vec_len, data_len),
-        39 => wire__crate__api__fetch_onboarding_state_impl(port, ptr, rust_vec_len, data_len),
-        40 => wire__crate__api__fetch_relays_impl(port, ptr, rust_vec_len, data_len),
-        41 => wire__crate__api__get_account_data_impl(port, ptr, rust_vec_len, data_len),
-        42 => wire__crate__api__get_config_data_impl(port, ptr, rust_vec_len, data_len),
-        43 => wire__crate__api__get_relay_url_string_impl(port, ptr, rust_vec_len, data_len),
-        44 => wire__crate__api__get_whitenoise_data_impl(port, ptr, rust_vec_len, data_len),
+        33 => wire__crate__api__fetch_accounts_impl(port, ptr, rust_vec_len, data_len),
+        34 => wire__crate__api__fetch_contacts_impl(port, ptr, rust_vec_len, data_len),
+        35 => wire__crate__api__fetch_group_admins_impl(port, ptr, rust_vec_len, data_len),
+        36 => wire__crate__api__fetch_group_members_impl(port, ptr, rust_vec_len, data_len),
+        37 => wire__crate__api__fetch_groups_impl(port, ptr, rust_vec_len, data_len),
+        38 => wire__crate__api__fetch_key_package_impl(port, ptr, rust_vec_len, data_len),
+        39 => wire__crate__api__fetch_metadata_impl(port, ptr, rust_vec_len, data_len),
+        40 => wire__crate__api__fetch_onboarding_state_impl(port, ptr, rust_vec_len, data_len),
+        41 => wire__crate__api__fetch_relays_impl(port, ptr, rust_vec_len, data_len),
+        42 => wire__crate__api__get_account_data_impl(port, ptr, rust_vec_len, data_len),
+        43 => wire__crate__api__get_config_data_impl(port, ptr, rust_vec_len, data_len),
+        44 => wire__crate__api__get_relay_url_string_impl(port, ptr, rust_vec_len, data_len),
         45 => wire__crate__api__group_id_from_string_impl(port, ptr, rust_vec_len, data_len),
         46 => wire__crate__api__group_id_to_string_impl(port, ptr, rust_vec_len, data_len),
         47 => wire__crate__api__initialize_whitenoise_impl(port, ptr, rust_vec_len, data_len),
@@ -4048,21 +3551,6 @@ impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<
 
 impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<Account>> for Account {
     fn into_into_dart(self) -> FrbWrapper<Account> {
-        self.into()
-    }
-}
-
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for FrbWrapper<Arc<Whitenoise>> {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
-            .into_dart()
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<Arc<Whitenoise>> {}
-
-impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<Arc<Whitenoise>>> for Arc<Whitenoise> {
-    fn into_into_dart(self) -> FrbWrapper<Arc<Whitenoise>> {
         self.into()
     }
 }
@@ -4352,34 +3840,11 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::WhitenoiseConfigData>
         self
     }
 }
-// Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::WhitenoiseData {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        [
-            self.config.into_into_dart().into_dart(),
-            self.accounts.into_into_dart().into_dart(),
-        ]
-        .into_dart()
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::WhitenoiseData {}
-impl flutter_rust_bridge::IntoIntoDart<crate::api::WhitenoiseData> for crate::api::WhitenoiseData {
-    fn into_into_dart(self) -> crate::api::WhitenoiseData {
-        self
-    }
-}
 
 impl SseEncode for Account {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
-    }
-}
-
-impl SseEncode for Arc<Whitenoise> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc < Whitenoise >>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
     }
 }
 
@@ -4466,28 +3931,7 @@ impl SseEncode for std::collections::HashMap<String, String> {
     }
 }
 
-impl SseEncode for std::collections::HashMap<String, crate::api::AccountData> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <Vec<(String, crate::api::AccountData)>>::sse_encode(
-            self.into_iter().collect(),
-            serializer,
-        );
-    }
-}
-
 impl SseEncode for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        let (ptr, size) = self.sse_encode_raw();
-        <usize>::sse_encode(ptr, serializer);
-        <i32>::sse_encode(size, serializer);
-    }
-}
-
-impl SseEncode
-    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc<Whitenoise>>>
-{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         let (ptr, size) = self.sse_encode_raw();
@@ -4569,17 +4013,6 @@ impl SseEncode
 
 impl SseEncode
     for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>>
-{
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        let (ptr, size) = self.sse_encode_raw();
-        <usize>::sse_encode(ptr, serializer);
-        <i32>::sse_encode(size, serializer);
-    }
-}
-
-impl SseEncode
-    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>>
 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4730,6 +4163,16 @@ impl SseEncode for Vec<String> {
     }
 }
 
+impl SseEncode for Vec<crate::api::AccountData> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::AccountData>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::api::GroupData> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4756,16 +4199,6 @@ impl SseEncode for Vec<(PublicKey, Option<MetadataData>)> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <(PublicKey, Option<MetadataData>)>::sse_encode(item, serializer);
-        }
-    }
-}
-
-impl SseEncode for Vec<(String, crate::api::AccountData)> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <i32>::sse_encode(self.len() as _, serializer);
-        for item in self {
-            <(String, crate::api::AccountData)>::sse_encode(item, serializer);
         }
     }
 }
@@ -4837,14 +4270,6 @@ impl SseEncode for (PublicKey, Option<MetadataData>) {
     }
 }
 
-impl SseEncode for (String, crate::api::AccountData) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <String>::sse_encode(self.0, serializer);
-        <crate::api::AccountData>::sse_encode(self.1, serializer);
-    }
-}
-
 impl SseEncode for (String, String) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4890,17 +4315,6 @@ impl SseEncode for crate::api::WhitenoiseConfigData {
     }
 }
 
-impl SseEncode for crate::api::WhitenoiseData {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <crate::api::WhitenoiseConfigData>::sse_encode(self.config, serializer);
-        <std::collections::HashMap<String, crate::api::AccountData>>::sse_encode(
-            self.accounts,
-            serializer,
-        );
-    }
-}
-
 #[cfg(not(target_family = "wasm"))]
 mod io {
     // This file is automatically generated, so please do not edit it.
@@ -4932,20 +4346,6 @@ mod io {
         ptr: *const std::ffi::c_void,
     ) {
         MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>>::decrement_strong_count(ptr as _);
-    }
-
-    #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArcWhitenoise(
-        ptr: *const std::ffi::c_void,
-    ) {
-        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc < Whitenoise >>>::increment_strong_count(ptr as _);
-    }
-
-    #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerArcWhitenoise(
-        ptr: *const std::ffi::c_void,
-    ) {
-        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc < Whitenoise >>>::decrement_strong_count(ptr as _);
     }
 
     #[unsafe(no_mangle)]
@@ -5058,20 +4458,6 @@ mod io {
         ptr: *const std::ffi::c_void,
     ) {
         MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>>::decrement_strong_count(ptr as _);
-    }
-
-    #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
-        ptr: *const std::ffi::c_void,
-    ) {
-        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>>::increment_strong_count(ptr as _);
-    }
-
-    #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoise(
-        ptr: *const std::ffi::c_void,
-    ) {
-        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>>::decrement_strong_count(ptr as _);
     }
 
     #[unsafe(no_mangle)]

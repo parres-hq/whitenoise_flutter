@@ -7,7 +7,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'frb_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 Future<MetadataData> convertMetadataToData({required Metadata metadata}) =>
     RustLib.instance.api.crateApiConvertMetadataToData(metadata: metadata);
@@ -18,14 +18,11 @@ Future<Metadata> convertMetadataDataToMetadata({
   metadataData: metadataData,
 );
 
-Future<RelayType> relayTypeNostr() =>
-    RustLib.instance.api.crateApiRelayTypeNostr();
+Future<RelayType> relayTypeNostr() => RustLib.instance.api.crateApiRelayTypeNostr();
 
-Future<RelayType> relayTypeInbox() =>
-    RustLib.instance.api.crateApiRelayTypeInbox();
+Future<RelayType> relayTypeInbox() => RustLib.instance.api.crateApiRelayTypeInbox();
 
-Future<RelayType> relayTypeKeyPackage() =>
-    RustLib.instance.api.crateApiRelayTypeKeyPackage();
+Future<RelayType> relayTypeKeyPackage() => RustLib.instance.api.crateApiRelayTypeKeyPackage();
 
 Future<PublicKey> publicKeyFromString({required String publicKeyString}) =>
     RustLib.instance.api.crateApiPublicKeyFromString(
@@ -37,12 +34,6 @@ Future<RelayUrl> relayUrlFromString({required String url}) =>
 
 Future<String> getRelayUrlString({required RelayUrl relayUrl}) =>
     RustLib.instance.api.crateApiGetRelayUrlString(relayUrl: relayUrl);
-
-Future<WhitenoiseData> convertWhitenoiseToData({
-  required ArcWhitenoise whitenoise,
-}) => RustLib.instance.api.crateApiConvertWhitenoiseToData(
-  whitenoise: whitenoise,
-);
 
 Future<WhitenoiseConfigData> convertConfigToData({
   required WhitenoiseConfig config,
@@ -68,12 +59,8 @@ Future<WhitenoiseConfig> createWhitenoiseConfig({
   logsDir: logsDir,
 );
 
-Future<ArcWhitenoise> initializeWhitenoise({
-  required WhitenoiseConfig config,
-}) => RustLib.instance.api.crateApiInitializeWhitenoise(config: config);
-
-Future<WhitenoiseData> getWhitenoiseData({required ArcWhitenoise whitenoise}) =>
-    RustLib.instance.api.crateApiGetWhitenoiseData(whitenoise: whitenoise);
+Future<void> initializeWhitenoise({required WhitenoiseConfig config}) =>
+    RustLib.instance.api.crateApiInitializeWhitenoise(config: config);
 
 Future<AccountData> getAccountData({required Account account}) =>
     RustLib.instance.api.crateApiGetAccountData(account: account);
@@ -82,172 +69,126 @@ Future<WhitenoiseConfigData> getConfigData({
   required WhitenoiseConfig config,
 }) => RustLib.instance.api.crateApiGetConfigData(config: config);
 
-Future<void> deleteAllData({required Whitenoise whitenoise}) =>
-    RustLib.instance.api.crateApiDeleteAllData(whitenoise: whitenoise);
+Future<void> deleteAllData() => RustLib.instance.api.crateApiDeleteAllData();
 
-Future<Account> createIdentity({required Whitenoise whitenoise}) =>
-    RustLib.instance.api.crateApiCreateIdentity(whitenoise: whitenoise);
+Future<List<AccountData>> fetchAccounts() => RustLib.instance.api.crateApiFetchAccounts();
 
-Future<Account> login({
-  required Whitenoise whitenoise,
-  required String nsecOrHexPrivkey,
-}) => RustLib.instance.api.crateApiLogin(
-  whitenoise: whitenoise,
-  nsecOrHexPrivkey: nsecOrHexPrivkey,
-);
+Future<Account> createIdentity() => RustLib.instance.api.crateApiCreateIdentity();
 
-Future<void> logout({
-  required Whitenoise whitenoise,
-  required PublicKey pubkey,
-}) =>
-    RustLib.instance.api.crateApiLogout(whitenoise: whitenoise, pubkey: pubkey);
+Future<Account> login({required String nsecOrHexPrivkey}) =>
+    RustLib.instance.api.crateApiLogin(nsecOrHexPrivkey: nsecOrHexPrivkey);
 
-Future<String> exportAccountNsec({
-  required Whitenoise whitenoise,
-  required Account account,
-}) => RustLib.instance.api.crateApiExportAccountNsec(
-  whitenoise: whitenoise,
-  account: account,
-);
+Future<void> logout({required PublicKey pubkey}) =>
+    RustLib.instance.api.crateApiLogout(pubkey: pubkey);
 
-Future<String> exportAccountNpub({
-  required Whitenoise whitenoise,
-  required Account account,
-}) => RustLib.instance.api.crateApiExportAccountNpub(
-  whitenoise: whitenoise,
-  account: account,
-);
+Future<String> exportAccountNsec({required Account account}) =>
+    RustLib.instance.api.crateApiExportAccountNsec(account: account);
 
-Future<MetadataData?> fetchMetadata({
-  required Whitenoise whitenoise,
-  required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiFetchMetadata(
-  whitenoise: whitenoise,
-  pubkey: pubkey,
-);
+Future<String> exportAccountNpub({required Account account}) =>
+    RustLib.instance.api.crateApiExportAccountNpub(account: account);
+
+Future<MetadataData?> fetchMetadata({required PublicKey pubkey}) =>
+    RustLib.instance.api.crateApiFetchMetadata(pubkey: pubkey);
 
 Future<void> updateMetadata({
-  required Whitenoise whitenoise,
   required MetadataData metadata,
   required Account account,
 }) => RustLib.instance.api.crateApiUpdateMetadata(
-  whitenoise: whitenoise,
   metadata: metadata,
   account: account,
 );
 
 Future<List<RelayUrl>> fetchRelays({
-  required Whitenoise whitenoise,
   required PublicKey pubkey,
   required RelayType relayType,
 }) => RustLib.instance.api.crateApiFetchRelays(
-  whitenoise: whitenoise,
   pubkey: pubkey,
   relayType: relayType,
 );
 
 Future<void> updateRelays({
-  required Whitenoise whitenoise,
   required Account account,
   required RelayType relayType,
   required List<RelayUrl> relays,
 }) => RustLib.instance.api.crateApiUpdateRelays(
-  whitenoise: whitenoise,
   account: account,
   relayType: relayType,
   relays: relays,
 );
 
-Future<Event?> fetchKeyPackage({
-  required Whitenoise whitenoise,
-  required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiFetchKeyPackage(
-  whitenoise: whitenoise,
-  pubkey: pubkey,
-);
+Future<Event?> fetchKeyPackage({required PublicKey pubkey}) =>
+    RustLib.instance.api.crateApiFetchKeyPackage(pubkey: pubkey);
 
-Future<OnboardingState> fetchOnboardingState({
-  required Whitenoise whitenoise,
-  required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiFetchOnboardingState(
-  whitenoise: whitenoise,
-  pubkey: pubkey,
-);
+Future<OnboardingState> fetchOnboardingState({required PublicKey pubkey}) =>
+    RustLib.instance.api.crateApiFetchOnboardingState(pubkey: pubkey);
 
 Future<Map<PublicKey, MetadataData?>> fetchContacts({
-  required Whitenoise whitenoise,
   required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiFetchContacts(
-  whitenoise: whitenoise,
-  pubkey: pubkey,
-);
+}) => RustLib.instance.api.crateApiFetchContacts(pubkey: pubkey);
 
 Future<void> addContact({
-  required Whitenoise whitenoise,
   required Account account,
   required PublicKey contactPubkey,
 }) => RustLib.instance.api.crateApiAddContact(
-  whitenoise: whitenoise,
   account: account,
   contactPubkey: contactPubkey,
 );
 
 Future<void> removeContact({
-  required Whitenoise whitenoise,
   required Account account,
   required PublicKey contactPubkey,
 }) => RustLib.instance.api.crateApiRemoveContact(
-  whitenoise: whitenoise,
   account: account,
   contactPubkey: contactPubkey,
 );
 
 Future<void> updateContacts({
-  required Whitenoise whitenoise,
   required Account account,
   required List<PublicKey> contactPubkeys,
 }) => RustLib.instance.api.crateApiUpdateContacts(
-  whitenoise: whitenoise,
   account: account,
   contactPubkeys: contactPubkeys,
 );
 
 /// Fetch all active groups for an account
-Future<List<GroupData>> fetchGroups({
-  required Whitenoise whitenoise,
-  required Account account,
-}) => RustLib.instance.api.crateApiFetchGroups(
-  whitenoise: whitenoise,
-  account: account,
-);
+Future<List<GroupData>> fetchGroups({required Account account}) =>
+    RustLib.instance.api.crateApiFetchGroups(account: account);
 
 /// Fetch group members for a group
 Future<List<PublicKey>> fetchGroupMembers({
-  required Whitenoise whitenoise,
   required Account account,
   required GroupId groupId,
 }) => RustLib.instance.api.crateApiFetchGroupMembers(
-  whitenoise: whitenoise,
   account: account,
   groupId: groupId,
 );
 
 /// Fetch groups admins for a group
 Future<List<PublicKey>> fetchGroupAdmins({
-  required Whitenoise whitenoise,
   required Account account,
   required GroupId groupId,
 }) => RustLib.instance.api.crateApiFetchGroupAdmins(
-  whitenoise: whitenoise,
   account: account,
   groupId: groupId,
 );
 
+/// Create a group
+Future<GroupData> createGroup({
+  required Account creatorAccount,
+  required List<PublicKey> memberPubkeys,
+  required List<PublicKey> adminPubkeys,
+  required String groupName,
+  required String groupDescription,
+}) => RustLib.instance.api.crateApiCreateGroup(
+  creatorAccount: creatorAccount,
+  memberPubkeys: memberPubkeys,
+  adminPubkeys: adminPubkeys,
+  groupName: groupName,
+  groupDescription: groupDescription,
+);
+
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>>
 abstract class Account implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Arc < Whitenoise >>>
-abstract class ArcWhitenoise implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
 abstract class Event implements RustOpaqueInterface {}
@@ -313,9 +254,6 @@ abstract class RelayType implements RustOpaqueInterface {}
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>>
 abstract class RelayUrl implements RustOpaqueInterface {}
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Whitenoise>>
-abstract class Whitenoise implements RustOpaqueInterface {}
-
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<WhitenoiseConfig>>
 abstract class WhitenoiseConfig implements RustOpaqueInterface {}
 
@@ -337,10 +275,7 @@ class AccountData {
 
   @override
   int get hashCode =>
-      pubkey.hashCode ^
-      settings.hashCode ^
-      onboarding.hashCode ^
-      lastSynced.hashCode;
+      pubkey.hashCode ^ settings.hashCode ^ onboarding.hashCode ^ lastSynced.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -365,8 +300,7 @@ class AccountSettings {
   });
 
   @override
-  int get hashCode =>
-      darkTheme.hashCode ^ devMode.hashCode ^ lockdownMode.hashCode;
+  int get hashCode => darkTheme.hashCode ^ devMode.hashCode ^ lockdownMode.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -433,16 +367,9 @@ class GroupData {
           state == other.state;
 }
 
-enum GroupState {
-  active,
-  inactive,
-  pending,
-}
+enum GroupState { active, inactive, pending }
 
-enum GroupType {
-  directMessage,
-  group,
-}
+enum GroupType { directMessage, group }
 
 class OnboardingState {
   final bool inboxRelays;
@@ -457,9 +384,7 @@ class OnboardingState {
 
   @override
   int get hashCode =>
-      inboxRelays.hashCode ^
-      keyPackageRelays.hashCode ^
-      keyPackagePublished.hashCode;
+      inboxRelays.hashCode ^ keyPackageRelays.hashCode ^ keyPackagePublished.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -475,10 +400,7 @@ class WhitenoiseConfigData {
   final String dataDir;
   final String logsDir;
 
-  const WhitenoiseConfigData({
-    required this.dataDir,
-    required this.logsDir,
-  });
+  const WhitenoiseConfigData({required this.dataDir, required this.logsDir});
 
   @override
   int get hashCode => dataDir.hashCode ^ logsDir.hashCode;
@@ -490,25 +412,4 @@ class WhitenoiseConfigData {
           runtimeType == other.runtimeType &&
           dataDir == other.dataDir &&
           logsDir == other.logsDir;
-}
-
-class WhitenoiseData {
-  final WhitenoiseConfigData config;
-  final Map<String, AccountData> accounts;
-
-  const WhitenoiseData({
-    required this.config,
-    required this.accounts,
-  });
-
-  @override
-  int get hashCode => config.hashCode ^ accounts.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is WhitenoiseData &&
-          runtimeType == other.runtimeType &&
-          config == other.config &&
-          accounts == other.accounts;
 }
