@@ -164,7 +164,10 @@ analyze:
     @echo "🔍 Running Flutter analyzer..."
     flutter analyze
 
-
+# Run build_runner to generate Dart code
+build-runner:
+    @echo "🔨 Running build_runner..."
+    dart run build_runner build --delete-conflicting-outputs
 
 # Format Dart code
 format-dart:
@@ -265,5 +268,5 @@ doctor:
     @flutter_rust_bridge_codegen --version || echo "❌ flutter_rust_bridge_codegen not installed"
 
 # Generate a fresh project setup (for new developers)
-setup: doctor clean-all deps regenerate build-rust-debug
+setup: doctor clean-all deps build-runner regenerate build-rust-debug
     @echo "🎉 Setup complete! Run 'just run' to start the app."
