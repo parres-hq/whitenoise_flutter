@@ -186,7 +186,7 @@ pub fn relay_url_from_string(url: String) -> Result<RelayUrl, WhitenoiseError> {
 }
 
 /// Helper function to convert a RelayUrl to a string
-pub fn get_relay_url_string(relay_url: &RelayUrl) -> String {
+pub fn string_from_relay_url(relay_url: &RelayUrl) -> String {
     relay_url.to_string()
 }
 
@@ -236,11 +236,6 @@ pub fn convert_config_to_data(config: &WhitenoiseConfig) -> WhitenoiseConfigData
         data_dir: config.data_dir.to_string_lossy().to_string(),
         logs_dir: config.logs_dir.to_string_lossy().to_string(),
     }
-}
-
-/// Helper function to convert an Account to AccountData
-pub fn get_account_data(account: &Account) -> AccountData {
-    convert_account_to_data(account)
 }
 
 /// Helper function to convert an Account to AccountData
@@ -307,15 +302,17 @@ pub async fn logout(pubkey: &PublicKey) -> Result<(), WhitenoiseError> {
 }
 
 /// Export an account's private key (nsec)
-pub async fn export_account_nsec(account: &Account) -> Result<String, WhitenoiseError> {
+pub async fn export_account_nsec(pubkey: &PublicKey) -> Result<String, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.export_account_nsec(account).await
+    let account = whitenoise.fetch_account(pubkey).await?;
+    whitenoise.export_account_nsec(&account).await
 }
 
 /// Export an account's public key (npub)
-pub async fn export_account_npub(account: &Account) -> Result<String, WhitenoiseError> {
+pub async fn export_account_npub(pubkey: &PublicKey) -> Result<String, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.export_account_npub(account).await
+    let account = whitenoise.fetch_account(pubkey).await?;
+    whitenoise.export_account_npub(&account).await
 }
 
 // ================================
@@ -332,12 +329,15 @@ pub async fn fetch_metadata(pubkey: PublicKey) -> Result<Option<MetadataData>, W
 /// Update an account's metadata
 pub async fn update_metadata(
     metadata: &MetadataData,
-    account: &Account,
+    pubkey: &PublicKey,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     // Convert MetadataData back to Metadata for the whitenoise API
     let metadata_to_save = convert_metadata_data_to_metadata(metadata);
-    whitenoise.update_metadata(&metadata_to_save, account).await
+    let account = whitenoise.fetch_account(pubkey).await?;
+    whitenoise
+        .update_metadata(&metadata_to_save, &account)
+        .await
 }
 
 /// Fetch an account's relays by its public key and the type of relay
@@ -351,12 +351,13 @@ pub async fn fetch_relays(
 
 /// Update an account's relays
 pub async fn update_relays(
-    account: &Account,
+    pubkey: &PublicKey,
     relay_type: RelayType,
     relays: Vec<RelayUrl>,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.update_relays(account, relay_type, relays).await
+    let account = whitenoise.fetch_account(pubkey).await?;
+    whitenoise.update_relays(&account, relay_type, relays).await
 }
 
 /// Fetch an account's key package by its public key, this gets a key package from relays
@@ -393,29 +394,32 @@ pub async fn fetch_contacts(
 
 /// Add a contact to an account's contacts
 pub async fn add_contact(
-    account: &Account,
+    pubkey: &PublicKey,
     contact_pubkey: PublicKey,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.add_contact(account, contact_pubkey).await
+    let account = whitenoise.fetch_account(pubkey).await?;
+    whitenoise.add_contact(&account, contact_pubkey).await
 }
 
 /// Remove a contact from an account's contacts
 pub async fn remove_contact(
-    account: &Account,
+    pubkey: &PublicKey,
     contact_pubkey: PublicKey,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.remove_contact(account, contact_pubkey).await
+    let account = whitenoise.fetch_account(pubkey).await?;
+    whitenoise.remove_contact(&account, contact_pubkey).await
 }
 
 /// Update an account's contact list in one go. Overwrites the entire contact list.
 pub async fn update_contacts(
-    account: &Account,
+    pubkey: &PublicKey,
     contact_pubkeys: Vec<PublicKey>,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.update_contacts(account, contact_pubkeys).await
+    let account = whitenoise.fetch_account(pubkey).await?;
+    whitenoise.update_contacts(&account, contact_pubkeys).await
 }
 
 // ================================
@@ -423,39 +427,43 @@ pub async fn update_contacts(
 // ================================
 
 /// Fetch all active groups for an account
-pub async fn fetch_groups(account: &Account) -> Result<Vec<GroupData>, WhitenoiseError> {
+pub async fn fetch_groups(pubkey: &PublicKey) -> Result<Vec<GroupData>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let groups = whitenoise.fetch_groups(account, true).await?;
+    let account = whitenoise.fetch_account(pubkey).await?;
+    let groups = whitenoise.fetch_groups(&account, true).await?;
     Ok(groups.iter().map(convert_group_to_data).collect())
 }
 
 /// Fetch group members for a group
 pub async fn fetch_group_members(
-    account: &Account,
+    pubkey: &PublicKey,
     group_id: whitenoise::GroupId,
 ) -> Result<Vec<PublicKey>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.fetch_group_members(account, &group_id).await
+    let account = whitenoise.fetch_account(pubkey).await?;
+    whitenoise.fetch_group_members(&account, &group_id).await
 }
 
 /// Fetch groups admins for a group
 pub async fn fetch_group_admins(
-    account: &Account,
+    pubkey: &PublicKey,
     group_id: whitenoise::GroupId,
 ) -> Result<Vec<PublicKey>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.fetch_group_admins(account, &group_id).await
+    let account = whitenoise.fetch_account(pubkey).await?;
+    whitenoise.fetch_group_admins(&account, &group_id).await
 }
 
 /// Create a group
 pub async fn create_group(
-    creator_account: Account,
+    creator_pubkey: &PublicKey,
     member_pubkeys: Vec<PublicKey>,
     admin_pubkeys: Vec<PublicKey>,
     group_name: String,
     group_description: String,
 ) -> Result<GroupData, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
+    let creator_account = whitenoise.fetch_account(creator_pubkey).await?;
     let group = tokio::task::spawn_blocking(move || {
         tokio::runtime::Handle::current().block_on(whitenoise.create_group(
             &creator_account,
