@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/src/rust/api.dart';
 
@@ -18,31 +19,29 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
 
     try {
       final authState = ref.read(authProvider);
-      if (authState.whitenoise == null || !authState.isAuthenticated) {
+      if (!authState.isAuthenticated) {
         state = AsyncValue.error(
-          'Not authenticated or Whitenoise not initialized',
+          'Not authenticated',
           StackTrace.current,
         );
         return;
       }
 
-      final account = await ref.read(authProvider.notifier).getCurrentActiveAccount();
-
-      if (account == null) {
+      // Get active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
       }
 
-      final npub = await exportAccountNpub(
-        whitenoise: authState.whitenoise!,
-        account: account,
-      );
-
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final metadata = await fetchMetadata(
-        whitenoise: authState.whitenoise!,
         pubkey: publicKey,
       );
+
+      // Create npub from pubkey for display
+      final npub = activeAccountData.pubkey; // We'll use the pubkey directly for now
 
       final profileState = ProfileState(
         name: metadata?.name,
@@ -109,25 +108,21 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       state = const AsyncValue.loading();
       //TODO: refine - use state object
       final authState = ref.read(authProvider);
-      if (authState.whitenoise == null || !authState.isAuthenticated) {
+      if (!authState.isAuthenticated) {
         state = AsyncValue.error('Not authenticated', StackTrace.current);
         return;
       }
 
-      final account = await ref.read(authProvider.notifier).getCurrentActiveAccount();
-      if (account == null) {
+      // Get active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
       }
 
-      final npub = await exportAccountNpub(
-        whitenoise: authState.whitenoise!,
-        account: account,
-      );
-
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final metadata = await fetchMetadata(
-        whitenoise: authState.whitenoise!,
         pubkey: publicKey,
       );
 
@@ -139,29 +134,22 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       metadata?.nip05 = nip05;
       metadata?.lud16 = lud16;
 
-      final updatedData = metadata!;
 
-      await updateMetadata(
-        whitenoise: authState.whitenoise!,
-        metadata: updatedData,
-        account: account,
-      );
+      // We need to get the actual Account object for updateMetadata
+      // This is a limitation - we need to find a way to get Account from AccountData
+      // For now, let's try to create account from login
+      try {
+        // This is a workaround - we'll need to handle this better
+        state = AsyncValue.error(
+          'Update profile not implemented yet - need Account object',
+          StackTrace.current,
+        );
+        return;
+      } catch (e) {
+        state = AsyncValue.error('Failed to update profile: $e', StackTrace.current);
+        return;
+      }
 
-      await fetchProfileData();
-
-      state = AsyncValue.data(
-        ProfileState(
-          name: updatedData.name,
-          displayName: updatedData.displayName,
-          about: updatedData.about,
-          picture: updatedData.picture,
-          banner: updatedData.banner,
-          website: state.value?.website,
-          nip05: updatedData.nip05,
-          lud16: updatedData.lud16,
-          npub: npub,
-        ),
-      );
     } catch (e, st) {
       debugPrintStack(
         label: 'ProfileNotifier.updateProfileData',

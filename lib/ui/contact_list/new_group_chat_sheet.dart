@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/config/providers/account_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
@@ -60,31 +60,38 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
 
   Future<void> _loadContacts() async {
     try {
-      final accountState = ref.read(accountProvider);
-
-      // If pubkey is null, try to load the account first
-      if (accountState.pubkey == null) {
-        await ref.read(accountProvider.notifier).loadAccount();
-        final updatedAccountState = ref.read(accountProvider);
-
-        if (updatedAccountState.pubkey == null) {
-          // Still no pubkey, show error
-          // Handle error through proper method
-          debugPrint('No active account found. Please login first.');
-          return;
+      // Get the active account data directly
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      
+      if (activeAccountData != null) {
+        debugPrint('NewGroupChatSheet: Found active account: ${activeAccountData.pubkey}');
+        await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
+        debugPrint('NewGroupChatSheet: Contacts loaded successfully');
+      } else {
+        debugPrint('NewGroupChatSheet: No active account found');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('No active account found'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       }
-
-      final pubkey = ref.read(accountProvider).pubkey!;
-      await ref.read(contactsProvider.notifier).loadContacts(pubkey);
     } catch (e) {
-      debugPrint('Error loading contacts in new group chat: $e');
-      // Handle error through proper method
-      debugPrint('Failed to load contacts: $e');
+      debugPrint('NewGroupChatSheet: Error loading contacts: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading contacts: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
-  List<ContactModel> _getFilteredContacts(Map<PublicKey, Metadata?>? contacts) {
+  List<ContactModel> _getFilteredContacts(Map<PublicKey, MetadataData?>? contacts) {
     if (contacts == null) return [];
 
     final contactModels = <ContactModel>[];

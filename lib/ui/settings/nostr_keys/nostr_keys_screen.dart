@@ -5,7 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
+import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/shared/info_box.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -37,25 +39,66 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
 
   /// Load both public and private keys when the screen initializes
   Future<void> _loadKeys() async {
-    final authNotifier = ref.read(authProvider.notifier);
     final authState = ref.read(authProvider);
-    final nostrKeys = ref.read(nostrKeysProvider);
 
-    if (authState.whitenoise != null) {
-      // Get the active account
-      final account = await authNotifier.getCurrentActiveAccount();
-      if (account != null) {
-        // Load the public key first (safe to display) using the new exportAccountNpub method
-        await nostrKeys.loadPublicKey(
-          whitenoise: authState.whitenoise!,
-          account: account,
-        );
+    if (authState.isAuthenticated) {
+      try {
+        // Get the active account data directly
+        final activeAccountData =
+            await ref.read(activeAccountProvider.notifier).getActiveAccountData();
 
-        // Export the nsec (only when needed)
-        await nostrKeys.exportNsec(
-          whitenoise: authState.whitenoise!,
-          account: account,
-        );
+        if (activeAccountData != null) {
+          print('NostrKeysScreen: Found active account: ${activeAccountData.pubkey}');
+
+          // Load keys directly using auth provider's cached Account objects
+          final nostrKeys = ref.read(nostrKeysProvider);
+          
+          try {
+            // Get the cached Account object from auth provider
+            final account = ref
+                .read(authProvider.notifier)
+                .getAccountByPubkey(activeAccountData.pubkey);
+            if (account != null) {
+              // Load properly formatted npub
+              final npubString = await exportAccountNpub(account: account);
+              nostrKeys.loadPublicKeyFromAccountData(npubString);
+
+              // Load private key
+              final nsecString = await exportAccountNsec(account: account);
+              nostrKeys.setNsec(nsecString);
+
+              print('NostrKeysScreen: Keys loaded successfully with Account object');
+            } else {
+              // Fallback to raw pubkey
+              nostrKeys.loadPublicKeyFromAccountData(activeAccountData.pubkey);
+              print('NostrKeysScreen: Loaded with fallback pubkey');
+            }
+          } catch (e) {
+            print('NostrKeysScreen: Error loading keys: $e');
+            // Fallback to raw pubkey
+            nostrKeys.loadPublicKeyFromAccountData(activeAccountData.pubkey);
+          }
+        } else {
+          print('NostrKeysScreen: No active account found');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No active account found'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        print('NostrKeysScreen: Error loading keys: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error loading keys: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }
@@ -85,6 +128,45 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Private key copied to clipboard')),
       );
+    }
+  }
+
+  Future<void> _exportPrivateKey() async {
+    try {
+      // Get the active account data
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        throw Exception('No active account found');
+      }
+
+      // Get the cached Account object from auth provider
+      final account = ref.read(authProvider.notifier).getAccountByPubkey(activeAccountData.pubkey);
+      if (account == null) {
+        throw Exception('Account object not found - please login again');
+      }
+
+      // Export private key
+      final nsecString = await exportAccountNsec(account: account);
+
+      // Update the provider state
+      final nostrKeys = ref.read(nostrKeysProvider);
+      nostrKeys.setNsec(nsecString);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Private key exported')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error exporting private key: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 
@@ -292,6 +374,32 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                     ),
                   ],
                 ),
+              Gap(16.h),
+              CustomFilledButton(
+                buttonType: ButtonType.primary,
+                onPressed: _exportPrivateKey,
+                title: 'Export Private Key',
+                addPadding: false,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.download,
+                      color: AppColors.white,
+                      size: 20.r,
+                    ),
+                    Gap(8.w),
+                    Text(
+                      'Export Private Key',
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               Gap(48.h),
             ],
           ),

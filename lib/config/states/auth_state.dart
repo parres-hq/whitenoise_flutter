@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:whitenoise/src/rust/api.dart';
 
 part 'auth_state.freezed.dart';
 
@@ -9,7 +8,6 @@ class AuthState with _$AuthState {
     @Default(false) bool isAuthenticated,
     @Default(false) bool isLoading,
     String? error,
-    Whitenoise? whitenoise,
   }) = _AuthState;
 
   const AuthState._();
