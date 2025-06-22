@@ -38,7 +38,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.10.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1029362738;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1558036423;
 
 // Section: executor
 
@@ -2087,113 +2087,6 @@ fn wire__crate__api__fetch_relays_impl(
         },
     )
 }
-fn wire__crate__api__get_account_data_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "get_account_data",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_account = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>,
-            >>::sse_decode(&mut deserializer);
-            deserializer.end();
-            move |context| {
-                transform_result_sse::<_, ()>((move || {
-                    let mut api_account_guard = None;
-                    let decode_indices_ =
-                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
-                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                &api_account,
-                                0,
-                                false,
-                            ),
-                        ]);
-                    for i in decode_indices_ {
-                        match i {
-                            0 => api_account_guard = Some(api_account.lockable_decode_sync_ref()),
-                            _ => unreachable!(),
-                        }
-                    }
-                    let api_account_guard = api_account_guard.unwrap();
-                    let output_ok =
-                        Result::<_, ()>::Ok(crate::api::get_account_data(&*api_account_guard))?;
-                    Ok(output_ok)
-                })())
-            }
-        },
-    )
-}
-fn wire__crate__api__get_relay_url_string_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "get_relay_url_string",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_relay_url = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>,
-            >>::sse_decode(&mut deserializer);
-            deserializer.end();
-            move |context| {
-                transform_result_sse::<_, ()>((move || {
-                    let mut api_relay_url_guard = None;
-                    let decode_indices_ =
-                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
-                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                &api_relay_url,
-                                0,
-                                false,
-                            ),
-                        ]);
-                    for i in decode_indices_ {
-                        match i {
-                            0 => {
-                                api_relay_url_guard = Some(api_relay_url.lockable_decode_sync_ref())
-                            }
-                            _ => unreachable!(),
-                        }
-                    }
-                    let api_relay_url_guard = api_relay_url_guard.unwrap();
-                    let output_ok = Result::<_, ()>::Ok(crate::api::get_relay_url_string(
-                        &*api_relay_url_guard,
-                    ))?;
-                    Ok(output_ok)
-                })())
-            }
-        },
-    )
-}
 fn wire__crate__api__group_id_from_string_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -2626,6 +2519,61 @@ fn wire__crate__api__remove_contact_impl(
                     })()
                     .await,
                 )
+            }
+        },
+    )
+}
+fn wire__crate__api__string_from_relay_url_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "string_from_relay_url",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_relay_url = <RustOpaqueMoi<
+                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>,
+            >>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let mut api_relay_url_guard = None;
+                    let decode_indices_ =
+                        flutter_rust_bridge::for_generated::lockable_compute_decode_order(vec![
+                            flutter_rust_bridge::for_generated::LockableOrderInfo::new(
+                                &api_relay_url,
+                                0,
+                                false,
+                            ),
+                        ]);
+                    for i in decode_indices_ {
+                        match i {
+                            0 => {
+                                api_relay_url_guard = Some(api_relay_url.lockable_decode_sync_ref())
+                            }
+                            _ => unreachable!(),
+                        }
+                    }
+                    let api_relay_url_guard = api_relay_url_guard.unwrap();
+                    let output_ok = Result::<_, ()>::Ok(crate::api::string_from_relay_url(
+                        &*api_relay_url_guard,
+                    ))?;
+                    Ok(output_ok)
+                })())
             }
         },
     )
@@ -3459,22 +3407,21 @@ fn pde_ffi_dispatcher_primary_impl(
         40 => wire__crate__api__fetch_metadata_impl(port, ptr, rust_vec_len, data_len),
         41 => wire__crate__api__fetch_onboarding_state_impl(port, ptr, rust_vec_len, data_len),
         42 => wire__crate__api__fetch_relays_impl(port, ptr, rust_vec_len, data_len),
-        43 => wire__crate__api__get_account_data_impl(port, ptr, rust_vec_len, data_len),
-        44 => wire__crate__api__get_relay_url_string_impl(port, ptr, rust_vec_len, data_len),
-        45 => wire__crate__api__group_id_from_string_impl(port, ptr, rust_vec_len, data_len),
-        46 => wire__crate__api__group_id_to_string_impl(port, ptr, rust_vec_len, data_len),
-        47 => wire__crate__api__initialize_whitenoise_impl(port, ptr, rust_vec_len, data_len),
-        48 => wire__crate__api__login_impl(port, ptr, rust_vec_len, data_len),
-        49 => wire__crate__api__logout_impl(port, ptr, rust_vec_len, data_len),
-        50 => wire__crate__api__public_key_from_string_impl(port, ptr, rust_vec_len, data_len),
-        51 => wire__crate__api__relay_type_inbox_impl(port, ptr, rust_vec_len, data_len),
-        52 => wire__crate__api__relay_type_key_package_impl(port, ptr, rust_vec_len, data_len),
-        53 => wire__crate__api__relay_type_nostr_impl(port, ptr, rust_vec_len, data_len),
-        54 => wire__crate__api__relay_url_from_string_impl(port, ptr, rust_vec_len, data_len),
-        55 => wire__crate__api__remove_contact_impl(port, ptr, rust_vec_len, data_len),
-        56 => wire__crate__api__update_contacts_impl(port, ptr, rust_vec_len, data_len),
-        57 => wire__crate__api__update_metadata_impl(port, ptr, rust_vec_len, data_len),
-        58 => wire__crate__api__update_relays_impl(port, ptr, rust_vec_len, data_len),
+        43 => wire__crate__api__group_id_from_string_impl(port, ptr, rust_vec_len, data_len),
+        44 => wire__crate__api__group_id_to_string_impl(port, ptr, rust_vec_len, data_len),
+        45 => wire__crate__api__initialize_whitenoise_impl(port, ptr, rust_vec_len, data_len),
+        46 => wire__crate__api__login_impl(port, ptr, rust_vec_len, data_len),
+        47 => wire__crate__api__logout_impl(port, ptr, rust_vec_len, data_len),
+        48 => wire__crate__api__public_key_from_string_impl(port, ptr, rust_vec_len, data_len),
+        49 => wire__crate__api__relay_type_inbox_impl(port, ptr, rust_vec_len, data_len),
+        50 => wire__crate__api__relay_type_key_package_impl(port, ptr, rust_vec_len, data_len),
+        51 => wire__crate__api__relay_type_nostr_impl(port, ptr, rust_vec_len, data_len),
+        52 => wire__crate__api__relay_url_from_string_impl(port, ptr, rust_vec_len, data_len),
+        53 => wire__crate__api__remove_contact_impl(port, ptr, rust_vec_len, data_len),
+        54 => wire__crate__api__string_from_relay_url_impl(port, ptr, rust_vec_len, data_len),
+        55 => wire__crate__api__update_contacts_impl(port, ptr, rust_vec_len, data_len),
+        56 => wire__crate__api__update_metadata_impl(port, ptr, rust_vec_len, data_len),
+        57 => wire__crate__api__update_relays_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }

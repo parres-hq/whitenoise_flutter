@@ -41,8 +41,8 @@ Future<RelayUrl> relayUrlFromString({required String url}) =>
     RustLib.instance.api.crateApiRelayUrlFromString(url: url);
 
 /// Helper function to convert a RelayUrl to a string
-Future<String> getRelayUrlString({required RelayUrl relayUrl}) =>
-    RustLib.instance.api.crateApiGetRelayUrlString(relayUrl: relayUrl);
+Future<String> stringFromRelayUrl({required RelayUrl relayUrl}) =>
+    RustLib.instance.api.crateApiStringFromRelayUrl(relayUrl: relayUrl);
 
 /// Helper function to convert a GroupId to a hex string
 Future<String> groupIdToString({required GroupId groupId}) =>
@@ -68,10 +68,6 @@ Future<WhitenoiseConfig> createWhitenoiseConfig({
 Future<WhitenoiseConfigData> convertConfigToData({
   required WhitenoiseConfig config,
 }) => RustLib.instance.api.crateApiConvertConfigToData(config: config);
-
-/// Helper function to convert an Account to AccountData
-Future<AccountData> getAccountData({required Account account}) =>
-    RustLib.instance.api.crateApiGetAccountData(account: account);
 
 /// Helper function to convert an Account to AccountData
 Future<AccountData> convertAccountToData({required Account account}) =>
