@@ -107,12 +107,12 @@ Future<void> logout({required PublicKey pubkey}) =>
     RustLib.instance.api.crateApiLogout(pubkey: pubkey);
 
 /// Export an account's private key (nsec)
-Future<String> exportAccountNsec({required Account account}) =>
-    RustLib.instance.api.crateApiExportAccountNsec(account: account);
+Future<String> exportAccountNsec({required PublicKey pubkey}) =>
+    RustLib.instance.api.crateApiExportAccountNsec(pubkey: pubkey);
 
 /// Export an account's public key (npub)
-Future<String> exportAccountNpub({required Account account}) =>
-    RustLib.instance.api.crateApiExportAccountNpub(account: account);
+Future<String> exportAccountNpub({required PublicKey pubkey}) =>
+    RustLib.instance.api.crateApiExportAccountNpub(pubkey: pubkey);
 
 /// Fetch an account's metadata by its public key
 Future<MetadataData?> fetchMetadata({required PublicKey pubkey}) =>
@@ -121,10 +121,10 @@ Future<MetadataData?> fetchMetadata({required PublicKey pubkey}) =>
 /// Update an account's metadata
 Future<void> updateMetadata({
   required MetadataData metadata,
-  required Account account,
+  required PublicKey pubkey,
 }) => RustLib.instance.api.crateApiUpdateMetadata(
   metadata: metadata,
-  account: account,
+  pubkey: pubkey,
 );
 
 /// Fetch an account's relays by its public key and the type of relay
@@ -138,11 +138,11 @@ Future<List<RelayUrl>> fetchRelays({
 
 /// Update an account's relays
 Future<void> updateRelays({
-  required Account account,
+  required PublicKey pubkey,
   required RelayType relayType,
   required List<RelayUrl> relays,
 }) => RustLib.instance.api.crateApiUpdateRelays(
-  account: account,
+  pubkey: pubkey,
   relayType: relayType,
   relays: relays,
 );
@@ -162,62 +162,62 @@ Future<Map<PublicKey, MetadataData?>> fetchContacts({
 
 /// Add a contact to an account's contacts
 Future<void> addContact({
-  required Account account,
+  required PublicKey pubkey,
   required PublicKey contactPubkey,
 }) => RustLib.instance.api.crateApiAddContact(
-  account: account,
+  pubkey: pubkey,
   contactPubkey: contactPubkey,
 );
 
 /// Remove a contact from an account's contacts
 Future<void> removeContact({
-  required Account account,
+  required PublicKey pubkey,
   required PublicKey contactPubkey,
 }) => RustLib.instance.api.crateApiRemoveContact(
-  account: account,
+  pubkey: pubkey,
   contactPubkey: contactPubkey,
 );
 
 /// Update an account's contact list in one go. Overwrites the entire contact list.
 Future<void> updateContacts({
-  required Account account,
+  required PublicKey pubkey,
   required List<PublicKey> contactPubkeys,
 }) => RustLib.instance.api.crateApiUpdateContacts(
-  account: account,
+  pubkey: pubkey,
   contactPubkeys: contactPubkeys,
 );
 
 /// Fetch all active groups for an account
-Future<List<GroupData>> fetchGroups({required Account account}) =>
-    RustLib.instance.api.crateApiFetchGroups(account: account);
+Future<List<GroupData>> fetchGroups({required PublicKey pubkey}) =>
+    RustLib.instance.api.crateApiFetchGroups(pubkey: pubkey);
 
 /// Fetch group members for a group
 Future<List<PublicKey>> fetchGroupMembers({
-  required Account account,
+  required PublicKey pubkey,
   required GroupId groupId,
 }) => RustLib.instance.api.crateApiFetchGroupMembers(
-  account: account,
+  pubkey: pubkey,
   groupId: groupId,
 );
 
 /// Fetch groups admins for a group
 Future<List<PublicKey>> fetchGroupAdmins({
-  required Account account,
+  required PublicKey pubkey,
   required GroupId groupId,
 }) => RustLib.instance.api.crateApiFetchGroupAdmins(
-  account: account,
+  pubkey: pubkey,
   groupId: groupId,
 );
 
 /// Create a group
 Future<GroupData> createGroup({
-  required Account creatorAccount,
+  required PublicKey creatorPubkey,
   required List<PublicKey> memberPubkeys,
   required List<PublicKey> adminPubkeys,
   required String groupName,
   required String groupDescription,
 }) => RustLib.instance.api.crateApiCreateGroup(
-  creatorAccount: creatorAccount,
+  creatorPubkey: creatorPubkey,
   memberPubkeys: memberPubkeys,
   adminPubkeys: adminPubkeys,
   groupName: groupName,
