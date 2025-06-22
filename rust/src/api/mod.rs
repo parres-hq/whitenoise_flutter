@@ -186,7 +186,7 @@ pub fn relay_url_from_string(url: String) -> Result<RelayUrl, WhitenoiseError> {
 }
 
 /// Helper function to convert a RelayUrl to a string
-pub fn get_relay_url_string(relay_url: &RelayUrl) -> String {
+pub fn string_from_relay_url(relay_url: &RelayUrl) -> String {
     relay_url.to_string()
 }
 
@@ -236,11 +236,6 @@ pub fn convert_config_to_data(config: &WhitenoiseConfig) -> WhitenoiseConfigData
         data_dir: config.data_dir.to_string_lossy().to_string(),
         logs_dir: config.logs_dir.to_string_lossy().to_string(),
     }
-}
-
-/// Helper function to convert an Account to AccountData
-pub fn get_account_data(account: &Account) -> AccountData {
-    convert_account_to_data(account)
 }
 
 /// Helper function to convert an Account to AccountData
