@@ -335,7 +335,9 @@ pub async fn update_metadata(
     // Convert MetadataData back to Metadata for the whitenoise API
     let metadata_to_save = convert_metadata_data_to_metadata(metadata);
     let account = whitenoise.fetch_account(pubkey).await?;
-    whitenoise.update_metadata(&metadata_to_save, &account).await
+    whitenoise
+        .update_metadata(&metadata_to_save, &account)
+        .await
 }
 
 /// Fetch an account's relays by its public key and the type of relay
