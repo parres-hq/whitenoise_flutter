@@ -55,7 +55,7 @@ class ActiveAccountNotifier extends Notifier<String?> {
       print('ActiveAccountProvider: No active account set');
       return null;
     }
-    
+
     try {
       // Use the new fetchAccount API function for better performance
       final publicKey = await publicKeyFromString(publicKeyString: state!);

@@ -56,7 +56,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
       for (final entry in raw.entries) {
         final metadata = entry.value;
         if (metadata != null) {
-          debugPrint('ContactsProvider: Contact with metadata - name: ${metadata.name}, displayName: ${metadata.displayName}, picture: ${metadata.picture}');
+          debugPrint(
+            'ContactsProvider: Contact with metadata - name: ${metadata.name}, displayName: ${metadata.displayName}, picture: ${metadata.picture}',
+          );
         } else {
           debugPrint('ContactsProvider: Contact with NULL metadata');
         }
@@ -82,7 +84,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -107,7 +110,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
       try {
         final metadata = await fetchMetadata(pubkey: contactPk);
         if (metadata != null) {
-          debugPrint('ContactsProvider: Metadata found for new contact - name: ${metadata.name}, displayName: ${metadata.displayName}');
+          debugPrint(
+            'ContactsProvider: Metadata found for new contact - name: ${metadata.name}, displayName: ${metadata.displayName}',
+          );
         } else {
           debugPrint('ContactsProvider: No metadata found for new contact');
         }
@@ -137,7 +142,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -180,7 +186,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -234,7 +241,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;

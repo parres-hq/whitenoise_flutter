@@ -52,7 +52,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
 
           // Load keys directly using auth provider's cached Account objects
           final nostrKeys = ref.read(nostrKeysProvider);
-          
+
           try {
             // Get the cached Account object from auth provider
             final account = ref

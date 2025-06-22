@@ -134,7 +134,6 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       metadata?.nip05 = nip05;
       metadata?.lud16 = lud16;
 
-
       // We need to get the actual Account object for updateMetadata
       // This is a limitation - we need to find a way to get Account from AccountData
       // For now, let's try to create account from login
@@ -149,7 +148,6 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         state = AsyncValue.error('Failed to update profile: $e', StackTrace.current);
         return;
       }
-
     } catch (e, st) {
       debugPrintStack(
         label: 'ProfileNotifier.updateProfileData',

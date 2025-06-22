@@ -41,7 +41,7 @@ class NostrKeysState with ChangeNotifier {
 
       _npub = 'Public key will be loaded from active account data';
       _error = null;
-      
+
       notifyListeners();
     } catch (e) {
       _error = e.toString();
@@ -108,7 +108,7 @@ final nostrKeysProvider = ChangeNotifierProvider<NostrKeysState>((ref) {
 // Helper provider that automatically loads keys when we have an active account
 final currentAccountKeysProvider = FutureProvider<void>((ref) async {
   final activeAccountData = await ref.watch(activeAccountProvider.notifier).getActiveAccountData();
-  
+
   if (activeAccountData != null) {
     final nostrKeys = ref.read(nostrKeysProvider);
     await nostrKeys.loadPublicKey();

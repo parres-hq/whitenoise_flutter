@@ -108,7 +108,7 @@ class AuthNotifier extends Notifier<AuthState> {
       // Get the newly created account data and set it as active
       final accountData = await getAccountData(account: account);
       await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
-      
+
       state = state.copyWith(isAuthenticated: true);
 
       // Load account data after creating identity

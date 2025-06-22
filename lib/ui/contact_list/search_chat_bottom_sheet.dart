@@ -63,8 +63,9 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
   Future<void> _loadContacts() async {
     try {
       // Get the active account data directly
-      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+
       if (activeAccountData != null) {
         debugPrint('SearchChatBottomSheet: Found active account: ${activeAccountData.pubkey}');
         await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);

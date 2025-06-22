@@ -61,8 +61,9 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
   Future<void> _loadContacts() async {
     try {
       // Get the active account data directly
-      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+
       if (activeAccountData != null) {
         debugPrint('NewGroupChatSheet: Found active account: ${activeAccountData.pubkey}');
         await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);

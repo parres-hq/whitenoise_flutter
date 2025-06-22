@@ -48,7 +48,7 @@ class AccountNotifier extends Notifier<AccountState> {
   // Load the currently active account
   Future<void> loadAccountData() async {
     state = state.copyWith(isLoading: true, error: null);
-    
+
     if (!ref.read(authProvider).isAuthenticated) {
       state = state.copyWith(
         error: 'Not authenticated',
@@ -59,8 +59,9 @@ class AccountNotifier extends Notifier<AccountState> {
 
     try {
       // Get the active account data from active account provider
-      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
       } else {

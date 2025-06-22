@@ -37,10 +37,10 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Future<void> _loadAccounts() async {
     try {
       setState(() => _isLoading = true);
-      
+
       final accounts = await fetchAccounts();
       final activeAccountPubkey = ref.read(activeAccountProvider);
-      
+
       // Load metadata for all accounts
       final metadataMap = <String, MetadataData?>{};
       for (final account in accounts) {
@@ -52,7 +52,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
           metadataMap[account.pubkey] = null;
         }
       }
-      
+
       AccountData? currentAccount;
       if (activeAccountPubkey != null) {
         try {
@@ -92,7 +92,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     try {
       await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
       setState(() => _currentAccount = account);
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Account switched successfully')),
@@ -109,16 +109,15 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   ContactModel _accountToContactModel(AccountData account) {
     final metadata = _accountMetadata[account.pubkey];
-    
+
     // Use metadata if available, otherwise fallback to pubkey
     final name = metadata?.name ?? account.pubkey.substring(0, 8);
-    final displayName = metadata?.displayName ??
-                       metadata?.name ??
-                       'Account ${account.pubkey.substring(0, 8)}';
+    final displayName =
+        metadata?.displayName ?? metadata?.name ?? 'Account ${account.pubkey.substring(0, 8)}';
     final about = metadata?.about ?? '';
     final picture = metadata?.picture ?? '';
     final nip05 = metadata?.nip05;
-    
+
     return ContactModel(
       publicKey: account.pubkey,
       name: name,
@@ -131,7 +130,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   void _showAccountSwitcher() {
     final contactModels = _accounts.map(_accountToContactModel).toList();
-    
+
     SwitchProfileBottomSheet.show(
       context: context,
       profiles: contactModels,
