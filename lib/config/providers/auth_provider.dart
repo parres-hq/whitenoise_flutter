@@ -9,36 +9,13 @@ import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 
-/// Auth Provider with Account Object Caching
+/// Auth Provider
 ///
-/// This provider manages authentication and caches Account objects to solve
-/// the API limitation where operations require Account objects but we only
-/// get AccountData from fetchAccounts(). The new fetchAccount() API helps
-/// with getting AccountData by pubkey, but we still need Account objects
-/// for operations like addContact(), updateRelays(), exportAccountNsec(), etc.
+/// This provider manages authentication using the new PublicKey-based API.
 class AuthNotifier extends Notifier<AuthState> {
-  // Cache Account objects by pubkey to solve AccountData vs Account API limitation
-  final Map<String, Account> _accountObjects = {};
-
   @override
   AuthState build() {
     return const AuthState();
-  }
-
-  /// Get cached Account object by pubkey
-  Account? getAccountByPubkey(String pubkey) {
-    return _accountObjects[pubkey];
-  }
-
-  /// Cache an Account object
-  Future<void> _cacheAccount(Account account) async {
-    try {
-      final accountData = await getAccountData(account: account);
-      _accountObjects[accountData.pubkey] = account;
-      print('AuthProvider: Cached account ${accountData.pubkey}');
-    } catch (e) {
-      print('AuthProvider: Error caching account: $e');
-    }
   }
 
   /// Initialize Whitenoise and Rust backend
@@ -102,11 +79,10 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       final account = await createIdentity();
 
-      // Cache the Account object
-      await _cacheAccount(account);
+      // Account created successfully
 
       // Get the newly created account data and set it as active
-      final accountData = await getAccountData(account: account);
+      final accountData = await convertAccountToData(account: account);
       await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
 
       state = state.copyWith(isAuthenticated: true);
@@ -133,11 +109,10 @@ class AuthNotifier extends Notifier<AuthState> {
       /// 1. Perform login using Rust API
       final account = await login(nsecOrHexPrivkey: nsecOrPrivkey);
 
-      // Cache the Account object
-      await _cacheAccount(account);
+      // Account logged in successfully
 
       // Get the logged in account data and set it as active
-      final accountData = await getAccountData(account: account);
+      final accountData = await convertAccountToData(account: account);
       await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
 
       state = state.copyWith(isAuthenticated: true);

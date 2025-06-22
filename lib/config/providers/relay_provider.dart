@@ -59,20 +59,8 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
         return;
       }
 
-      // Get the cached Account object from auth provider
-      final account = ref.read(authProvider.notifier).getAccountByPubkey(activeAccountData.pubkey);
-      if (account == null) {
-        state = state.copyWith(
-          isLoading: false,
-          error: 'Account object not found - please login again',
-        );
-        return;
-      }
-
-      final npub = await exportAccountNpub(
-        account: account,
-      );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeNostr();
 
       final relayUrls = await fetchRelays(
@@ -82,7 +70,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
       final relayInfos = await Future.wait(
         relayUrls.map((relayUrl) async {
-          final url = await getRelayUrlString(relayUrl: relayUrl);
+          final url = await stringFromRelayUrl(relayUrl: relayUrl);
           return RelayInfo(url: url, connected: false);
         }),
       );
@@ -102,23 +90,13 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
-        print('RelayProvider: No active account found for loading relays');
+        print('RelayProvider: No active account found for adding relay');
         return;
       }
 
-      // We need Account object but only have AccountData - this is a limitation
-      // Get the cached Account object from auth provider
-      final account = ref.read(authProvider.notifier).getAccountByPubkey(activeAccountData.pubkey);
-      if (account == null) {
-        state = state.copyWith(error: 'Account object not found - please login again');
-        return;
-      }
-
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayUrl = await relayUrlFromString(url: url);
-      final npub = await exportAccountNpub(
-        account: account,
-      );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
       final relayType = await relayTypeNostr();
 
       final currentRelayUrls = await fetchRelays(
@@ -127,7 +105,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       );
 
       await updateRelays(
-        account: account,
+        pubkey: publicKey,
         relayType: relayType,
         relays: [...currentRelayUrls, relayUrl],
       );
@@ -168,20 +146,8 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
         return;
       }
 
-      // Get the cached Account object from auth provider
-      final account = ref.read(authProvider.notifier).getAccountByPubkey(activeAccountData.pubkey);
-      if (account == null) {
-        state = state.copyWith(
-          isLoading: false,
-          error: 'Account object not found - please login again',
-        );
-        return;
-      }
-
-      final npub = await exportAccountNpub(
-        account: account,
-      );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeInbox();
 
       final relayUrls = await fetchRelays(
@@ -191,7 +157,7 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
       final relayInfos = await Future.wait(
         relayUrls.map((relayUrl) async {
-          final url = await getRelayUrlString(relayUrl: relayUrl);
+          final url = await stringFromRelayUrl(relayUrl: relayUrl);
           return RelayInfo(url: url, connected: false);
         }),
       );
@@ -211,23 +177,13 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
-        print('RelayProvider: No active account found for removing relay');
+        print('RelayProvider: No active account found for adding relay');
         return;
       }
 
-      // We need Account object but only have AccountData - this is a limitation
-      // Get the cached Account object from auth provider
-      final account = ref.read(authProvider.notifier).getAccountByPubkey(activeAccountData.pubkey);
-      if (account == null) {
-        state = state.copyWith(error: 'Account object not found - please login again');
-        return;
-      }
-
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayUrl = await relayUrlFromString(url: url);
-      final npub = await exportAccountNpub(
-        account: account,
-      );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
       final relayType = await relayTypeInbox();
 
       final currentRelayUrls = await fetchRelays(
@@ -236,7 +192,7 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       );
 
       await updateRelays(
-        account: account,
+        pubkey: publicKey,
         relayType: relayType,
         relays: [...currentRelayUrls, relayUrl],
       );
@@ -277,20 +233,8 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
         return;
       }
 
-      // Get the cached Account object from auth provider
-      final account = ref.read(authProvider.notifier).getAccountByPubkey(activeAccountData.pubkey);
-      if (account == null) {
-        state = state.copyWith(
-          isLoading: false,
-          error: 'Account object not found - please login again',
-        );
-        return;
-      }
-
-      final npub = await exportAccountNpub(
-        account: account,
-      );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeKeyPackage();
 
       final relayUrls = await fetchRelays(
@@ -300,7 +244,7 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
       final relayInfos = await Future.wait(
         relayUrls.map((relayUrl) async {
-          final url = await getRelayUrlString(relayUrl: relayUrl);
+          final url = await stringFromRelayUrl(relayUrl: relayUrl);
           return RelayInfo(url: url, connected: false);
         }),
       );
@@ -320,23 +264,13 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
-        print('RelayProvider: No active account found for updating relay');
+        print('RelayProvider: No active account found for adding relay');
         return;
       }
 
-      // We need Account object but only have AccountData - this is a limitation
-      // Get the cached Account object from auth provider
-      final account = ref.read(authProvider.notifier).getAccountByPubkey(activeAccountData.pubkey);
-      if (account == null) {
-        state = state.copyWith(error: 'Account object not found - please login again');
-        return;
-      }
-
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayUrl = await relayUrlFromString(url: url);
-      final npub = await exportAccountNpub(
-        account: account,
-      );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
       final relayType = await relayTypeKeyPackage();
 
       final currentRelayUrls = await fetchRelays(
@@ -345,7 +279,7 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       );
 
       await updateRelays(
-        account: account,
+        pubkey: publicKey,
         relayType: relayType,
         relays: [...currentRelayUrls, relayUrl],
       );

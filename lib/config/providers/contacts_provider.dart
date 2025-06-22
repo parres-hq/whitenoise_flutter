@@ -91,19 +91,12 @@ class ContactsNotifier extends Notifier<ContactsState> {
         return;
       }
 
-      // Get the cached Account object from auth provider
-      final account = ref.read(authProvider.notifier).getAccountByPubkey(activeAccountData.pubkey);
-      if (account == null) {
-        state = state.copyWith(error: 'Account object not found - please login again');
-        return;
-      }
+      // Convert pubkey string to PublicKey object
+      final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final contactPk = await publicKeyFromString(publicKeyString: contactKey.trim());
 
-      // Handle both hex and npub formats
-      final contactPk = await publicKeyFromString(
-        publicKeyString: contactKey.trim(),
-      );
       debugPrint('ContactsProvider: Adding contact with key: ${contactKey.trim()}');
-      await addContact(account: account, contactPubkey: contactPk);
+      await addContact(pubkey: ownerPubkey, contactPubkey: contactPk);
       debugPrint('ContactsProvider: Contact added successfully, checking metadata...');
 
       // Try to fetch metadata for the newly added contact
@@ -149,19 +142,12 @@ class ContactsNotifier extends Notifier<ContactsState> {
         return;
       }
 
-      // Get the cached Account object from auth provider
-      final account = ref.read(authProvider.notifier).getAccountByPubkey(activeAccountData.pubkey);
-      if (account == null) {
-        state = state.copyWith(error: 'Account object not found - please login again');
-        return;
-      }
+      // Convert pubkey strings to PublicKey objects
+      final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final contactPk = await publicKeyFromString(publicKeyString: contactKey.trim());
 
-      // Handle both hex and npub formats
-      final contactPk = await publicKeyFromString(
-        publicKeyString: contactKey.trim(),
-      );
       await removeContact(
-        account: account,
+        pubkey: ownerPubkey,
         contactPubkey: contactPk,
       );
 
@@ -193,12 +179,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
         return;
       }
 
-      // Get the cached Account object from auth provider
-      final account = ref.read(authProvider.notifier).getAccountByPubkey(activeAccountData.pubkey);
-      if (account == null) {
-        state = state.copyWith(error: 'Account object not found - please login again');
-        return;
-      }
+      // Convert pubkey string to PublicKey object
+      final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
 
       final pkList = <PublicKey>[];
       for (final hex in hexList) {
@@ -206,7 +188,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
       }
 
       await updateContacts(
-        account: account,
+        pubkey: ownerPubkey,
         contactPubkeys: pkList,
       );
 
@@ -248,15 +230,11 @@ class ContactsNotifier extends Notifier<ContactsState> {
         return;
       }
 
-      // Get the cached Account object from auth provider
-      final account = ref.read(authProvider.notifier).getAccountByPubkey(activeAccountData.pubkey);
-      if (account == null) {
-        state = state.copyWith(error: 'Account object not found - please login again');
-        return;
-      }
+      // Convert pubkey string to PublicKey object
+      final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
 
       await removeContact(
-        account: account,
+        pubkey: ownerPubkey,
         contactPubkey: publicKey,
       );
 

@@ -114,7 +114,7 @@ class AccountNotifier extends Notifier<AccountState> {
   Future<void> setActiveAccount(Account account) async {
     state = state.copyWith(isLoading: true);
     try {
-      final data = await getAccountData(account: account);
+      final data = await convertAccountToData(account: account);
       state = state.copyWith(account: account, pubkey: data.pubkey);
 
       // Automatically load contacts for the newly active account
@@ -151,9 +151,11 @@ class AccountNotifier extends Notifier<AccountState> {
           accountMetadata.displayName = displayName;
           accountMetadata.about = bio;
 
+          final data = await convertAccountToData(account: acct);
+          final publicKey = await publicKeyFromString(publicKeyString: data.pubkey);
           await updateMetadata(
             metadata: accountMetadata,
-            account: acct,
+            pubkey: publicKey,
           );
         }
       } else {

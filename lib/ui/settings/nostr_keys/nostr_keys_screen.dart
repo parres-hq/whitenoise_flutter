@@ -50,29 +50,22 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
         if (activeAccountData != null) {
           print('NostrKeysScreen: Found active account: ${activeAccountData.pubkey}');
 
-          // Load keys directly using auth provider's cached Account objects
+          // Load keys directly using the new API
           final nostrKeys = ref.read(nostrKeysProvider);
 
           try {
-            // Get the cached Account object from auth provider
-            final account = ref
-                .read(authProvider.notifier)
-                .getAccountByPubkey(activeAccountData.pubkey);
-            if (account != null) {
-              // Load properly formatted npub
-              final npubString = await exportAccountNpub(account: account);
-              nostrKeys.loadPublicKeyFromAccountData(npubString);
+            // Convert pubkey string to PublicKey object
+            final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
 
-              // Load private key
-              final nsecString = await exportAccountNsec(account: account);
-              nostrKeys.setNsec(nsecString);
+            // Load properly formatted npub
+            final npubString = await exportAccountNpub(pubkey: publicKey);
+            nostrKeys.loadPublicKeyFromAccountData(npubString);
 
-              print('NostrKeysScreen: Keys loaded successfully with Account object');
-            } else {
-              // Fallback to raw pubkey
-              nostrKeys.loadPublicKeyFromAccountData(activeAccountData.pubkey);
-              print('NostrKeysScreen: Loaded with fallback pubkey');
-            }
+            // Load private key
+            final nsecString = await exportAccountNsec(pubkey: publicKey);
+            nostrKeys.setNsec(nsecString);
+
+            print('NostrKeysScreen: Keys loaded successfully with new API');
           } catch (e) {
             print('NostrKeysScreen: Error loading keys: $e');
             // Fallback to raw pubkey
@@ -128,45 +121,6 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Private key copied to clipboard')),
       );
-    }
-  }
-
-  Future<void> _exportPrivateKey() async {
-    try {
-      // Get the active account data
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        throw Exception('No active account found');
-      }
-
-      // Get the cached Account object from auth provider
-      final account = ref.read(authProvider.notifier).getAccountByPubkey(activeAccountData.pubkey);
-      if (account == null) {
-        throw Exception('Account object not found - please login again');
-      }
-
-      // Export private key
-      final nsecString = await exportAccountNsec(account: account);
-
-      // Update the provider state
-      final nostrKeys = ref.read(nostrKeysProvider);
-      nostrKeys.setNsec(nsecString);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Private key exported')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error exporting private key: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
     }
   }
 
@@ -374,32 +328,6 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                     ),
                   ],
                 ),
-              Gap(16.h),
-              CustomFilledButton(
-                buttonType: ButtonType.primary,
-                onPressed: _exportPrivateKey,
-                title: 'Export Private Key',
-                addPadding: false,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.download,
-                      color: AppColors.white,
-                      size: 20.r,
-                    ),
-                    Gap(8.w),
-                    Text(
-                      'Export Private Key',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                        color: AppColors.white,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
               Gap(48.h),
             ],
           ),
