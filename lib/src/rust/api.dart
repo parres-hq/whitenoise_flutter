@@ -18,36 +18,41 @@ Future<Metadata> convertMetadataDataToMetadata({
   metadataData: metadataData,
 );
 
-Future<RelayType> relayTypeNostr() => RustLib.instance.api.crateApiRelayTypeNostr();
+/// Helper function to convert a relay type to a RelayType
+Future<RelayType> relayTypeNostr() =>
+    RustLib.instance.api.crateApiRelayTypeNostr();
 
-Future<RelayType> relayTypeInbox() => RustLib.instance.api.crateApiRelayTypeInbox();
+/// Helper function to convert a relay type to a RelayType
+Future<RelayType> relayTypeInbox() =>
+    RustLib.instance.api.crateApiRelayTypeInbox();
 
-Future<RelayType> relayTypeKeyPackage() => RustLib.instance.api.crateApiRelayTypeKeyPackage();
+/// Helper function to convert a relay type to a RelayType
+Future<RelayType> relayTypeKeyPackage() =>
+    RustLib.instance.api.crateApiRelayTypeKeyPackage();
 
+/// Helper function to convert a public key string to a PublicKey
 Future<PublicKey> publicKeyFromString({required String publicKeyString}) =>
     RustLib.instance.api.crateApiPublicKeyFromString(
       publicKeyString: publicKeyString,
     );
 
+/// Helper function to convert a relay url string to a RelayUrl
 Future<RelayUrl> relayUrlFromString({required String url}) =>
     RustLib.instance.api.crateApiRelayUrlFromString(url: url);
 
+/// Helper function to convert a RelayUrl to a string
 Future<String> getRelayUrlString({required RelayUrl relayUrl}) =>
     RustLib.instance.api.crateApiGetRelayUrlString(relayUrl: relayUrl);
 
-Future<WhitenoiseConfigData> convertConfigToData({
-  required WhitenoiseConfig config,
-}) => RustLib.instance.api.crateApiConvertConfigToData(config: config);
-
-Future<AccountData> convertAccountToData({required Account account}) =>
-    RustLib.instance.api.crateApiConvertAccountToData(account: account);
-
+/// Helper function to convert a GroupId to a hex string
 Future<String> groupIdToString({required GroupId groupId}) =>
     RustLib.instance.api.crateApiGroupIdToString(groupId: groupId);
 
+/// Helper function to convert a hex string to a GroupId
 Future<GroupId> groupIdFromString({required String hexString}) =>
     RustLib.instance.api.crateApiGroupIdFromString(hexString: hexString);
 
+/// Helper function to convert a Group to GroupData
 Future<GroupData> convertGroupToData({required Group group}) =>
     RustLib.instance.api.crateApiConvertGroupToData(group: group);
 
@@ -59,37 +64,61 @@ Future<WhitenoiseConfig> createWhitenoiseConfig({
   logsDir: logsDir,
 );
 
-Future<void> initializeWhitenoise({required WhitenoiseConfig config}) =>
-    RustLib.instance.api.crateApiInitializeWhitenoise(config: config);
+/// Helper function to convert a WhitenoiseConfig to WhitenoiseConfigData
+Future<WhitenoiseConfigData> convertConfigToData({
+  required WhitenoiseConfig config,
+}) => RustLib.instance.api.crateApiConvertConfigToData(config: config);
 
+/// Helper function to convert an Account to AccountData
 Future<AccountData> getAccountData({required Account account}) =>
     RustLib.instance.api.crateApiGetAccountData(account: account);
 
-Future<WhitenoiseConfigData> getConfigData({
-  required WhitenoiseConfig config,
-}) => RustLib.instance.api.crateApiGetConfigData(config: config);
+/// Helper function to convert an Account to AccountData
+Future<AccountData> convertAccountToData({required Account account}) =>
+    RustLib.instance.api.crateApiConvertAccountToData(account: account);
 
+/// Wrapper for Whitenoise::initialize_whitenoise to make it available to Dart
+/// Must be called before any other methods are called.
+Future<void> initializeWhitenoise({required WhitenoiseConfig config}) =>
+    RustLib.instance.api.crateApiInitializeWhitenoise(config: config);
+
+/// Delete all data from the whitenoise instance.
+/// This logs out all the accounts and removes all local data from the app.
 Future<void> deleteAllData() => RustLib.instance.api.crateApiDeleteAllData();
 
-Future<List<AccountData>> fetchAccounts() => RustLib.instance.api.crateApiFetchAccounts();
+/// Fetch all accounts that are stored on the whitenoise instance (these are "logged in" accounts)
+Future<List<AccountData>> fetchAccounts() =>
+    RustLib.instance.api.crateApiFetchAccounts();
 
-Future<Account> createIdentity() => RustLib.instance.api.crateApiCreateIdentity();
+/// Fetch an account by its public key
+Future<AccountData> fetchAccount({required PublicKey pubkey}) =>
+    RustLib.instance.api.crateApiFetchAccount(pubkey: pubkey);
 
+/// Create a new account and get it ready for MLS messaging
+Future<Account> createIdentity() =>
+    RustLib.instance.api.crateApiCreateIdentity();
+
+/// Login to an account by its private key (nsec or hex)
 Future<Account> login({required String nsecOrHexPrivkey}) =>
     RustLib.instance.api.crateApiLogin(nsecOrHexPrivkey: nsecOrHexPrivkey);
 
+/// Logout of an account by its public key
 Future<void> logout({required PublicKey pubkey}) =>
     RustLib.instance.api.crateApiLogout(pubkey: pubkey);
 
+/// Export an account's private key (nsec)
 Future<String> exportAccountNsec({required Account account}) =>
     RustLib.instance.api.crateApiExportAccountNsec(account: account);
 
+/// Export an account's public key (npub)
 Future<String> exportAccountNpub({required Account account}) =>
     RustLib.instance.api.crateApiExportAccountNpub(account: account);
 
+/// Fetch an account's metadata by its public key
 Future<MetadataData?> fetchMetadata({required PublicKey pubkey}) =>
     RustLib.instance.api.crateApiFetchMetadata(pubkey: pubkey);
 
+/// Update an account's metadata
 Future<void> updateMetadata({
   required MetadataData metadata,
   required Account account,
@@ -98,6 +127,7 @@ Future<void> updateMetadata({
   account: account,
 );
 
+/// Fetch an account's relays by its public key and the type of relay
 Future<List<RelayUrl>> fetchRelays({
   required PublicKey pubkey,
   required RelayType relayType,
@@ -106,6 +136,7 @@ Future<List<RelayUrl>> fetchRelays({
   relayType: relayType,
 );
 
+/// Update an account's relays
 Future<void> updateRelays({
   required Account account,
   required RelayType relayType,
@@ -116,16 +147,20 @@ Future<void> updateRelays({
   relays: relays,
 );
 
+/// Fetch an account's key package by its public key, this gets a key package from relays
 Future<Event?> fetchKeyPackage({required PublicKey pubkey}) =>
     RustLib.instance.api.crateApiFetchKeyPackage(pubkey: pubkey);
 
+/// Fetch an account's onboarding state by its public key
 Future<OnboardingState> fetchOnboardingState({required PublicKey pubkey}) =>
     RustLib.instance.api.crateApiFetchOnboardingState(pubkey: pubkey);
 
+/// Fetch an account's contacts by its public key
 Future<Map<PublicKey, MetadataData?>> fetchContacts({
   required PublicKey pubkey,
 }) => RustLib.instance.api.crateApiFetchContacts(pubkey: pubkey);
 
+/// Add a contact to an account's contacts
 Future<void> addContact({
   required Account account,
   required PublicKey contactPubkey,
@@ -134,6 +169,7 @@ Future<void> addContact({
   contactPubkey: contactPubkey,
 );
 
+/// Remove a contact from an account's contacts
 Future<void> removeContact({
   required Account account,
   required PublicKey contactPubkey,
@@ -142,6 +178,7 @@ Future<void> removeContact({
   contactPubkey: contactPubkey,
 );
 
+/// Update an account's contact list in one go. Overwrites the entire contact list.
 Future<void> updateContacts({
   required Account account,
   required List<PublicKey> contactPubkeys,
@@ -275,7 +312,10 @@ class AccountData {
 
   @override
   int get hashCode =>
-      pubkey.hashCode ^ settings.hashCode ^ onboarding.hashCode ^ lastSynced.hashCode;
+      pubkey.hashCode ^
+      settings.hashCode ^
+      onboarding.hashCode ^
+      lastSynced.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -300,7 +340,8 @@ class AccountSettings {
   });
 
   @override
-  int get hashCode => darkTheme.hashCode ^ devMode.hashCode ^ lockdownMode.hashCode;
+  int get hashCode =>
+      darkTheme.hashCode ^ devMode.hashCode ^ lockdownMode.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -384,7 +425,9 @@ class OnboardingState {
 
   @override
   int get hashCode =>
-      inboxRelays.hashCode ^ keyPackageRelays.hashCode ^ keyPackagePublished.hashCode;
+      inboxRelays.hashCode ^
+      keyPackageRelays.hashCode ^
+      keyPackagePublished.hashCode;
 
   @override
   bool operator ==(Object other) =>

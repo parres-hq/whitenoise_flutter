@@ -160,51 +160,43 @@ pub enum _GroupState {
 // Type Helpers & Conversion Methods
 // ================================
 
+/// Helper function to convert a relay type to a RelayType
 pub fn relay_type_nostr() -> RelayType {
     RelayType::Nostr
 }
 
+/// Helper function to convert a relay type to a RelayType
 pub fn relay_type_inbox() -> RelayType {
     RelayType::Inbox
 }
 
+/// Helper function to convert a relay type to a RelayType
 pub fn relay_type_key_package() -> RelayType {
     RelayType::KeyPackage
 }
 
+/// Helper function to convert a public key string to a PublicKey
 pub fn public_key_from_string(public_key_string: String) -> Result<PublicKey, WhitenoiseError> {
     PublicKey::parse(&public_key_string).map_err(WhitenoiseError::from)
 }
 
+/// Helper function to convert a relay url string to a RelayUrl
 pub fn relay_url_from_string(url: String) -> Result<RelayUrl, WhitenoiseError> {
     RelayUrl::parse(&url).map_err(WhitenoiseError::from)
 }
 
+/// Helper function to convert a RelayUrl to a string
 pub fn get_relay_url_string(relay_url: &RelayUrl) -> String {
     relay_url.to_string()
 }
 
-pub fn convert_config_to_data(config: &WhitenoiseConfig) -> WhitenoiseConfigData {
-    WhitenoiseConfigData {
-        data_dir: config.data_dir.to_string_lossy().to_string(),
-        logs_dir: config.logs_dir.to_string_lossy().to_string(),
-    }
-}
-
-pub fn convert_account_to_data(account: &Account) -> AccountData {
-    AccountData {
-        pubkey: account.pubkey.to_hex(),
-        settings: account.settings.clone(),
-        onboarding: account.onboarding.clone(),
-        last_synced: account.last_synced.as_u64(),
-    }
-}
-
+/// Helper function to convert a GroupId to a hex string
 pub fn group_id_to_string(group_id: &GroupId) -> String {
     // Convert GroupId to hex string using as_slice() method and hex crate
     hex::encode(group_id.as_slice())
 }
 
+/// Helper function to convert a hex string to a GroupId
 pub fn group_id_from_string(hex_string: String) -> Result<GroupId, WhitenoiseError> {
     // Convert hex string back to GroupId using from_slice() method and hex crate
     let bytes = hex::decode(hex_string).map_err(|e| {
@@ -217,6 +209,7 @@ pub fn group_id_from_string(hex_string: String) -> Result<GroupId, WhitenoiseErr
     Ok(GroupId::from_slice(&bytes))
 }
 
+/// Helper function to convert a Group to GroupData
 pub fn convert_group_to_data(group: &Group) -> GroupData {
     GroupData {
         mls_group_id: group_id_to_string(&group.mls_group_id),
@@ -237,20 +230,41 @@ pub fn create_whitenoise_config(data_dir: String, logs_dir: String) -> Whitenois
     WhitenoiseConfig::new(Path::new(&data_dir), Path::new(&logs_dir))
 }
 
-// Wrapper for Whitenoise::initialize_whitenoise to make it available to Dart
-// Returns the original Whitenoise object so you can call methods on it
-pub async fn initialize_whitenoise(config: WhitenoiseConfig) -> Result<(), WhitenoiseError> {
-    Whitenoise::initialize_whitenoise(config).await
+/// Helper function to convert a WhitenoiseConfig to WhitenoiseConfigData
+pub fn convert_config_to_data(config: &WhitenoiseConfig) -> WhitenoiseConfigData {
+    WhitenoiseConfigData {
+        data_dir: config.data_dir.to_string_lossy().to_string(),
+        logs_dir: config.logs_dir.to_string_lossy().to_string(),
+    }
 }
 
+/// Helper function to convert an Account to AccountData
 pub fn get_account_data(account: &Account) -> AccountData {
     convert_account_to_data(account)
 }
 
-pub fn get_config_data(config: &WhitenoiseConfig) -> WhitenoiseConfigData {
-    convert_config_to_data(config)
+/// Helper function to convert an Account to AccountData
+pub fn convert_account_to_data(account: &Account) -> AccountData {
+    AccountData {
+        pubkey: account.pubkey.to_hex(),
+        settings: account.settings.clone(),
+        onboarding: account.onboarding.clone(),
+        last_synced: account.last_synced.as_u64(),
+    }
 }
 
+// ================================
+// Initialization / Teardown methods
+// ================================
+
+/// Wrapper for Whitenoise::initialize_whitenoise to make it available to Dart
+/// Must be called before any other methods are called.
+pub async fn initialize_whitenoise(config: WhitenoiseConfig) -> Result<(), WhitenoiseError> {
+    Whitenoise::initialize_whitenoise(config).await
+}
+
+/// Delete all data from the whitenoise instance.
+/// This logs out all the accounts and removes all local data from the app.
 pub async fn delete_all_data() -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise.delete_all_data().await
@@ -260,32 +274,45 @@ pub async fn delete_all_data() -> Result<(), WhitenoiseError> {
 // Account methods
 // ================================
 
+/// Fetch all accounts that are stored on the whitenoise instance (these are "logged in" accounts)
 pub async fn fetch_accounts() -> Result<Vec<AccountData>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let accounts = whitenoise.fetch_accounts().await?;
     Ok(accounts.values().map(convert_account_to_data).collect())
 }
 
+/// Fetch an account by its public key
+pub async fn fetch_account(pubkey: &PublicKey) -> Result<AccountData, WhitenoiseError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let account = whitenoise.fetch_account(pubkey).await?;
+    Ok(convert_account_to_data(&account))
+}
+
+/// Create a new account and get it ready for MLS messaging
 pub async fn create_identity() -> Result<Account, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise.create_identity().await
 }
 
+/// Login to an account by its private key (nsec or hex)
 pub async fn login(nsec_or_hex_privkey: String) -> Result<Account, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise.login(nsec_or_hex_privkey).await
 }
 
+/// Logout of an account by its public key
 pub async fn logout(pubkey: &PublicKey) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise.logout(pubkey).await
 }
 
+/// Export an account's private key (nsec)
 pub async fn export_account_nsec(account: &Account) -> Result<String, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise.export_account_nsec(account).await
 }
 
+/// Export an account's public key (npub)
 pub async fn export_account_npub(account: &Account) -> Result<String, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise.export_account_npub(account).await
@@ -295,12 +322,14 @@ pub async fn export_account_npub(account: &Account) -> Result<String, Whitenoise
 // Data loading methods
 // ================================
 
+/// Fetch an account's metadata by its public key
 pub async fn fetch_metadata(pubkey: PublicKey) -> Result<Option<MetadataData>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let metadata = whitenoise.fetch_metadata(pubkey).await?;
     Ok(metadata.map(|m| convert_metadata_to_data(&m)))
 }
 
+/// Update an account's metadata
 pub async fn update_metadata(
     metadata: &MetadataData,
     account: &Account,
@@ -311,6 +340,7 @@ pub async fn update_metadata(
     whitenoise.update_metadata(&metadata_to_save, account).await
 }
 
+/// Fetch an account's relays by its public key and the type of relay
 pub async fn fetch_relays(
     pubkey: PublicKey,
     relay_type: RelayType,
@@ -319,6 +349,7 @@ pub async fn fetch_relays(
     whitenoise.fetch_relays(pubkey, relay_type).await
 }
 
+/// Update an account's relays
 pub async fn update_relays(
     account: &Account,
     relay_type: RelayType,
@@ -328,11 +359,13 @@ pub async fn update_relays(
     whitenoise.update_relays(account, relay_type, relays).await
 }
 
+/// Fetch an account's key package by its public key, this gets a key package from relays
 pub async fn fetch_key_package(pubkey: PublicKey) -> Result<Option<Event>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise.fetch_key_package_event(pubkey).await
 }
 
+/// Fetch an account's onboarding state by its public key
 pub async fn fetch_onboarding_state(pubkey: PublicKey) -> Result<OnboardingState, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise.fetch_onboarding_state(pubkey).await
@@ -342,6 +375,7 @@ pub async fn fetch_onboarding_state(pubkey: PublicKey) -> Result<OnboardingState
 // Contact methods
 // ================================
 
+/// Fetch an account's contacts by its public key
 pub async fn fetch_contacts(
     pubkey: PublicKey,
 ) -> Result<HashMap<PublicKey, Option<MetadataData>>, WhitenoiseError> {
@@ -357,6 +391,7 @@ pub async fn fetch_contacts(
     Ok(converted_contacts)
 }
 
+/// Add a contact to an account's contacts
 pub async fn add_contact(
     account: &Account,
     contact_pubkey: PublicKey,
@@ -365,6 +400,7 @@ pub async fn add_contact(
     whitenoise.add_contact(account, contact_pubkey).await
 }
 
+/// Remove a contact from an account's contacts
 pub async fn remove_contact(
     account: &Account,
     contact_pubkey: PublicKey,
@@ -373,6 +409,7 @@ pub async fn remove_contact(
     whitenoise.remove_contact(account, contact_pubkey).await
 }
 
+/// Update an account's contact list in one go. Overwrites the entire contact list.
 pub async fn update_contacts(
     account: &Account,
     contact_pubkeys: Vec<PublicKey>,
