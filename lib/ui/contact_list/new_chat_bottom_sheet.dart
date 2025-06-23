@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
@@ -359,7 +359,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                                   realPublicKey,
                                                 );
 
-                                            if (mounted) {
+                                            if (context.mounted) {
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
@@ -372,7 +372,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                             }
                                           }
                                         } catch (e) {
-                                          if (mounted) {
+                                          if (context.mounted) {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(

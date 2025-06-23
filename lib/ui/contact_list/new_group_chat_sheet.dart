@@ -204,7 +204,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                                   .read(contactsProvider.notifier)
                                   .removeContactByPublicKey(realPublicKey);
 
-                              if (mounted) {
+                              if (context.mounted) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text(
@@ -215,7 +215,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                               }
                             }
                           } catch (e) {
-                            if (mounted) {
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text('Failed to remove contact: $e'),

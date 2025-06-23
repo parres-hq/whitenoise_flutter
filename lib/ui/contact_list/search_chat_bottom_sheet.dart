@@ -4,9 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/domain/models/chat_model.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_chats.dart';
+import 'package:whitenoise/domain/models/chat_model.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
@@ -270,7 +270,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
                                 .read(contactsProvider.notifier)
                                 .removeContactByPublicKey(realPublicKey);
 
-                            if (mounted) {
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Contact removed successfully'),
@@ -279,7 +279,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
                             }
                           }
                         } catch (e) {
-                          if (mounted) {
+                          if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Failed to remove contact: $e'),
