@@ -1,17 +1,18 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/src/rust/api.dart';
 
 class ContactsState {
-  final Map<PublicKey, Metadata?>? contacts;
+  final Map<PublicKey, MetadataData?>? contacts;
   final bool isLoading;
   final String? error;
 
   const ContactsState({this.contacts, this.isLoading = false, this.error});
 
   ContactsState copyWith({
-    Map<PublicKey, Metadata?>? contacts,
+    Map<PublicKey, MetadataData?>? contacts,
     bool? isLoading,
     String? error,
   }) {
@@ -27,36 +28,40 @@ class ContactsNotifier extends Notifier<ContactsState> {
   @override
   ContactsState build() => const ContactsState();
 
-  // Helper to get Whitenoise instance from AuthProvider
-  Future<Whitenoise?> _wn() async {
-    final wn = ref.read(authProvider).whitenoise;
-    if (wn == null) {
-      state = state.copyWith(error: 'Whitenoise instance not found');
+  // Helper to check if auth is available
+  bool _isAuthAvailable() {
+    final authState = ref.read(authProvider);
+    if (!authState.isAuthenticated) {
+      state = state.copyWith(error: 'Not authenticated');
+      return false;
     }
-    return wn;
+    return true;
   }
 
   // Fetch contacts for a given public key (hex string)
   Future<void> loadContacts(String ownerHex) async {
     state = state.copyWith(isLoading: true);
 
-    final wn = await _wn();
-    if (wn == null) {
+    if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);
       return;
     }
 
     try {
       final ownerPk = await publicKeyFromString(publicKeyString: ownerHex);
-      final raw = await fetchContacts(whitenoise: wn, pubkey: ownerPk);
+      final raw = await fetchContacts(pubkey: ownerPk);
 
-      // fetchContacts already returns Map<PublicKey, Metadata?> with metadata included
-      // Use the raw map directly without converting keys to strings
-      debugPrint('Loaded ${raw.length} contacts');
+      // fetchContacts already returns Map<PublicKey, MetadataData?> with metadata included
+      debugPrint('ContactsProvider: Loaded ${raw.length} contacts');
       for (final entry in raw.entries) {
-        debugPrint(
-          'Contact metadata: ${entry.value?.name ?? entry.value?.displayName ?? 'No name'}',
-        );
+        final metadata = entry.value;
+        if (metadata != null) {
+          debugPrint(
+            'ContactsProvider: Contact with metadata - name: ${metadata.name}, displayName: ${metadata.displayName}, picture: ${metadata.picture}',
+          );
+        } else {
+          debugPrint('ContactsProvider: Contact with NULL metadata');
+        }
       }
 
       state = state.copyWith(contacts: raw);
@@ -72,28 +77,45 @@ class ContactsNotifier extends Notifier<ContactsState> {
   Future<void> addContactByHex(String contactKey) async {
     state = state.copyWith(isLoading: true);
 
-    final wn = await _wn();
-    if (wn == null) {
+    if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);
       return;
     }
 
     try {
-      final acct = await getActiveAccount(whitenoise: wn);
-      if (acct == null) {
-        state = state.copyWith(error: 'No active account');
+      // Get the active account data
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        state = state.copyWith(error: 'No active account found');
         return;
       }
 
-      // Handle both hex and npub formats
-      final contactPk = await publicKeyFromString(
-        publicKeyString: contactKey.trim(),
-      );
-      await addContact(whitenoise: wn, account: acct, contactPubkey: contactPk);
+      // Convert pubkey string to PublicKey object
+      final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final contactPk = await publicKeyFromString(publicKeyString: contactKey.trim());
+
+      debugPrint('ContactsProvider: Adding contact with key: ${contactKey.trim()}');
+      await addContact(pubkey: ownerPubkey, contactPubkey: contactPk);
+      debugPrint('ContactsProvider: Contact added successfully, checking metadata...');
+
+      // Try to fetch metadata for the newly added contact
+      try {
+        final metadata = await fetchMetadata(pubkey: contactPk);
+        if (metadata != null) {
+          debugPrint(
+            'ContactsProvider: Metadata found for new contact - name: ${metadata.name}, displayName: ${metadata.displayName}',
+          );
+        } else {
+          debugPrint('ContactsProvider: No metadata found for new contact');
+        }
+      } catch (e) {
+        debugPrint('ContactsProvider: Error fetching metadata for new contact: $e');
+      }
 
       // Refresh the complete list to get updated contacts with metadata
-      final acctData = await getAccountData(account: acct);
-      await loadContacts(acctData.pubkey);
+      await loadContacts(activeAccountData.pubkey);
+      debugPrint('ContactsProvider: Contact list refreshed after adding');
     } catch (e, st) {
       debugPrintStack(label: 'addContact', stackTrace: st);
       state = state.copyWith(error: e.toString());
@@ -106,32 +128,31 @@ class ContactsNotifier extends Notifier<ContactsState> {
   Future<void> removeContactByHex(String contactKey) async {
     state = state.copyWith(isLoading: true);
 
-    final wn = await _wn();
-    if (wn == null) {
+    if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);
       return;
     }
 
     try {
-      final acct = await getActiveAccount(whitenoise: wn);
-      if (acct == null) {
-        state = state.copyWith(error: 'No active account');
+      // Get the active account data
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        state = state.copyWith(error: 'No active account found');
         return;
       }
 
-      // Handle both hex and npub formats
-      final contactPk = await publicKeyFromString(
-        publicKeyString: contactKey.trim(),
-      );
+      // Convert pubkey strings to PublicKey objects
+      final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final contactPk = await publicKeyFromString(publicKeyString: contactKey.trim());
+
       await removeContact(
-        whitenoise: wn,
-        account: acct,
+        pubkey: ownerPubkey,
         contactPubkey: contactPk,
       );
 
       // Refresh the list
-      final acctData = await getAccountData(account: acct);
-      await loadContacts(acctData.pubkey);
+      await loadContacts(activeAccountData.pubkey);
     } catch (e, st) {
       debugPrintStack(label: 'removeContact', stackTrace: st);
       state = state.copyWith(error: e.toString());
@@ -144,18 +165,22 @@ class ContactsNotifier extends Notifier<ContactsState> {
   Future<void> replaceContacts(List<String> hexList) async {
     state = state.copyWith(isLoading: true);
 
-    final wn = await _wn();
-    if (wn == null) {
+    if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);
       return;
     }
 
     try {
-      final acct = await getActiveAccount(whitenoise: wn);
-      if (acct == null) {
-        state = state.copyWith(error: 'No active account');
+      // Get the active account data
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        state = state.copyWith(error: 'No active account found');
         return;
       }
+
+      // Convert pubkey string to PublicKey object
+      final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
 
       final pkList = <PublicKey>[];
       for (final hex in hexList) {
@@ -163,14 +188,12 @@ class ContactsNotifier extends Notifier<ContactsState> {
       }
 
       await updateContacts(
-        whitenoise: wn,
-        account: acct,
+        pubkey: ownerPubkey,
         contactPubkeys: pkList,
       );
 
       // Refresh the list
-      final acctData = await getAccountData(account: acct);
-      await loadContacts(acctData.pubkey);
+      await loadContacts(activeAccountData.pubkey);
     } catch (e, st) {
       debugPrintStack(label: 'replaceContacts', stackTrace: st);
       state = state.copyWith(error: e.toString());
@@ -183,7 +206,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
   void removeContactFromState(PublicKey publicKey) {
     final currentContacts = state.contacts;
     if (currentContacts != null) {
-      final updatedContacts = Map<PublicKey, Metadata?>.from(currentContacts);
+      final updatedContacts = Map<PublicKey, MetadataData?>.from(currentContacts);
       updatedContacts.remove(publicKey);
       state = state.copyWith(contacts: updatedContacts);
     }
@@ -193,28 +216,30 @@ class ContactsNotifier extends Notifier<ContactsState> {
   Future<void> removeContactByPublicKey(PublicKey publicKey) async {
     state = state.copyWith(isLoading: true);
 
-    final wn = await _wn();
-    if (wn == null) {
+    if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);
       return;
     }
 
     try {
-      final acct = await getActiveAccount(whitenoise: wn);
-      if (acct == null) {
-        state = state.copyWith(error: 'No active account');
+      // Get the active account data
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        state = state.copyWith(error: 'No active account found');
         return;
       }
 
+      // Convert pubkey string to PublicKey object
+      final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+
       await removeContact(
-        whitenoise: wn,
-        account: acct,
+        pubkey: ownerPubkey,
         contactPubkey: publicKey,
       );
 
       // Refresh the list
-      final acctData = await getAccountData(account: acct);
-      await loadContacts(acctData.pubkey);
+      await loadContacts(activeAccountData.pubkey);
     } catch (e, st) {
       debugPrintStack(label: 'removeContactByPublicKey', stackTrace: st);
       state = state.copyWith(error: e.toString());

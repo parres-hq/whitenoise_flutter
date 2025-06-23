@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 
@@ -42,36 +43,34 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
     try {
       final authState = ref.read(authProvider);
-      if (authState.whitenoise == null) {
+      if (!authState.isAuthenticated) {
         state = state.copyWith(
           isLoading: false,
-          error: 'Whitenoise not initialized',
+          error: 'Not authenticated',
         );
         return;
       }
 
-      final account = await getActiveAccount(whitenoise: authState.whitenoise!);
-      if (account == null) {
-        state = state.copyWith(isLoading: false, error: 'No active account');
+      // Get the active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
 
-      final npub = await exportAccountNpub(
-        whitenoise: authState.whitenoise!,
-        account: account,
-      );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeNostr();
 
       final relayUrls = await fetchRelays(
-        whitenoise: authState.whitenoise!,
         pubkey: publicKey,
         relayType: relayType,
       );
 
       final relayInfos = await Future.wait(
         relayUrls.map((relayUrl) async {
-          final url = await getRelayUrlString(relayUrl: relayUrl);
+          final url = await stringFromRelayUrl(relayUrl: relayUrl);
           return RelayInfo(url: url, connected: false);
         }),
       );
@@ -87,27 +86,26 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final authState = ref.read(authProvider);
-      final account = await getActiveAccount(whitenoise: authState.whitenoise!);
-      if (account == null) return;
+      // Get the active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        print('RelayProvider: No active account found for adding relay');
+        return;
+      }
 
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayUrl = await relayUrlFromString(url: url);
-      final npub = await exportAccountNpub(
-        whitenoise: authState.whitenoise!,
-        account: account,
-      );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
       final relayType = await relayTypeNostr();
 
       final currentRelayUrls = await fetchRelays(
-        whitenoise: authState.whitenoise!,
         pubkey: publicKey,
         relayType: relayType,
       );
 
       await updateRelays(
-        whitenoise: authState.whitenoise!,
-        account: account,
+        pubkey: publicKey,
         relayType: relayType,
         relays: [...currentRelayUrls, relayUrl],
       );
@@ -132,36 +130,34 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
     try {
       final authState = ref.read(authProvider);
-      if (authState.whitenoise == null) {
+      if (!authState.isAuthenticated) {
         state = state.copyWith(
           isLoading: false,
-          error: 'Whitenoise not initialized',
+          error: 'Not authenticated',
         );
         return;
       }
 
-      final account = await getActiveAccount(whitenoise: authState.whitenoise!);
-      if (account == null) {
-        state = state.copyWith(isLoading: false, error: 'No active account');
+      // Get the active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
 
-      final npub = await exportAccountNpub(
-        whitenoise: authState.whitenoise!,
-        account: account,
-      );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeInbox();
 
       final relayUrls = await fetchRelays(
-        whitenoise: authState.whitenoise!,
         pubkey: publicKey,
         relayType: relayType,
       );
 
       final relayInfos = await Future.wait(
         relayUrls.map((relayUrl) async {
-          final url = await getRelayUrlString(relayUrl: relayUrl);
+          final url = await stringFromRelayUrl(relayUrl: relayUrl);
           return RelayInfo(url: url, connected: false);
         }),
       );
@@ -177,27 +173,26 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final authState = ref.read(authProvider);
-      final account = await getActiveAccount(whitenoise: authState.whitenoise!);
-      if (account == null) return;
+      // Get the active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        print('RelayProvider: No active account found for adding relay');
+        return;
+      }
 
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayUrl = await relayUrlFromString(url: url);
-      final npub = await exportAccountNpub(
-        whitenoise: authState.whitenoise!,
-        account: account,
-      );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
       final relayType = await relayTypeInbox();
 
       final currentRelayUrls = await fetchRelays(
-        whitenoise: authState.whitenoise!,
         pubkey: publicKey,
         relayType: relayType,
       );
 
       await updateRelays(
-        whitenoise: authState.whitenoise!,
-        account: account,
+        pubkey: publicKey,
         relayType: relayType,
         relays: [...currentRelayUrls, relayUrl],
       );
@@ -222,36 +217,34 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
     try {
       final authState = ref.read(authProvider);
-      if (authState.whitenoise == null) {
+      if (!authState.isAuthenticated) {
         state = state.copyWith(
           isLoading: false,
-          error: 'Whitenoise not initialized',
+          error: 'Not authenticated',
         );
         return;
       }
 
-      final account = await getActiveAccount(whitenoise: authState.whitenoise!);
-      if (account == null) {
-        state = state.copyWith(isLoading: false, error: 'No active account');
+      // Get the active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
 
-      final npub = await exportAccountNpub(
-        whitenoise: authState.whitenoise!,
-        account: account,
-      );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeKeyPackage();
 
       final relayUrls = await fetchRelays(
-        whitenoise: authState.whitenoise!,
         pubkey: publicKey,
         relayType: relayType,
       );
 
       final relayInfos = await Future.wait(
         relayUrls.map((relayUrl) async {
-          final url = await getRelayUrlString(relayUrl: relayUrl);
+          final url = await stringFromRelayUrl(relayUrl: relayUrl);
           return RelayInfo(url: url, connected: false);
         }),
       );
@@ -267,27 +260,26 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final authState = ref.read(authProvider);
-      final account = await getActiveAccount(whitenoise: authState.whitenoise!);
-      if (account == null) return;
+      // Get the active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        print('RelayProvider: No active account found for adding relay');
+        return;
+      }
 
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayUrl = await relayUrlFromString(url: url);
-      final npub = await exportAccountNpub(
-        whitenoise: authState.whitenoise!,
-        account: account,
-      );
-      final publicKey = await publicKeyFromString(publicKeyString: npub);
       final relayType = await relayTypeKeyPackage();
 
       final currentRelayUrls = await fetchRelays(
-        whitenoise: authState.whitenoise!,
         pubkey: publicKey,
         relayType: relayType,
       );
 
       await updateRelays(
-        whitenoise: authState.whitenoise!,
-        account: account,
+        pubkey: publicKey,
         relayType: relayType,
         relays: [...currentRelayUrls, relayUrl],
       );

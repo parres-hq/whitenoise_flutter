@@ -5,7 +5,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
+import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/shared/info_box.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -37,25 +39,59 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
 
   /// Load both public and private keys when the screen initializes
   Future<void> _loadKeys() async {
-    final authNotifier = ref.read(authProvider.notifier);
     final authState = ref.read(authProvider);
-    final nostrKeys = ref.read(nostrKeysProvider);
 
-    if (authState.whitenoise != null) {
-      // Get the active account
-      final account = await authNotifier.getCurrentActiveAccount();
-      if (account != null) {
-        // Load the public key first (safe to display) using the new exportAccountNpub method
-        await nostrKeys.loadPublicKey(
-          whitenoise: authState.whitenoise!,
-          account: account,
-        );
+    if (authState.isAuthenticated) {
+      try {
+        // Get the active account data directly
+        final activeAccountData =
+            await ref.read(activeAccountProvider.notifier).getActiveAccountData();
 
-        // Export the nsec (only when needed)
-        await nostrKeys.exportNsec(
-          whitenoise: authState.whitenoise!,
-          account: account,
-        );
+        if (activeAccountData != null) {
+          print('NostrKeysScreen: Found active account: ${activeAccountData.pubkey}');
+
+          // Load keys directly using the new API
+          final nostrKeys = ref.read(nostrKeysProvider);
+
+          try {
+            // Convert pubkey string to PublicKey object
+            final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+
+            // Load properly formatted npub
+            final npubString = await exportAccountNpub(pubkey: publicKey);
+            nostrKeys.loadPublicKeyFromAccountData(npubString);
+
+            // Load private key
+            final nsecString = await exportAccountNsec(pubkey: publicKey);
+            nostrKeys.setNsec(nsecString);
+
+            print('NostrKeysScreen: Keys loaded successfully with new API');
+          } catch (e) {
+            print('NostrKeysScreen: Error loading keys: $e');
+            // Fallback to raw pubkey
+            nostrKeys.loadPublicKeyFromAccountData(activeAccountData.pubkey);
+          }
+        } else {
+          print('NostrKeysScreen: No active account found');
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('No active account found'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        }
+      } catch (e) {
+        print('NostrKeysScreen: Error loading keys: $e');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error loading keys: $e'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
       }
     }
   }

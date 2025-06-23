@@ -3,18 +3,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-
-import '../../config/providers/account_provider.dart';
-import '../../config/providers/contacts_provider.dart';
-import '../../domain/models/contact_model.dart';
-import '../../src/rust/api.dart';
-import '../core/themes/assets.dart';
-import '../core/themes/src/extensions.dart';
-import '../core/ui/custom_bottom_sheet.dart';
-import '../core/ui/custom_textfield.dart';
-import 'new_group_chat_sheet.dart';
-import 'start_chat_bottom_sheet.dart';
-import 'widgets/contact_list_tile.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
+import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
+import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class NewChatBottomSheet extends ConsumerStatefulWidget {
   const NewChatBottomSheet({super.key});
@@ -64,31 +64,39 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
   Future<void> _loadContacts() async {
     try {
-      final accountState = ref.read(accountProvider);
+      // Get the active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
 
-      // If pubkey is null, try to load the account first
-      if (accountState.pubkey == null) {
-        await ref.read(accountProvider.notifier).loadAccountData();
-        final updatedAccountState = ref.read(accountProvider);
-
-        if (updatedAccountState.pubkey == null) {
-          // Still no pubkey, show error
-          // Handle error through proper method
-          debugPrint('No active account found. Please login first.');
-          return;
+      if (activeAccountData != null) {
+        debugPrint('NewChatBottomSheet: Found active account: ${activeAccountData.pubkey}');
+        await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
+        debugPrint('NewChatBottomSheet: Contacts loaded successfully');
+      } else {
+        debugPrint('NewChatBottomSheet: No active account found');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('No active account found'),
+              backgroundColor: context.colors.destructive,
+            ),
+          );
         }
       }
-
-      final pubkey = ref.read(accountProvider).pubkey!;
-      await ref.read(contactsProvider.notifier).loadContacts(pubkey);
     } catch (e) {
-      debugPrint('Error loading contacts in new chat: $e');
-      // Handle error through proper method
-      debugPrint('Failed to load contacts: $e');
+      debugPrint('NewChatBottomSheet: Error loading contacts: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading contacts: $e'),
+            backgroundColor: context.colors.destructive,
+          ),
+        );
+      }
     }
   }
 
-  List<ContactModel> _getFilteredContacts(Map<PublicKey, Metadata?>? contacts) {
+  List<ContactModel> _getFilteredContacts(Map<PublicKey, MetadataData?>? contacts) {
     if (contacts == null) return [];
 
     final contactModels = <ContactModel>[];
@@ -273,10 +281,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                       Text(
                                         'Add as contact',
                                         style: TextStyle(
-                                          color:
-                                              context
-                                                  .colors
-                                                  .secondaryForeground,
+                                          color: context.colors.secondaryForeground,
                                           fontSize: 16.sp,
                                           fontWeight: FontWeight.w500,
                                         ),
@@ -357,7 +362,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                                   realPublicKey,
                                                 );
 
-                                            if (mounted) {
+                                            if (context.mounted) {
                                               ScaffoldMessenger.of(
                                                 context,
                                               ).showSnackBar(
@@ -370,7 +375,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                             }
                                           }
                                         } catch (e) {
-                                          if (mounted) {
+                                          if (context.mounted) {
                                             ScaffoldMessenger.of(
                                               context,
                                             ).showSnackBar(

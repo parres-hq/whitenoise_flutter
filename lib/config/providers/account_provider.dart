@@ -3,12 +3,13 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/src/rust/api.dart';
 
 class AccountState {
   final Account? account;
-  final Metadata? metadata;
+  final MetadataData? metadata;
   final String? pubkey;
   final Map<String, AccountData>? accounts;
   final bool isLoading;
@@ -25,7 +26,7 @@ class AccountState {
 
   AccountState copyWith({
     Account? account,
-    Metadata? metadata,
+    MetadataData? metadata,
     String? pubkey,
     Map<String, AccountData>? accounts,
     bool? isLoading,
@@ -47,36 +48,39 @@ class AccountNotifier extends Notifier<AccountState> {
   // Load the currently active account
   Future<void> loadAccountData() async {
     state = state.copyWith(isLoading: true, error: null);
-    final wn = ref.read(authProvider).whitenoise;
-    if (wn == null) {
+
+    if (!ref.read(authProvider).isAuthenticated) {
       state = state.copyWith(
-        error: 'Whitenoise instance not found',
+        error: 'Not authenticated',
         isLoading: false,
       );
       return;
     }
 
     try {
-      final acct = await getActiveAccount(whitenoise: wn);
-      if (acct == null) {
+      // Get the active account data from active account provider
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+
+      if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
       } else {
-        final accountData = await getAccountData(account: acct);
-
         final publicKey = await publicKeyFromString(
-          publicKeyString: accountData.pubkey,
+          publicKeyString: activeAccountData.pubkey,
         );
-        final metadata = await fetchMetadata(whitenoise: wn, pubkey: publicKey);
+        final metadata = await fetchMetadata(pubkey: publicKey);
 
+        // We need to create a dummy Account object since we only have AccountData
+        // This is a limitation of the current API design
         state = state.copyWith(
-          account: acct,
+          account: null, // We don't have the actual Account object
           metadata: metadata,
-          pubkey: accountData.pubkey,
+          pubkey: activeAccountData.pubkey,
         );
 
         // Automatically load contacts for the active account
         try {
-          await ref.read(contactsProvider.notifier).loadContacts(data.pubkey);
+          await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
         } catch (e) {
           debugPrint('Failed to load contacts: $e');
         }
@@ -90,14 +94,15 @@ class AccountNotifier extends Notifier<AccountState> {
   }
 
   // Fetch and store all accounts
-  Future<Map<String, AccountData>?> listAccounts() async {
-    final wn = ref.read(authProvider).whitenoise;
-    if (wn == null) return null;
-
+  Future<List<AccountData>?> listAccounts() async {
     try {
-      final wnData = await getWhitenoiseData(whitenoise: wn);
-      state = state.copyWith(accounts: wnData.accounts);
-      return wnData.accounts;
+      final accountsList = await fetchAccounts();
+      final accountsMap = <String, AccountData>{};
+      for (final account in accountsList) {
+        accountsMap[account.pubkey] = account;
+      }
+      state = state.copyWith(accounts: accountsMap);
+      return accountsList;
     } catch (e, st) {
       debugPrintStack(label: 'listAccounts', stackTrace: st);
       state = state.copyWith(error: e.toString());
@@ -107,17 +112,10 @@ class AccountNotifier extends Notifier<AccountState> {
 
   // Set a specific account as active
   Future<void> setActiveAccount(Account account) async {
-    final wn = ref.read(authProvider).whitenoise;
-    if (wn == null) return;
-
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
     try {
-      final updated = await updateActiveAccount(
-        whitenoise: wn,
-        account: account,
-      );
-      final data = await getAccountData(account: updated);
-      state = state.copyWith(account: updated, pubkey: data.pubkey);
+      final data = await convertAccountToData(account: account);
+      state = state.copyWith(account: account, pubkey: data.pubkey);
 
       // Automatically load contacts for the newly active account
       try {
@@ -142,9 +140,8 @@ class AccountNotifier extends Notifier<AccountState> {
 
   // Update metadata for the current account
   Future<void> updateAccountMetadata(String displayName, String bio) async {
-    final wn = ref.read(authProvider).whitenoise;
     final acct = state.account;
-    if (wn == null || acct == null) return;
+    if (acct == null) return;
 
     state = state.copyWith(isLoading: true, error: null);
     try {
@@ -152,14 +149,13 @@ class AccountNotifier extends Notifier<AccountState> {
       if (accountMetadata != null) {
         if (displayName.isNotEmpty && displayName != accountMetadata.displayName) {
           accountMetadata.displayName = displayName;
-          //TODO: impl bio for Metadata
-          // accountMetadata.bio = bio;
+          accountMetadata.about = bio;
 
-          final updatedMetadata = accountMetadata;
+          final data = await convertAccountToData(account: acct);
+          final publicKey = await publicKeyFromString(publicKeyString: data.pubkey);
           await updateMetadata(
-            whitenoise: wn,
-            metadata: updatedMetadata,
-            account: acct,
+            metadata: accountMetadata,
+            pubkey: publicKey,
           );
         }
       } else {

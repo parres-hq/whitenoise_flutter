@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/account_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_chats.dart';
 import 'package:whitenoise/domain/models/chat_model.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
@@ -62,31 +63,39 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
 
   Future<void> _loadContacts() async {
     try {
-      final accountState = ref.read(accountProvider);
+      // Get the active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
 
-      // If pubkey is null, try to load the account first
-      if (accountState.pubkey == null) {
-        await ref.read(accountProvider.notifier).loadAccountData();
-        final updatedAccountState = ref.read(accountProvider);
-
-        if (updatedAccountState.pubkey == null) {
-          // Still no pubkey, show error
-          // Handle error through proper method
-          debugPrint('No active account found. Please login first.');
-          return;
+      if (activeAccountData != null) {
+        debugPrint('SearchChatBottomSheet: Found active account: ${activeAccountData.pubkey}');
+        await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
+        debugPrint('SearchChatBottomSheet: Contacts loaded successfully');
+      } else {
+        debugPrint('SearchChatBottomSheet: No active account found');
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Text('No active account found'),
+              backgroundColor: context.colors.destructive,
+            ),
+          );
         }
       }
-
-      final pubkey = ref.read(accountProvider).pubkey!;
-      await ref.read(contactsProvider.notifier).loadContacts(pubkey);
     } catch (e) {
-      debugPrint('Error loading contacts in search chat: $e');
-      // Handle error through proper method
-      debugPrint('Failed to load contacts: $e');
+      debugPrint('SearchChatBottomSheet: Error loading contacts: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error loading contacts: $e'),
+            backgroundColor: context.colors.destructive,
+          ),
+        );
+      }
     }
   }
 
-  List<ContactModel> _getFilteredContacts(Map<PublicKey, Metadata?>? contacts) {
+  List<ContactModel> _getFilteredContacts(Map<PublicKey, MetadataData?>? contacts) {
     if (_searchQuery.isEmpty || contacts == null) return [];
 
     final contactModels = <ContactModel>[];
@@ -262,7 +271,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
                                 .read(contactsProvider.notifier)
                                 .removeContactByPublicKey(realPublicKey);
 
-                            if (mounted) {
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text('Contact removed successfully'),
@@ -271,7 +280,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
                             }
                           }
                         } catch (e) {
-                          if (mounted) {
+                          if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text('Failed to remove contact: $e'),

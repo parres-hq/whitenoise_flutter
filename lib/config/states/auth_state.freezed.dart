@@ -20,7 +20,6 @@ mixin _$AuthState {
   bool get isAuthenticated => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
-  Whitenoise? get whitenoise => throw _privateConstructorUsedError;
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
@@ -33,12 +32,7 @@ abstract class $AuthStateCopyWith<$Res> {
   factory $AuthStateCopyWith(AuthState value, $Res Function(AuthState) then) =
       _$AuthStateCopyWithImpl<$Res, AuthState>;
   @useResult
-  $Res call({
-    bool isAuthenticated,
-    bool isLoading,
-    String? error,
-    Whitenoise? whitenoise,
-  });
+  $Res call({bool isAuthenticated, bool isLoading, String? error});
 }
 
 /// @nodoc
@@ -58,7 +52,6 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState> implements $AuthStat
     Object? isAuthenticated = null,
     Object? isLoading = null,
     Object? error = freezed,
-    Object? whitenoise = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -77,11 +70,6 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState> implements $AuthStat
                     ? _value.error
                     : error // ignore: cast_nullable_to_non_nullable
                         as String?,
-            whitenoise:
-                freezed == whitenoise
-                    ? _value.whitenoise
-                    : whitenoise // ignore: cast_nullable_to_non_nullable
-                        as Whitenoise?,
           )
           as $Val,
     );
@@ -96,12 +84,7 @@ abstract class _$$AuthStateImplCopyWith<$Res> implements $AuthStateCopyWith<$Res
   ) = __$$AuthStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({
-    bool isAuthenticated,
-    bool isLoading,
-    String? error,
-    Whitenoise? whitenoise,
-  });
+  $Res call({bool isAuthenticated, bool isLoading, String? error});
 }
 
 /// @nodoc
@@ -120,7 +103,6 @@ class __$$AuthStateImplCopyWithImpl<$Res> extends _$AuthStateCopyWithImpl<$Res, 
     Object? isAuthenticated = null,
     Object? isLoading = null,
     Object? error = freezed,
-    Object? whitenoise = freezed,
   }) {
     return _then(
       _$AuthStateImpl(
@@ -139,11 +121,6 @@ class __$$AuthStateImplCopyWithImpl<$Res> extends _$AuthStateCopyWithImpl<$Res, 
                 ? _value.error
                 : error // ignore: cast_nullable_to_non_nullable
                     as String?,
-        whitenoise:
-            freezed == whitenoise
-                ? _value.whitenoise
-                : whitenoise // ignore: cast_nullable_to_non_nullable
-                    as Whitenoise?,
       ),
     );
   }
@@ -156,7 +133,6 @@ class _$AuthStateImpl extends _AuthState {
     this.isAuthenticated = false,
     this.isLoading = false,
     this.error,
-    this.whitenoise,
   }) : super._();
 
   @override
@@ -167,12 +143,10 @@ class _$AuthStateImpl extends _AuthState {
   final bool isLoading;
   @override
   final String? error;
-  @override
-  final Whitenoise? whitenoise;
 
   @override
   String toString() {
-    return 'AuthState(isAuthenticated: $isAuthenticated, isLoading: $isLoading, error: $error, whitenoise: $whitenoise)';
+    return 'AuthState(isAuthenticated: $isAuthenticated, isLoading: $isLoading, error: $error)';
   }
 
   @override
@@ -183,12 +157,11 @@ class _$AuthStateImpl extends _AuthState {
             (identical(other.isAuthenticated, isAuthenticated) ||
                 other.isAuthenticated == isAuthenticated) &&
             (identical(other.isLoading, isLoading) || other.isLoading == isLoading) &&
-            (identical(other.error, error) || other.error == error) &&
-            (identical(other.whitenoise, whitenoise) || other.whitenoise == whitenoise));
+            (identical(other.error, error) || other.error == error));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, isAuthenticated, isLoading, error, whitenoise);
+  int get hashCode => Object.hash(runtimeType, isAuthenticated, isLoading, error);
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
@@ -204,7 +177,6 @@ abstract class _AuthState extends AuthState {
     final bool isAuthenticated,
     final bool isLoading,
     final String? error,
-    final Whitenoise? whitenoise,
   }) = _$AuthStateImpl;
   const _AuthState._() : super._();
 
@@ -214,8 +186,6 @@ abstract class _AuthState extends AuthState {
   bool get isLoading;
   @override
   String? get error;
-  @override
-  Whitenoise? get whitenoise;
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
