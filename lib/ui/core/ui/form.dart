@@ -31,9 +31,7 @@ class _FormValidationNotificationScope extends InheritedWidget {
   final ValidationNotifier notifier;
 
   static ValidationNotifier of(BuildContext context) {
-    return context
-        .dependOnInheritedWidgetOfExactType<_FormValidationNotificationScope>()!
-        .notifier;
+    return context.dependOnInheritedWidgetOfExactType<_FormValidationNotificationScope>()!.notifier;
   }
 
   @override

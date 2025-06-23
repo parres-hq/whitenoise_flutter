@@ -104,8 +104,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
     final resolvedIcon = ValueListenableBuilder(
       valueListenable: hasError,
       builder: (context, hasError, _) {
-        final errorIcon =
-            !hasError ? const SizedBox() : const Icon(Icons.error);
+        final errorIcon = !hasError ? const SizedBox() : const Icon(Icons.error);
 
         return switch (widget.type) {
           FieldType.password => errorIcon,

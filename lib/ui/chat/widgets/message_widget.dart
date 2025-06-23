@@ -139,12 +139,9 @@ class MessageWidget extends StatelessWidget {
               bottomRight: Radius.circular(6.r),
             );
 
-    final cardColor =
-        message.isMe ? context.colors.primary : context.colors.baseMuted;
+    final cardColor = message.isMe ? context.colors.primary : context.colors.baseMuted;
     final textColor =
-        message.isMe
-            ? context.colors.primaryForeground
-            : context.colors.secondaryForeground;
+        message.isMe ? context.colors.primaryForeground : context.colors.secondaryForeground;
 
     return Container(
       decoration: BoxDecoration(borderRadius: borderRadius),

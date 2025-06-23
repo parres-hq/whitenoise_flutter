@@ -41,9 +41,7 @@ class AppTextButton extends AppButton {
          child: RichText(
            text: TextSpan(
              children: children,
-             style:
-                 textStyle ??
-                 TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+             style: textStyle ?? TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
            ),
          ),
        );
