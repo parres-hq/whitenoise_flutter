@@ -14,6 +14,8 @@ class CustomBottomSheet {
     String? title,
     bool showCloseButton = true,
     double heightFactor = 0.9,
+    bool wrapContent = false,
+    double? maxHeight,
     bool barrierDismissible = true,
     String? barrierLabel,
     Color barrierColor = Colors.black54,
@@ -33,7 +35,7 @@ class CustomBottomSheet {
         return const SizedBox.shrink(); // This won't be used
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        final bottomSheetHeight = 1.sh * heightFactor;
+        final bottomSheetHeight = wrapContent ? null : 1.sh * heightFactor;
         final curvedAnimation = CurvedAnimation(
           parent: animation,
           curve: curve,
@@ -88,7 +90,9 @@ class CustomBottomSheet {
                         return Transform.translate(
                           offset: Offset(
                             0,
-                            bottomSheetHeight * (1 - curvedAnimation.value),
+                            wrapContent
+                                ? (1.sh * slideAnimation.value.dy)
+                                : (bottomSheetHeight! * slideAnimation.value.dy),
                           ),
                           child: child,
                         );
@@ -112,6 +116,8 @@ class CustomBottomSheet {
                                   title: title,
                                   showCloseButton: showCloseButton,
                                   bottomSheetHeight: bottomSheetHeight,
+                                  wrapContent: wrapContent,
+                                  maxHeight: maxHeight,
                                   backgroundColor: backgroundColor,
                                 ),
                               )
@@ -121,6 +127,8 @@ class CustomBottomSheet {
                                 title: title,
                                 showCloseButton: showCloseButton,
                                 bottomSheetHeight: bottomSheetHeight,
+                                wrapContent: wrapContent,
+                                maxHeight: maxHeight,
                                 backgroundColor: backgroundColor,
                               ),
                     ),
@@ -137,48 +145,63 @@ class CustomBottomSheet {
   static Widget _buildBottomSheetContent({
     required BuildContext context,
     required Widget Function(BuildContext) builder,
-    required double bottomSheetHeight,
+    required double? bottomSheetHeight,
+    required bool wrapContent,
     required Color backgroundColor,
+    double? maxHeight,
     String? title,
     bool showCloseButton = true,
   }) {
-    return Container(
-      height: bottomSheetHeight,
-      decoration: BoxDecoration(color: backgroundColor),
-      child: Column(
-        children: [
-          if (title != null || showCloseButton)
-            Padding(
-              padding: EdgeInsets.fromLTRB(24.w, 16.h, 16.w, 24.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (title != null)
-                    Flexible(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          color: context.colors.primary,
-                          fontSize: 24.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
+    final contentWidget = Column(
+      mainAxisSize: wrapContent ? MainAxisSize.min : MainAxisSize.max,
+      children: [
+        if (title != null || showCloseButton)
+          Padding(
+            padding: EdgeInsets.fromLTRB(24.w, 16.h, 16.w, 24.h),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (title != null)
+                  Flexible(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        color: context.colors.primary,
+                        fontSize: 24.sp,
+                        fontWeight: FontWeight.w600,
                       ),
-                    )
-                  else
-                    const Spacer(),
-                  if (showCloseButton)
-                    GestureDetector(
-                      onTap: () => Navigator.pop(context),
-                      child: Icon(Icons.close, color: Colors.black, size: 24.w),
                     ),
-                ],
-              ),
+                  )
+                else
+                  const Spacer(),
+                if (showCloseButton)
+                  GestureDetector(
+                    onTap: () => Navigator.pop(context),
+                    child: Icon(Icons.close, color: Colors.black, size: 24.w),
+                  ),
+              ],
             ),
-          Expanded(child: builder(context)),
-          if (Platform.isAndroid) Gap(40.h) else Gap(16.h),
-        ],
-      ),
+          ),
+        wrapContent ? Flexible(child: builder(context)) : Expanded(child: builder(context)),
+        if (Platform.isAndroid) Gap(40.h) else Gap(16.h),
+      ],
     );
+
+    if (wrapContent) {
+      return Container(
+        constraints: BoxConstraints(
+          maxHeight: maxHeight ?? 1.sh * 0.9, // Default max height
+        ),
+        decoration: BoxDecoration(color: backgroundColor),
+        child: contentWidget,
+      );
+    } else {
+      return Container(
+        height: bottomSheetHeight!,
+        decoration: BoxDecoration(color: backgroundColor),
+        child: contentWidget,
+      );
+    }
   }
 }

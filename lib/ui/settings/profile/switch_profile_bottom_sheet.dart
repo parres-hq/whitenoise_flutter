@@ -22,7 +22,8 @@ class SwitchProfileBottomSheet extends StatelessWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'Switch profile',
-      heightFactor: 0.32,
+      wrapContent: true,
+      maxHeight: 0.6.sh,
       builder:
           (context) => SwitchProfileBottomSheet(
             profiles: profiles,
@@ -34,6 +35,7 @@ class SwitchProfileBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      shrinkWrap: true,
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       itemCount: profiles.length,
       itemBuilder: (context, index) {
