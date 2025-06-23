@@ -134,7 +134,8 @@ class NetworkSection extends StatelessWidget {
               ),
             ),
           )
-        else if (!isLoading)
+        else if (!isLoading) ...[
+          Gap(12.w),
           ListView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -143,6 +144,7 @@ class NetworkSection extends StatelessWidget {
               return RelayItem(relay: items[index]);
             },
           ),
+        ],
         Gap(40.w),
       ],
     );

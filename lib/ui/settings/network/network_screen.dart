@@ -25,7 +25,7 @@ class NetworkScreen extends ConsumerWidget {
         children: [
           Gap(24.w),
           NetworkSection(
-            title: 'Relays',
+            title: 'Connected Relays',
             items: normalRelaysState.relays,
             isLoading: normalRelaysState.isLoading,
             error: normalRelaysState.error,
