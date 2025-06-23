@@ -21,8 +21,7 @@ final List<ChatModel> dummyChats = [
   ChatModel(
     id: '3',
     name: 'jstaab',
-    lastMessage:
-        'I think I might have found part of the issue with those key packages. 😎',
+    lastMessage: 'I think I might have found part of the issue with those key packages. 😎',
     time: '11:07',
     imagePath: AssetsPaths.icImage,
   ),

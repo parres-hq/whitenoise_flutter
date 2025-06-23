@@ -111,8 +111,7 @@ class _ChatInputState extends State<ChatInput> {
   }
 
   bool get _hasTextContent => _textController.text.trim().isNotEmpty;
-  bool get _hasMediaContent =>
-      _selectedImages.isNotEmpty || _recordedFilePath != null;
+  bool get _hasMediaContent => _selectedImages.isNotEmpty || _recordedFilePath != null;
   bool get _hasContent => _hasTextContent || _hasMediaContent;
 
   String get _formattedRecordingTime {
@@ -153,8 +152,7 @@ class _ChatInputState extends State<ChatInput> {
       setState(() => _recordingDurationSeconds++);
     });
 
-    if (_recorderController.hasPermission ||
-        await _recorderController.checkPermission()) {
+    if (_recorderController.hasPermission || await _recorderController.checkPermission()) {
       await _recorderController.record();
     }
   }
@@ -202,9 +200,7 @@ class _ChatInputState extends State<ChatInput> {
     final isEditing = _editingMessage != null;
 
     final message = MessageModel(
-      id:
-          _editingMessage?.id ??
-          DateTime.now().millisecondsSinceEpoch.toString(),
+      id: _editingMessage?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
       content: _textController.text.trim(),
       type:
           _recordedFilePath != null
@@ -316,8 +312,7 @@ class _ChatInputState extends State<ChatInput> {
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
-                if (_replyingTo?.type == MessageType.text &&
-                    _replyingTo?.content != null)
+                if (_replyingTo?.type == MessageType.text && _replyingTo?.content != null)
                   Text(
                     _replyingTo?.content ?? '',
                     style: TextStyle(
@@ -363,8 +358,7 @@ class _ChatInputState extends State<ChatInput> {
         );
         final currentlyPlaying = ref.watch(currentlyPlayingAudioProvider);
 
-        final isThisPlaying =
-            currentlyPlaying == _recordedFilePath && state.isPlaying;
+        final isThisPlaying = currentlyPlaying == _recordedFilePath && state.isPlaying;
 
         // Handle loading and error states
         if (!state.isReady) {
@@ -408,9 +402,7 @@ class _ChatInputState extends State<ChatInput> {
                 child: IconButton(
                   padding: EdgeInsets.zero,
                   icon: Icon(
-                    isThisPlaying
-                        ? CarbonIcons.pause_filled
-                        : CarbonIcons.play_filled_alt,
+                    isThisPlaying ? CarbonIcons.pause_filled : CarbonIcons.play_filled_alt,
                     color: context.colors.primaryForeground,
                     size: 14.w,
                   ),
@@ -642,9 +634,7 @@ class _ChatInputState extends State<ChatInput> {
                     CarbonIcons.microphone,
                     size: 24.w,
                     color:
-                        _isRecording
-                            ? context.colorScheme.error
-                            : context.colors.mutedForeground,
+                        _isRecording ? context.colorScheme.error : context.colors.mutedForeground,
                   ),
                   onPressed: _startRecording,
                   padding: EdgeInsets.zero,
@@ -663,8 +653,7 @@ class _ChatInputState extends State<ChatInput> {
         onEmojiSelected: (_, emoji) => setState(() {}),
         config: Config(
           emojiViewConfig: EmojiViewConfig(
-            emojiSizeMax:
-                28 * (defaultTargetPlatform == TargetPlatform.iOS ? 1.20 : 1.0),
+            emojiSizeMax: 28 * (defaultTargetPlatform == TargetPlatform.iOS ? 1.20 : 1.0),
           ),
           bottomActionBarConfig: const BottomActionBarConfig(enabled: false),
         ),

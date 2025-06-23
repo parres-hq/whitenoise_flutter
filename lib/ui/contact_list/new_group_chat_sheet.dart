@@ -33,8 +33,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   final Set<ContactModel> _selectedContacts = {};
-  final Map<String, PublicKey> _publicKeyMap =
-      {}; // Map ContactModel.publicKey to real PublicKey
+  final Map<String, PublicKey> _publicKeyMap = {}; // Map ContactModel.publicKey to real PublicKey
 
   @override
   void initState() {
@@ -197,8 +196,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                           onDelete: () async {
                             try {
                               // Get the real PublicKey from our map
-                              final realPublicKey =
-                                  _publicKeyMap[contact.publicKey];
+                              final realPublicKey = _publicKeyMap[contact.publicKey];
                               if (realPublicKey != null) {
                                 // Use the proper method to remove contact from Rust backend
                                 await ref

@@ -57,14 +57,12 @@ ScrollbarThemeData buildScrollBarTheme() {
     crossAxisMargin: 4,
     radius: const Radius.circular(5),
     thickness: const WidgetStatePropertyAll(5),
-    thumbColor: WidgetStateProperty.resolveWith(
-      (state) {
-        if (state.contains(WidgetState.dragged)) {
-          return lightColorsExt.tertiary;
-        }
-        return lightColorsExt.tertiary.withValues(alpha: 0.5);
-      },
-    ),
+    thumbColor: WidgetStateProperty.resolveWith((state) {
+      if (state.contains(WidgetState.dragged)) {
+        return lightColorsExt.tertiary;
+      }
+      return lightColorsExt.tertiary.withValues(alpha: 0.5);
+    }),
   );
 }
 
@@ -90,30 +88,18 @@ NavigationBarThemeData buildBottomNavigationTheme() {
     shadowColor: Colors.black.withValues(alpha: .14),
     backgroundColor: lightColorsExt.neutral,
     indicatorColor: lightColorsExt.tertiary,
-    iconTheme: WidgetStateProperty.resolveWith(
-      (state) {
-        if (state.contains(WidgetState.selected)) {
-          return IconThemeData(
-            color: lightColorsExt.primary,
-          );
-        }
-        return IconThemeData(
-          color: lightColorsExt.mutedForeground,
-        );
-      },
-    ),
-    labelTextStyle: WidgetStateProperty.resolveWith(
-      (state) {
-        if (state.contains(WidgetState.selected)) {
-          return lightTextTheme.bodySmall
-              ?.copyWith(
-                color: lightColorsExt.primary,
-              )
-              .semiBold;
-        }
-        return lightTextTheme.bodySmall;
-      },
-    ),
+    iconTheme: WidgetStateProperty.resolveWith((state) {
+      if (state.contains(WidgetState.selected)) {
+        return IconThemeData(color: lightColorsExt.primary);
+      }
+      return IconThemeData(color: lightColorsExt.mutedForeground);
+    }),
+    labelTextStyle: WidgetStateProperty.resolveWith((state) {
+      if (state.contains(WidgetState.selected)) {
+        return lightTextTheme.bodySmall?.copyWith(color: lightColorsExt.primary).semiBold;
+      }
+      return lightTextTheme.bodySmall;
+    }),
   );
 }
 
@@ -174,18 +160,14 @@ SegmentedButtonThemeData buildSegmentedButtonTheme() {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.sp),
       ),
-      side: BorderSide(
-        color: lightColorsExt.baseMuted,
-      ),
+      side: BorderSide(color: lightColorsExt.baseMuted),
     ).copyWith(
-      foregroundColor: WidgetStateProperty.resolveWith(
-        (state) {
-          if (state.contains(WidgetState.selected)) {
-            return lightColorsExt.primary;
-          }
-          return lightColorsExt.mutedForeground;
-        },
-      ),
+      foregroundColor: WidgetStateProperty.resolveWith((state) {
+        if (state.contains(WidgetState.selected)) {
+          return lightColorsExt.primary;
+        }
+        return lightColorsExt.mutedForeground;
+      }),
     ),
   );
 }

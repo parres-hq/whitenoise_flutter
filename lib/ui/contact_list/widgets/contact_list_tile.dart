@@ -147,8 +147,7 @@ class ContactListTile extends StatelessWidget {
                     ),
                   ],
                   // Show website if available
-                  if (contact.website != null &&
-                      contact.website!.isNotEmpty) ...[
+                  if (contact.website != null && contact.website!.isNotEmpty) ...[
                     Gap(2.h),
                     Text(
                       contact.website!,
@@ -183,19 +182,12 @@ class ContactListTile extends StatelessWidget {
                 height: 18.w,
                 decoration: BoxDecoration(
                   border: Border.all(
-                    color:
-                        isSelected
-                            ? context.colors.primary
-                            : context.colors.baseMuted,
+                    color: isSelected ? context.colors.primary : context.colors.baseMuted,
                     width: 1.5.w,
                   ),
-                  color:
-                      isSelected ? context.colors.primary : Colors.transparent,
+                  color: isSelected ? context.colors.primary : Colors.transparent,
                 ),
-                child:
-                    isSelected
-                        ? Icon(Icons.check, size: 12.w, color: Colors.white)
-                        : null,
+                child: isSelected ? Icon(Icons.check, size: 12.w, color: Colors.white) : null,
               ),
             ] else if (showExpansionArrow) ...[
               Gap(16.w),
@@ -242,11 +234,7 @@ class ContactListTile extends StatelessWidget {
           alignment: Alignment.centerRight,
           padding: EdgeInsets.only(right: 24.w),
           color: Colors.red,
-          child: Icon(
-            CarbonIcons.trash_can,
-            color: Colors.white,
-            size: 24.w,
-          ),
+          child: Icon(CarbonIcons.trash_can, color: Colors.white, size: 24.w),
         ),
         child: contactTile,
       );

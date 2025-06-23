@@ -29,8 +29,7 @@ class StackedImages extends StatelessWidget {
     final double responsiveImageSize = imageSize.w;
     final double overlap = responsiveImageSize * overlapPercentage;
     final int imagesToShow = min(imageUris.length, maxImagesToShow);
-    final double totalWidth =
-        responsiveImageSize + (overlap * (imagesToShow - 1));
+    final double totalWidth = responsiveImageSize + (overlap * (imagesToShow - 1));
 
     return Padding(
       padding: const EdgeInsets.only(left: 8),

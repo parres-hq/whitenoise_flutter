@@ -71,8 +71,7 @@ class CustomTextField extends StatelessWidget {
                   borderRadius: BorderRadius.zero,
                 ),
                 contentPadding:
-                    contentPadding ??
-                    EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                    contentPadding ?? EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               ),
             ),
           ),

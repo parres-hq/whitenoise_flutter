@@ -18,8 +18,7 @@ class WalletScreen extends ConsumerStatefulWidget {
 }
 
 class _WalletScreenState extends ConsumerState<WalletScreen> {
-  final TextEditingController _connectionSecretController =
-      TextEditingController();
+  final TextEditingController _connectionSecretController = TextEditingController();
 
   @override
   void dispose() {

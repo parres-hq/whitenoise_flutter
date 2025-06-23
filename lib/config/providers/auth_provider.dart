@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
@@ -58,8 +59,7 @@ class AuthNotifier extends Notifier<AuthState> {
     if (state.whitenoise == null) {
       final previousError = state.error;
       state = state.copyWith(
-        error:
-            'Could not initialize Whitenoise: $previousError, account creation failed.',
+        error: 'Could not initialize Whitenoise: $previousError, account creation failed.',
       );
       return;
     }
@@ -138,7 +138,7 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       final active = await getActiveAccount(whitenoise: state.whitenoise!);
       if (active != null) {
-        await logout(whitenoise: state.whitenoise!, account: active);
+        await logout(whitenoise: state.whitenoise!, pubkey: active.pubkey);
       }
     } catch (e, st) {
       state = state.copyWith(error: e.toString());

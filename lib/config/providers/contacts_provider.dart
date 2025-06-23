@@ -8,11 +8,7 @@ class ContactsState {
   final bool isLoading;
   final String? error;
 
-  const ContactsState({
-    this.contacts,
-    this.isLoading = false,
-    this.error,
-  });
+  const ContactsState({this.contacts, this.isLoading = false, this.error});
 
   ContactsState copyWith({
     Map<PublicKey, Metadata?>? contacts,

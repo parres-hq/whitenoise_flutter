@@ -30,9 +30,7 @@ class AddRelayBottomSheet extends StatefulWidget {
       context: context,
       title: title,
       heightFactor: 0.35,
-      builder:
-          (context) =>
-              AddRelayBottomSheet(onRelayAdded: onRelayAdded, title: title),
+      builder: (context) => AddRelayBottomSheet(onRelayAdded: onRelayAdded, title: title),
     );
   }
 }

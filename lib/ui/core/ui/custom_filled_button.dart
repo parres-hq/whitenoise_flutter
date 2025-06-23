@@ -57,9 +57,7 @@ class CustomFilledButton extends StatelessWidget {
                   ? context.colors.secondary
                   : context.colors.warning.withValues(alpha: 0.5),
           disabledForegroundColor:
-              isPrimary
-                  ? context.colors.primaryForeground
-                  : context.colors.secondaryForeground,
+              isPrimary ? context.colors.primaryForeground : context.colors.secondaryForeground,
           padding: EdgeInsets.symmetric(vertical: 16.h),
           shape: const RoundedRectangleBorder(),
         ),

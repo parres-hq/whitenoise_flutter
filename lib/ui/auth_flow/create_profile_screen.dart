@@ -1,31 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 
-class CreateProfileScreen extends StatefulWidget {
+class CreateProfileScreen extends ConsumerStatefulWidget {
   const CreateProfileScreen({super.key});
 
   @override
-  State<CreateProfileScreen> createState() => _CreateProfileScreenState();
+  ConsumerState<CreateProfileScreen> createState() => _CreateProfileScreenState();
 }
 
-class _CreateProfileScreenState extends State<CreateProfileScreen> {
+class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
 
-  void _onFinishPressed() {
+  Future<void> _onFinishPressed() async {
     final username = _usernameController.text.trim();
-    _bioController.text.trim();
+    final bio = _bioController.text.trim();
+    // TODO: authProvider
+    await ref.read(accountProvider.notifier).updateAccountMetadata(username, bio);
     if (username.isNotEmpty) {
+      if (!mounted) return;
       context.go('/chats');
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter a name')),
-      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please enter a name')));
     }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // TODO: optimising this in the next PR - unify auth and acct, single provider for current account.
+      await ref.read(accountProvider.notifier).loadAccountData();
+      _usernameController.text = ref.read(accountProvider).metadata?.displayName ?? '';
+    });
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _bioController.dispose();
+    super.dispose();
   }
 
   @override
@@ -47,8 +71,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   color: context.colors.neutralVariant,
                 ),
               ),
-              SizedBox(height: 32.h),
-
+              Gap(32.h),
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
@@ -76,8 +99,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   ),
                 ],
               ),
-              SizedBox(height: 12.h),
-
+              Gap(12.h),
               Text(
                 'Upload Avatar',
                 style: TextStyle(
@@ -86,8 +108,7 @@ class _CreateProfileScreenState extends State<CreateProfileScreen> {
                   color: context.colors.primary,
                 ),
               ),
-              SizedBox(height: 32.h),
-
+              Gap(32.h),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(

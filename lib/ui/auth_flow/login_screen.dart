@@ -50,9 +50,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (clipboardData != null && clipboardData.text != null) {
       _keyController.text = clipboardData.text!;
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pasted from clipboard')),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Pasted from clipboard')));
       }
     } else {
       if (mounted) {

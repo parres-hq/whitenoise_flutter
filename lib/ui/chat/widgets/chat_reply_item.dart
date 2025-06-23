@@ -40,7 +40,9 @@ class ChatReplyItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: backgroundColor,
           borderRadius: BorderRadius.circular(4.r),
-          border: Border(left: BorderSide(color: borderColor, width: 3.w)),
+          border: Border(
+            left: BorderSide(color: borderColor, width: 3.w),
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

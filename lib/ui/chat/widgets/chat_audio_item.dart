@@ -51,16 +51,11 @@ class ChatAudioItem extends ConsumerWidget {
           height: 40,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color:
-                isMe
-                    ? context.colors.mutedForeground
-                    : context.colors.neutralVariant,
+            color: isMe ? context.colors.mutedForeground : context.colors.neutralVariant,
           ),
           child: IconButton(
             icon: Icon(
-              isThisPlaying
-                  ? CarbonIcons.pause_filled
-                  : CarbonIcons.play_filled_alt,
+              isThisPlaying ? CarbonIcons.pause_filled : CarbonIcons.play_filled_alt,
               color: context.colors.primaryForeground,
             ),
             onPressed: () => notifier.togglePlayback(),
@@ -75,9 +70,7 @@ class ChatAudioItem extends ConsumerWidget {
             playerWaveStyle: PlayerWaveStyle(
               fixedWaveColor: context.colors.baseMuted,
               liveWaveColor:
-                  isMe
-                      ? context.colors.primaryForeground
-                      : context.colors.neutralVariant,
+                  isMe ? context.colors.primaryForeground : context.colors.neutralVariant,
               spacing: 6,
             ),
           ),

@@ -226,10 +226,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   }
 
   @override
-  AppColorsThemeExt lerp(
-    covariant AppColorsThemeExt? other,
-    double t,
-  ) {
+  AppColorsThemeExt lerp(covariant AppColorsThemeExt? other, double t) {
     if (other == null) return this;
     return AppColorsThemeExt(
       primary: Color.lerp(primary, other.primary, t)!,
@@ -237,14 +234,21 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       tertiary: Color.lerp(tertiary, other.tertiary, t)!,
       neutral: Color.lerp(neutral, other.neutral, t)!,
       neutralVariant: Color.lerp(neutralVariant, other.neutralVariant, t)!,
-      primaryForeground:
-          Color.lerp(primaryForeground, other.primaryForeground, t)!,
+      primaryForeground: Color.lerp(primaryForeground, other.primaryForeground, t)!,
       secondaryForeground:
-          Color.lerp(secondaryForeground, other.secondaryForeground, t)!,
+          Color.lerp(
+            secondaryForeground,
+            other.secondaryForeground,
+            t,
+          )!,
       mutedForeground: Color.lerp(mutedForeground, other.mutedForeground, t)!,
       baseMuted: Color.lerp(baseMuted, other.baseMuted, t)!,
       textDefaultSecondary:
-          Color.lerp(textDefaultSecondary, other.textDefaultSecondary, t)!,
+          Color.lerp(
+            textDefaultSecondary,
+            other.textDefaultSecondary,
+            t,
+          )!,
       success: Color.lerp(success, other.success, t)!,
       destructive: Color.lerp(destructive, other.destructive, t)!,
       warning: Color.lerp(warning, other.warning, t)!,
