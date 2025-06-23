@@ -1,14 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:whitenoise/src/rust/api.dart';
 
 /// Active Account Provider
 ///
-/// Manages the currently active account using SharedPreferences for persistence.
+/// Manages the currently active account using Flutter Secure Storage for persistence.
 /// Uses the new fetchAccount() API for better performance when getting account data.
 
 class ActiveAccountNotifier extends Notifier<String?> {
   static const String _activeAccountKey = 'active_account_pubkey';
+
+  final _storage = const FlutterSecureStorage(
+    aOptions: AndroidOptions(
+      encryptedSharedPreferences: true,
+    ),
+    iOptions: IOSOptions(
+      accessibility: KeychainAccessibility.first_unlock_this_device,
+    ),
+  );
 
   @override
   String? build() {
@@ -18,8 +27,7 @@ class ActiveAccountNotifier extends Notifier<String?> {
 
   Future<void> _loadActiveAccount() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final activeAccountPubkey = prefs.getString(_activeAccountKey);
+      final activeAccountPubkey = await _storage.read(key: _activeAccountKey);
       print('ActiveAccountProvider: Loaded active account: $activeAccountPubkey');
       state = activeAccountPubkey;
     } catch (e) {
@@ -30,8 +38,7 @@ class ActiveAccountNotifier extends Notifier<String?> {
 
   Future<void> setActiveAccount(String pubkey) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_activeAccountKey, pubkey);
+      await _storage.write(key: _activeAccountKey, value: pubkey);
       print('ActiveAccountProvider: Set active account: $pubkey');
       state = pubkey;
     } catch (e) {
@@ -41,11 +48,10 @@ class ActiveAccountNotifier extends Notifier<String?> {
 
   Future<void> clearActiveAccount() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_activeAccountKey);
+      await _storage.delete(key: _activeAccountKey);
       state = null;
     } catch (e) {
-      // Handle error
+      print('ActiveAccountProvider: Error clearing active account: $e');
     }
   }
 
@@ -78,6 +84,16 @@ class ActiveAccountNotifier extends Notifier<String?> {
         print('ActiveAccountProvider: Fallback method also failed: $fallbackError');
         return null;
       }
+    }
+  }
+
+  /// Clear all secure storage data (useful for debugging or complete reset)
+  Future<void> clearAllSecureStorage() async {
+    try {
+      await _storage.deleteAll();
+      print('ActiveAccountProvider: Cleared all secure storage data');
+    } catch (e) {
+      print('ActiveAccountProvider: Error clearing all secure storage: $e');
     }
   }
 }
