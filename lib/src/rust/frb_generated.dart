@@ -34,8 +34,12 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 
   /// Initialize flutter_rust_bridge in mock mode.
   /// No libraries for FFI are loaded.
-  static void initMock({required RustLibApi api}) {
-    instance.initMockImpl(api: api);
+  static void initMock({
+    required RustLibApi api,
+  }) {
+    instance.initMockImpl(
+      api: api,
+    );
   }
 
   /// Dispose flutter_rust_bridge
@@ -1286,8 +1290,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiCreateIdentityConstMeta =>
-      const TaskConstMeta(debugName: 'create_identity', argNames: []);
+  TaskConstMeta get kCrateApiCreateIdentityConstMeta => const TaskConstMeta(
+    debugName: 'create_identity',
+    argNames: [],
+  );
 
   @override
   Future<WhitenoiseConfig> crateApiCreateWhitenoiseConfig({
@@ -1349,8 +1355,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiDeleteAllDataConstMeta =>
-      const TaskConstMeta(debugName: 'delete_all_data', argNames: []);
+  TaskConstMeta get kCrateApiDeleteAllDataConstMeta => const TaskConstMeta(
+    debugName: 'delete_all_data',
+    argNames: [],
+  );
 
   @override
   Future<String> crateApiExportAccountNpub({required PublicKey pubkey}) {
@@ -1449,8 +1457,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiFetchAccountConstMeta =>
-      const TaskConstMeta(debugName: 'fetch_account', argNames: ['pubkey']);
+  TaskConstMeta get kCrateApiFetchAccountConstMeta => const TaskConstMeta(
+    debugName: 'fetch_account',
+    argNames: ['pubkey'],
+  );
 
   @override
   Future<List<AccountData>> crateApiFetchAccounts() {
@@ -1477,8 +1487,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiFetchAccountsConstMeta =>
-      const TaskConstMeta(debugName: 'fetch_accounts', argNames: []);
+  TaskConstMeta get kCrateApiFetchAccountsConstMeta => const TaskConstMeta(
+    debugName: 'fetch_accounts',
+    argNames: [],
+  );
 
   @override
   Future<Map<PublicKey, MetadataData?>> crateApiFetchContacts({
@@ -1512,8 +1524,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiFetchContactsConstMeta =>
-      const TaskConstMeta(debugName: 'fetch_contacts', argNames: ['pubkey']);
+  TaskConstMeta get kCrateApiFetchContactsConstMeta => const TaskConstMeta(
+    debugName: 'fetch_contacts',
+    argNames: ['pubkey'],
+  );
 
   @override
   Future<List<PublicKey>> crateApiFetchGroupAdmins({
@@ -1628,8 +1642,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiFetchGroupsConstMeta =>
-      const TaskConstMeta(debugName: 'fetch_groups', argNames: ['pubkey']);
+  TaskConstMeta get kCrateApiFetchGroupsConstMeta => const TaskConstMeta(
+    debugName: 'fetch_groups',
+    argNames: ['pubkey'],
+  );
 
   @override
   Future<Event?> crateApiFetchKeyPackage({required PublicKey pubkey}) {
@@ -1661,8 +1677,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiFetchKeyPackageConstMeta =>
-      const TaskConstMeta(debugName: 'fetch_key_package', argNames: ['pubkey']);
+  TaskConstMeta get kCrateApiFetchKeyPackageConstMeta => const TaskConstMeta(
+    debugName: 'fetch_key_package',
+    argNames: ['pubkey'],
+  );
 
   @override
   Future<MetadataData?> crateApiFetchMetadata({required PublicKey pubkey}) {
@@ -1694,8 +1712,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiFetchMetadataConstMeta =>
-      const TaskConstMeta(debugName: 'fetch_metadata', argNames: ['pubkey']);
+  TaskConstMeta get kCrateApiFetchMetadataConstMeta => const TaskConstMeta(
+    debugName: 'fetch_metadata',
+    argNames: ['pubkey'],
+  );
 
   @override
   Future<OnboardingState> crateApiFetchOnboardingState({
@@ -1903,8 +1923,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiLoginConstMeta =>
-      const TaskConstMeta(debugName: 'login', argNames: ['nsecOrHexPrivkey']);
+  TaskConstMeta get kCrateApiLoginConstMeta => const TaskConstMeta(
+    debugName: 'login',
+    argNames: ['nsecOrHexPrivkey'],
+  );
 
   @override
   Future<void> crateApiLogout({required PublicKey pubkey}) {
@@ -1935,8 +1957,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiLogoutConstMeta =>
-      const TaskConstMeta(debugName: 'logout', argNames: ['pubkey']);
+  TaskConstMeta get kCrateApiLogoutConstMeta => const TaskConstMeta(
+    debugName: 'logout',
+    argNames: ['pubkey'],
+  );
 
   @override
   Future<PublicKey> crateApiPublicKeyFromString({
@@ -1997,8 +2021,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiRelayTypeInboxConstMeta =>
-      const TaskConstMeta(debugName: 'relay_type_inbox', argNames: []);
+  TaskConstMeta get kCrateApiRelayTypeInboxConstMeta => const TaskConstMeta(
+    debugName: 'relay_type_inbox',
+    argNames: [],
+  );
 
   @override
   Future<RelayType> crateApiRelayTypeKeyPackage() {
@@ -2025,8 +2051,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiRelayTypeKeyPackageConstMeta =>
-      const TaskConstMeta(debugName: 'relay_type_key_package', argNames: []);
+  TaskConstMeta get kCrateApiRelayTypeKeyPackageConstMeta => const TaskConstMeta(
+    debugName: 'relay_type_key_package',
+    argNames: [],
+  );
 
   @override
   Future<RelayType> crateApiRelayTypeNostr() {
@@ -2053,8 +2081,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiRelayTypeNostrConstMeta =>
-      const TaskConstMeta(debugName: 'relay_type_nostr', argNames: []);
+  TaskConstMeta get kCrateApiRelayTypeNostrConstMeta => const TaskConstMeta(
+    debugName: 'relay_type_nostr',
+    argNames: [],
+  );
 
   @override
   Future<RelayUrl> crateApiRelayUrlFromString({required String url}) {
@@ -2885,7 +2915,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     if (arr.length != 2) {
       throw Exception('Expected 2 elements, got ${arr.length}');
     }
-    return (dco_decode_String(arr[0]), dco_decode_String(arr[1]));
+    return (
+      dco_decode_String(arr[0]),
+      dco_decode_String(arr[1]),
+    );
   }
 
   @protected
@@ -3917,10 +3950,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-      (self as AccountImpl).frbInternalSseEncode(move: null),
-      serializer,
-    );
+    sse_encode_usize((self as AccountImpl).frbInternalSseEncode(), serializer);
   }
 
   @protected
@@ -3929,10 +3959,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-      (self as EventImpl).frbInternalSseEncode(move: null),
-      serializer,
-    );
+    sse_encode_usize((self as EventImpl).frbInternalSseEncode(), serializer);
   }
 
   @protected
@@ -3941,10 +3968,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-      (self as GroupImpl).frbInternalSseEncode(move: null),
-      serializer,
-    );
+    sse_encode_usize((self as GroupImpl).frbInternalSseEncode(), serializer);
   }
 
   @protected
@@ -3953,10 +3977,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-      (self as GroupIdImpl).frbInternalSseEncode(move: null),
-      serializer,
-    );
+    sse_encode_usize((self as GroupIdImpl).frbInternalSseEncode(), serializer);
   }
 
   @protected
@@ -3965,10 +3986,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-      (self as MetadataImpl).frbInternalSseEncode(move: null),
-      serializer,
-    );
+    sse_encode_usize((self as MetadataImpl).frbInternalSseEncode(), serializer);
   }
 
   @protected
@@ -3978,7 +3996,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
-      (self as MetadataDataImpl).frbInternalSseEncode(move: null),
+      (self as MetadataDataImpl).frbInternalSseEncode(),
       serializer,
     );
   }
@@ -3990,7 +4008,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
-      (self as PublicKeyImpl).frbInternalSseEncode(move: null),
+      (self as PublicKeyImpl).frbInternalSseEncode(),
       serializer,
     );
   }
@@ -4002,7 +4020,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
-      (self as RelayTypeImpl).frbInternalSseEncode(move: null),
+      (self as RelayTypeImpl).frbInternalSseEncode(),
       serializer,
     );
   }
@@ -4013,10 +4031,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-      (self as RelayUrlImpl).frbInternalSseEncode(move: null),
-      serializer,
-    );
+    sse_encode_usize((self as RelayUrlImpl).frbInternalSseEncode(), serializer);
   }
 
   @protected
@@ -4026,7 +4041,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
-      (self as WhitenoiseConfigImpl).frbInternalSseEncode(move: null),
+      (self as WhitenoiseConfigImpl).frbInternalSseEncode(),
       serializer,
     );
   }
@@ -4038,7 +4053,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize(
-      (self as WhitenoiseErrorImpl).frbInternalSseEncode(move: null),
+      (self as WhitenoiseErrorImpl).frbInternalSseEncode(),
       serializer,
     );
   }
@@ -4454,26 +4469,41 @@ class MetadataDataImpl extends RustOpaque implements MetadataData {
         RustLib.instance.api.rust_arc_decrement_strong_count_MetadataDataPtr,
   );
 
-  String? get about => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetAbout(that: this);
+  String? get about => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetAbout(
+    that: this,
+  );
 
-  String? get banner => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetBanner(that: this);
+  String? get banner => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetBanner(
+    that: this,
+  );
 
-  String? get displayName =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorGetDisplayName(that: this);
+  String? get displayName => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetDisplayName(
+    that: this,
+  );
 
-  String? get lud06 => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetLud06(that: this);
+  String? get lud06 => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetLud06(
+    that: this,
+  );
 
-  String? get lud16 => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetLud16(that: this);
+  String? get lud16 => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetLud16(
+    that: this,
+  );
 
-  String? get name => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetName(that: this);
+  String? get name => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetName(
+    that: this,
+  );
 
-  String? get nip05 => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetNip05(that: this);
+  String? get nip05 => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetNip05(
+    that: this,
+  );
 
-  String? get picture =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorGetPicture(that: this);
+  String? get picture => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetPicture(
+    that: this,
+  );
 
-  String? get website =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorGetWebsite(that: this);
+  String? get website => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetWebsite(
+    that: this,
+  );
 
   set about(String? about) =>
       RustLib.instance.api.crateApiMetadataDataAutoAccessorSetAbout(that: this, about: about);
@@ -4505,8 +4535,9 @@ class MetadataDataImpl extends RustOpaque implements MetadataData {
   set website(String? website) =>
       RustLib.instance.api.crateApiMetadataDataAutoAccessorSetWebsite(that: this, website: website);
 
-  Future<Map<String, String>> getCustom() =>
-      RustLib.instance.api.crateApiMetadataDataGetCustom(that: this);
+  Future<Map<String, String>> getCustom() => RustLib.instance.api.crateApiMetadataDataGetCustom(
+    that: this,
+  );
 
   Future<void> setCustom({required Map<String, String> customMap}) =>
       RustLib.instance.api.crateApiMetadataDataSetCustom(that: this, customMap: customMap);

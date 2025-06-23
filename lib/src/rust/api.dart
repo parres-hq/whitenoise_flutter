@@ -395,9 +395,16 @@ class GroupData {
           state == other.state;
 }
 
-enum GroupState { active, inactive, pending }
+enum GroupState {
+  active,
+  inactive,
+  pending,
+}
 
-enum GroupType { directMessage, group }
+enum GroupType {
+  directMessage,
+  group,
+}
 
 class OnboardingState {
   final bool inboxRelays;
@@ -428,7 +435,10 @@ class WhitenoiseConfigData {
   final String dataDir;
   final String logsDir;
 
-  const WhitenoiseConfigData({required this.dataDir, required this.logsDir});
+  const WhitenoiseConfigData({
+    required this.dataDir,
+    required this.logsDir,
+  });
 
   @override
   int get hashCode => dataDir.hashCode ^ logsDir.hashCode;
