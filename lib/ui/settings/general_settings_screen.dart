@@ -11,6 +11,7 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
@@ -175,23 +176,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     ).showSnackBar(const SnackBar(content: Text('All data deleted')));
   }
 
-  void _publishKeyPackage() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Key package event published')),
-    );
-  }
-
-  void _deleteKeyPackages() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('All key package events deleted')),
-    );
-  }
-
-  void _testNotifications() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Test notification sent')));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -216,11 +200,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
           else
             const Center(child: Text('No accounts found')),
           SettingsListTile(
-            icon: CarbonIcons.add,
-            text: 'Add Profile',
-            onTap: () => AddProfileBottomSheet.show(context: context),
-          ),
-          SettingsListTile(
             icon: CarbonIcons.user,
             text: 'Edit Profile',
             onTap: () => context.push('${Routes.settings}/profile'),
@@ -240,6 +219,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
             text: 'Wallet',
             onTap: () => context.push('${Routes.settings}/wallet'),
           ),
+          Divider(color: context.colors.baseMuted, height: 16.h),
           SettingsListTile(
             icon: CarbonIcons.logout,
             text: 'Sign out',
@@ -249,21 +229,13 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
             icon: CarbonIcons.delete,
             text: 'Delete all data',
             onTap: _deleteAllData,
+            foregroundColor: context.colors.destructive,
           ),
-          SettingsListTile(
-            icon: CarbonIcons.password,
-            text: 'Publish a key package event',
-            onTap: _publishKeyPackage,
-          ),
-          SettingsListTile(
-            icon: CarbonIcons.delete,
-            text: 'Delete all key package events',
-            onTap: _deleteKeyPackages,
-          ),
-          SettingsListTile(
-            icon: CarbonIcons.notification,
-            text: 'Test Notifications',
-            onTap: _testNotifications,
+          Divider(color: context.colors.baseMuted, height: 16.h),
+          Gap(24.h),
+          AppFilledButton(
+            title: 'Add another account',
+            onPressed: () => AddProfileBottomSheet.show(context: context),
           ),
         ],
       ),
@@ -277,11 +249,13 @@ class SettingsListTile extends StatelessWidget {
     required this.icon,
     required this.text,
     required this.onTap,
+    this.foregroundColor,
   });
 
   final IconData icon;
   final String text;
   final VoidCallback onTap;
+  final Color? foregroundColor;
 
   @override
   Widget build(BuildContext context) {
@@ -291,14 +265,14 @@ class SettingsListTile extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 12.h),
         child: Row(
           children: [
-            Icon(icon, size: 24.w, color: context.colors.mutedForeground),
+            Icon(icon, size: 24.w, color: foregroundColor ?? context.colors.mutedForeground),
             Gap(12.w),
             Expanded(
               child: Text(
                 text,
                 style: TextStyle(
                   fontSize: 17.sp,
-                  color: context.colors.mutedForeground,
+                  color: foregroundColor ?? context.colors.mutedForeground,
                 ),
               ),
             ),
