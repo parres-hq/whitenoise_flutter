@@ -178,7 +178,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     ).showSnackBar(const SnackBar(content: Text('All data deleted')));
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
