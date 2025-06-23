@@ -10677,7 +10677,7 @@ class _ChatInputState extends State<ChatInput> {
               boxShadow: isRecording
                   ? [
                 BoxShadow(
-                  color: Colors.red.withOpacity(0.6),
+                  color: Colors.red.withValues(alpha:0.6),
                   blurRadius: 12,
                   spreadRadius: 2,
                 )

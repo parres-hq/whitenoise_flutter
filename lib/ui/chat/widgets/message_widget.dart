@@ -59,7 +59,7 @@ class MessageWidget extends StatelessWidget {
                             (context, url) => Container(
                               width: 30.w,
                               height: 30.h,
-                              color: context.colors.primary.withOpacity(0.1),
+                              color: context.colors.primary.withValues(alpha: 0.1),
                             ),
                         errorWidget:
                             (context, url, error) => Icon(
@@ -183,7 +183,7 @@ class MessageWidget extends StatelessWidget {
                       placeholder:
                           (context, url) => Container(
                             height: 0.4.sh,
-                            color: context.colors.primary.withOpacity(0.1),
+                            color: context.colors.primary.withValues(alpha: 0.1),
                             child: Center(
                               child: CircularProgressIndicator(
                                 color: context.colors.primaryForeground,
@@ -193,7 +193,7 @@ class MessageWidget extends StatelessWidget {
                       errorWidget:
                           (context, url, error) => Container(
                             height: 0.4.sh,
-                            color: context.colors.primary.withOpacity(0.1),
+                            color: context.colors.primary.withValues(alpha: 0.1),
                             child: Icon(
                               CarbonIcons.no_image,
                               color: context.colors.primaryForeground,
@@ -241,7 +241,7 @@ class MessageWidget extends StatelessWidget {
                                 message.timeSent,
                                 style: TextStyle(
                                   fontSize: 10.sp,
-                                  color: textColor.withOpacity(0.7),
+                                  color: textColor.withValues(alpha: 0.7),
                                   decoration: TextDecoration.none,
                                 ),
                               ),
@@ -274,7 +274,7 @@ class MessageWidget extends StatelessWidget {
                       message.timeSent,
                       style: TextStyle(
                         fontSize: 10.sp,
-                        color: textColor.withOpacity(0.7),
+                        color: textColor.withValues(alpha: 0.7),
                         decoration: TextDecoration.none,
                       ),
                     ),
@@ -312,9 +312,9 @@ class MessageWidget extends StatelessWidget {
   Color _getStatusColor(MessageStatus status, BuildContext context) {
     switch (status) {
       case MessageStatus.sending:
-        return context.colors.primaryForeground.withOpacity(0.5);
+        return context.colors.primaryForeground.withValues(alpha: 0.5);
       case MessageStatus.sent:
-        return context.colors.primaryForeground.withOpacity(0.7);
+        return context.colors.primaryForeground.withValues(alpha: 0.7);
       case MessageStatus.delivered:
         return context.colors.primaryForeground;
       case MessageStatus.read:

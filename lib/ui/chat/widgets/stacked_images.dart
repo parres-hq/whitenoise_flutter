@@ -68,7 +68,7 @@ class StackedImages extends StatelessWidget {
                         height: 20.h,
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: context.colors.neutral.withOpacity(0.9),
+                          color: context.colors.neutral.withValues(alpha: 0.9),
                           boxShadow: [
                             BoxShadow(
                               color: context.colors.mutedForeground,

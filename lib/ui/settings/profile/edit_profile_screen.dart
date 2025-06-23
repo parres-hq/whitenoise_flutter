@@ -146,8 +146,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     height: 128.h,
                                     width: double.infinity,
                                     decoration: BoxDecoration(
-                                      color: context.colors.baseMuted.withOpacity(
-                                        0.5,
+                                      color: context.colors.baseMuted.withValues(
+                                        alpha: 0.5,
                                       ),
                                     ),
                                     child:

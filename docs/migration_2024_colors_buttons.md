@@ -62,7 +62,7 @@ Text(
 | colorDC2626             | destructive                        |
 | colorEA580C             | warning                            |
 
-- For alpha/opacity, use `.withOpacity()` (e.g., `context.colors.primary.withOpacity(0.1)`).
+- For alpha/opacity, use `.withValues(alpha:)` (e.g., `context.colors.primary.withValues(alpha:0.1)`).
 
 #### **Best Practices**
 

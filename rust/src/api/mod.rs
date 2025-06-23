@@ -474,6 +474,6 @@ pub async fn create_group(
         ))
     })
     .await
-    .map_err(|e| WhitenoiseError::from(std::io::Error::new(std::io::ErrorKind::Other, e)))??;
+    .map_err(|e| WhitenoiseError::from(std::io::Error::other(e)))??;
     Ok(convert_group_to_data(&group))
 }
