@@ -32,7 +32,9 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadAccounts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadAccounts();
+    });
   }
 
   Future<void> _loadAccounts() async {
@@ -199,6 +201,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
             )
           else
             const Center(child: Text('No accounts found')),
+          Divider(color: context.colors.baseMuted, height: 24.h),
           SettingsListTile(
             icon: CarbonIcons.user,
             text: 'Edit Profile',

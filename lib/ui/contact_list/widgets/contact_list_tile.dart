@@ -3,10 +3,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
-
-import '../../../domain/models/contact_model.dart';
-import '../../core/themes/assets.dart';
-import '../../core/themes/src/extensions.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/utils/string_extensions.dart';
 
 class ContactListTile extends StatelessWidget {
   final ContactModel contact;
@@ -27,6 +28,16 @@ class ContactListTile extends StatelessWidget {
     this.enableSwipeToDelete = false,
     super.key,
   });
+
+  Future<String> _getNpub(String publicKeyHex) async {
+    try {
+      final publicKey = await publicKeyFromString(publicKeyString: publicKeyHex);
+      final npub = await exportAccountNpub(pubkey: publicKey);
+      return npub.formatPublicKey();
+    } catch (e) {
+      return '';
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -171,7 +182,23 @@ class ContactListTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                     ),
                   ],
-                  // Public key display removed per user request
+                  // Show npub (public key in bech32 format)
+                  Gap(2.h),
+                  FutureBuilder<String>(
+                    future: _getNpub(contact.publicKey),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        return Text(
+                          snapshot.data!,
+                          style: TextStyle(
+                            color: context.colors.mutedForeground,
+                            fontSize: 12.sp,
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
                 ],
               ),
             ),
