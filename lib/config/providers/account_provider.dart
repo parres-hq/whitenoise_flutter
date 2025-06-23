@@ -143,7 +143,7 @@ class AccountNotifier extends Notifier<AccountState> {
     final acct = state.account;
     if (acct == null) return;
 
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, error: null);
     try {
       final accountMetadata = state.metadata;
       if (accountMetadata != null) {

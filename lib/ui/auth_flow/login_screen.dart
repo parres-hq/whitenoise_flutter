@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -72,7 +74,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final authState = ref.watch(authProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.colors.neutral,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.fromLTRB(24, 120, 24, 0),
@@ -84,22 +86,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 children: [
                   Image.asset(
                     AssetsPaths.hands,
-                    height: 320,
+                    height: 320.h,
                     fit: BoxFit.contain,
                     width: double.infinity,
                   ),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 4),
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 4.h),
                     child: Text(
                       'Login to White Noise',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 30,
+                        fontSize: 30.sp,
                         fontWeight: FontWeight.w500,
-                        color: AppColors.glitch800,
+                        color: context.colors.textDefaultSecondary,
                         height: 1.0,
                       ),
-                      textHeightBehavior: TextHeightBehavior(
+                      textHeightBehavior: const TextHeightBehavior(
                         applyHeightToFirstAscent: false,
                         applyHeightToLastDescent: false,
                       ),
@@ -107,63 +109,45 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ],
               ),
-              const SizedBox(height: 24),
-
-              const Text(
+              SizedBox(height: 24.h),
+              Text(
                 'Enter Your Private Key',
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
-                  fontSize: 14,
-                  color: Colors.black,
+                  fontSize: 14.sp,
+                  color: context.colorScheme.onSurface,
                 ),
               ),
-              const SizedBox(height: 6),
-
+              SizedBox(height: 6.h),
               Row(
                 children: [
                   Expanded(
-                    child: TextField(
+                    child: AppTextFormField(
+                      hintText: 'nsec...',
+                      type: FieldType.password,
                       controller: _keyController,
-                      decoration: const InputDecoration(
-                        hintText: 'nsec...',
-                        filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 16,
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(color: AppColors.glitch700),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(color: AppColors.glitch700),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.zero,
-                          borderSide: BorderSide(color: AppColors.glitch700),
-                        ),
-                      ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+
+                  SizedBox(width: 8.h),
                   Container(
-                    height: 56,
-                    width: 56,
+                    height: 56.w,
+                    width: 56.w,
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(color: AppColors.glitch700),
+                      color: context.colors.neutral,
+                      border: Border.all(
+                        color: context.colors.baseMuted,
+                      ),
                     ),
                     child: IconButton(
-                      icon: const Icon(Icons.paste, size: 20),
+                      icon: Icon(Icons.paste, size: 20.sp),
                       onPressed: _pasteFromClipboard,
                     ),
                   ),
                 ],
               ),
 
-              const SizedBox(height: 32),
+              SizedBox(height: 32.h),
             ],
           ),
         ),
@@ -173,15 +157,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         top: false,
         child:
             authState.isLoading
-                ? const Padding(
-                  padding: EdgeInsets.all(16),
+                ? Padding(
+                  padding: EdgeInsets.all(16.w),
                   child: Center(
-                    child: CircularProgressIndicator(color: Colors.black),
+                    child: CircularProgressIndicator(
+                      color: context.colorScheme.onSurface,
+                    ),
                   ),
                 )
-                : CustomFilledButton(
-                  onPressed: _onContinuePressed,
-                  title: 'Login',
+                : Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                  ).copyWith(bottom: 32.h),
+                  child: AppFilledButton(
+                    onPressed: _onContinuePressed,
+                    title: 'Login',
+                  ),
                 ),
       ),
     );

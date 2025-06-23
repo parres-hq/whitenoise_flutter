@@ -6,7 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/shared/info_box.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
@@ -29,7 +29,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.colors.neutral,
       appBar: const CustomAppBar(title: 'Wallet'),
       body: Column(
         children: [
@@ -48,7 +48,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           'Connect bitcoin lightning wallet to send and receive payments within White Noise.',
                           style: TextStyle(
                             fontSize: 18.sp,
-                            color: AppColors.glitch900,
+                            color: context.colors.secondaryForeground,
                           ),
                         ),
                         Gap(24.h),
@@ -57,7 +57,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                           style: TextStyle(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w500,
-                            color: AppColors.glitch900,
+                            color: context.colors.secondaryForeground,
                           ),
                         ),
                         Gap(8.h),
@@ -106,8 +106,8 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                   ),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: const InfoBox(
-                      colorTheme: AppColors.glitch900,
+                    child: InfoBox(
+                      colorTheme: context.colors.secondaryForeground,
                       title: 'What wallet can I connect?',
                       description:
                           'You can connect any wallet that supports Nostr Wallet Connect. See full list of such wallets here.',

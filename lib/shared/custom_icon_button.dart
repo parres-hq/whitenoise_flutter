@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class CustomIconButton extends StatelessWidget {
   final void Function()? onTap;
@@ -20,7 +20,7 @@ class CustomIconButton extends StatelessWidget {
       child: Container(
         height: 40.h,
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.glitch200),
+          border: Border.all(color: context.colors.baseMuted),
         ),
         child: Padding(
           padding: EdgeInsets.all(12.w),

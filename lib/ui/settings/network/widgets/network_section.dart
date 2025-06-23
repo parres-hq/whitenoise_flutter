@@ -3,7 +3,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class NetworkSection extends StatelessWidget {
   const NetworkSection({
@@ -39,7 +39,10 @@ class NetworkSection extends StatelessWidget {
             children: [
               Text(
                 title,
-                style: TextStyle(fontSize: 24.sp, color: AppColors.glitch900),
+                style: TextStyle(
+                  fontSize: 24.sp,
+                  color: context.colors.secondaryForeground,
+                ),
               ),
               Row(
                 children: [
@@ -49,7 +52,8 @@ class NetworkSection extends StatelessWidget {
                       child: Icon(
                         Icons.refresh,
                         size: 18.w,
-                        color: isLoading ? AppColors.glitch400 : AppColors.glitch600,
+                        color:
+                            isLoading ? context.colors.baseMuted : context.colors.mutedForeground,
                       ),
                     ),
                     Gap(16.w),
@@ -113,8 +117,8 @@ class NetworkSection extends StatelessWidget {
             child: Center(
               child: CircularProgressIndicator(
                 strokeWidth: 2.w,
-                valueColor: const AlwaysStoppedAnimation<Color>(
-                  AppColors.glitch600,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  context.colors.mutedForeground,
                 ),
               ),
             ),
@@ -124,7 +128,10 @@ class NetworkSection extends StatelessWidget {
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 8.h),
             child: Text(
               emptyText,
-              style: TextStyle(fontSize: 17.sp, color: AppColors.glitch600),
+              style: TextStyle(
+                fontSize: 17.sp,
+                color: context.colors.mutedForeground,
+              ),
             ),
           )
         else if (!isLoading)
@@ -156,7 +163,10 @@ class RelayItem extends StatelessWidget {
         children: [
           Text(
             relay.url,
-            style: TextStyle(fontSize: 18.sp, color: AppColors.glitch900),
+            style: TextStyle(
+              fontSize: 18.sp,
+              color: context.colors.secondaryForeground,
+            ),
           ),
           Row(
             children: [
@@ -168,7 +178,10 @@ class RelayItem extends StatelessWidget {
               Gap(8.w),
               Text(
                 relay.connected ? 'Connected' : 'Disconnected',
-                style: TextStyle(fontSize: 12.sp, color: AppColors.glitch600),
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: context.colors.mutedForeground,
+                ),
               ),
             ],
           ),

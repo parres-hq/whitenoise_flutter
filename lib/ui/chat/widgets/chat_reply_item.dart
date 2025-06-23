@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
-
-import '../../core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class ChatReplyItem extends StatelessWidget {
   final MessageModel message;
@@ -20,9 +19,9 @@ class ChatReplyItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final borderColor = isMe ? AppColors.glitch400 : AppColors.glitch800;
-    final backgroundColor = isMe ? AppColors.glitch80 : AppColors.glitch600;
-    final textColor = isMe ? AppColors.glitch950 : AppColors.glitch50;
+    final borderColor = isMe ? context.colors.baseMuted : context.colors.neutralVariant;
+    final backgroundColor = isMe ? context.colors.baseMuted : context.colors.mutedForeground;
+    final textColor = isMe ? context.colors.primary : context.colors.primaryForeground;
     final senderNameColor = textColor;
 
     return GestureDetector(
@@ -64,9 +63,9 @@ class ChatReplyItem extends StatelessWidget {
                             (context, url) => Container(
                               width: 16.w,
                               height: 16.h,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary.withValues(alpha: 0.1),
+                              color: context.colorScheme.primary.withValues(
+                                alpha: 0.1,
+                              ),
                             ),
                       ),
                     ),

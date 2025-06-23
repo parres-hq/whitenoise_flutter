@@ -10,7 +10,7 @@ const lightColorsExt = AppColorsThemeExt(
   neutralVariant: LightAppColors.neutralVariant,
 
   baseChat2: LightAppColors.baseChat2,
-  primaryBackground: LightAppColors.primaryBackground,
+  primaryForeground: LightAppColors.primaryForeground,
   secondaryForeground: LightAppColors.secondaryForeground,
   mutedForeground: LightAppColors.mutedForeground,
   baseMuted: LightAppColors.baseMuted,

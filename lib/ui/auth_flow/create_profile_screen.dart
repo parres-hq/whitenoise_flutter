@@ -5,8 +5,8 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 
 class CreateProfileScreen extends ConsumerStatefulWidget {
   const CreateProfileScreen({super.key});
@@ -55,7 +55,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.colors.neutral,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
@@ -68,7 +68,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                 style: TextStyle(
                   fontSize: 30.sp,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.glitch800,
+                  color: context.colors.neutralVariant,
                 ),
               ),
               Gap(32.h),
@@ -86,7 +86,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                       color: Colors.white,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: AppColors.glitch100,
+                        color: context.colors.secondary,
                         width: 1.w,
                       ),
                     ),
@@ -94,7 +94,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                     child: Icon(
                       Icons.edit,
                       size: 18.sp,
-                      color: AppColors.glitch800,
+                      color: context.colors.neutralVariant,
                     ),
                   ),
                 ],
@@ -105,7 +105,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
-                  color: AppColors.glitch950,
+                  color: context.colors.primary,
                 ),
               ),
               Gap(32.h),
@@ -134,21 +134,21 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(
-                      color: AppColors.glitch700,
+                      color: context.colors.neutralVariant,
                       width: 1.w,
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(
-                      color: AppColors.glitch700,
+                      color: context.colors.neutralVariant,
                       width: 1.w,
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(
-                      color: AppColors.glitch700,
+                      color: context.colors.neutralVariant,
                       width: 1.w,
                     ),
                   ),
@@ -183,18 +183,20 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(
-                      color: AppColors.glitch700,
+                      color: context.colors.neutralVariant,
                       width: 1.w,
                     ),
                   ),
-                  enabledBorder: const OutlineInputBorder(
+                  enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(color: AppColors.glitch700),
+                    borderSide: BorderSide(
+                      color: context.colors.neutralVariant,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.zero,
                     borderSide: BorderSide(
-                      color: AppColors.glitch700,
+                      color: context.colors.neutralVariant,
                       width: 1.w,
                     ),
                   ),
@@ -209,9 +211,14 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
 
       bottomNavigationBar: SafeArea(
         top: false,
-        child: CustomFilledButton(
-          onPressed: () async => await _onFinishPressed(),
-          title: 'Finish',
+        child: Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: 16.w,
+          ).copyWith(bottom: 32.h),
+          child: AppFilledButton(
+            onPressed: _onFinishPressed,
+            title: 'Finish',
+          ),
         ),
       ),
     );

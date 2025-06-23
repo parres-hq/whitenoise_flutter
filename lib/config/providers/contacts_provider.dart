@@ -42,7 +42,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
   // Fetch contacts for a given public key (hex string)
   Future<void> loadContacts(String ownerHex) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
 
     if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);
@@ -77,7 +77,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
   // Add a new contact (by hex or npub public key) to the active account
   Future<void> addContactByHex(String contactKey) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
 
     if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);
@@ -128,7 +128,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
   // Remove a contact (by hex or npub public key)
   Future<void> removeContactByHex(String contactKey) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
 
     if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);
@@ -165,7 +165,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
   // Replace the entire contact list (takes a list of hex strings)
   Future<void> replaceContacts(List<String> hexList) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
 
     if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);
@@ -216,7 +216,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
   // Remove a contact using PublicKey (calls Rust API directly)
   Future<void> removeContactByPublicKey(PublicKey publicKey) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
 
     if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);

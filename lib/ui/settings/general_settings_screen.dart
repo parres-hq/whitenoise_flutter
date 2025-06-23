@@ -10,7 +10,7 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
@@ -196,7 +196,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.colors.neutral,
       appBar: const CustomAppBar(title: 'Settings'),
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
@@ -291,12 +291,15 @@ class SettingsListTile extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 12.h),
         child: Row(
           children: [
-            Icon(icon, size: 24.w, color: AppColors.glitch600),
+            Icon(icon, size: 24.w, color: context.colors.mutedForeground),
             Gap(12.w),
             Expanded(
               child: Text(
                 text,
-                style: TextStyle(fontSize: 17.sp, color: AppColors.glitch600),
+                style: TextStyle(
+                  fontSize: 17.sp,
+                  color: context.colors.mutedForeground,
+                ),
               ),
             ),
           ],

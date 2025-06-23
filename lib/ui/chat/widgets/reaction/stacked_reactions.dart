@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class StackedReactions extends StatelessWidget {
   final List<Reaction> reactions;
@@ -98,14 +98,17 @@ class _ReactionItem extends StatelessWidget {
             height: 20.h,
             constraints: BoxConstraints(minWidth: 20.w),
             decoration: BoxDecoration(
-              color: AppColors.glitch80,
-              border: Border.all(color: AppColors.white, width: 1.w),
+              color: context.colors.baseMuted,
+              border: Border.all(color: context.colors.neutral, width: 1.w),
               borderRadius: BorderRadius.circular(20.r),
             ),
             child: Center(
               child: Text(
                 isSingle ? emoji : '$emoji $count',
-                style: TextStyle(fontSize: size.sp, color: AppColors.glitch600),
+                style: TextStyle(
+                  fontSize: size.sp,
+                  color: context.colors.mutedForeground,
+                ),
               ),
             ),
           ),
@@ -130,8 +133,8 @@ class _RemainingCount extends StatelessWidget {
         width: 24.w,
         height: 20.h,
         decoration: BoxDecoration(
-          color: AppColors.glitch50,
-          border: Border.all(color: AppColors.white, width: 1.w),
+          color: context.colors.primaryForeground,
+          border: Border.all(color: context.colors.neutral, width: 1.w),
           borderRadius: BorderRadius.circular(20.r),
         ),
         child: Center(

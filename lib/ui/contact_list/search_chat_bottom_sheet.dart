@@ -9,6 +9,7 @@ import 'package:whitenoise/domain/models/chat_model.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
@@ -74,9 +75,9 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
         debugPrint('SearchChatBottomSheet: No active account found');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No active account found'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: const Text('No active account found'),
+              backgroundColor: context.colors.destructive,
             ),
           );
         }
@@ -87,7 +88,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error loading contacts: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.colors.destructive,
           ),
         );
       }

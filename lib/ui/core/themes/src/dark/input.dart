@@ -3,7 +3,7 @@ part of 'dark.dart';
 InputDecorationTheme buildDarkInputDecorationThemeData() {
   const borderSide = BorderSide(color: LightAppColors.baseMuted);
   final border = OutlineInputBorder(
-    borderRadius: AppDimension.borderRadius,
+    borderRadius: AppDimension.zeroBorder,
     borderSide: borderSide,
   );
 

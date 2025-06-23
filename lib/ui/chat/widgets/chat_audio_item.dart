@@ -2,8 +2,8 @@ import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
-import '../../core/themes/colors.dart';
 import '../notifiers/chat_audio_notifier.dart';
 
 class ChatAudioItem extends ConsumerWidget {
@@ -32,12 +32,12 @@ class ChatAudioItem extends ConsumerWidget {
           ),
         );
       }
-      return const SizedBox(
+      return SizedBox(
         height: 50,
         child: Center(
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            color: AppColors.glitch50,
+            color: context.colors.primaryForeground,
           ),
         ),
       );
@@ -51,12 +51,12 @@ class ChatAudioItem extends ConsumerWidget {
           height: 40,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isMe ? AppColors.glitch600 : AppColors.glitch800,
+            color: isMe ? context.colors.mutedForeground : context.colors.neutralVariant,
           ),
           child: IconButton(
             icon: Icon(
               isThisPlaying ? CarbonIcons.pause_filled : CarbonIcons.play_filled_alt,
-              color: AppColors.glitch50,
+              color: context.colors.primaryForeground,
             ),
             onPressed: () => notifier.togglePlayback(),
           ),
@@ -68,8 +68,9 @@ class ChatAudioItem extends ConsumerWidget {
             size: Size(MediaQuery.of(context).size.width * 0.4, 20),
             waveformType: WaveformType.fitWidth,
             playerWaveStyle: PlayerWaveStyle(
-              fixedWaveColor: AppColors.glitch400,
-              liveWaveColor: isMe ? AppColors.glitch50 : AppColors.glitch800,
+              fixedWaveColor: context.colors.baseMuted,
+              liveWaveColor:
+                  isMe ? context.colors.primaryForeground : context.colors.neutralVariant,
               spacing: 6,
             ),
           ),

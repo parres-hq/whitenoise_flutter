@@ -11,7 +11,7 @@ import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
@@ -75,9 +75,9 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         debugPrint('NewChatBottomSheet: No active account found');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No active account found'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: const Text('No active account found'),
+              backgroundColor: context.colors.destructive,
             ),
           );
         }
@@ -88,7 +88,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error loading contacts: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.colors.destructive,
           ),
         );
       }
@@ -183,8 +183,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
               children: [
                 SvgPicture.asset(
                   AssetsPaths.icGroupChat,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.glitch600,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.mutedForeground,
                     BlendMode.srcIn,
                   ),
                   width: 20.w,
@@ -195,15 +195,15 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                   child: Text(
                     'New Group Chat',
                     style: TextStyle(
-                      color: AppColors.glitch600,
+                      color: context.colors.mutedForeground,
                       fontSize: 18.sp,
                     ),
                   ),
                 ),
                 SvgPicture.asset(
                   AssetsPaths.icChevronRight,
-                  colorFilter: const ColorFilter.mode(
-                    AppColors.glitch600,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.mutedForeground,
                     BlendMode.srcIn,
                   ),
                   width: 8.55.w,
@@ -225,7 +225,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                         Text(
                           'Error loading contacts',
                           style: TextStyle(
-                            color: AppColors.glitch600,
+                            color: context.colors.mutedForeground,
                             fontSize: 16.sp,
                           ),
                         ),
@@ -233,7 +233,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                         Text(
                           contactsState.error!,
                           style: TextStyle(
-                            color: AppColors.glitch400,
+                            color: context.colors.mutedForeground,
                             fontSize: 12.sp,
                           ),
                           textAlign: TextAlign.center,
@@ -259,15 +259,17 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                               horizontal: 16.w,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.glitch50,
-                              border: Border.all(color: AppColors.glitch200),
+                              color: context.colors.primaryForeground,
+                              border: Border.all(
+                                color: context.colors.baseMuted,
+                              ),
                               borderRadius: BorderRadius.circular(8.r),
                             ),
                             child: Row(
                               children: [
                                 Icon(
                                   Icons.person_add,
-                                  color: AppColors.glitch600,
+                                  color: context.colors.mutedForeground,
                                   size: 20.w,
                                 ),
                                 Gap(12.w),
@@ -278,7 +280,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                       Text(
                                         'Add as contact',
                                         style: TextStyle(
-                                          color: AppColors.glitch900,
+                                          color: context.colors.secondaryForeground,
                                           fontSize: 16.sp,
                                           fontWeight: FontWeight.w500,
                                         ),
@@ -288,7 +290,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                             ? '${_searchQuery.substring(0, 20)}...'
                                             : _searchQuery,
                                         style: TextStyle(
-                                          color: AppColors.glitch600,
+                                          color: context.colors.mutedForeground,
                                           fontSize: 12.sp,
                                         ),
                                       ),
@@ -312,7 +314,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                         ? 'No contacts found'
                                         : 'No contacts match your search',
                                     style: TextStyle(
-                                      color: AppColors.glitch600,
+                                      color: context.colors.mutedForeground,
                                       fontSize: 16.sp,
                                     ),
                                   ),

@@ -4,8 +4,8 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class AddRelayBottomSheet extends StatefulWidget {
@@ -110,10 +110,9 @@ class _AddRelayBottomSheetState extends State<AddRelayBottomSheet> {
             ],
           ),
         ),
-        CustomFilledButton(
+        AppFilledButton(
           onPressed: _isUrlValid ? _addRelay : null,
           title: 'Add Relay',
-          bottomPadding: 0,
         ),
       ],
     );

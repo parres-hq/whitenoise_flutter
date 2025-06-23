@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+
+import '../themes/src/extensions.dart';
 
 /// ```title``` is the title of the button
 ///
@@ -41,18 +42,22 @@ class CustomFilledButton extends StatelessWidget {
           elevation: 0,
           backgroundColor:
               isPrimary
-                  ? AppColors.glitch950
+                  ? context.colors.primary
                   : isSecondary
-                  ? AppColors.glitch100
-                  : AppColors.colorEA580C,
-          foregroundColor: isPrimary || isTertiary ? AppColors.glitch50 : AppColors.glitch900,
+                  ? context.colors.secondary
+                  : context.colors.warning,
+          foregroundColor:
+              isPrimary || isTertiary
+                  ? context.colors.primaryForeground
+                  : context.colors.secondaryForeground,
           disabledBackgroundColor:
               isPrimary
-                  ? AppColors.glitch950.withValues(alpha: 0.5)
+                  ? context.colors.primary.withValues(alpha: 0.5)
                   : isSecondary
-                  ? AppColors.glitch100
-                  : AppColors.colorEA580C.withValues(alpha: 0.5),
-          disabledForegroundColor: isPrimary ? AppColors.glitch50 : AppColors.glitch900,
+                  ? context.colors.secondary
+                  : context.colors.warning.withValues(alpha: 0.5),
+          disabledForegroundColor:
+              isPrimary ? context.colors.primaryForeground : context.colors.secondaryForeground,
           padding: EdgeInsets.symmetric(vertical: 16.h),
           shape: const RoundedRectangleBorder(),
         ),

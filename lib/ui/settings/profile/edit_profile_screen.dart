@@ -4,9 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
 
@@ -116,7 +116,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     final profileState = ref.watch(profileProvider);
 
     return Scaffold(
-      backgroundColor: AppColors.white,
+      backgroundColor: context.colors.neutral,
       appBar: const CustomAppBar(title: 'Profile'),
       body: profileState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -146,7 +146,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     height: 128.h,
                                     width: double.infinity,
                                     decoration: BoxDecoration(
-                                      color: AppColors.glitch200.withValues(
+                                      color: context.colors.baseMuted.withValues(
                                         alpha: 0.5,
                                       ),
                                     ),
@@ -188,8 +188,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   alignment: Alignment.bottomCenter,
                                   children: [
                                     Container(
-                                      decoration: const BoxDecoration(
-                                        color: AppColors.white,
+                                      decoration: BoxDecoration(
+                                        color: context.colors.neutral,
                                         shape: BoxShape.circle,
                                       ),
                                       child: Container(
@@ -218,7 +218,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                             style: TextStyle(
                                                               fontSize: 32.sp,
                                                               fontWeight: FontWeight.bold,
-                                                              color: AppColors.glitch600,
+                                                              color: context.colors.mutedForeground,
                                                             ),
                                                           ),
                                                         ),
@@ -230,7 +230,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                     style: TextStyle(
                                                       fontSize: 32.sp,
                                                       fontWeight: FontWeight.bold,
-                                                      color: AppColors.glitch600,
+                                                      color: context.colors.mutedForeground,
                                                     ),
                                                   ),
                                                 ),
@@ -316,10 +316,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   ),
                 ),
                 Positioned(
-                  bottom: 16.h,
-                  left: 0.w,
-                  right: 0.w,
-                  child: CustomFilledButton(
+                  bottom: 44.h,
+                  left: 16.w,
+                  right: 16.w,
+                  child: AppFilledButton(
                     onPressed: profileState.isLoading ? null : _saveChanges,
                     title: profileState.isLoading ? 'Saving...' : 'Save Changes',
                   ),

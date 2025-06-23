@@ -1,13 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
-import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
-import 'package:whitenoise/ui/core/ui/custom_text_button.dart';
+import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -42,7 +40,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     return Stack(
       children: [
         Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: context.colors.neutral,
           body: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -79,7 +77,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: const Column(
+                child: Column(
                   children: [
                     Text(
                       'Welcome to',
@@ -87,36 +85,35 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                       style: TextStyle(
                         fontFamily: 'Overused Grotesk',
                         fontWeight: FontWeight.w400,
-                        fontSize: 34,
+                        fontSize: 36.sp,
                         height: 1.0,
                         letterSpacing: -0.72,
-                        color: AppColors.glitch600,
+                        color: context.colors.mutedForeground,
                       ),
                     ),
-                    SizedBox(height: 10),
+                    SizedBox(height: 2.h),
                     Text(
                       'White Noise',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Overused Grotesk',
                         fontWeight: FontWeight.w600,
-                        fontSize: 50,
+                        fontSize: 51.sp,
                         height: 1.0,
                         letterSpacing: -1.02,
-                        color: AppColors.glitch950,
+                        color: context.colors.primary,
                       ),
                     ),
-                    SizedBox(height: 8),
                     Text(
                       'Secure. Distributed. Uncensorable.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Sans',
                         fontWeight: FontWeight.w500,
-                        fontSize: 14,
+                        fontSize: 14.sp,
                         height: 1.0,
                         letterSpacing: 0,
-                        color: AppColors.glitch950,
+                        color: context.colors.primary,
                       ),
                     ),
                   ],
@@ -129,26 +126,30 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
 
           bottomNavigationBar: SafeArea(
             top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CustomTextButton(
-                  onPressed: () => context.go('/login'),
-                  title: 'Login',
-                ),
-                Gap(16.h),
-                authState.isLoading
-                    ? const Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16),
-                      child: Center(
-                        child: CircularProgressIndicator(color: Colors.black),
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 32.h),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppFilledButton(
+                    title: 'Login',
+                    visualState: AppButtonVisualState.secondary,
+                    onPressed: () => context.go('/login'),
+                  ),
+                  Gap(16.h),
+                  authState.isLoading
+                      ? const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16),
+                        child: Center(
+                          child: CircularProgressIndicator(color: Colors.black),
+                        ),
+                      )
+                      : AppFilledButton(
+                        title: 'Sign Up',
+                        onPressed: () => _handleCreateAccount(context),
                       ),
-                    )
-                    : CustomFilledButton(
-                      onPressed: () => _handleCreateAccount(context),
-                      title: 'Sign Up',
-                    ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

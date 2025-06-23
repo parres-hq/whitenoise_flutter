@@ -17,7 +17,7 @@ import 'package:whitenoise/ui/chat/widgets/status_message_item_widget.dart';
 
 import '../../routing/routes.dart';
 import '../core/themes/assets.dart';
-import '../core/themes/colors.dart';
+import '../core/themes/src/extensions.dart';
 
 class ChatScreen extends StatefulWidget {
   final User contact;
@@ -77,7 +77,7 @@ class _ChatScreenState extends State<ChatScreen> {
         return Container(
           height: 0.4.sh,
           decoration: BoxDecoration(
-            color: AppColors.glitch50,
+            color: context.colors.primaryForeground,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(16.r),
               topRight: Radius.circular(16.r),
@@ -182,14 +182,14 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.glitch50,
+      backgroundColor: context.colors.primaryForeground,
       appBar: AppBar(
-        backgroundColor: AppColors.glitch950,
+        backgroundColor: context.colors.primary,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new,
             size: 20.w,
-            color: AppColors.glitch50,
+            color: context.colors.primaryForeground,
           ),
           onPressed: () => context.pop(),
         ),
@@ -202,7 +202,7 @@ class _ChatScreenState extends State<ChatScreen> {
             icon: Icon(
               CarbonIcons.search,
               size: 20.w,
-              color: AppColors.glitch50,
+              color: context.colors.primaryForeground,
             ),
             onPressed: () => context.go(Routes.newChat),
           ),
@@ -316,18 +316,24 @@ class _ChatScreenState extends State<ChatScreen> {
             style: TextStyle(
               fontSize: 20.sp,
               fontWeight: FontWeight.w600,
-              color: AppColors.glitch950,
+              color: context.colors.primary,
             ),
           ),
           Gap(12.h),
           Text(
             widget.contact.nip05,
-            style: TextStyle(fontSize: 14.sp, color: AppColors.glitch600),
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: context.colors.mutedForeground,
+            ),
           ),
           Gap(8.h),
           Text(
             'Public Key: ${widget.contact.publicKey.substring(0, 8)}...',
-            style: TextStyle(fontSize: 12.sp, color: AppColors.glitch600),
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: context.colors.mutedForeground,
+            ),
           ),
           Gap(24.h),
           Container(
@@ -335,7 +341,10 @@ class _ChatScreenState extends State<ChatScreen> {
             child: Text(
               'All messages are end-to-end encrypted. Only you and ${widget.contact.name} can read them.',
               textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 12.sp, color: AppColors.glitch600),
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: context.colors.mutedForeground,
+              ),
             ),
           ),
           Gap(24.h),
@@ -450,7 +459,7 @@ class _SwipeToReplyWidgetState extends State<_SwipeToReplyWidget>
             child: Align(
               child: Icon(
                 CarbonIcons.reply,
-                color: AppColors.glitch950,
+                color: context.colors.primary,
                 size: 14.w,
               ),
             ),

@@ -8,10 +8,10 @@ class LightAppColors {
   static const secondary = Color(0xffF2F2F2);
   static const tertiary = Color(0xFFE9F1FE);
   static const neutral = Color(0xFFFFFFFF);
-  static const neutralVariant = Color(0xFFF4F6F9);
+  static const neutralVariant = Color(0xFF5A605A);
 
   /// base/background
-  static const primaryBackground = Color(0xffF9F9F9);
+  static const primaryForeground = Color(0xffF9F9F9);
 
   /// base/accent-foreground, base/secondary-foreground, base/foreground
   static const secondaryForeground = Color(0xff2D312D);
@@ -54,7 +54,7 @@ class DarkAppColors {
   static const secondary = Color(0xff202320);
   static const tertiary = Color(0xFF1A2B4B);
   static const neutral = Color(0xFF121212);
-  static const neutralVariant = Color(0xFF2C2C2C);
+  static const neutralVariant = Color(0xFF5A605A);
 
   /// base/background
   static const primaryBackground = Color(0xff2D312D);
@@ -63,7 +63,7 @@ class DarkAppColors {
   static const secondaryForeground = Color(0xffF2F2F2);
 
   /// base/muted-foreground
-  static const mutedForeground = Color(0xFFAFB1AF);
+  static const mutedForeground = Color(0xFF727772);
 
   /// base/muted, base/input
   static const baseMuted = Color(0xff474C47);
@@ -98,7 +98,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.tertiary,
     required this.neutral,
     required this.neutralVariant,
-    required this.primaryBackground,
+    required this.primaryForeground,
     required this.secondaryForeground,
     required this.mutedForeground,
     required this.baseMuted,
@@ -119,7 +119,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color tertiary;
   final Color neutral;
   final Color neutralVariant;
-  final Color primaryBackground;
+  final Color primaryForeground;
   final Color secondaryForeground;
   final Color mutedForeground;
   final Color baseMuted;
@@ -141,7 +141,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     tertiary: LightAppColors.tertiary,
     neutral: LightAppColors.neutral,
     neutralVariant: LightAppColors.neutralVariant,
-    primaryBackground: LightAppColors.primaryBackground,
+    primaryForeground: LightAppColors.primaryForeground,
     secondaryForeground: LightAppColors.secondaryForeground,
     mutedForeground: LightAppColors.mutedForeground,
     baseMuted: LightAppColors.baseMuted,
@@ -164,7 +164,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     tertiary: DarkAppColors.tertiary,
     neutral: DarkAppColors.neutral,
     neutralVariant: DarkAppColors.neutralVariant,
-    primaryBackground: DarkAppColors.primaryBackground,
+    primaryForeground: DarkAppColors.primaryBackground,
     secondaryForeground: DarkAppColors.secondaryForeground,
     mutedForeground: DarkAppColors.mutedForeground,
     baseMuted: DarkAppColors.baseMuted,
@@ -187,7 +187,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? tertiary,
     Color? neutral,
     Color? neutralVariant,
-    Color? primaryBackground,
+    Color? primaryForeground,
     Color? secondaryForeground,
     Color? mutedForeground,
     Color? baseMuted,
@@ -208,7 +208,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       tertiary: tertiary ?? this.tertiary,
       neutral: neutral ?? this.neutral,
       neutralVariant: neutralVariant ?? this.neutralVariant,
-      primaryBackground: primaryBackground ?? this.primaryBackground,
+      primaryForeground: primaryForeground ?? this.primaryForeground,
       secondaryForeground: secondaryForeground ?? this.secondaryForeground,
       mutedForeground: mutedForeground ?? this.mutedForeground,
       baseMuted: baseMuted ?? this.baseMuted,
@@ -234,12 +234,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       tertiary: Color.lerp(tertiary, other.tertiary, t)!,
       neutral: Color.lerp(neutral, other.neutral, t)!,
       neutralVariant: Color.lerp(neutralVariant, other.neutralVariant, t)!,
-      primaryBackground:
-          Color.lerp(
-            primaryBackground,
-            other.primaryBackground,
-            t,
-          )!,
+      primaryForeground: Color.lerp(primaryForeground, other.primaryForeground, t)!,
       secondaryForeground:
           Color.lerp(
             secondaryForeground,

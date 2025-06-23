@@ -10,10 +10,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 import '../../../domain/models/message_model.dart';
 import '../../../domain/models/user_model.dart';
-import '../../core/themes/colors.dart';
 import '../notifiers/chat_audio_notifier.dart';
 import 'stacked_images.dart';
 
@@ -285,7 +285,7 @@ class _ChatInputState extends State<ChatInput> {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
-        color: AppColors.glitch100,
+        color: context.colors.secondary,
         borderRadius: BorderRadius.vertical(top: Radius.circular(6.r)),
       ),
       child: Row(
@@ -293,7 +293,7 @@ class _ChatInputState extends State<ChatInput> {
           Icon(
             _replyingTo != null ? CarbonIcons.reply : CarbonIcons.edit,
             size: 16.w,
-            color: AppColors.glitch500,
+            color: context.colors.mutedForeground,
           ),
           SizedBox(width: 8.w),
           const Gap(6),
@@ -307,7 +307,7 @@ class _ChatInputState extends State<ChatInput> {
                       : 'Editing message',
                   style: TextStyle(
                     fontSize: 12.sp,
-                    color: AppColors.glitch700,
+                    color: context.colors.neutralVariant,
                     fontWeight: FontWeight.w500,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -317,7 +317,7 @@ class _ChatInputState extends State<ChatInput> {
                     _replyingTo?.content ?? '',
                     style: TextStyle(
                       fontSize: 12.sp,
-                      color: AppColors.glitch700,
+                      color: context.colors.neutralVariant,
                     ),
                   ),
               ],
@@ -338,7 +338,7 @@ class _ChatInputState extends State<ChatInput> {
             child: Icon(
               CarbonIcons.close,
               size: 16.w,
-              color: AppColors.glitch500,
+              color: context.colors.mutedForeground,
             ),
           ),
         ],
@@ -375,10 +375,10 @@ class _ChatInputState extends State<ChatInput> {
           }
           return SizedBox(
             height: 50.h,
-            child: const Center(
+            child: Center(
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: AppColors.glitch50,
+                color: context.colors.primaryForeground,
               ),
             ),
           );
@@ -387,7 +387,7 @@ class _ChatInputState extends State<ChatInput> {
         return Container(
           margin: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
           padding: EdgeInsets.symmetric(horizontal: 8.w),
-          color: AppColors.glitch200,
+          decoration: BoxDecoration(color: context.colors.baseMuted),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -395,15 +395,15 @@ class _ChatInputState extends State<ChatInput> {
               Container(
                 width: 32.w,
                 height: 32.w,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColors.glitch600,
+                  color: context.colors.mutedForeground,
                 ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
                   icon: Icon(
                     isThisPlaying ? CarbonIcons.pause_filled : CarbonIcons.play_filled_alt,
-                    color: AppColors.glitch50,
+                    color: context.colors.primaryForeground,
                     size: 14.w,
                   ),
                   onPressed: () => notifier.togglePlayback(),
@@ -420,11 +420,11 @@ class _ChatInputState extends State<ChatInput> {
                     size: Size(MediaQuery.of(context).size.width * 0.4, 20.h),
                     waveformType: WaveformType.fitWidth,
                     playerWaveStyle: PlayerWaveStyle(
-                      fixedWaveColor: AppColors.glitch400,
-                      liveWaveColor: AppColors.glitch50,
+                      fixedWaveColor: context.colors.baseMuted,
+                      liveWaveColor: context.colors.primaryForeground,
                       spacing: 6.w,
                       scaleFactor: 0.8,
-                      seekLineColor: AppColors.glitch500,
+                      seekLineColor: context.colors.mutedForeground,
                     ),
                   ),
                 ),
@@ -435,7 +435,7 @@ class _ChatInputState extends State<ChatInput> {
                 icon: Icon(
                   CarbonIcons.close,
                   size: 20.w,
-                  color: AppColors.glitch500,
+                  color: context.colors.mutedForeground,
                 ),
                 onPressed: () {
                   // Stop playback if this audio is currently playing
@@ -459,7 +459,7 @@ class _ChatInputState extends State<ChatInput> {
           width: double.infinity,
           padding: EdgeInsets.fromLTRB(0.w, 16.w, 0.w, 16.w),
           child: Container(
-            color: AppColors.glitch80,
+            decoration: BoxDecoration(color: context.colors.baseMuted),
             padding: EdgeInsets.symmetric(vertical: 8.h),
             child: Row(
               children: [
@@ -475,7 +475,7 @@ class _ChatInputState extends State<ChatInput> {
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w500,
-                    color: AppColors.glitch900,
+                    color: context.colors.secondaryForeground,
                   ),
                 ),
                 Expanded(
@@ -486,7 +486,7 @@ class _ChatInputState extends State<ChatInput> {
                         '<   Slide to cancel   <',
                         style: TextStyle(
                           fontSize: 12.sp,
-                          color: AppColors.glitch500,
+                          color: context.colors.mutedForeground,
                         ),
                       ),
                     ),
@@ -551,7 +551,7 @@ class _ChatInputState extends State<ChatInput> {
                 icon: Icon(
                   CarbonIcons.add,
                   size: 28.w,
-                  color: AppColors.glitch500,
+                  color: context.colors.mutedForeground,
                 ),
                 onPressed: widget.onAttachmentPressed ?? _pickImages,
                 splashRadius: 0.1,
@@ -560,20 +560,20 @@ class _ChatInputState extends State<ChatInput> {
         // Text field
         Expanded(
           child: Container(
-            decoration: const BoxDecoration(color: AppColors.glitch80),
+            decoration: BoxDecoration(color: context.colors.baseMuted),
             child: TextField(
               controller: _textController,
               focusNode: _focusNode,
               onChanged: (_) => setState(() {}),
               onTap: () => setState(() => _showEmojiPicker = false),
-              cursorColor: widget.cursorColor ?? AppColors.glitch500,
+              cursorColor: widget.cursorColor ?? context.colors.mutedForeground,
               minLines: 1,
               maxLines: 5,
               decoration: InputDecoration(
                 hintText: 'Type a message...',
                 hintStyle: TextStyle(
                   fontSize: 14.sp,
-                  color: AppColors.glitch500,
+                  color: context.colors.mutedForeground,
                 ),
                 border: InputBorder.none,
                 isDense: true,
@@ -582,7 +582,10 @@ class _ChatInputState extends State<ChatInput> {
                   vertical: 8.w,
                 ),
               ),
-              style: TextStyle(fontSize: 14.sp, color: AppColors.glitch700),
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: context.colors.neutralVariant,
+              ),
             ),
           ),
         ),
@@ -593,7 +596,7 @@ class _ChatInputState extends State<ChatInput> {
             icon: Icon(
               CarbonIcons.send,
               size: 24.w,
-              color: AppColors.glitch500,
+              color: context.colors.mutedForeground,
             ),
             onPressed: _sendMessage,
           )
@@ -606,7 +609,7 @@ class _ChatInputState extends State<ChatInput> {
                 icon: Icon(
                   _showEmojiPicker ? CarbonIcons.text_scale : CarbonIcons.flash,
                   size: 24.w,
-                  color: AppColors.glitch500,
+                  color: context.colors.mutedForeground,
                 ),
                 onPressed: _toggleEmojiPicker,
                 padding: EdgeInsets.zero,
@@ -618,7 +621,7 @@ class _ChatInputState extends State<ChatInput> {
                   icon: Icon(
                     CarbonIcons.camera,
                     size: 24.w,
-                    color: AppColors.glitch500,
+                    color: context.colors.mutedForeground,
                   ),
                   onPressed: _pickImages,
                   padding: EdgeInsets.zero,
@@ -630,7 +633,8 @@ class _ChatInputState extends State<ChatInput> {
                   icon: Icon(
                     CarbonIcons.microphone,
                     size: 24.w,
-                    color: _isRecording ? Theme.of(context).colorScheme.error : AppColors.glitch500,
+                    color:
+                        _isRecording ? context.colorScheme.error : context.colors.mutedForeground,
                   ),
                   onPressed: _startRecording,
                   padding: EdgeInsets.zero,
