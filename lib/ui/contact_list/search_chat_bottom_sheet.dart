@@ -66,7 +66,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
 
       // If pubkey is null, try to load the account first
       if (accountState.pubkey == null) {
-        await ref.read(accountProvider.notifier).loadAccount();
+        await ref.read(accountProvider.notifier).loadAccountData();
         final updatedAccountState = ref.read(accountProvider);
 
         if (updatedAccountState.pubkey == null) {
