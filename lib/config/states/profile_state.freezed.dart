@@ -30,7 +30,8 @@ mixin _$ProfileState {
   /// Create a copy of ProfileState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ProfileStateCopyWith<ProfileState> get copyWith => throw _privateConstructorUsedError;
+  $ProfileStateCopyWith<ProfileState> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -132,7 +133,8 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
 }
 
 /// @nodoc
-abstract class _$$ProfileStateImplCopyWith<$Res> implements $ProfileStateCopyWith<$Res> {
+abstract class _$$ProfileStateImplCopyWith<$Res>
+    implements $ProfileStateCopyWith<$Res> {
   factory _$$ProfileStateImplCopyWith(
     _$ProfileStateImpl value,
     $Res Function(_$ProfileStateImpl) then,
@@ -273,7 +275,8 @@ class _$ProfileStateImpl extends _ProfileState {
         (other.runtimeType == runtimeType &&
             other is _$ProfileStateImpl &&
             (identical(other.name, name) || other.name == name) &&
-            (identical(other.displayName, displayName) || other.displayName == displayName) &&
+            (identical(other.displayName, displayName) ||
+                other.displayName == displayName) &&
             (identical(other.about, about) || other.about == about) &&
             (identical(other.picture, picture) || other.picture == picture) &&
             (identical(other.banner, banner) || other.banner == banner) &&
