@@ -21,4 +21,7 @@ const lightColorsExt = AppColorsThemeExt(
   teal600: LightAppColors.teal600,
   rose: LightAppColors.rose,
   lime: LightAppColors.lime,
+  appBarBackground: LightAppColors.appBarBackground,
+  appBarForeground: LightAppColors.appBarForeground,
+  bottomSheetBarrier: LightAppColors.bottomSheetBarrier,
 );

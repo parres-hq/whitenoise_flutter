@@ -13,7 +13,7 @@ class ContactInfo extends StatelessWidget {
       children: [
         CircleAvatar(radius: 20, backgroundImage: AssetImage(imgPath)),
         const Gap(10),
-        Text(title, style: TextStyle(color: context.colors.primaryForeground)),
+        Text(title, style: TextStyle(color: context.colors.appBarForeground)),
       ],
     );
   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/ui/core/themes/src/colors.dart';
 import 'package:whitenoise/ui/core/themes/src/constants.dart';
@@ -10,22 +11,21 @@ import 'package:whitenoise/ui/core/themes/src/typography/typography.dart';
 part 'extensions.dart';
 part 'input.dart';
 
-final darkColorScheme = ColorScheme.dark(
-  primary: lightColorsExt.primary,
-  secondary: lightColorsExt.secondary,
-  tertiary: lightColorsExt.tertiary,
-  error: lightColorsExt.destructive,
-  surface: lightColorsExt.neutral,
+final darkColorScheme = const ColorScheme.dark(
+  primary: DarkAppColors.primary,
+  secondary: DarkAppColors.secondary,
+  tertiary: DarkAppColors.tertiary,
+  error: DarkAppColors.destructive,
   surfaceTint: Colors.transparent,
 );
 
 final darkTheme = ThemeData(
-  extensions: const [lightColorsExt],
+  extensions: [AppColorsThemeExt.dark],
   fontFamily: 'OverusedGrotesk',
   //
-  scaffoldBackgroundColor: lightColorsExt.neutral,
-  textTheme: lightTextTheme,
-  colorScheme: lightColorScheme,
+  scaffoldBackgroundColor: DarkAppColors.neutral,
+  textTheme: darkTextTheme,
+  colorScheme: darkColorScheme,
   appBarTheme: buildDarkAppBarTheme(),
   popupMenuTheme: buildDarkPopupTheme(),
   listTileTheme: buildDarkListTileTheme(),
@@ -39,14 +39,14 @@ final darkTheme = ThemeData(
   scrollbarTheme: buildDarkScrollBarTheme(),
   dividerTheme: buildDarkDividerTheme(),
   progressIndicatorTheme: ProgressIndicatorThemeData(
-    color: LightAppColors.neutral,
-    circularTrackColor: LightAppColors.neutral.withValues(alpha: .5),
+    color: DarkAppColors.neutral,
+    circularTrackColor: DarkAppColors.neutral.withValues(alpha: .5),
   ),
 );
 
 DividerThemeData buildDarkDividerTheme() {
   return DividerThemeData(
-    color: lightColorsExt.baseMuted,
+    color: DarkAppColors.baseMuted,
     thickness: .6.sp,
     space: .6.sp,
   );
@@ -59,26 +59,27 @@ ScrollbarThemeData buildDarkScrollBarTheme() {
     thickness: const WidgetStatePropertyAll(5),
     thumbColor: WidgetStateProperty.resolveWith((state) {
       if (state.contains(WidgetState.dragged)) {
-        return lightColorsExt.tertiary;
+        return DarkAppColors.tertiary;
       }
-      return lightColorsExt.tertiary.withValues(alpha: 0.5);
+      return DarkAppColors.tertiary.withValues(alpha: 0.5);
     }),
   );
 }
 
 BottomSheetThemeData buildDarkBottomSheetTheme() {
-  return BottomSheetThemeData(
+  return const BottomSheetThemeData(
+    backgroundColor: DarkAppColors.neutral,
     showDragHandle: true,
-    dragHandleColor: lightColorsExt.baseMuted,
-    dragHandleSize: const Size(50, 3),
+    dragHandleColor: DarkAppColors.baseMuted,
+    dragHandleSize: Size(50, 3),
   );
 }
 
 ListTileThemeData buildDarkListTileTheme() {
   return ListTileThemeData(
-    titleTextStyle: lightTextTheme.labelLarge,
-    subtitleTextStyle: lightTextTheme.bodySmall,
-    iconColor: lightColorsExt.primary,
+    titleTextStyle: darkTextTheme.labelLarge?.copyWith(color: DarkAppColors.secondaryForeground),
+    subtitleTextStyle: darkTextTheme.bodySmall?.copyWith(color: DarkAppColors.mutedForeground),
+    iconColor: DarkAppColors.primary,
   );
 }
 
@@ -86,36 +87,43 @@ NavigationBarThemeData buildDarkBottomNavigationTheme() {
   return NavigationBarThemeData(
     elevation: 1,
     shadowColor: Colors.black.withValues(alpha: .14),
-    backgroundColor: lightColorsExt.neutral,
-    indicatorColor: lightColorsExt.tertiary,
+    backgroundColor: DarkAppColors.neutral,
+    indicatorColor: DarkAppColors.tertiary,
     iconTheme: WidgetStateProperty.resolveWith((state) {
       if (state.contains(WidgetState.selected)) {
-        return IconThemeData(color: lightColorsExt.primary);
+        return const IconThemeData(color: DarkAppColors.primary);
       }
-      return IconThemeData(color: lightColorsExt.mutedForeground);
+      return const IconThemeData(color: DarkAppColors.mutedForeground);
     }),
     labelTextStyle: WidgetStateProperty.resolveWith((state) {
       if (state.contains(WidgetState.selected)) {
-        return lightTextTheme.bodySmall?.copyWith(color: lightColorsExt.primary).semiBold;
+        return darkTextTheme.bodySmall?.copyWith(color: DarkAppColors.primary).semiBold;
       }
-      return lightTextTheme.bodySmall;
+      return darkTextTheme.bodySmall;
     }),
   );
 }
 
 PopupMenuThemeData buildDarkPopupTheme() {
   return PopupMenuThemeData(
-    color: LightAppColors.neutral,
+    color: DarkAppColors.neutral,
     iconSize: 12,
-    textStyle: lightTextTheme.bodyMedium,
+    textStyle: darkTextTheme.bodyMedium?.copyWith(color: DarkAppColors.secondaryForeground),
     position: PopupMenuPosition.under,
   );
 }
 
 AppBarTheme buildDarkAppBarTheme() {
   return AppBarTheme(
-    backgroundColor: lightColorsExt.neutral,
-    titleTextStyle: lightTextTheme.labelLarge?.bold,
+    backgroundColor: DarkAppColors.neutral,
+    titleTextStyle: darkTextTheme.labelLarge?.bold.copyWith(
+      color: DarkAppColors.secondaryForeground,
+    ),
+    systemOverlayStyle: const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      statusBarBrightness: Brightness.dark,
+    ),
   );
 }
 
@@ -123,8 +131,8 @@ ElevatedButtonThemeData buildDarkElevatedButtonTheme() {
   return ElevatedButtonThemeData(
     style: ElevatedButton.styleFrom(
       minimumSize: kMinimumButtonSize,
-      foregroundColor: LightAppColors.neutral,
-      backgroundColor: LightAppColors.primary,
+      foregroundColor: DarkAppColors.neutral,
+      backgroundColor: DarkAppColors.primary,
     ),
   );
 }
@@ -133,8 +141,8 @@ OutlinedButtonThemeData buildDarkOutlinedButtonTheme() {
   return OutlinedButtonThemeData(
     style: OutlinedButton.styleFrom(
       minimumSize: kMinimumButtonSize,
-      foregroundColor: LightAppColors.primary,
-      side: const BorderSide(color: LightAppColors.primary),
+      foregroundColor: DarkAppColors.primary,
+      side: const BorderSide(color: DarkAppColors.primary),
     ),
   );
 }
@@ -143,7 +151,7 @@ TextButtonThemeData buildDarkTextButtonTheme() {
   return TextButtonThemeData(
     style: TextButton.styleFrom(
       minimumSize: kMinimumButtonSize,
-      foregroundColor: LightAppColors.primary,
+      foregroundColor: DarkAppColors.primary,
     ),
   );
 }
@@ -152,17 +160,18 @@ SegmentedButtonThemeData buildDarkSegmentedButtonTheme() {
   return SegmentedButtonThemeData(
     selectedIcon: const SizedBox.shrink(),
     style: SegmentedButton.styleFrom(
-      textStyle: lightTextTheme.labelMedium?.medium,
+      textStyle: darkTextTheme.labelMedium?.medium,
+      backgroundColor: DarkAppColors.neutral,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.sp),
       ),
-      side: BorderSide(color: lightColorsExt.baseMuted),
+      side: const BorderSide(color: DarkAppColors.baseMuted),
     ).copyWith(
       foregroundColor: WidgetStateProperty.resolveWith((state) {
         if (state.contains(WidgetState.selected)) {
-          return lightColorsExt.primary;
+          return DarkAppColors.primary;
         }
-        return lightColorsExt.mutedForeground;
+        return DarkAppColors.mutedForeground;
       }),
     ),
   );

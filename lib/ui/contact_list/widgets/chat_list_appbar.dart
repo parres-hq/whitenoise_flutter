@@ -4,20 +4,29 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
+import 'package:whitenoise/ui/contact_list/search_chat_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
-import '../../../routing/routes.dart';
-import '../../core/themes/assets.dart';
-import '../../core/themes/src/extensions.dart';
-import '../new_chat_bottom_sheet.dart';
-import '../search_chat_bottom_sheet.dart';
-
-class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
+class ChatListAppBar extends StatefulWidget implements PreferredSizeWidget {
   final VoidCallback? onSettingsTap;
 
   const ChatListAppBar({super.key, this.onSettingsTap});
 
   @override
-  Widget build(BuildContext context) {
+  State<ChatListAppBar> createState() => _ChatListAppBarState();
+
+  @override
+  Size get preferredSize => Size.fromHeight(64.h);
+}
+
+class _ChatListAppBarState extends State<ChatListAppBar> {
+  @override
+  void initState() {
+    super.initState();
+    
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -25,16 +34,19 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
         statusBarBrightness: Brightness.dark,
       ),
     );
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return ColoredBox(
-      color: context.colors.primary,
+      color: context.colors.appBarBackground,
       child: Padding(
         padding: EdgeInsets.all(16.w),
         child: SafeArea(
           child: Row(
             children: [
               GestureDetector(
-                onTap: onSettingsTap ?? () => context.push(Routes.settings),
+                onTap: widget.onSettingsTap ?? () => context.push(Routes.settings),
                 child: Image.asset(
                   AssetsPaths.icImage,
                   width: 32.w,
@@ -52,7 +64,7 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
                 child: SvgPicture.asset(
                   AssetsPaths.icAdd,
                   colorFilter: ColorFilter.mode(
-                    context.colors.primaryForeground,
+                    context.colors.appBarForeground,
                     BlendMode.srcIn,
                   ),
                 ),
@@ -63,7 +75,4 @@ class ChatListAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
     );
   }
-
-  @override
-  Size get preferredSize => Size.fromHeight(64.h);
 }

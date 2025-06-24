@@ -34,7 +34,6 @@ class StartSecureChatBottomSheet extends StatelessWidget {
       heightFactor: 0.55,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
-      barrierColor: Colors.transparent,
       builder:
           (context) => StartSecureChatBottomSheet(
             name: name,
