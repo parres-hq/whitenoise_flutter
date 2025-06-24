@@ -78,7 +78,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                   CircleAvatar(
                     radius: 50.r,
                     backgroundImage: const AssetImage(
-                      AssetsPaths.avatarPlaceholder,
+                      AssetsPaths.profileBackground,
                     ),
                   ),
                   Container(

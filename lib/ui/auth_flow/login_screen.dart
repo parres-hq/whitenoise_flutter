@@ -128,11 +128,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       controller: _keyController,
                     ),
                   ),
-
                   SizedBox(width: 8.h),
                   Container(
-                    height: 56.w,
-                    width: 56.w,
+                    height: 52.w,
+                    width: 52.w,
                     decoration: BoxDecoration(
                       color: context.colors.neutral,
                       border: Border.all(
