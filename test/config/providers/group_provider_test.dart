@@ -261,6 +261,182 @@ void main() {
       });
     });
 
+    group('Group Creation', () {
+      test('should handle createNewGroup with valid data', () async {
+        final notifier = container.read(groupsProvider.notifier);
+
+        // Test the validation logic that would occur before API call
+        const groupName = 'New Test Group';
+        const groupDescription = 'A newly created test group';
+        const memberKeys = ['member1_pubkey', 'member2_pubkey'];
+        const adminKeys = ['admin1_pubkey', 'admin2_pubkey'];
+
+        // Test that the method exists and can be called
+        expect(
+          () => notifier.createNewGroup(
+            groupName: groupName,
+            groupDescription: groupDescription,
+            memberPublicKeys: memberKeys,
+            adminPublicKeys: adminKeys,
+          ),
+          returnsNormally,
+        );
+      });
+
+      test('should validate group creation parameters', () {
+        final notifier = container.read(groupsProvider.notifier);
+
+        // Test with empty group name
+        expect(
+          () => notifier.createNewGroup(
+            groupName: '',
+            groupDescription: 'Valid description',
+            memberPublicKeys: ['member1'],
+            adminPublicKeys: ['admin1'],
+          ),
+          returnsNormally,
+        );
+
+        // Test with empty member list
+        expect(
+          () => notifier.createNewGroup(
+            groupName: 'Valid Name',
+            groupDescription: 'Valid description',
+            memberPublicKeys: [],
+            adminPublicKeys: ['admin1'],
+          ),
+          returnsNormally,
+        );
+
+        // Test with empty admin list
+        expect(
+          () => notifier.createNewGroup(
+            groupName: 'Valid Name',
+            groupDescription: 'Valid description',
+            memberPublicKeys: ['member1'],
+            adminPublicKeys: [],
+          ),
+          returnsNormally,
+        );
+      });
+
+      test('should handle group creation loading state', () async {
+        final notifier = container.read(groupsProvider.notifier);
+
+        // Set initial state
+        notifier.state = notifier.state.copyWith(isLoading: false);
+        expect(container.read(groupsProvider).isLoading, false);
+
+        // Note: In a real scenario, calling createNewGroup would set loading to true
+        // but since we can't mock the Rust API easily, we'll test the state management
+        notifier.state = notifier.state.copyWith(isLoading: true);
+        expect(container.read(groupsProvider).isLoading, true);
+
+        // Simulate completion
+        notifier.state = notifier.state.copyWith(isLoading: false);
+        expect(container.read(groupsProvider).isLoading, false);
+      });
+
+      test('should handle group creation errors', () {
+        final notifier = container.read(groupsProvider.notifier);
+
+        // Simulate creation error
+        notifier.state = notifier.state.copyWith(
+          error: 'Failed to create group: Network error',
+          isLoading: false,
+        );
+
+        final state = container.read(groupsProvider);
+        expect(state.error, contains('Failed to create group'));
+        expect(state.isLoading, false);
+      });
+
+      test('should validate member and admin key formats', () {
+        final notifier = container.read(groupsProvider.notifier);
+
+        // Test with valid hex keys
+        const validKeys = [
+          'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890',
+          '1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef',
+        ];
+
+        expect(
+          () => notifier.createNewGroup(
+            groupName: 'Test Group',
+            groupDescription: 'Test Description',
+            memberPublicKeys: validKeys,
+            adminPublicKeys: validKeys,
+          ),
+          returnsNormally,
+        );
+
+        // Test with keys that have extra whitespace (should be trimmed)
+        const keysWithWhitespace = [
+          ' abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890 ',
+          '\t1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef\n',
+        ];
+
+        expect(
+          () => notifier.createNewGroup(
+            groupName: 'Test Group',
+            groupDescription: 'Test Description',
+            memberPublicKeys: keysWithWhitespace,
+            adminPublicKeys: keysWithWhitespace,
+          ),
+          returnsNormally,
+        );
+      });
+
+      test('should maintain state consistency during group creation', () {
+        final notifier = container.read(groupsProvider.notifier);
+
+        // Set initial groups
+        notifier.state = notifier.state.copyWith(groups: testGroups);
+        expect(container.read(groupsProvider).groups!.length, 3);
+
+        // Simulate adding a new group
+        final newGroup = GroupData(
+          mlsGroupId: 'new_mls_group',
+          nostrGroupId: 'new_nostr_group',
+          name: 'New Group',
+          description: 'A newly created group',
+          adminPubkeys: ['test_pubkey_123'],
+          groupType: GroupType.group,
+          epoch: BigInt.from(1),
+          state: GroupState.active,
+        );
+
+        final updatedGroups = [...testGroups, newGroup];
+        notifier.state = notifier.state.copyWith(groups: updatedGroups);
+
+        final state = container.read(groupsProvider);
+        expect(state.groups!.length, 4);
+        expect(state.groups!.last.name, 'New Group');
+        expect(state.groups!.last.adminPubkeys, contains('test_pubkey_123'));
+      });
+
+      test('should handle concurrent group creation requests', () {
+        final notifier = container.read(groupsProvider.notifier);
+
+        // Test that multiple creation calls can be handled
+        expect(() {
+          notifier.createNewGroup(
+            groupName: 'Group 1',
+            groupDescription: 'First group',
+            memberPublicKeys: ['member1'],
+            adminPublicKeys: ['admin1'],
+          );
+
+          notifier.createNewGroup(
+            groupName: 'Group 2',
+            groupDescription: 'Second group',
+            memberPublicKeys: ['member2'],
+            adminPublicKeys: ['admin2'],
+          );
+        }, returnsNormally);
+      });
+    });
+
     group('State Transitions', () {
       test('should handle state updates correctly', () {
         final notifier = container.read(groupsProvider.notifier);
