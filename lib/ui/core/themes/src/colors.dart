@@ -157,6 +157,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color appBarBackground;
   final Color appBarForeground;
   final Color bottomSheetBarrier;
+
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
     primary: LightAppColors.primary,

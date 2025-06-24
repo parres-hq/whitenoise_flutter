@@ -26,7 +26,7 @@ class _ChatListAppBarState extends State<ChatListAppBar> {
   @override
   void initState() {
     super.initState();
-    
+
     SystemChrome.setSystemUIOverlayStyle(
       const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
