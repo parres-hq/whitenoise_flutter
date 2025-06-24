@@ -39,7 +39,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   String _searchQuery = '';
   final Map<String, PublicKey> _publicKeyMap = {}; // Map ContactModel.publicKey to real PublicKey
   final _logger = Logger('NewChatBottomSheet');
-  
+
   @override
   void initState() {
     super.initState();

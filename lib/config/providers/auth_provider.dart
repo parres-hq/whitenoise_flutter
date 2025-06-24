@@ -14,7 +14,7 @@ import 'package:whitenoise/src/rust/frb_generated.dart';
 /// This provider manages authentication using the new PublicKey-based API.
 class AuthNotifier extends Notifier<AuthState> {
   final _logger = Logger('AuthNotifier');
-  
+
   @override
   AuthState build() {
     return const AuthState();

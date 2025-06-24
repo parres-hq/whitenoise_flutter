@@ -38,7 +38,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
   bool _hasSearchResults = false;
   final Map<String, PublicKey> _publicKeyMap = {}; // Map ContactModel.publicKey to real PublicKey
   final _logger = Logger('SearchChatBottomSheet');
-  
+
   @override
   void initState() {
     super.initState();
