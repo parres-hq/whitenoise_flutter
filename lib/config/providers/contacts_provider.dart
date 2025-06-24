@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_redundant_argument_values
-
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/src/rust/api.dart';
@@ -27,6 +26,8 @@ class ContactsState {
 }
 
 class ContactsNotifier extends Notifier<ContactsState> {
+  final _logger = Logger('ContactsNotifier');
+
   @override
   ContactsState build() => const ContactsState();
 
@@ -54,21 +55,21 @@ class ContactsNotifier extends Notifier<ContactsState> {
       final raw = await fetchContacts(pubkey: ownerPk);
 
       // fetchContacts already returns Map<PublicKey, MetadataData?> with metadata included
-      debugPrint('ContactsProvider: Loaded ${raw.length} contacts');
+      _logger.info('ContactsProvider: Loaded ${raw.length} contacts');
       for (final entry in raw.entries) {
         final metadata = entry.value;
         if (metadata != null) {
-          debugPrint(
+          _logger.info(
             'ContactsProvider: Contact with metadata - name: ${metadata.name}, displayName: ${metadata.displayName}, picture: ${metadata.picture}',
           );
         } else {
-          debugPrint('ContactsProvider: Contact with NULL metadata');
+          _logger.info('ContactsProvider: Contact with NULL metadata');
         }
       }
 
       state = state.copyWith(contacts: raw);
     } catch (e, st) {
-      debugPrintStack(label: 'loadContacts', stackTrace: st);
+      _logger.severe('loadContacts', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);
@@ -97,29 +98,29 @@ class ContactsNotifier extends Notifier<ContactsState> {
       final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final contactPk = await publicKeyFromString(publicKeyString: contactKey.trim());
 
-      debugPrint('ContactsProvider: Adding contact with key: ${contactKey.trim()}');
+      _logger.info('ContactsProvider: Adding contact with key: ${contactKey.trim()}');
       await addContact(pubkey: ownerPubkey, contactPubkey: contactPk);
-      debugPrint('ContactsProvider: Contact added successfully, checking metadata...');
+      _logger.info('ContactsProvider: Contact added successfully, checking metadata...');
 
       // Try to fetch metadata for the newly added contact
       try {
         final metadata = await fetchMetadata(pubkey: contactPk);
         if (metadata != null) {
-          debugPrint(
+          _logger.info(
             'ContactsProvider: Metadata found for new contact - name: ${metadata.name}, displayName: ${metadata.displayName}',
           );
         } else {
-          debugPrint('ContactsProvider: No metadata found for new contact');
+          _logger.info('ContactsProvider: No metadata found for new contact');
         }
       } catch (e) {
-        debugPrint('ContactsProvider: Error fetching metadata for new contact: $e');
+        _logger.severe('ContactsProvider: Error fetching metadata for new contact: $e');
       }
 
       // Refresh the complete list to get updated contacts with metadata
       await loadContacts(activeAccountData.pubkey);
-      debugPrint('ContactsProvider: Contact list refreshed after adding');
+      _logger.info('ContactsProvider: Contact list refreshed after adding');
     } catch (e, st) {
-      debugPrintStack(label: 'addContact', stackTrace: st);
+      _logger.severe('addContact', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);
@@ -156,7 +157,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
       // Refresh the list
       await loadContacts(activeAccountData.pubkey);
     } catch (e, st) {
-      debugPrintStack(label: 'removeContact', stackTrace: st);
+      _logger.severe('removeContact', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);
@@ -197,7 +198,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
       // Refresh the list
       await loadContacts(activeAccountData.pubkey);
     } catch (e, st) {
-      debugPrintStack(label: 'replaceContacts', stackTrace: st);
+      _logger.severe('replaceContacts', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);
@@ -243,7 +244,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
       // Refresh the list
       await loadContacts(activeAccountData.pubkey);
     } catch (e, st) {
-      debugPrintStack(label: 'removeContactByPublicKey', stackTrace: st);
+      _logger.severe('removeContactByPublicKey', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);

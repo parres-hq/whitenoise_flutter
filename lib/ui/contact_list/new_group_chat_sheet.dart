@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -34,6 +35,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
   String _searchQuery = '';
   final Set<ContactModel> _selectedContacts = {};
   final Map<String, PublicKey> _publicKeyMap = {}; // Map ContactModel.publicKey to real PublicKey
+  final _logger = Logger('NewGroupChatSheet');
 
   @override
   void initState() {
@@ -65,11 +67,11 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
 
       if (activeAccountData != null) {
-        debugPrint('NewGroupChatSheet: Found active account: ${activeAccountData.pubkey}');
+        _logger.info('NewGroupChatSheet: Found active account: ${activeAccountData.pubkey}');
         await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
-        debugPrint('NewGroupChatSheet: Contacts loaded successfully');
+        _logger.info('NewGroupChatSheet: Contacts loaded successfully');
       } else {
-        debugPrint('NewGroupChatSheet: No active account found');
+        _logger.severe('NewGroupChatSheet: No active account found');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
@@ -80,7 +82,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
         }
       }
     } catch (e) {
-      debugPrint('NewGroupChatSheet: Error loading contacts: $e');
+      _logger.severe('NewGroupChatSheet: Error loading contacts: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

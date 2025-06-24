@@ -1,7 +1,7 @@
 import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 
 final currentlyPlayingAudioProvider = StateProvider<String?>((ref) => null);
@@ -35,6 +35,7 @@ class ChatAudioState {
 }
 
 class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
+  final _logger = Logger('ChatAudioNotifier');
   final Ref ref;
   final String audioUrl;
   bool _hasCompletionListener = false;
@@ -55,7 +56,7 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
       if (!_hasCompletionListener) {
         _hasCompletionListener = true;
         controller.onCompletion.listen((_) async {
-          debugPrint('Playback completed for $audioUrl');
+          _logger.info('Playback completed for $audioUrl');
           await controller.seekTo(0); // Reset for replay
           state = state.copyWith(isPlaying: false);
           ref.read(currentlyPlayingAudioProvider.notifier).state = null;
@@ -113,7 +114,7 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
 
     await controller.stopPlayer();
     state = state.copyWith(isPlaying: false);
-    debugPrint('Stopping playback silently for $audioUrl');
+    _logger.info('Stopping playback silently for $audioUrl');
   }
 
   @override

@@ -32,7 +32,7 @@ linter:
     sort_child_properties_last: true
 
     # Code quality
-    avoid_print: false  # Allow prints for debugging
+    avoid_print: true
     prefer_final_locals: true
     unnecessary_nullable_for_final_variable_declarations: true
     avoid_redundant_argument_values: true

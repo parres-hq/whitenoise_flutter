@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
@@ -26,6 +27,7 @@ class NostrKeysScreen extends ConsumerStatefulWidget {
 class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
   final TextEditingController _privateKeyController = TextEditingController();
   bool _obscurePrivateKey = true;
+  final _logger = Logger('NostrKeysScreen');
 
   @override
   void initState() {
@@ -48,7 +50,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
             await ref.read(activeAccountProvider.notifier).getActiveAccountData();
 
         if (activeAccountData != null) {
-          print('NostrKeysScreen: Found active account: ${activeAccountData.pubkey}');
+          _logger.info('NostrKeysScreen: Found active account: ${activeAccountData.pubkey}');
 
           // Load keys directly using the new API
           final nostrKeys = ref.read(nostrKeysProvider);
@@ -65,14 +67,14 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
             final nsecString = await exportAccountNsec(pubkey: publicKey);
             nostrKeys.setNsec(nsecString);
 
-            print('NostrKeysScreen: Keys loaded successfully with new API');
+            _logger.info('NostrKeysScreen: Keys loaded successfully with new API');
           } catch (e) {
-            print('NostrKeysScreen: Error loading keys: $e');
+            _logger.severe('NostrKeysScreen: Error loading keys: $e');
             // Fallback to raw pubkey
             nostrKeys.loadPublicKeyFromAccountData(activeAccountData.pubkey);
           }
         } else {
-          print('NostrKeysScreen: No active account found');
+          _logger.severe('NostrKeysScreen: No active account found');
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
@@ -83,7 +85,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
           }
         }
       } catch (e) {
-        print('NostrKeysScreen: Error loading keys: $e');
+        _logger.severe('NostrKeysScreen: Error loading keys: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

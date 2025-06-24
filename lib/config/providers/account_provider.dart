@@ -1,7 +1,7 @@
 // ignore_for_file: avoid_redundant_argument_values
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
@@ -42,6 +42,8 @@ class AccountState {
 }
 
 class AccountNotifier extends Notifier<AccountState> {
+  final _logger = Logger('AccountNotifier');
+
   @override
   AccountState build() => const AccountState();
 
@@ -82,11 +84,11 @@ class AccountNotifier extends Notifier<AccountState> {
         try {
           await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
         } catch (e) {
-          debugPrint('Failed to load contacts: $e');
+          _logger.severe('Failed to load contacts: $e');
         }
       }
     } catch (e, st) {
-      debugPrintStack(label: 'loadAccountData', stackTrace: st);
+      _logger.severe('loadAccountData', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);
@@ -104,7 +106,7 @@ class AccountNotifier extends Notifier<AccountState> {
       state = state.copyWith(accounts: accountsMap);
       return accountsList;
     } catch (e, st) {
-      debugPrintStack(label: 'listAccounts', stackTrace: st);
+      _logger.severe('listAccounts', e, st);
       state = state.copyWith(error: e.toString());
       return null;
     }
@@ -121,10 +123,10 @@ class AccountNotifier extends Notifier<AccountState> {
       try {
         await ref.read(contactsProvider.notifier).loadContacts(data.pubkey);
       } catch (e) {
-        debugPrint('Failed to load contacts: $e');
+        _logger.severe('Failed to load contacts: $e');
       }
     } catch (e, st) {
-      debugPrintStack(label: 'setActiveAccount', stackTrace: st);
+      _logger.severe('setActiveAccount', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);
@@ -162,7 +164,7 @@ class AccountNotifier extends Notifier<AccountState> {
         throw Exception('No metadata found');
       }
     } catch (e, st) {
-      debugPrintStack(label: 'updateMetadata', stackTrace: st);
+      _logger.severe('updateMetadata', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);

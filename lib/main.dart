@@ -18,9 +18,6 @@ Future<void> main() async {
 
   // Logging
   Logger.root.level = Level.ALL;
-  Logger.root.onRecord.listen((record) {
-    debugPrint('${record.level.name}: ${record.time}: ${record.message}');
-  });
   final log = Logger('Whitenoise');
 
   final container = ProviderContainer();

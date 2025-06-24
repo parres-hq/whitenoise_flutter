@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
@@ -13,6 +13,8 @@ import 'package:whitenoise/src/rust/frb_generated.dart';
 ///
 /// This provider manages authentication using the new PublicKey-based API.
 class AuthNotifier extends Notifier<AuthState> {
+  final _logger = Logger('AuthNotifier');
+  
   @override
   AuthState build() {
     return const AuthState();
@@ -61,7 +63,7 @@ class AuthNotifier extends Notifier<AuthState> {
         state = state.copyWith(isAuthenticated: false);
       }
     } catch (e, st) {
-      debugPrintStack(label: 'AuthState.initialize', stackTrace: st);
+      _logger.severe('initialize', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);
@@ -90,7 +92,7 @@ class AuthNotifier extends Notifier<AuthState> {
       // Load account data after creating identity
       await ref.read(accountProvider.notifier).loadAccountData();
     } catch (e, st) {
-      debugPrintStack(label: 'AuthState.createAccount', stackTrace: st);
+      _logger.severe('createAccount', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);
@@ -121,7 +123,7 @@ class AuthNotifier extends Notifier<AuthState> {
       await ref.read(accountProvider.notifier).loadAccountData();
     } catch (e, st) {
       state = state.copyWith(error: e.toString());
-      debugPrintStack(label: 'AuthState.loginWithKey', stackTrace: st);
+      _logger.severe('loginWithKey', e, st);
     } finally {
       state = state.copyWith(isLoading: false);
     }
@@ -168,7 +170,7 @@ class AuthNotifier extends Notifier<AuthState> {
       }
     } catch (e, st) {
       state = state.copyWith(error: e.toString());
-      debugPrintStack(label: 'AuthState.logoutCurrentAccount', stackTrace: st);
+      _logger.severe('logoutCurrentAccount', e, st);
     } finally {
       state = state.copyWith(isAuthenticated: false, isLoading: false);
     }

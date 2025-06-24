@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/src/rust/api.dart';
@@ -32,6 +33,8 @@ class RelayState {
 
 // Normal relays notifier
 class NormalRelaysNotifier extends Notifier<RelayState> {
+  final _logger = Logger('NormalRelaysNotifier');
+
   @override
   RelayState build() {
     WidgetsBinding.instance.addPostFrameCallback((_) => loadRelays());
@@ -90,7 +93,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
-        print('RelayProvider: No active account found for adding relay');
+        _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
 
@@ -119,6 +122,8 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
 // Inbox relays notifier
 class InboxRelaysNotifier extends Notifier<RelayState> {
+  final _logger = Logger('InboxRelaysNotifier');
+
   @override
   RelayState build() {
     WidgetsBinding.instance.addPostFrameCallback((_) => loadRelays());
@@ -177,7 +182,7 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
-        print('RelayProvider: No active account found for adding relay');
+        _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
 
@@ -206,6 +211,8 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
 // Key package relays notifier
 class KeyPackageRelaysNotifier extends Notifier<RelayState> {
+  final _logger = Logger('KeyPackageRelaysNotifier');
+
   @override
   RelayState build() {
     WidgetsBinding.instance.addPostFrameCallback((_) => loadRelays());
@@ -264,7 +271,7 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
-        print('RelayProvider: No active account found for adding relay');
+        _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
 

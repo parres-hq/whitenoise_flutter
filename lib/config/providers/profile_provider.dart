@@ -1,12 +1,13 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/src/rust/api.dart';
 
 class ProfileNotifier extends AsyncNotifier<ProfileState> {
+  final _logger = Logger('ProfileNotifier');
   final ImagePicker _imagePicker = ImagePicker();
 
   @override
@@ -57,7 +58,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
 
       state = AsyncValue.data(profileState);
     } catch (e, st) {
-      debugPrintStack(label: 'ProfileNotifier.loadProfileData', stackTrace: st);
+      _logger.severe('loadProfileData', e, st);
       state = AsyncValue.error(e.toString(), st);
     }
   }
@@ -72,10 +73,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       }
       return null;
     } catch (e, st) {
-      debugPrintStack(
-        label: 'ProfileNotifier.pickProfileImage',
-        stackTrace: st,
-      );
+      _logger.severe('pickProfileImage', e, st);
       return null;
     }
   }
@@ -90,7 +88,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       }
       return null;
     } catch (e, st) {
-      debugPrintStack(label: 'ProfileNotifier.pickBannerImage', stackTrace: st);
+      _logger.severe('pickBannerImage', e, st);
       return null;
     }
   }
@@ -149,10 +147,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
     } catch (e, st) {
-      debugPrintStack(
-        label: 'ProfileNotifier.updateProfileData',
-        stackTrace: st,
-      );
+      _logger.severe('updateProfileData', e, st);
       state = AsyncValue.error(e.toString(), st);
     }
   }

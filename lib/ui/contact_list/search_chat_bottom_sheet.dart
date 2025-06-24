@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/dummy_data/dummy_chats.dart';
@@ -36,7 +37,8 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
   String _searchQuery = '';
   bool _hasSearchResults = false;
   final Map<String, PublicKey> _publicKeyMap = {}; // Map ContactModel.publicKey to real PublicKey
-
+  final _logger = Logger('SearchChatBottomSheet');
+  
   @override
   void initState() {
     super.initState();
@@ -68,11 +70,11 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
 
       if (activeAccountData != null) {
-        debugPrint('SearchChatBottomSheet: Found active account: ${activeAccountData.pubkey}');
+        _logger.info('SearchChatBottomSheet: Found active account: ${activeAccountData.pubkey}');
         await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
-        debugPrint('SearchChatBottomSheet: Contacts loaded successfully');
+        _logger.info('SearchChatBottomSheet: Contacts loaded successfully');
       } else {
-        debugPrint('SearchChatBottomSheet: No active account found');
+        _logger.severe('SearchChatBottomSheet: No active account found');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -83,7 +85,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
         }
       }
     } catch (e) {
-      debugPrint('SearchChatBottomSheet: Error loading contacts: $e');
+      _logger.severe('SearchChatBottomSheet: Error loading contacts: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

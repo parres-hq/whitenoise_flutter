@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/src/rust/api.dart';
 
 /// Active Account Provider
@@ -9,6 +10,7 @@ import 'package:whitenoise/src/rust/api.dart';
 
 class ActiveAccountNotifier extends Notifier<String?> {
   static const String _activeAccountKey = 'active_account_pubkey';
+  final _logger = Logger('ActiveAccountProvider');
 
   final _storage = const FlutterSecureStorage(
     aOptions: AndroidOptions(
@@ -28,10 +30,10 @@ class ActiveAccountNotifier extends Notifier<String?> {
   Future<void> _loadActiveAccount() async {
     try {
       final activeAccountPubkey = await _storage.read(key: _activeAccountKey);
-      print('ActiveAccountProvider: Loaded active account: $activeAccountPubkey');
+      _logger.info('ActiveAccountProvider: Loaded active account: $activeAccountPubkey');
       state = activeAccountPubkey;
     } catch (e) {
-      print('ActiveAccountProvider: Error loading active account: $e');
+      _logger.severe('Error loading active account: $e');
       state = null;
     }
   }
@@ -39,10 +41,10 @@ class ActiveAccountNotifier extends Notifier<String?> {
   Future<void> setActiveAccount(String pubkey) async {
     try {
       await _storage.write(key: _activeAccountKey, value: pubkey);
-      print('ActiveAccountProvider: Set active account: $pubkey');
+      _logger.info('ActiveAccountProvider: Set active account: $pubkey');
       state = pubkey;
     } catch (e) {
-      print('ActiveAccountProvider: Error setting active account: $e');
+      _logger.severe('Error setting active account: $e');
     }
   }
 
@@ -51,14 +53,14 @@ class ActiveAccountNotifier extends Notifier<String?> {
       await _storage.delete(key: _activeAccountKey);
       state = null;
     } catch (e) {
-      print('ActiveAccountProvider: Error clearing active account: $e');
+      _logger.severe('ActiveAccountProvider: Error clearing active account: $e');
     }
   }
 
   Future<AccountData?> getActiveAccountData() async {
-    print('ActiveAccountProvider: Getting active account data, state: $state');
+    _logger.info('Getting active account data, state: $state');
     if (state == null) {
-      print('ActiveAccountProvider: No active account set');
+      _logger.warning('No active account set');
       return null;
     }
 
@@ -66,22 +68,22 @@ class ActiveAccountNotifier extends Notifier<String?> {
       // Use the new fetchAccount API function for better performance
       final publicKey = await publicKeyFromString(publicKeyString: state!);
       final activeAccount = await fetchAccount(pubkey: publicKey);
-      print('ActiveAccountProvider: Found active account using new API: ${activeAccount.pubkey}');
+      _logger.info('Found active account using new API: ${activeAccount.pubkey}');
       return activeAccount;
     } catch (e) {
-      print('ActiveAccountProvider: Error with new fetchAccount API: $e');
+      _logger.warning('Error with new fetchAccount API: $e');
       // Fallback to the old method if the new one fails
       try {
         final accounts = await fetchAccounts();
-        print('ActiveAccountProvider: Fallback - Found ${accounts.length} accounts');
+        _logger.info('Fallback - Found ${accounts.length} accounts');
         final activeAccount = accounts.firstWhere(
           (account) => account.pubkey == state,
           orElse: () => throw Exception('Active account not found'),
         );
-        print('ActiveAccountProvider: Fallback - Found active account: ${activeAccount.pubkey}');
+        _logger.info('Fallback - Found active account: ${activeAccount.pubkey}');
         return activeAccount;
       } catch (fallbackError) {
-        print('ActiveAccountProvider: Fallback method also failed: $fallbackError');
+        _logger.severe('Fallback method also failed: $fallbackError');
         return null;
       }
     }
@@ -91,9 +93,9 @@ class ActiveAccountNotifier extends Notifier<String?> {
   Future<void> clearAllSecureStorage() async {
     try {
       await _storage.deleteAll();
-      print('ActiveAccountProvider: Cleared all secure storage data');
+      _logger.info('ActiveAccountProvider: Cleared all secure storage data');
     } catch (e) {
-      print('ActiveAccountProvider: Error clearing all secure storage: $e');
+      _logger.severe('ActiveAccountProvider: Error clearing all secure storage: $e');
     }
   }
 }
