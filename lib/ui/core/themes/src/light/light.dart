@@ -20,7 +20,7 @@ final lightColorScheme = ColorScheme.light(
 );
 
 final lightTheme = ThemeData(
-  extensions: const [lightColorsExt],
+  extensions: [AppColorsThemeExt.light],
   fontFamily: 'OverusedGrotesk',
   //
   scaffoldBackgroundColor: lightColorsExt.neutral,
