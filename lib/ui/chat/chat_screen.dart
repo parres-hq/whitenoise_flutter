@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,7 +12,6 @@ import 'package:whitenoise/ui/chat/widgets/chat_input.dart';
 import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/chat/widgets/message_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
-import 'package:whitenoise/ui/chat/widgets/reaction/reaction_hero_dialog_route.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reactions_dialog_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/status_message_item_widget.dart';
 
@@ -228,7 +228,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   return _SwipeToReplyWidget(
                     message: message,
                     onReply: () => _handleReply(message),
-                    onTap: () => _showReactionDialog(message, index),
+                    onLongPress: () => _showReactionDialog(message, index),
                     child: Hero(
                       tag: message.id,
                       child: MessageWidget(
@@ -267,9 +267,17 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _showReactionDialog(MessageModel message, int index) {
+    // Add haptic feedback for smooth interaction
+    HapticFeedback.mediumImpact();
+    
     Navigator.of(context).push(
-      HeroDialogRoute(
-        builder: (context) {
+      PageRouteBuilder(
+        opaque: false,
+        barrierDismissible: true,
+        barrierColor: Colors.black26,
+        transitionDuration: const Duration(milliseconds: 200),
+        reverseTransitionDuration: const Duration(milliseconds: 150),
+        pageBuilder: (context, animation, secondaryAnimation) {
           return ReactionsDialogWidget(
             id: message.id,
             menuItems: message.isMe ? DefaultData.myMessageMenuItems : DefaultData.menuItems,
@@ -294,6 +302,31 @@ class _ChatScreenState extends State<ChatScreen> {
               }
             },
             widgetAlignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+          );
+        },
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: Tween<double>(
+              begin: 0.0,
+              end: 1.0,
+            ).animate(
+              CurvedAnimation(
+                parent: animation,
+                curve: Curves.easeOutCubic,
+              ),
+            ),
+            child: ScaleTransition(
+              scale: Tween<double>(
+                begin: 0.8,
+                end: 1.0,
+              ).animate(
+                CurvedAnimation(
+                  parent: animation,
+                  curve: Curves.easeOutCubic,
+                ),
+              ),
+              child: child,
+            ),
           );
         },
       ),
@@ -369,13 +402,13 @@ class _ChatScreenState extends State<ChatScreen> {
 class _SwipeToReplyWidget extends StatefulWidget {
   final MessageModel message;
   final VoidCallback onReply;
-  final VoidCallback onTap;
+  final VoidCallback onLongPress;
   final Widget child;
 
   const _SwipeToReplyWidget({
     required this.message,
     required this.onReply,
-    required this.onTap,
+    required this.onLongPress,
     required this.child,
   });
 
@@ -389,6 +422,7 @@ class _SwipeToReplyWidgetState extends State<_SwipeToReplyWidget>
   double _dragExtent = 0.0;
   final double _dragThreshold = 60.0;
   bool _showReplyIcon = false;
+  Timer? _longPressTimer;
 
   @override
   void initState() {
@@ -404,6 +438,7 @@ class _SwipeToReplyWidgetState extends State<_SwipeToReplyWidget>
 
   @override
   void dispose() {
+    _longPressTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -443,6 +478,20 @@ class _SwipeToReplyWidgetState extends State<_SwipeToReplyWidget>
     });
   }
 
+  void _handleTapDown(TapDownDetails details) {
+    _longPressTimer = Timer(const Duration(milliseconds: 300), () {
+      widget.onLongPress();
+    });
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    _longPressTimer?.cancel();
+  }
+
+  void _handleTapCancel() {
+    _longPressTimer?.cancel();
+  }
+
   @override
   Widget build(BuildContext context) {
     final dragOffset = widget.message.isMe ? -_dragExtent : _dragExtent;
@@ -465,7 +514,9 @@ class _SwipeToReplyWidgetState extends State<_SwipeToReplyWidget>
             ),
           ),
         GestureDetector(
-          onTap: widget.onTap,
+          onTapDown: _handleTapDown,
+          onTapUp: _handleTapUp,
+          onTapCancel: _handleTapCancel,
           onHorizontalDragStart: _handleDragStart,
           onHorizontalDragUpdate: _handleDragUpdate,
           onHorizontalDragEnd: _handleDragEnd,
