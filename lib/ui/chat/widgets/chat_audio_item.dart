@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
@@ -21,20 +22,20 @@ class ChatAudioItem extends ConsumerWidget {
     if (!state.isReady) {
       if (state.error != null) {
         return SizedBox(
-          height: 50,
+          height: 50.h,
           child: Center(
             child: Text(
               state.error!,
-              style: const TextStyle(color: Colors.red, fontSize: 12),
+              style: TextStyle(color: Colors.red, fontSize: 12.sp),
             ),
           ),
         );
       }
       return SizedBox(
-        height: 50,
+        height: 50.h,
         child: Center(
           child: CircularProgressIndicator(
-            strokeWidth: 2,
+            strokeWidth: 2.w,
             color: context.colors.primaryForeground,
           ),
         ),
@@ -42,17 +43,17 @@ class ChatAudioItem extends ConsumerWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20.r),
         color: isMe ? context.colors.primary : context.colors.baseMuted,
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            width: 40,
-            height: 40,
+            width: 40.w,
+            height: 40.h,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: isMe ? context.colors.primaryForeground : context.colors.primary,
@@ -61,12 +62,12 @@ class ChatAudioItem extends ConsumerWidget {
               icon: Icon(
                 isThisPlaying ? CarbonIcons.pause_filled : CarbonIcons.play_filled_alt,
                 color: isMe ? context.colors.primary : context.colors.primaryForeground,
-                size: 20,
+                size: 20.sp,
               ),
               onPressed: () => notifier.togglePlayback(),
             ),
           ),
-          const SizedBox(width: 12),
+          SizedBox(width: 12.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -74,9 +75,9 @@ class ChatAudioItem extends ConsumerWidget {
               children: [
                 // Audio progress bar
                 Container(
-                  height: 4,
+                  height: 4.h,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(2),
+                    borderRadius: BorderRadius.circular(2.r),
                     color: (isMe ? context.colors.primaryForeground : context.colors.primary)
                         .withOpacity(0.3),
                   ),
@@ -96,12 +97,12 @@ class ChatAudioItem extends ConsumerWidget {
                           )
                           : Container(),
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4.h),
                 // Duration text
                 Text(
                   _formatDuration(state.position ?? Duration.zero, state.duration),
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 12.sp,
                     color: (isMe ? context.colors.primaryForeground : context.colors.primary)
                         .withOpacity(0.7),
                   ),
@@ -109,11 +110,11 @@ class ChatAudioItem extends ConsumerWidget {
               ],
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8.w),
           // Audio icon
           Icon(
             CarbonIcons.microphone,
-            size: 16,
+            size: 16.sp,
             color: (isMe ? context.colors.primaryForeground : context.colors.primary).withOpacity(
               0.7,
             ),
