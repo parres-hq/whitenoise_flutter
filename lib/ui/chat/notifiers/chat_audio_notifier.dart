@@ -48,7 +48,7 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
   final Ref ref;
   final String audioUrl;
   bool _hasListeners = false;
-  
+
   ChatAudioNotifier(this.ref, this.audioUrl) : super(ChatAudioState()) {
     _init();
   }
@@ -86,14 +86,14 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
       // Setup listeners
       if (!_hasListeners) {
         _hasListeners = true;
-        
+
         // Listen to player state changes
         player.playerStateStream.listen((playerState) {
           final isPlaying = playerState.playing;
           final processingState = playerState.processingState;
-          
+
           state = state.copyWith(isPlaying: isPlaying);
-          
+
           // Handle completion
           if (processingState == ProcessingState.completed) {
             _logger.info('Playback completed for $audioUrl');
@@ -206,14 +206,17 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
     final player = state.audioPlayer;
     if (player != null) {
       // Stop and dispose player asynchronously
-      player.stop().then((_) {
-        player.dispose();
-      }).catchError((e) {
-        _logger.warning('Error disposing audio player: $e');
-        return null; // Return null to indicate the operation failed
-      });
+      player
+          .stop()
+          .then((_) {
+            player.dispose();
+          })
+          .catchError((e) {
+            _logger.warning('Error disposing audio player: $e');
+            return null; // Return null to indicate the operation failed
+          });
     }
-    
+
     // Deactivate audio session
     AudioSession.instance.then((session) {
       session.setActive(false).catchError((e) {
@@ -221,7 +224,7 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
         return false; // Return false to indicate the operation failed
       });
     });
-    
+
     super.dispose();
   }
 }

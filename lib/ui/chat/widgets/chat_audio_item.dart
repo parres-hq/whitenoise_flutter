@@ -80,18 +80,21 @@ class ChatAudioItem extends ConsumerWidget {
                     color: (isMe ? context.colors.primaryForeground : context.colors.primary)
                         .withOpacity(0.3),
                   ),
-                  child: state.duration != null
-                      ? LinearProgressIndicator(
-                          value: state.position != null && state.duration != null
-                              ? (state.position!.inMilliseconds / state.duration!.inMilliseconds)
-                                  .clamp(0.0, 1.0)
-                              : 0.0,
-                          backgroundColor: Colors.transparent,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            isMe ? context.colors.primaryForeground : context.colors.primary,
-                          ),
-                        )
-                      : Container(),
+                  child:
+                      state.duration != null
+                          ? LinearProgressIndicator(
+                            value:
+                                state.position != null && state.duration != null
+                                    ? (state.position!.inMilliseconds /
+                                            state.duration!.inMilliseconds)
+                                        .clamp(0.0, 1.0)
+                                    : 0.0,
+                            backgroundColor: Colors.transparent,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              isMe ? context.colors.primaryForeground : context.colors.primary,
+                            ),
+                          )
+                          : Container(),
                 ),
                 const SizedBox(height: 4),
                 // Duration text
@@ -111,8 +114,9 @@ class ChatAudioItem extends ConsumerWidget {
           Icon(
             CarbonIcons.microphone,
             size: 16,
-            color: (isMe ? context.colors.primaryForeground : context.colors.primary)
-                .withOpacity(0.7),
+            color: (isMe ? context.colors.primaryForeground : context.colors.primary).withOpacity(
+              0.7,
+            ),
           ),
         ],
       ),

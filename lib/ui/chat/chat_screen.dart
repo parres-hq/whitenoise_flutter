@@ -269,7 +269,7 @@ class _ChatScreenState extends State<ChatScreen> {
   void _showReactionDialog(MessageModel message, int index) {
     // Add haptic feedback for smooth interaction
     HapticFeedback.mediumImpact();
-    
+
     Navigator.of(context).push(
       PageRouteBuilder(
         opaque: false,
