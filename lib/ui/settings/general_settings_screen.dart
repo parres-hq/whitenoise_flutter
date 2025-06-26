@@ -274,7 +274,7 @@ class SettingsListTile extends StatelessWidget {
                 text,
                 style: TextStyle(
                   fontSize: 17.sp,
-                  color: foregroundColor ?? context.colors.mutedForeground,
+                  color: foregroundColor ?? context.colors.secondaryForeground,
                 ),
               ),
             ),

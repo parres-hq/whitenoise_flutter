@@ -182,14 +182,14 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: context.colors.primaryForeground,
+      backgroundColor: context.colors.neutral,
       appBar: AppBar(
-        backgroundColor: context.colors.primary,
+        backgroundColor: context.colors.appBarBackground,
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new,
             size: 20.w,
-            color: context.colors.primaryForeground,
+            color: context.colors.appBarForeground,
           ),
           onPressed: () => context.pop(),
         ),
@@ -202,7 +202,7 @@ class _ChatScreenState extends State<ChatScreen> {
             icon: Icon(
               CarbonIcons.search,
               size: 20.w,
-              color: context.colors.primaryForeground,
+              color: context.colors.appBarForeground,
             ),
             onPressed: () => context.go(Routes.newChat),
           ),

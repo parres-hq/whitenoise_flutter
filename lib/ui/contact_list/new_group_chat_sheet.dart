@@ -23,7 +23,6 @@ class NewGroupChatSheet extends ConsumerStatefulWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'New group chat',
-      barrierColor: Colors.transparent,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder: (context) => const NewGroupChatSheet(),

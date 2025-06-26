@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/routing/router_provider.dart';
 
 import 'ui/core/themes/src/app_theme.dart';
@@ -22,6 +23,7 @@ Future<void> main() async {
 
   final container = ProviderContainer();
   final authNotifier = container.read(authProvider.notifier);
+  container.read(themeProvider.notifier);
 
   try {
     await authNotifier.initialize();
@@ -40,6 +42,7 @@ class MyApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final width = MediaQuery.of(context).size.width;
     final router = ref.watch(routerProvider);
+    final themeState = ref.watch(themeProvider);
 
     return ScreenUtilInit(
       designSize: width > 600 ? const Size(600, 1024) : const Size(390, 844),
@@ -51,7 +54,7 @@ class MyApp extends ConsumerWidget {
           debugShowCheckedModeBanner: false,
           theme: lightTheme,
           darkTheme: darkTheme,
-
+          themeMode: themeState.themeMode,
           routerConfig: router,
         );
       },

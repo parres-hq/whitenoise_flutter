@@ -36,7 +36,6 @@ class ChatInvitationSheet extends StatelessWidget {
       heightFactor: 0.65,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
-      barrierColor: Colors.transparent,
       builder:
           (context) => ChatInvitationSheet(
             name: name,

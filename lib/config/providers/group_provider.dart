@@ -84,7 +84,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
         ),
       );
 
-      final combinedAdminKeys = {creatorPubkey, ...resolvedAdminPublicKeys}.toList();
+      final creatorPubkeyForAdmin = await publicKeyFromString(
+        publicKeyString: activeAccountData.pubkey,
+      );
+      final combinedAdminKeys = {creatorPubkeyForAdmin, ...resolvedAdminPublicKeys}.toList();
       _logger.info('GroupsProvider: Admin pubkeys loaded - ${combinedAdminKeys.length}');
 
       final newGroup = await createGroup(
