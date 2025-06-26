@@ -43,14 +43,22 @@ class ChatAudioState {
   }
 }
 
-class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
+class ChatAudioNotifier extends FamilyNotifier<ChatAudioState, String> {
   final _logger = Logger('ChatAudioNotifier');
-  final Ref ref;
-  final String audioUrl;
+  late final String audioUrl;
   bool _hasListeners = false;
 
-  ChatAudioNotifier(this.ref, this.audioUrl) : super(ChatAudioState()) {
+  @override
+  ChatAudioState build(String arg) {
+    audioUrl = arg;
+    
+    // Setup cleanup when the notifier is disposed
+    ref.onDispose(() {
+      _cleanup();
+    });
+    
     _init();
+    return ChatAudioState();
   }
 
   Future<void> _init() async {
@@ -200,8 +208,7 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
     }
   }
 
-  @override
-  void dispose() {
+  void _cleanup() {
     _hasListeners = false;
     final player = state.audioPlayer;
     if (player != null) {
@@ -224,11 +231,9 @@ class ChatAudioNotifier extends StateNotifier<ChatAudioState> {
         return false; // Return false to indicate the operation failed
       });
     });
-
-    super.dispose();
   }
 }
 
-final chatAudioProvider = StateNotifierProvider.family<ChatAudioNotifier, ChatAudioState, String>(
-  (ref, audioUrl) => ChatAudioNotifier(ref, audioUrl),
+final chatAudioProvider = NotifierProvider.family<ChatAudioNotifier, ChatAudioState, String>(
+  ChatAudioNotifier.new,
 );
