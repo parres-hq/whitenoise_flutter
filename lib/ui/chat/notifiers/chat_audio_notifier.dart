@@ -51,12 +51,12 @@ class ChatAudioNotifier extends FamilyNotifier<ChatAudioState, String> {
   @override
   ChatAudioState build(String arg) {
     audioUrl = arg;
-    
+
     // Setup cleanup when the notifier is disposed
     ref.onDispose(() {
       _cleanup();
     });
-    
+
     _init();
     return ChatAudioState();
   }
