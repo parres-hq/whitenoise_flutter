@@ -8,6 +8,7 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/contact_list/group_chat_details_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
@@ -34,8 +35,13 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   final Set<ContactModel> _selectedContacts = {};
-  final Map<String, PublicKey> _publicKeyMap = {}; // Map ContactModel.publicKey to real PublicKey
+  final Map<String, PublicKey> _publicKeyMap = {};
   final _logger = Logger('NewGroupChatSheet');
+
+  // Cache for converted contacts
+  List<ContactModel> _allContactModels = [];
+  Map<PublicKey, MetadataData?>? _lastProcessedContacts;
+  bool _isProcessingContacts = false;
 
   @override
   void initState() {
@@ -62,21 +68,20 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
 
   Future<void> _loadContacts() async {
     try {
-      // Get the active account data directly
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-
       if (activeAccountData != null) {
         _logger.info('NewGroupChatSheet: Found active account: ${activeAccountData.pubkey}');
         await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
+
         _logger.info('NewGroupChatSheet: Contacts loaded successfully');
       } else {
         _logger.severe('NewGroupChatSheet: No active account found');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('No active account found'),
-              backgroundColor: Colors.red,
+            SnackBar(
+              content: const Text('No active account found'),
+              backgroundColor: context.colors.destructive,
             ),
           );
         }
@@ -87,30 +92,73 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error loading contacts: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: context.colors.destructive,
           ),
         );
       }
     }
   }
 
-  List<ContactModel> _getFilteredContacts(Map<PublicKey, MetadataData?>? contacts) {
-    if (contacts == null) return [];
-
-    final contactModels = <ContactModel>[];
-    for (final entry in contacts.entries) {
-      final contactModel = ContactModel.fromMetadata(
-        publicKey: entry.key.hashCode.toString(), // Temporary ID for UI
-        metadata: entry.value,
-      );
-      // Store the real PublicKey reference for operations
-      _publicKeyMap[contactModel.publicKey] = entry.key;
-      contactModels.add(contactModel);
+  Future<void> _processContacts(Map<PublicKey, MetadataData?>? contacts) async {
+    if (contacts == null) {
+      _allContactModels = [];
+      _publicKeyMap.clear();
+      return;
     }
 
-    if (_searchQuery.isEmpty) return contactModels;
+    // Check if we need to reprocess (contacts changed)
+    if (_lastProcessedContacts == contacts && _allContactModels.isNotEmpty) {
+      return; // Already processed these contacts
+    }
 
-    return contactModels
+    if (_isProcessingContacts) return; // Already processing
+
+    setState(() {
+      _isProcessingContacts = true;
+    });
+
+    try {
+      final contactModels = <ContactModel>[];
+      _publicKeyMap.clear();
+
+      for (final entry in contacts.entries) {
+        try {
+          final npubString = await exportAccountNpub(pubkey: entry.key);
+
+          final contactModel = ContactModel.fromMetadata(
+            publicKey: npubString,
+            metadata: entry.value,
+          );
+
+          _publicKeyMap[npubString] = entry.key;
+          contactModels.add(contactModel);
+        } catch (e) {
+          _logger.warning('Failed to convert PublicKey to npub: $e');
+          continue;
+        }
+      }
+
+      if (mounted) {
+        setState(() {
+          _allContactModels = contactModels;
+          _lastProcessedContacts = contacts;
+          _isProcessingContacts = false;
+        });
+      }
+    } catch (e) {
+      _logger.severe('Error processing contacts: $e');
+      if (mounted) {
+        setState(() {
+          _isProcessingContacts = false;
+        });
+      }
+    }
+  }
+
+  List<ContactModel> _getFilteredContacts() {
+    if (_searchQuery.isEmpty) return _allContactModels;
+
+    return _allContactModels
         .where(
           (contact) =>
               contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -138,10 +186,79 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     });
   }
 
+  Widget _buildContactsList() {
+    final filteredContacts = _getFilteredContacts();
+
+    if (filteredContacts.isEmpty) {
+      return Center(
+        child: Text(
+          _searchQuery.isEmpty ? 'No contacts found' : 'No contacts match your search',
+          style: TextStyle(fontSize: 16.sp),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      padding: EdgeInsets.symmetric(
+        horizontal: 16.w,
+        vertical: 8.h,
+      ),
+      itemCount: filteredContacts.length,
+      itemBuilder: (context, index) {
+        final contact = filteredContacts[index];
+        final isSelected = _selectedContacts.contains(contact);
+
+        return ContactListTile(
+          contact: contact,
+          isSelected: isSelected,
+          onTap: () => _toggleContactSelection(contact),
+          enableSwipeToDelete: true,
+          onDelete: () async {
+            try {
+              // Get the real PublicKey from our map using the npub string
+              final realPublicKey = _publicKeyMap[contact.publicKey];
+              if (realPublicKey != null) {
+                // Use the proper method to remove contact from Rust backend
+                await ref.read(contactsProvider.notifier).removeContactByPublicKey(realPublicKey);
+
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        'Contact removed successfully',
+                      ),
+                    ),
+                  );
+                }
+              }
+            } catch (e) {
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'Failed to remove contact: $e',
+                    ),
+                  ),
+                );
+              }
+            }
+          },
+          showCheck: true,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
-    final filteredContacts = _getFilteredContacts(contactsState.contacts);
+
+    // Process contacts when they change
+    if (contactsState.contacts != null && !_isProcessingContacts) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _processContacts(contactsState.contacts);
+      });
+    }
 
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h),
@@ -153,7 +270,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
           ),
           Expanded(
             child:
-                contactsState.isLoading
+                contactsState.isLoading || _isProcessingContacts
                     ? const Center(child: CircularProgressIndicator())
                     : contactsState.error != null
                     ? Center(
@@ -168,7 +285,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                             contactsState.error!,
                             style: TextStyle(
                               fontSize: 12.sp,
-                              color: Colors.grey,
+                              color: context.colors.baseMuted,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -179,66 +296,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                         ],
                       ),
                     )
-                    : filteredContacts.isEmpty
-                    ? Center(
-                      child: Text(
-                        _searchQuery.isEmpty
-                            ? 'No contacts found'
-                            : 'No contacts match your search',
-                        style: TextStyle(fontSize: 16.sp),
-                      ),
-                    )
-                    : ListView.builder(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16.w,
-                        vertical: 8.h,
-                      ),
-                      itemCount: filteredContacts.length,
-                      itemBuilder: (context, index) {
-                        final contact = filteredContacts[index];
-                        final isSelected = _selectedContacts.contains(contact);
-
-                        return ContactListTile(
-                          contact: contact,
-                          isSelected: isSelected,
-                          onTap: () => _toggleContactSelection(contact),
-                          enableSwipeToDelete: true,
-                          onDelete: () async {
-                            try {
-                              // Get the real PublicKey from our map
-                              final realPublicKey = _publicKeyMap[contact.publicKey];
-                              if (realPublicKey != null) {
-                                // Use the proper method to remove contact from Rust backend
-                                await ref
-                                    .read(contactsProvider.notifier)
-                                    .removeContactByPublicKey(realPublicKey);
-
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Contact removed successfully',
-                                      ),
-                                    ),
-                                  );
-                                }
-                              }
-                            } catch (e) {
-                              if (context.mounted) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      'Failed to remove contact: $e',
-                                    ),
-                                  ),
-                                );
-                              }
-                            }
-                          },
-                          showCheck: true,
-                        );
-                      },
-                    ),
+                    : _buildContactsList(),
           ),
           Padding(
             padding: EdgeInsets.symmetric(

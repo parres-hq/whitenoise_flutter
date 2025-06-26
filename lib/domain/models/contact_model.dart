@@ -1,3 +1,4 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:whitenoise/src/rust/api.dart';
 
 class ContactModel {
@@ -43,4 +44,30 @@ class ContactModel {
 
   // Get first letter for avatar
   String get avatarLetter => name.isNotEmpty ? name[0].toUpperCase() : '?';
+
+  @override
+  bool operator ==(covariant ContactModel other) {
+    if (identical(this, other)) return true;
+
+    return other.name == name &&
+        other.publicKey == publicKey &&
+        other.imagePath == imagePath &&
+        other.displayName == displayName &&
+        other.about == about &&
+        other.website == website &&
+        other.nip05 == nip05 &&
+        other.lud16 == lud16;
+  }
+
+  @override
+  int get hashCode {
+    return name.hashCode ^
+        publicKey.hashCode ^
+        imagePath.hashCode ^
+        displayName.hashCode ^
+        about.hashCode ^
+        website.hashCode ^
+        nip05.hashCode ^
+        lud16.hashCode;
+  }
 }

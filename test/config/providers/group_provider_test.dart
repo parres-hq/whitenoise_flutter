@@ -276,8 +276,8 @@ void main() {
           () => notifier.createNewGroup(
             groupName: groupName,
             groupDescription: groupDescription,
-            memberPublicKeys: memberKeys,
-            adminPublicKeys: adminKeys,
+            memberPublicKeyHexs: memberKeys,
+            adminPublicKeyHexs: adminKeys,
           ),
           returnsNormally,
         );
@@ -291,8 +291,8 @@ void main() {
           () => notifier.createNewGroup(
             groupName: '',
             groupDescription: 'Valid description',
-            memberPublicKeys: ['member1'],
-            adminPublicKeys: ['admin1'],
+            memberPublicKeyHexs: ['member1'],
+            adminPublicKeyHexs: ['admin1'],
           ),
           returnsNormally,
         );
@@ -302,8 +302,8 @@ void main() {
           () => notifier.createNewGroup(
             groupName: 'Valid Name',
             groupDescription: 'Valid description',
-            memberPublicKeys: [],
-            adminPublicKeys: ['admin1'],
+            memberPublicKeyHexs: [],
+            adminPublicKeyHexs: ['admin1'],
           ),
           returnsNormally,
         );
@@ -313,8 +313,8 @@ void main() {
           () => notifier.createNewGroup(
             groupName: 'Valid Name',
             groupDescription: 'Valid description',
-            memberPublicKeys: ['member1'],
-            adminPublicKeys: [],
+            memberPublicKeyHexs: ['member1'],
+            adminPublicKeyHexs: [],
           ),
           returnsNormally,
         );
@@ -364,8 +364,8 @@ void main() {
           () => notifier.createNewGroup(
             groupName: 'Test Group',
             groupDescription: 'Test Description',
-            memberPublicKeys: validKeys,
-            adminPublicKeys: validKeys,
+            memberPublicKeyHexs: validKeys,
+            adminPublicKeyHexs: validKeys,
           ),
           returnsNormally,
         );
@@ -380,8 +380,8 @@ void main() {
           () => notifier.createNewGroup(
             groupName: 'Test Group',
             groupDescription: 'Test Description',
-            memberPublicKeys: keysWithWhitespace,
-            adminPublicKeys: keysWithWhitespace,
+            memberPublicKeyHexs: keysWithWhitespace,
+            adminPublicKeyHexs: keysWithWhitespace,
           ),
           returnsNormally,
         );
@@ -423,15 +423,15 @@ void main() {
           notifier.createNewGroup(
             groupName: 'Group 1',
             groupDescription: 'First group',
-            memberPublicKeys: ['member1'],
-            adminPublicKeys: ['admin1'],
+            memberPublicKeyHexs: ['member1'],
+            adminPublicKeyHexs: ['admin1'],
           );
 
           notifier.createNewGroup(
             groupName: 'Group 2',
             groupDescription: 'Second group',
-            memberPublicKeys: ['member2'],
-            adminPublicKeys: ['admin2'],
+            memberPublicKeyHexs: ['member2'],
+            adminPublicKeyHexs: ['admin2'],
           );
         }, returnsNormally);
       });
