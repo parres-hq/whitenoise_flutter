@@ -21,7 +21,7 @@ final lightColorScheme = ColorScheme.light(
 
 final lightTheme = ThemeData(
   extensions: [AppColorsThemeExt.light],
-  fontFamily: 'OverusedGrotesk',
+  fontFamily: manropeFontFamily,
   //
   scaffoldBackgroundColor: lightColorsExt.neutral,
   textTheme: lightTextTheme,

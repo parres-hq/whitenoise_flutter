@@ -87,6 +87,16 @@ flutter:
       - family: OverusedGrotesk
         fonts:
           - asset: assets/fonts/OverusedGrotesk-Roman.ttf
+      - family: Manrope
+        fonts:
+          - asset: assets/fonts/Manrope-Regular.ttf
+            weight: 400
+          - asset: assets/fonts/Manrope-Medium.ttf
+            weight: 500
+          - asset: assets/fonts/Manrope-SemiBold.ttf
+            weight: 600
+          - asset: assets/fonts/Manrope-Bold.ttf
+            weight: 700
 
     assets:
       - assets/svgs/
