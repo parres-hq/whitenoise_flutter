@@ -18,10 +18,8 @@ class CustomBottomSheet {
     double? maxHeight,
     bool barrierDismissible = true,
     String? barrierLabel,
-    Color barrierColor = Colors.black54,
-    Color backgroundColor = Colors.white,
     bool blurBackground = true,
-    double blurSigma = 5.0,
+    double blurSigma = 10.0,
     Duration transitionDuration = const Duration(milliseconds: 300),
     Curve curve = Curves.easeOutCubic,
   }) {
@@ -29,7 +27,7 @@ class CustomBottomSheet {
       context: context,
       barrierDismissible: barrierDismissible,
       barrierLabel: barrierLabel ?? 'BottomSheet',
-      barrierColor: Colors.transparent, // We'll handle our own barrier
+      barrierColor: context.colors.bottomSheetBarrier,
       transitionDuration: transitionDuration,
       pageBuilder: (context, animation, secondaryAnimation) {
         return const SizedBox.shrink(); // This won't be used
@@ -118,7 +116,7 @@ class CustomBottomSheet {
                                   bottomSheetHeight: bottomSheetHeight,
                                   wrapContent: wrapContent,
                                   maxHeight: maxHeight,
-                                  backgroundColor: backgroundColor,
+                                  backgroundColor: context.colors.neutral,
                                 ),
                               )
                               : _buildBottomSheetContent(
@@ -129,7 +127,7 @@ class CustomBottomSheet {
                                 bottomSheetHeight: bottomSheetHeight,
                                 wrapContent: wrapContent,
                                 maxHeight: maxHeight,
-                                backgroundColor: backgroundColor,
+                                backgroundColor: context.colors.neutral,
                               ),
                     ),
                   ],
@@ -178,7 +176,7 @@ class CustomBottomSheet {
                 if (showCloseButton)
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: Icon(Icons.close, color: Colors.black, size: 24.w),
+                    child: Icon(Icons.close, color: context.colors.primary, size: 24.w),
                   ),
               ],
             ),

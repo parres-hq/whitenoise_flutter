@@ -43,6 +43,15 @@ class LightAppColors {
 
   /// tailwind colors/lime/500
   static const lime = Color(0xff84CC16);
+
+  /// app bar color
+  static const appBarBackground = Color(0xff000000);
+
+  /// app bar text color
+  static const appBarForeground = Color(0xffffffff);
+
+  /// bottom sheet barrier color
+  static const bottomSheetBarrier = Color(0x0FFFFFFF);
 }
 
 /// Dark theme colors
@@ -53,7 +62,7 @@ class DarkAppColors {
   /// base/secondary
   static const secondary = Color(0xff202320);
   static const tertiary = Color(0xFF1A2B4B);
-  static const neutral = Color(0xFF121212);
+  static const neutral = Color(0xFF000000);
   static const neutralVariant = Color(0xFF5A605A);
 
   /// base/background
@@ -89,6 +98,15 @@ class DarkAppColors {
 
   /// tailwind colors/lime/500
   static const lime = Color(0xff84CC16);
+
+  /// app bar color
+  static const appBarBackground = Color(0xff171717);
+
+  /// app bar text color
+  static const appBarForeground = Color(0xffffffff);
+
+  /// bottom sheet barrier color
+  static const bottomSheetBarrier = Color(0x0FFFFFFF);
 }
 
 class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
@@ -112,6 +130,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.teal600,
     required this.rose,
     required this.lime,
+    required this.appBarBackground,
+    required this.appBarForeground,
+    required this.bottomSheetBarrier,
   });
 
   final Color primary;
@@ -133,6 +154,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color teal600;
   final Color rose;
   final Color lime;
+  final Color appBarBackground;
+  final Color appBarForeground;
+  final Color bottomSheetBarrier;
 
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
@@ -155,6 +179,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     teal600: LightAppColors.teal600,
     rose: LightAppColors.rose,
     lime: LightAppColors.lime,
+    appBarBackground: LightAppColors.appBarBackground,
+    appBarForeground: LightAppColors.appBarForeground,
+    bottomSheetBarrier: LightAppColors.bottomSheetBarrier,
   );
 
   /// Dark theme colors
@@ -178,6 +205,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     teal600: DarkAppColors.teal600,
     rose: DarkAppColors.rose,
     lime: DarkAppColors.lime,
+    appBarBackground: DarkAppColors.appBarBackground,
+    appBarForeground: DarkAppColors.appBarForeground,
+    bottomSheetBarrier: DarkAppColors.bottomSheetBarrier,
   );
 
   @override
@@ -201,6 +231,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? teal600,
     Color? rose,
     Color? lime,
+    Color? appBarBackground,
+    Color? appBarForeground,
+    Color? bottomSheetBarrier,
   }) {
     return AppColorsThemeExt(
       primary: primary ?? this.primary,
@@ -222,6 +255,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       teal600: teal600 ?? this.teal600,
       rose: rose ?? this.rose,
       lime: lime ?? this.lime,
+      appBarBackground: appBarBackground ?? this.appBarBackground,
+      appBarForeground: appBarForeground ?? this.appBarForeground,
+      bottomSheetBarrier: bottomSheetBarrier ?? this.bottomSheetBarrier,
     );
   }
 
@@ -258,6 +294,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       teal600: Color.lerp(teal600, other.teal600, t)!,
       rose: Color.lerp(rose, other.rose, t)!,
       lime: Color.lerp(lime, other.lime, t)!,
+      appBarBackground: Color.lerp(appBarBackground, other.appBarBackground, t)!,
+      appBarForeground: Color.lerp(appBarForeground, other.appBarForeground, t)!,
+      bottomSheetBarrier: Color.lerp(bottomSheetBarrier, other.bottomSheetBarrier, t)!,
     );
   }
 }

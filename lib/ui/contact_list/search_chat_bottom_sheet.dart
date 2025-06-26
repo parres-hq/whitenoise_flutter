@@ -23,7 +23,6 @@ class SearchChatBottomSheet extends ConsumerStatefulWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'Search',
-      barrierColor: Colors.transparent,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder: (_) => const SearchChatBottomSheet(),
