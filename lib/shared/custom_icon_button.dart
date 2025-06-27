@@ -24,7 +24,12 @@ class CustomIconButton extends StatelessWidget {
         ),
         child: Padding(
           padding: EdgeInsets.all(12.w),
-          child: SvgPicture.asset(iconPath, width: 16.w, height: 16.w),
+          child: SvgPicture.asset(
+            iconPath,
+            width: 16.w,
+            height: 16.w,
+            colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
+          ),
         ),
       ),
     );

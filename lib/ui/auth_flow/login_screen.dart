@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -77,28 +79,28 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       backgroundColor: context.colors.neutral,
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 120, 24, 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Stack(
-                alignment: Alignment.bottomCenter,
-                children: [
-                  Image.asset(
-                    AssetsPaths.hands,
-                    height: 320.h,
-                    fit: BoxFit.contain,
-                    width: double.infinity,
-                  ),
-                  Padding(
-                    padding: EdgeInsets.only(bottom: 4.h),
-                    child: Text(
+          padding: const EdgeInsets.symmetric(horizontal: 24).w,
+          child: Container(
+            constraints: BoxConstraints(
+              minHeight:
+                  (MediaQuery.of(context).size.height) -
+                  (MediaQuery.of(context).padding.top + MediaQuery.of(context).padding.bottom),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Gap(48.h),
+                    Text(
                       'Login to White Noise',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 30.sp,
-                        fontWeight: FontWeight.w500,
-                        color: context.colors.textDefaultSecondary,
+                        fontSize: 32.sp,
+                        fontWeight: FontWeight.w700,
+                        color: context.colors.mutedForeground,
                         height: 1.0,
                       ),
                       textHeightBehavior: const TextHeightBehavior(
@@ -106,73 +108,76 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         applyHeightToLastDescent: false,
                       ),
                     ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 24.h),
-              Text(
-                'Enter Your Private Key',
-                style: TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14.sp,
-                  color: context.colorScheme.onSurface,
-                ),
-              ),
-              SizedBox(height: 6.h),
-              Row(
-                children: [
-                  Expanded(
-                    child: AppTextFormField(
-                      hintText: 'nsec...',
-                      type: FieldType.password,
-                      controller: _keyController,
+                    Gap(79.5.h),
+                    Image.asset(
+                      AssetsPaths.login,
+                      height: 320.h,
+                      fit: BoxFit.contain,
+                      width: double.infinity,
                     ),
-                  ),
-                  SizedBox(width: 8.h),
-                  Container(
-                    height: 52.w,
-                    width: 52.w,
-                    decoration: BoxDecoration(
-                      color: context.colors.neutral,
-                      border: Border.all(
-                        color: context.colors.baseMuted,
+                    Gap(79.5.h),
+                  ],
+                ),
+                Gap(16.h),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Text(
+                      'Enter Your Private Key',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14.sp,
+                        color: context.colorScheme.onSurface,
                       ),
                     ),
-                    child: IconButton(
-                      icon: Icon(Icons.paste, size: 20.sp),
-                      onPressed: _pasteFromClipboard,
+                    Gap(6.h),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppTextFormField(
+                            hintText: 'nsec...',
+                            type: FieldType.password,
+                            controller: _keyController,
+                          ),
+                        ),
+                        Gap(4.w),
+                        Container(
+                          height: 52.w,
+                          width: 52.w,
+                          decoration: BoxDecoration(
+                            color: context.colors.surface,
+                          ),
+                          child: CustomIconButton(
+                            iconPath: AssetsPaths.icPaste,
+                            onTap: _pasteFromClipboard,
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-
-              SizedBox(height: 32.h),
-            ],
+                    Gap(16.h),
+                    authState.isLoading
+                        ? Padding(
+                          padding: EdgeInsets.all(16.w),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              color: context.colorScheme.onSurface,
+                            ),
+                          ),
+                        )
+                        : Padding(
+                          padding: EdgeInsets.zero,
+                          child: AppFilledButton(
+                            onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
+                            title: 'Login',
+                          ),
+                        ),
+                    Gap(16.h),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child:
-            authState.isLoading
-                ? Padding(
-                  padding: EdgeInsets.all(16.w),
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      color: context.colorScheme.onSurface,
-                    ),
-                  ),
-                )
-                : Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                  ).copyWith(bottom: 32.h),
-                  child: AppFilledButton(
-                    onPressed: _onContinuePressed,
-                    title: 'Login',
-                  ),
-                ),
       ),
     );
   }

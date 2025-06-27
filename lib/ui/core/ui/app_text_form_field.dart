@@ -132,7 +132,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
       labelText: widget.labelText,
       hintText: widget.hintText,
       suffixIconColor: context.colors.primary,
-      fillColor: context.colors.neutral,
+      fillColor: context.colors.surface,
       contentPadding: EdgeInsets.symmetric(
         horizontal: 12.w,
         vertical: 16.h,
@@ -140,16 +140,21 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
       border: OutlineInputBorder(
         borderRadius: BorderRadius.zero,
         borderSide: BorderSide(
-          color: context.colors.baseMuted,
+          color: context.colors.input,
         ),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.zero,
         borderSide: BorderSide(
-          color: context.colors.baseMuted,
+          color: context.colors.input,
         ),
       ),
-
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(
+          color: context.colors.primary,
+        ),
+      ),
       filled: true,
     );
 
