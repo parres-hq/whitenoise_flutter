@@ -173,6 +173,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color bottomSheetBarrier;
   final Color surface;
   final Color input;
+
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
     primary: LightAppColors.primary,
@@ -228,7 +229,6 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     surface: DarkAppColors.surface,
     input: DarkAppColors.input,
   );
-
 
   @override
   AppColorsThemeExt copyWith({
