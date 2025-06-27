@@ -5,7 +5,6 @@ import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
-import 'package:whitenoise/domain/dummy_data/dummy_chats.dart';
 import 'package:whitenoise/domain/models/chat_model.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
@@ -129,17 +128,8 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
   }
 
   List<ChatModel> _getFilteredChats() {
-    if (_searchQuery.isEmpty) return [];
-
-    return dummyChats
-        .where(
-          (chat) =>
-              chat.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              chat.lastMessage.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ),
-        )
-        .toList();
+    // No dummy chats anymore - return empty list
+    return [];
   }
 
   @override

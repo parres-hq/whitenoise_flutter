@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:whitenoise/domain/dummy_data/dummy_chats.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/contact_list/widgets/chat_list_appbar.dart';
-import 'package:whitenoise/ui/contact_list/widgets/chat_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class ChatListScreen extends StatelessWidget {
@@ -19,17 +17,35 @@ class ChatListScreen extends StatelessWidget {
       ),
       body: ColoredBox(
         color: context.colors.neutral,
-        child: ListView.separated(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          itemCount: dummyChats.length,
-          itemBuilder: (context, index) {
-            final chat = dummyChats[index];
-            return InkWell(
-              onTap: () => context.push('${Routes.chats}/${chat.id}'),
-              child: ChatListTile(chat: chat),
-            );
-          },
-          separatorBuilder: (context, index) => Gap(8.h),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.chat_bubble_outline,
+                size: 64.w,
+                color: context.colors.mutedForeground,
+              ),
+              Gap(16.h),
+              Text(
+                'No chats yet',
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w500,
+                  color: context.colors.mutedForeground,
+                ),
+              ),
+              Gap(8.h),
+              Text(
+                'Start a conversation with your contacts',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: context.colors.mutedForeground.withOpacity(0.7),
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
         ),
       ),
     );

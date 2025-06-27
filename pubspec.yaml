@@ -44,7 +44,8 @@ dependencies:
     emoji_picker_flutter: ^4.3.0
     date_format: ^2.0.9
     #carbon_icons: ^0.0.1+2
-    audio_waveforms: ^1.3.0
+    just_audio: ^0.9.40
+    audio_session: ^0.1.21
     image_picker: ^1.1.2
     cached_network_image: ^3.4.1
     path_provider: ^2.1.5

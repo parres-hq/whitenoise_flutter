@@ -69,7 +69,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: AppBar(        
+      appBar: AppBar(
         leading: IconButton(
           icon: Icon(
             Icons.arrow_back_ios_new,
