@@ -11,23 +11,23 @@ InputDecorationTheme buildInputDecorationThemeData() {
     enabledBorder: border,
 
     hintStyle: lightTextTheme.bodySmall?.copyWith(
-      color: lightColorsExt.mutedForeground,
+      color: LightAppColors.mutedForeground,
     ),
 
     labelStyle: WidgetStateTextStyle.resolveWith((state) {
       const tTheme = TextStyle();
 
       if (state.contains(WidgetState.error)) {
-        return tTheme.copyWith(color: lightColorsExt.destructive);
+        return tTheme.copyWith(color: LightAppColors.destructive);
       }
 
       if (state.contains(WidgetState.focused)) {
-        return tTheme.copyWith(color: lightColorsExt.primary);
+        return tTheme.copyWith(color: LightAppColors.primary);
       }
 
       if (state.contains(WidgetState.disabled)) {
         return tTheme.copyWith(
-          color: lightColorsExt.mutedForeground.withValues(alpha: .38),
+          color: LightAppColors.mutedForeground.withValues(alpha: .38),
         );
       }
 
@@ -36,12 +36,12 @@ InputDecorationTheme buildInputDecorationThemeData() {
 
     //
     focusedBorder: border.copyWith(
-      borderSide: borderSide.copyWith(color: lightColorsExt.primary),
+      borderSide: borderSide.copyWith(color: LightAppColors.primary),
     ),
 
     //
     errorBorder: border.copyWith(
-      borderSide: borderSide.copyWith(color: lightColorsExt.destructive),
+      borderSide: borderSide.copyWith(color: LightAppColors.destructive),
     ),
 
     //
@@ -50,7 +50,7 @@ InputDecorationTheme buildInputDecorationThemeData() {
 
     //
     focusedErrorBorder: border.copyWith(
-      borderSide: borderSide.copyWith(color: lightColorsExt.destructive),
+      borderSide: borderSide.copyWith(color: LightAppColors.destructive),
     ),
 
     border: border,

@@ -7,15 +7,15 @@ import 'package:whitenoise/ui/core/themes/src/dimensions.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/themes/src/typography/typography.dart';
 
-part 'extensions.dart';
 part 'input.dart';
 
-final lightColorScheme = ColorScheme.light(
-  primary: lightColorsExt.primary,
-  secondary: lightColorsExt.secondary,
-  tertiary: lightColorsExt.tertiary,
-  error: lightColorsExt.destructive,
-  surface: lightColorsExt.neutral,
+final lightColorScheme = const ColorScheme.light(
+  primary: LightAppColors.primary,
+  secondary: LightAppColors.secondary,
+  tertiary: LightAppColors.tertiary,
+  error: LightAppColors.destructive,
+  // ignore: avoid_redundant_argument_values
+  surface: LightAppColors.neutral,
   surfaceTint: Colors.transparent,
 );
 
@@ -23,7 +23,7 @@ final lightTheme = ThemeData(
   extensions: [AppColorsThemeExt.light],
   fontFamily: 'OverusedGrotesk',
   //
-  scaffoldBackgroundColor: lightColorsExt.neutral,
+  scaffoldBackgroundColor: LightAppColors.neutral,
   textTheme: lightTextTheme,
   colorScheme: lightColorScheme,
   appBarTheme: buildAppBarTheme(),
@@ -46,7 +46,7 @@ final lightTheme = ThemeData(
 
 DividerThemeData buildDividerTheme() {
   return DividerThemeData(
-    color: lightColorsExt.baseMuted,
+    color: LightAppColors.baseMuted,
     thickness: .6.sp,
     space: .6.sp,
   );
@@ -59,9 +59,9 @@ ScrollbarThemeData buildScrollBarTheme() {
     thickness: const WidgetStatePropertyAll(5),
     thumbColor: WidgetStateProperty.resolveWith((state) {
       if (state.contains(WidgetState.dragged)) {
-        return lightColorsExt.tertiary;
+        return LightAppColors.tertiary;
       }
-      return lightColorsExt.tertiary.withValues(alpha: 0.5);
+      return LightAppColors.tertiary.withValues(alpha: 0.5);
     }),
   );
 }
@@ -69,7 +69,7 @@ ScrollbarThemeData buildScrollBarTheme() {
 BottomSheetThemeData buildBottomSheetTheme() {
   return BottomSheetThemeData(
     showDragHandle: true,
-    dragHandleColor: lightColorsExt.baseMuted,
+    dragHandleColor: LightAppColors.baseMuted,
     dragHandleSize: const Size(50, 3),
   );
 }
@@ -78,7 +78,7 @@ ListTileThemeData buildListTileTheme() {
   return ListTileThemeData(
     titleTextStyle: lightTextTheme.labelLarge,
     subtitleTextStyle: lightTextTheme.bodySmall,
-    iconColor: lightColorsExt.primary,
+    iconColor: LightAppColors.primary,
   );
 }
 
@@ -86,17 +86,17 @@ NavigationBarThemeData buildBottomNavigationTheme() {
   return NavigationBarThemeData(
     elevation: 1,
     shadowColor: Colors.black.withValues(alpha: .14),
-    backgroundColor: lightColorsExt.neutral,
-    indicatorColor: lightColorsExt.tertiary,
+    backgroundColor: LightAppColors.neutral,
+    indicatorColor: LightAppColors.tertiary,
     iconTheme: WidgetStateProperty.resolveWith((state) {
       if (state.contains(WidgetState.selected)) {
-        return IconThemeData(color: lightColorsExt.primary);
+        return IconThemeData(color: LightAppColors.primary);
       }
-      return IconThemeData(color: lightColorsExt.mutedForeground);
+      return IconThemeData(color: LightAppColors.mutedForeground);
     }),
     labelTextStyle: WidgetStateProperty.resolveWith((state) {
       if (state.contains(WidgetState.selected)) {
-        return lightTextTheme.bodySmall?.copyWith(color: lightColorsExt.primary).semiBold;
+        return lightTextTheme.bodySmall?.copyWith(color: LightAppColors.primary).semiBold;
       }
       return lightTextTheme.bodySmall;
     }),
@@ -114,7 +114,10 @@ PopupMenuThemeData buildPopupTheme() {
 
 AppBarTheme buildAppBarTheme() {
   return AppBarTheme(
-    backgroundColor: lightColorsExt.primary,
+    backgroundColor: LightAppColors.appBarBackground,
+    titleTextStyle: lightTextTheme.labelLarge?.semiBold.copyWith(
+      color: LightAppColors.appBarForeground,
+    ),
     systemOverlayStyle: const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.light,
@@ -160,13 +163,13 @@ SegmentedButtonThemeData buildSegmentedButtonTheme() {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.sp),
       ),
-      side: BorderSide(color: lightColorsExt.baseMuted),
+      side: BorderSide(color: LightAppColors.baseMuted),
     ).copyWith(
       foregroundColor: WidgetStateProperty.resolveWith((state) {
         if (state.contains(WidgetState.selected)) {
-          return lightColorsExt.primary;
+          return LightAppColors.primary;
         }
-        return lightColorsExt.mutedForeground;
+        return LightAppColors.mutedForeground;
       }),
     ),
   );

@@ -1,7 +1,7 @@
 part of 'dark.dart';
 
 InputDecorationTheme buildDarkInputDecorationThemeData() {
-  const borderSide = BorderSide(color: LightAppColors.baseMuted);
+  const borderSide = BorderSide(color: DarkAppColors.baseMuted);
   final border = OutlineInputBorder(
     borderRadius: AppDimension.zeroBorder,
     borderSide: borderSide,
@@ -10,23 +10,23 @@ InputDecorationTheme buildDarkInputDecorationThemeData() {
   return InputDecorationTheme(
     enabledBorder: border,
     hintStyle: lightTextTheme.bodySmall?.copyWith(
-      color: lightColorsExt.mutedForeground.withValues(alpha: .5),
+      color: DarkAppColors.mutedForeground.withValues(alpha: .5),
     ),
 
     floatingLabelStyle: WidgetStateTextStyle.resolveWith((state) {
       const tTheme = TextStyle();
 
       if (state.contains(WidgetState.error)) {
-        return tTheme.copyWith(color: lightColorsExt.destructive);
+        return tTheme.copyWith(color: DarkAppColors.destructive);
       }
 
       if (state.contains(WidgetState.focused)) {
-        return tTheme.copyWith(color: lightColorsExt.primary);
+        return tTheme.copyWith(color: DarkAppColors.primary);
       }
 
       if (state.contains(WidgetState.disabled)) {
         return tTheme.copyWith(
-          color: lightColorsExt.mutedForeground.withValues(alpha: .38),
+          color: DarkAppColors.mutedForeground.withValues(alpha: .38),
         );
       }
 
@@ -38,16 +38,16 @@ InputDecorationTheme buildDarkInputDecorationThemeData() {
       const tTheme = TextStyle();
 
       if (state.contains(WidgetState.error)) {
-        return tTheme.copyWith(color: lightColorsExt.destructive);
+        return tTheme.copyWith(color: DarkAppColors.destructive);
       }
 
       if (state.contains(WidgetState.focused)) {
-        return tTheme.copyWith(color: lightColorsExt.primary);
+        return tTheme.copyWith(color: DarkAppColors.primary);
       }
 
       if (state.contains(WidgetState.disabled)) {
         return tTheme.copyWith(
-          color: lightColorsExt.mutedForeground.withValues(alpha: .38),
+          color: DarkAppColors.mutedForeground.withValues(alpha: .38),
         );
       }
 
@@ -56,12 +56,12 @@ InputDecorationTheme buildDarkInputDecorationThemeData() {
 
     //
     focusedBorder: border.copyWith(
-      borderSide: borderSide.copyWith(color: lightColorsExt.primary),
+      borderSide: borderSide.copyWith(color: DarkAppColors.primary),
     ),
 
     //
     errorBorder: border.copyWith(
-      borderSide: borderSide.copyWith(color: lightColorsExt.destructive),
+      borderSide: borderSide.copyWith(color: DarkAppColors.destructive),
     ),
 
     //
@@ -70,7 +70,7 @@ InputDecorationTheme buildDarkInputDecorationThemeData() {
 
     //
     focusedErrorBorder: border.copyWith(
-      borderSide: borderSide.copyWith(color: lightColorsExt.destructive),
+      borderSide: borderSide.copyWith(color: DarkAppColors.destructive),
     ),
 
     border: border,

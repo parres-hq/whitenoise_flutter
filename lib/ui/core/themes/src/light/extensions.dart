@@ -1,6 +1,6 @@
-part of 'light.dart';
+import 'package:whitenoise/ui/core/themes/src/colors.dart';
 
-const lightColorsExt = AppColorsThemeExt(
+const fallbackColorsExt = AppColorsThemeExt(
   primary: LightAppColors.primary,
   neutral: LightAppColors.neutral,
   success: LightAppColors.lime,
@@ -8,7 +8,6 @@ const lightColorsExt = AppColorsThemeExt(
   tertiary: LightAppColors.tertiary,
   secondary: LightAppColors.secondary,
   neutralVariant: LightAppColors.neutralVariant,
-
   baseChat2: LightAppColors.baseChat2,
   primaryForeground: LightAppColors.primaryForeground,
   secondaryForeground: LightAppColors.secondaryForeground,
@@ -24,4 +23,7 @@ const lightColorsExt = AppColorsThemeExt(
   appBarBackground: LightAppColors.appBarBackground,
   appBarForeground: LightAppColors.appBarForeground,
   bottomSheetBarrier: LightAppColors.bottomSheetBarrier,
+  link: LightAppColors.link,
+  border: LightAppColors.border,
+  avatarSurface: LightAppColors.avatarSurface,
 );

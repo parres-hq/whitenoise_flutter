@@ -5,7 +5,6 @@ import 'package:whitenoise/ui/core/themes/src/colors.dart';
 import 'package:whitenoise/ui/core/themes/src/constants.dart';
 import 'package:whitenoise/ui/core/themes/src/dimensions.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/themes/src/light/light.dart';
 import 'package:whitenoise/ui/core/themes/src/typography/typography.dart';
 
 part 'extensions.dart';
@@ -17,6 +16,7 @@ final darkColorScheme = const ColorScheme.dark(
   tertiary: DarkAppColors.tertiary,
   error: DarkAppColors.destructive,
   surfaceTint: Colors.transparent,
+  surface: DarkAppColors.neutral,
 );
 
 final darkTheme = ThemeData(
@@ -115,9 +115,9 @@ PopupMenuThemeData buildDarkPopupTheme() {
 
 AppBarTheme buildDarkAppBarTheme() {
   return AppBarTheme(
-    backgroundColor: DarkAppColors.neutral,
-    titleTextStyle: darkTextTheme.labelLarge?.bold.copyWith(
-      color: DarkAppColors.secondaryForeground,
+    backgroundColor: DarkAppColors.appBarBackground,
+    titleTextStyle: darkTextTheme.labelLarge?.semiBold.copyWith(
+      color: DarkAppColors.appBarForeground,
     ),
     systemOverlayStyle: const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,

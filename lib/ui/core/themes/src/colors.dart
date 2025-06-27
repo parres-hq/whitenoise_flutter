@@ -1,113 +1,7 @@
 import 'package:flutter/material.dart';
 
-class LightAppColors {
-  /// base/primary, custom colors/glitch-950
-  static const primary = Color(0xff202320);
-
-  /// base/secondary
-  static const secondary = Color(0xffF2F2F2);
-  static const tertiary = Color(0xFFE9F1FE);
-  static const neutral = Color(0xFFFFFFFF);
-  static const neutralVariant = Color(0xFF5A605A);
-
-  /// base/background
-  static const primaryForeground = Color(0xffF9F9F9);
-
-  /// base/accent-foreground, base/secondary-foreground, base/foreground
-  static const secondaryForeground = Color(0xff2D312D);
-
-  /// base/muted-foreground
-  static const mutedForeground = Color(0xFF727772);
-
-  /// base/muted, base/input
-  static const baseMuted = Color(0xffE2E2E2);
-
-  /// Text/Default/Secondary
-  static const textDefaultSecondary = Color(0xff757575);
-
-  static const success = Color(0xFF2EA970);
-
-  /// base/destructive
-  static const destructive = Color(0xFFDC2626);
-
-  /// base/warning
-  static const warning = Color(0xffEA580C);
-
-  static const baseChat = Color(0xff2A9D90);
-  static const baseChat2 = Color(0xffE76E50);
-  static const teal200 = Color(0xff99F6E4);
-  static const teal600 = Color(0xFF0D9488);
-
-  /// tailwind colors/rose/500
-  static const rose = Color(0xFFF43F5E);
-
-  /// tailwind colors/lime/500
-  static const lime = Color(0xff84CC16);
-
-  /// app bar color
-  static const appBarBackground = Color(0xff000000);
-
-  /// app bar text color
-  static const appBarForeground = Color(0xffffffff);
-
-  /// bottom sheet barrier color
-  static const bottomSheetBarrier = Color(0x0FFFFFFF);
-}
-
-/// Dark theme colors
-class DarkAppColors {
-  /// base/primary, Custom inverted for dark mode
-  static const primary = Color(0xffF9F9F9);
-
-  /// base/secondary
-  static const secondary = Color(0xff202320);
-  static const tertiary = Color(0xFF1A2B4B);
-  static const neutral = Color(0xFF000000);
-  static const neutralVariant = Color(0xFF5A605A);
-
-  /// base/background
-  static const primaryBackground = Color(0xff2D312D);
-
-  /// base/accent-foreground, base/secondary-foreground, base/foreground
-  static const secondaryForeground = Color(0xffF2F2F2);
-
-  /// base/muted-foreground
-  static const mutedForeground = Color(0xFF727772);
-
-  /// base/muted, base/input
-  static const baseMuted = Color(0xff474C47);
-
-  /// Text/Default/Secondary
-  static const textDefaultSecondary = Color(0xffCDCECD);
-
-  static const success = Color(0xFF4ADE80);
-
-  /// base/destructive
-  static const destructive = Color(0xFFEF4444);
-
-  /// base/warning
-  static const warning = Color(0xffF97316);
-
-  static const baseChat = Color(0xff2A9D90);
-  static const baseChat2 = Color(0xffE76E50);
-  static const teal200 = Color(0xff99F6E4);
-  static const teal600 = Color(0xFF0D9488);
-
-  /// tailwind colors/rose/500
-  static const rose = Color(0xFFF43F5E);
-
-  /// tailwind colors/lime/500
-  static const lime = Color(0xff84CC16);
-
-  /// app bar color
-  static const appBarBackground = Color(0xff171717);
-
-  /// app bar text color
-  static const appBarForeground = Color(0xffffffff);
-
-  /// bottom sheet barrier color
-  static const bottomSheetBarrier = Color(0x0FFFFFFF);
-}
+part 'colors_light.dart';
+part 'colors_dark.dart';
 
 class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   const AppColorsThemeExt({
@@ -133,6 +27,10 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.appBarBackground,
     required this.appBarForeground,
     required this.bottomSheetBarrier,
+    required this.link,
+    required this.border,
+    required this.avatarSurface,
+    
   });
 
   final Color primary;
@@ -157,6 +55,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color appBarBackground;
   final Color appBarForeground;
   final Color bottomSheetBarrier;
+  final Color link;
+  final Color border;
+  final Color avatarSurface;
 
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
@@ -182,6 +83,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     appBarBackground: LightAppColors.appBarBackground,
     appBarForeground: LightAppColors.appBarForeground,
     bottomSheetBarrier: LightAppColors.bottomSheetBarrier,
+    link: LightAppColors.link,
+    border: LightAppColors.border,
+    avatarSurface: LightAppColors.avatarSurface,
   );
 
   /// Dark theme colors
@@ -208,6 +112,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     appBarBackground: DarkAppColors.appBarBackground,
     appBarForeground: DarkAppColors.appBarForeground,
     bottomSheetBarrier: DarkAppColors.bottomSheetBarrier,
+    link: DarkAppColors.link,
+    border: DarkAppColors.border,
+    avatarSurface: DarkAppColors.avatarSurface,
   );
 
   @override
@@ -234,6 +141,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? appBarBackground,
     Color? appBarForeground,
     Color? bottomSheetBarrier,
+    Color? link,
+    Color? border,
+    Color? avatarSurface,
   }) {
     return AppColorsThemeExt(
       primary: primary ?? this.primary,
@@ -258,6 +168,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       appBarBackground: appBarBackground ?? this.appBarBackground,
       appBarForeground: appBarForeground ?? this.appBarForeground,
       bottomSheetBarrier: bottomSheetBarrier ?? this.bottomSheetBarrier,
+      link: link ?? this.link,
+      border: border ?? this.border,
+      avatarSurface: avatarSurface ?? this.avatarSurface,
     );
   }
 
@@ -297,6 +210,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       appBarBackground: Color.lerp(appBarBackground, other.appBarBackground, t)!,
       appBarForeground: Color.lerp(appBarForeground, other.appBarForeground, t)!,
       bottomSheetBarrier: Color.lerp(bottomSheetBarrier, other.bottomSheetBarrier, t)!,
+      link: Color.lerp(link, other.link, t)!,
+      border: Color.lerp(border, other.border, t)!,
+      avatarSurface: Color.lerp(avatarSurface, other.avatarSurface, t)!,
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/core/themes/src/colors.dart';
 import 'package:whitenoise/ui/core/themes/src/dimensions.dart';
-import 'package:whitenoise/ui/core/themes/src/light/light.dart';
+import 'package:whitenoise/ui/core/themes/src/light/extensions.dart';
 
 extension TextStyleExtension on TextStyle {
   TextStyle get semiBold => copyWith(fontWeight: FontWeight.w600);
@@ -53,6 +53,7 @@ extension BuildContextExtension on BuildContext {
   TextTheme get textTheme => Theme.of(this).textTheme;
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
 
-  AppColorsThemeExt get colors => Theme.of(this).extension<AppColorsThemeExt>() ?? lightColorsExt;
+  AppColorsThemeExt get colors =>
+      Theme.of(this).extension<AppColorsThemeExt>() ?? fallbackColorsExt;
   AppDimension get dimensions => Theme.of(this).extension<AppDimension>() ?? AppDimension();
 }
