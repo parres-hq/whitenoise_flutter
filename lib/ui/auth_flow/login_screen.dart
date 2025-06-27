@@ -150,6 +150,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           child: CustomIconButton(
                             iconPath: AssetsPaths.icPaste,
                             onTap: _pasteFromClipboard,
+                            padding: 18.w,
                           ),
                         ),
                       ],

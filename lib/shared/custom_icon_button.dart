@@ -6,10 +6,12 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 class CustomIconButton extends StatelessWidget {
   final void Function()? onTap;
   final String iconPath;
+  final double? padding;
 
   const CustomIconButton({
     required this.onTap,
     required this.iconPath,
+    this.padding,
     super.key,
   });
 
@@ -23,7 +25,7 @@ class CustomIconButton extends StatelessWidget {
           border: Border.all(color: context.colors.baseMuted),
         ),
         child: Padding(
-          padding: EdgeInsets.all(12.w),
+          padding: EdgeInsets.all(padding ?? 12.w),
           child: SvgPicture.asset(
             iconPath,
             width: 16.w,
