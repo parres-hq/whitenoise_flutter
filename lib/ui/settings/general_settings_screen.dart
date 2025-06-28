@@ -188,7 +188,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
     try {
       // Call the auth provider to delete all data
-      await ref.read(authProvider.notifier).deleteAllData();
+      await ref.read(authProvider.notifier).resetApp();
 
       if (!mounted) return;
       navigator.pop(); // Close loading dialog

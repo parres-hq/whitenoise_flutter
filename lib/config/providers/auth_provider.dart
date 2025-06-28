@@ -14,7 +14,6 @@ import 'package:whitenoise/src/rust/frb_generated.dart';
 /// This provider manages authentication using the new PublicKey-based API.
 class AuthNotifier extends Notifier<AuthState> {
   final _logger = Logger('AuthNotifier');
-  static bool _isRustLibInitialized = false;
 
   @override
   AuthState build() {
@@ -27,9 +26,8 @@ class AuthNotifier extends Notifier<AuthState> {
 
     try {
       // 1. Initialize Rust library only if not already initialized
-      if (!_isRustLibInitialized) {
+      if (!RustLib.instance.initialized) {
         await RustLib.init();
-        _isRustLibInitialized = true;
       }
 
       /// 2. Create data and logs directories
@@ -181,7 +179,7 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   /// Delete all data and reset the app
-  Future<void> deleteAllData() async {
+  Future<void> resetApp() async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
