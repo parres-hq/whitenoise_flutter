@@ -90,6 +90,10 @@ class ProfileReadyCard extends ConsumerWidget {
                         AssetsPaths.icStartChatting,
                         width: 12.w,
                         height: 12.w,
+                        colorFilter: ColorFilter.mode(
+                          context.colors.primaryForeground,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ],
                   ),
