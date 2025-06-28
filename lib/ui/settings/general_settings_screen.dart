@@ -172,10 +172,41 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     context.go(Routes.home);
   }
 
-  void _deleteAllData() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('All data deleted')));
+  Future<void> _deleteAllData() async {
+    // Store context before any async operations
+    final navigator = Navigator.of(context);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+    final currentContext = context;
+
+    // Show loading dialog
+    showDialog(
+      context: currentContext,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      // Call the auth provider to delete all data
+      await ref.read(authProvider.notifier).deleteAllData();
+
+      if (!mounted) return;
+      navigator.pop(); // Close loading dialog
+
+      // Navigate to welcome screen
+      if (mounted) {
+        router.go(Routes.home);
+      }
+    } catch (e) {
+      if (!mounted) return;
+      navigator.pop(); // Close loading dialog
+
+      if (mounted) {
+        scaffoldMessenger.showSnackBar(
+          SnackBar(content: Text('Failed to delete data: $e')),
+        );
+      }
+    }
   }
 
   @override

@@ -175,6 +175,33 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(isAuthenticated: false, isLoading: false);
     }
   }
+
+  /// Delete all data and reset the app
+  Future<void> deleteAllData() async {
+    state = state.copyWith(isLoading: true, error: null);
+
+    try {
+      // Clear the active account first to avoid state conflicts
+      await ref.read(activeAccountProvider.notifier).clearActiveAccount();
+
+      // Try to call the Rust API to delete all data
+      // This will logout all accounts and remove all local data
+      try {
+        await deleteAllData();
+      } catch (e) {
+        // If Rust deletion fails, log the error but continue with Flutter state cleanup
+        _logger.warning('Rust deleteAllData failed, continuing with Flutter cleanup: $e');
+      }
+
+      // Reset authentication state regardless of Rust API result
+      state = state.copyWith(isAuthenticated: false, isLoading: false);
+    } catch (e, st) {
+      _logger.severe('deleteAllData', e, st);
+      // Even if there's an error, try to reset the state
+      state = state.copyWith(isAuthenticated: false, error: e.toString(), isLoading: false);
+      rethrow; // Re-throw to let the UI handle the error
+    }
+  }
 }
 
 final authProvider = NotifierProvider<AuthNotifier, AuthState>(
