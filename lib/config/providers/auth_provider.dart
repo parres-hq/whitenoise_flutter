@@ -14,6 +14,7 @@ import 'package:whitenoise/src/rust/frb_generated.dart';
 /// This provider manages authentication using the new PublicKey-based API.
 class AuthNotifier extends Notifier<AuthState> {
   final _logger = Logger('AuthNotifier');
+  static bool _isRustLibInitialized = false;
 
   @override
   AuthState build() {
@@ -25,8 +26,11 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // 1. Initialize Rust library
-      await RustLib.init();
+      // 1. Initialize Rust library only if not already initialized
+      if (!_isRustLibInitialized) {
+        await RustLib.init();
+        _isRustLibInitialized = true;
+      }
 
       /// 2. Create data and logs directories
       final dir = await getApplicationDocumentsDirectory();
@@ -184,16 +188,11 @@ class AuthNotifier extends Notifier<AuthState> {
       // Clear the active account first to avoid state conflicts
       await ref.read(activeAccountProvider.notifier).clearActiveAccount();
 
-      // Try to call the Rust API to delete all data
+      // Call the Rust API to delete all data
       // This will logout all accounts and remove all local data
-      try {
-        await deleteAllData();
-      } catch (e) {
-        // If Rust deletion fails, log the error but continue with Flutter state cleanup
-        _logger.warning('Rust deleteAllData failed, continuing with Flutter cleanup: $e');
-      }
+      await deleteAllData();
 
-      // Reset authentication state regardless of Rust API result
+      // Reset authentication state
       state = state.copyWith(isAuthenticated: false, isLoading: false);
     } catch (e, st) {
       _logger.severe('deleteAllData', e, st);
