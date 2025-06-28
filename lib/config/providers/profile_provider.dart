@@ -132,20 +132,22 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       metadata?.nip05 = nip05;
       metadata?.lud16 = lud16;
 
-      // We need to get the actual Account object for updateMetadata
-      // This is a limitation - we need to find a way to get Account from AccountData
-      // For now, let's try to create account from login
-      try {
-        // This is a workaround - we'll need to handle this better
-        state = AsyncValue.error(
-          'Update profile not implemented yet - need Account object',
-          StackTrace.current,
-        );
-        return;
-      } catch (e) {
-        state = AsyncValue.error('Failed to update profile: $e', StackTrace.current);
-        return;
-      }
+      await updateMetadata(
+        pubkey: publicKey,
+        metadata: metadata!,
+      );
+
+      state = AsyncValue.data(
+        state.value!.copyWith(
+          name: name,
+          displayName: displayName,
+          about: about,
+          picture: picture,
+          banner: banner,
+          nip05: nip05,
+          lud16: lud16,
+        ),
+      );
     } catch (e, st) {
       _logger.severe('updateProfileData', e, st);
       state = AsyncValue.error(e.toString(), st);

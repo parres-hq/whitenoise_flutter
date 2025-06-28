@@ -12,7 +12,7 @@ class AppFilledButton extends AppButton {
          ignorePointer: loading,
          child: Text(
            title,
-           style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500),
+           style: size.textStyle(),
          ),
        );
 
@@ -46,7 +46,7 @@ class AppFilledButton extends AppButton {
     final effectiveStyle = (style ?? FilledButton.styleFrom())
         .merge(
           FilledButton.styleFrom(
-            minimumSize: Size(size.value.width.w, size.value.height.h),
+            fixedSize: Size(size.value.width.w, size.value.height.h),
             backgroundColor: visualState.backgroundColor(context),
             foregroundColor: visualState.foregroundColor(context),
             disabledBackgroundColor: visualState.disabledBackgroundColor(
@@ -55,8 +55,9 @@ class AppFilledButton extends AppButton {
             disabledForegroundColor: visualState.disabledForegroundColor(
               context,
             ),
-
-            padding: EdgeInsets.symmetric(vertical: 16.h),
+            side: BorderSide(
+              color: visualState.borderColor(context),
+            ),
             shape: const RoundedRectangleBorder(),
             elevation: 0,
           ),

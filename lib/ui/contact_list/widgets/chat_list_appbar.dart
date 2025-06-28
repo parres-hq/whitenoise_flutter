@@ -62,7 +62,7 @@ class _ChatListAppBarState extends State<ChatListAppBar> {
               GestureDetector(
                 onTap: () => NewChatBottomSheet.show(context),
                 child: SvgPicture.asset(
-                  AssetsPaths.icAdd,
+                  AssetsPaths.icNewChat,
                   colorFilter: ColorFilter.mode(
                     context.colors.appBarForeground,
                     BlendMode.srcIn,
