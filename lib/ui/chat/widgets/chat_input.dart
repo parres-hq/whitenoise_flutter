@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:audio_waveforms/audio_waveforms.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -55,13 +54,10 @@ class ChatInput extends StatefulWidget {
 
 class _ChatInputState extends State<ChatInput> {
   final _textController = TextEditingController();
-  final _recorderController = RecorderController();
-  final _playerController = PlayerController();
   final _focusNode = FocusNode();
   final _imagePicker = ImagePicker();
 
   String? _recordedFilePath;
-  // bool _isPlaying = false;
   bool _showEmojiPicker = false;
   bool _isRecording = false;
   Timer? _recordingTimer;
@@ -85,8 +81,6 @@ class _ChatInputState extends State<ChatInput> {
   @override
   void dispose() {
     _textController.dispose();
-    _recorderController.dispose();
-    _playerController.dispose();
     _focusNode.dispose();
     _recordingTimer?.cancel();
     super.dispose();
@@ -152,9 +146,7 @@ class _ChatInputState extends State<ChatInput> {
       setState(() => _recordingDurationSeconds++);
     });
 
-    if (_recorderController.hasPermission || await _recorderController.checkPermission()) {
-      await _recorderController.record();
-    }
+    // For demo purposes, we'll simulate recording
   }
 
   Future<void> _stopRecording({bool cancel = false}) async {
@@ -165,10 +157,6 @@ class _ChatInputState extends State<ChatInput> {
       // For now, we'll use a placeholder audio path
       _recordedFilePath =
           'https://commondatastorage.googleapis.com/codeskulptor-assets/Collision8-Bit.ogg';
-      // In a real app, We would use:
-      // _recordedFilePath = await _recorderController.stop();
-    } else {
-      await _recorderController.stop();
     }
 
     setState(() {
@@ -176,15 +164,6 @@ class _ChatInputState extends State<ChatInput> {
       _dragOffsetX = 0;
     });
   }
-
-  // void _togglePlayback() async {
-  //   if (_isPlaying) {
-  //     await _playerController.pausePlayer();
-  //   } else {
-  //     await _playerController.startPlayer();
-  //   }
-  //   setState(() => _isPlaying = !_isPlaying);
-  // }
 
   void _toggleEmojiPicker() async {
     if (_showEmojiPicker) {
@@ -386,8 +365,11 @@ class _ChatInputState extends State<ChatInput> {
 
         return Container(
           margin: EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
-          padding: EdgeInsets.symmetric(horizontal: 8.w),
-          decoration: BoxDecoration(color: context.colors.baseMuted),
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+          decoration: BoxDecoration(
+            color: context.colors.baseMuted,
+            borderRadius: BorderRadius.circular(20.r),
+          ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -397,7 +379,7 @@ class _ChatInputState extends State<ChatInput> {
                 height: 32.w,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: context.colors.mutedForeground,
+                  color: context.colors.primary,
                 ),
                 child: IconButton(
                   padding: EdgeInsets.zero,
@@ -409,39 +391,58 @@ class _ChatInputState extends State<ChatInput> {
                   onPressed: () => notifier.togglePlayback(),
                 ),
               ),
-              SizedBox(width: 8.w),
+              SizedBox(width: 12.w),
 
-              // Audio waveform
+              // Simple progress indicator instead of waveform
               Expanded(
-                child: Padding(
-                  padding: EdgeInsets.only(right: 12.w),
-                  child: AudioFileWaveforms(
-                    playerController: state.playerController!,
-                    size: Size(MediaQuery.of(context).size.width * 0.4, 20.h),
-                    waveformType: WaveformType.fitWidth,
-                    playerWaveStyle: PlayerWaveStyle(
-                      fixedWaveColor: context.colors.baseMuted,
-                      liveWaveColor: context.colors.primaryForeground,
-                      spacing: 6.w,
-                      scaleFactor: 0.8,
-                      seekLineColor: context.colors.mutedForeground,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      height: 4.h,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2.r),
+                        color: context.colors.mutedForeground.withOpacity(0.3),
+                      ),
+                      child:
+                          state.duration != null
+                              ? LinearProgressIndicator(
+                                value:
+                                    state.position != null && state.duration != null
+                                        ? (state.position!.inMilliseconds /
+                                                state.duration!.inMilliseconds)
+                                            .clamp(0.0, 1.0)
+                                        : 0.0,
+                                backgroundColor: Colors.transparent,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  context.colors.primary,
+                                ),
+                              )
+                              : Container(),
                     ),
-                  ),
+                    SizedBox(height: 4.h),
+                    Text(
+                      _formatDuration(state.position ?? Duration.zero, state.duration),
+                      style: TextStyle(
+                        fontSize: 10.sp,
+                        color: context.colors.mutedForeground,
+                      ),
+                    ),
+                  ],
                 ),
               ),
+
+              SizedBox(width: 8.w),
 
               // Delete button
               IconButton(
                 icon: Icon(
                   CarbonIcons.close,
-                  size: 20.w,
+                  size: 16.w,
                   color: context.colors.mutedForeground,
                 ),
                 onPressed: () {
-                  // Stop playback if this audio is currently playing
-                  // if (isThisPlaying) {
-                  //   notifier();
-                  // }
                   setState(() => _recordedFilePath = null);
                 },
               ),
@@ -450,6 +451,20 @@ class _ChatInputState extends State<ChatInput> {
         );
       },
     );
+  }
+
+  String _formatDuration(Duration position, Duration? duration) {
+    String formatTime(Duration d) {
+      final minutes = d.inMinutes.remainder(60);
+      final seconds = d.inSeconds.remainder(60);
+      return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+    }
+
+    if (duration != null) {
+      return '${formatTime(position)} / ${formatTime(duration)}';
+    } else {
+      return formatTime(position);
+    }
   }
 
   Widget _buildRecordingUI() {
