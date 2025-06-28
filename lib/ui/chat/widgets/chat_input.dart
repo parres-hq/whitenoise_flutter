@@ -403,7 +403,7 @@ class _ChatInputState extends State<ChatInput> {
                       height: 4.h,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(2.r),
-                        color: context.colors.mutedForeground.withOpacity(0.3),
+                        color: context.colors.mutedForeground.withValues(alpha: 0.3),
                       ),
                       child:
                           state.duration != null

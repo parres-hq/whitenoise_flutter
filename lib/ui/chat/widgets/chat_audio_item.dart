@@ -79,7 +79,7 @@ class ChatAudioItem extends ConsumerWidget {
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(2.r),
                     color: (isMe ? context.colors.primaryForeground : context.colors.primary)
-                        .withOpacity(0.3),
+                        .withValues(alpha: 0.3),
                   ),
                   child:
                       state.duration != null
@@ -104,7 +104,7 @@ class ChatAudioItem extends ConsumerWidget {
                   style: TextStyle(
                     fontSize: 12.sp,
                     color: (isMe ? context.colors.primaryForeground : context.colors.primary)
-                        .withOpacity(0.7),
+                        .withValues(alpha: 0.7),
                   ),
                 ),
               ],
@@ -115,8 +115,8 @@ class ChatAudioItem extends ConsumerWidget {
           Icon(
             CarbonIcons.microphone,
             size: 16.sp,
-            color: (isMe ? context.colors.primaryForeground : context.colors.primary).withOpacity(
-              0.7,
+            color: (isMe ? context.colors.primaryForeground : context.colors.primary).withValues(
+              alpha: 0.7,
             ),
           ),
         ],
