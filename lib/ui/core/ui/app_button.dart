@@ -6,8 +6,8 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 part 'app_filled_button.dart';
 part 'app_text_button.dart';
 
-const kMinimumButtonSize = Size(358, 64);
-const kMinimumSmallButtonSize = Size(358, 40);
+const kMinimumButtonSize = Size(358, 56);
+const kMinimumSmallButtonSize = Size(358, 44);
 
 enum AppButtonSize {
   large(kMinimumButtonSize),

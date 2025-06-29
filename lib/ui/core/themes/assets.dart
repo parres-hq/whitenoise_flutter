@@ -37,4 +37,5 @@ class AssetsPaths {
   static const String purpleWoman = '$_pngsDir/purple_woman.png';
   static const String greenBird = '$_pngsDir/green_bird.png';
   static const String hands = '$_pngsDir/hands.png';
+  static const String login = '$_pngsDir/login.png';
 }

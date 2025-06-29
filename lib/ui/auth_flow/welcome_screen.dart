@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
@@ -41,89 +42,68 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
       children: [
         Scaffold(
           backgroundColor: context.colors.neutral,
-          body: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: EdgeInsets.only(
-                  top: MediaQuery.of(context).padding.top,
-                ),
-                child: SizedBox(
-                  height: 360.h,
-                  width: double.infinity,
-                  child: ShaderMask(
-                    shaderCallback: (Rect bounds) {
-                      return const LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.transparent,
-                          Colors.black,
-                          Colors.transparent,
-                        ],
-                        stops: [0.0, 0.5, 1.0],
-                      ).createShader(bounds);
-                    },
-                    blendMode: BlendMode.dstIn,
-                    child: Image.asset(
-                      AssetsPaths.loginSplash,
-                      fit: BoxFit.cover,
-                    ),
+          body: SafeArea(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                  child: Column(
+                    children: [
+                      SvgPicture.asset(
+                        AssetsPaths.icWhiteNoiseSvg,
+                        width: 170.w,
+                        height: 130.h,
+                        colorFilter: ColorFilter.mode(
+                          context.colors.primary,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      Gap(24.h),
+                      Text(
+                        'White Noise',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 48.sp,
+                          letterSpacing: -0.6.sp,
+                          color: context.colors.primary,
+                        ),
+                      ),
+                      Gap(6.h),
+                      Text(
+                        'Decentralized. Uncensorable.\nSecure Messaging. ',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 18.sp,
+                          letterSpacing: 0.1.sp,
+                          color: context.colors.mutedForeground,
+                        ),
+                      ),
+                      Gap(24.h),
+                      ColoredBox(
+                        color: context.colors.destructive.withValues(alpha: 0.1),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 8.w),
+                          child: Text(
+                            'Alpha Version',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: context.colors.destructive,
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ),
-
-              const SizedBox(height: 32),
-
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
-                child: Column(
-                  children: [
-                    Text(
-                      'Welcome to',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Overused Grotesk',
-                        fontWeight: FontWeight.w400,
-                        fontSize: 36.sp,
-                        height: 1.0,
-                        letterSpacing: -0.72,
-                        color: context.colors.mutedForeground,
-                      ),
-                    ),
-                    SizedBox(height: 2.h),
-                    Text(
-                      'White Noise',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Overused Grotesk',
-                        fontWeight: FontWeight.w600,
-                        fontSize: 51.sp,
-                        height: 1.0,
-                        letterSpacing: -1.02,
-                        color: context.colors.primary,
-                      ),
-                    ),
-                    Text(
-                      'Secure. Distributed. Uncensorable.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Sans',
-                        fontWeight: FontWeight.w500,
-                        fontSize: 14.sp,
-                        height: 1.0,
-                        letterSpacing: 0,
-                        color: context.colors.primary,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const Spacer(),
-            ],
+              ],
+            ),
           ),
-
           bottomNavigationBar: SafeArea(
             top: false,
             child: Padding(
@@ -136,7 +116,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                     visualState: AppButtonVisualState.secondary,
                     onPressed: () => context.go('/login'),
                   ),
-                  Gap(16.h),
+                  Gap(4.h),
                   authState.isLoading
                       ? const Padding(
                         padding: EdgeInsets.symmetric(vertical: 16),

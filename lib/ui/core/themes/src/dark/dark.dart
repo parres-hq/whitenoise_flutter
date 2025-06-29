@@ -21,7 +21,7 @@ final darkColorScheme = const ColorScheme.dark(
 
 final darkTheme = ThemeData(
   extensions: [AppColorsThemeExt.dark],
-  fontFamily: 'OverusedGrotesk',
+  fontFamily: manropeFontFamily,
   //
   scaffoldBackgroundColor: DarkAppColors.neutral,
   textTheme: darkTextTheme,
