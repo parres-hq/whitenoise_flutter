@@ -131,7 +131,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                 hintText: 'Free Citizen',
                 obscureText: false,
                 controller: _usernameController,
-              ),             
+              ),
               Gap(36.h),
               Align(
                 alignment: Alignment.centerLeft,
