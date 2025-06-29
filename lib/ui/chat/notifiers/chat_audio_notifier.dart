@@ -1,7 +1,7 @@
-import 'package:just_audio/just_audio.dart';
 import 'package:audio_session/audio_session.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 
