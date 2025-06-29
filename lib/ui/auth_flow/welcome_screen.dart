@@ -19,7 +19,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   Future<void> _handleCreateAccount(BuildContext context) async {
     final authNotifier = ref.read(authProvider.notifier);
 
-    await authNotifier.initialize();
     await authNotifier.createAccount();
 
     final authState = ref.read(authProvider);

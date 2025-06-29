@@ -132,8 +132,12 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       metadata?.nip05 = nip05;
       metadata?.lud16 = lud16;
 
+      // Create a new PublicKey object just before using it to avoid disposal issues
+      final publicKeyForUpdate = await publicKeyFromString(
+        publicKeyString: activeAccountData.pubkey,
+      );
       await updateMetadata(
-        pubkey: publicKey,
+        pubkey: publicKeyForUpdate,
         metadata: metadata!,
       );
 

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/routing/router_provider.dart';
+import 'package:whitenoise/src/rust/frb_generated.dart';
 
 import 'ui/core/themes/src/app_theme.dart';
 
@@ -20,6 +20,15 @@ Future<void> main() async {
   // Logging
   Logger.root.level = Level.ALL;
   final log = Logger('Whitenoise');
+
+  // Initialize Rust library first
+  try {
+    await RustLib.init();
+    log.info('Rust library initialized successfully');
+  } catch (e) {
+    log.severe('Failed to initialize Rust library: $e');
+    rethrow;
+  }
 
   final container = ProviderContainer();
   final authNotifier = container.read(authProvider.notifier);
