@@ -102,7 +102,7 @@ pub fn convert_message_with_tokens_to_data(
     let tokens = message_with_tokens
         .tokens
         .iter()
-        .map(|token| format!("{:?}", token))
+        .map(|token| format!("{token:?}"))
         .collect();
 
     MessageWithTokensData {
@@ -234,7 +234,7 @@ pub fn group_id_from_string(hex_string: String) -> Result<GroupId, WhitenoiseErr
     let bytes = hex::decode(hex_string).map_err(|e| {
         let json_error = serde_json::Error::io(std::io::Error::new(
             std::io::ErrorKind::InvalidData,
-            format!("Hex decode error: {}", e),
+            format!("Hex decode error: {e}"),
         ));
         WhitenoiseError::from(json_error)
     })?;
