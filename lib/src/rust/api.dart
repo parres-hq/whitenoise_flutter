@@ -7,7 +7,14 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'frb_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+
+/// Helper function to convert MessageWithTokens to MessageWithTokensData
+Future<MessageWithTokensData> convertMessageWithTokensToData({
+  required MessageWithTokens messageWithTokens,
+}) => RustLib.instance.api.crateApiConvertMessageWithTokensToData(
+  messageWithTokens: messageWithTokens,
+);
 
 Future<MetadataData> convertMetadataToData({required Metadata metadata}) =>
     RustLib.instance.api.crateApiConvertMetadataToData(metadata: metadata);
@@ -69,6 +76,10 @@ Future<WhitenoiseConfigData> convertConfigToData({
 /// Helper function to convert an Account to AccountData
 Future<AccountData> convertAccountToData({required Account account}) =>
     RustLib.instance.api.crateApiConvertAccountToData(account: account);
+
+/// Helper function to convert a vec of strings to a tag
+Future<Tag> tagFromVec({required List<String> vec}) =>
+    RustLib.instance.api.crateApiTagFromVec(vec: vec);
 
 /// Wrapper for Whitenoise::initialize_whitenoise to make it available to Dart
 /// Must be called before any other methods are called.
@@ -215,6 +226,93 @@ Future<GroupData> createGroup({
   groupDescription: groupDescription,
 );
 
+/// Send a message to a group
+///
+/// This method sends a message to the specified group using the MLS protocol.
+/// The message will be encrypted and delivered to all group members.
+///
+/// # Arguments
+/// * `pubkey` - The public key of the account sending the message
+/// * `group_id` - The MLS group ID to send the message to
+/// * `message` - The message content as a string
+/// * `kind` - The Nostr event kind (e.g., 1 for text message, 5 for delete)
+/// * `tags` - Optional Nostr tags to include with the message (use the `tag_from_vec` helper function to convert a vec of strings to a tag)
+///
+/// # Returns
+/// * `Ok(MessageWithTokensData)` - The sent message and parsed tokens if successful
+/// * `Err(WhitenoiseError)` - If there was an error sending the message
+Future<MessageWithTokensData> sendMessage({
+  required PublicKey pubkey,
+  required GroupId groupId,
+  required String message,
+  required int kind,
+  List<Tag>? tags,
+}) => RustLib.instance.api.crateApiSendMessage(
+  pubkey: pubkey,
+  groupId: groupId,
+  message: message,
+  kind: kind,
+  tags: tags,
+);
+
+/// This method adds new members to an existing MLS group. The calling account must have
+/// administrative privileges for the group. The operation will update the group's MLS
+/// epoch and distribute the updated group state to all existing members.
+///
+/// # Arguments
+/// * `pubkey` - The public key of the account performing the operation (must be a group admin)
+/// * `group_id` - The MLS group ID to add members to
+/// * `member_pubkeys` - A vector of public keys for the new members to add
+///
+/// # Returns
+/// * `Ok(())` - If the members were successfully added to the group
+/// * `Err(WhitenoiseError)` - If there was an error adding members (e.g., insufficient permissions, invalid group ID, or MLS protocol errors)
+///
+/// # Notes
+/// * Only group administrators can add new members
+/// * Each new member must have a valid key package published to relays
+/// * The group epoch will be incremented after successful member addition
+/// * All existing group members will receive an update with the new group composition
+Future<void> addMembersToGroup({
+  required PublicKey pubkey,
+  required GroupId groupId,
+  required List<PublicKey> memberPubkeys,
+}) => RustLib.instance.api.crateApiAddMembersToGroup(
+  pubkey: pubkey,
+  groupId: groupId,
+  memberPubkeys: memberPubkeys,
+);
+
+/// This method removes existing members from an MLS group. The calling account must have
+/// administrative privileges for the group. The operation will update the group's MLS
+/// epoch and distribute the updated group state to all remaining members.
+///
+/// # Arguments
+/// * `pubkey` - The public key of the account performing the operation (must be a group admin)
+/// * `group_id` - The MLS group ID to remove members from
+/// * `member_pubkeys` - A vector of public keys for the members to remove
+///
+/// # Returns
+/// * `Ok(())` - If the members were successfully removed from the group
+/// * `Err(WhitenoiseError)` - If there was an error removing members (e.g., insufficient permissions, invalid group ID, member not found, or MLS protocol errors)
+///
+/// # Notes
+/// * Only group administrators can remove members
+/// * Administrators cannot remove themselves from the group
+/// * Removed members will lose access to future group messages
+/// * The group epoch will be incremented after successful member removal
+/// * All remaining group members will receive an update with the new group composition
+/// * Removed members will not be notified of their removal through the MLS protocol
+Future<void> removeMembersFromGroup({
+  required PublicKey pubkey,
+  required GroupId groupId,
+  required List<PublicKey> memberPubkeys,
+}) => RustLib.instance.api.crateApiRemoveMembersFromGroup(
+  pubkey: pubkey,
+  groupId: groupId,
+  memberPubkeys: memberPubkeys,
+);
+
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>>
 abstract class Account implements RustOpaqueInterface {}
 
@@ -226,6 +324,9 @@ abstract class Group implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>>
 abstract class GroupId implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MessageWithTokens>>
+abstract class MessageWithTokens implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Metadata>>
 abstract class Metadata implements RustOpaqueInterface {}
@@ -281,6 +382,9 @@ abstract class RelayType implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>>
 abstract class RelayUrl implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Tag>>
+abstract class Tag implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<WhitenoiseConfig>>
 abstract class WhitenoiseConfig implements RustOpaqueInterface {}
@@ -404,6 +508,45 @@ enum GroupState {
 enum GroupType {
   directMessage,
   group,
+}
+
+class MessageWithTokensData {
+  final String id;
+  final String pubkey;
+  final int kind;
+  final BigInt createdAt;
+  final String? content;
+  final List<String> tokens;
+
+  const MessageWithTokensData({
+    required this.id,
+    required this.pubkey,
+    required this.kind,
+    required this.createdAt,
+    this.content,
+    required this.tokens,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      pubkey.hashCode ^
+      kind.hashCode ^
+      createdAt.hashCode ^
+      content.hashCode ^
+      tokens.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MessageWithTokensData &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          pubkey == other.pubkey &&
+          kind == other.kind &&
+          createdAt == other.createdAt &&
+          content == other.content &&
+          tokens == other.tokens;
 }
 
 class OnboardingState {

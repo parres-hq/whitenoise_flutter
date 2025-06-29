@@ -115,9 +115,8 @@ class ChatAudioItem extends ConsumerWidget {
           Icon(
             CarbonIcons.microphone,
             size: 16.sp,
-            color: (isMe ? context.colors.primaryForeground : context.colors.primary).withValues(
-              alpha: 0.7,
-            ),
+            color: (isMe ? context.colors.primaryForeground : context.colors.primary)
+                .withValues(alpha: 0.7),
           ),
         ],
       ),
