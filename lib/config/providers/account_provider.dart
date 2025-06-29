@@ -8,7 +8,6 @@ import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/src/rust/api.dart';
 
 class AccountState {
-  final Account? account;
   final MetadataData? metadata;
   final String? pubkey;
   final Map<String, AccountData>? accounts;
@@ -16,7 +15,6 @@ class AccountState {
   final String? error;
 
   const AccountState({
-    this.account,
     this.metadata,
     this.pubkey,
     this.accounts,
@@ -25,14 +23,12 @@ class AccountState {
   });
 
   AccountState copyWith({
-    Account? account,
     MetadataData? metadata,
     String? pubkey,
     Map<String, AccountData>? accounts,
     bool? isLoading,
     String? error,
   }) => AccountState(
-    account: account ?? this.account,
     metadata: metadata ?? this.metadata,
     pubkey: pubkey ?? this.pubkey,
     accounts: accounts ?? this.accounts,
@@ -75,7 +71,6 @@ class AccountNotifier extends Notifier<AccountState> {
         // We need to create a dummy Account object since we only have AccountData
         // This is a limitation of the current API design
         state = state.copyWith(
-          account: null, // We don't have the actual Account object
           metadata: metadata,
           pubkey: activeAccountData.pubkey,
         );
@@ -117,7 +112,7 @@ class AccountNotifier extends Notifier<AccountState> {
     state = state.copyWith(isLoading: true);
     try {
       final data = await convertAccountToData(account: account);
-      state = state.copyWith(account: account, pubkey: data.pubkey);
+      state = state.copyWith(pubkey: data.pubkey);
 
       // Automatically load contacts for the newly active account
       try {
@@ -142,26 +137,36 @@ class AccountNotifier extends Notifier<AccountState> {
 
   // Update metadata for the current account
   Future<void> updateAccountMetadata(String displayName, String bio) async {
-    final acct = state.account;
-    if (acct == null) return;
-
     state = state.copyWith(isLoading: true, error: null);
+
     try {
       final accountMetadata = state.metadata;
-      if (accountMetadata != null) {
-        if (displayName.isNotEmpty && displayName != accountMetadata.displayName) {
-          accountMetadata.displayName = displayName;
-          accountMetadata.about = bio;
+      final pubkey = state.pubkey;
 
-          final data = await convertAccountToData(account: acct);
-          final publicKey = await publicKeyFromString(publicKeyString: data.pubkey);
-          await updateMetadata(
-            metadata: accountMetadata,
-            pubkey: publicKey,
-          );
+      if (accountMetadata != null && pubkey != null) {
+        final isDisplayNameChanged =
+            displayName.isNotEmpty && displayName != accountMetadata.displayName;
+        final isBioProvided = bio.isNotEmpty;
+
+        // Skipping update if there's nothing to change
+        if (!isDisplayNameChanged && !isBioProvided) {
+          return;
         }
-      } else {
-        throw Exception('No metadata found');
+
+        if (isDisplayNameChanged) {
+          accountMetadata.displayName = displayName;
+        }
+
+        if (isBioProvided) {
+          accountMetadata.about = bio;
+        }
+
+        final publicKey = await publicKeyFromString(publicKeyString: pubkey);
+
+        await updateMetadata(
+          metadata: accountMetadata,
+          pubkey: publicKey,
+        );
       }
     } catch (e, st) {
       _logger.severe('updateMetadata', e, st);
