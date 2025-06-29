@@ -131,6 +131,11 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
       suffixIcon: suffixIcon,
       labelText: widget.labelText,
       hintText: widget.hintText,
+      hintStyle: TextStyle(
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w600,
+        color: context.colors.mutedForeground,
+      ),
       suffixIconColor: context.colors.primary,
       fillColor: context.colors.surface,
       contentPadding: EdgeInsets.symmetric(
@@ -179,7 +184,13 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
       onSaved: widget.onSaved,
       autocorrect: widget.autocorrect,
       onTap: widget.onTap,
-      style: widget.style,
+      style:
+          widget.style ??
+          TextStyle(
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+            color: context.colors.primary,
+          ),
       textAlign: widget.textAlign,
       textInputAction: widget.textInputAction,
       obscureText: widget.obscureText ?? isObscuringText,
