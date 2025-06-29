@@ -52,6 +52,12 @@ class LightAppColors {
 
   /// bottom sheet barrier color
   static const bottomSheetBarrier = Color(0x0FFFFFFF);
+
+  /// textfield background
+  static const surface = Color(0xfffafafa);
+
+  /// textfield border
+  static const input = Color(0xffe5e5e5);
 }
 
 /// Dark theme colors
@@ -107,6 +113,12 @@ class DarkAppColors {
 
   /// bottom sheet barrier color
   static const bottomSheetBarrier = Color(0x0FFFFFFF);
+
+  /// textfield background
+  static const surface = Color(0xff171717);
+
+  /// textfield border
+  static const input = Color(0xff262626);
 }
 
 class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
@@ -133,6 +145,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.appBarBackground,
     required this.appBarForeground,
     required this.bottomSheetBarrier,
+    required this.surface,
+    required this.input,
   });
 
   final Color primary;
@@ -157,6 +171,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color appBarBackground;
   final Color appBarForeground;
   final Color bottomSheetBarrier;
+  final Color surface;
+  final Color input;
 
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
@@ -182,6 +198,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     appBarBackground: LightAppColors.appBarBackground,
     appBarForeground: LightAppColors.appBarForeground,
     bottomSheetBarrier: LightAppColors.bottomSheetBarrier,
+    surface: LightAppColors.surface,
+    input: LightAppColors.input,
   );
 
   /// Dark theme colors
@@ -208,6 +226,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     appBarBackground: DarkAppColors.appBarBackground,
     appBarForeground: DarkAppColors.appBarForeground,
     bottomSheetBarrier: DarkAppColors.bottomSheetBarrier,
+    surface: DarkAppColors.surface,
+    input: DarkAppColors.input,
   );
 
   @override
@@ -234,6 +254,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? appBarBackground,
     Color? appBarForeground,
     Color? bottomSheetBarrier,
+    Color? surface,
+    Color? input,
   }) {
     return AppColorsThemeExt(
       primary: primary ?? this.primary,
@@ -258,6 +280,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       appBarBackground: appBarBackground ?? this.appBarBackground,
       appBarForeground: appBarForeground ?? this.appBarForeground,
       bottomSheetBarrier: bottomSheetBarrier ?? this.bottomSheetBarrier,
+      surface: surface ?? this.surface,
+      input: input ?? this.input,
     );
   }
 
@@ -297,6 +321,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       appBarBackground: Color.lerp(appBarBackground, other.appBarBackground, t)!,
       appBarForeground: Color.lerp(appBarForeground, other.appBarForeground, t)!,
       bottomSheetBarrier: Color.lerp(bottomSheetBarrier, other.bottomSheetBarrier, t)!,
+      surface: Color.lerp(surface, other.surface, t)!,
+      input: Color.lerp(input, other.input, t)!,
     );
   }
 }

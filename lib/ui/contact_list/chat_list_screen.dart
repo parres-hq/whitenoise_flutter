@@ -40,7 +40,7 @@ class ChatListScreen extends StatelessWidget {
                 'Start a conversation with your contacts',
                 style: TextStyle(
                   fontSize: 14.sp,
-                  color: context.colors.mutedForeground.withOpacity(0.7),
+                  color: context.colors.mutedForeground.withValues(alpha: 0.7),
                 ),
                 textAlign: TextAlign.center,
               ),

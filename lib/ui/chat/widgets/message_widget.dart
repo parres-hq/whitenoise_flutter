@@ -228,7 +228,6 @@ class MessageWidget extends StatelessWidget {
                               fontSize: 14.sp,
                               color: textColor,
                               decoration: TextDecoration.none,
-                              fontFamily: 'OverusedGrotesk',
                               fontWeight: FontWeight.normal,
                             ),
                           ),
