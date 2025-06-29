@@ -22,7 +22,6 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   Future<void> _onFinishPressed() async {
     final username = _usernameController.text.trim();
     final bio = _bioController.text.trim();
-    // TODO: authProvider
     await ref.read(accountProvider.notifier).updateAccountMetadata(username, bio);
     if (username.isNotEmpty) {
       if (!mounted) return;
@@ -39,8 +38,6 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // TODO: optimising this in the next PR - unify auth and acct, single provider for current account.
-      await ref.read(accountProvider.notifier).loadAccountData();
       _usernameController.text = ref.read(accountProvider).metadata?.displayName ?? '';
     });
   }
