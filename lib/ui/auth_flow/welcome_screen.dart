@@ -138,10 +138,10 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                   ),
                   Gap(16.h),
                   authState.isLoading
-                      ? const Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16),
+                      ? Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
                         child: Center(
-                          child: CircularProgressIndicator(color: Colors.black),
+                          child: CircularProgressIndicator(color: context.colors.primary),
                         ),
                       )
                       : AppFilledButton(
