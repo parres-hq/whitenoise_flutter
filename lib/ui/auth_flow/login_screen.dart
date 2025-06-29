@@ -22,6 +22,14 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final TextEditingController _keyController = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+    _keyController.addListener(() {
+      setState(() {});
+    });
+  }
+
   Future<void> _onContinuePressed() async {
     final key = _keyController.text.trim();
 
