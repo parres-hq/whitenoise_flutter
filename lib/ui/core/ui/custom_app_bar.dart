@@ -45,14 +45,29 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool _isSliver;
   final bool isTransparent;
 
+  Widget? _buildStyledTitle(BuildContext context) {
+    if (title == null) return null;
+
+    return DefaultTextStyle(
+      style: TextStyle(
+        fontSize: 20.sp,
+        fontWeight: FontWeight.w600,
+        color: context.colors.mutedForeground,
+      ),
+      child: title!,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final styledTitle = _buildStyledTitle(context);
+
     if (_isSliver) {
       return SliverAppBar(
         centerTitle: centerTitle,
         automaticallyImplyLeading: automaticallyImplyLeading,
         leading: leading,
-        title: title,
+        title: styledTitle,
         actions: actions,
         titleSpacing: 2.w,
         elevation: 0,
@@ -69,7 +84,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: centerTitle,
       automaticallyImplyLeading: automaticallyImplyLeading,
       leading: leading,
-      title: title,
+      title: styledTitle,
       actions: actions,
       titleSpacing: 2.w,
       elevation: 0,

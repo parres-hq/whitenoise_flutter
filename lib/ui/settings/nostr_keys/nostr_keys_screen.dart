@@ -164,7 +164,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: const CustomAppBar(title: Text('Nostr Keys')),
+      appBar: const CustomAppBar(title: Text('Profile Keys')),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
@@ -216,13 +216,12 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                   children: [
                     SvgPicture.asset(
                       AssetsPaths.icCopy,
-                      colorFilter:
-                          nostrKeys.npub != null
-                              ? null
-                              : ColorFilter.mode(
-                                context.colors.mutedForeground,
-                                BlendMode.srcIn,
-                              ),
+                      colorFilter: ColorFilter.mode(
+                        nostrKeys.npub != null
+                            ? context.colors.primary
+                            : context.colors.mutedForeground,
+                        BlendMode.srcIn,
+                      ),
                     ),
                     SizedBox(width: 8.w),
                     Text(

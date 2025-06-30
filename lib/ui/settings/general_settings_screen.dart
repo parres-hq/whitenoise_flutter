@@ -17,6 +17,7 @@ import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
+import 'package:whitenoise/ui/settings/widgets/theme_toggle_icon_button.dart';
 
 class GeneralSettingsScreen extends ConsumerStatefulWidget {
   const GeneralSettingsScreen({super.key});
@@ -293,7 +294,12 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: const CustomAppBar(title: Text('Settings')),
+      appBar: const CustomAppBar(
+        title: Text('Settings'),
+        actions: [
+          ThemeToggleIconButton(),
+        ],
+      ),
       body: ListView(
         padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
         children: [
@@ -319,7 +325,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
           ),
           SettingsListTile(
             icon: CarbonIcons.password,
-            text: 'Nostr keys',
+            text: 'Profile Keys',
             onTap: () => context.push('${Routes.settings}/keys'),
           ),
           SettingsListTile(
