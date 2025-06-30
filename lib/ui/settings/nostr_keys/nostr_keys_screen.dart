@@ -192,22 +192,23 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                           horizontal: 16.w,
                           vertical: 14.h,
                         ),
-                        child: nostrKeys.npub != null
-                            ? Text(
-                              _formatPublicKey(nostrKeys.npub!),
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                color: context.colors.secondaryForeground,
-                                fontFamily: 'monospace',
-                              ),
-                            )
-                            : Text(
-                              'Loading public key...',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                color: context.colors.baseMuted,
-                              ),
-                            ),
+                        child:
+                            nostrKeys.npub != null
+                                ? Text(
+                                  _formatPublicKey(nostrKeys.npub!),
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    color: context.colors.secondaryForeground,
+                                    fontFamily: 'monospace',
+                                  ),
+                                )
+                                : Text(
+                                  'Loading public key...',
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    color: context.colors.baseMuted,
+                                  ),
+                                ),
                       ),
                     ),
                   ),
