@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
 import 'package:whitenoise/ui/auth_flow/info_screen.dart';
@@ -18,6 +19,30 @@ final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     debugLogDiagnostics: true,
     initialLocation: Routes.home,
+    redirect: (context, state) {
+      final authState = ref.read(authProvider);
+      final currentLocation = state.uri.path;
+
+      // If user is authenticated and trying to access welcome/login pages,
+      // redirect to chats
+      if (authState.isAuthenticated && !authState.isLoading) {
+        if (currentLocation == Routes.home || currentLocation == Routes.login) {
+          return Routes.chats;
+        }
+      }
+
+      // If user is not authenticated and trying to access protected routes,
+      // redirect to home
+      if (!authState.isAuthenticated && !authState.isLoading) {
+        final protectedRoutes = [Routes.chats, Routes.contacts, Routes.settings];
+        if (protectedRoutes.any((route) => currentLocation.startsWith(route))) {
+          return Routes.home;
+        }
+      }
+
+      // No redirect needed
+      return null;
+    },
     routes: [
       GoRoute(
         path: Routes.home,

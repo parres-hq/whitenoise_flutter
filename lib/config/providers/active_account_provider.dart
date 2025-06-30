@@ -23,11 +23,11 @@ class ActiveAccountNotifier extends Notifier<String?> {
 
   @override
   String? build() {
-    _loadActiveAccount();
+    loadActiveAccount();
     return null;
   }
 
-  Future<void> _loadActiveAccount() async {
+  Future<void> loadActiveAccount() async {
     try {
       final activeAccountPubkey = await _storage.read(key: _activeAccountKey);
       _logger.info('ActiveAccountProvider: Loaded active account: $activeAccountPubkey');
@@ -68,7 +68,7 @@ class ActiveAccountNotifier extends Notifier<String?> {
       // Use the new fetchAccount API function for better performance
       final publicKey = await publicKeyFromString(publicKeyString: state!);
       final activeAccount = await fetchAccount(pubkey: publicKey);
-      _logger.info('Found active account using new API: ${activeAccount.pubkey}');
+      _logger.info('Found active account: ${activeAccount.pubkey}');
       return activeAccount;
     } catch (e) {
       _logger.warning('Error with new fetchAccount API: $e');

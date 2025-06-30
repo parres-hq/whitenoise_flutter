@@ -43,18 +43,29 @@ class AuthNotifier extends Notifier<AuthState> {
       try {
         final accounts = await fetchAccounts();
         if (accounts.isNotEmpty) {
-          // Check if there's already an active account set
-          final activeAccountData =
-              await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-          if (activeAccountData == null) {
-            // No active account set, set the first one as active
-            await ref.read(activeAccountProvider.notifier).setActiveAccount(accounts.first.pubkey);
+          // Wait for active account provider to load from storage first
+          final activeAccountNotifier = ref.read(activeAccountProvider.notifier);
+          await activeAccountNotifier.loadActiveAccount();
+
+          final storedActivePubkey = ref.read(activeAccountProvider);
+          _logger.info('Stored active pubkey: $storedActivePubkey');
+
+          // Check if stored active account exists in current accounts
+          if (storedActivePubkey != null &&
+              accounts.any((account) => account.pubkey == storedActivePubkey)) {
+            _logger.info('Found valid stored active account: $storedActivePubkey');
+            state = state.copyWith(isAuthenticated: true);
+          } else {
+            // No valid stored active account, set the first one as active
+            _logger.info('No valid stored active account, setting first account as active: ${accounts.first.pubkey}');
+            await activeAccountNotifier.setActiveAccount(accounts.first.pubkey);
+            state = state.copyWith(isAuthenticated: true);
           }
-          state = state.copyWith(isAuthenticated: true);
         } else {
           state = state.copyWith(isAuthenticated: false);
         }
       } catch (e) {
+        _logger.warning('Error during auto-login check: $e');
         // If there's an error fetching accounts, assume not authenticated
         state = state.copyWith(isAuthenticated: false);
       }
