@@ -76,22 +76,19 @@ class ContactsNotifier extends Notifier<ContactsState> {
         final metadata = entry.value;
 
         String? contactIdentifier;
-
+        final hashCode = entry.key.hashCode;
+        final metadataName = metadata?.name ?? metadata?.displayName ?? 'unknown';
+        contactIdentifier =
+            'failed_npub_${hashCode.abs()}_${metadataName.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '').toLowerCase()}';
         bool npubSuccess = false;
         try {
           contactIdentifier = await exportAccountNpub(pubkey: entry.key);
           npubSuccess = true;
           _logger.info('ContactsProvider: ✅ Direct npub conversion successful: $contactIdentifier');
-        } catch (e) {
-          _logger.warning('ContactsProvider: ❌ Direct exportAccountNpub failed: $e');
+        } catch (e, st) {
+          _logger.warning('ContactsProvider: ❌ Direct exportAccountNpub failed: $e \n$st');
         }
-
-        // Only use fallback if ALL attempts failed
         if (!npubSuccess) {
-          final hashCode = entry.key.hashCode;
-          final metadataName = metadata?.name ?? metadata?.displayName ?? 'unknown';
-          contactIdentifier =
-              'failed_npub_${hashCode.abs()}_${metadataName.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '').toLowerCase()}';
           _logger.severe(
             'ContactsProvider: 💥 ALL npub attempts failed, using fallback: $contactIdentifier',
           );
@@ -102,11 +99,11 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
         // Create the contact model with the resolved identifier
         final contactModel = ContactModel.fromMetadata(
-          publicKey: contactIdentifier!,
+          publicKey: contactIdentifier ?? 'unknown',
           metadata: metadata,
         );
 
-        publicKeyMap[contactIdentifier] = entry.key;
+        publicKeyMap[contactIdentifier!] = entry.key;
         contactModels.add(contactModel);
 
         if (metadata != null) {

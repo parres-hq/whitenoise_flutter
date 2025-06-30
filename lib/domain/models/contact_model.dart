@@ -35,14 +35,15 @@ class ContactModel {
     final nip05 = _sanitizeString(metadata?.nip05);
     final lud16 = _sanitizeString(metadata?.lud16);
     final picture = _sanitizeUrl(metadata?.picture);
-    
+
     // Determine the best name to use
-    final effectiveName = name.isNotEmpty 
-        ? name 
-        : displayName.isNotEmpty 
-            ? displayName 
+    final effectiveName =
+        name.isNotEmpty
+            ? name
+            : displayName.isNotEmpty
+            ? displayName
             : 'Unknown User';
-    
+
     return ContactModel(
       name: effectiveName,
       displayName: displayName.isNotEmpty ? displayName : null,
@@ -66,8 +67,8 @@ class ContactModel {
     if (input == null || input.trim().isEmpty) return null;
     final sanitized = input.trim();
     // Basic URL validation - could be enhanced
-    if (sanitized.startsWith('http://') || 
-        sanitized.startsWith('https://') || 
+    if (sanitized.startsWith('http://') ||
+        sanitized.startsWith('https://') ||
         sanitized.startsWith('data:image/')) {
       return sanitized;
     }

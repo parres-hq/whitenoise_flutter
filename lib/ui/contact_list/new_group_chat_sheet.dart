@@ -51,7 +51,6 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     });
   }
 
-
   void _toggleContactSelection(ContactModel contact) {
     setState(() {
       if (_selectedContacts.contains(contact)) {

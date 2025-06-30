@@ -124,7 +124,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
-    
+
     final List<ContactModel> filteredContacts = ref
         .read(contactsProvider.notifier)
         .getFilteredContacts(_searchQuery);
