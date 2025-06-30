@@ -134,17 +134,18 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
           fontSize: 14.sp,
           fontWeight: FontWeight.w600,
         );
+
     final decoration = (widget.decoration ?? const InputDecoration()).copyWith(
       suffixIcon: suffixIcon,
       labelText: widget.labelText,
       hintText: widget.hintText,
-      suffixIconColor: context.colors.primary,
-      fillColor: context.colors.avatarSurface,
       hintStyle: TextStyle(
-        color: context.colors.mutedForeground,
         fontSize: 14.sp,
         fontWeight: FontWeight.w600,
+        color: context.colors.mutedForeground,
       ),
+      suffixIconColor: context.colors.primary,
+      fillColor: context.colors.avatarSurface,
       contentPadding: EdgeInsets.symmetric(
         horizontal: 12.w,
         vertical: 16.h,

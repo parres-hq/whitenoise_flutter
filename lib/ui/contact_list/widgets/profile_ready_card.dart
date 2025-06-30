@@ -83,8 +83,15 @@ class ProfileReadyCard extends ConsumerWidget {
                   size: AppButtonSize.small,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Start Chatting', style: AppButtonSize.small.textStyle()),
+                      Flexible(
+                        child: Text(
+                          'Start Chatting',
+                          style: AppButtonSize.small.textStyle(),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                       Gap(6.w),
                       SvgPicture.asset(
                         AssetsPaths.icStartChatting,

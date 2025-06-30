@@ -134,8 +134,6 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
 
   @override
   void dispose() {
-    // Clear the private key when navigating away for security
-    ref.read(nostrKeysProvider).clearNsec();
     _privateKeyController.dispose();
     super.dispose();
   }

@@ -81,6 +81,10 @@ Future<AccountData> convertAccountToData({required Account account}) =>
 Future<Tag> tagFromVec({required List<String> vec}) =>
     RustLib.instance.api.crateApiTagFromVec(vec: vec);
 
+/// Helper function to convert a WhitenoiseError to a string for display
+Future<String> whitenoiseErrorToString({required WhitenoiseError error}) =>
+    RustLib.instance.api.crateApiWhitenoiseErrorToString(error: error);
+
 /// Wrapper for Whitenoise::initialize_whitenoise to make it available to Dart
 /// Must be called before any other methods are called.
 Future<void> initializeWhitenoise({required WhitenoiseConfig config}) =>

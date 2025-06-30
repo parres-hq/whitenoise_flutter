@@ -285,6 +285,11 @@ pub fn tag_from_vec(vec: Vec<String>) -> Result<Tag, WhitenoiseError> {
     Tag::parse(vec).map_err(WhitenoiseError::from)
 }
 
+/// Helper function to convert a WhitenoiseError to a string for display
+pub fn whitenoise_error_to_string(error: &WhitenoiseError) -> String {
+    format!("{error:?}")
+}
+
 // ================================
 // Initialization / Teardown methods
 // ================================

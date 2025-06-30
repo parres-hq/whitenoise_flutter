@@ -48,7 +48,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
     final chatNotifier = ref.read(chatNotifierProvider.notifier);
     final chatState = ref.read(chatNotifierProvider);
     final accountState = ref.read(accountProvider);
-    if (accountState.account == null || accountState.pubkey == null) return;
+    if (accountState.metadata == null || accountState.pubkey == null) return;
 
     final isEditing = chatState.editingMessage != null;
 

@@ -104,7 +104,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
       // Try to fetch metadata for the newly added contact
       try {
-        final metadata = await fetchMetadata(pubkey: contactPk);
+        // Create a fresh PublicKey object to avoid disposal issues
+        final contactPkForMetadata = await publicKeyFromString(publicKeyString: contactKey.trim());
+        final metadata = await fetchMetadata(pubkey: contactPkForMetadata);
         if (metadata != null) {
           _logger.info(
             'ContactsProvider: Metadata found for new contact - name: ${metadata.name}, displayName: ${metadata.displayName}',

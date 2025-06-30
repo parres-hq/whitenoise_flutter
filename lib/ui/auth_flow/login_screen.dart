@@ -41,10 +41,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     }
 
     final authNotifier = ref.read(authProvider.notifier);
-    final authState = ref.read(authProvider);
     await authNotifier.loginWithKey(key);
 
     if (!mounted) return;
+
+    // Read the auth state AFTER the login attempt to get the updated state
+    final authState = ref.read(authProvider);
 
     if (authState.isAuthenticated && authState.error == null) {
       context.go(Routes.chats);

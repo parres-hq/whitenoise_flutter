@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
 
 class CreateProfileScreen extends ConsumerStatefulWidget {
   const CreateProfileScreen({super.key});
@@ -22,7 +24,6 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   Future<void> _onFinishPressed() async {
     final username = _usernameController.text.trim();
     final bio = _bioController.text.trim();
-    // TODO: authProvider
     await ref.read(accountProvider.notifier).updateAccountMetadata(username, bio);
     if (username.isNotEmpty) {
       if (!mounted) return;
@@ -39,8 +40,6 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // TODO: optimising this in the next PR - unify auth and acct, single provider for current account.
-      await ref.read(accountProvider.notifier).loadAccountData();
       _usernameController.text = ref.read(accountProvider).metadata?.displayName ?? '';
     });
   }
@@ -63,38 +62,42 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
           child: Column(
             children: [
               Text(
-                'Setup Your Profile',
+                'Setup Profile',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 30.sp,
-                  fontWeight: FontWeight.w500,
-                  color: context.colors.neutralVariant,
+                  fontSize: 32.sp,
+                  fontWeight: FontWeight.w700,
+                  color: context.colors.mutedForeground,
                 ),
               ),
-              Gap(32.h),
+              Gap(48.h),
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
                   CircleAvatar(
-                    radius: 50.r,
+                    radius: 48.r,
                     backgroundImage: const AssetImage(
                       AssetsPaths.profileBackground,
                     ),
                   ),
                   Container(
+                    width: 28.w,
+                    height: 28.w,
+                    padding: EdgeInsets.all(6.w),
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: context.colors.mutedForeground,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: context.colors.secondary,
                         width: 1.w,
                       ),
                     ),
-                    padding: EdgeInsets.all(4.r),
-                    child: Icon(
-                      Icons.edit,
-                      size: 18.sp,
-                      color: context.colors.neutralVariant,
+                    child: SvgPicture.asset(
+                      AssetsPaths.icEdit,
+                      colorFilter: ColorFilter.mode(
+                        context.colors.primaryForeground,
+                        BlendMode.srcIn,
+                      ),
                     ),
                   ),
                 ],
@@ -116,47 +119,17 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 14.sp,
-                    color: Colors.black,
+                    color: context.colors.primary,
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
-              TextField(
+              Gap(10.h),
+              AppTextFormField(
+                hintText: 'Free Citizen',
+                obscureText: false,
                 controller: _usernameController,
-                decoration: InputDecoration(
-                  hintText: 'Satoshi Nakamoto',
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 16.h,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(
-                      color: context.colors.neutralVariant,
-                      width: 1.w,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(
-                      color: context.colors.neutralVariant,
-                      width: 1.w,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(
-                      color: context.colors.neutralVariant,
-                      width: 1.w,
-                    ),
-                  ),
-                ),
               ),
-
-              SizedBox(height: 24.h),
-
+              Gap(36.h),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -164,56 +137,29 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
                     fontSize: 14.sp,
-                    color: Colors.black,
+                    color: context.colors.primary,
                   ),
                 ),
               ),
-              SizedBox(height: 8.h),
-              TextField(
+              Gap(8.h),
+              AppTextFormField(
+                hintText: 'Write something about yourself',
+                obscureText: false,
                 controller: _bioController,
                 maxLines: 3,
-                decoration: InputDecoration(
-                  hintText: 'A few words about you',
-                  filled: true,
-                  fillColor: Colors.white,
-                  contentPadding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 12.h,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(
-                      color: context.colors.neutralVariant,
-                      width: 1.w,
-                    ),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(
-                      color: context.colors.neutralVariant,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.zero,
-                    borderSide: BorderSide(
-                      color: context.colors.neutralVariant,
-                      width: 1.w,
-                    ),
-                  ),
-                ),
+                minLines: 3,
+                keyboardType: TextInputType.multiline,
               ),
-
-              SizedBox(height: 32.h),
+              Gap(32.h),
             ],
           ),
         ),
       ),
-
       bottomNavigationBar: SafeArea(
         top: false,
         child: Padding(
           padding: EdgeInsets.symmetric(
-            horizontal: 16.w,
+            horizontal: 24.w,
           ).copyWith(bottom: 32.h),
           child: AppFilledButton(
             onPressed: _onFinishPressed,
