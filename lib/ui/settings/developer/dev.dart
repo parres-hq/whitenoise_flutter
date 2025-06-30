@@ -170,7 +170,7 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
               ),
             ),
             Gap(12.h),
-                          if (groups.isEmpty)
+            if (groups.isEmpty)
               Text(
                 'No groups found. Create a group first.',
                 style: TextStyle(
@@ -188,19 +188,20 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                 ),
-                items: groups.map((group) {
-                  return DropdownMenuItem<GroupData>(
-                    value: group,
-                    child: Text(
-                      group.name,
-                                                style: const TextStyle(
+                items:
+                    groups.map((group) {
+                      return DropdownMenuItem<GroupData>(
+                        value: group,
+                        child: Text(
+                          group.name,
+                          style: const TextStyle(
                             fontWeight: FontWeight.w500,
                             color: Colors.white,
                           ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  );
-                }).toList(),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }).toList(),
                 onChanged: (GroupData? value) {
                   setState(() {
                     _selectedGroup = value;
@@ -238,7 +239,7 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
               style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Message',
-                                  labelStyle: const TextStyle(color: Colors.white),
+                labelStyle: const TextStyle(color: Colors.white),
                 hintText: 'Enter test message...',
                 hintStyle: const TextStyle(color: Colors.white60),
                 border: OutlineInputBorder(
@@ -460,7 +461,8 @@ Message ${index + 1}:
   Tokens (${message.tokens.length} total):
 ${message.tokens.asMap().entries.map((e) => '    ${e.key}: ${e.value}').join('\n')}
 ''';
-                            }).join('\n---\n'),
+                            })
+                            .join('\n---\n'),
                     style: TextStyle(
                       fontFamily: 'monospace',
                       fontSize: 12.sp,

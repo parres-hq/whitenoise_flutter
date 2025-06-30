@@ -10,8 +10,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'api.dart';
 import 'frb_generated.dart';
-import 'frb_generated.io.dart'
-    if (dart.library.js_interop) 'frb_generated.web.dart';
+import 'frb_generated.io.dart' if (dart.library.js_interop) 'frb_generated.web.dart';
 
 /// Main entrypoint of the Rust API
 class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
@@ -50,12 +49,10 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   static void dispose() => instance.disposeImpl();
 
   @override
-  ApiImplConstructor<RustLibApiImpl, RustLibWire> get apiImplConstructor =>
-      RustLibApiImpl.new;
+  ApiImplConstructor<RustLibApiImpl, RustLibWire> get apiImplConstructor => RustLibApiImpl.new;
 
   @override
-  WireConstructor<RustLibWire> get wireConstructor =>
-      RustLibWire.fromExternalLibrary;
+  WireConstructor<RustLibWire> get wireConstructor => RustLibWire.fromExternalLibrary;
 
   @override
   Future<void> executeRustInitializers() async {}
@@ -70,12 +67,11 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   @override
   int get rustContentHash => 1202485129;
 
-  static const kDefaultExternalLibraryLoaderConfig =
-      ExternalLibraryLoaderConfig(
-        stem: 'rust_lib_whitenoise',
-        ioDirectory: 'rust/target/release/',
-        webPrefix: 'pkg/',
-      );
+  static const kDefaultExternalLibraryLoaderConfig = ExternalLibraryLoaderConfig(
+    stem: 'rust_lib_whitenoise',
+    ioDirectory: 'rust/target/release/',
+    webPrefix: 'pkg/',
+  );
 }
 
 abstract class RustLibApi extends BaseApi {
@@ -346,52 +342,39 @@ abstract class RustLibApi extends BaseApi {
 
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_GroupIdPtr;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_MessageWithTokens;
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_MessageWithTokens;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_MessageWithTokens;
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_MessageWithTokens;
 
-  CrossPlatformFinalizerArg
-  get rust_arc_decrement_strong_count_MessageWithTokensPtr;
+  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MessageWithTokensPtr;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_Metadata;
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_Metadata;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_Metadata;
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_Metadata;
 
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MetadataPtr;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_MetadataData;
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_MetadataData;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_MetadataData;
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_MetadataData;
 
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MetadataDataPtr;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_PublicKey;
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_PublicKey;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_PublicKey;
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_PublicKey;
 
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_PublicKeyPtr;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_RelayType;
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_RelayType;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_RelayType;
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_RelayType;
 
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_RelayTypePtr;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_RelayUrl;
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_RelayUrl;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_RelayUrl;
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_RelayUrl;
 
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_RelayUrlPtr;
 
@@ -401,23 +384,17 @@ abstract class RustLibApi extends BaseApi {
 
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_TagPtr;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_WhitenoiseConfig;
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_WhitenoiseConfig;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_WhitenoiseConfig;
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_WhitenoiseConfig;
 
-  CrossPlatformFinalizerArg
-  get rust_arc_decrement_strong_count_WhitenoiseConfigPtr;
+  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_WhitenoiseConfigPtr;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_WhitenoiseError;
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_WhitenoiseError;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_WhitenoiseError;
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_WhitenoiseError;
 
-  CrossPlatformFinalizerArg
-  get rust_arc_decrement_strong_count_WhitenoiseErrorPtr;
+  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_WhitenoiseErrorPtr;
 }
 
 class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
@@ -453,11 +430,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetAboutConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_get_about',
-        argNames: ['that'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetAboutConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_get_about',
+    argNames: ['that'],
+  );
 
   @override
   String? crateApiMetadataDataAutoAccessorGetBanner({
@@ -484,11 +460,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetBannerConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_get_banner',
-        argNames: ['that'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetBannerConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_get_banner',
+    argNames: ['that'],
+  );
 
   @override
   String? crateApiMetadataDataAutoAccessorGetDisplayName({
@@ -515,11 +490,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetDisplayNameConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_get_display_name',
-        argNames: ['that'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetDisplayNameConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_get_display_name',
+    argNames: ['that'],
+  );
 
   @override
   String? crateApiMetadataDataAutoAccessorGetLud06({
@@ -546,11 +520,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetLud06ConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_get_lud06',
-        argNames: ['that'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetLud06ConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_get_lud06',
+    argNames: ['that'],
+  );
 
   @override
   String? crateApiMetadataDataAutoAccessorGetLud16({
@@ -577,11 +550,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetLud16ConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_get_lud16',
-        argNames: ['that'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetLud16ConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_get_lud16',
+    argNames: ['that'],
+  );
 
   @override
   String? crateApiMetadataDataAutoAccessorGetName({
@@ -608,11 +580,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetNameConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_get_name',
-        argNames: ['that'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetNameConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_get_name',
+    argNames: ['that'],
+  );
 
   @override
   String? crateApiMetadataDataAutoAccessorGetNip05({
@@ -639,11 +610,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetNip05ConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_get_nip05',
-        argNames: ['that'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetNip05ConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_get_nip05',
+    argNames: ['that'],
+  );
 
   @override
   String? crateApiMetadataDataAutoAccessorGetPicture({
@@ -670,11 +640,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetPictureConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_get_picture',
-        argNames: ['that'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetPictureConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_get_picture',
+    argNames: ['that'],
+  );
 
   @override
   String? crateApiMetadataDataAutoAccessorGetWebsite({
@@ -701,11 +670,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetWebsiteConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_get_website',
-        argNames: ['that'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetWebsiteConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_get_website',
+    argNames: ['that'],
+  );
 
   @override
   void crateApiMetadataDataAutoAccessorSetAbout({
@@ -734,11 +702,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetAboutConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_set_about',
-        argNames: ['that', 'about'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetAboutConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_set_about',
+    argNames: ['that', 'about'],
+  );
 
   @override
   void crateApiMetadataDataAutoAccessorSetBanner({
@@ -767,11 +734,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetBannerConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_set_banner',
-        argNames: ['that', 'banner'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetBannerConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_set_banner',
+    argNames: ['that', 'banner'],
+  );
 
   @override
   void crateApiMetadataDataAutoAccessorSetDisplayName({
@@ -800,11 +766,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetDisplayNameConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_set_display_name',
-        argNames: ['that', 'displayName'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetDisplayNameConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_set_display_name',
+    argNames: ['that', 'displayName'],
+  );
 
   @override
   void crateApiMetadataDataAutoAccessorSetLud06({
@@ -833,11 +798,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetLud06ConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_set_lud06',
-        argNames: ['that', 'lud06'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetLud06ConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_set_lud06',
+    argNames: ['that', 'lud06'],
+  );
 
   @override
   void crateApiMetadataDataAutoAccessorSetLud16({
@@ -866,11 +830,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetLud16ConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_set_lud16',
-        argNames: ['that', 'lud16'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetLud16ConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_set_lud16',
+    argNames: ['that', 'lud16'],
+  );
 
   @override
   void crateApiMetadataDataAutoAccessorSetName({
@@ -899,11 +862,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetNameConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_set_name',
-        argNames: ['that', 'name'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetNameConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_set_name',
+    argNames: ['that', 'name'],
+  );
 
   @override
   void crateApiMetadataDataAutoAccessorSetNip05({
@@ -932,11 +894,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetNip05ConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_set_nip05',
-        argNames: ['that', 'nip05'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetNip05ConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_set_nip05',
+    argNames: ['that', 'nip05'],
+  );
 
   @override
   void crateApiMetadataDataAutoAccessorSetPicture({
@@ -965,11 +926,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetPictureConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_set_picture',
-        argNames: ['that', 'picture'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetPictureConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_set_picture',
+    argNames: ['that', 'picture'],
+  );
 
   @override
   void crateApiMetadataDataAutoAccessorSetWebsite({
@@ -998,11 +958,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetWebsiteConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_auto_accessor_set_website',
-        argNames: ['that', 'website'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetWebsiteConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_auto_accessor_set_website',
+    argNames: ['that', 'website'],
+  );
 
   @override
   Future<Map<String, String>> crateApiMetadataDataGetCustom({
@@ -1034,11 +993,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataGetCustomConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_get_custom',
-        argNames: ['that'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataGetCustomConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_get_custom',
+    argNames: ['that'],
+  );
 
   @override
   Future<void> crateApiMetadataDataSetCustom({
@@ -1072,11 +1030,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataSetCustomConstMeta =>
-      const TaskConstMeta(
-        debugName: 'MetadataData_set_custom',
-        argNames: ['that', 'customMap'],
-      );
+  TaskConstMeta get kCrateApiMetadataDataSetCustomConstMeta => const TaskConstMeta(
+    debugName: 'MetadataData_set_custom',
+    argNames: ['that', 'customMap'],
+  );
 
   @override
   Future<void> crateApiAddContact({
@@ -1193,11 +1150,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiConvertAccountToDataConstMeta =>
-      const TaskConstMeta(
-        debugName: 'convert_account_to_data',
-        argNames: ['account'],
-      );
+  TaskConstMeta get kCrateApiConvertAccountToDataConstMeta => const TaskConstMeta(
+    debugName: 'convert_account_to_data',
+    argNames: ['account'],
+  );
 
   @override
   Future<WhitenoiseConfigData> crateApiConvertConfigToData({
@@ -1229,11 +1185,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiConvertConfigToDataConstMeta =>
-      const TaskConstMeta(
-        debugName: 'convert_config_to_data',
-        argNames: ['config'],
-      );
+  TaskConstMeta get kCrateApiConvertConfigToDataConstMeta => const TaskConstMeta(
+    debugName: 'convert_config_to_data',
+    argNames: ['config'],
+  );
 
   @override
   Future<GroupData> crateApiConvertGroupToData({required Group group}) {
@@ -1298,11 +1253,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiConvertMessageWithTokensToDataConstMeta =>
-      const TaskConstMeta(
-        debugName: 'convert_message_with_tokens_to_data',
-        argNames: ['messageWithTokens'],
-      );
+  TaskConstMeta get kCrateApiConvertMessageWithTokensToDataConstMeta => const TaskConstMeta(
+    debugName: 'convert_message_with_tokens_to_data',
+    argNames: ['messageWithTokens'],
+  );
 
   @override
   Future<Metadata> crateApiConvertMetadataDataToMetadata({
@@ -1335,11 +1289,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiConvertMetadataDataToMetadataConstMeta =>
-      const TaskConstMeta(
-        debugName: 'convert_metadata_data_to_metadata',
-        argNames: ['metadataData'],
-      );
+  TaskConstMeta get kCrateApiConvertMetadataDataToMetadataConstMeta => const TaskConstMeta(
+    debugName: 'convert_metadata_data_to_metadata',
+    argNames: ['metadataData'],
+  );
 
   @override
   Future<MetadataData> crateApiConvertMetadataToData({
@@ -1372,11 +1325,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiConvertMetadataToDataConstMeta =>
-      const TaskConstMeta(
-        debugName: 'convert_metadata_to_data',
-        argNames: ['metadata'],
-      );
+  TaskConstMeta get kCrateApiConvertMetadataToDataConstMeta => const TaskConstMeta(
+    debugName: 'convert_metadata_to_data',
+    argNames: ['metadata'],
+  );
 
   @override
   Future<GroupData> crateApiCreateGroup({
@@ -1501,11 +1453,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiCreateWhitenoiseConfigConstMeta =>
-      const TaskConstMeta(
-        debugName: 'create_whitenoise_config',
-        argNames: ['dataDir', 'logsDir'],
-      );
+  TaskConstMeta get kCrateApiCreateWhitenoiseConfigConstMeta => const TaskConstMeta(
+    debugName: 'create_whitenoise_config',
+    argNames: ['dataDir', 'logsDir'],
+  );
 
   @override
   Future<void> crateApiDeleteAllData() {
@@ -1895,11 +1846,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiFetchMessagesForGroupConstMeta =>
-      const TaskConstMeta(
-        debugName: 'fetch_messages_for_group',
-        argNames: ['pubkey', 'groupId'],
-      );
+  TaskConstMeta get kCrateApiFetchMessagesForGroupConstMeta => const TaskConstMeta(
+    debugName: 'fetch_messages_for_group',
+    argNames: ['pubkey', 'groupId'],
+  );
 
   @override
   Future<MetadataData?> crateApiFetchMetadata({required PublicKey pubkey}) {
@@ -1967,11 +1917,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiFetchOnboardingStateConstMeta =>
-      const TaskConstMeta(
-        debugName: 'fetch_onboarding_state',
-        argNames: ['pubkey'],
-      );
+  TaskConstMeta get kCrateApiFetchOnboardingStateConstMeta => const TaskConstMeta(
+    debugName: 'fetch_onboarding_state',
+    argNames: ['pubkey'],
+  );
 
   @override
   Future<List<RelayUrl>> crateApiFetchRelays({
@@ -2111,11 +2060,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiInitializeWhitenoiseConstMeta =>
-      const TaskConstMeta(
-        debugName: 'initialize_whitenoise',
-        argNames: ['config'],
-      );
+  TaskConstMeta get kCrateApiInitializeWhitenoiseConstMeta => const TaskConstMeta(
+    debugName: 'initialize_whitenoise',
+    argNames: ['config'],
+  );
 
   @override
   Future<Account> crateApiLogin({required String nsecOrHexPrivkey}) {
@@ -2212,11 +2160,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiPublicKeyFromStringConstMeta =>
-      const TaskConstMeta(
-        debugName: 'public_key_from_string',
-        argNames: ['publicKeyString'],
-      );
+  TaskConstMeta get kCrateApiPublicKeyFromStringConstMeta => const TaskConstMeta(
+    debugName: 'public_key_from_string',
+    argNames: ['publicKeyString'],
+  );
 
   @override
   Future<RelayType> crateApiRelayTypeInbox() {
@@ -2273,11 +2220,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiRelayTypeKeyPackageConstMeta =>
-      const TaskConstMeta(
-        debugName: 'relay_type_key_package',
-        argNames: [],
-      );
+  TaskConstMeta get kCrateApiRelayTypeKeyPackageConstMeta => const TaskConstMeta(
+    debugName: 'relay_type_key_package',
+    argNames: [],
+  );
 
   @override
   Future<RelayType> crateApiRelayTypeNostr() {
@@ -2423,11 +2369,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiRemoveMembersFromGroupConstMeta =>
-      const TaskConstMeta(
-        debugName: 'remove_members_from_group',
-        argNames: ['pubkey', 'groupId', 'memberPubkeys'],
-      );
+  TaskConstMeta get kCrateApiRemoveMembersFromGroupConstMeta => const TaskConstMeta(
+    debugName: 'remove_members_from_group',
+    argNames: ['pubkey', 'groupId', 'memberPubkeys'],
+  );
 
   @override
   Future<MessageWithTokensData> crateApiSendMessageToGroup({
@@ -2702,18 +2647,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiWhitenoiseErrorToStringConstMeta =>
-      const TaskConstMeta(
-        debugName: 'whitenoise_error_to_string',
-        argNames: ['error'],
-      );
+  TaskConstMeta get kCrateApiWhitenoiseErrorToStringConstMeta => const TaskConstMeta(
+    debugName: 'whitenoise_error_to_string',
+    argNames: ['error'],
+  );
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_Account =>
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_Account =>
       wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_Account =>
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_Account =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount;
 
   RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_Event =>
@@ -2728,60 +2670,46 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_Group =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_GroupId =>
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_GroupId =>
       wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_GroupId =>
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_GroupId =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_MessageWithTokens =>
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_MessageWithTokens =>
       wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_MessageWithTokens =>
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_MessageWithTokens =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_Metadata =>
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_Metadata =>
       wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_Metadata =>
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_Metadata =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_MetadataData =>
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_MetadataData =>
       wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_MetadataData =>
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_MetadataData =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_PublicKey =>
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_PublicKey =>
       wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_PublicKey =>
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_PublicKey =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_RelayType =>
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_RelayType =>
       wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_RelayType =>
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_RelayType =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_RelayUrl =>
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_RelayUrl =>
       wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_RelayUrl =>
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_RelayUrl =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl;
 
   RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_Tag =>
@@ -2790,20 +2718,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_Tag =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_WhitenoiseConfig =>
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_WhitenoiseConfig =>
       wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_WhitenoiseConfig =>
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_WhitenoiseConfig =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig;
 
-  RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_WhitenoiseError =>
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_WhitenoiseError =>
       wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError;
 
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_WhitenoiseError =>
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_WhitenoiseError =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError;
 
   @protected
@@ -2816,8 +2740,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Event
-  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent(
+  Event dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -2879,8 +2802,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Tag
-  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
+  Tag dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -2915,8 +2837,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Account
-  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+  Account dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -2924,8 +2845,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Group
-  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
+  Group dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -2933,8 +2853,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  GroupId
-  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
+  GroupId dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -3028,8 +2947,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Account
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+  Account dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -3037,8 +2955,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Event
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent(
+  Event dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -3046,8 +2963,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Group
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
+  Group dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -3055,8 +2971,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  GroupId
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
+  GroupId dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -3073,8 +2988,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Metadata
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
+  Metadata dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -3091,8 +3005,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  PublicKey
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
+  PublicKey dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -3100,8 +3013,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  RelayType
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType(
+  RelayType dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -3109,8 +3021,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  RelayUrl
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
+  RelayUrl dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -3118,8 +3029,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Tag
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
+  Tag dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -3154,8 +3064,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   AccountData dco_decode_account_data(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 4) throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
     return AccountData(
       pubkey: dco_decode_String(arr[0]),
       settings: dco_decode_account_settings(arr[1]),
@@ -3168,8 +3077,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   AccountSettings dco_decode_account_settings(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 3)
-      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    if (arr.length != 3) throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
     return AccountSettings(
       darkTheme: dco_decode_bool(arr[0]),
       devMode: dco_decode_bool(arr[1]),
@@ -3215,8 +3123,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   GroupData dco_decode_group_data(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 10)
-      throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
+    if (arr.length != 10) throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
     return GroupData(
       mlsGroupId: dco_decode_String(arr[0]),
       nostrGroupId: dco_decode_String(arr[1]),
@@ -3311,9 +3218,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     dynamic raw,
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return (raw as List<dynamic>)
-        .map(dco_decode_message_with_tokens_data)
-        .toList();
+    return (raw as List<dynamic>).map(dco_decode_message_with_tokens_data).toList();
   }
 
   @protected
@@ -3345,8 +3250,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   MessageWithTokensData dco_decode_message_with_tokens_data(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 6)
-      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    if (arr.length != 6) throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
     return MessageWithTokensData(
       id: dco_decode_String(arr[0]),
       pubkey: dco_decode_String(arr[1]),
@@ -3361,8 +3265,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   OnboardingState dco_decode_onboarding_state(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 3)
-      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    if (arr.length != 3) throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
     return OnboardingState(
       inboxRelays: dco_decode_bool(arr[0]),
       keyPackageRelays: dco_decode_bool(arr[1]),
@@ -3488,8 +3391,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   WhitenoiseConfigData dco_decode_whitenoise_config_data(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 2)
-      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    if (arr.length != 2) throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
     return WhitenoiseConfigData(
       dataDir: dco_decode_String(arr[0]),
       logsDir: dco_decode_String(arr[1]),
@@ -3509,8 +3411,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Event
-  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent(
+  Event sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3593,8 +3494,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Tag
-  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
+  Tag sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3641,8 +3541,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Account
-  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+  Account sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3653,8 +3552,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Group
-  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
+  Group sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3665,8 +3563,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  GroupId
-  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
+  GroupId sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3783,8 +3680,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Account
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+  Account sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3795,8 +3691,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Event
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent(
+  Event sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3807,8 +3702,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Group
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
+  Group sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3819,8 +3713,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  GroupId
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
+  GroupId sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3843,8 +3736,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Metadata
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
+  Metadata sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3867,8 +3759,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  PublicKey
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
+  PublicKey sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3879,8 +3770,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  RelayType
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType(
+  RelayType sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3891,8 +3781,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  RelayUrl
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
+  RelayUrl sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -3903,8 +3792,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Tag
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
+  Tag sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -4372,8 +4260,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+  void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
     Account self,
     SseSerializer serializer,
   ) {
@@ -4385,8 +4272,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent(
+  void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent(
     Event self,
     SseSerializer serializer,
   ) {
@@ -4398,8 +4284,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
+  void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
     GroupId self,
     SseSerializer serializer,
   ) {
@@ -4411,8 +4296,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
+  void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
     Metadata self,
     SseSerializer serializer,
   ) {
@@ -4463,8 +4347,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
+  void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
     RelayUrl self,
     SseSerializer serializer,
   ) {
@@ -4476,8 +4359,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
+  void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
     Tag self,
     SseSerializer serializer,
   ) {
@@ -4528,8 +4410,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+  void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
     Account self,
     SseSerializer serializer,
   ) {
@@ -4541,8 +4422,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
+  void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
     Group self,
     SseSerializer serializer,
   ) {
@@ -4554,8 +4434,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
+  void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
     GroupId self,
     SseSerializer serializer,
   ) {
@@ -4580,8 +4459,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
+  void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
     Metadata self,
     SseSerializer serializer,
   ) {
@@ -4606,8 +4484,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
+  void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
     PublicKey self,
     SseSerializer serializer,
   ) {
@@ -4619,8 +4496,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
+  void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
     RelayUrl self,
     SseSerializer serializer,
   ) {
@@ -4683,8 +4559,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
     Account self,
     SseSerializer serializer,
   ) {
@@ -4693,8 +4568,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEvent(
     Event self,
     SseSerializer serializer,
   ) {
@@ -4703,8 +4577,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
     Group self,
     SseSerializer serializer,
   ) {
@@ -4713,8 +4586,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
     GroupId self,
     SseSerializer serializer,
   ) {
@@ -4723,8 +4595,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens(
     MessageWithTokens self,
     SseSerializer serializer,
   ) {
@@ -4736,8 +4607,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
     Metadata self,
     SseSerializer serializer,
   ) {
@@ -4746,8 +4616,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
     MetadataData self,
     SseSerializer serializer,
   ) {
@@ -4759,8 +4628,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
     PublicKey self,
     SseSerializer serializer,
   ) {
@@ -4772,8 +4640,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType(
     RelayType self,
     SseSerializer serializer,
   ) {
@@ -4785,8 +4652,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
     RelayUrl self,
     SseSerializer serializer,
   ) {
@@ -4795,8 +4661,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
     Tag self,
     SseSerializer serializer,
   ) {
@@ -4805,8 +4670,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
     WhitenoiseConfig self,
     SseSerializer serializer,
   ) {
@@ -4818,8 +4682,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
     WhitenoiseError self,
     SseSerializer serializer,
   ) {
@@ -4960,8 +4823,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void
-  sse_encode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
+  void sse_encode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
     List<Tag> self,
     SseSerializer serializer,
   ) {
@@ -5232,12 +5094,9 @@ class AccountImpl extends RustOpaque implements Account {
     : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
 
   static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        RustLib.instance.api.rust_arc_increment_strong_count_Account,
-    rustArcDecrementStrongCount:
-        RustLib.instance.api.rust_arc_decrement_strong_count_Account,
-    rustArcDecrementStrongCountPtr:
-        RustLib.instance.api.rust_arc_decrement_strong_count_AccountPtr,
+    rustArcIncrementStrongCount: RustLib.instance.api.rust_arc_increment_strong_count_Account,
+    rustArcDecrementStrongCount: RustLib.instance.api.rust_arc_decrement_strong_count_Account,
+    rustArcDecrementStrongCountPtr: RustLib.instance.api.rust_arc_decrement_strong_count_AccountPtr,
   );
 }
 
@@ -5252,12 +5111,9 @@ class EventImpl extends RustOpaque implements Event {
     : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
 
   static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        RustLib.instance.api.rust_arc_increment_strong_count_Event,
-    rustArcDecrementStrongCount:
-        RustLib.instance.api.rust_arc_decrement_strong_count_Event,
-    rustArcDecrementStrongCountPtr:
-        RustLib.instance.api.rust_arc_decrement_strong_count_EventPtr,
+    rustArcIncrementStrongCount: RustLib.instance.api.rust_arc_increment_strong_count_Event,
+    rustArcDecrementStrongCount: RustLib.instance.api.rust_arc_decrement_strong_count_Event,
+    rustArcDecrementStrongCountPtr: RustLib.instance.api.rust_arc_decrement_strong_count_EventPtr,
   );
 }
 
@@ -5272,12 +5128,9 @@ class GroupIdImpl extends RustOpaque implements GroupId {
     : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
 
   static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        RustLib.instance.api.rust_arc_increment_strong_count_GroupId,
-    rustArcDecrementStrongCount:
-        RustLib.instance.api.rust_arc_decrement_strong_count_GroupId,
-    rustArcDecrementStrongCountPtr:
-        RustLib.instance.api.rust_arc_decrement_strong_count_GroupIdPtr,
+    rustArcIncrementStrongCount: RustLib.instance.api.rust_arc_increment_strong_count_GroupId,
+    rustArcDecrementStrongCount: RustLib.instance.api.rust_arc_decrement_strong_count_GroupId,
+    rustArcDecrementStrongCountPtr: RustLib.instance.api.rust_arc_decrement_strong_count_GroupIdPtr,
   );
 }
 
@@ -5292,12 +5145,9 @@ class GroupImpl extends RustOpaque implements Group {
     : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
 
   static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        RustLib.instance.api.rust_arc_increment_strong_count_Group,
-    rustArcDecrementStrongCount:
-        RustLib.instance.api.rust_arc_decrement_strong_count_Group,
-    rustArcDecrementStrongCountPtr:
-        RustLib.instance.api.rust_arc_decrement_strong_count_GroupPtr,
+    rustArcIncrementStrongCount: RustLib.instance.api.rust_arc_increment_strong_count_Group,
+    rustArcDecrementStrongCount: RustLib.instance.api.rust_arc_decrement_strong_count_Group,
+    rustArcDecrementStrongCountPtr: RustLib.instance.api.rust_arc_decrement_strong_count_GroupPtr,
   );
 }
 
@@ -5319,10 +5169,7 @@ class MessageWithTokensImpl extends RustOpaque implements MessageWithTokens {
     rustArcDecrementStrongCount:
         RustLib.instance.api.rust_arc_decrement_strong_count_MessageWithTokens,
     rustArcDecrementStrongCountPtr:
-        RustLib
-            .instance
-            .api
-            .rust_arc_decrement_strong_count_MessageWithTokensPtr,
+        RustLib.instance.api.rust_arc_decrement_strong_count_MessageWithTokensPtr,
   );
 }
 
@@ -5337,64 +5184,53 @@ class MetadataDataImpl extends RustOpaque implements MetadataData {
     : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
 
   static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        RustLib.instance.api.rust_arc_increment_strong_count_MetadataData,
-    rustArcDecrementStrongCount:
-        RustLib.instance.api.rust_arc_decrement_strong_count_MetadataData,
+    rustArcIncrementStrongCount: RustLib.instance.api.rust_arc_increment_strong_count_MetadataData,
+    rustArcDecrementStrongCount: RustLib.instance.api.rust_arc_decrement_strong_count_MetadataData,
     rustArcDecrementStrongCountPtr:
         RustLib.instance.api.rust_arc_decrement_strong_count_MetadataDataPtr,
   );
 
-  String? get about =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorGetAbout(
-        that: this,
-      );
+  String? get about => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetAbout(
+    that: this,
+  );
 
-  String? get banner =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorGetBanner(
-        that: this,
-      );
+  String? get banner => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetBanner(
+    that: this,
+  );
 
-  String? get displayName =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorGetDisplayName(
-        that: this,
-      );
+  String? get displayName => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetDisplayName(
+    that: this,
+  );
 
-  String? get lud06 =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorGetLud06(
-        that: this,
-      );
+  String? get lud06 => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetLud06(
+    that: this,
+  );
 
-  String? get lud16 =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorGetLud16(
-        that: this,
-      );
+  String? get lud16 => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetLud16(
+    that: this,
+  );
 
-  String? get name =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorGetName(
-        that: this,
-      );
+  String? get name => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetName(
+    that: this,
+  );
 
-  String? get nip05 =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorGetNip05(
-        that: this,
-      );
+  String? get nip05 => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetNip05(
+    that: this,
+  );
 
-  String? get picture =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorGetPicture(
-        that: this,
-      );
+  String? get picture => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetPicture(
+    that: this,
+  );
 
-  String? get website =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorGetWebsite(
-        that: this,
-      );
+  String? get website => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetWebsite(
+    that: this,
+  );
 
-  set about(String? about) => RustLib.instance.api
-      .crateApiMetadataDataAutoAccessorSetAbout(that: this, about: about);
+  set about(String? about) =>
+      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetAbout(that: this, about: about);
 
-  set banner(String? banner) => RustLib.instance.api
-      .crateApiMetadataDataAutoAccessorSetBanner(that: this, banner: banner);
+  set banner(String? banner) =>
+      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetBanner(that: this, banner: banner);
 
   set displayName(String? displayName) =>
       RustLib.instance.api.crateApiMetadataDataAutoAccessorSetDisplayName(
@@ -5402,33 +5238,30 @@ class MetadataDataImpl extends RustOpaque implements MetadataData {
         displayName: displayName,
       );
 
-  set lud06(String? lud06) => RustLib.instance.api
-      .crateApiMetadataDataAutoAccessorSetLud06(that: this, lud06: lud06);
+  set lud06(String? lud06) =>
+      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetLud06(that: this, lud06: lud06);
 
-  set lud16(String? lud16) => RustLib.instance.api
-      .crateApiMetadataDataAutoAccessorSetLud16(that: this, lud16: lud16);
+  set lud16(String? lud16) =>
+      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetLud16(that: this, lud16: lud16);
 
-  set name(String? name) => RustLib.instance.api
-      .crateApiMetadataDataAutoAccessorSetName(that: this, name: name);
+  set name(String? name) =>
+      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetName(that: this, name: name);
 
-  set nip05(String? nip05) => RustLib.instance.api
-      .crateApiMetadataDataAutoAccessorSetNip05(that: this, nip05: nip05);
+  set nip05(String? nip05) =>
+      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetNip05(that: this, nip05: nip05);
 
-  set picture(String? picture) => RustLib.instance.api
-      .crateApiMetadataDataAutoAccessorSetPicture(that: this, picture: picture);
+  set picture(String? picture) =>
+      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetPicture(that: this, picture: picture);
 
-  set website(String? website) => RustLib.instance.api
-      .crateApiMetadataDataAutoAccessorSetWebsite(that: this, website: website);
+  set website(String? website) =>
+      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetWebsite(that: this, website: website);
 
-  Future<Map<String, String>> getCustom() =>
-      RustLib.instance.api.crateApiMetadataDataGetCustom(
-        that: this,
-      );
+  Future<Map<String, String>> getCustom() => RustLib.instance.api.crateApiMetadataDataGetCustom(
+    that: this,
+  );
 
-  Future<void> setCustom({required Map<String, String> customMap}) => RustLib
-      .instance
-      .api
-      .crateApiMetadataDataSetCustom(that: this, customMap: customMap);
+  Future<void> setCustom({required Map<String, String> customMap}) =>
+      RustLib.instance.api.crateApiMetadataDataSetCustom(that: this, customMap: customMap);
 }
 
 @sealed
@@ -5442,10 +5275,8 @@ class MetadataImpl extends RustOpaque implements Metadata {
     : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
 
   static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        RustLib.instance.api.rust_arc_increment_strong_count_Metadata,
-    rustArcDecrementStrongCount:
-        RustLib.instance.api.rust_arc_decrement_strong_count_Metadata,
+    rustArcIncrementStrongCount: RustLib.instance.api.rust_arc_increment_strong_count_Metadata,
+    rustArcDecrementStrongCount: RustLib.instance.api.rust_arc_decrement_strong_count_Metadata,
     rustArcDecrementStrongCountPtr:
         RustLib.instance.api.rust_arc_decrement_strong_count_MetadataPtr,
   );
@@ -5462,10 +5293,8 @@ class PublicKeyImpl extends RustOpaque implements PublicKey {
     : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
 
   static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        RustLib.instance.api.rust_arc_increment_strong_count_PublicKey,
-    rustArcDecrementStrongCount:
-        RustLib.instance.api.rust_arc_decrement_strong_count_PublicKey,
+    rustArcIncrementStrongCount: RustLib.instance.api.rust_arc_increment_strong_count_PublicKey,
+    rustArcDecrementStrongCount: RustLib.instance.api.rust_arc_decrement_strong_count_PublicKey,
     rustArcDecrementStrongCountPtr:
         RustLib.instance.api.rust_arc_decrement_strong_count_PublicKeyPtr,
   );
@@ -5482,10 +5311,8 @@ class RelayTypeImpl extends RustOpaque implements RelayType {
     : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
 
   static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        RustLib.instance.api.rust_arc_increment_strong_count_RelayType,
-    rustArcDecrementStrongCount:
-        RustLib.instance.api.rust_arc_decrement_strong_count_RelayType,
+    rustArcIncrementStrongCount: RustLib.instance.api.rust_arc_increment_strong_count_RelayType,
+    rustArcDecrementStrongCount: RustLib.instance.api.rust_arc_decrement_strong_count_RelayType,
     rustArcDecrementStrongCountPtr:
         RustLib.instance.api.rust_arc_decrement_strong_count_RelayTypePtr,
   );
@@ -5502,10 +5329,8 @@ class RelayUrlImpl extends RustOpaque implements RelayUrl {
     : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
 
   static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        RustLib.instance.api.rust_arc_increment_strong_count_RelayUrl,
-    rustArcDecrementStrongCount:
-        RustLib.instance.api.rust_arc_decrement_strong_count_RelayUrl,
+    rustArcIncrementStrongCount: RustLib.instance.api.rust_arc_increment_strong_count_RelayUrl,
+    rustArcDecrementStrongCount: RustLib.instance.api.rust_arc_decrement_strong_count_RelayUrl,
     rustArcDecrementStrongCountPtr:
         RustLib.instance.api.rust_arc_decrement_strong_count_RelayUrlPtr,
   );
@@ -5514,20 +5339,16 @@ class RelayUrlImpl extends RustOpaque implements RelayUrl {
 @sealed
 class TagImpl extends RustOpaque implements Tag {
   // Not to be used by end users
-  TagImpl.frbInternalDcoDecode(List<dynamic> wire)
-    : super.frbInternalDcoDecode(wire, _kStaticData);
+  TagImpl.frbInternalDcoDecode(List<dynamic> wire) : super.frbInternalDcoDecode(wire, _kStaticData);
 
   // Not to be used by end users
   TagImpl.frbInternalSseDecode(BigInt ptr, int externalSizeOnNative)
     : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
 
   static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        RustLib.instance.api.rust_arc_increment_strong_count_Tag,
-    rustArcDecrementStrongCount:
-        RustLib.instance.api.rust_arc_decrement_strong_count_Tag,
-    rustArcDecrementStrongCountPtr:
-        RustLib.instance.api.rust_arc_decrement_strong_count_TagPtr,
+    rustArcIncrementStrongCount: RustLib.instance.api.rust_arc_increment_strong_count_Tag,
+    rustArcDecrementStrongCount: RustLib.instance.api.rust_arc_decrement_strong_count_Tag,
+    rustArcDecrementStrongCountPtr: RustLib.instance.api.rust_arc_decrement_strong_count_TagPtr,
   );
 }
 
@@ -5549,10 +5370,7 @@ class WhitenoiseConfigImpl extends RustOpaque implements WhitenoiseConfig {
     rustArcDecrementStrongCount:
         RustLib.instance.api.rust_arc_decrement_strong_count_WhitenoiseConfig,
     rustArcDecrementStrongCountPtr:
-        RustLib
-            .instance
-            .api
-            .rust_arc_decrement_strong_count_WhitenoiseConfigPtr,
+        RustLib.instance.api.rust_arc_decrement_strong_count_WhitenoiseConfigPtr,
   );
 }
 

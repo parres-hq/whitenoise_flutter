@@ -26,16 +26,13 @@ Future<Metadata> convertMetadataDataToMetadata({
 );
 
 /// Helper function to convert a relay type to a RelayType
-Future<RelayType> relayTypeNostr() =>
-    RustLib.instance.api.crateApiRelayTypeNostr();
+Future<RelayType> relayTypeNostr() => RustLib.instance.api.crateApiRelayTypeNostr();
 
 /// Helper function to convert a relay type to a RelayType
-Future<RelayType> relayTypeInbox() =>
-    RustLib.instance.api.crateApiRelayTypeInbox();
+Future<RelayType> relayTypeInbox() => RustLib.instance.api.crateApiRelayTypeInbox();
 
 /// Helper function to convert a relay type to a RelayType
-Future<RelayType> relayTypeKeyPackage() =>
-    RustLib.instance.api.crateApiRelayTypeKeyPackage();
+Future<RelayType> relayTypeKeyPackage() => RustLib.instance.api.crateApiRelayTypeKeyPackage();
 
 /// Helper function to convert a public key string to a PublicKey
 Future<PublicKey> publicKeyFromString({required String publicKeyString}) =>
@@ -98,16 +95,14 @@ Future<void> initializeWhitenoise({required WhitenoiseConfig config}) =>
 Future<void> deleteAllData() => RustLib.instance.api.crateApiDeleteAllData();
 
 /// Fetch all accounts that are stored on the whitenoise instance (these are "logged in" accounts)
-Future<List<AccountData>> fetchAccounts() =>
-    RustLib.instance.api.crateApiFetchAccounts();
+Future<List<AccountData>> fetchAccounts() => RustLib.instance.api.crateApiFetchAccounts();
 
 /// Fetch an account by its public key
 Future<AccountData> fetchAccount({required PublicKey pubkey}) =>
     RustLib.instance.api.crateApiFetchAccount(pubkey: pubkey);
 
 /// Create a new account and get it ready for MLS messaging
-Future<Account> createIdentity() =>
-    RustLib.instance.api.crateApiCreateIdentity();
+Future<Account> createIdentity() => RustLib.instance.api.crateApiCreateIdentity();
 
 /// Login to an account by its private key (nsec or hex)
 Future<Account> login({required String nsecOrHexPrivkey}) =>
@@ -424,10 +419,7 @@ class AccountData {
 
   @override
   int get hashCode =>
-      pubkey.hashCode ^
-      settings.hashCode ^
-      onboarding.hashCode ^
-      lastSynced.hashCode;
+      pubkey.hashCode ^ settings.hashCode ^ onboarding.hashCode ^ lastSynced.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -452,8 +444,7 @@ class AccountSettings {
   });
 
   @override
-  int get hashCode =>
-      darkTheme.hashCode ^ devMode.hashCode ^ lockdownMode.hashCode;
+  int get hashCode => darkTheme.hashCode ^ devMode.hashCode ^ lockdownMode.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -583,9 +574,7 @@ class OnboardingState {
 
   @override
   int get hashCode =>
-      inboxRelays.hashCode ^
-      keyPackageRelays.hashCode ^
-      keyPackagePublished.hashCode;
+      inboxRelays.hashCode ^ keyPackageRelays.hashCode ^ keyPackagePublished.hashCode;
 
   @override
   bool operator ==(Object other) =>

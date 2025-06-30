@@ -608,8 +608,13 @@ pub async fn fetch_messages_for_group(
     group_id: whitenoise::GroupId,
 ) -> Result<Vec<MessageWithTokensData>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let messages = whitenoise.fetch_messages_for_group(pubkey, &group_id).await?;
-    Ok(messages.iter().map(convert_message_with_tokens_to_data).collect())
+    let messages = whitenoise
+        .fetch_messages_for_group(pubkey, &group_id)
+        .await?;
+    Ok(messages
+        .iter()
+        .map(convert_message_with_tokens_to_data)
+        .collect())
 }
 
 /// This method adds new members to an existing MLS group. The calling account must have
