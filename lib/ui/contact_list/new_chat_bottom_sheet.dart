@@ -121,13 +121,33 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     }
   }
 
+  List<ContactModel> _getFilteredContacts(List<ContactModel>? contacts) {
+    if (contacts == null) return [];
+    
+    if (_searchQuery.isEmpty) return contacts;
+
+    return contacts
+        .where(
+          (contact) =>
+              contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              contact.displayNameOrName.toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              ) ||
+              (contact.nip05?.toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ) ??
+                  false) ||
+              contact.publicKey.toLowerCase().contains(
+                _searchQuery.toLowerCase(),
+              ),
+        )
+        .toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
-
-    final List<ContactModel> filteredContacts = ref
-        .read(contactsProvider.notifier)
-        .getFilteredContacts(_searchQuery);
+    final filteredContacts = _getFilteredContacts(contactsState.contactModels);
 
     final showAddOption =
         _searchQuery.isNotEmpty && _isValidPublicKey(_searchQuery) && filteredContacts.isEmpty;
