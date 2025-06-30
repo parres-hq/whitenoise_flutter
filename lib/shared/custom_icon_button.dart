@@ -22,7 +22,7 @@ class CustomIconButton extends StatelessWidget {
       child: Container(
         height: 40.h,
         decoration: BoxDecoration(
-          border: Border.all(color: context.colors.baseMuted),
+          border: Border.all(color: context.colors.input),
         ),
         child: Padding(
           padding: EdgeInsets.all(padding ?? 12.w),

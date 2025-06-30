@@ -155,7 +155,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           height: 52.w,
                           width: 52.w,
                           decoration: BoxDecoration(
-                            color: context.colors.surface,
+                            color: context.colors.avatarSurface,
                           ),
                           child: CustomIconButton(
                             iconPath: AssetsPaths.icPaste,
