@@ -128,6 +128,15 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
       });
 
       _logger.info('Fetched ${messages.length} messages');
+
+      // Log tokens for each message
+      for (int i = 0; i < messages.length; i++) {
+        final message = messages[i];
+        _logger.info('Message ${i + 1} tokens (${message.tokens.length} total):');
+        for (int j = 0; j < message.tokens.length; j++) {
+          _logger.info('  Token $j: ${message.tokens[j]}');
+        }
+      }
     } catch (e, st) {
       _logger.severe('Error fetching messages', e, st);
       _setError('Error fetching messages: $e');
@@ -157,15 +166,15 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: context.colors.primaryForeground,
+                color: Colors.white,
               ),
             ),
             Gap(12.h),
-            if (groups.isEmpty)
+                          if (groups.isEmpty)
               Text(
                 'No groups found. Create a group first.',
                 style: TextStyle(
-                  color: context.colors.mutedForeground,
+                  color: Colors.white70,
                   fontSize: 14.sp,
                 ),
               )
@@ -174,7 +183,7 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
                 value: _selectedGroup,
                 decoration: InputDecoration(
                   labelText: 'Group',
-                  labelStyle: TextStyle(color: context.colors.mutedForeground),
+                  labelStyle: const TextStyle(color: Colors.white),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8.r),
                   ),
@@ -182,24 +191,13 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
                 items: groups.map((group) {
                   return DropdownMenuItem<GroupData>(
                     value: group,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          group.name,
-                          style: TextStyle(
+                    child: Text(
+                      group.name,
+                                                style: const TextStyle(
                             fontWeight: FontWeight.w500,
-                            color: context.colors.primaryForeground,
+                            color: Colors.white,
                           ),
-                        ),
-                        Text(
-                          'Type: ${group.groupType.name} | State: ${group.state.name}',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: context.colors.mutedForeground,
-                          ),
-                        ),
-                      ],
+                      overflow: TextOverflow.ellipsis,
                     ),
                   );
                 }).toList(),
@@ -231,18 +229,18 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: context.colors.primaryForeground,
+                color: Colors.white,
               ),
             ),
             Gap(12.h),
             TextField(
               controller: _messageController,
-              style: TextStyle(color: context.colors.primaryForeground),
+              style: const TextStyle(color: Colors.white),
               decoration: InputDecoration(
                 labelText: 'Message',
-                labelStyle: TextStyle(color: context.colors.mutedForeground),
+                                  labelStyle: const TextStyle(color: Colors.white),
                 hintText: 'Enter test message...',
-                hintStyle: TextStyle(color: context.colors.mutedForeground),
+                hintStyle: const TextStyle(color: Colors.white60),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8.r),
                 ),
@@ -268,7 +266,7 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
-                color: context.colors.primaryForeground,
+                color: Colors.white,
               ),
             ),
             Gap(12.h),
@@ -321,7 +319,7 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
     if (_error != null) {
       return Card(
         margin: EdgeInsets.symmetric(vertical: 8.h),
-        color: context.colors.destructive.withOpacity(0.1),
+        color: context.colors.destructive.withValues(alpha: 0.1),
         child: Padding(
           padding: EdgeInsets.all(16.w),
           child: Column(
@@ -331,12 +329,14 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
                 children: [
                   Icon(CarbonIcons.warning, color: context.colors.destructive, size: 16.sp),
                   Gap(8.w),
-                  Text(
-                    'Error',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.destructive,
+                  Expanded(
+                    child: Text(
+                      'Error',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: context.colors.destructive,
+                      ),
                     ),
                   ),
                 ],
@@ -358,7 +358,7 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
     if (_lastSentMessage != null) {
       return Card(
         margin: EdgeInsets.symmetric(vertical: 8.h),
-        color: context.colors.primary.withOpacity(0.1),
+        color: context.colors.primary.withValues(alpha: 0.1),
         child: Padding(
           padding: EdgeInsets.all(16.w),
           child: Column(
@@ -368,12 +368,14 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
                 children: [
                   Icon(CarbonIcons.checkmark, color: context.colors.primary, size: 16.sp),
                   Gap(8.w),
-                  Text(
-                    'Message Sent Successfully',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.primary,
+                  Expanded(
+                    child: Text(
+                      'Message Sent Successfully',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: context.colors.primary,
+                      ),
                     ),
                   ),
                 ],
@@ -383,7 +385,7 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
                 width: double.infinity,
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: context.colors.primary.withOpacity(0.05),
+                  color: context.colors.primary.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(8.r),
                   border: Border.all(color: context.colors.border),
                 ),
@@ -392,7 +394,7 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
                   style: TextStyle(
                     fontFamily: 'monospace',
                     fontSize: 12.sp,
-                    color: context.colors.primaryForeground,
+                    color: Colors.white,
                     height: 1.4,
                   ),
                 ),
@@ -406,7 +408,7 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
     if (_lastFetchedMessages != null) {
       return Card(
         margin: EdgeInsets.symmetric(vertical: 8.h),
-        color: context.colors.primary.withOpacity(0.1),
+        color: context.colors.primary.withValues(alpha: 0.1),
         child: Padding(
           padding: EdgeInsets.all(16.w),
           child: Column(
@@ -416,12 +418,14 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
                 children: [
                   Icon(CarbonIcons.checkmark, color: context.colors.primary, size: 16.sp),
                   Gap(8.w),
-                  Text(
-                    'Messages Fetched Successfully (${_lastFetchedMessages!.length} messages)',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.primary,
+                  Expanded(
+                    child: Text(
+                      '${_lastFetchedMessages!.length} messages fetched',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: context.colors.primary,
+                      ),
                     ),
                   ),
                 ],
@@ -432,7 +436,7 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
                 height: 300.h,
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: context.colors.primary.withOpacity(0.05),
+                  color: context.colors.primary.withValues(alpha: 0.05),
                   borderRadius: BorderRadius.circular(8.r),
                   border: Border.all(color: context.colors.border),
                 ),
@@ -460,7 +464,7 @@ ${message.tokens.asMap().entries.map((e) => '    ${e.key}: ${e.value}').join('\n
                     style: TextStyle(
                       fontFamily: 'monospace',
                       fontSize: 12.sp,
-                      color: context.colors.primaryForeground,
+                      color: Colors.white,
                       height: 1.4,
                     ),
                   ),
@@ -479,7 +483,7 @@ ${message.tokens.asMap().entries.map((e) => '    ${e.key}: ${e.value}').join('\n
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: const CustomAppBar(title: 'Developer Testing'),
+      appBar: const CustomAppBar(title: Text('Developer Testing')),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.w),
         child: Column(
@@ -490,7 +494,7 @@ ${message.tokens.asMap().entries.map((e) => '    ${e.key}: ${e.value}').join('\n
               style: TextStyle(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.bold,
-                color: context.colors.primaryForeground,
+                color: Colors.white,
               ),
             ),
             Gap(8.h),
@@ -498,7 +502,7 @@ ${message.tokens.asMap().entries.map((e) => '    ${e.key}: ${e.value}').join('\n
               'Test send_message_to_group and fetch_messages_for_group bridge methods. The token data format will be displayed in the results.',
               style: TextStyle(
                 fontSize: 14.sp,
-                color: context.colors.mutedForeground,
+                color: Colors.white,
                 height: 1.4,
               ),
             ),
