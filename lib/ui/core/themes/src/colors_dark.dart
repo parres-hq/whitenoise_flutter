@@ -3,7 +3,7 @@ part of 'colors.dart';
 /// Dark theme colors
 class DarkAppColors {
   /// base/primary, Custom inverted for dark mode
-  static const primary = Color(0xffF9F9F9);
+  static const primary = Color(0xffFAFAFA);
 
   /// base/secondary
   static const secondary = Color(0xff202320);
@@ -13,6 +13,8 @@ class DarkAppColors {
 
   /// base/background
   static const primaryBackground = Color(0xff2D312D);
+
+  static const primaryForeground = Color(0xff0A0A0A);
 
   /// base/accent-foreground, base/secondary-foreground, base/foreground
   static const secondaryForeground = Color(0xffF2F2F2);
@@ -61,5 +63,13 @@ class DarkAppColors {
 
   static const Color avatarSurface = Color(0xff171717);
 
-  static const Color primaryText = Color(0xffFAFAFA);
+  static const Color solidPrimary = Color(0xffFAFAFA);
+  static const input = Color(0xff262626);
+
+  static const meChatBubble = Color(0xffFAFAFA);
+  static const contactChatBubble = Color(0xff262626);
+
+  static const meChatBubbleText = Color(0xff0A0A0A);
+  static const contactChatBubbleText = Color(0xffFAFAFA);
+  static const overlay = Color(0xffFFFFFF);
 }

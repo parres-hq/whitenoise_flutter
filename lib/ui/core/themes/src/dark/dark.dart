@@ -69,6 +69,7 @@ ScrollbarThemeData buildDarkScrollBarTheme() {
 BottomSheetThemeData buildDarkBottomSheetTheme() {
   return const BottomSheetThemeData(
     backgroundColor: DarkAppColors.neutral,
+    shape: RoundedRectangleBorder(),
     showDragHandle: true,
     dragHandleColor: DarkAppColors.baseMuted,
     dragHandleSize: Size(50, 3),
@@ -77,7 +78,9 @@ BottomSheetThemeData buildDarkBottomSheetTheme() {
 
 ListTileThemeData buildDarkListTileTheme() {
   return ListTileThemeData(
-    titleTextStyle: darkTextTheme.labelLarge?.copyWith(color: DarkAppColors.secondaryForeground),
+    titleTextStyle: darkTextTheme.labelLarge?.copyWith(
+      color: DarkAppColors.secondaryForeground,
+    ),
     subtitleTextStyle: darkTextTheme.bodySmall?.copyWith(color: DarkAppColors.mutedForeground),
     iconColor: DarkAppColors.primary,
   );
@@ -116,8 +119,12 @@ PopupMenuThemeData buildDarkPopupTheme() {
 AppBarTheme buildDarkAppBarTheme() {
   return AppBarTheme(
     backgroundColor: DarkAppColors.appBarBackground,
+    iconTheme: IconThemeData(
+      color: DarkAppColors.solidPrimary,
+      size: 18.sp,
+    ),
     titleTextStyle: darkTextTheme.labelLarge?.semiBold.copyWith(
-      color: DarkAppColors.appBarForeground,
+      color: DarkAppColors.mutedForeground,
     ),
     systemOverlayStyle: const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,

@@ -53,7 +53,7 @@ class ContactListTile extends StatelessWidget {
                 width: 56.w,
                 height: 56.w,
                 decoration: BoxDecoration(
-                  color: Colors.orange,
+                  color: context.colors.warning,
                   borderRadius: BorderRadius.circular(30.r),
                 ),
                 child:

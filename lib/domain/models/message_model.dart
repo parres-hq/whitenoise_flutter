@@ -1,4 +1,9 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:flutter/material.dart';
+
 import 'package:whitenoise/domain/models/user_model.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class MessageModel {
   final String id;
@@ -67,62 +72,170 @@ class MessageModel {
     final now = DateTime.now();
     final difference = now.difference(createdAt);
 
-    if (difference.inDays > 365) {
-      return '${createdAt.year}/${createdAt.month}/${createdAt.day}';
-    } else if (difference.inDays > 7) {
-      return '${createdAt.month}/${createdAt.day}';
-    } else if (difference.inDays > 1) {
-      return '${difference.inDays}d ago';
-    } else if (difference.inHours > 1) {
-      return '${difference.inHours}h ago';
-    } else if (difference.inMinutes > 1) {
-      return '${difference.inMinutes}m ago';
-    } else {
+    // Same day - show time (HH:MM)
+    if (difference.inDays == 0) {
+      final hour = createdAt.hour;
+      final minute = createdAt.minute.toString().padLeft(2, '0');
+
+      // 12-hour format with AM/PM
+      if (hour == 0) {
+        return '12:$minute AM';
+      } else if (hour < 12) {
+        return '$hour:$minute AM';
+      } else if (hour == 12) {
+        return '12:$minute PM';
+      } else {
+        return '${hour - 12}:$minute PM';
+      }
+    }
+
+    // Yesterday
+    if (difference.inDays == 1) {
+      return 'Yesterday';
+    }
+
+    // This week (2-6 days ago) - show day name
+    if (difference.inDays < 7) {
+      final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      return weekdays[createdAt.weekday - 1];
+    }
+
+    // Same year - show month/day
+    if (createdAt.year == now.year) {
+      final month = createdAt.month.toString().padLeft(2, '0');
+      final day = createdAt.day.toString().padLeft(2, '0');
+      return '$month/$day';
+    }
+
+    // Different year - show full date
+    final year = createdAt.year.toString();
+    final month = createdAt.month.toString().padLeft(2, '0');
+    final day = createdAt.day.toString().padLeft(2, '0');
+    return '$month/$day/$year';
+  }
+
+  // Alternative version with more detailed recent timestamps
+  String get timeSentDetailed {
+    final now = DateTime.now();
+    final difference = now.difference(createdAt);
+
+    // Less than 1 minute
+    if (difference.inSeconds < 60) {
       return 'Just now';
     }
+
+    // Less than 1 hour - show minutes
+    if (difference.inMinutes < 60) {
+      final minutes = difference.inMinutes;
+      return '${minutes}m ago';
+    }
+
+    // Same day but more than 1 hour - show time
+    if (difference.inDays == 0) {
+      final hour = createdAt.hour;
+      final minute = createdAt.minute.toString().padLeft(2, '0');
+
+      // 24-hour format (more compact for chat)
+      return '$hour:$minute';
+    }
+
+    // Yesterday
+    if (difference.inDays == 1) {
+      return 'Yesterday';
+    }
+
+    // This week - show day name
+    if (difference.inDays < 7) {
+      final weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      return weekdays[createdAt.weekday - 1];
+    }
+
+    // Same year - show month/day
+    if (createdAt.year == now.year) {
+      final month = createdAt.month.toString().padLeft(2, '0');
+      final day = createdAt.day.toString().padLeft(2, '0');
+      return '$month/$day';
+    }
+
+    // Different year - show full date
+    final year = createdAt.year.toString();
+    final month = createdAt.month.toString().padLeft(2, '0');
+    final day = createdAt.day.toString().padLeft(2, '0');
+    return '$month/$day/$year';
   }
 
-  factory MessageModel.fromJson(Map<String, dynamic> json) {
-    return MessageModel(
-      id: json['id'],
-      content: json['content'],
-      type: MessageType.values.firstWhere(
-        (e) => e.toString() == 'MessageType.${json['type']}',
-        orElse: () => MessageType.text,
-      ),
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: json['updated_at'] != null ? DateTime.parse(json['updated_at']) : null,
-      sender: User.fromJson(json['sender']),
-      isMe: json['is_me'] ?? false,
-      audioPath: json['audio_path'],
-      imageUrl: json['image_url'],
-      replyTo: json['reply_to'] != null ? MessageModel.fromJson(json['reply_to']) : null,
-      reactions:
-          (json['reactions'] as List<dynamic>?)?.map((e) => Reaction.fromJson(e)).toList() ?? [],
-      roomId: json['room_id'],
-      status: MessageStatus.values.firstWhere(
-        (e) => e.toString() == 'MessageStatus.${json['status']}',
-        orElse: () => MessageStatus.sent,
-      ),
-    );
-  }
+  // WhatsApp-style formatting (most user-friendly)
+  String get timeSentWhatsApp {
+    final now = DateTime.now();
+    final difference = now.difference(createdAt);
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'content': content,
-      'type': type.toString().split('.').last,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
-      'sender': sender.toJson(),
-      'is_me': isMe,
-      'audio_path': audioPath,
-      'image_url': imageUrl,
-      'reply_to': replyTo?.toJson(),
-      'reactions': reactions.map((e) => e.toJson()).toList(),
-      'room_id': roomId,
-      'status': status.toString().split('.').last,
-    };
+    // Today - show time only
+    if (difference.inDays == 0) {
+      final hour = createdAt.hour;
+      final minute = createdAt.minute.toString().padLeft(2, '0');
+
+      // 12-hour format like WhatsApp
+      if (hour == 0) {
+        return '12:$minute AM';
+      } else if (hour < 12) {
+        return '$hour:$minute AM';
+      } else if (hour == 12) {
+        return '12:$minute PM';
+      } else {
+        return '${hour - 12}:$minute PM';
+      }
+    }
+
+    if (difference.inDays == 1) {
+      return 'Yesterday';
+    }
+
+    if (difference.inDays < 7) {
+      final weekdays = [
+        'Monday',
+        'Tuesday',
+        'Wednesday',
+        'Thursday',
+        'Friday',
+        'Saturday',
+        'Sunday',
+      ];
+      return weekdays[createdAt.weekday - 1];
+    }
+
+    if (createdAt.year == now.year) {
+      final months = [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ];
+      return '${months[createdAt.month - 1]} ${createdAt.day}';
+    }
+
+    final months = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
+    return '${months[createdAt.month - 1]} ${createdAt.day}, ${createdAt.year}';
   }
 }
 
@@ -134,34 +247,60 @@ class Reaction {
   Reaction({required this.emoji, required this.user, DateTime? createdAt})
     : createdAt = createdAt ?? DateTime.now();
 
-  factory Reaction.fromJson(Map<String, dynamic> json) {
-    return Reaction(
-      emoji: json['emoji'],
-      user: User.fromJson(json['user']),
-      createdAt: json['created_at'] != null ? DateTime.parse(json['created_at']) : null,
-    );
-  }
+  @override
+  bool operator ==(covariant Reaction other) {
+    if (identical(this, other)) return true;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'emoji': emoji,
-      'user': user.toJson(),
-      'created_at': createdAt.toIso8601String(),
-    };
+    return other.emoji == emoji && other.user == user && other.createdAt == createdAt;
   }
 
   @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Reaction &&
-          runtimeType == other.runtimeType &&
-          emoji == other.emoji &&
-          user.id == other.user.id;
-
-  @override
-  int get hashCode => emoji.hashCode ^ user.id.hashCode;
+  int get hashCode => emoji.hashCode ^ user.hashCode ^ createdAt.hashCode;
 }
 
 enum MessageType { text, image, audio, video, file }
 
-enum MessageStatus { sending, sent, delivered, read, failed }
+enum MessageStatus {
+  sending,
+  sent,
+  delivered,
+  read,
+  failed;
+
+  String get imagePath {
+    switch (this) {
+      case MessageStatus.sending:
+      case MessageStatus.failed:
+      case MessageStatus.sent:
+        return AssetsPaths.icCheckmarkDashed;
+      case MessageStatus.delivered:
+        return AssetsPaths.icCheckmarkSolid;
+      case MessageStatus.read:
+        return AssetsPaths.icCheckmarkFilled;
+    }
+  }
+
+  Color color(BuildContext context) {
+    switch (this) {
+      case MessageStatus.read:
+        return context.colors.primary;
+      case MessageStatus.delivered:
+      case MessageStatus.sent:
+      case MessageStatus.sending:
+      case MessageStatus.failed:
+        return context.colors.mutedForeground;
+    }
+  }
+
+  Color bubbleStatusColor(BuildContext context) {
+    switch (this) {
+      case MessageStatus.read:
+        return context.colors.input;
+      case MessageStatus.delivered:
+      case MessageStatus.sent:
+      case MessageStatus.sending:
+      case MessageStatus.failed:
+        return context.colors.input;
+    }
+  }
+}

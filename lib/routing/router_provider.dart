@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
 import 'package:whitenoise/ui/auth_flow/info_screen.dart';
@@ -64,18 +63,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: ':id',
             builder: (context, state) {
-              final chatId = state.pathParameters['id']!;
-              // TODO: Replace with actual contact and message data from providers
-              final placeholderContact = User(
-                id: chatId,
-                name: 'Contact',
-                nip05: 'contact@example.com',
-                publicKey: 'placeholder_public_key',
-              );
-              return ChatScreen(
-                contact: placeholderContact,
-                initialMessages: const [], // Empty list for now
-              );
+              final groupId = state.pathParameters['id']!;
+              return ChatScreen(groupId: groupId);
             },
           ),
         ],

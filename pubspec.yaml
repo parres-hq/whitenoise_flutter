@@ -57,6 +57,9 @@ dependencies:
     freezed_annotation: ^2.4.1
     shared_preferences: ^2.5.3
     flutter_secure_storage: ^9.2.4
+    intl: ^0.19.0
+    flutter_animate: ^4.5.2
+    chat_bubbles: ^1.6.0
 
 dev_dependencies:
     flutter_test:

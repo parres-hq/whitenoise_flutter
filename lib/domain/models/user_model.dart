@@ -1,3 +1,6 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
+import 'package:whitenoise/src/rust/api.dart';
+
 class User {
   final String id;
   final String name;
@@ -15,25 +18,36 @@ class User {
     this.username,
   });
 
-  factory User.fromJson(Map<String, dynamic> json) {
+  factory User.fromMetadata(MetadataData metadata, String publicKey) {
     return User(
-      id: json['id'],
-      name: json['name'],
-      nip05: json['nip05'],
-      publicKey: json['publicKey'],
-      imagePath: json['image_path'],
-      username: json['username'],
+      id: publicKey,
+      name: metadata.name ?? 'Unknown',
+      nip05: metadata.nip05 ?? '',
+      publicKey: publicKey,
+      imagePath: metadata.picture,
+      username: metadata.displayName,
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'nip05': nip05,
-      'publicKey': publicKey,
-      'image_path': imagePath,
-      'username': username,
-    };
+  @override
+  bool operator ==(covariant User other) {
+    if (identical(this, other)) return true;
+
+    return other.id == id &&
+        other.name == name &&
+        other.nip05 == nip05 &&
+        other.publicKey == publicKey &&
+        other.imagePath == imagePath &&
+        other.username == username;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+        name.hashCode ^
+        nip05.hashCode ^
+        publicKey.hashCode ^
+        imagePath.hashCode ^
+        username.hashCode;
   }
 }

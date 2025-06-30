@@ -26,4 +26,11 @@ const fallbackColorsExt = AppColorsThemeExt(
   link: LightAppColors.link,
   border: LightAppColors.border,
   avatarSurface: LightAppColors.avatarSurface,
+  solidPrimary: LightAppColors.solidPrimary,
+  input: LightAppColors.input,
+  meChatBubble: LightAppColors.meChatBubble,
+  contactChatBubble: LightAppColors.contactChatBubble,
+  meChatBubbleText: LightAppColors.meChatBubbleText,
+  contactChatBubbleText: LightAppColors.contactChatBubbleText,
+  overlay: LightAppColors.overlay,
 );

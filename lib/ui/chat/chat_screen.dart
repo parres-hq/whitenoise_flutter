@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:go_router/go_router.dart';
-import 'package:whitenoise/domain/models/message_model.dart';
-import 'package:whitenoise/domain/models/user_model.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/chat/notifiers/chat_notifier.dart';
 import 'package:whitenoise/ui/chat/services/chat_dialog_service.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
@@ -13,15 +13,15 @@ import 'package:whitenoise/ui/chat/widgets/message_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/swipe_to_reply_widget.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/bottom_fade.dart';
+import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
-  final User contact;
-  final List<MessageModel> initialMessages;
+  final String groupId;
 
   const ChatScreen({
     super.key,
-    required this.contact,
-    required this.initialMessages,
+    required this.groupId,
   });
 
   @override
@@ -30,19 +30,14 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  late final ChatNotifierParams _chatNotifierParams;
 
   @override
   void initState() {
     super.initState();
-
-    _chatNotifierParams = ChatNotifierParams(
-      contact: widget.contact,
-      initialMessages: widget.initialMessages,
-    );
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.jumpTo(_scrollController.position.minScrollExtent);
+      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
+      ref.read(chatNotifierProvider.notifier).initialize();
     });
   }
 
@@ -55,7 +50,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _handleScrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _scrollController.animateTo(
-        _scrollController.position.minScrollExtent,
+        _scrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 100),
         curve: Curves.easeOut,
       );
@@ -64,90 +59,104 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final chatState = ref.watch(chatNotifierProvider(_chatNotifierParams));
-    final chatNotifier = ref.read(chatNotifierProvider(_chatNotifierParams).notifier);
+    final groupsNotifier = ref.read(groupsProvider.notifier);
+    final groupData = groupsNotifier.findGroupById(widget.groupId);
+    final displayName =
+        groupsNotifier.getGroupDisplayName(widget.groupId) ?? groupData?.name ?? 'Unknown Group';
+    final chatState = ref.watch(chatNotifierProvider);
+    final chatNotifier = ref.read(chatNotifierProvider.notifier);
+
+    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
+    final isKeyboardOpen = keyboardHeight > 0;
+
+    if (groupData == null) {
+      return Scaffold(
+        backgroundColor: context.colors.neutral,
+        body: const Center(
+          child: Text('Group not found'),
+        ),
+      );
+    }
 
     return Scaffold(
-      backgroundColor: context.colors.neutral,
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.arrow_back_ios_new,
-            size: 20.w,
-            color: context.colors.appBarForeground,
-          ),
-          onPressed: () => context.pop(),
-        ),
-        title: ContactInfo(
-          title: widget.contact.name,
-          imgPath: AssetsPaths.icImage,
-        ),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView.builder(
-                controller: _scrollController,
-                reverse: true,
-                physics: const BouncingScrollPhysics(),
-                padding: EdgeInsets.symmetric(horizontal: 8.w),
-                itemCount: chatState.messages.length + 1,
-                itemBuilder: (context, index) {
-                  if (index == chatState.messages.length) {
-                    return ChatHeaderWidget(contact: widget.contact);
-                  }
+      resizeToAvoidBottomInset: true,
 
-                  final message = chatState.messages[index];
-                  return SwipeToReplyWidget(
-                    message: message,
-                    onReply: () => chatNotifier.handleReply(message),
-                    onTap:
-                        () => ChatDialogService.showReactionDialog(
-                          context: context,
-                          ref: ref,
-                          message: message,
-                          messageIndex: index,
-                          chatNotifierParams: _chatNotifierParams,
-                        ),
-                    child: Hero(
-                      tag: message.id,
-                      child: MessageWidget(
-                        message: message,
-                        isGroupMessage: false,
-                        isSameSenderAsPrevious: chatNotifier.isSameSender(index),
-                        isSameSenderAsNext: chatNotifier.isNextSameSender(index),
-                        onReactionTap: (reaction) {
-                          chatNotifier.updateMessageReaction(
+      body: Stack(
+        children: [
+          CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              CustomAppBar.sliver(
+                floating: true,
+                pinned: true,
+                title: ContactInfo(
+                  title: displayName,
+                  imgPath: AssetsPaths.icImage,
+                ),
+              ),
+              SliverPadding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                  vertical: 8.h,
+                ).copyWith(
+                  bottom: 200.h,
+                ),
+                sliver: SliverList.builder(
+                  itemCount: chatState.messages.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return ChatContactHeader(groupData: groupData);
+                    }
+                    final message = chatState.messages[index - 1];
+                    return SwipeToReplyWidget(
+                      message: message,
+                      onReply: () => chatNotifier.handleReply(message),
+                      onTap:
+                          () => ChatDialogService.showReactionDialog(
+                            context: context,
+                            ref: ref,
                             message: message,
-                            reaction: reaction,
-                          );
-                        },
+                            messageIndex: index,
+                          ),
+                      child: Hero(
+                        tag: message.id,
+                        child: MessageWidget(
+                          message: message,
+                          isGroupMessage: groupData.groupType == GroupType.group,
+                          isSameSenderAsPrevious: chatNotifier.isSameSender(index),
+                          isSameSenderAsNext: chatNotifier.isNextSameSender(index),
+                          onReactionTap: (reaction) {
+                            chatNotifier.updateMessageReaction(
+                              message: message,
+                              reaction: reaction,
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
+            ],
+          ),
+
+          if (chatState.messages.isNotEmpty)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: isKeyboardOpen ? 100.h : 150.h,
+              child: const BottomFade().animate().fadeIn(),
             ),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 8.h),
-              child: ChatInput(
-                currentUser: chatNotifier.currentUser,
-                onSend:
-                    (message, isEditing) => chatNotifier.sendNewMessageOrEdit(
-                      message,
-                      isEditing,
-                      onMessageSent: _handleScrollToBottom,
-                    ),
-                padding: EdgeInsets.zero,
-                replyingTo: chatState.replyingTo,
-                editingMessage: chatState.editingMessage,
-                onCancelReply: () => chatNotifier.cancelReply(),
-                onCancelEdit: () => chatNotifier.cancelEdit(),
-              ),
+        ],
+      ),
+      bottomSheet: ChatInput(
+        onSend:
+            (message, isEditing) => chatNotifier.sendNewMessageOrEdit(
+              message,
+              isEditing,
+              onMessageSent: _handleScrollToBottom,
             ),
-          ],
-        ),
       ),
     );
   }

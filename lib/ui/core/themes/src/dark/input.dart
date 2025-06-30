@@ -1,7 +1,7 @@
 part of 'dark.dart';
 
 InputDecorationTheme buildDarkInputDecorationThemeData() {
-  const borderSide = BorderSide(color: DarkAppColors.baseMuted);
+  const borderSide = BorderSide(color: DarkAppColors.input);
   final border = OutlineInputBorder(
     borderRadius: AppDimension.zeroBorder,
     borderSide: borderSide,
@@ -12,26 +12,6 @@ InputDecorationTheme buildDarkInputDecorationThemeData() {
     hintStyle: lightTextTheme.bodySmall?.copyWith(
       color: DarkAppColors.mutedForeground.withValues(alpha: .5),
     ),
-
-    floatingLabelStyle: WidgetStateTextStyle.resolveWith((state) {
-      const tTheme = TextStyle();
-
-      if (state.contains(WidgetState.error)) {
-        return tTheme.copyWith(color: DarkAppColors.destructive);
-      }
-
-      if (state.contains(WidgetState.focused)) {
-        return tTheme.copyWith(color: DarkAppColors.primary);
-      }
-
-      if (state.contains(WidgetState.disabled)) {
-        return tTheme.copyWith(
-          color: DarkAppColors.mutedForeground.withValues(alpha: .38),
-        );
-      }
-
-      return tTheme;
-    }),
 
     //
     labelStyle: WidgetStateTextStyle.resolveWith((state) {
@@ -76,6 +56,6 @@ InputDecorationTheme buildDarkInputDecorationThemeData() {
     border: border,
 
     //
-    floatingLabelBehavior: FloatingLabelBehavior.always,
+    floatingLabelBehavior: FloatingLabelBehavior.never,
   );
 }

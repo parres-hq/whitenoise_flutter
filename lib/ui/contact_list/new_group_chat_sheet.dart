@@ -214,10 +214,8 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
           enableSwipeToDelete: true,
           onDelete: () async {
             try {
-              // Get the real PublicKey from our map using the npub string
               final realPublicKey = _publicKeyMap[contact.publicKey];
               if (realPublicKey != null) {
-                // Use the proper method to remove contact from Rust backend
                 await ref.read(contactsProvider.notifier).removeContactByPublicKey(realPublicKey);
 
                 if (context.mounted) {

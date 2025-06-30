@@ -1,0 +1,153 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:gap/gap.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
+import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
+import 'package:whitenoise/utils/timeago_formatter.dart';
+
+class GroupListTile extends ConsumerWidget {
+  const GroupListTile({
+    super.key,
+    required this.group,
+  });
+
+  final GroupData group;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final currentUserNpub = ref.read(nostrKeysProvider).npub ?? '';
+    final groupsNotifier = ref.read(groupsProvider.notifier);
+    final displayName = groupsNotifier.getGroupDisplayName(group.mlsGroupId) ?? group.name;
+    final displayImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId, currentUserNpub);
+
+    return InkWell(
+      onTap: () => Routes.goToChat(context, group.mlsGroupId),
+
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        child: Row(
+          children: [
+            ContactAvatar(
+              imgPath: displayImage ?? '',
+              size: 56.r,
+            ),
+            Gap(8.w),
+            Expanded(
+              flex: 5,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 183.w,
+                        child: Text(
+                          displayName,
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w500,
+                            color: context.colors.primary,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      Gap(6.w),
+                      Image.asset(
+                        AssetsPaths.icNotificationMuted,
+                        width: 14.w,
+                        height: 14.w,
+                        color: context.colors.mutedForeground,
+                      ),
+                      const Spacer(),
+                      Text(
+                        DateTime.now().subtract(const Duration(days: 11)).timeago().capitalizeFirst,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: context.colors.mutedForeground,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Gap(4.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    spacing: 32.w,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Does it bother anyone else that the group name is too long to fit in the tile?',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: context.colors.mutedForeground,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const MessageReadStatus(
+                        // ignore: avoid_redundant_argument_values
+                        lastSentMessageStatus: MessageStatus.sent,
+                        unreadCount: 0,
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class MessageReadStatus extends StatelessWidget {
+  const MessageReadStatus({
+    super.key,
+    this.lastSentMessageStatus = MessageStatus.sent,
+    required this.unreadCount,
+  });
+
+  final MessageStatus lastSentMessageStatus;
+  final int unreadCount;
+
+  @override
+  Widget build(BuildContext context) {
+    if (unreadCount <= 0) {
+      return Image.asset(
+        lastSentMessageStatus.imagePath,
+        width: 17.5.w,
+        height: 17.5.w,
+        color: lastSentMessageStatus.color(context),
+      );
+    }
+    return Container(
+      padding:
+          unreadCount > 99
+              ? EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h)
+              : EdgeInsets.all(4.w),
+      decoration: BoxDecoration(
+        color: context.colors.primary,
+        borderRadius: unreadCount > 99 ? BorderRadius.circular(12.r) : null,
+        shape: unreadCount > 99 ? BoxShape.rectangle : BoxShape.circle,
+      ),
+      child: Text(
+        unreadCount > 99 ? '99+' : unreadCount.toString(),
+        style: TextStyle(
+          fontSize: 12.sp,
+          color: context.colors.primaryForeground,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}

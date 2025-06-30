@@ -67,10 +67,12 @@ ScrollbarThemeData buildScrollBarTheme() {
 }
 
 BottomSheetThemeData buildBottomSheetTheme() {
-  return BottomSheetThemeData(
+  return const BottomSheetThemeData(
+    backgroundColor: LightAppColors.neutral,
+    shape: RoundedRectangleBorder(),
     showDragHandle: true,
     dragHandleColor: LightAppColors.baseMuted,
-    dragHandleSize: const Size(50, 3),
+    dragHandleSize: Size(50, 3),
   );
 }
 
@@ -90,9 +92,9 @@ NavigationBarThemeData buildBottomNavigationTheme() {
     indicatorColor: LightAppColors.tertiary,
     iconTheme: WidgetStateProperty.resolveWith((state) {
       if (state.contains(WidgetState.selected)) {
-        return IconThemeData(color: LightAppColors.primary);
+        return const IconThemeData(color: LightAppColors.primary);
       }
-      return IconThemeData(color: LightAppColors.mutedForeground);
+      return const IconThemeData(color: LightAppColors.mutedForeground);
     }),
     labelTextStyle: WidgetStateProperty.resolveWith((state) {
       if (state.contains(WidgetState.selected)) {
@@ -115,8 +117,12 @@ PopupMenuThemeData buildPopupTheme() {
 AppBarTheme buildAppBarTheme() {
   return AppBarTheme(
     backgroundColor: LightAppColors.appBarBackground,
+    iconTheme: IconThemeData(
+      color: LightAppColors.solidPrimary,
+      size: 18.sp,
+    ),
     titleTextStyle: lightTextTheme.labelLarge?.semiBold.copyWith(
-      color: LightAppColors.appBarForeground,
+      color: LightAppColors.mutedForeground,
     ),
     systemOverlayStyle: const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -163,7 +169,7 @@ SegmentedButtonThemeData buildSegmentedButtonTheme() {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.sp),
       ),
-      side: BorderSide(color: LightAppColors.baseMuted),
+      side: const BorderSide(color: LightAppColors.baseMuted),
     ).copyWith(
       foregroundColor: WidgetStateProperty.resolveWith((state) {
         if (state.contains(WidgetState.selected)) {

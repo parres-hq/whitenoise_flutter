@@ -21,13 +21,16 @@ class ChatState {
     MessageModel? replyingTo,
     MessageModel? editingMessage,
     String? error,
+    bool clearReplyingTo = false,
+    bool clearEditingMessage = false,
+    bool clearError = false,
   }) {
     return ChatState(
       messages: messages ?? this.messages,
       isLoading: isLoading ?? this.isLoading,
-      replyingTo: replyingTo ?? this.replyingTo,
-      editingMessage: editingMessage ?? this.editingMessage,
-      error: error ?? this.error,
+      replyingTo: clearReplyingTo ? null : (replyingTo ?? this.replyingTo),
+      editingMessage: clearEditingMessage ? null : (editingMessage ?? this.editingMessage),
+      error: clearError ? null : (error ?? this.error),
     );
   }
 }

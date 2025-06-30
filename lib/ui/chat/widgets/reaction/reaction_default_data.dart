@@ -4,15 +4,7 @@ import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
 class DefaultData {
   // default list of five reactions to be displayed from emojis and a plus icon at the end
   // the plus icon will be used to add more reactions
-  static const List<String> reactions = [
-    '👍',
-    '❤️',
-    '😂',
-    '😮',
-    '😢',
-    '😠',
-    '⋯',
-  ];
+  static const List<String> reactions = ['👍', '❤️', '😂', '😮', '😢', '😠', '🔥'];
 
   // The default list of menuItems
   static const List<MenuItem> menuItems = [reply, copy, delete];

@@ -20,7 +20,7 @@ class NetworkScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: const CustomAppBar(title: 'Network'),
+      appBar: const CustomAppBar(title: Text('Network')),
       body: ListView(
         children: [
           Gap(24.w),

@@ -2,6 +2,8 @@ import 'dart:ui';
 
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -55,159 +57,163 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return BackdropFilter(
-      filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.only(right: 20.0, left: 20.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // reactions
-              buildReactions(context),
-              const SizedBox(height: 10),
-              // message
-              buildMessage(),
-              const SizedBox(height: 10),
-              // context menu
-              buildMenuItems(context),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Align buildMenuItems(BuildContext context) {
-    return Align(
-      alignment: widget.widgetAlignment,
-      child: // contextMenu for reply, copy, delete
-          Material(
-        color: Colors.transparent,
-        child: Container(
-          width: MediaQuery.of(context).size.width * widget.menuItemsWidth,
-          decoration: BoxDecoration(
-            color: context.colors.baseMuted,
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (var item in widget.menuItems)
-                Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 8.0),
-                      child: InkWell(
-                        onTap: () {
-                          setState(() {
-                            clickedContextMenuIndex = widget.menuItems.indexOf(
-                              item,
-                            );
-                          });
-
-                          Navigator.of(context).pop();
-                          widget.onContextMenuTap(item);
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              item.label,
-                              style: TextStyle(
-                                color:
-                                    item.isDestructive
-                                        ? context.colors.destructive
-                                        : context.colors.secondaryForeground,
-                              ),
-                            ),
-                            Pulse(
-                              duration: const Duration(milliseconds: 100),
-                              animate: clickedContextMenuIndex == widget.menuItems.indexOf(item),
-                              child: Icon(
-                                size: 20,
-                                item.icon,
-                                color:
-                                    item.isDestructive
-                                        ? context.colors.destructive
-                                        : context.textTheme.bodyMedium!.color,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                    if (widget.menuItems.last != item)
-                      Container(color: Colors.grey.shade300, height: 1),
-                  ],
-                ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Align buildMessage() {
-    return Align(
-      alignment: widget.widgetAlignment,
-      child: Hero(tag: widget.id, child: widget.messageWidget),
-    );
-  }
-
-  Align buildReactions(BuildContext context) {
-    return Align(
-      alignment: widget.widgetAlignment,
+    return IgnorePointer(
       child: Material(
-        color: Colors.transparent,
-        child: Container(
-          padding: const EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            color: context.colors.baseMuted,
-            borderRadius: BorderRadius.circular(8),
+        color: context.colors.overlay.withValues(alpha: 0.06),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+          child: SafeArea(
+            child: Column(
+              children: [
+                const Spacer(),
+                buildReactions(context),
+                Gap(16.h),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: buildMessage(),
+                ),
+                Gap(16.h),
+                buildMenuItems(context),
+                Gap(32.h),
+              ],
+            ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (var reaction in widget.reactions)
-                FadeInLeft(
-                  from: 0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
-                  duration: const Duration(milliseconds: 50),
-                  child: InkWell(
+        ),
+      ),
+    );
+  }
+
+  Widget buildMenuItems(BuildContext context) {
+    return Align(
+      alignment: widget.widgetAlignment,
+      child: Container(
+        width: MediaQuery.of(context).size.width * widget.menuItemsWidth,
+        margin: EdgeInsets.symmetric(horizontal: 48.w),
+        decoration: BoxDecoration(
+          color: context.colors.primaryForeground,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (int index = 0; index < widget.menuItems.length; index++)
+              Column(
+                children: [
+                  InkWell(
                     onTap: () {
                       setState(() {
-                        reactionClicked = true;
-                        clickedReactionIndex = widget.reactions.indexOf(
-                          reaction,
-                        );
+                        clickedContextMenuIndex = index;
                       });
                       Navigator.of(context).pop();
-                      widget.onReactionTap(reaction);
+                      widget.onContextMenuTap(widget.menuItems[index]);
                     },
-                    child: Pulse(
-                      duration: const Duration(milliseconds: 50),
-                      animate:
-                          reactionClicked &&
-                          clickedReactionIndex == widget.reactions.indexOf(reaction),
-                      child: Container(
-                        padding: const EdgeInsets.fromLTRB(7.0, 2.0, 7.0, 2),
-                        decoration: BoxDecoration(
-                          color: reaction == '⋯' ? context.colors.baseMuted : Colors.transparent,
-                          borderRadius: BorderRadius.circular(4),
-                        ),
-                        child: Text(
-                          reaction,
-                          style: const TextStyle(fontSize: 22),
-                        ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 16.h),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              widget.menuItems[index].label,
+                              style: TextStyle(
+                                fontSize: 16.sp,
+                                fontWeight: FontWeight.w500,
+                                color:
+                                    widget.menuItems[index].isDestructive
+                                        ? context.colors.destructive
+                                        : context.colors.primary,
+                              ),
+                            ),
+                          ),
+                          const Spacer(),
+                          Pulse(
+                            duration: const Duration(milliseconds: 100),
+                            animate: clickedContextMenuIndex == index,
+                            child: Icon(
+                              widget.menuItems[index].icon,
+                              size: 20.sp,
+                              color:
+                                  widget.menuItems[index].isDestructive
+                                      ? context.colors.destructive
+                                      : context.colors.primary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                ),
-            ],
-          ),
+                  if (index != widget.menuItems.length - 1)
+                    Container(
+                      height: 1.h,
+                      color: context.colors.border,
+                    ),
+                ],
+              ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget buildMessage() {
+    return Align(
+      alignment: widget.widgetAlignment,
+      child: Container(
+        margin: EdgeInsets.symmetric(horizontal: 16.w),
+        child: Hero(
+          tag: widget.id,
+          child: widget.messageWidget,
+        ),
+      ),
+    );
+  }
+
+  Widget buildReactions(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+      decoration: BoxDecoration(
+        color: context.colors.primaryForeground,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          for (var reaction in widget.reactions)
+            FadeInLeft(
+              from: 0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
+              duration: const Duration(milliseconds: 50),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    reactionClicked = true;
+                    clickedReactionIndex = widget.reactions.indexOf(reaction);
+                  });
+                  Navigator.of(context).pop();
+                  widget.onReactionTap(reaction);
+                },
+                child: Pulse(
+                  duration: const Duration(milliseconds: 50),
+                  animate:
+                      reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction),
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                    child: Text(
+                      reaction,
+                      style: TextStyle(fontSize: 24.sp),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            icon: Icon(
+              Icons.add_reaction_outlined,
+              size: 24.sp,
+              color: context.colors.primary,
+            ),
+          ),
+        ],
       ),
     );
   }

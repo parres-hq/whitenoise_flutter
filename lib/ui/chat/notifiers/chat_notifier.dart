@@ -1,30 +1,62 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
+import 'package:whitenoise/ui/chat/notifiers/tem_test_data.dart';
 import 'package:whitenoise/ui/chat/states/chat_state.dart';
 
-class ChatNotifier extends StateNotifier<ChatState> {
+class ChatNotifier extends Notifier<ChatState> {
   final _logger = Logger('ChatNotifier');
-  final User contact;
-  final User currentUser;
 
-  ChatNotifier({
-    required this.contact,
-    required List<MessageModel> initialMessages,
-  }) : currentUser = User(
-         id: 'current_user_id',
-         name: 'You',
-         nip05: 'current@user.com',
-         publicKey: 'current_public_key',
-       ),
-       super(ChatState(messages: initialMessages));
+  @override
+  ChatState build() => const ChatState();
 
-  void updateMessageReaction({
+  void initialize() {
+    state = ChatState(messages: testMessages().initialMessages ?? []);
+  }
+
+  bool _isAuthAvailable() {
+    final authState = ref.read(authProvider);
+    if (!authState.isAuthenticated) {
+      state = state.copyWith(error: 'Not authenticated');
+      return false;
+    }
+    return true;
+  }
+
+  Future<User?> _getCurrentUser() async {
+    if (!_isAuthAvailable()) return null;
+
+    try {
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        state = state.copyWith(error: 'No active account found');
+        return null;
+      }
+
+      return User(
+        id: activeAccountData.pubkey,
+        name: 'You',
+        nip05: '',
+        publicKey: activeAccountData.pubkey,
+      );
+    } catch (e) {
+      _logger.severe('Error getting current user: $e');
+      return null;
+    }
+  }
+
+  Future<void> updateMessageReaction({
     required MessageModel message,
     required String reaction,
-  }) {
+  }) async {
+    final currentUser = await _getCurrentUser();
+    if (currentUser == null) return;
+
     final existingReactionIndex = message.reactions.indexWhere(
       (r) => r.emoji == reaction && r.user.id == currentUser.id,
     );
@@ -71,31 +103,37 @@ class ChatNotifier extends StateNotifier<ChatState> {
   void handleReply(MessageModel message) {
     state = state.copyWith(
       replyingTo: message,
+      clearEditingMessage: true,
     );
   }
 
   void handleEdit(MessageModel message) {
     state = state.copyWith(
       editingMessage: message,
+      clearReplyingTo: true,
     );
   }
 
   void cancelReply() {
-    state = state.copyWith(replyingTo: null);
+    state = state.copyWith(
+      clearReplyingTo: true,
+    );
   }
 
   void cancelEdit() {
-    state = state.copyWith(editingMessage: null);
+    state = state.copyWith(
+      clearEditingMessage: true,
+    );
   }
 
   bool isSameSender(int index) {
     if (index <= 0 || index >= state.messages.length) return false;
-    return state.messages[index].sender.id == state.messages[index - 1].sender.id;
+    return state.messages[index].sender.nip05 == state.messages[index - 1].sender.nip05;
   }
 
   bool isNextSameSender(int index) {
     if (index < 0 || index >= state.messages.length - 1) return false;
-    return state.messages[index].sender.id == state.messages[index + 1].sender.id;
+    return state.messages[index].sender.nip05 == state.messages[index + 1].sender.nip05;
   }
 
   List<MessageModel> _updateMessage(MessageModel updatedMessage) {
@@ -109,7 +147,7 @@ class ChatNotifier extends StateNotifier<ChatState> {
   }
 
   void clearError() {
-    state = state.copyWith(error: null);
+    state = state.copyWith(clearError: true);
   }
 
   void setLoading(bool loading) {
@@ -117,20 +155,6 @@ class ChatNotifier extends StateNotifier<ChatState> {
   }
 }
 
-final chatNotifierProvider =
-    StateNotifierProvider.family<ChatNotifier, ChatState, ChatNotifierParams>(
-      (ref, params) => ChatNotifier(
-        contact: params.contact,
-        initialMessages: params.initialMessages,
-      ),
-    );
-
-class ChatNotifierParams {
-  final User contact;
-  final List<MessageModel> initialMessages;
-
-  ChatNotifierParams({
-    required this.contact,
-    required this.initialMessages,
-  });
-}
+final chatNotifierProvider = NotifierProvider<ChatNotifier, ChatState>(
+  ChatNotifier.new,
+);

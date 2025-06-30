@@ -1,57 +1,89 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
-import 'package:whitenoise/routing/routes.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
-import 'package:whitenoise/ui/settings/widgets/theme_toggle_icon_button.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
     super.key,
-    required this.title,
-    this.showThemeToggle = true,
-  });
+    this.actions = const [],
+    this.automaticallyImplyLeading = true,
+    this.centerTitle = false,
+    this.title,
+    this.leading,
+  }) : pinned = false,
+       floating = false,
+       snap = false,
+       stretch = false,
+       isTransparent = false,
+       expandedHeight = null,
+       _isSliver = false;
 
-  final String title;
-  final bool showThemeToggle;
+  const CustomAppBar.sliver({
+    super.key,
+    this.actions = const [],
+    this.automaticallyImplyLeading = true,
+    this.centerTitle = false,
+    this.title,
+    this.leading,
+    this.pinned = false,
+    this.floating = false,
+    this.snap = false,
+    this.stretch = false,
+    this.isTransparent = false,
+    this.expandedHeight,
+  }) : _isSliver = true;
+
+  final Widget? leading;
+  final Widget? title;
+  final List<Widget> actions;
+  final bool automaticallyImplyLeading;
+  final bool centerTitle;
+  final bool pinned;
+  final bool floating;
+  final bool snap;
+  final bool stretch;
+  final double? expandedHeight;
+  final bool _isSliver;
+  final bool isTransparent;
 
   @override
   Widget build(BuildContext context) {
+    if (_isSliver) {
+      return SliverAppBar(
+        centerTitle: centerTitle,
+        automaticallyImplyLeading: automaticallyImplyLeading,
+        leading: leading,
+        title: title,
+        actions: actions,
+        titleSpacing: 2.w,
+        elevation: 0,
+        pinned: pinned,
+        floating: floating,
+        snap: snap,
+        stretch: stretch,
+        expandedHeight: expandedHeight,
+        toolbarHeight: 64.h,
+      );
+    }
+
     return AppBar(
-      backgroundColor: context.colors.appBarBackground,
-      automaticallyImplyLeading: false,
-      toolbarHeight: 64.h,
+      centerTitle: centerTitle,
+      automaticallyImplyLeading: automaticallyImplyLeading,
+      leading: leading,
+      title: title,
+      actions: actions,
+      titleSpacing: 2.w,
       elevation: 0,
-      titleSpacing: 0,
-      title: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
-        child: Row(
-          children: [
-            GestureDetector(
-              onTap: () {
-                if (context.canPop()) {
-                  context.pop();
-                } else {
-                  context.go(Routes.contacts);
-                }
-              },
-              child: Icon(Icons.arrow_back, color: context.colors.appBarForeground),
-            ),
-            Gap(16.w),
-            Expanded(
-              child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 20.sp,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.appBarForeground,
-                ),
+      backgroundColor:
+          isTransparent ? Colors.transparent : context.theme.appBarTheme.backgroundColor,
+      iconTheme:
+          isTransparent
+              ? context.theme.iconTheme.copyWith(
+                color: context.colors.primary,
+              )
+              : context.theme.iconTheme.copyWith(
+                color: context.colors.solidPrimary,
               ),
-            ),
-            if (showThemeToggle) const ThemeToggleIconButton(),
-          ],
-        ),
-      ),
     );
   }
 

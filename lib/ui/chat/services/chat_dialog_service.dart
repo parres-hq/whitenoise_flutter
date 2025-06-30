@@ -1,5 +1,6 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
@@ -15,7 +16,6 @@ class ChatDialogService {
     required BuildContext context,
     required WidgetRef ref,
     required MessageModel message,
-    required ChatNotifierParams chatNotifierParams,
   }) {
     showModalBottomSheet(
       context: context,
@@ -36,8 +36,9 @@ class ChatDialogService {
             ),
             onEmojiSelected: ((category, emoji) {
               Navigator.pop(context);
-              ref.read(chatNotifierProvider(chatNotifierParams).notifier)
-                 .updateMessageReaction(message: message, reaction: emoji.emoji);
+              ref
+                  .read(chatNotifierProvider.notifier)
+                  .updateMessageReaction(message: message, reaction: emoji.emoji);
             }),
           ),
         );
@@ -50,10 +51,10 @@ class ChatDialogService {
     required WidgetRef ref,
     required MessageModel message,
     required int messageIndex,
-    required ChatNotifierParams chatNotifierParams,
   }) {
-    final chatNotifier = ref.read(chatNotifierProvider(chatNotifierParams).notifier);
-    
+    final chatNotifier = ref.read(chatNotifierProvider.notifier);
+    HapticFeedback.mediumImpact();
+
     Navigator.of(context).push(
       HeroDialogRoute(
         builder: (context) {
@@ -72,7 +73,6 @@ class ChatDialogService {
                   context: context,
                   ref: ref,
                   message: message,
-                  chatNotifierParams: chatNotifierParams,
                 );
               } else {
                 chatNotifier.updateMessageReaction(message: message, reaction: reaction);

@@ -8,6 +8,7 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/app_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -129,19 +130,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     ),
                   ),
                   SizedBox(width: 8.h),
-                  Container(
-                    height: 52.w,
-                    width: 52.w,
-                    decoration: BoxDecoration(
-                      color: context.colors.neutral,
-                      border: Border.all(
-                        color: context.colors.baseMuted,
-                      ),
-                    ),
-                    child: IconButton(
-                      icon: Icon(Icons.paste, size: 20.sp),
-                      onPressed: _pasteFromClipboard,
-                    ),
+                  AppIconButton(
+                    onPressed: _pasteFromClipboard,
+                    hasBorder: true,
+                    icon: Icons.paste,
+                    size: 52.w,
                   ),
                 ],
               ),

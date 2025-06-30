@@ -12,12 +12,20 @@ class ContactInfo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        ChatContactAvatar(
+        ContactAvatar(
           imgPath: imgPath,
           size: 36.r,
+          showBorder: true,
         ),
         Gap(8.w),
-        Text(title),
+        Text(
+          title,
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: context.colors.solidPrimary,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }

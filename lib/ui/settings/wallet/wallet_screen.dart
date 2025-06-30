@@ -30,7 +30,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: const CustomAppBar(title: 'Wallet'),
+      appBar: const CustomAppBar(title: Text('Wallet')),
       body: Column(
         children: [
           Expanded(

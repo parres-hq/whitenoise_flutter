@@ -1,4 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 
 part 'group_state.freezed.dart';
@@ -7,8 +8,9 @@ part 'group_state.freezed.dart';
 abstract class GroupsState with _$GroupsState {
   const factory GroupsState({
     List<GroupData>? groups,
-    Map<String, List<PublicKey>>? groupMembers, // groupId -> members
-    Map<String, List<PublicKey>>? groupAdmins, // groupId -> admins
+    Map<String, List<User>>? groupMembers, // groupId -> members
+    Map<String, List<User>>? groupAdmins, // groupId -> admins
+    Map<String, String>? groupDisplayNames, // groupId -> display name
     @Default(false) bool isLoading,
     String? error,
   }) = _GroupsState;

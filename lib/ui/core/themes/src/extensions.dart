@@ -52,7 +52,7 @@ extension TextStyleExtension on TextStyle {
 extension BuildContextExtension on BuildContext {
   TextTheme get textTheme => Theme.of(this).textTheme;
   ColorScheme get colorScheme => Theme.of(this).colorScheme;
-
+  ThemeData get theme => Theme.of(this);
   AppColorsThemeExt get colors =>
       Theme.of(this).extension<AppColorsThemeExt>() ?? fallbackColorsExt;
   AppDimension get dimensions => Theme.of(this).extension<AppDimension>() ?? AppDimension();

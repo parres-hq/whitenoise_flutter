@@ -30,7 +30,13 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.link,
     required this.border,
     required this.avatarSurface,
-    
+    required this.solidPrimary,
+    required this.input,
+    required this.meChatBubble,
+    required this.contactChatBubble,
+    required this.meChatBubbleText,
+    required this.contactChatBubbleText,
+    required this.overlay,
   });
 
   final Color primary;
@@ -58,6 +64,13 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color link;
   final Color border;
   final Color avatarSurface;
+  final Color solidPrimary;
+  final Color input;
+  final Color meChatBubble;
+  final Color contactChatBubble;
+  final Color meChatBubbleText;
+  final Color contactChatBubbleText;
+  final Color overlay;
 
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
@@ -86,6 +99,13 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     link: LightAppColors.link,
     border: LightAppColors.border,
     avatarSurface: LightAppColors.avatarSurface,
+    solidPrimary: LightAppColors.solidPrimary,
+    input: LightAppColors.input,
+    meChatBubble: LightAppColors.meChatBubble,
+    contactChatBubble: LightAppColors.contactChatBubble,
+    meChatBubbleText: LightAppColors.meChatBubbleText,
+    contactChatBubbleText: LightAppColors.contactChatBubbleText,
+    overlay: LightAppColors.overlay,
   );
 
   /// Dark theme colors
@@ -95,7 +115,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     tertiary: DarkAppColors.tertiary,
     neutral: DarkAppColors.neutral,
     neutralVariant: DarkAppColors.neutralVariant,
-    primaryForeground: DarkAppColors.primaryBackground,
+    primaryForeground: DarkAppColors.primaryForeground,
     secondaryForeground: DarkAppColors.secondaryForeground,
     mutedForeground: DarkAppColors.mutedForeground,
     baseMuted: DarkAppColors.baseMuted,
@@ -115,6 +135,13 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     link: DarkAppColors.link,
     border: DarkAppColors.border,
     avatarSurface: DarkAppColors.avatarSurface,
+    solidPrimary: DarkAppColors.solidPrimary,
+    input: DarkAppColors.input,
+    meChatBubble: DarkAppColors.meChatBubble,
+    contactChatBubble: DarkAppColors.contactChatBubble,
+    meChatBubbleText: DarkAppColors.meChatBubbleText,
+    contactChatBubbleText: DarkAppColors.contactChatBubbleText,
+    overlay: DarkAppColors.overlay,
   );
 
   @override
@@ -144,6 +171,13 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? link,
     Color? border,
     Color? avatarSurface,
+    Color? solidPrimary,
+    Color? input,
+    Color? meChatBubble,
+    Color? contactChatBubble,
+    Color? meChatBubbleText,
+    Color? contactChatBubbleText,
+    Color? overlay,
   }) {
     return AppColorsThemeExt(
       primary: primary ?? this.primary,
@@ -171,6 +205,13 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       link: link ?? this.link,
       border: border ?? this.border,
       avatarSurface: avatarSurface ?? this.avatarSurface,
+      solidPrimary: solidPrimary ?? this.solidPrimary,
+      input: input ?? this.input,
+      meChatBubble: meChatBubble ?? this.meChatBubble,
+      contactChatBubble: contactChatBubble ?? this.contactChatBubble,
+      meChatBubbleText: meChatBubbleText ?? this.meChatBubbleText,
+      contactChatBubbleText: contactChatBubbleText ?? this.contactChatBubbleText,
+      overlay: overlay ?? this.overlay,
     );
   }
 
@@ -213,6 +254,13 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       link: Color.lerp(link, other.link, t)!,
       border: Color.lerp(border, other.border, t)!,
       avatarSurface: Color.lerp(avatarSurface, other.avatarSurface, t)!,
+      solidPrimary: Color.lerp(solidPrimary, other.solidPrimary, t)!,
+      input: Color.lerp(input, other.input, t)!,
+      meChatBubble: Color.lerp(meChatBubble, other.meChatBubble, t)!,
+      contactChatBubble: Color.lerp(contactChatBubble, other.contactChatBubble, t)!,
+      meChatBubbleText: Color.lerp(meChatBubbleText, other.meChatBubbleText, t)!,
+      contactChatBubbleText: Color.lerp(contactChatBubbleText, other.contactChatBubbleText, t)!,
+      overlay: Color.lerp(overlay, other.overlay, t)!,
     );
   }
 }

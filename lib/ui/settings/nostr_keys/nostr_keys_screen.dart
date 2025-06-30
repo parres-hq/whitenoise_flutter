@@ -166,7 +166,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: const CustomAppBar(title: 'Nostr Keys'),
+      appBar: const CustomAppBar(title: Text('Nostr Keys')),
       body: SingleChildScrollView(
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),

@@ -2,7 +2,7 @@ part of 'colors.dart';
 
 class LightAppColors {
   /// base/primary, custom colors/glitch-950
-  static const primary = Color(0xff202320);
+  static const primary = Color(0xff0A0A0A);
 
   /// base/secondary
   static const secondary = Color(0xffF2F2F2);
@@ -11,7 +11,7 @@ class LightAppColors {
   static const neutralVariant = Color(0xFF5A605A);
 
   /// base/background
-  static const primaryForeground = Color(0xffF9F9F9);
+  static const primaryForeground = Color(0xffFAFAFA);
 
   /// base/accent-foreground, base/secondary-foreground, base/foreground
   static const secondaryForeground = Color(0xff2D312D);
@@ -56,7 +56,17 @@ class LightAppColors {
   /// Link color
   static const link = Color(0xff02B9D8);
 
-  static const Color border = Color(0xffE5E5E5);
-  static const Color avatarSurface = Color(0xffFAFAFA);
-  static const Color primaryText = Color(0xff0A0A0A);
+  static const border = Color(0xffE5E5E5);
+  static const avatarSurface = Color(0xffFAFAFA);
+  static const solidPrimary = Color(0xffFAFAFA);
+
+  static const input = Color(0xffE5E5E5);
+
+  static const meChatBubble = Color(0xff0A0A0A);
+  static const contactChatBubble = Color(0xffE5E5E5);
+
+  static const meChatBubbleText = Color(0xffFAFAFA);
+  static const contactChatBubbleText = Color(0xff0A0A0A);
+
+  static const overlay = Color(0xff000000);
 }

@@ -117,14 +117,14 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: const CustomAppBar(title: 'Profile'),
+      appBar: const CustomAppBar(title: Text('Profile')),
       body: profileState.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error:
             (error, _) => Center(
               child: Text(
                 'Error: $error',
-                style: const TextStyle(color: Colors.red),
+                style: TextStyle(color: context.colors.destructive),
               ),
             ),
         data:

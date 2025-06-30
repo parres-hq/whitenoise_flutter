@@ -1,7 +1,7 @@
 part of 'light.dart';
 
 InputDecorationTheme buildInputDecorationThemeData() {
-  const borderSide = BorderSide(color: LightAppColors.baseMuted);
+  const borderSide = BorderSide(color: LightAppColors.input);
   final border = OutlineInputBorder(
     borderRadius: AppDimension.zeroBorder,
     borderSide: borderSide,
