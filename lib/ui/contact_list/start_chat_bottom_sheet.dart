@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/utils/string_extensions.dart';
 
-class StartSecureChatBottomSheet extends StatelessWidget {
+class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
   final String name;
   final String nip05;
   final String? bio;
   final String? imagePath;
+  final String pubkey;
   final VoidCallback? onStartChat;
+  final VoidCallback? onChatCreated;
   const StartSecureChatBottomSheet({
     super.key,
     required this.name,
@@ -18,15 +25,19 @@ class StartSecureChatBottomSheet extends StatelessWidget {
     this.bio,
     this.imagePath,
     this.onStartChat,
+    this.onChatCreated,
+    required this.pubkey,
   });
 
   static Future<void> show({
     required BuildContext context,
     required String name,
     required String nip05,
+    required String pubkey,
     String? bio,
     String? imagePath,
     VoidCallback? onStartChat,
+    VoidCallback? onChatCreated,
   }) {
     return CustomBottomSheet.show(
       context: context,
@@ -41,8 +52,84 @@ class StartSecureChatBottomSheet extends StatelessWidget {
             bio: bio,
             imagePath: imagePath,
             onStartChat: onStartChat,
+            onChatCreated: onChatCreated,
+            pubkey: pubkey,
           ),
     );
+  }
+
+  @override
+  ConsumerState<StartSecureChatBottomSheet> createState() => _StartSecureChatBottomSheetState();
+}
+
+class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBottomSheet> {
+  final _logger = Logger('StartSecureChatBottomSheet');
+  bool _isCreatingGroup = false;
+
+  Future<void> _createDirectMessageGroup() async {
+    setState(() {
+      _isCreatingGroup = true;
+    });
+
+    try {
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        throw Exception('No active account found');
+      }
+
+      _logger.info('Creating direct message group with: ${widget.pubkey}');
+
+      final groupData = await ref
+          .read(groupsProvider.notifier)
+          .createNewGroup(
+            groupName: 'Direct Message',
+            groupDescription: 'Direct message conversation',
+            memberPublicKeyHexs: [widget.pubkey],
+            adminPublicKeyHexs: [widget.pubkey],
+          );
+
+      if (groupData != null) {
+        _logger.info('Direct message group created successfully: ${groupData.mlsGroupId}');
+
+        if (mounted) {
+          Navigator.pop(context);
+
+          // Call the appropriate callback
+          if (widget.onChatCreated != null) {
+            widget.onChatCreated!();
+          } else if (widget.onStartChat != null) {
+            widget.onStartChat!();
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Chat with ${widget.name} started successfully'),
+              backgroundColor: context.colors.success,
+            ),
+          );
+        }
+      } else {
+        throw Exception('Failed to create direct message group');
+      }
+    } catch (e) {
+      _logger.severe('Failed to create direct message group: $e');
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to start chat: $e'),
+            backgroundColor: context.colors.destructive,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCreatingGroup = false;
+        });
+      }
+    }
   }
 
   @override
@@ -60,22 +147,22 @@ class StartSecureChatBottomSheet extends StatelessWidget {
                   width: 80.w,
                   height: 80.w,
                   decoration: BoxDecoration(
-                    color: Colors.orange,
+                    color: context.colors.warning,
                     borderRadius: BorderRadius.circular(40.r),
                   ),
                   child:
-                      imagePath != null && imagePath!.isNotEmpty
+                      widget.imagePath != null && widget.imagePath!.isNotEmpty
                           ? Image.network(
-                            imagePath!,
+                            widget.imagePath!,
                             width: 80.w,
                             height: 80.w,
                             fit: BoxFit.cover,
                             errorBuilder:
                                 (context, error, stackTrace) => Center(
                                   child: Text(
-                                    name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                    widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?',
                                     style: TextStyle(
-                                      color: Colors.white,
+                                      color: context.colors.neutral,
                                       fontSize: 32.sp,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -84,9 +171,9 @@ class StartSecureChatBottomSheet extends StatelessWidget {
                           )
                           : Center(
                             child: Text(
-                              name.isNotEmpty ? name[0].toUpperCase() : '?',
+                              widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?',
                               style: TextStyle(
-                                color: Colors.white,
+                                color: context.colors.neutral,
                                 fontSize: 32.sp,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -96,7 +183,7 @@ class StartSecureChatBottomSheet extends StatelessWidget {
               ),
               Gap(12.h),
               Text(
-                name,
+                widget.name,
                 style: TextStyle(
                   fontSize: 24.sp,
                   fontWeight: FontWeight.w500,
@@ -104,19 +191,27 @@ class StartSecureChatBottomSheet extends StatelessWidget {
                 ),
               ),
               Gap(12.h),
+
               Text(
-                nip05,
+                widget.nip05,
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: context.colors.mutedForeground,
                 ),
               ),
-              if (bio != null && bio!.isNotEmpty) ...[
+              Gap(12.h),
+              Text(
+                widget.pubkey.formatPublicKey(),
+                textAlign: TextAlign.center,
+              ),
+              Gap(12.h),
+
+              if (widget.bio != null && widget.bio!.isNotEmpty) ...[
                 Gap(8.h),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Text(
-                    bio!,
+                    widget.bio!,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 14.sp,
@@ -132,13 +227,8 @@ class StartSecureChatBottomSheet extends StatelessWidget {
           ),
         ),
         AppFilledButton(
-          onPressed: () {
-            Navigator.pop(context);
-            if (onStartChat != null) {
-              onStartChat!();
-            }
-          },
-          title: 'Start & Send Invite',
+          onPressed: _isCreatingGroup ? null : _createDirectMessageGroup,
+          title: _isCreatingGroup ? 'Creating Chat...' : 'Start & Send Invite',
         ),
       ],
     );

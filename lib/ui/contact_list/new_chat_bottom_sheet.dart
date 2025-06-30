@@ -7,7 +7,6 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -36,7 +35,6 @@ class NewChatBottomSheet extends ConsumerStatefulWidget {
 class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  final Map<String, PublicKey> _publicKeyMap = {}; // Map ContactModel.publicKey to real PublicKey
   final _logger = Logger('NewChatBottomSheet');
 
   @override
@@ -96,41 +94,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     }
   }
 
-  List<ContactModel> _getFilteredContacts(Map<PublicKey, MetadataData?>? contacts) {
-    if (contacts == null) return [];
-
-    final contactModels = <ContactModel>[];
-    for (final entry in contacts.entries) {
-      final contactModel = ContactModel.fromMetadata(
-        publicKey: entry.key.hashCode.toString(), // Temporary ID for UI
-        metadata: entry.value,
-      );
-      // Store the real PublicKey reference for operations
-      _publicKeyMap[contactModel.publicKey] = entry.key;
-      contactModels.add(contactModel);
-    }
-
-    // Filter contacts based on search query
-    if (_searchQuery.isEmpty) return contactModels;
-
-    return contactModels
-        .where(
-          (contact) =>
-              contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              contact.displayNameOrName.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ) ||
-              (contact.nip05?.toLowerCase().contains(
-                    _searchQuery.toLowerCase(),
-                  ) ??
-                  false) ||
-              contact.publicKey.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ),
-        )
-        .toList();
-  }
-
   bool _isValidPublicKey(String input) {
     final trimmed = input.trim();
     // Check if it's a hex key (64 characters) or npub format
@@ -161,7 +124,11 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
-    final filteredContacts = _getFilteredContacts(contactsState.contacts);
+    
+    final List<ContactModel> filteredContacts = ref
+        .read(contactsProvider.notifier)
+        .getFilteredContacts(_searchQuery);
+
     final showAddOption =
         _searchQuery.isNotEmpty && _isValidPublicKey(_searchQuery) && filteredContacts.isEmpty;
 
@@ -335,41 +302,29 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                           context: context,
                                           name: contact.displayNameOrName,
                                           nip05: contact.nip05 ?? '',
+                                          pubkey: contact.publicKey,
                                           bio: contact.about,
                                           imagePath: contact.imagePath,
-                                          onStartChat: () {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  'Started secure chat with ${contact.displayNameOrName}',
-                                                ),
-                                              ),
-                                            );
+                                          onChatCreated: () {
+                                            // Chat created successfully, close the new chat bottom sheet
+                                            Navigator.pop(context);
                                           },
                                         );
                                       },
                                       onDelete: () async {
                                         try {
-                                          // Get the real PublicKey from our map
-                                          final realPublicKey = _publicKeyMap[contact.publicKey];
+                                          // Get the real PublicKey from the provider
+                                          final realPublicKey = ref
+                                              .read(contactsProvider.notifier)
+                                              .getPublicKeyForContact(contact.publicKey);
                                           if (realPublicKey != null) {
-                                            // Use the proper method to remove contact from Rust backend
                                             await ref
                                                 .read(contactsProvider.notifier)
-                                                .removeContactByPublicKey(
-                                                  realPublicKey,
-                                                );
-
+                                                .removeContactByPublicKey(realPublicKey);
                                             if (context.mounted) {
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
+                                              ScaffoldMessenger.of(context).showSnackBar(
                                                 const SnackBar(
-                                                  content: Text(
-                                                    'Contact removed successfully',
-                                                  ),
+                                                  content: Text('Contact removed successfully'),
                                                 ),
                                               );
                                             }

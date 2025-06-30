@@ -8,12 +8,12 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.automaticallyImplyLeading = true,
     this.centerTitle = false,
     this.title,
+    this.isTransparent = false,
     this.leading,
   }) : pinned = false,
        floating = false,
        snap = false,
        stretch = false,
-       isTransparent = false,
        expandedHeight = null,
        _isSliver = false;
 

@@ -54,7 +54,18 @@ class GroupsNotifier extends Notifier<GroupsState> {
       state = state.copyWith(isLoading: false);
     } catch (e, st) {
       _logger.severe('GroupsProvider.loadGroups', e, st);
-      state = state.copyWith(error: e.toString(), isLoading: false);
+      String errorMessage = 'Failed to load groups';
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+        } catch (conversionError) {
+          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          errorMessage = 'Failed to load groups due to an internal error';
+        }
+      } else {
+        errorMessage = e.toString();
+      }
+      state = state.copyWith(error: errorMessage, isLoading: false);
     }
   }
 
@@ -114,7 +125,18 @@ class GroupsNotifier extends Notifier<GroupsState> {
       return newGroup;
     } catch (e, st) {
       _logger.severe('GroupsProvider.createNewGroup', e, st);
-      state = state.copyWith(error: e.toString(), isLoading: false);
+      String errorMessage = 'Failed to create group';
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+        } catch (conversionError) {
+          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          errorMessage = 'Failed to create group due to an internal error';
+        }
+      } else {
+        errorMessage = e.toString();
+      }
+      state = state.copyWith(error: errorMessage, isLoading: false);
       return null;
     }
   }
@@ -182,7 +204,18 @@ class GroupsNotifier extends Notifier<GroupsState> {
       state = state.copyWith(groupMembers: updatedGroupMembers);
     } catch (e, st) {
       _logger.severe('GroupsProvider.loadGroupMembers', e, st);
-      state = state.copyWith(error: e.toString());
+      String errorMessage = 'Failed to load group members';
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+        } catch (conversionError) {
+          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          errorMessage = 'Failed to load group members due to an internal error';
+        }
+      } else {
+        errorMessage = e.toString();
+      }
+      state = state.copyWith(error: errorMessage);
     }
   }
 
@@ -250,7 +283,18 @@ class GroupsNotifier extends Notifier<GroupsState> {
       state = state.copyWith(groupAdmins: updatedGroupAdmins);
     } catch (e, st) {
       _logger.severe('GroupsProvider.loadGroupAdmins', e, st);
-      state = state.copyWith(error: e.toString());
+      String errorMessage = 'Failed to load group admins';
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+        } catch (conversionError) {
+          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          errorMessage = 'Failed to load group admins due to an internal error';
+        }
+      } else {
+        errorMessage = e.toString();
+      }
+      state = state.copyWith(error: errorMessage);
     }
   }
 
