@@ -77,43 +77,13 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
         String? contactIdentifier;
 
-        // Try multiple aggressive approaches to get a real npub
         bool npubSuccess = false;
-
-        // Attempt 1: Direct conversion
         try {
           contactIdentifier = await exportAccountNpub(pubkey: entry.key);
           npubSuccess = true;
           _logger.info('ContactsProvider: ✅ Direct npub conversion successful: $contactIdentifier');
         } catch (e) {
           _logger.warning('ContactsProvider: ❌ Direct exportAccountNpub failed: $e');
-        }
-
-        // Attempt 2: Retry with delay (sometimes timing/resource issues)
-        if (!npubSuccess) {
-          try {
-            await Future.delayed(const Duration(milliseconds: 100));
-            contactIdentifier = await exportAccountNpub(pubkey: entry.key);
-            npubSuccess = true;
-            _logger.info('ContactsProvider: ✅ Delayed retry successful: $contactIdentifier');
-          } catch (e) {
-            _logger.warning('ContactsProvider: ❌ Delayed retry failed: $e');
-          }
-        }
-
-        // Attempt 3: Multiple rapid retries
-        if (!npubSuccess) {
-          for (int i = 0; i < 5; i++) {
-            try {
-              await Future.delayed(Duration(milliseconds: 20 * i));
-              contactIdentifier = await exportAccountNpub(pubkey: entry.key);
-              npubSuccess = true;
-              _logger.info('ContactsProvider: ✅ Rapid retry $i successful: $contactIdentifier');
-              break;
-            } catch (e) {
-              _logger.warning('ContactsProvider: ❌ Rapid retry $i failed: $e');
-            }
-          }
         }
 
         // Only use fallback if ALL attempts failed
@@ -132,7 +102,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
         // Create the contact model with the resolved identifier
         final contactModel = ContactModel.fromMetadata(
-          publicKey: contactIdentifier,
+          publicKey: contactIdentifier!,
           metadata: metadata,
         );
 
