@@ -33,7 +33,7 @@ class ProfileReadyCard extends ConsumerWidget {
   Widget _buildCard(BuildContext context, WidgetRef ref) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.w),
-      margin: EdgeInsets.symmetric(horizontal: 16.w),
+      margin: EdgeInsets.symmetric(horizontal: 16.w).copyWith(bottom: 32.h),
       decoration: BoxDecoration(
         color: context.colors.surface,
         border: Border.all(color: context.colors.border),
