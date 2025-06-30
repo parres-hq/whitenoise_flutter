@@ -118,8 +118,28 @@ class AuthNotifier extends Notifier<AuthState> {
       // Load account data after login
       await ref.read(accountProvider.notifier).loadAccountData();
     } catch (e, st) {
-      state = state.copyWith(error: e.toString());
-      _logger.severe('loginWithKey', e, st);
+      String errorMessage;
+
+      // Check if it's a WhitenoiseError and convert it to a readable message
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+          if (errorMessage.contains('InvalidSecretKey')) {
+            errorMessage = 'Invalid nsec or private key';
+          }
+        } catch (conversionError) {
+          // Fallback if conversion fails
+          errorMessage = 'Invalid nsec or private key';
+        }
+        // Log the user-friendly error message for WhitenoiseError instead of the raw exception
+        _logger.warning('loginWithKey failed: $errorMessage');
+      } else {
+        errorMessage = e.toString();
+        // Log unexpected errors as severe with full stack trace
+        _logger.severe('loginWithKey unexpected error', e, st);
+      }
+
+      state = state.copyWith(error: errorMessage);
     } finally {
       state = state.copyWith(isLoading: false);
     }
