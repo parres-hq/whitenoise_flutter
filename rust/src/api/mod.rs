@@ -571,7 +571,7 @@ pub async fn send_message_to_group(
 /// # Arguments
 ///
 /// * `pubkey` - The public key of the account requesting the messages. This account
-///              must be a member of the specified group to successfully fetch messages.
+///   must be a member of the specified group to successfully fetch messages.
 /// * `group_id` - The unique identifier of the MLS group to fetch messages from.
 ///
 /// # Returns
