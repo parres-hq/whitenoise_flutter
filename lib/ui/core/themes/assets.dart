@@ -26,6 +26,7 @@ class AssetsPaths {
   static const String icNewChat = '$_svgsDir/ic_new_chat.svg';
   static const String icStartChatting = '$_svgsDir/ic_start_chatting.svg';
   static const String icArrowRight = '$_svgsDir/ic_arrow_right.svg';
+  static const String icChevronLeft = '$_svgsDir/ic_chevron_left.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';

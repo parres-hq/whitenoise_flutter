@@ -17,20 +17,16 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$ProfileState {
-  String? get name => throw _privateConstructorUsedError;
   String? get displayName => throw _privateConstructorUsedError;
   String? get about => throw _privateConstructorUsedError;
   String? get picture => throw _privateConstructorUsedError;
-  String? get banner => throw _privateConstructorUsedError;
-  String? get website => throw _privateConstructorUsedError;
   String? get nip05 => throw _privateConstructorUsedError;
-  String? get lud16 => throw _privateConstructorUsedError;
-  String? get npub => throw _privateConstructorUsedError;
 
   /// Create a copy of ProfileState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ProfileStateCopyWith<ProfileState> get copyWith => throw _privateConstructorUsedError;
+  $ProfileStateCopyWith<ProfileState> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -41,15 +37,10 @@ abstract class $ProfileStateCopyWith<$Res> {
   ) = _$ProfileStateCopyWithImpl<$Res, ProfileState>;
   @useResult
   $Res call({
-    String? name,
     String? displayName,
     String? about,
     String? picture,
-    String? banner,
-    String? website,
     String? nip05,
-    String? lud16,
-    String? npub,
   });
 }
 
@@ -68,23 +59,13 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? name = freezed,
     Object? displayName = freezed,
     Object? about = freezed,
     Object? picture = freezed,
-    Object? banner = freezed,
-    Object? website = freezed,
     Object? nip05 = freezed,
-    Object? lud16 = freezed,
-    Object? npub = freezed,
   }) {
     return _then(
       _value.copyWith(
-            name:
-                freezed == name
-                    ? _value.name
-                    : name // ignore: cast_nullable_to_non_nullable
-                        as String?,
             displayName:
                 freezed == displayName
                     ? _value.displayName
@@ -100,30 +81,10 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
                     ? _value.picture
                     : picture // ignore: cast_nullable_to_non_nullable
                         as String?,
-            banner:
-                freezed == banner
-                    ? _value.banner
-                    : banner // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            website:
-                freezed == website
-                    ? _value.website
-                    : website // ignore: cast_nullable_to_non_nullable
-                        as String?,
             nip05:
                 freezed == nip05
                     ? _value.nip05
                     : nip05 // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            lud16:
-                freezed == lud16
-                    ? _value.lud16
-                    : lud16 // ignore: cast_nullable_to_non_nullable
-                        as String?,
-            npub:
-                freezed == npub
-                    ? _value.npub
-                    : npub // ignore: cast_nullable_to_non_nullable
                         as String?,
           )
           as $Val,
@@ -132,7 +93,8 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
 }
 
 /// @nodoc
-abstract class _$$ProfileStateImplCopyWith<$Res> implements $ProfileStateCopyWith<$Res> {
+abstract class _$$ProfileStateImplCopyWith<$Res>
+    implements $ProfileStateCopyWith<$Res> {
   factory _$$ProfileStateImplCopyWith(
     _$ProfileStateImpl value,
     $Res Function(_$ProfileStateImpl) then,
@@ -140,15 +102,10 @@ abstract class _$$ProfileStateImplCopyWith<$Res> implements $ProfileStateCopyWit
   @override
   @useResult
   $Res call({
-    String? name,
     String? displayName,
     String? about,
     String? picture,
-    String? banner,
-    String? website,
     String? nip05,
-    String? lud16,
-    String? npub,
   });
 }
 
@@ -166,23 +123,13 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? name = freezed,
     Object? displayName = freezed,
     Object? about = freezed,
     Object? picture = freezed,
-    Object? banner = freezed,
-    Object? website = freezed,
     Object? nip05 = freezed,
-    Object? lud16 = freezed,
-    Object? npub = freezed,
   }) {
     return _then(
       _$ProfileStateImpl(
-        name:
-            freezed == name
-                ? _value.name
-                : name // ignore: cast_nullable_to_non_nullable
-                    as String?,
         displayName:
             freezed == displayName
                 ? _value.displayName
@@ -198,30 +145,10 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
                 ? _value.picture
                 : picture // ignore: cast_nullable_to_non_nullable
                     as String?,
-        banner:
-            freezed == banner
-                ? _value.banner
-                : banner // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        website:
-            freezed == website
-                ? _value.website
-                : website // ignore: cast_nullable_to_non_nullable
-                    as String?,
         nip05:
             freezed == nip05
                 ? _value.nip05
                 : nip05 // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        lud16:
-            freezed == lud16
-                ? _value.lud16
-                : lud16 // ignore: cast_nullable_to_non_nullable
-                    as String?,
-        npub:
-            freezed == npub
-                ? _value.npub
-                : npub // ignore: cast_nullable_to_non_nullable
                     as String?,
       ),
     );
@@ -232,19 +159,12 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
 
 class _$ProfileStateImpl extends _ProfileState {
   const _$ProfileStateImpl({
-    this.name,
     this.displayName,
     this.about,
     this.picture,
-    this.banner,
-    this.website,
     this.nip05,
-    this.lud16,
-    this.npub,
   }) : super._();
 
-  @override
-  final String? name;
   @override
   final String? displayName;
   @override
@@ -252,19 +172,11 @@ class _$ProfileStateImpl extends _ProfileState {
   @override
   final String? picture;
   @override
-  final String? banner;
-  @override
-  final String? website;
-  @override
   final String? nip05;
-  @override
-  final String? lud16;
-  @override
-  final String? npub;
 
   @override
   String toString() {
-    return 'ProfileState(name: $name, displayName: $displayName, about: $about, picture: $picture, banner: $banner, website: $website, nip05: $nip05, lud16: $lud16, npub: $npub)';
+    return 'ProfileState(displayName: $displayName, about: $about, picture: $picture, nip05: $nip05)';
   }
 
   @override
@@ -272,30 +184,16 @@ class _$ProfileStateImpl extends _ProfileState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ProfileStateImpl &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.displayName, displayName) || other.displayName == displayName) &&
+            (identical(other.displayName, displayName) ||
+                other.displayName == displayName) &&
             (identical(other.about, about) || other.about == about) &&
             (identical(other.picture, picture) || other.picture == picture) &&
-            (identical(other.banner, banner) || other.banner == banner) &&
-            (identical(other.website, website) || other.website == website) &&
-            (identical(other.nip05, nip05) || other.nip05 == nip05) &&
-            (identical(other.lud16, lud16) || other.lud16 == lud16) &&
-            (identical(other.npub, npub) || other.npub == npub));
+            (identical(other.nip05, nip05) || other.nip05 == nip05));
   }
 
   @override
-  int get hashCode => Object.hash(
-    runtimeType,
-    name,
-    displayName,
-    about,
-    picture,
-    banner,
-    website,
-    nip05,
-    lud16,
-    npub,
-  );
+  int get hashCode =>
+      Object.hash(runtimeType, displayName, about, picture, nip05);
 
   /// Create a copy of ProfileState
   /// with the given fields replaced by the non-null parameter values.
@@ -308,20 +206,13 @@ class _$ProfileStateImpl extends _ProfileState {
 
 abstract class _ProfileState extends ProfileState {
   const factory _ProfileState({
-    final String? name,
     final String? displayName,
     final String? about,
     final String? picture,
-    final String? banner,
-    final String? website,
     final String? nip05,
-    final String? lud16,
-    final String? npub,
   }) = _$ProfileStateImpl;
   const _ProfileState._() : super._();
 
-  @override
-  String? get name;
   @override
   String? get displayName;
   @override
@@ -329,15 +220,7 @@ abstract class _ProfileState extends ProfileState {
   @override
   String? get picture;
   @override
-  String? get banner;
-  @override
-  String? get website;
-  @override
   String? get nip05;
-  @override
-  String? get lud16;
-  @override
-  String? get npub;
 
   /// Create a copy of ProfileState
   /// with the given fields replaced by the non-null parameter values.

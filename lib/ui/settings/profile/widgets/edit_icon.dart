@@ -14,9 +14,24 @@ class EditIconWidget extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(4.w),
-        decoration: BoxDecoration(color: context.colors.secondary),
-        child: SvgPicture.asset(AssetsPaths.icEdit, width: 16.w, height: 16.w),
+        width: 28.w,
+        height: 28.w,
+        padding: EdgeInsets.all(6.w),
+        decoration: BoxDecoration(
+          color: context.colors.mutedForeground,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: context.colors.secondary,
+            width: 1.w,
+          ),
+        ),
+        child: SvgPicture.asset(
+          AssetsPaths.icEdit,
+          colorFilter: ColorFilter.mode(
+            context.colors.primaryForeground,
+            BlendMode.srcIn,
+          ),
+        ),
       ),
     );
   }
