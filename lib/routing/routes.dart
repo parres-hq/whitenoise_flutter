@@ -21,6 +21,7 @@ abstract final class Routes {
   static const settingsNetwork = '/settings/network';
   static const settingsKeys = '/settings/keys';
   static const settingsWallet = '/settings/wallet';
+  static const settingsDeveloper = '/settings/developer';
 
   static void goToChat(BuildContext context, String chatId) {
     GoRouter.of(context).go('/chats/$chatId');

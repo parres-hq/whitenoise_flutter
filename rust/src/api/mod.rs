@@ -538,7 +538,7 @@ pub async fn create_group(
 /// # Returns
 /// * `Ok(MessageWithTokensData)` - The sent message and parsed tokens if successful
 /// * `Err(WhitenoiseError)` - If there was an error sending the message
-pub async fn send_message(
+pub async fn send_message_to_group(
     pubkey: &PublicKey,
     group_id: whitenoise::GroupId,
     message: String,
@@ -548,7 +548,7 @@ pub async fn send_message(
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey_clone = *pubkey;
     let message_with_tokens = tokio::task::spawn_blocking(move || {
-        tokio::runtime::Handle::current().block_on(whitenoise.send_message(
+        tokio::runtime::Handle::current().block_on(whitenoise.send_message_to_group(
             &pubkey_clone,
             &group_id,
             message,
@@ -559,6 +559,15 @@ pub async fn send_message(
     .await
     .map_err(|e| WhitenoiseError::from(std::io::Error::other(e)))??;
     Ok(convert_message_with_tokens_to_data(&message_with_tokens))
+}
+
+pub async fn fetch_messages_for_group(
+    pubkey: &PublicKey,
+    group_id: whitenoise::GroupId,
+) -> Result<Vec<MessageWithTokensData>, WhitenoiseError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let messages = whitenoise.fetch_messages_for_group(pubkey, &group_id).await?;
+    Ok(messages.iter().map(convert_message_with_tokens_to_data).collect())
 }
 
 /// This method adds new members to an existing MLS group. The calling account must have

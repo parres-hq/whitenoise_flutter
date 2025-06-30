@@ -338,6 +338,11 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
             text: 'Wallet',
             onTap: () => context.push('${Routes.settings}/wallet'),
           ),
+          SettingsListTile(
+            icon: CarbonIcons.debug,
+            text: 'Developer Testing',
+            onTap: () => context.push('${Routes.settings}/developer'),
+          ),
           Divider(color: context.colors.baseMuted, height: 16.h),
           SettingsListTile(
             icon: CarbonIcons.logout,
