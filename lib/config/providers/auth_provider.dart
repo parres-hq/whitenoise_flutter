@@ -57,7 +57,9 @@ class AuthNotifier extends Notifier<AuthState> {
             state = state.copyWith(isAuthenticated: true);
           } else {
             // No valid stored active account, set the first one as active
-            _logger.info('No valid stored active account, setting first account as active: ${accounts.first.pubkey}');
+            _logger.info(
+              'No valid stored active account, setting first account as active: ${accounts.first.pubkey}',
+            );
             await activeAccountNotifier.setActiveAccount(accounts.first.pubkey);
             state = state.copyWith(isAuthenticated: true);
           }
