@@ -37,6 +37,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.meChatBubbleText,
     required this.contactChatBubbleText,
     required this.overlay,
+    required this.surface,
   });
 
   final Color primary;
@@ -71,6 +72,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color meChatBubbleText;
   final Color contactChatBubbleText;
   final Color overlay;
+  final Color surface;
 
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
@@ -106,6 +108,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     meChatBubbleText: LightAppColors.meChatBubbleText,
     contactChatBubbleText: LightAppColors.contactChatBubbleText,
     overlay: LightAppColors.overlay,
+    surface: LightAppColors.surface,
   );
 
   /// Dark theme colors
@@ -142,6 +145,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     meChatBubbleText: DarkAppColors.meChatBubbleText,
     contactChatBubbleText: DarkAppColors.contactChatBubbleText,
     overlay: DarkAppColors.overlay,
+    surface: DarkAppColors.surface,
   );
 
   @override
@@ -178,6 +182,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? meChatBubbleText,
     Color? contactChatBubbleText,
     Color? overlay,
+    Color? surface,
   }) {
     return AppColorsThemeExt(
       primary: primary ?? this.primary,
@@ -212,6 +217,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       meChatBubbleText: meChatBubbleText ?? this.meChatBubbleText,
       contactChatBubbleText: contactChatBubbleText ?? this.contactChatBubbleText,
       overlay: overlay ?? this.overlay,
+      surface: surface ?? this.surface,
     );
   }
 
@@ -261,6 +267,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       meChatBubbleText: Color.lerp(meChatBubbleText, other.meChatBubbleText, t)!,
       contactChatBubbleText: Color.lerp(contactChatBubbleText, other.contactChatBubbleText, t)!,
       overlay: Color.lerp(overlay, other.overlay, t)!,
+      surface: Color.lerp(surface, other.surface, t)!,
     );
   }
 }

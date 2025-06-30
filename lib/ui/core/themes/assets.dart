@@ -22,6 +22,9 @@ class AssetsPaths {
   static const String icDisconnected = '$_svgsDir/ic_disconnected.svg';
   static const String icPaste = '$_svgsDir/ic_paste.svg';
   static const String icScan = '$_svgsDir/ic_scan.svg';
+  static const String icWhiteNoiseSvg = '$_svgsDir/ic_whitenoise.svg';
+  static const String icNewChat = '$_svgsDir/ic_new_chat.svg';
+  static const String icStartChatting = '$_svgsDir/ic_start_chatting.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';
@@ -39,4 +42,5 @@ class AssetsPaths {
   static const String icCheckmarkSolid = '$_pngsDir/ic_checkmark_solid.png';
   static const String icCheckmarkDashed = '$_pngsDir/ic_checkmark_dashed.png';
   static const String icCheckmarkFilled = '$_pngsDir/ic_checkmark_filled.png';
+  static const String login = '$_pngsDir/login.png';
 }

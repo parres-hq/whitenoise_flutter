@@ -7,7 +7,6 @@ import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/src/rust/api.dart';
-import 'package:whitenoise/src/rust/frb_generated.dart';
 
 /// Auth Provider
 ///
@@ -25,10 +24,7 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      // 1. Initialize Rust library
-      await RustLib.init();
-
-      /// 2. Create data and logs directories
+      /// 1. Create data and logs directories
       final dir = await getApplicationDocumentsDirectory();
       final dataDir = '${dir.path}/whitenoise/data';
       final logsDir = '${dir.path}/whitenoise/logs';
@@ -36,14 +32,14 @@ class AuthNotifier extends Notifier<AuthState> {
       await Directory(dataDir).create(recursive: true);
       await Directory(logsDir).create(recursive: true);
 
-      /// 3. Create config and initialize Whitenoise instance
+      /// 2. Create config and initialize Whitenoise instance
       final config = await createWhitenoiseConfig(
         dataDir: dataDir,
         logsDir: logsDir,
       );
       await initializeWhitenoise(config: config);
 
-      /// 4. Auto-login if an account is already active
+      /// 3. Auto-login if an account is already active
       try {
         final accounts = await fetchAccounts();
         if (accounts.isNotEmpty) {

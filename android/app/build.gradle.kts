@@ -29,6 +29,18 @@ android {
         ndkVersion = "27.0.12077973"
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+        
+        // Add support for native libraries
+        ndk {
+            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
+        }
+    }
+    
+    // Ensure the jniLibs directory is included in the APK
+    sourceSets {
+        getByName("main") {
+            jniLibs.srcDirs("src/main/jniLibs")
+        }
     }
 
     buildTypes {

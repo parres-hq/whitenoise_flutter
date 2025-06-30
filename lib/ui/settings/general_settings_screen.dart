@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -172,10 +174,119 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     context.go(Routes.home);
   }
 
-  void _deleteAllData() {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('All data deleted')));
+  Future<void> _deleteAllData() async {
+    // Show confirmation dialog first
+    final confirmed = await showDialog<bool>(
+      context: context,
+      barrierColor: Colors.transparent,
+      builder:
+          (context) => BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.3),
+              child: Dialog(
+                backgroundColor: context.colors.neutral,
+                shape: RoundedRectangleBorder(
+                  side: BorderSide(
+                    color: context.colors.border,
+                  ),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.all(24.w),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Delete All Data',
+                        style: TextStyle(
+                          fontSize: 20.sp,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.secondaryForeground,
+                        ),
+                      ),
+                      Gap(16.h),
+                      Text(
+                        'This will permanently delete all your accounts, messages, groups, and app data. This action cannot be undone.\n\nAre you sure you want to continue?',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          color: context.colors.mutedForeground,
+                          height: 1.4,
+                        ),
+                      ),
+                      Gap(24.h),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: AppFilledButton(
+                              title: 'Cancel',
+                              visualState: AppButtonVisualState.secondary,
+                              size: AppButtonSize.small,
+                              onPressed: () => Navigator.of(context).pop(false),
+                            ),
+                          ),
+                          Gap(12.w),
+                          Expanded(
+                            child: AppFilledButton.child(
+                              visualState: AppButtonVisualState.error,
+                              size: AppButtonSize.small,
+                              onPressed: () => Navigator.of(context).pop(true),
+                              child: Text(
+                                'Delete',
+                                style: AppButtonSize.small.textStyle().copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+    );
+
+    // If user didn't confirm, return early
+    if (confirmed != true) return;
+
+    try {
+      // Show loading dialog
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
+
+      // Call the Rust API to delete all data
+      await deleteAllData();
+
+      if (!mounted) return;
+
+      // Close loading dialog
+      Navigator.of(context).pop();
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('All data deleted successfully')),
+      );
+
+      // Navigate back to home/login screen since all accounts are logged out
+      context.go(Routes.home);
+    } catch (e) {
+      if (!mounted) return;
+
+      // Close loading dialog
+      Navigator.of(context).pop();
+
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to delete data: $e')),
+      );
+    }
   }
 
   @override

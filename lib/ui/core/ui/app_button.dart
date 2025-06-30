@@ -6,8 +6,8 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 part 'app_filled_button.dart';
 part 'app_text_button.dart';
 
-const kMinimumButtonSize = Size(358, 64);
-const kMinimumSmallButtonSize = Size(358, 40);
+const kMinimumButtonSize = Size(358, 56);
+const kMinimumSmallButtonSize = Size(358, 44);
 
 enum AppButtonSize {
   large(kMinimumButtonSize),
@@ -15,6 +15,19 @@ enum AppButtonSize {
 
   final Size value;
   const AppButtonSize(this.value);
+
+  TextStyle textStyle() {
+    return switch (this) {
+      AppButtonSize.large => TextStyle(
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w600,
+      ),
+      AppButtonSize.small => TextStyle(
+        fontSize: 14.sp,
+        fontWeight: FontWeight.w600,
+      ),
+    };
+  }
 }
 
 enum AppButtonVisualState {
@@ -77,6 +90,18 @@ enum AppButtonVisualState {
       AppButtonVisualState.primary => colors.primaryForeground,
       AppButtonVisualState.secondary => colors.secondaryForeground,
       AppButtonVisualState.tertiary => colors.secondaryForeground,
+    };
+  }
+
+  Color borderColor(BuildContext context) {
+    final colors = context.colors;
+    return switch (this) {
+      AppButtonVisualState.secondary => colors.border,
+      AppButtonVisualState.tertiary => Colors.transparent,
+      AppButtonVisualState.primary => Colors.transparent,
+      AppButtonVisualState.success => Colors.transparent,
+      AppButtonVisualState.warning => Colors.transparent,
+      AppButtonVisualState.error => Colors.transparent,
     };
   }
 }

@@ -4,13 +4,18 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/profile_ready_card_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
+
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
+
 import 'package:whitenoise/ui/contact_list/widgets/group_list_tile.dart';
+import 'package:whitenoise/ui/contact_list/widgets/profile_ready_card.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/bottom_fade.dart';
+
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
@@ -32,6 +37,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   @override
   Widget build(BuildContext context) {
     final groupList = ref.watch(groupsProvider).groups ?? [];
+    final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
 
     return Scaffold(
       body: Stack(
@@ -67,22 +73,31 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                   child: _EmptyGroupList(),
                 )
               else
-                SliverPadding(
-                  padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
-                  sliver: SliverList.separated(
-                    itemBuilder: (context, index) {
-                      final group = groupList[index];
-                      return GroupListTile(group: group);
-                    },
-                    itemCount: groupList.length,
-                    separatorBuilder: (context, index) => Gap(8.w),
-                  ),
+                ...[],
+              SliverPadding(
+                padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
+                sliver: SliverList.separated(
+                  itemBuilder: (context, index) {
+                    final group = groupList[index];
+                    return GroupListTile(group: group);
+                  },
+                  itemCount: groupList.length,
+                  separatorBuilder: (context, index) => Gap(8.w),
                 ),
+              ),
             ],
           ),
+
           if (groupList.isNotEmpty)
             Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const BottomFade()),
         ],
+      ),
+      bottomNavigationBar: SafeArea(
+        child: visibilityAsync.when(
+          data: (showCard) => showCard ? const ProfileReadyCard() : const SizedBox.shrink(),
+          loading: () => const SizedBox.shrink(),
+          error: (error, stack) => const SizedBox.shrink(),
+        ),
       ),
     );
   }
@@ -94,33 +109,17 @@ class _EmptyGroupList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.chat_bubble_outline,
-            size: 64.w,
-            color: context.colors.primary,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 32.w),
+        child: Text(
+          'Welcome to White Noise. Private, secure,\ndecentralized, uncensorable messaging where your\nidentity stays yours.',
+          style: TextStyle(
+            fontSize: 12.sp,
+            fontWeight: FontWeight.w600,
+            color: context.colors.mutedForeground,
           ),
-          Gap(16.h),
-          Text(
-            'No chats yet',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w500,
-              color: context.colors.primary,
-            ),
-          ),
-          Gap(8.h),
-          Text(
-            'Start a conversation with your contacts',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: context.colors.mutedForeground,
-            ),
-            textAlign: TextAlign.center,
-          ),
-        ],
+          textAlign: TextAlign.center,
+        ),
       ),
     );
   }

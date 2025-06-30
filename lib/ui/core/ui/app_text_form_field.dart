@@ -161,7 +161,6 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
           color: context.colors.input,
         ),
       ),
-
       filled: true,
     );
 
