@@ -11,7 +11,7 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
     required this.tail,
   });
 
-  double _x = 10.0;
+  final double _x = 10.0;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -29,7 +29,7 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
         );
 
         // Tail triangle (right side)
-        var path = Path();
+        final path = Path();
         path.moveTo(size.width - _x, 0);
         path.lineTo(size.width - _x, 10);
         path.lineTo(size.width, 0);
@@ -51,7 +51,7 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
         );
 
         // Tail triangle (left side)
-        var path = Path();
+        final path = Path();
         path.moveTo(_x, 0);
         path.lineTo(_x, 10);
         path.lineTo(0, 0);

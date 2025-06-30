@@ -45,12 +45,15 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
           CustomScrollView(
             slivers: [
               CustomAppBar.sliver(
-                title: InkWell(
-                  borderRadius: BorderRadius.circular(16.r),
-                  onTap: () => context.push(Routes.settings),
-                  child: ContactAvatar(
-                    imgPath: '',
-                    size: 36.r,
+                title: Padding(
+                  padding: EdgeInsets.only(left: 16.w),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16.r),
+                    onTap: () => context.push(Routes.settings),
+                    child: ContactAvatar(
+                      imgPath: '',
+                      size: 36.r,
+                    ),
                   ),
                 ),
                 actions: [

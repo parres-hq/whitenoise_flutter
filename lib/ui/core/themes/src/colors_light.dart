@@ -69,4 +69,5 @@ class LightAppColors {
   static const contactChatBubbleText = Color(0xff0A0A0A);
 
   static const overlay = Color(0xff000000);
+  static const surface = Color(0xfffafafa);
 }

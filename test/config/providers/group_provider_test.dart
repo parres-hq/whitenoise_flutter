@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 
 void main() {
@@ -60,6 +61,7 @@ void main() {
         expect(state.groups, isNull);
         expect(state.groupMembers, isNull);
         expect(state.groupAdmins, isNull);
+        expect(state.groupDisplayNames, isNull);
         expect(state.isLoading, false);
         expect(state.error, isNull);
       });
@@ -108,24 +110,51 @@ void main() {
 
       test('should update group members correctly', () {
         final notifier = container.read(groupsProvider.notifier);
-        final testGroupMembers = <String, List<PublicKey>>{'group1': []};
+        final testUser = User(
+          id: 'test_id',
+          name: 'Test User',
+          nip05: 'test@example.com',
+          publicKey: 'test_pubkey',
+        );
+        final testGroupMembers = <String, List<User>>{'group1': [testUser]};
 
         notifier.state = notifier.state.copyWith(groupMembers: testGroupMembers);
 
         final state = container.read(groupsProvider);
         expect(state.groupMembers, testGroupMembers);
-        expect(state.groupMembers!['group1'], []);
+        expect(state.groupMembers!['group1'], [testUser]);
       });
 
       test('should update group admins correctly', () {
         final notifier = container.read(groupsProvider.notifier);
-        final testGroupAdmins = <String, List<PublicKey>>{'group1': []};
+        final testUser = User(
+          id: 'admin_id',
+          name: 'Admin User',
+          nip05: 'admin@example.com',
+          publicKey: 'admin_pubkey',
+        );
+        final testGroupAdmins = <String, List<User>>{'group1': [testUser]};
 
         notifier.state = notifier.state.copyWith(groupAdmins: testGroupAdmins);
 
         final state = container.read(groupsProvider);
         expect(state.groupAdmins, testGroupAdmins);
-        expect(state.groupAdmins!['group1'], []);
+        expect(state.groupAdmins!['group1'], [testUser]);
+      });
+
+      test('should update group display names correctly', () {
+        final notifier = container.read(groupsProvider.notifier);
+        final testDisplayNames = <String, String>{
+          'group1': 'Test Group Display Name',
+          'dm1': 'John Doe',
+        };
+
+        notifier.state = notifier.state.copyWith(groupDisplayNames: testDisplayNames);
+
+        final state = container.read(groupsProvider);
+        expect(state.groupDisplayNames, testDisplayNames);
+        expect(state.groupDisplayNames!['group1'], 'Test Group Display Name');
+        expect(state.groupDisplayNames!['dm1'], 'John Doe');
       });
     });
 
@@ -210,11 +239,17 @@ void main() {
 
       test('getGroupMembers should return members for existing group', () {
         final notifier = container.read(groupsProvider.notifier);
-        final testGroupMembers = <String, List<PublicKey>>{'group1': []};
+        final testUser = User(
+          id: 'member_id',
+          name: 'Member User',
+          nip05: 'member@example.com',
+          publicKey: 'member_pubkey',
+        );
+        final testGroupMembers = <String, List<User>>{'group1': [testUser]};
         notifier.state = notifier.state.copyWith(groupMembers: testGroupMembers);
 
         final members = notifier.getGroupMembers('group1');
-        expect(members, []);
+        expect(members, [testUser]);
       });
 
       test('getGroupMembers should return null for non-existent group', () {
@@ -225,11 +260,17 @@ void main() {
 
       test('getGroupAdmins should return admins for existing group', () {
         final notifier = container.read(groupsProvider.notifier);
-        final testGroupAdmins = <String, List<PublicKey>>{'group1': []};
+        final testUser = User(
+          id: 'admin_id',
+          name: 'Admin User',
+          nip05: 'admin@example.com',
+          publicKey: 'admin_pubkey',
+        );
+        final testGroupAdmins = <String, List<User>>{'group1': [testUser]};
         notifier.state = notifier.state.copyWith(groupAdmins: testGroupAdmins);
 
         final admins = notifier.getGroupAdmins('group1');
-        expect(admins, []);
+        expect(admins, [testUser]);
       });
 
       test('getGroupAdmins should return null for non-existent group', () {
@@ -242,10 +283,17 @@ void main() {
         final notifier = container.read(groupsProvider.notifier);
 
         // Set some data first
+        final testUser = User(
+          id: 'test_id',
+          name: 'Test User',
+          nip05: 'test@example.com',
+          publicKey: 'test_pubkey',
+        );
         notifier.state = notifier.state.copyWith(
           groups: testGroups,
-          groupMembers: <String, List<PublicKey>>{'test': []},
-          groupAdmins: <String, List<PublicKey>>{'test': []},
+          groupMembers: <String, List<User>>{'test': [testUser]},
+          groupAdmins: <String, List<User>>{'test': [testUser]},
+          groupDisplayNames: <String, String>{'test': 'Test Group'},
           error: 'some error',
         );
 
@@ -256,6 +304,7 @@ void main() {
         expect(state.groups, isNull);
         expect(state.groupMembers, isNull);
         expect(state.groupAdmins, isNull);
+        expect(state.groupDisplayNames, isNull);
         expect(state.isLoading, false);
         expect(state.error, isNull);
       });
@@ -581,6 +630,7 @@ void main() {
         // Set some state
         notifier.state = notifier.state.copyWith(
           groups: testGroups,
+          groupDisplayNames: <String, String>{'test': 'Test Group'},
           isLoading: true,
           error: 'test error',
         );
@@ -592,6 +642,8 @@ void main() {
 
         expect(state1.groups, state2.groups);
         expect(state2.groups, state3.groups);
+        expect(state1.groupDisplayNames, state2.groupDisplayNames);
+        expect(state2.groupDisplayNames, state3.groupDisplayNames);
         expect(state1.isLoading, state2.isLoading);
         expect(state2.isLoading, state3.isLoading);
         expect(state1.error, state2.error);
