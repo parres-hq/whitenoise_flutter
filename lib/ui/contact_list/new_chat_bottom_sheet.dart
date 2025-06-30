@@ -123,7 +123,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
   List<ContactModel> _getFilteredContacts(List<ContactModel>? contacts) {
     if (contacts == null) return [];
-    
+
     if (_searchQuery.isEmpty) return contacts;
 
     return contacts
