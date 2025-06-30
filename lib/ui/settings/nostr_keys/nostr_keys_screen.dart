@@ -2,18 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
-import 'package:whitenoise/shared/info_box.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
@@ -167,96 +164,92 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
       appBar: const CustomAppBar(title: Text('Profile Keys')),
       body: SingleChildScrollView(
         child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 16.h),
+          padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              const SectionWidget(
-                title: 'Public Key',
-                description:
-                    'Your public key is your unique identifier in the Nostr network, enabling others to verify and recognize your messages. Share it openly!',
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(vertical: 24.h),
-                child: Row(
-                  children: [
-                    CircleAvatar(
-                      radius: 28.r,
-                      backgroundImage: const AssetImage(
-                        AssetsPaths.profileBackground,
-                      ),
-                    ),
-                    Gap(12.w),
-                    Expanded(
-                      child:
-                          nostrKeys.npub != null
-                              ? Text(
-                                _formatPublicKey(nostrKeys.npub!),
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: context.colors.mutedForeground,
-                                ),
-                              )
-                              : Text(
-                                'Loading public key...',
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: context.colors.baseMuted,
-                                ),
-                              ),
-                    ),
-                  ],
+              // Public Key Section
+              Text(
+                'Public Key',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.secondaryForeground,
                 ),
-              ),
-              AppFilledButton.child(
-                visualState: AppButtonVisualState.secondary,
-                onPressed: nostrKeys.npub != null ? _copyPublicKey : null,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SvgPicture.asset(
-                      AssetsPaths.icCopy,
-                      colorFilter: ColorFilter.mode(
-                        nostrKeys.npub != null
-                            ? context.colors.primary
-                            : context.colors.mutedForeground,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    SizedBox(width: 8.w),
-                    Text(
-                      'Copy Public Key',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        fontWeight: FontWeight.w500,
-                        color:
-                            nostrKeys.npub != null
-                                ? context.colors.primary
-                                : context.colors.mutedForeground,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Gap(48.h),
-              const SectionWidget(
-                title: 'Private Key',
-                description:
-                    'Private key works like a secret password that grants access to your Nostr identity.',
               ),
               Gap(16.h),
-              InfoBox(
-                colorTheme: context.colors.warning,
-                title: 'Keep your private key safe!',
-                description:
-                    'Don\'t share your private key publicly, and use it only to log in to other Nostr apps.',
+
+              // Public Key Input Field
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: context.colors.input,
+                      ),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16.w,
+                          vertical: 14.h,
+                        ),
+                        child: nostrKeys.npub != null
+                            ? Text(
+                              _formatPublicKey(nostrKeys.npub!),
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: context.colors.secondaryForeground,
+                                fontFamily: 'monospace',
+                              ),
+                            )
+                            : Text(
+                              'Loading public key...',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: context.colors.baseMuted,
+                              ),
+                            ),
+                      ),
+                    ),
+                  ),
+                  Gap(8.w),
+                  CustomIconButton(
+                    onTap: _copyPublicKey,
+                    iconPath: AssetsPaths.icCopy,
+                  ),
+                ],
+              ),
+              Gap(12.h),
+
+              // Public Key Description
+              Text(
+                'Your public key is your unique identifier in the Nostr network, enabling others to verify and recognize your messages. Share it openly!',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: context.colors.mutedForeground,
+                  height: 1.4,
+                ),
+              ),
+
+              Gap(32.h),
+
+              // Private Key Section
+              Text(
+                'Private Key',
+                style: TextStyle(
+                  fontSize: 20.sp,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.secondaryForeground,
+                ),
               ),
               Gap(16.h),
 
               // Show loading state or private key input
               if (nostrKeys.isLoading)
-                SizedBox(
+                Container(
                   height: 50.h,
+                  decoration: BoxDecoration(
+                    color: context.colors.input,
+                  ),
                   child: Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -284,8 +277,11 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                   ),
                 )
               else if (nostrKeys.error != null)
-                SizedBox(
+                Container(
                   height: 50.h,
+                  decoration: BoxDecoration(
+                    color: context.colors.input,
+                  ),
                   child: Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -310,68 +306,102 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                   ),
                 )
               else
+                // Private Key Input Field
                 Row(
                   children: [
                     Expanded(
-                      child: CustomTextField(
-                        textController: _privateKeyController,
-                        obscureText: _obscurePrivateKey,
-                        readOnly: true,
-                        padding: EdgeInsets.zero,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: context.colors.input,
+                        ),
+                        child: CustomTextField(
+                          textController: _privateKeyController,
+                          obscureText: _obscurePrivateKey,
+                          readOnly: true,
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 16.w,
+                            vertical: 14.h,
+                          ),
+                        ),
                       ),
-                    ),
-                    Gap(8.w),
-                    CustomIconButton(
-                      onTap: _copyPrivateKey,
-                      iconPath: AssetsPaths.icCopy,
                     ),
                     Gap(8.w),
                     CustomIconButton(
                       onTap: _togglePrivateKeyVisibility,
                       iconPath: AssetsPaths.icView,
                     ),
+                    Gap(8.w),
+                    CustomIconButton(
+                      onTap: _copyPrivateKey,
+                      iconPath: AssetsPaths.icCopy,
+                    ),
                   ],
                 ),
-              Gap(48.h),
+              Gap(12.h),
+
+              // Private Key Description
+              Text(
+                'Private key works like a secret password that grants access to your Nostr identity.',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: context.colors.mutedForeground,
+                  height: 1.4,
+                ),
+              ),
+              Gap(24.h),
+
+              // Custom Warning Box
+              Container(
+                padding: EdgeInsets.all(16.w),
+                decoration: BoxDecoration(
+                  color: context.colors.destructive.withValues(alpha: 0.1),
+                  border: Border.all(
+                    color: context.colors.destructive,
+                    width: 1.w,
+                  ),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: 4.w),
+                      child: Icon(
+                        Icons.warning,
+                        size: 16.w,
+                        color: context.colors.destructive,
+                      ),
+                    ),
+                    Gap(12.w),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Keep your private key safe!',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: context.colors.secondaryForeground,
+                            ),
+                          ),
+                          Gap(8.h),
+                          Text(
+                            'Don\'t share your private key publicly, and use it only to log in to other Nostr apps.',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              color: context.colors.secondaryForeground,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ),
-    );
-  }
-}
-
-class SectionWidget extends StatelessWidget {
-  final String title;
-  final String description;
-
-  const SectionWidget({
-    required this.title,
-    required this.description,
-    super.key,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 24.sp,
-            color: context.colors.mutedForeground,
-          ),
-        ),
-        Gap(8.h),
-        Text(
-          description,
-          style: TextStyle(
-            fontSize: 16.sp,
-            color: context.colors.mutedForeground,
-          ),
-        ),
-      ],
     );
   }
 }
