@@ -21,12 +21,15 @@ mixin _$ProfileState {
   String? get about => throw _privateConstructorUsedError;
   String? get picture => throw _privateConstructorUsedError;
   String? get nip05 => throw _privateConstructorUsedError;
+  ProfileState? get initialProfile => throw _privateConstructorUsedError;
+  bool get isSaving => throw _privateConstructorUsedError;
+  Object? get error => throw _privateConstructorUsedError;
+  StackTrace? get stackTrace => throw _privateConstructorUsedError;
 
   /// Create a copy of ProfileState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ProfileStateCopyWith<ProfileState> get copyWith =>
-      throw _privateConstructorUsedError;
+  $ProfileStateCopyWith<ProfileState> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -41,7 +44,13 @@ abstract class $ProfileStateCopyWith<$Res> {
     String? about,
     String? picture,
     String? nip05,
+    ProfileState? initialProfile,
+    bool isSaving,
+    Object? error,
+    StackTrace? stackTrace,
   });
+
+  $ProfileStateCopyWith<$Res>? get initialProfile;
 }
 
 /// @nodoc
@@ -63,6 +72,10 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
     Object? about = freezed,
     Object? picture = freezed,
     Object? nip05 = freezed,
+    Object? initialProfile = freezed,
+    Object? isSaving = null,
+    Object? error = freezed,
+    Object? stackTrace = freezed,
   }) {
     return _then(
       _value.copyWith(
@@ -86,15 +99,44 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
                     ? _value.nip05
                     : nip05 // ignore: cast_nullable_to_non_nullable
                         as String?,
+            initialProfile:
+                freezed == initialProfile
+                    ? _value.initialProfile
+                    : initialProfile // ignore: cast_nullable_to_non_nullable
+                        as ProfileState?,
+            isSaving:
+                null == isSaving
+                    ? _value.isSaving
+                    : isSaving // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            error: freezed == error ? _value.error : error,
+            stackTrace:
+                freezed == stackTrace
+                    ? _value.stackTrace
+                    : stackTrace // ignore: cast_nullable_to_non_nullable
+                        as StackTrace?,
           )
           as $Val,
     );
   }
+
+  /// Create a copy of ProfileState
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $ProfileStateCopyWith<$Res>? get initialProfile {
+    if (_value.initialProfile == null) {
+      return null;
+    }
+
+    return $ProfileStateCopyWith<$Res>(_value.initialProfile!, (value) {
+      return _then(_value.copyWith(initialProfile: value) as $Val);
+    });
+  }
 }
 
 /// @nodoc
-abstract class _$$ProfileStateImplCopyWith<$Res>
-    implements $ProfileStateCopyWith<$Res> {
+abstract class _$$ProfileStateImplCopyWith<$Res> implements $ProfileStateCopyWith<$Res> {
   factory _$$ProfileStateImplCopyWith(
     _$ProfileStateImpl value,
     $Res Function(_$ProfileStateImpl) then,
@@ -106,7 +148,14 @@ abstract class _$$ProfileStateImplCopyWith<$Res>
     String? about,
     String? picture,
     String? nip05,
+    ProfileState? initialProfile,
+    bool isSaving,
+    Object? error,
+    StackTrace? stackTrace,
   });
+
+  @override
+  $ProfileStateCopyWith<$Res>? get initialProfile;
 }
 
 /// @nodoc
@@ -127,6 +176,10 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
     Object? about = freezed,
     Object? picture = freezed,
     Object? nip05 = freezed,
+    Object? initialProfile = freezed,
+    Object? isSaving = null,
+    Object? error = freezed,
+    Object? stackTrace = freezed,
   }) {
     return _then(
       _$ProfileStateImpl(
@@ -150,6 +203,22 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
                 ? _value.nip05
                 : nip05 // ignore: cast_nullable_to_non_nullable
                     as String?,
+        initialProfile:
+            freezed == initialProfile
+                ? _value.initialProfile
+                : initialProfile // ignore: cast_nullable_to_non_nullable
+                    as ProfileState?,
+        isSaving:
+            null == isSaving
+                ? _value.isSaving
+                : isSaving // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        error: freezed == error ? _value.error : error,
+        stackTrace:
+            freezed == stackTrace
+                ? _value.stackTrace
+                : stackTrace // ignore: cast_nullable_to_non_nullable
+                    as StackTrace?,
       ),
     );
   }
@@ -163,6 +232,10 @@ class _$ProfileStateImpl extends _ProfileState {
     this.about,
     this.picture,
     this.nip05,
+    this.initialProfile,
+    this.isSaving = false,
+    this.error,
+    this.stackTrace,
   }) : super._();
 
   @override
@@ -173,10 +246,19 @@ class _$ProfileStateImpl extends _ProfileState {
   final String? picture;
   @override
   final String? nip05;
+  @override
+  final ProfileState? initialProfile;
+  @override
+  @JsonKey()
+  final bool isSaving;
+  @override
+  final Object? error;
+  @override
+  final StackTrace? stackTrace;
 
   @override
   String toString() {
-    return 'ProfileState(displayName: $displayName, about: $about, picture: $picture, nip05: $nip05)';
+    return 'ProfileState(displayName: $displayName, about: $about, picture: $picture, nip05: $nip05, initialProfile: $initialProfile, isSaving: $isSaving, error: $error, stackTrace: $stackTrace)';
   }
 
   @override
@@ -184,16 +266,29 @@ class _$ProfileStateImpl extends _ProfileState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ProfileStateImpl &&
-            (identical(other.displayName, displayName) ||
-                other.displayName == displayName) &&
+            (identical(other.displayName, displayName) || other.displayName == displayName) &&
             (identical(other.about, about) || other.about == about) &&
             (identical(other.picture, picture) || other.picture == picture) &&
-            (identical(other.nip05, nip05) || other.nip05 == nip05));
+            (identical(other.nip05, nip05) || other.nip05 == nip05) &&
+            (identical(other.initialProfile, initialProfile) ||
+                other.initialProfile == initialProfile) &&
+            (identical(other.isSaving, isSaving) || other.isSaving == isSaving) &&
+            const DeepCollectionEquality().equals(other.error, error) &&
+            (identical(other.stackTrace, stackTrace) || other.stackTrace == stackTrace));
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, displayName, about, picture, nip05);
+  int get hashCode => Object.hash(
+    runtimeType,
+    displayName,
+    about,
+    picture,
+    nip05,
+    initialProfile,
+    isSaving,
+    const DeepCollectionEquality().hash(error),
+    stackTrace,
+  );
 
   /// Create a copy of ProfileState
   /// with the given fields replaced by the non-null parameter values.
@@ -210,6 +305,10 @@ abstract class _ProfileState extends ProfileState {
     final String? about,
     final String? picture,
     final String? nip05,
+    final ProfileState? initialProfile,
+    final bool isSaving,
+    final Object? error,
+    final StackTrace? stackTrace,
   }) = _$ProfileStateImpl;
   const _ProfileState._() : super._();
 
@@ -221,6 +320,14 @@ abstract class _ProfileState extends ProfileState {
   String? get picture;
   @override
   String? get nip05;
+  @override
+  ProfileState? get initialProfile;
+  @override
+  bool get isSaving;
+  @override
+  Object? get error;
+  @override
+  StackTrace? get stackTrace;
 
   /// Create a copy of ProfileState
   /// with the given fields replaced by the non-null parameter values.

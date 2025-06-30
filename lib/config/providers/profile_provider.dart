@@ -48,11 +48,46 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         nip05: metadata?.nip05,
       );
 
-      state = AsyncValue.data(profileState);
+      state = AsyncValue.data(
+        profileState.copyWith(initialProfile: profileState),
+      );
     } catch (e, st) {
       _logger.severe('loadProfileData', e, st);
       state = AsyncValue.error(e.toString(), st);
     }
+  }
+
+  void updateLocalProfile({
+    String? displayName,
+    String? about,
+    String? picture,
+    String? nip05,
+  }) {
+    state.whenData((value) {
+      state = AsyncValue.data(
+        value.copyWith(
+          displayName: displayName ?? value.displayName,
+          about: about ?? value.about,
+          picture: picture ?? value.picture,
+          nip05: nip05 ?? value.nip05,
+        ),
+      );
+    });
+  }
+
+  void discardChanges() {
+    state.whenData((value) {
+      if (value.initialProfile != null) {
+        state = AsyncValue.data(
+          value.copyWith(
+            displayName: value.initialProfile!.displayName,
+            about: value.initialProfile!.about,
+            picture: value.initialProfile!.picture,
+            nip05: value.initialProfile!.nip05,
+          ),
+        );
+      }
+    });
   }
 
   Future<String?> pickProfileImage() async {
@@ -61,6 +96,12 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         source: ImageSource.gallery,
       );
       if (image != null) {
+        state.whenData(
+          (value) =>
+              state = AsyncValue.data(
+                value.copyWith(picture: image.path),
+              ),
+        );
         return image.path;
       }
       return null;
@@ -76,8 +117,10 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
     String? picture,
     String? nip05,
   }) async {
+    state = AsyncValue.data(
+      state.value!.copyWith(isSaving: true, error: null, stackTrace: null),
+    );
     try {
-      state = const AsyncValue.loading();
       final authState = ref.read(authProvider);
       if (!authState.isAuthenticated) {
         state = AsyncValue.error('Not authenticated', StackTrace.current);
@@ -97,31 +140,31 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         pubkey: publicKey,
       );
 
-      metadata?.displayName = displayName;
-      metadata?.about = about;
-      metadata?.picture = picture;
-      metadata?.nip05 = nip05;
+      if (metadata == null) {
+        throw Exception('Metadata not found');
+      }
+      metadata.displayName = displayName;
+      metadata.about = about;
+      metadata.picture = picture;
+      metadata.nip05 = nip05;
 
       // Create a new PublicKey object just before using it to avoid disposal issues
       final publicKeyForUpdate = await publicKeyFromString(
         publicKeyString: activeAccountData.pubkey,
       );
+
       await updateMetadata(
         pubkey: publicKeyForUpdate,
-        metadata: metadata!,
+        metadata: metadata,
       );
 
-      state = AsyncValue.data(
-        state.value!.copyWith(
-          displayName: displayName,
-          about: about,
-          picture: picture,
-          nip05: nip05,
-        ),
-      );
+      await fetchProfileData();
     } catch (e, st) {
       _logger.severe('updateProfileData', e, st);
-      state = AsyncValue.error(e.toString(), st);
+      state = AsyncValue.data(
+        state.value!.copyWith(isSaving: false, error: e, stackTrace: st),
+      );
+      rethrow;
     }
   }
 }

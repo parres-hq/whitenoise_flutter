@@ -33,6 +33,7 @@ enum AppButtonSize {
 enum AppButtonVisualState {
   primary,
   secondary,
+  secondaryWarning,
   tertiary,
   success,
   warning,
@@ -47,6 +48,7 @@ enum AppButtonVisualState {
       AppButtonVisualState.warning => colors.warning,
       AppButtonVisualState.primary => colors.primary,
       AppButtonVisualState.secondary => colors.secondary,
+      AppButtonVisualState.secondaryWarning => colors.destructive.withValues(alpha: 0.1),
       AppButtonVisualState.tertiary => colors.tertiary,
     };
   }
@@ -60,6 +62,7 @@ enum AppButtonVisualState {
       AppButtonVisualState.warning => colors.primaryForeground,
       AppButtonVisualState.primary => colors.primaryForeground,
       AppButtonVisualState.secondary => colors.secondaryForeground,
+      AppButtonVisualState.secondaryWarning => colors.destructive,
       AppButtonVisualState.tertiary => colors.secondaryForeground,
     };
   }
@@ -72,6 +75,9 @@ enum AppButtonVisualState {
       AppButtonVisualState.warning => colors.warning.withValues(alpha: 0.5),
       AppButtonVisualState.primary => colors.primary.withValues(alpha: 0.5),
       AppButtonVisualState.secondary => colors.warning.withValues(
+        alpha: 0.5,
+      ),
+      AppButtonVisualState.secondaryWarning => colors.destructive.withValues(
         alpha: 0.5,
       ),
       AppButtonVisualState.tertiary => colors.tertiary.withValues(
@@ -89,6 +95,7 @@ enum AppButtonVisualState {
       AppButtonVisualState.warning => colors.primaryForeground,
       AppButtonVisualState.primary => colors.primaryForeground,
       AppButtonVisualState.secondary => colors.secondaryForeground,
+      AppButtonVisualState.secondaryWarning => colors.destructive,
       AppButtonVisualState.tertiary => colors.secondaryForeground,
     };
   }
@@ -101,6 +108,7 @@ enum AppButtonVisualState {
       AppButtonVisualState.primary => Colors.transparent,
       AppButtonVisualState.success => Colors.transparent,
       AppButtonVisualState.warning => Colors.transparent,
+      AppButtonVisualState.secondaryWarning => colors.destructive,
       AppButtonVisualState.error => Colors.transparent,
     };
   }
