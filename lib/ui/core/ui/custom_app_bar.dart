@@ -70,7 +70,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: automaticallyImplyLeading,
       leading: leading,
       title: title,
-      actions: actions,      
+      actions: actions,
       titleSpacing: 2.w,
       elevation: 0,
       backgroundColor:
