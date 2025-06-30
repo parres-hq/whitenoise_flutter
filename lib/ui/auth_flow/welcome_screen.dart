@@ -81,22 +81,6 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                           color: context.colors.mutedForeground,
                         ),
                       ),
-                      Gap(24.h),
-                      ColoredBox(
-                        color: context.colors.destructive.withValues(alpha: 0.1),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6.h, horizontal: 8.w),
-                          child: Text(
-                            'Alpha Version',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: context.colors.destructive,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
