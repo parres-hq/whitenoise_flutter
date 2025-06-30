@@ -561,6 +561,48 @@ pub async fn send_message_to_group(
     Ok(convert_message_with_tokens_to_data(&message_with_tokens))
 }
 
+/// Fetches all messages for a specific MLS group.
+///
+/// This function retrieves messages that have been sent to the specified group,
+/// including the decrypted content and associated token data for each message.
+/// The messages are returned with their complete token representation, which
+/// can be useful for debugging and understanding the message structure.
+///
+/// # Arguments
+///
+/// * `pubkey` - The public key of the account requesting the messages. This account
+///              must be a member of the specified group to successfully fetch messages.
+/// * `group_id` - The unique identifier of the MLS group to fetch messages from.
+///
+/// # Returns
+///
+/// Returns a `Result` containing:
+/// - `Ok(Vec<MessageWithTokensData>)` - A vector of messages with their token data
+/// - `Err(WhitenoiseError)` - If the operation fails (e.g., network error, access denied,
+///   group not found, or user not a member of the group)
+///
+/// # Examples
+///
+/// ```rust
+/// use whitenoise::PublicKey;
+///
+/// // Fetch messages for a group
+/// let pubkey = PublicKey::from_string("npub1...")?;
+/// let group_id = GroupId::from_hex("abc123...")?;
+/// let messages = fetch_messages_for_group(&pubkey, group_id).await?;
+///
+/// println!("Fetched {} messages", messages.len());
+/// for (i, message) in messages.iter().enumerate() {
+///     println!("Message {}: {} tokens", i + 1, message.tokens.len());
+/// }
+/// ```
+///
+/// # Notes
+///
+/// - Messages are returned in chronological order (oldest first)
+/// - Each message includes both the decrypted content and token representation
+/// - Only group members can fetch messages from a group
+/// - The token data should be used to construct the message content.
 pub async fn fetch_messages_for_group(
     pubkey: &PublicKey,
     group_id: whitenoise::GroupId,
