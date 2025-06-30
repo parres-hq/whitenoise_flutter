@@ -1,0 +1,17 @@
+name: White Noise
+summary: A truly secure and private messenger that’s lightning fast, infinitely scalable, and identity-free
+description: (insert longer text, markdown ok)
+repository: https://github.com/parres-hq/whitenoise_flutter
+homepage: https://whitenoise-web.vercel.app/
+images:
+  - test/assets/i1.jpg
+  - test/assets/i2.jpg
+icon: test/assets/icon.png
+changelog: CHANGELOG.md
+tags: privacy security android messenger cryptography freedom-tech
+license: AGPL-3.0-only
+blossom_servers:
+  - https://cdn.zapstore.dev
+  - https://blossom.band
+assets:
+  - build/app/outputs/flutter-apk/app-arm64-v8a-release.apk
