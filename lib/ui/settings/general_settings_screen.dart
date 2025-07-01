@@ -20,6 +20,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
+import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/widgets/theme_toggle_icon_button.dart';
 
@@ -315,73 +316,146 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: const CustomAppBar(
-        title: Text('Settings'),
+      appBar: CustomAppBar(
+        automaticallyImplyLeading: false,
+        title: Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: GestureDetector(
+            onTap: () => _accounts.length > 1 ? _showAccountSwitcher() : null,
+            child: Row(
+              children: [
+                SizedBox(
+                  width: 36.w,
+                  height: 36.w,
+                  child: ClipOval(
+                    child:
+                        (_accountToContactModel(_currentAccount!).imagePath ?? '') != ''
+                            ? Image.network(
+                              _accountToContactModel(_currentAccount!).imagePath ?? '',
+                              width: 2.w,
+                              height: 2.w,
+                              fit: BoxFit.cover,
+                            )
+                            : FallbackProfileImageWidget(
+                              displayName:
+                                  _accountToContactModel(_currentAccount!).displayName ?? '',
+                              fontSize: 16.sp,
+                            ),
+                  ),
+                ),
+                Gap(6.w),
+                Flexible(
+                  child: Text(
+                    _accountToContactModel(_currentAccount!).displayName ?? '',
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.primaryForeground,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+                Gap(12.w),
+                if (_accounts.length > 1) Icon(CarbonIcons.chevron_sort, size: 16.w),
+              ],
+            ),
+          ),
+        ),
         actions: [
-          ThemeToggleIconButton(),
+          GestureDetector(
+            onTap: () => context.pop(),
+            child: Icon(CarbonIcons.qr_code, size: 21.w),
+          ),
+          Gap(21.5.w),
         ],
       ),
       body: ListView(
-        padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
+        padding: EdgeInsets.symmetric(vertical: 24.h),
         children: [
-          if (_isLoading)
-            const Center(child: CircularProgressIndicator())
-          else if (_currentAccount != null)
-            ContactListTile(
-              contact: _accountToContactModel(_currentAccount!),
-              showExpansionArrow: _accounts.length > 1,
-              onTap: () {
-                if (_accounts.length > 1) {
-                  _showAccountSwitcher();
-                }
-              },
-            )
-          else
-            const Center(child: Text('No accounts found')),
-          Divider(color: context.colors.baseMuted, height: 24.h),
-          SettingsListTile(
-            icon: CarbonIcons.user,
-            text: 'Edit Profile',
-            onTap: () => context.push('${Routes.settings}/profile'),
+          Column(
+            children: [
+              Padding(
+                padding: EdgeInsets.only(left: 24.w, right: 12.w),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Profile Settings',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: context.colors.mutedForeground,
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () => context.pop(),
+                          child: Icon(CarbonIcons.close, size: 32.w),
+                        ),
+                      ],
+                    ),
+                    Gap(16.h),
+                    SettingsListTile(
+                      icon: CarbonIcons.user,
+                      text: 'Edit Profile',
+                      onTap: () => context.push('${Routes.settings}/profile'),
+                    ),
+                    SettingsListTile(
+                      icon: CarbonIcons.password,
+                      text: 'Profile Keys',
+                      onTap: () => context.push('${Routes.settings}/keys'),
+                    ),
+                    SettingsListTile(
+                      icon: CarbonIcons.data_vis_3,
+                      text: 'Network Relays',
+                      onTap: () => context.push('${Routes.settings}/network'),
+                    ),
+                    SettingsListTile(
+                      icon: CarbonIcons.logout,
+                      text: 'Sign out',
+                      onTap: _handleLogout,
+                    ),
+                    SettingsListTile(
+                      icon: CarbonIcons.debug,
+                      text: 'Developer Testing',
+                      onTap: () => context.push('${Routes.settings}/developer'),
+                    ),
+                  ],
+                ),
+              ),
+              Divider(color: context.colors.baseMuted, height: 24.h),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                child: Column(
+                  children: [
+                    SettingsListTile(
+                      icon: CarbonIcons.settings,
+                      text: 'App Settings',
+                      onTap: () => context.push('${Routes.settings}/app_settings'),
+                    ),
+                    SettingsListTile(
+                      icon: CarbonIcons.favorite,
+                      text: 'Donate to White Noise',
+                      onTap: () => context.push('${Routes.settings}/developer'),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          SettingsListTile(
-            icon: CarbonIcons.password,
-            text: 'Profile Keys',
-            onTap: () => context.push('${Routes.settings}/keys'),
-          ),
-          SettingsListTile(
-            icon: CarbonIcons.satellite,
-            text: 'Network',
-            onTap: () => context.push('${Routes.settings}/network'),
-          ),
-          SettingsListTile(
-            icon: CarbonIcons.wallet,
-            text: 'Wallet',
-            onTap: () => context.push('${Routes.settings}/wallet'),
-          ),
-          SettingsListTile(
-            icon: CarbonIcons.debug,
-            text: 'Developer Testing',
-            onTap: () => context.push('${Routes.settings}/developer'),
-          ),
-          Divider(color: context.colors.baseMuted, height: 16.h),
-          SettingsListTile(
-            icon: CarbonIcons.logout,
-            text: 'Sign out',
-            onTap: _handleLogout,
-          ),
-          SettingsListTile(
-            icon: CarbonIcons.delete,
-            text: 'Delete all data',
-            onTap: _deleteAllData,
-            foregroundColor: context.colors.destructive,
-          ),
-          Divider(color: context.colors.baseMuted, height: 16.h),
-          Gap(24.h),
-          AppFilledButton(
-            title: 'Add another account',
-            onPressed: () => AddProfileBottomSheet.show(context: context),
-          ),
+          // SettingsListTile(
+          //   icon: CarbonIcons.delete,
+          //   text: 'Delete all data',
+          //   onTap: _deleteAllData,
+          //   foregroundColor: context.colors.destructive,
+          // ),
+          // Divider(color: context.colors.baseMuted, height: 16.h),
+          // Gap(24.h),
+          // AppFilledButton(
+          //   title: 'Add another account',
+          //   onPressed: () => AddProfileBottomSheet.show(context: context),
+          // ),
         ],
       ),
     );
@@ -407,17 +481,18 @@ class SettingsListTile extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.h),
+        padding: EdgeInsets.symmetric(vertical: 16.h),
         child: Row(
           children: [
-            Icon(icon, size: 24.w, color: foregroundColor ?? context.colors.mutedForeground),
+            Icon(icon, size: 24.w, color: foregroundColor ?? context.colors.primary),
             Gap(12.w),
             Expanded(
               child: Text(
                 text,
                 style: TextStyle(
-                  fontSize: 17.sp,
-                  color: foregroundColor ?? context.colors.secondaryForeground,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                  color: foregroundColor ?? context.colors.primary,
                 ),
               ),
             ),
@@ -426,4 +501,16 @@ class SettingsListTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const SettingsAppBar({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Placeholder();
+  }
+
+  @override
+  Size get preferredSize => Size.fromHeight(64.h);
 }

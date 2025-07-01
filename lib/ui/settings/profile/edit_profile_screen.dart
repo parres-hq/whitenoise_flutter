@@ -354,9 +354,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
 class FallbackProfileImageWidget extends StatelessWidget {
   final String displayName;
+  final double? fontSize;
   const FallbackProfileImageWidget({
     super.key,
     required this.displayName,
+    this.fontSize,
   });
 
   @override
@@ -369,7 +371,7 @@ class FallbackProfileImageWidget extends StatelessWidget {
         child: Text(
           displayName[0].toUpperCase(),
           style: TextStyle(
-            fontSize: 32.sp,
+            fontSize: fontSize ?? 16.sp,
             fontWeight: FontWeight.bold,
             color: context.colors.mutedForeground,
           ),
