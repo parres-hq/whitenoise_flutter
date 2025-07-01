@@ -71,7 +71,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.10.0';
 
   @override
-  int get rustContentHash => 1311943004;
+  int get rustContentHash => 1759915847;
 
   static const kDefaultExternalLibraryLoaderConfig = ExternalLibraryLoaderConfig(
     stem: 'rust_lib_whitenoise',
@@ -338,6 +338,13 @@ abstract class RustLibApi extends BaseApi {
     required List<RelayUrl> relays,
   });
 
+  Future<String> crateApiAccountsUploadProfilePicture({
+    required PublicKey pubkey,
+    required String serverUrl,
+    required String filePath,
+    required ImageType imageType,
+  });
+
   Future<String> crateApiUtilsWhitenoiseErrorToString({
     required WhitenoiseError error,
   });
@@ -365,6 +372,12 @@ abstract class RustLibApi extends BaseApi {
   RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_GroupId;
 
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_GroupIdPtr;
+
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_ImageType;
+
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_ImageType;
+
+  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_ImageTypePtr;
 
   RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_MessageWithTokens;
 
@@ -2794,6 +2807,51 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
+  Future<String> crateApiAccountsUploadProfilePicture({
+    required PublicKey pubkey,
+    required String serverUrl,
+    required String filePath,
+    required ImageType imageType,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
+            pubkey,
+            serializer,
+          );
+          sse_encode_String(serverUrl, serializer);
+          sse_encode_String(filePath, serializer);
+          sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
+            imageType,
+            serializer,
+          );
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 68,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData:
+              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
+        ),
+        constMeta: kCrateApiAccountsUploadProfilePictureConstMeta,
+        argValues: [pubkey, serverUrl, filePath, imageType],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiAccountsUploadProfilePictureConstMeta => const TaskConstMeta(
+    debugName: 'upload_profile_picture',
+    argNames: ['pubkey', 'serverUrl', 'filePath', 'imageType'],
+  );
+
+  @override
   Future<String> crateApiUtilsWhitenoiseErrorToString({
     required WhitenoiseError error,
   }) {
@@ -2808,7 +2866,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 68,
+            funcId: 69,
             port: port_,
           );
         },
@@ -2851,6 +2909,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_GroupId =>
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId;
+
+  RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_ImageType =>
+      wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType;
+
+  RustArcDecrementStrongCountFnType get rust_arc_decrement_strong_count_ImageType =>
+      wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType;
 
   RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_MessageWithTokens =>
       wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens;
@@ -2930,6 +2994,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return GroupIdImpl.frbInternalDcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
+  ImageType
+  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return ImageTypeImpl.frbInternalDcoDecode(raw as List<dynamic>);
   }
 
   @protected
@@ -3152,6 +3225,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return GroupIdImpl.frbInternalDcoDecode(raw as List<dynamic>);
+  }
+
+  @protected
+  ImageType dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return ImageTypeImpl.frbInternalDcoDecode(raw as List<dynamic>);
   }
 
   @protected
@@ -3610,6 +3691,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  ImageType
+  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return ImageTypeImpl.frbInternalSseDecode(
+      sse_decode_usize(deserializer),
+      sse_decode_i_32(deserializer),
+    );
+  }
+
+  @protected
   Metadata
   sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
     SseDeserializer deserializer,
@@ -3894,6 +3987,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return GroupIdImpl.frbInternalSseDecode(
+      sse_decode_usize(deserializer),
+      sse_decode_i_32(deserializer),
+    );
+  }
+
+  @protected
+  ImageType sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return ImageTypeImpl.frbInternalSseDecode(
       sse_decode_usize(deserializer),
       sse_decode_i_32(deserializer),
     );
@@ -4472,6 +4576,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void
+  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
+    ImageType self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+      (self as ImageTypeImpl).frbInternalSseEncode(move: true),
+      serializer,
+    );
+  }
+
+  @protected
   void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
     Metadata self,
     SseSerializer serializer,
@@ -4768,6 +4885,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize((self as GroupIdImpl).frbInternalSseEncode(), serializer);
+  }
+
+  @protected
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
+    ImageType self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_usize(
+      (self as ImageTypeImpl).frbInternalSseEncode(),
+      serializer,
+    );
   }
 
   @protected
@@ -5324,6 +5453,24 @@ class GroupImpl extends RustOpaque implements Group {
     rustArcIncrementStrongCount: RustLib.instance.api.rust_arc_increment_strong_count_Group,
     rustArcDecrementStrongCount: RustLib.instance.api.rust_arc_decrement_strong_count_Group,
     rustArcDecrementStrongCountPtr: RustLib.instance.api.rust_arc_decrement_strong_count_GroupPtr,
+  );
+}
+
+@sealed
+class ImageTypeImpl extends RustOpaque implements ImageType {
+  // Not to be used by end users
+  ImageTypeImpl.frbInternalDcoDecode(List<dynamic> wire)
+    : super.frbInternalDcoDecode(wire, _kStaticData);
+
+  // Not to be used by end users
+  ImageTypeImpl.frbInternalSseDecode(BigInt ptr, int externalSizeOnNative)
+    : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
+
+  static final _kStaticData = RustArcStaticData(
+    rustArcIncrementStrongCount: RustLib.instance.api.rust_arc_increment_strong_count_ImageType,
+    rustArcDecrementStrongCount: RustLib.instance.api.rust_arc_decrement_strong_count_ImageType,
+    rustArcDecrementStrongCountPtr:
+        RustLib.instance.api.rust_arc_decrement_strong_count_ImageTypePtr,
   );
 }
 

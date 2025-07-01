@@ -7,14 +7,6 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'frb_generated.dart';
 
-// Export all API modules to make types and functions available
-export 'api/accounts.dart';
-export 'api/contacts.dart';
-export 'api/groups.dart';
-export 'api/messages.dart';
-export 'api/relays.dart';
-export 'api/utils.dart';
-
 /// Initializes the Whitenoise system with the provided configuration.
 ///
 /// # CRITICAL: Must be called first

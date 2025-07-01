@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/groups.dart';
 
 void main() {
   group('GroupsProvider Tests', () {

@@ -5,7 +5,7 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';

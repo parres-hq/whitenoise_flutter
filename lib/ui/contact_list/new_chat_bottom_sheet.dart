@@ -7,7 +7,8 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -314,7 +315,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                   )
                                   : ContactListTile(
                                     contact: _tempContact!,
-                                    enableSwipeToDelete: false,
                                     onTap: () {
                                       StartSecureChatBottomSheet.show(
                                         context: context,

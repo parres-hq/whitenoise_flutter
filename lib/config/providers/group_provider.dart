@@ -7,6 +7,9 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/group_state.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/groups.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
 
 class GroupsNotifier extends Notifier<GroupsState> {
   final _logger = Logger('GroupsNotifier');
