@@ -8,13 +8,12 @@ import 'package:whitenoise/ui/chat/notifiers/chat_notifier.dart';
 import 'package:whitenoise/ui/chat/services/chat_dialog_service.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input.dart';
-import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/chat/widgets/message_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/swipe_to_reply_widget.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
+import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -89,9 +88,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               CustomAppBar.sliver(
                 floating: true,
                 pinned: true,
-                title: ContactInfo(
-                  title: displayName,
-                  imgPath: AssetsPaths.icImage,
+                title: FallbackProfileImageWidget(
+                  displayName: displayName,
                 ),
               ),
               SliverPadding(

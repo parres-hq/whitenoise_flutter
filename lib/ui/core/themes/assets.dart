@@ -29,11 +29,8 @@ class AssetsPaths {
   static const String icChevronLeft = '$_svgsDir/ic_chevron_left.svg';
 
   //PNGS
-  static const String icImage = '$_pngsDir/ic_image.png';
   static const String groupLogo = '$_pngsDir/group_logo.png';
-  static const String loginSplash = '$_pngsDir/login_splash.png';
   static const String icWhiteNoise = '$_pngsDir/ic_whitenoise.png';
-  static const String profileBackground = '$_pngsDir/profile_background.png';
   static const String avatarPlaceholder = '$_pngsDir/avatar_placeholder.png';
   static const String blueHoodie = '$_pngsDir/blue_hoodie.png';
   static const String purpleWoman = '$_pngsDir/purple_woman.png';

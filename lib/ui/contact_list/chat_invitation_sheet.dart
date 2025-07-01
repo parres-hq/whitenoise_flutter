@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 
 class ChatInvitationSheet extends StatelessWidget {
   final String name;
@@ -56,9 +56,8 @@ class ChatInvitationSheet extends StatelessWidget {
           child: Column(
             children: [
               Gap(24.h),
-              CircleAvatar(
-                radius: 40.r,
-                backgroundImage: const AssetImage(AssetsPaths.icImage),
+              FallbackProfileImageWidget(
+                displayName: name,
               ),
               Gap(12.h),
               Text(

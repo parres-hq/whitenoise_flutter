@@ -367,7 +367,7 @@ class FallbackProfileImageWidget extends StatelessWidget {
       color: context.colors.input,
       child: Center(
         child: Text(
-          displayName[0].toUpperCase(),
+          displayName.isNotEmpty ? displayName[0].toUpperCase() : '',
           style: TextStyle(
             fontSize: 32.sp,
             fontWeight: FontWeight.bold,

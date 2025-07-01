@@ -9,6 +9,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
+import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 
 class CreateProfileScreen extends ConsumerStatefulWidget {
   const CreateProfileScreen({super.key});
@@ -74,11 +75,15 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
-                  CircleAvatar(
-                    radius: 48.r,
-                    backgroundImage: const AssetImage(
-                      AssetsPaths.profileBackground,
-                    ),
+                  ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: _usernameController,
+                    builder: (context, value, child) {
+                      return ClipOval(
+                        child: FallbackProfileImageWidget(
+                          displayName: value.text,
+                        ),
+                      );
+                    },
                   ),
                   Container(
                     width: 28.w,

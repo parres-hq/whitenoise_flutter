@@ -6,9 +6,9 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/src/rust/api.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ChatContactHeader extends ConsumerWidget {
@@ -50,10 +50,8 @@ class GroupChatHeader extends ConsumerWidget {
       child: Column(
         children: [
           Gap(32.h),
-          ContactAvatar(
-            imgPath: AssetsPaths.icImage,
-            size: 96.r,
-            showBorder: true,
+          FallbackProfileImageWidget(
+            displayName: groupData.name,
           ),
           Gap(12.h),
           Text(
@@ -144,10 +142,8 @@ class DirectMessageHeader extends ConsumerWidget {
           child: Column(
             children: [
               Gap(32.h),
-              ContactAvatar(
-                imgPath: AssetsPaths.icImage,
-                size: 96.r,
-                showBorder: true,
+              FallbackProfileImageWidget(
+                displayName: otherUser.name,
               ),
               Gap(12.h),
               Text(
@@ -206,7 +202,7 @@ class DirectMessageHeader extends ConsumerWidget {
 extension StringExtension on String? {
   bool get nullOrEmpty => this?.isEmpty ?? true;
   // Returns a default image path if the string is null or empty
-  String get orDefault => (this == null || this!.isEmpty) ? AssetsPaths.icImage : this!;
+  String get orDefault => (this == null || this!.isEmpty) ? AssetsPaths.icWhiteNoise : this!;
   String get capitalizeFirst {
     if (this == null || this!.isEmpty) return '';
     return '${this![0].toUpperCase()}${this!.substring(1)}';
