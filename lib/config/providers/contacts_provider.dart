@@ -76,13 +76,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
         final metadata = entry.value;
 
         String? contactIdentifier;
-        final hashCode = entry.key.hashCode;
-        final metadataName = metadata?.name ?? metadata?.displayName ?? 'unknown';
-        contactIdentifier =
-            'failed_npub_${hashCode.abs()}_${metadataName.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '').toLowerCase()}';
         bool npubSuccess = false;
         try {
-          contactIdentifier = await exportAccountNpub(pubkey: entry.key);
+          contactIdentifier = await npubFromPublicKey(publicKey: entry.key);
           npubSuccess = true;
           _logger.info('ContactsProvider: ✅ Direct npub conversion successful: $contactIdentifier');
         } catch (e, st) {
