@@ -236,6 +236,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     .updateLocalProfile(displayName: value);
                               },
                             ),
+                            //TEst commit for account name issues
                             Gap(36.h),
                             Text(
                               'Nostr Address (NIP-05)',
