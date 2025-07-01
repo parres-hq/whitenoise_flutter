@@ -34,33 +34,34 @@ class ContactAvatar extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: ClipOval(
-        child: imgPath.isNotEmpty && imgPath.startsWith('http')
-            ? Image.network(
-                imgPath,
-                width: size,
-                height: size,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) {
-                  return Container(
-                    width: size,
-                    height: size,
-                    decoration: BoxDecoration(
-                      color: backgroundColor ?? context.colors.avatarSurface,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Image.asset(
-                      imgPath.orDefault,
-                      fit: BoxFit.cover,
-                    ),
-                  );
-                },
-              )
-            : Image.asset(
-                imgPath.orDefault,
-                width: size,
-                height: size,
-                fit: BoxFit.cover,
-              ),
+        child:
+            imgPath.isNotEmpty && imgPath.startsWith('http')
+                ? Image.network(
+                  imgPath,
+                  width: size,
+                  height: size,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: size,
+                      height: size,
+                      decoration: BoxDecoration(
+                        color: backgroundColor ?? context.colors.avatarSurface,
+                        shape: BoxShape.circle,
+                      ),
+                      child: Image.asset(
+                        imgPath.orDefault,
+                        fit: BoxFit.cover,
+                      ),
+                    );
+                  },
+                )
+                : Image.asset(
+                  imgPath.orDefault,
+                  width: size,
+                  height: size,
+                  fit: BoxFit.cover,
+                ),
       ),
     );
   }
