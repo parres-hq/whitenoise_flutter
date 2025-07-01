@@ -10,6 +10,12 @@ import 'dart:ffi' as ffi;
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 
 import 'api.dart';
+import 'api/accounts.dart';
+import 'api/contacts.dart';
+import 'api/groups.dart';
+import 'api/messages.dart';
+import 'api/relays.dart';
+import 'api/utils.dart';
 import 'frb_generated.dart';
 
 abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {

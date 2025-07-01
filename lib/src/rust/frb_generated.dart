@@ -9,6 +9,12 @@ import 'dart:convert';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'api.dart';
+import 'api/accounts.dart';
+import 'api/contacts.dart';
+import 'api/groups.dart';
+import 'api/messages.dart';
+import 'api/relays.dart';
+import 'api/utils.dart';
 import 'frb_generated.dart';
 import 'frb_generated.io.dart' if (dart.library.js_interop) 'frb_generated.web.dart';
 
@@ -65,7 +71,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.10.0';
 
   @override
-  int get rustContentHash => 1202485129;
+  int get rustContentHash => 1311943004;
 
   static const kDefaultExternalLibraryLoaderConfig = ExternalLibraryLoaderConfig(
     stem: 'rust_lib_whitenoise',
@@ -75,126 +81,130 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
-  String? crateApiMetadataDataAutoAccessorGetAbout({
+  String? crateApiUtilsMetadataDataAutoAccessorGetAbout({
     required MetadataData that,
   });
 
-  String? crateApiMetadataDataAutoAccessorGetBanner({
+  String? crateApiUtilsMetadataDataAutoAccessorGetBanner({
     required MetadataData that,
   });
 
-  String? crateApiMetadataDataAutoAccessorGetDisplayName({
+  String? crateApiUtilsMetadataDataAutoAccessorGetDisplayName({
     required MetadataData that,
   });
 
-  String? crateApiMetadataDataAutoAccessorGetLud06({
+  String? crateApiUtilsMetadataDataAutoAccessorGetLud06({
     required MetadataData that,
   });
 
-  String? crateApiMetadataDataAutoAccessorGetLud16({
+  String? crateApiUtilsMetadataDataAutoAccessorGetLud16({
     required MetadataData that,
   });
 
-  String? crateApiMetadataDataAutoAccessorGetName({required MetadataData that});
-
-  String? crateApiMetadataDataAutoAccessorGetNip05({
+  String? crateApiUtilsMetadataDataAutoAccessorGetName({
     required MetadataData that,
   });
 
-  String? crateApiMetadataDataAutoAccessorGetPicture({
+  String? crateApiUtilsMetadataDataAutoAccessorGetNip05({
     required MetadataData that,
   });
 
-  String? crateApiMetadataDataAutoAccessorGetWebsite({
+  String? crateApiUtilsMetadataDataAutoAccessorGetPicture({
     required MetadataData that,
   });
 
-  void crateApiMetadataDataAutoAccessorSetAbout({
+  String? crateApiUtilsMetadataDataAutoAccessorGetWebsite({
+    required MetadataData that,
+  });
+
+  void crateApiUtilsMetadataDataAutoAccessorSetAbout({
     required MetadataData that,
     String? about,
   });
 
-  void crateApiMetadataDataAutoAccessorSetBanner({
+  void crateApiUtilsMetadataDataAutoAccessorSetBanner({
     required MetadataData that,
     String? banner,
   });
 
-  void crateApiMetadataDataAutoAccessorSetDisplayName({
+  void crateApiUtilsMetadataDataAutoAccessorSetDisplayName({
     required MetadataData that,
     String? displayName,
   });
 
-  void crateApiMetadataDataAutoAccessorSetLud06({
+  void crateApiUtilsMetadataDataAutoAccessorSetLud06({
     required MetadataData that,
     String? lud06,
   });
 
-  void crateApiMetadataDataAutoAccessorSetLud16({
+  void crateApiUtilsMetadataDataAutoAccessorSetLud16({
     required MetadataData that,
     String? lud16,
   });
 
-  void crateApiMetadataDataAutoAccessorSetName({
+  void crateApiUtilsMetadataDataAutoAccessorSetName({
     required MetadataData that,
     String? name,
   });
 
-  void crateApiMetadataDataAutoAccessorSetNip05({
+  void crateApiUtilsMetadataDataAutoAccessorSetNip05({
     required MetadataData that,
     String? nip05,
   });
 
-  void crateApiMetadataDataAutoAccessorSetPicture({
+  void crateApiUtilsMetadataDataAutoAccessorSetPicture({
     required MetadataData that,
     String? picture,
   });
 
-  void crateApiMetadataDataAutoAccessorSetWebsite({
+  void crateApiUtilsMetadataDataAutoAccessorSetWebsite({
     required MetadataData that,
     String? website,
   });
 
-  Future<Map<String, String>> crateApiMetadataDataGetCustom({
+  Future<Map<String, String>> crateApiUtilsMetadataDataGetCustom({
     required MetadataData that,
   });
 
-  Future<void> crateApiMetadataDataSetCustom({
+  Future<void> crateApiUtilsMetadataDataSetCustom({
     required MetadataData that,
     required Map<String, String> customMap,
   });
 
-  Future<void> crateApiAddContact({
+  Future<void> crateApiContactsAddContact({
     required PublicKey pubkey,
     required PublicKey contactPubkey,
   });
 
-  Future<void> crateApiAddMembersToGroup({
+  Future<void> crateApiGroupsAddMembersToGroup({
     required PublicKey pubkey,
     required GroupId groupId,
     required List<PublicKey> memberPubkeys,
   });
 
-  Future<AccountData> crateApiConvertAccountToData({required Account account});
+  Future<AccountData> crateApiAccountsConvertAccountToData({
+    required Account account,
+  });
 
-  Future<WhitenoiseConfigData> crateApiConvertConfigToData({
+  Future<WhitenoiseConfigData> crateApiUtilsConvertConfigToData({
     required WhitenoiseConfig config,
   });
 
-  Future<GroupData> crateApiConvertGroupToData({required Group group});
+  Future<GroupData> crateApiGroupsConvertGroupToData({required Group group});
 
-  Future<MessageWithTokensData> crateApiConvertMessageWithTokensToData({
+  Future<MessageWithTokensData> crateApiMessagesConvertMessageWithTokensToData({
     required MessageWithTokens messageWithTokens,
   });
 
-  Future<Metadata> crateApiConvertMetadataDataToMetadata({
+  Future<Metadata> crateApiUtilsConvertMetadataDataToMetadata({
     required MetadataData metadataData,
   });
 
-  Future<MetadataData> crateApiConvertMetadataToData({
+  Future<MetadataData> crateApiUtilsConvertMetadataToData({
     required Metadata metadata,
   });
 
-  Future<GroupData> crateApiCreateGroup({
+  Future<GroupData> crateApiGroupsCreateGroup({
     required PublicKey creatorPubkey,
     required List<PublicKey> memberPubkeys,
     required List<PublicKey> adminPubkeys,
@@ -202,91 +212,105 @@ abstract class RustLibApi extends BaseApi {
     required String groupDescription,
   });
 
-  Future<Account> crateApiCreateIdentity();
+  Future<Account> crateApiAccountsCreateIdentity();
 
-  Future<WhitenoiseConfig> crateApiCreateWhitenoiseConfig({
+  Future<WhitenoiseConfig> crateApiUtilsCreateWhitenoiseConfig({
     required String dataDir,
     required String logsDir,
   });
 
   Future<void> crateApiDeleteAllData();
 
-  Future<String> crateApiExportAccountNpub({required PublicKey pubkey});
+  Future<String> crateApiAccountsExportAccountNpub({required PublicKey pubkey});
 
-  Future<String> crateApiExportAccountNsec({required PublicKey pubkey});
+  Future<String> crateApiAccountsExportAccountNsec({required PublicKey pubkey});
 
-  Future<AccountData> crateApiFetchAccount({required PublicKey pubkey});
+  Future<AccountData> crateApiAccountsFetchAccount({required PublicKey pubkey});
 
-  Future<List<AccountData>> crateApiFetchAccounts();
+  Future<List<AccountData>> crateApiAccountsFetchAccounts();
 
-  Future<Map<PublicKey, MetadataData?>> crateApiFetchContacts({
+  Future<Map<PublicKey, MetadataData?>> crateApiContactsFetchContacts({
     required PublicKey pubkey,
   });
 
-  Future<List<PublicKey>> crateApiFetchGroupAdmins({
-    required PublicKey pubkey,
-    required GroupId groupId,
-  });
-
-  Future<List<PublicKey>> crateApiFetchGroupMembers({
+  Future<List<PublicKey>> crateApiGroupsFetchGroupAdmins({
     required PublicKey pubkey,
     required GroupId groupId,
   });
 
-  Future<List<GroupData>> crateApiFetchGroups({required PublicKey pubkey});
-
-  Future<Event?> crateApiFetchKeyPackage({required PublicKey pubkey});
-
-  Future<List<MessageWithTokensData>> crateApiFetchMessagesForGroup({
+  Future<List<PublicKey>> crateApiGroupsFetchGroupMembers({
     required PublicKey pubkey,
     required GroupId groupId,
   });
 
-  Future<MetadataData?> crateApiFetchMetadata({required PublicKey pubkey});
-
-  Future<OnboardingState> crateApiFetchOnboardingState({
+  Future<List<GroupData>> crateApiGroupsFetchGroups({
     required PublicKey pubkey,
   });
 
-  Future<List<RelayUrl>> crateApiFetchRelays({
+  Future<Event?> crateApiRelaysFetchKeyPackage({required PublicKey pubkey});
+
+  Future<List<MessageWithTokensData>> crateApiMessagesFetchMessagesForGroup({
+    required PublicKey pubkey,
+    required GroupId groupId,
+  });
+
+  Future<MetadataData?> crateApiAccountsFetchMetadata({
+    required PublicKey pubkey,
+  });
+
+  Future<OnboardingState> crateApiAccountsFetchOnboardingState({
+    required PublicKey pubkey,
+  });
+
+  Future<List<RelayUrl>> crateApiRelaysFetchRelays({
     required PublicKey pubkey,
     required RelayType relayType,
   });
 
-  Future<GroupId> crateApiGroupIdFromString({required String hexString});
+  Future<GroupId> crateApiGroupsGroupIdFromString({required String hexString});
 
-  Future<String> crateApiGroupIdToString({required GroupId groupId});
+  Future<String> crateApiGroupsGroupIdToString({required GroupId groupId});
+
+  Future<String> crateApiUtilsHexPubkeyFromNpub({required String npub});
+
+  Future<String> crateApiUtilsHexPubkeyFromPublicKey({
+    required PublicKey publicKey,
+  });
 
   Future<void> crateApiInitializeWhitenoise({required WhitenoiseConfig config});
 
-  Future<Account> crateApiLogin({required String nsecOrHexPrivkey});
+  Future<Account> crateApiAccountsLogin({required String nsecOrHexPrivkey});
 
-  Future<void> crateApiLogout({required PublicKey pubkey});
+  Future<void> crateApiAccountsLogout({required PublicKey pubkey});
 
-  Future<PublicKey> crateApiPublicKeyFromString({
+  Future<String> crateApiUtilsNpubFromHexPubkey({required String hexPubkey});
+
+  Future<String> crateApiUtilsNpubFromPublicKey({required PublicKey publicKey});
+
+  Future<PublicKey> crateApiUtilsPublicKeyFromString({
     required String publicKeyString,
   });
 
-  Future<RelayType> crateApiRelayTypeInbox();
+  Future<RelayType> crateApiRelaysRelayTypeInbox();
 
-  Future<RelayType> crateApiRelayTypeKeyPackage();
+  Future<RelayType> crateApiRelaysRelayTypeKeyPackage();
 
-  Future<RelayType> crateApiRelayTypeNostr();
+  Future<RelayType> crateApiRelaysRelayTypeNostr();
 
-  Future<RelayUrl> crateApiRelayUrlFromString({required String url});
+  Future<RelayUrl> crateApiUtilsRelayUrlFromString({required String url});
 
-  Future<void> crateApiRemoveContact({
+  Future<void> crateApiContactsRemoveContact({
     required PublicKey pubkey,
     required PublicKey contactPubkey,
   });
 
-  Future<void> crateApiRemoveMembersFromGroup({
+  Future<void> crateApiGroupsRemoveMembersFromGroup({
     required PublicKey pubkey,
     required GroupId groupId,
     required List<PublicKey> memberPubkeys,
   });
 
-  Future<MessageWithTokensData> crateApiSendMessageToGroup({
+  Future<MessageWithTokensData> crateApiMessagesSendMessageToGroup({
     required PublicKey pubkey,
     required GroupId groupId,
     required String message,
@@ -294,27 +318,27 @@ abstract class RustLibApi extends BaseApi {
     List<Tag>? tags,
   });
 
-  Future<String> crateApiStringFromRelayUrl({required RelayUrl relayUrl});
+  Future<String> crateApiUtilsStringFromRelayUrl({required RelayUrl relayUrl});
 
-  Future<Tag> crateApiTagFromVec({required List<String> vec});
+  Future<Tag> crateApiUtilsTagFromVec({required List<String> vec});
 
-  Future<void> crateApiUpdateContacts({
+  Future<void> crateApiContactsUpdateContacts({
     required PublicKey pubkey,
     required List<PublicKey> contactPubkeys,
   });
 
-  Future<void> crateApiUpdateMetadata({
+  Future<void> crateApiAccountsUpdateMetadata({
     required MetadataData metadata,
     required PublicKey pubkey,
   });
 
-  Future<void> crateApiUpdateRelays({
+  Future<void> crateApiRelaysUpdateRelays({
     required PublicKey pubkey,
     required RelayType relayType,
     required List<RelayUrl> relays,
   });
 
-  Future<String> crateApiWhitenoiseErrorToString({
+  Future<String> crateApiUtilsWhitenoiseErrorToString({
     required WhitenoiseError error,
   });
 
@@ -406,7 +430,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
-  String? crateApiMetadataDataAutoAccessorGetAbout({
+  String? crateApiUtilsMetadataDataAutoAccessorGetAbout({
     required MetadataData that,
   }) {
     return handler.executeSync(
@@ -423,20 +447,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorGetAboutConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorGetAboutConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetAboutConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorGetAboutConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_auto_accessor_get_about',
     argNames: ['that'],
   );
 
   @override
-  String? crateApiMetadataDataAutoAccessorGetBanner({
+  String? crateApiUtilsMetadataDataAutoAccessorGetBanner({
     required MetadataData that,
   }) {
     return handler.executeSync(
@@ -453,20 +477,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorGetBannerConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorGetBannerConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetBannerConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorGetBannerConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_auto_accessor_get_banner',
     argNames: ['that'],
   );
 
   @override
-  String? crateApiMetadataDataAutoAccessorGetDisplayName({
+  String? crateApiUtilsMetadataDataAutoAccessorGetDisplayName({
     required MetadataData that,
   }) {
     return handler.executeSync(
@@ -483,20 +507,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorGetDisplayNameConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorGetDisplayNameConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetDisplayNameConstMeta => const TaskConstMeta(
-    debugName: 'MetadataData_auto_accessor_get_display_name',
-    argNames: ['that'],
-  );
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorGetDisplayNameConstMeta =>
+      const TaskConstMeta(
+        debugName: 'MetadataData_auto_accessor_get_display_name',
+        argNames: ['that'],
+      );
 
   @override
-  String? crateApiMetadataDataAutoAccessorGetLud06({
+  String? crateApiUtilsMetadataDataAutoAccessorGetLud06({
     required MetadataData that,
   }) {
     return handler.executeSync(
@@ -513,20 +538,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorGetLud06ConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorGetLud06ConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetLud06ConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorGetLud06ConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_auto_accessor_get_lud06',
     argNames: ['that'],
   );
 
   @override
-  String? crateApiMetadataDataAutoAccessorGetLud16({
+  String? crateApiUtilsMetadataDataAutoAccessorGetLud16({
     required MetadataData that,
   }) {
     return handler.executeSync(
@@ -543,20 +568,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorGetLud16ConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorGetLud16ConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetLud16ConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorGetLud16ConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_auto_accessor_get_lud16',
     argNames: ['that'],
   );
 
   @override
-  String? crateApiMetadataDataAutoAccessorGetName({
+  String? crateApiUtilsMetadataDataAutoAccessorGetName({
     required MetadataData that,
   }) {
     return handler.executeSync(
@@ -573,20 +598,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorGetNameConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorGetNameConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetNameConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorGetNameConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_auto_accessor_get_name',
     argNames: ['that'],
   );
 
   @override
-  String? crateApiMetadataDataAutoAccessorGetNip05({
+  String? crateApiUtilsMetadataDataAutoAccessorGetNip05({
     required MetadataData that,
   }) {
     return handler.executeSync(
@@ -603,20 +628,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorGetNip05ConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorGetNip05ConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetNip05ConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorGetNip05ConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_auto_accessor_get_nip05',
     argNames: ['that'],
   );
 
   @override
-  String? crateApiMetadataDataAutoAccessorGetPicture({
+  String? crateApiUtilsMetadataDataAutoAccessorGetPicture({
     required MetadataData that,
   }) {
     return handler.executeSync(
@@ -633,20 +658,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorGetPictureConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorGetPictureConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetPictureConstMeta => const TaskConstMeta(
-    debugName: 'MetadataData_auto_accessor_get_picture',
-    argNames: ['that'],
-  );
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorGetPictureConstMeta =>
+      const TaskConstMeta(
+        debugName: 'MetadataData_auto_accessor_get_picture',
+        argNames: ['that'],
+      );
 
   @override
-  String? crateApiMetadataDataAutoAccessorGetWebsite({
+  String? crateApiUtilsMetadataDataAutoAccessorGetWebsite({
     required MetadataData that,
   }) {
     return handler.executeSync(
@@ -663,20 +689,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_opt_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorGetWebsiteConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorGetWebsiteConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorGetWebsiteConstMeta => const TaskConstMeta(
-    debugName: 'MetadataData_auto_accessor_get_website',
-    argNames: ['that'],
-  );
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorGetWebsiteConstMeta =>
+      const TaskConstMeta(
+        debugName: 'MetadataData_auto_accessor_get_website',
+        argNames: ['that'],
+      );
 
   @override
-  void crateApiMetadataDataAutoAccessorSetAbout({
+  void crateApiUtilsMetadataDataAutoAccessorSetAbout({
     required MetadataData that,
     String? about,
   }) {
@@ -695,20 +722,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorSetAboutConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorSetAboutConstMeta,
         argValues: [that, about],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetAboutConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorSetAboutConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_auto_accessor_set_about',
     argNames: ['that', 'about'],
   );
 
   @override
-  void crateApiMetadataDataAutoAccessorSetBanner({
+  void crateApiUtilsMetadataDataAutoAccessorSetBanner({
     required MetadataData that,
     String? banner,
   }) {
@@ -727,20 +754,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorSetBannerConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorSetBannerConstMeta,
         argValues: [that, banner],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetBannerConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorSetBannerConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_auto_accessor_set_banner',
     argNames: ['that', 'banner'],
   );
 
   @override
-  void crateApiMetadataDataAutoAccessorSetDisplayName({
+  void crateApiUtilsMetadataDataAutoAccessorSetDisplayName({
     required MetadataData that,
     String? displayName,
   }) {
@@ -759,20 +786,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorSetDisplayNameConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorSetDisplayNameConstMeta,
         argValues: [that, displayName],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetDisplayNameConstMeta => const TaskConstMeta(
-    debugName: 'MetadataData_auto_accessor_set_display_name',
-    argNames: ['that', 'displayName'],
-  );
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorSetDisplayNameConstMeta =>
+      const TaskConstMeta(
+        debugName: 'MetadataData_auto_accessor_set_display_name',
+        argNames: ['that', 'displayName'],
+      );
 
   @override
-  void crateApiMetadataDataAutoAccessorSetLud06({
+  void crateApiUtilsMetadataDataAutoAccessorSetLud06({
     required MetadataData that,
     String? lud06,
   }) {
@@ -791,20 +819,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorSetLud06ConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorSetLud06ConstMeta,
         argValues: [that, lud06],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetLud06ConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorSetLud06ConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_auto_accessor_set_lud06',
     argNames: ['that', 'lud06'],
   );
 
   @override
-  void crateApiMetadataDataAutoAccessorSetLud16({
+  void crateApiUtilsMetadataDataAutoAccessorSetLud16({
     required MetadataData that,
     String? lud16,
   }) {
@@ -823,20 +851,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorSetLud16ConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorSetLud16ConstMeta,
         argValues: [that, lud16],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetLud16ConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorSetLud16ConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_auto_accessor_set_lud16',
     argNames: ['that', 'lud16'],
   );
 
   @override
-  void crateApiMetadataDataAutoAccessorSetName({
+  void crateApiUtilsMetadataDataAutoAccessorSetName({
     required MetadataData that,
     String? name,
   }) {
@@ -855,20 +883,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorSetNameConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorSetNameConstMeta,
         argValues: [that, name],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetNameConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorSetNameConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_auto_accessor_set_name',
     argNames: ['that', 'name'],
   );
 
   @override
-  void crateApiMetadataDataAutoAccessorSetNip05({
+  void crateApiUtilsMetadataDataAutoAccessorSetNip05({
     required MetadataData that,
     String? nip05,
   }) {
@@ -887,20 +915,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorSetNip05ConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorSetNip05ConstMeta,
         argValues: [that, nip05],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetNip05ConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorSetNip05ConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_auto_accessor_set_nip05',
     argNames: ['that', 'nip05'],
   );
 
   @override
-  void crateApiMetadataDataAutoAccessorSetPicture({
+  void crateApiUtilsMetadataDataAutoAccessorSetPicture({
     required MetadataData that,
     String? picture,
   }) {
@@ -919,20 +947,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorSetPictureConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorSetPictureConstMeta,
         argValues: [that, picture],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetPictureConstMeta => const TaskConstMeta(
-    debugName: 'MetadataData_auto_accessor_set_picture',
-    argNames: ['that', 'picture'],
-  );
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorSetPictureConstMeta =>
+      const TaskConstMeta(
+        debugName: 'MetadataData_auto_accessor_set_picture',
+        argNames: ['that', 'picture'],
+      );
 
   @override
-  void crateApiMetadataDataAutoAccessorSetWebsite({
+  void crateApiUtilsMetadataDataAutoAccessorSetWebsite({
     required MetadataData that,
     String? website,
   }) {
@@ -951,20 +980,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataAutoAccessorSetWebsiteConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataAutoAccessorSetWebsiteConstMeta,
         argValues: [that, website],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataAutoAccessorSetWebsiteConstMeta => const TaskConstMeta(
-    debugName: 'MetadataData_auto_accessor_set_website',
-    argNames: ['that', 'website'],
-  );
+  TaskConstMeta get kCrateApiUtilsMetadataDataAutoAccessorSetWebsiteConstMeta =>
+      const TaskConstMeta(
+        debugName: 'MetadataData_auto_accessor_set_website',
+        argNames: ['that', 'website'],
+      );
 
   @override
-  Future<Map<String, String>> crateApiMetadataDataGetCustom({
+  Future<Map<String, String>> crateApiUtilsMetadataDataGetCustom({
     required MetadataData that,
   }) {
     return handler.executeNormal(
@@ -986,20 +1016,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_Map_String_String_None,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataGetCustomConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataGetCustomConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataGetCustomConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataGetCustomConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_get_custom',
     argNames: ['that'],
   );
 
   @override
-  Future<void> crateApiMetadataDataSetCustom({
+  Future<void> crateApiUtilsMetadataDataSetCustom({
     required MetadataData that,
     required Map<String, String> customMap,
   }) {
@@ -1023,20 +1053,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_unit,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiMetadataDataSetCustomConstMeta,
+        constMeta: kCrateApiUtilsMetadataDataSetCustomConstMeta,
         argValues: [that, customMap],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiMetadataDataSetCustomConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsMetadataDataSetCustomConstMeta => const TaskConstMeta(
     debugName: 'MetadataData_set_custom',
     argNames: ['that', 'customMap'],
   );
 
   @override
-  Future<void> crateApiAddContact({
+  Future<void> crateApiContactsAddContact({
     required PublicKey pubkey,
     required PublicKey contactPubkey,
   }) {
@@ -1064,20 +1094,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiAddContactConstMeta,
+        constMeta: kCrateApiContactsAddContactConstMeta,
         argValues: [pubkey, contactPubkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiAddContactConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiContactsAddContactConstMeta => const TaskConstMeta(
     debugName: 'add_contact',
     argNames: ['pubkey', 'contactPubkey'],
   );
 
   @override
-  Future<void> crateApiAddMembersToGroup({
+  Future<void> crateApiGroupsAddMembersToGroup({
     required PublicKey pubkey,
     required GroupId groupId,
     required List<PublicKey> memberPubkeys,
@@ -1110,20 +1140,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiAddMembersToGroupConstMeta,
+        constMeta: kCrateApiGroupsAddMembersToGroupConstMeta,
         argValues: [pubkey, groupId, memberPubkeys],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiAddMembersToGroupConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiGroupsAddMembersToGroupConstMeta => const TaskConstMeta(
     debugName: 'add_members_to_group',
     argNames: ['pubkey', 'groupId', 'memberPubkeys'],
   );
 
   @override
-  Future<AccountData> crateApiConvertAccountToData({required Account account}) {
+  Future<AccountData> crateApiAccountsConvertAccountToData({
+    required Account account,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1143,20 +1175,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_account_data,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiConvertAccountToDataConstMeta,
+        constMeta: kCrateApiAccountsConvertAccountToDataConstMeta,
         argValues: [account],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiConvertAccountToDataConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiAccountsConvertAccountToDataConstMeta => const TaskConstMeta(
     debugName: 'convert_account_to_data',
     argNames: ['account'],
   );
 
   @override
-  Future<WhitenoiseConfigData> crateApiConvertConfigToData({
+  Future<WhitenoiseConfigData> crateApiUtilsConvertConfigToData({
     required WhitenoiseConfig config,
   }) {
     return handler.executeNormal(
@@ -1178,20 +1210,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_whitenoise_config_data,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiConvertConfigToDataConstMeta,
+        constMeta: kCrateApiUtilsConvertConfigToDataConstMeta,
         argValues: [config],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiConvertConfigToDataConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsConvertConfigToDataConstMeta => const TaskConstMeta(
     debugName: 'convert_config_to_data',
     argNames: ['config'],
   );
 
   @override
-  Future<GroupData> crateApiConvertGroupToData({required Group group}) {
+  Future<GroupData> crateApiGroupsConvertGroupToData({required Group group}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1211,20 +1243,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_group_data,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiConvertGroupToDataConstMeta,
+        constMeta: kCrateApiGroupsConvertGroupToDataConstMeta,
         argValues: [group],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiConvertGroupToDataConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiGroupsConvertGroupToDataConstMeta => const TaskConstMeta(
     debugName: 'convert_group_to_data',
     argNames: ['group'],
   );
 
   @override
-  Future<MessageWithTokensData> crateApiConvertMessageWithTokensToData({
+  Future<MessageWithTokensData> crateApiMessagesConvertMessageWithTokensToData({
     required MessageWithTokens messageWithTokens,
   }) {
     return handler.executeNormal(
@@ -1246,20 +1278,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_message_with_tokens_data,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiConvertMessageWithTokensToDataConstMeta,
+        constMeta: kCrateApiMessagesConvertMessageWithTokensToDataConstMeta,
         argValues: [messageWithTokens],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiConvertMessageWithTokensToDataConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiMessagesConvertMessageWithTokensToDataConstMeta => const TaskConstMeta(
     debugName: 'convert_message_with_tokens_to_data',
     argNames: ['messageWithTokens'],
   );
 
   @override
-  Future<Metadata> crateApiConvertMetadataDataToMetadata({
+  Future<Metadata> crateApiUtilsConvertMetadataDataToMetadata({
     required MetadataData metadataData,
   }) {
     return handler.executeNormal(
@@ -1282,20 +1314,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiConvertMetadataDataToMetadataConstMeta,
+        constMeta: kCrateApiUtilsConvertMetadataDataToMetadataConstMeta,
         argValues: [metadataData],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiConvertMetadataDataToMetadataConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsConvertMetadataDataToMetadataConstMeta => const TaskConstMeta(
     debugName: 'convert_metadata_data_to_metadata',
     argNames: ['metadataData'],
   );
 
   @override
-  Future<MetadataData> crateApiConvertMetadataToData({
+  Future<MetadataData> crateApiUtilsConvertMetadataToData({
     required Metadata metadata,
   }) {
     return handler.executeNormal(
@@ -1318,20 +1350,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiConvertMetadataToDataConstMeta,
+        constMeta: kCrateApiUtilsConvertMetadataToDataConstMeta,
         argValues: [metadata],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiConvertMetadataToDataConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsConvertMetadataToDataConstMeta => const TaskConstMeta(
     debugName: 'convert_metadata_to_data',
     argNames: ['metadata'],
   );
 
   @override
-  Future<GroupData> crateApiCreateGroup({
+  Future<GroupData> crateApiGroupsCreateGroup({
     required PublicKey creatorPubkey,
     required List<PublicKey> memberPubkeys,
     required List<PublicKey> adminPubkeys,
@@ -1368,7 +1400,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiCreateGroupConstMeta,
+        constMeta: kCrateApiGroupsCreateGroupConstMeta,
         argValues: [
           creatorPubkey,
           memberPubkeys,
@@ -1381,7 +1413,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     );
   }
 
-  TaskConstMeta get kCrateApiCreateGroupConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiGroupsCreateGroupConstMeta => const TaskConstMeta(
     debugName: 'create_group',
     argNames: [
       'creatorPubkey',
@@ -1393,7 +1425,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
-  Future<Account> crateApiCreateIdentity() {
+  Future<Account> crateApiAccountsCreateIdentity() {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1411,20 +1443,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiCreateIdentityConstMeta,
+        constMeta: kCrateApiAccountsCreateIdentityConstMeta,
         argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiCreateIdentityConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiAccountsCreateIdentityConstMeta => const TaskConstMeta(
     debugName: 'create_identity',
     argNames: [],
   );
 
   @override
-  Future<WhitenoiseConfig> crateApiCreateWhitenoiseConfig({
+  Future<WhitenoiseConfig> crateApiUtilsCreateWhitenoiseConfig({
     required String dataDir,
     required String logsDir,
   }) {
@@ -1446,14 +1478,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiCreateWhitenoiseConfigConstMeta,
+        constMeta: kCrateApiUtilsCreateWhitenoiseConfigConstMeta,
         argValues: [dataDir, logsDir],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiCreateWhitenoiseConfigConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsCreateWhitenoiseConfigConstMeta => const TaskConstMeta(
     debugName: 'create_whitenoise_config',
     argNames: ['dataDir', 'logsDir'],
   );
@@ -1489,7 +1521,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
-  Future<String> crateApiExportAccountNpub({required PublicKey pubkey}) {
+  Future<String> crateApiAccountsExportAccountNpub({
+    required PublicKey pubkey,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1510,20 +1544,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiExportAccountNpubConstMeta,
+        constMeta: kCrateApiAccountsExportAccountNpubConstMeta,
         argValues: [pubkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiExportAccountNpubConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiAccountsExportAccountNpubConstMeta => const TaskConstMeta(
     debugName: 'export_account_npub',
     argNames: ['pubkey'],
   );
 
   @override
-  Future<String> crateApiExportAccountNsec({required PublicKey pubkey}) {
+  Future<String> crateApiAccountsExportAccountNsec({
+    required PublicKey pubkey,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1544,20 +1580,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiExportAccountNsecConstMeta,
+        constMeta: kCrateApiAccountsExportAccountNsecConstMeta,
         argValues: [pubkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiExportAccountNsecConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiAccountsExportAccountNsecConstMeta => const TaskConstMeta(
     debugName: 'export_account_nsec',
     argNames: ['pubkey'],
   );
 
   @override
-  Future<AccountData> crateApiFetchAccount({required PublicKey pubkey}) {
+  Future<AccountData> crateApiAccountsFetchAccount({
+    required PublicKey pubkey,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1578,20 +1616,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiFetchAccountConstMeta,
+        constMeta: kCrateApiAccountsFetchAccountConstMeta,
         argValues: [pubkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiFetchAccountConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiAccountsFetchAccountConstMeta => const TaskConstMeta(
     debugName: 'fetch_account',
     argNames: ['pubkey'],
   );
 
   @override
-  Future<List<AccountData>> crateApiFetchAccounts() {
+  Future<List<AccountData>> crateApiAccountsFetchAccounts() {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1608,20 +1646,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiFetchAccountsConstMeta,
+        constMeta: kCrateApiAccountsFetchAccountsConstMeta,
         argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiFetchAccountsConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiAccountsFetchAccountsConstMeta => const TaskConstMeta(
     debugName: 'fetch_accounts',
     argNames: [],
   );
 
   @override
-  Future<Map<PublicKey, MetadataData?>> crateApiFetchContacts({
+  Future<Map<PublicKey, MetadataData?>> crateApiContactsFetchContacts({
     required PublicKey pubkey,
   }) {
     return handler.executeNormal(
@@ -1645,20 +1683,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiFetchContactsConstMeta,
+        constMeta: kCrateApiContactsFetchContactsConstMeta,
         argValues: [pubkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiFetchContactsConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiContactsFetchContactsConstMeta => const TaskConstMeta(
     debugName: 'fetch_contacts',
     argNames: ['pubkey'],
   );
 
   @override
-  Future<List<PublicKey>> crateApiFetchGroupAdmins({
+  Future<List<PublicKey>> crateApiGroupsFetchGroupAdmins({
     required PublicKey pubkey,
     required GroupId groupId,
   }) {
@@ -1687,20 +1725,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiFetchGroupAdminsConstMeta,
+        constMeta: kCrateApiGroupsFetchGroupAdminsConstMeta,
         argValues: [pubkey, groupId],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiFetchGroupAdminsConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiGroupsFetchGroupAdminsConstMeta => const TaskConstMeta(
     debugName: 'fetch_group_admins',
     argNames: ['pubkey', 'groupId'],
   );
 
   @override
-  Future<List<PublicKey>> crateApiFetchGroupMembers({
+  Future<List<PublicKey>> crateApiGroupsFetchGroupMembers({
     required PublicKey pubkey,
     required GroupId groupId,
   }) {
@@ -1729,20 +1767,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiFetchGroupMembersConstMeta,
+        constMeta: kCrateApiGroupsFetchGroupMembersConstMeta,
         argValues: [pubkey, groupId],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiFetchGroupMembersConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiGroupsFetchGroupMembersConstMeta => const TaskConstMeta(
     debugName: 'fetch_group_members',
     argNames: ['pubkey', 'groupId'],
   );
 
   @override
-  Future<List<GroupData>> crateApiFetchGroups({required PublicKey pubkey}) {
+  Future<List<GroupData>> crateApiGroupsFetchGroups({
+    required PublicKey pubkey,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1763,20 +1803,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiFetchGroupsConstMeta,
+        constMeta: kCrateApiGroupsFetchGroupsConstMeta,
         argValues: [pubkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiFetchGroupsConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiGroupsFetchGroupsConstMeta => const TaskConstMeta(
     debugName: 'fetch_groups',
     argNames: ['pubkey'],
   );
 
   @override
-  Future<Event?> crateApiFetchKeyPackage({required PublicKey pubkey}) {
+  Future<Event?> crateApiRelaysFetchKeyPackage({required PublicKey pubkey}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1798,20 +1838,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiFetchKeyPackageConstMeta,
+        constMeta: kCrateApiRelaysFetchKeyPackageConstMeta,
         argValues: [pubkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiFetchKeyPackageConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiRelaysFetchKeyPackageConstMeta => const TaskConstMeta(
     debugName: 'fetch_key_package',
     argNames: ['pubkey'],
   );
 
   @override
-  Future<List<MessageWithTokensData>> crateApiFetchMessagesForGroup({
+  Future<List<MessageWithTokensData>> crateApiMessagesFetchMessagesForGroup({
     required PublicKey pubkey,
     required GroupId groupId,
   }) {
@@ -1839,20 +1879,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiFetchMessagesForGroupConstMeta,
+        constMeta: kCrateApiMessagesFetchMessagesForGroupConstMeta,
         argValues: [pubkey, groupId],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiFetchMessagesForGroupConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiMessagesFetchMessagesForGroupConstMeta => const TaskConstMeta(
     debugName: 'fetch_messages_for_group',
     argNames: ['pubkey', 'groupId'],
   );
 
   @override
-  Future<MetadataData?> crateApiFetchMetadata({required PublicKey pubkey}) {
+  Future<MetadataData?> crateApiAccountsFetchMetadata({
+    required PublicKey pubkey,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1874,20 +1916,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiFetchMetadataConstMeta,
+        constMeta: kCrateApiAccountsFetchMetadataConstMeta,
         argValues: [pubkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiFetchMetadataConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiAccountsFetchMetadataConstMeta => const TaskConstMeta(
     debugName: 'fetch_metadata',
     argNames: ['pubkey'],
   );
 
   @override
-  Future<OnboardingState> crateApiFetchOnboardingState({
+  Future<OnboardingState> crateApiAccountsFetchOnboardingState({
     required PublicKey pubkey,
   }) {
     return handler.executeNormal(
@@ -1910,20 +1952,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiFetchOnboardingStateConstMeta,
+        constMeta: kCrateApiAccountsFetchOnboardingStateConstMeta,
         argValues: [pubkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiFetchOnboardingStateConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiAccountsFetchOnboardingStateConstMeta => const TaskConstMeta(
     debugName: 'fetch_onboarding_state',
     argNames: ['pubkey'],
   );
 
   @override
-  Future<List<RelayUrl>> crateApiFetchRelays({
+  Future<List<RelayUrl>> crateApiRelaysFetchRelays({
     required PublicKey pubkey,
     required RelayType relayType,
   }) {
@@ -1952,20 +1994,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiFetchRelaysConstMeta,
+        constMeta: kCrateApiRelaysFetchRelaysConstMeta,
         argValues: [pubkey, relayType],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiFetchRelaysConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiRelaysFetchRelaysConstMeta => const TaskConstMeta(
     debugName: 'fetch_relays',
     argNames: ['pubkey', 'relayType'],
   );
 
   @override
-  Future<GroupId> crateApiGroupIdFromString({required String hexString}) {
+  Future<GroupId> crateApiGroupsGroupIdFromString({required String hexString}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -1984,20 +2026,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiGroupIdFromStringConstMeta,
+        constMeta: kCrateApiGroupsGroupIdFromStringConstMeta,
         argValues: [hexString],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGroupIdFromStringConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiGroupsGroupIdFromStringConstMeta => const TaskConstMeta(
     debugName: 'group_id_from_string',
     argNames: ['hexString'],
   );
 
   @override
-  Future<String> crateApiGroupIdToString({required GroupId groupId}) {
+  Future<String> crateApiGroupsGroupIdToString({required GroupId groupId}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -2017,16 +2059,83 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiGroupIdToStringConstMeta,
+        constMeta: kCrateApiGroupsGroupIdToStringConstMeta,
         argValues: [groupId],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiGroupIdToStringConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiGroupsGroupIdToStringConstMeta => const TaskConstMeta(
     debugName: 'group_id_to_string',
     argNames: ['groupId'],
+  );
+
+  @override
+  Future<String> crateApiUtilsHexPubkeyFromNpub({required String npub}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(npub, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 48,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData:
+              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
+        ),
+        constMeta: kCrateApiUtilsHexPubkeyFromNpubConstMeta,
+        argValues: [npub],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiUtilsHexPubkeyFromNpubConstMeta => const TaskConstMeta(
+    debugName: 'hex_pubkey_from_npub',
+    argNames: ['npub'],
+  );
+
+  @override
+  Future<String> crateApiUtilsHexPubkeyFromPublicKey({
+    required PublicKey publicKey,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
+            publicKey,
+            serializer,
+          );
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 49,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData:
+              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
+        ),
+        constMeta: kCrateApiUtilsHexPubkeyFromPublicKeyConstMeta,
+        argValues: [publicKey],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiUtilsHexPubkeyFromPublicKeyConstMeta => const TaskConstMeta(
+    debugName: 'hex_pubkey_from_public_key',
+    argNames: ['publicKey'],
   );
 
   @override
@@ -2044,7 +2153,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 48,
+            funcId: 50,
             port: port_,
           );
         },
@@ -2066,7 +2175,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
-  Future<Account> crateApiLogin({required String nsecOrHexPrivkey}) {
+  Future<Account> crateApiAccountsLogin({required String nsecOrHexPrivkey}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -2075,7 +2184,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 49,
+            funcId: 51,
             port: port_,
           );
         },
@@ -2085,20 +2194,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiLoginConstMeta,
+        constMeta: kCrateApiAccountsLoginConstMeta,
         argValues: [nsecOrHexPrivkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiLoginConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiAccountsLoginConstMeta => const TaskConstMeta(
     debugName: 'login',
     argNames: ['nsecOrHexPrivkey'],
   );
 
   @override
-  Future<void> crateApiLogout({required PublicKey pubkey}) {
+  Future<void> crateApiAccountsLogout({required PublicKey pubkey}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -2110,7 +2219,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 50,
+            funcId: 52,
             port: port_,
           );
         },
@@ -2119,20 +2228,87 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiLogoutConstMeta,
+        constMeta: kCrateApiAccountsLogoutConstMeta,
         argValues: [pubkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiLogoutConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiAccountsLogoutConstMeta => const TaskConstMeta(
     debugName: 'logout',
     argNames: ['pubkey'],
   );
 
   @override
-  Future<PublicKey> crateApiPublicKeyFromString({
+  Future<String> crateApiUtilsNpubFromHexPubkey({required String hexPubkey}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(hexPubkey, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 53,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData:
+              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
+        ),
+        constMeta: kCrateApiUtilsNpubFromHexPubkeyConstMeta,
+        argValues: [hexPubkey],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiUtilsNpubFromHexPubkeyConstMeta => const TaskConstMeta(
+    debugName: 'npub_from_hex_pubkey',
+    argNames: ['hexPubkey'],
+  );
+
+  @override
+  Future<String> crateApiUtilsNpubFromPublicKey({
+    required PublicKey publicKey,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
+            publicKey,
+            serializer,
+          );
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 54,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_String,
+          decodeErrorData:
+              sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
+        ),
+        constMeta: kCrateApiUtilsNpubFromPublicKeyConstMeta,
+        argValues: [publicKey],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiUtilsNpubFromPublicKeyConstMeta => const TaskConstMeta(
+    debugName: 'npub_from_public_key',
+    argNames: ['publicKey'],
+  );
+
+  @override
+  Future<PublicKey> crateApiUtilsPublicKeyFromString({
     required String publicKeyString,
   }) {
     return handler.executeNormal(
@@ -2143,7 +2319,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 51,
+            funcId: 55,
             port: port_,
           );
         },
@@ -2153,20 +2329,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiPublicKeyFromStringConstMeta,
+        constMeta: kCrateApiUtilsPublicKeyFromStringConstMeta,
         argValues: [publicKeyString],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiPublicKeyFromStringConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsPublicKeyFromStringConstMeta => const TaskConstMeta(
     debugName: 'public_key_from_string',
     argNames: ['publicKeyString'],
   );
 
   @override
-  Future<RelayType> crateApiRelayTypeInbox() {
+  Future<RelayType> crateApiRelaysRelayTypeInbox() {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -2174,7 +2350,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 52,
+            funcId: 56,
             port: port_,
           );
         },
@@ -2183,20 +2359,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiRelayTypeInboxConstMeta,
+        constMeta: kCrateApiRelaysRelayTypeInboxConstMeta,
         argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiRelayTypeInboxConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiRelaysRelayTypeInboxConstMeta => const TaskConstMeta(
     debugName: 'relay_type_inbox',
     argNames: [],
   );
 
   @override
-  Future<RelayType> crateApiRelayTypeKeyPackage() {
+  Future<RelayType> crateApiRelaysRelayTypeKeyPackage() {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -2204,7 +2380,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 53,
+            funcId: 57,
             port: port_,
           );
         },
@@ -2213,20 +2389,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiRelayTypeKeyPackageConstMeta,
+        constMeta: kCrateApiRelaysRelayTypeKeyPackageConstMeta,
         argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiRelayTypeKeyPackageConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiRelaysRelayTypeKeyPackageConstMeta => const TaskConstMeta(
     debugName: 'relay_type_key_package',
     argNames: [],
   );
 
   @override
-  Future<RelayType> crateApiRelayTypeNostr() {
+  Future<RelayType> crateApiRelaysRelayTypeNostr() {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -2234,7 +2410,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 54,
+            funcId: 58,
             port: port_,
           );
         },
@@ -2243,20 +2419,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiRelayTypeNostrConstMeta,
+        constMeta: kCrateApiRelaysRelayTypeNostrConstMeta,
         argValues: [],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiRelayTypeNostrConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiRelaysRelayTypeNostrConstMeta => const TaskConstMeta(
     debugName: 'relay_type_nostr',
     argNames: [],
   );
 
   @override
-  Future<RelayUrl> crateApiRelayUrlFromString({required String url}) {
+  Future<RelayUrl> crateApiUtilsRelayUrlFromString({required String url}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -2265,7 +2441,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 55,
+            funcId: 59,
             port: port_,
           );
         },
@@ -2275,20 +2451,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiRelayUrlFromStringConstMeta,
+        constMeta: kCrateApiUtilsRelayUrlFromStringConstMeta,
         argValues: [url],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiRelayUrlFromStringConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsRelayUrlFromStringConstMeta => const TaskConstMeta(
     debugName: 'relay_url_from_string',
     argNames: ['url'],
   );
 
   @override
-  Future<void> crateApiRemoveContact({
+  Future<void> crateApiContactsRemoveContact({
     required PublicKey pubkey,
     required PublicKey contactPubkey,
   }) {
@@ -2307,7 +2483,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 56,
+            funcId: 60,
             port: port_,
           );
         },
@@ -2316,20 +2492,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiRemoveContactConstMeta,
+        constMeta: kCrateApiContactsRemoveContactConstMeta,
         argValues: [pubkey, contactPubkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiRemoveContactConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiContactsRemoveContactConstMeta => const TaskConstMeta(
     debugName: 'remove_contact',
     argNames: ['pubkey', 'contactPubkey'],
   );
 
   @override
-  Future<void> crateApiRemoveMembersFromGroup({
+  Future<void> crateApiGroupsRemoveMembersFromGroup({
     required PublicKey pubkey,
     required GroupId groupId,
     required List<PublicKey> memberPubkeys,
@@ -2353,7 +2529,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 57,
+            funcId: 61,
             port: port_,
           );
         },
@@ -2362,20 +2538,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiRemoveMembersFromGroupConstMeta,
+        constMeta: kCrateApiGroupsRemoveMembersFromGroupConstMeta,
         argValues: [pubkey, groupId, memberPubkeys],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiRemoveMembersFromGroupConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiGroupsRemoveMembersFromGroupConstMeta => const TaskConstMeta(
     debugName: 'remove_members_from_group',
     argNames: ['pubkey', 'groupId', 'memberPubkeys'],
   );
 
   @override
-  Future<MessageWithTokensData> crateApiSendMessageToGroup({
+  Future<MessageWithTokensData> crateApiMessagesSendMessageToGroup({
     required PublicKey pubkey,
     required GroupId groupId,
     required String message,
@@ -2403,7 +2579,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 58,
+            funcId: 62,
             port: port_,
           );
         },
@@ -2412,20 +2588,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiSendMessageToGroupConstMeta,
+        constMeta: kCrateApiMessagesSendMessageToGroupConstMeta,
         argValues: [pubkey, groupId, message, kind, tags],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiSendMessageToGroupConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiMessagesSendMessageToGroupConstMeta => const TaskConstMeta(
     debugName: 'send_message_to_group',
     argNames: ['pubkey', 'groupId', 'message', 'kind', 'tags'],
   );
 
   @override
-  Future<String> crateApiStringFromRelayUrl({required RelayUrl relayUrl}) {
+  Future<String> crateApiUtilsStringFromRelayUrl({required RelayUrl relayUrl}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -2437,7 +2613,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 59,
+            funcId: 63,
             port: port_,
           );
         },
@@ -2445,20 +2621,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiStringFromRelayUrlConstMeta,
+        constMeta: kCrateApiUtilsStringFromRelayUrlConstMeta,
         argValues: [relayUrl],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiStringFromRelayUrlConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsStringFromRelayUrlConstMeta => const TaskConstMeta(
     debugName: 'string_from_relay_url',
     argNames: ['relayUrl'],
   );
 
   @override
-  Future<Tag> crateApiTagFromVec({required List<String> vec}) {
+  Future<Tag> crateApiUtilsTagFromVec({required List<String> vec}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -2467,7 +2643,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 60,
+            funcId: 64,
             port: port_,
           );
         },
@@ -2477,20 +2653,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiTagFromVecConstMeta,
+        constMeta: kCrateApiUtilsTagFromVecConstMeta,
         argValues: [vec],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiTagFromVecConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsTagFromVecConstMeta => const TaskConstMeta(
     debugName: 'tag_from_vec',
     argNames: ['vec'],
   );
 
   @override
-  Future<void> crateApiUpdateContacts({
+  Future<void> crateApiContactsUpdateContacts({
     required PublicKey pubkey,
     required List<PublicKey> contactPubkeys,
   }) {
@@ -2509,7 +2685,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 61,
+            funcId: 65,
             port: port_,
           );
         },
@@ -2518,20 +2694,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiUpdateContactsConstMeta,
+        constMeta: kCrateApiContactsUpdateContactsConstMeta,
         argValues: [pubkey, contactPubkeys],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiUpdateContactsConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiContactsUpdateContactsConstMeta => const TaskConstMeta(
     debugName: 'update_contacts',
     argNames: ['pubkey', 'contactPubkeys'],
   );
 
   @override
-  Future<void> crateApiUpdateMetadata({
+  Future<void> crateApiAccountsUpdateMetadata({
     required MetadataData metadata,
     required PublicKey pubkey,
   }) {
@@ -2550,7 +2726,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 62,
+            funcId: 66,
             port: port_,
           );
         },
@@ -2559,20 +2735,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiUpdateMetadataConstMeta,
+        constMeta: kCrateApiAccountsUpdateMetadataConstMeta,
         argValues: [metadata, pubkey],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiUpdateMetadataConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiAccountsUpdateMetadataConstMeta => const TaskConstMeta(
     debugName: 'update_metadata',
     argNames: ['metadata', 'pubkey'],
   );
 
   @override
-  Future<void> crateApiUpdateRelays({
+  Future<void> crateApiRelaysUpdateRelays({
     required PublicKey pubkey,
     required RelayType relayType,
     required List<RelayUrl> relays,
@@ -2596,7 +2772,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 63,
+            funcId: 67,
             port: port_,
           );
         },
@@ -2605,20 +2781,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData:
               sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError,
         ),
-        constMeta: kCrateApiUpdateRelaysConstMeta,
+        constMeta: kCrateApiRelaysUpdateRelaysConstMeta,
         argValues: [pubkey, relayType, relays],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiUpdateRelaysConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiRelaysUpdateRelaysConstMeta => const TaskConstMeta(
     debugName: 'update_relays',
     argNames: ['pubkey', 'relayType', 'relays'],
   );
 
   @override
-  Future<String> crateApiWhitenoiseErrorToString({
+  Future<String> crateApiUtilsWhitenoiseErrorToString({
     required WhitenoiseError error,
   }) {
     return handler.executeNormal(
@@ -2632,7 +2808,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 64,
+            funcId: 68,
             port: port_,
           );
         },
@@ -2640,14 +2816,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeSuccessData: sse_decode_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiWhitenoiseErrorToStringConstMeta,
+        constMeta: kCrateApiUtilsWhitenoiseErrorToStringConstMeta,
         argValues: [error],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiWhitenoiseErrorToStringConstMeta => const TaskConstMeta(
+  TaskConstMeta get kCrateApiUtilsWhitenoiseErrorToStringConstMeta => const TaskConstMeta(
     debugName: 'whitenoise_error_to_string',
     argNames: ['error'],
   );
@@ -5190,78 +5366,117 @@ class MetadataDataImpl extends RustOpaque implements MetadataData {
         RustLib.instance.api.rust_arc_decrement_strong_count_MetadataDataPtr,
   );
 
-  String? get about => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetAbout(
+  String? get about => RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorGetAbout(
     that: this,
   );
 
-  String? get banner => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetBanner(
+  String? get banner => RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorGetBanner(
     that: this,
   );
 
-  String? get displayName => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetDisplayName(
+  String? get displayName =>
+      RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorGetDisplayName(
+        that: this,
+      );
+
+  String? get lud06 => RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorGetLud06(
     that: this,
   );
 
-  String? get lud06 => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetLud06(
+  String? get lud16 => RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorGetLud16(
     that: this,
   );
 
-  String? get lud16 => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetLud16(
+  String? get name => RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorGetName(
     that: this,
   );
 
-  String? get name => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetName(
+  String? get nip05 => RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorGetNip05(
     that: this,
   );
 
-  String? get nip05 => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetNip05(
+  String? get picture => RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorGetPicture(
     that: this,
   );
 
-  String? get picture => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetPicture(
-    that: this,
-  );
-
-  String? get website => RustLib.instance.api.crateApiMetadataDataAutoAccessorGetWebsite(
+  String? get website => RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorGetWebsite(
     that: this,
   );
 
   set about(String? about) =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetAbout(that: this, about: about);
+      RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorSetAbout(that: this, about: about);
 
-  set banner(String? banner) =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetBanner(that: this, banner: banner);
+  set banner(String? banner) => RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorSetBanner(
+    that: this,
+    banner: banner,
+  );
 
   set displayName(String? displayName) =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetDisplayName(
+      RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorSetDisplayName(
         that: this,
         displayName: displayName,
       );
 
   set lud06(String? lud06) =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetLud06(that: this, lud06: lud06);
+      RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorSetLud06(that: this, lud06: lud06);
 
   set lud16(String? lud16) =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetLud16(that: this, lud16: lud16);
+      RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorSetLud16(that: this, lud16: lud16);
 
   set name(String? name) =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetName(that: this, name: name);
+      RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorSetName(that: this, name: name);
 
   set nip05(String? nip05) =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetNip05(that: this, nip05: nip05);
+      RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorSetNip05(that: this, nip05: nip05);
 
   set picture(String? picture) =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetPicture(that: this, picture: picture);
+      RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorSetPicture(
+        that: this,
+        picture: picture,
+      );
 
   set website(String? website) =>
-      RustLib.instance.api.crateApiMetadataDataAutoAccessorSetWebsite(that: this, website: website);
+      RustLib.instance.api.crateApiUtilsMetadataDataAutoAccessorSetWebsite(
+        that: this,
+        website: website,
+      );
 
-  Future<Map<String, String>> getCustom() => RustLib.instance.api.crateApiMetadataDataGetCustom(
-    that: this,
-  );
+  /// Retrieves the custom metadata fields as a HashMap.
+  ///
+  /// This method provides access to the private `custom` field, converting from
+  /// `BTreeMap` to `HashMap` for Flutter compatibility.
+  ///
+  /// # Returns
+  /// A HashMap containing all custom key-value pairs
+  ///
+  /// # Example
+  /// ```rust
+  /// let metadata = MetadataData { /* ... */ };
+  /// let custom_fields = metadata.get_custom();
+  /// println!("Custom fields: {:?}", custom_fields);
+  /// ```
+  Future<Map<String, String>> getCustom() =>
+      RustLib.instance.api.crateApiUtilsMetadataDataGetCustom(
+        that: this,
+      );
 
+  /// Sets the custom metadata fields from a HashMap.
+  ///
+  /// This method allows updating the private `custom` field, converting from
+  /// `HashMap` to `BTreeMap` internally for consistent ordering.
+  ///
+  /// # Parameters
+  /// * `custom_map` - A HashMap containing custom key-value pairs to store
+  ///
+  /// # Example
+  /// ```rust
+  /// let mut metadata = MetadataData { /* ... */ };
+  /// let mut custom = HashMap::new();
+  /// custom.insert("theme".to_string(), "dark".to_string());
+  /// metadata.set_custom(custom);
+  /// ```
   Future<void> setCustom({required Map<String, String> customMap}) =>
-      RustLib.instance.api.crateApiMetadataDataSetCustom(that: this, customMap: customMap);
+      RustLib.instance.api.crateApiUtilsMetadataDataSetCustom(that: this, customMap: customMap);
 }
 
 @sealed

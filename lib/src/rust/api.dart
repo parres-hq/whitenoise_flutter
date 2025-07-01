@@ -7,602 +7,82 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import 'frb_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// Export all API modules to make types and functions available
+export 'api/accounts.dart';
+export 'api/contacts.dart';
+export 'api/groups.dart';
+export 'api/messages.dart';
+export 'api/relays.dart';
+export 'api/utils.dart';
 
-/// Helper function to convert MessageWithTokens to MessageWithTokensData
-Future<MessageWithTokensData> convertMessageWithTokensToData({
-  required MessageWithTokens messageWithTokens,
-}) => RustLib.instance.api.crateApiConvertMessageWithTokensToData(
-  messageWithTokens: messageWithTokens,
-);
-
-Future<MetadataData> convertMetadataToData({required Metadata metadata}) =>
-    RustLib.instance.api.crateApiConvertMetadataToData(metadata: metadata);
-
-Future<Metadata> convertMetadataDataToMetadata({
-  required MetadataData metadataData,
-}) => RustLib.instance.api.crateApiConvertMetadataDataToMetadata(
-  metadataData: metadataData,
-);
-
-/// Helper function to convert a relay type to a RelayType
-Future<RelayType> relayTypeNostr() => RustLib.instance.api.crateApiRelayTypeNostr();
-
-/// Helper function to convert a relay type to a RelayType
-Future<RelayType> relayTypeInbox() => RustLib.instance.api.crateApiRelayTypeInbox();
-
-/// Helper function to convert a relay type to a RelayType
-Future<RelayType> relayTypeKeyPackage() => RustLib.instance.api.crateApiRelayTypeKeyPackage();
-
-/// Helper function to convert a public key string to a PublicKey
-Future<PublicKey> publicKeyFromString({required String publicKeyString}) =>
-    RustLib.instance.api.crateApiPublicKeyFromString(
-      publicKeyString: publicKeyString,
-    );
-
-/// Helper function to convert a relay url string to a RelayUrl
-Future<RelayUrl> relayUrlFromString({required String url}) =>
-    RustLib.instance.api.crateApiRelayUrlFromString(url: url);
-
-/// Helper function to convert a RelayUrl to a string
-Future<String> stringFromRelayUrl({required RelayUrl relayUrl}) =>
-    RustLib.instance.api.crateApiStringFromRelayUrl(relayUrl: relayUrl);
-
-/// Helper function to convert a GroupId to a hex string
-Future<String> groupIdToString({required GroupId groupId}) =>
-    RustLib.instance.api.crateApiGroupIdToString(groupId: groupId);
-
-/// Helper function to convert a hex string to a GroupId
-Future<GroupId> groupIdFromString({required String hexString}) =>
-    RustLib.instance.api.crateApiGroupIdFromString(hexString: hexString);
-
-/// Helper function to convert a Group to GroupData
-Future<GroupData> convertGroupToData({required Group group}) =>
-    RustLib.instance.api.crateApiConvertGroupToData(group: group);
-
-Future<WhitenoiseConfig> createWhitenoiseConfig({
-  required String dataDir,
-  required String logsDir,
-}) => RustLib.instance.api.crateApiCreateWhitenoiseConfig(
-  dataDir: dataDir,
-  logsDir: logsDir,
-);
-
-/// Helper function to convert a WhitenoiseConfig to WhitenoiseConfigData
-Future<WhitenoiseConfigData> convertConfigToData({
-  required WhitenoiseConfig config,
-}) => RustLib.instance.api.crateApiConvertConfigToData(config: config);
-
-/// Helper function to convert an Account to AccountData
-Future<AccountData> convertAccountToData({required Account account}) =>
-    RustLib.instance.api.crateApiConvertAccountToData(account: account);
-
-/// Helper function to convert a vec of strings to a tag
-Future<Tag> tagFromVec({required List<String> vec}) =>
-    RustLib.instance.api.crateApiTagFromVec(vec: vec);
-
-/// Helper function to convert a WhitenoiseError to a string for display
-Future<String> whitenoiseErrorToString({required WhitenoiseError error}) =>
-    RustLib.instance.api.crateApiWhitenoiseErrorToString(error: error);
-
-/// Wrapper for Whitenoise::initialize_whitenoise to make it available to Dart
-/// Must be called before any other methods are called.
+/// Initializes the Whitenoise system with the provided configuration.
+///
+/// # CRITICAL: Must be called first
+/// This function MUST be called before any other Whitenoise methods are used.
+/// It sets up the global singleton instance, creates necessary directories,
+/// and initializes the database connections.
+///
+/// # Parameters
+/// * `config` - WhitenoiseConfig object containing setup parameters
+///
+/// # Returns
+/// * `Ok(())` - System successfully initialized
+/// * `Err(WhitenoiseError)` - If initialization fails (directory creation, database setup, etc.)
+///
+/// # Example
+/// ```rust
+/// let config = create_whitenoise_config(
+///     "/app/data".to_string(),
+///     "/app/logs".to_string()
+/// );
+/// initialize_whitenoise(config).await?;
+///
+/// // Now other Whitenoise functions can be called
+/// ```
+///
+/// # Errors
+/// Common failure reasons:
+/// - Insufficient permissions to create directories
+/// - Database corruption or locking issues
+/// - Invalid configuration parameters
 Future<void> initializeWhitenoise({required WhitenoiseConfig config}) =>
     RustLib.instance.api.crateApiInitializeWhitenoise(config: config);
 
-/// Delete all data from the whitenoise instance.
-/// This logs out all the accounts and removes all local data from the app.
+/// Deletes all data from the Whitenoise instance.
+///
+/// # WARNING: This action is irreversible
+/// This function logs out all accounts and removes ALL local data from the application.
+/// Use with extreme caution as this cannot be undone.
+///
+/// # Returns
+/// * `Ok(())` - All data successfully deleted
+/// * `Err(WhitenoiseError)` - If deletion fails or instance not initialized
+///
+/// # Usage
+/// Typically used for:
+/// - Factory reset functionality
+/// - Complete app data cleanup during uninstall
+/// - Development/testing purposes
+/// - Recovery from corrupted state
+///
+/// # Example
+/// ```rust
+/// // Confirm with user before calling this
+/// if user_confirmed_reset {
+///     delete_all_data().await?;
+///     println!("All data has been deleted");
+/// }
+/// ```
+///
+/// # Errors
+/// Common failure reasons:
+/// - Whitenoise not initialized
+/// - File system permission issues
+/// - Database locks or corruption
 Future<void> deleteAllData() => RustLib.instance.api.crateApiDeleteAllData();
-
-/// Fetch all accounts that are stored on the whitenoise instance (these are "logged in" accounts)
-Future<List<AccountData>> fetchAccounts() => RustLib.instance.api.crateApiFetchAccounts();
-
-/// Fetch an account by its public key
-Future<AccountData> fetchAccount({required PublicKey pubkey}) =>
-    RustLib.instance.api.crateApiFetchAccount(pubkey: pubkey);
-
-/// Create a new account and get it ready for MLS messaging
-Future<Account> createIdentity() => RustLib.instance.api.crateApiCreateIdentity();
-
-/// Login to an account by its private key (nsec or hex)
-Future<Account> login({required String nsecOrHexPrivkey}) =>
-    RustLib.instance.api.crateApiLogin(nsecOrHexPrivkey: nsecOrHexPrivkey);
-
-/// Logout of an account by its public key
-Future<void> logout({required PublicKey pubkey}) =>
-    RustLib.instance.api.crateApiLogout(pubkey: pubkey);
-
-/// Export an account's private key (nsec)
-Future<String> exportAccountNsec({required PublicKey pubkey}) =>
-    RustLib.instance.api.crateApiExportAccountNsec(pubkey: pubkey);
-
-/// Export an account's public key (npub)
-Future<String> exportAccountNpub({required PublicKey pubkey}) =>
-    RustLib.instance.api.crateApiExportAccountNpub(pubkey: pubkey);
-
-/// Fetch an account's metadata by its public key
-Future<MetadataData?> fetchMetadata({required PublicKey pubkey}) =>
-    RustLib.instance.api.crateApiFetchMetadata(pubkey: pubkey);
-
-/// Update an account's metadata
-Future<void> updateMetadata({
-  required MetadataData metadata,
-  required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiUpdateMetadata(
-  metadata: metadata,
-  pubkey: pubkey,
-);
-
-/// Fetch an account's relays by its public key and the type of relay
-Future<List<RelayUrl>> fetchRelays({
-  required PublicKey pubkey,
-  required RelayType relayType,
-}) => RustLib.instance.api.crateApiFetchRelays(
-  pubkey: pubkey,
-  relayType: relayType,
-);
-
-/// Update an account's relays
-Future<void> updateRelays({
-  required PublicKey pubkey,
-  required RelayType relayType,
-  required List<RelayUrl> relays,
-}) => RustLib.instance.api.crateApiUpdateRelays(
-  pubkey: pubkey,
-  relayType: relayType,
-  relays: relays,
-);
-
-/// Fetch an account's key package by its public key, this gets a key package from relays
-Future<Event?> fetchKeyPackage({required PublicKey pubkey}) =>
-    RustLib.instance.api.crateApiFetchKeyPackage(pubkey: pubkey);
-
-/// Fetch an account's onboarding state by its public key
-Future<OnboardingState> fetchOnboardingState({required PublicKey pubkey}) =>
-    RustLib.instance.api.crateApiFetchOnboardingState(pubkey: pubkey);
-
-/// Fetch an account's contacts by its public key
-Future<Map<PublicKey, MetadataData?>> fetchContacts({
-  required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiFetchContacts(pubkey: pubkey);
-
-/// Add a contact to an account's contacts
-Future<void> addContact({
-  required PublicKey pubkey,
-  required PublicKey contactPubkey,
-}) => RustLib.instance.api.crateApiAddContact(
-  pubkey: pubkey,
-  contactPubkey: contactPubkey,
-);
-
-/// Remove a contact from an account's contacts
-Future<void> removeContact({
-  required PublicKey pubkey,
-  required PublicKey contactPubkey,
-}) => RustLib.instance.api.crateApiRemoveContact(
-  pubkey: pubkey,
-  contactPubkey: contactPubkey,
-);
-
-/// Update an account's contact list in one go. Overwrites the entire contact list.
-Future<void> updateContacts({
-  required PublicKey pubkey,
-  required List<PublicKey> contactPubkeys,
-}) => RustLib.instance.api.crateApiUpdateContacts(
-  pubkey: pubkey,
-  contactPubkeys: contactPubkeys,
-);
-
-/// Fetch all active groups for an account
-Future<List<GroupData>> fetchGroups({required PublicKey pubkey}) =>
-    RustLib.instance.api.crateApiFetchGroups(pubkey: pubkey);
-
-/// Fetch group members for a group
-Future<List<PublicKey>> fetchGroupMembers({
-  required PublicKey pubkey,
-  required GroupId groupId,
-}) => RustLib.instance.api.crateApiFetchGroupMembers(
-  pubkey: pubkey,
-  groupId: groupId,
-);
-
-/// Fetch groups admins for a group
-Future<List<PublicKey>> fetchGroupAdmins({
-  required PublicKey pubkey,
-  required GroupId groupId,
-}) => RustLib.instance.api.crateApiFetchGroupAdmins(
-  pubkey: pubkey,
-  groupId: groupId,
-);
-
-/// Create a group
-Future<GroupData> createGroup({
-  required PublicKey creatorPubkey,
-  required List<PublicKey> memberPubkeys,
-  required List<PublicKey> adminPubkeys,
-  required String groupName,
-  required String groupDescription,
-}) => RustLib.instance.api.crateApiCreateGroup(
-  creatorPubkey: creatorPubkey,
-  memberPubkeys: memberPubkeys,
-  adminPubkeys: adminPubkeys,
-  groupName: groupName,
-  groupDescription: groupDescription,
-);
-
-/// Send a message to a group
-///
-/// This method sends a message to the specified group using the MLS protocol.
-/// The message will be encrypted and delivered to all group members.
-///
-/// # Arguments
-/// * `pubkey` - The public key of the account sending the message
-/// * `group_id` - The MLS group ID to send the message to
-/// * `message` - The message content as a string
-/// * `kind` - The Nostr event kind (e.g., 1 for text message, 5 for delete)
-/// * `tags` - Optional Nostr tags to include with the message (use the `tag_from_vec` helper function to convert a vec of strings to a tag)
-///
-/// # Returns
-/// * `Ok(MessageWithTokensData)` - The sent message and parsed tokens if successful
-/// * `Err(WhitenoiseError)` - If there was an error sending the message
-Future<MessageWithTokensData> sendMessageToGroup({
-  required PublicKey pubkey,
-  required GroupId groupId,
-  required String message,
-  required int kind,
-  List<Tag>? tags,
-}) => RustLib.instance.api.crateApiSendMessageToGroup(
-  pubkey: pubkey,
-  groupId: groupId,
-  message: message,
-  kind: kind,
-  tags: tags,
-);
-
-Future<List<MessageWithTokensData>> fetchMessagesForGroup({
-  required PublicKey pubkey,
-  required GroupId groupId,
-}) => RustLib.instance.api.crateApiFetchMessagesForGroup(
-  pubkey: pubkey,
-  groupId: groupId,
-);
-
-/// This method adds new members to an existing MLS group. The calling account must have
-/// administrative privileges for the group. The operation will update the group's MLS
-/// epoch and distribute the updated group state to all existing members.
-///
-/// # Arguments
-/// * `pubkey` - The public key of the account performing the operation (must be a group admin)
-/// * `group_id` - The MLS group ID to add members to
-/// * `member_pubkeys` - A vector of public keys for the new members to add
-///
-/// # Returns
-/// * `Ok(())` - If the members were successfully added to the group
-/// * `Err(WhitenoiseError)` - If there was an error adding members (e.g., insufficient permissions, invalid group ID, or MLS protocol errors)
-///
-/// # Notes
-/// * Only group administrators can add new members
-/// * Each new member must have a valid key package published to relays
-/// * The group epoch will be incremented after successful member addition
-/// * All existing group members will receive an update with the new group composition
-Future<void> addMembersToGroup({
-  required PublicKey pubkey,
-  required GroupId groupId,
-  required List<PublicKey> memberPubkeys,
-}) => RustLib.instance.api.crateApiAddMembersToGroup(
-  pubkey: pubkey,
-  groupId: groupId,
-  memberPubkeys: memberPubkeys,
-);
-
-/// This method removes existing members from an MLS group. The calling account must have
-/// administrative privileges for the group. The operation will update the group's MLS
-/// epoch and distribute the updated group state to all remaining members.
-///
-/// # Arguments
-/// * `pubkey` - The public key of the account performing the operation (must be a group admin)
-/// * `group_id` - The MLS group ID to remove members from
-/// * `member_pubkeys` - A vector of public keys for the members to remove
-///
-/// # Returns
-/// * `Ok(())` - If the members were successfully removed from the group
-/// * `Err(WhitenoiseError)` - If there was an error removing members (e.g., insufficient permissions, invalid group ID, member not found, or MLS protocol errors)
-///
-/// # Notes
-/// * Only group administrators can remove members
-/// * Administrators cannot remove themselves from the group
-/// * Removed members will lose access to future group messages
-/// * The group epoch will be incremented after successful member removal
-/// * All remaining group members will receive an update with the new group composition
-/// * Removed members will not be notified of their removal through the MLS protocol
-Future<void> removeMembersFromGroup({
-  required PublicKey pubkey,
-  required GroupId groupId,
-  required List<PublicKey> memberPubkeys,
-}) => RustLib.instance.api.crateApiRemoveMembersFromGroup(
-  pubkey: pubkey,
-  groupId: groupId,
-  memberPubkeys: memberPubkeys,
-);
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>>
-abstract class Account implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
-abstract class Event implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Group>>
-abstract class Group implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>>
-abstract class GroupId implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MessageWithTokens>>
-abstract class MessageWithTokens implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Metadata>>
-abstract class Metadata implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MetadataData>>
-abstract class MetadataData implements RustOpaqueInterface {
-  String? get about;
-
-  String? get banner;
-
-  String? get displayName;
-
-  String? get lud06;
-
-  String? get lud16;
-
-  String? get name;
-
-  String? get nip05;
-
-  String? get picture;
-
-  String? get website;
-
-  set about(String? about);
-
-  set banner(String? banner);
-
-  set displayName(String? displayName);
-
-  set lud06(String? lud06);
-
-  set lud16(String? lud16);
-
-  set name(String? name);
-
-  set nip05(String? nip05);
-
-  set picture(String? picture);
-
-  set website(String? website);
-
-  Future<Map<String, String>> getCustom();
-
-  Future<void> setCustom({required Map<String, String> customMap});
-}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>
-abstract class PublicKey implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayType>>
-abstract class RelayType implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>>
-abstract class RelayUrl implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Tag>>
-abstract class Tag implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<WhitenoiseConfig>>
 abstract class WhitenoiseConfig implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<WhitenoiseError>>
 abstract class WhitenoiseError implements RustOpaqueInterface {}
-
-class AccountData {
-  final String pubkey;
-  final AccountSettings settings;
-  final OnboardingState onboarding;
-  final BigInt lastSynced;
-
-  const AccountData({
-    required this.pubkey,
-    required this.settings,
-    required this.onboarding,
-    required this.lastSynced,
-  });
-
-  @override
-  int get hashCode =>
-      pubkey.hashCode ^ settings.hashCode ^ onboarding.hashCode ^ lastSynced.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AccountData &&
-          runtimeType == other.runtimeType &&
-          pubkey == other.pubkey &&
-          settings == other.settings &&
-          onboarding == other.onboarding &&
-          lastSynced == other.lastSynced;
-}
-
-class AccountSettings {
-  final bool darkTheme;
-  final bool devMode;
-  final bool lockdownMode;
-
-  const AccountSettings({
-    required this.darkTheme,
-    required this.devMode,
-    required this.lockdownMode,
-  });
-
-  @override
-  int get hashCode => darkTheme.hashCode ^ devMode.hashCode ^ lockdownMode.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AccountSettings &&
-          runtimeType == other.runtimeType &&
-          darkTheme == other.darkTheme &&
-          devMode == other.devMode &&
-          lockdownMode == other.lockdownMode;
-}
-
-class GroupData {
-  final String mlsGroupId;
-  final String nostrGroupId;
-  final String name;
-  final String description;
-  final List<String> adminPubkeys;
-  final String? lastMessageId;
-  final BigInt? lastMessageAt;
-  final GroupType groupType;
-  final BigInt epoch;
-  final GroupState state;
-
-  const GroupData({
-    required this.mlsGroupId,
-    required this.nostrGroupId,
-    required this.name,
-    required this.description,
-    required this.adminPubkeys,
-    this.lastMessageId,
-    this.lastMessageAt,
-    required this.groupType,
-    required this.epoch,
-    required this.state,
-  });
-
-  @override
-  int get hashCode =>
-      mlsGroupId.hashCode ^
-      nostrGroupId.hashCode ^
-      name.hashCode ^
-      description.hashCode ^
-      adminPubkeys.hashCode ^
-      lastMessageId.hashCode ^
-      lastMessageAt.hashCode ^
-      groupType.hashCode ^
-      epoch.hashCode ^
-      state.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is GroupData &&
-          runtimeType == other.runtimeType &&
-          mlsGroupId == other.mlsGroupId &&
-          nostrGroupId == other.nostrGroupId &&
-          name == other.name &&
-          description == other.description &&
-          adminPubkeys == other.adminPubkeys &&
-          lastMessageId == other.lastMessageId &&
-          lastMessageAt == other.lastMessageAt &&
-          groupType == other.groupType &&
-          epoch == other.epoch &&
-          state == other.state;
-}
-
-enum GroupState {
-  active,
-  inactive,
-  pending,
-}
-
-enum GroupType {
-  directMessage,
-  group,
-}
-
-class MessageWithTokensData {
-  final String id;
-  final String pubkey;
-  final int kind;
-  final BigInt createdAt;
-  final String? content;
-  final List<String> tokens;
-
-  const MessageWithTokensData({
-    required this.id,
-    required this.pubkey,
-    required this.kind,
-    required this.createdAt,
-    this.content,
-    required this.tokens,
-  });
-
-  @override
-  int get hashCode =>
-      id.hashCode ^
-      pubkey.hashCode ^
-      kind.hashCode ^
-      createdAt.hashCode ^
-      content.hashCode ^
-      tokens.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MessageWithTokensData &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          pubkey == other.pubkey &&
-          kind == other.kind &&
-          createdAt == other.createdAt &&
-          content == other.content &&
-          tokens == other.tokens;
-}
-
-class OnboardingState {
-  final bool inboxRelays;
-  final bool keyPackageRelays;
-  final bool keyPackagePublished;
-
-  const OnboardingState({
-    required this.inboxRelays,
-    required this.keyPackageRelays,
-    required this.keyPackagePublished,
-  });
-
-  @override
-  int get hashCode =>
-      inboxRelays.hashCode ^ keyPackageRelays.hashCode ^ keyPackagePublished.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is OnboardingState &&
-          runtimeType == other.runtimeType &&
-          inboxRelays == other.inboxRelays &&
-          keyPackageRelays == other.keyPackageRelays &&
-          keyPackagePublished == other.keyPackagePublished;
-}
-
-class WhitenoiseConfigData {
-  final String dataDir;
-  final String logsDir;
-
-  const WhitenoiseConfigData({
-    required this.dataDir,
-    required this.logsDir,
-  });
-
-  @override
-  int get hashCode => dataDir.hashCode ^ logsDir.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is WhitenoiseConfigData &&
-          runtimeType == other.runtimeType &&
-          dataDir == other.dataDir &&
-          logsDir == other.logsDir;
-}
