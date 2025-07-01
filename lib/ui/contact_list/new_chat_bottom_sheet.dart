@@ -7,6 +7,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -36,6 +37,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   final _logger = Logger('NewChatBottomSheet');
+  ContactModel? _tempContact;
+  bool _isLoadingMetadata = false;
 
   @override
   void initState() {
@@ -57,7 +60,13 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   void _onSearchChanged() {
     setState(() {
       _searchQuery = _searchController.text;
+      _tempContact = null; // Clear temp contact when search changes
     });
+    
+    // If it's a valid public key, fetch metadata
+    if (_isValidPublicKey(_searchQuery)) {
+      _fetchMetadataForPublicKey(_searchQuery);
+    }
   }
 
   Future<void> _loadContacts() async {
@@ -101,22 +110,37 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         (trimmed.startsWith('npub1') && trimmed.length > 10);
   }
 
-  Future<void> _addNewContact(String publicKey) async {
+  Future<void> _fetchMetadataForPublicKey(String publicKey) async {
+    if (_isLoadingMetadata) return;
+    
+    setState(() {
+      _isLoadingMetadata = true;
+    });
+
     try {
-      await ref.read(contactsProvider.notifier).addContactByHex(publicKey);
+      final contactPk = await publicKeyFromString(publicKeyString: publicKey.trim());
+      final metadata = await fetchMetadata(pubkey: contactPk);
+      
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Contact added successfully')),
-        );
-        // Clear search and reload
-        _searchController.clear();
-        setState(() => _searchQuery = '');
+        setState(() {
+          _tempContact = ContactModel.fromMetadata(
+            publicKey: publicKey.trim(),
+            metadata: metadata,
+          );
+          _isLoadingMetadata = false;
+        });
       }
     } catch (e) {
+      _logger.warning('Failed to fetch metadata for public key: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Failed to add contact: $e')));
+        setState(() {
+          // Create a basic contact model without metadata
+          _tempContact = ContactModel(
+            name: 'Unknown User',
+            publicKey: publicKey.trim(),
+          );
+          _isLoadingMetadata = false;
+        });
       }
     }
   }
@@ -149,8 +173,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     final contactsState = ref.watch(contactsProvider);
     final filteredContacts = _getFilteredContacts(contactsState.contactModels);
 
-    final showAddOption =
-        _searchQuery.isNotEmpty && _isValidPublicKey(_searchQuery) && filteredContacts.isEmpty;
+    final showTempContact = _searchQuery.isNotEmpty &&
+        _isValidPublicKey(_searchQuery) &&
+        filteredContacts.isEmpty &&
+        _tempContact != null;
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -236,58 +262,72 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                   )
                   : Column(
                     children: [
-                      // Show "Add as contact" option if valid public key and no matches
-                      if (showAddOption) ...[
-                        GestureDetector(
-                          onTap: () => _addNewContact(_searchQuery),
-                          child: Container(
-                            margin: EdgeInsets.symmetric(horizontal: 24.w),
-                            padding: EdgeInsets.symmetric(
-                              vertical: 12.h,
-                              horizontal: 16.w,
-                            ),
-                            decoration: BoxDecoration(
-                              color: context.colors.primaryForeground,
-                              border: Border.all(
-                                color: context.colors.baseMuted,
-                              ),
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  Icons.person_add,
-                                  color: context.colors.mutedForeground,
-                                  size: 20.w,
-                                ),
-                                Gap(12.w),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                      // Show temporary contact if valid public key and no matches
+                      if (showTempContact) ...[
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 24.w),
+                          child: _isLoadingMetadata
+                              ? Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 8.h),
+                                  child: Row(
                                     children: [
-                                      Text(
-                                        'Add as contact',
-                                        style: TextStyle(
-                                          color: context.colors.secondaryForeground,
-                                          fontSize: 16.sp,
-                                          fontWeight: FontWeight.w500,
+                                      Container(
+                                        width: 56.w,
+                                        height: 56.w,
+                                        decoration: BoxDecoration(
+                                          color: context.colors.baseMuted,
+                                          borderRadius: BorderRadius.circular(30.r),
+                                        ),
+                                        child: const Center(
+                                          child: CircularProgressIndicator(),
                                         ),
                                       ),
-                                      Text(
-                                        _searchQuery.length > 20
-                                            ? '${_searchQuery.substring(0, 20)}...'
-                                            : _searchQuery,
-                                        style: TextStyle(
-                                          color: context.colors.mutedForeground,
-                                          fontSize: 12.sp,
+                                      Gap(12.w),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Loading metadata...',
+                                              style: TextStyle(
+                                                color: context.colors.mutedForeground,
+                                                fontSize: 16.sp,
+                                              ),
+                                            ),
+                                            Gap(2.h),
+                                            Text(
+                                              _searchQuery.length > 20
+                                                  ? '${_searchQuery.substring(0, 20)}...'
+                                                  : _searchQuery,
+                                              style: TextStyle(
+                                                color: context.colors.mutedForeground,
+                                                fontSize: 12.sp,
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ),
                                     ],
                                   ),
+                                )
+                              : ContactListTile(
+                                  contact: _tempContact!,
+                                  enableSwipeToDelete: false,
+                                  onTap: () {
+                                    StartSecureChatBottomSheet.show(
+                                      context: context,
+                                      name: _tempContact!.displayNameOrName,
+                                      nip05: _tempContact!.nip05 ?? '',
+                                      pubkey: _tempContact!.publicKey,
+                                      bio: _tempContact!.about,
+                                      imagePath: _tempContact!.imagePath,
+                                      onChatCreated: () {
+                                        // Chat created successfully, close the new chat bottom sheet
+                                        Navigator.pop(context);
+                                      },
+                                    );
+                                  },
                                 ),
-                              ],
-                            ),
-                          ),
                         ),
                         Gap(16.h),
                       ],
@@ -295,17 +335,21 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                       // Contacts list
                       Expanded(
                         child:
-                            filteredContacts.isEmpty && !showAddOption
+                            filteredContacts.isEmpty && !showTempContact
                                 ? Center(
-                                  child: Text(
-                                    _searchQuery.isEmpty
-                                        ? 'No contacts found'
-                                        : 'No contacts match your search',
-                                    style: TextStyle(
-                                      color: context.colors.mutedForeground,
-                                      fontSize: 16.sp,
-                                    ),
-                                  ),
+                                  child: _isLoadingMetadata
+                                      ? const CircularProgressIndicator()
+                                      : Text(
+                                        _searchQuery.isEmpty
+                                            ? 'No contacts found'
+                                            : _isValidPublicKey(_searchQuery)
+                                                ? 'Loading metadata...'
+                                                : 'No contacts match your search',
+                                        style: TextStyle(
+                                          color: context.colors.mutedForeground,
+                                          fontSize: 16.sp,
+                                        ),
+                                      ),
                                 )
                                 : ListView.builder(
                                   padding: EdgeInsets.symmetric(
