@@ -4,10 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
 
 import 'package:whitenoise/ui/contact_list/widgets/group_list_tile.dart';
@@ -26,18 +26,38 @@ class ChatListScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatListScreenState extends ConsumerState<ChatListScreen> {
+  String _profileImagePath = '';
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(groupsProvider.notifier).loadGroups();
+      _loadProfileData();
     });
+  }
+
+  Future<void> _loadProfileData() async {
+    try {
+      await ref.read(profileProvider.notifier).fetchProfileData();
+
+      final profileData = ref.read(profileProvider);
+
+      profileData.whenData((profile) {
+        setState(() {
+          _profileImagePath = profile.picture ?? '';
+        });
+      });
+    } catch (e) {
+      // Handle error silently for avatar
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final groupList = ref.watch(groupsProvider).groups ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
+    ref.watch(profileProvider);
 
     return Scaffold(
       body: Stack(
@@ -50,9 +70,44 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16.r),
                     onTap: () => context.push(Routes.settings),
-                    child: ContactAvatar(
-                      imgPath: '',
-                      size: 36.r,
+                    child: Container(
+                      width: 36.r,
+                      height: 36.r,
+                      decoration: BoxDecoration(
+                        color: context.colors.avatarSurface,
+                        shape: BoxShape.circle,
+                      ),
+                      child: ClipOval(
+                        child:
+                            _profileImagePath.isNotEmpty
+                                ? Image.network(
+                                  _profileImagePath,
+                                  fit: BoxFit.cover,
+                                  width: 36.r,
+                                  height: 36.r,
+                                  errorBuilder:
+                                      (context, error, stackTrace) => Center(
+                                        child: Text(
+                                          'S',
+                                          style: TextStyle(
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.bold,
+                                            color: context.colors.mutedForeground,
+                                          ),
+                                        ),
+                                      ),
+                                )
+                                : Center(
+                                  child: Text(
+                                    'S',
+                                    style: TextStyle(
+                                      fontSize: 16.sp,
+                                      fontWeight: FontWeight.bold,
+                                      color: context.colors.mutedForeground,
+                                    ),
+                                  ),
+                                ),
+                      ),
                     ),
                   ),
                 ),
