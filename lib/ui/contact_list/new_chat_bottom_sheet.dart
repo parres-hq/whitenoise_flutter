@@ -314,7 +314,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                   )
                                   : ContactListTile(
                                     contact: _tempContact!,
-                                    enableSwipeToDelete: false,
                                     onTap: () {
                                       StartSecureChatBottomSheet.show(
                                         context: context,
