@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/notifiers/chat_notifier.dart';
 import 'package:whitenoise/ui/chat/services/chat_dialog_service.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';

@@ -1,4 +1,5 @@
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
 
 extension StringExtensions on String {
   /// Formats the public key by adding a space every 5 characters

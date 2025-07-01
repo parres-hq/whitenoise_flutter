@@ -286,7 +286,7 @@ pub async fn fetch_onboarding_state(pubkey: PublicKey) -> Result<OnboardingState
 ///
 /// # Parameters
 /// * `pubkey` - The public key of the account whose profile picture should be updated
-/// * `server` - The URL of the media server where the image will be uploaded
+/// * `server_url` - The URL string of the media server where the image will be uploaded
 /// * `file_path` - The local path to the image file that should be uploaded
 /// * `image_type` - The type of image being uploaded (e.g., avatar, banner)
 ///
@@ -296,15 +296,20 @@ pub async fn fetch_onboarding_state(pubkey: PublicKey) -> Result<OnboardingState
 ///
 /// # Errors
 /// * Returns `WhitenoiseError` if the file cannot be read, the server is unreachable,
-///   the upload fails, or if there's an issue with the account access
+///   the upload fails, the URL is invalid, or if there's an issue with the account access
 #[frb]
 pub async fn upload_profile_picture(
     pubkey: PublicKey,
-    server: Url,
+    server_url: String,
     file_path: &str,
     image_type: ImageType,
 ) -> Result<String, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
+
+    // Parse the server URL string into a Url
+    let server =
+        Url::parse(&server_url).map_err(|e| WhitenoiseError::from(std::io::Error::other(e)))?;
+
     whitenoise
         .upload_profile_picture(pubkey, server, file_path, image_type)
         .await

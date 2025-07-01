@@ -5,6 +5,9 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/contacts.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
 
 class ContactsState {
   final Map<PublicKey, MetadataData?>? contacts;
