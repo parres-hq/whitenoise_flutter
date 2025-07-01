@@ -8,6 +8,8 @@ import 'package:go_router/go_router.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/profile_provider.dart';
+import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api.dart';
@@ -31,13 +33,30 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   AccountData? _currentAccount;
   Map<String, MetadataData?> _accountMetadata = {}; // Cache for metadata
   bool _isLoading = true;
+  ProviderSubscription<AsyncValue<ProfileState>>? _profileSubscription;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAccounts();
+      // Listen for profile updates
+      _profileSubscription = ref.listenManual(
+        profileProvider,
+        (previous, next) {
+          // When profile is updated successfully, refresh the accounts
+          if (next is AsyncData) {
+            _loadAccounts();
+          }
+        },
+      );
     });
+  }
+
+  @override
+  void dispose() {
+    _profileSubscription?.close();
+    super.dispose();
   }
 
   Future<void> _loadAccounts() async {
