@@ -70,4 +70,7 @@ class LightAppColors {
 
   static const overlay = Color(0xff000000);
   static const surface = Color(0xfffafafa);
+
+  static const solidNeutralBlack = Color(0xff000000);
+  static const solidNeutralWhite = Color(0xffFFFFFF);
 }

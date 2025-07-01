@@ -34,4 +34,6 @@ const fallbackColorsExt = AppColorsThemeExt(
   contactChatBubbleText: LightAppColors.contactChatBubbleText,
   overlay: LightAppColors.overlay,
   surface: LightAppColors.surface,
+  solidNeutralBlack: LightAppColors.solidNeutralBlack,
+  solidNeutralWhite: LightAppColors.solidNeutralWhite,
 );

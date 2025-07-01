@@ -45,4 +45,5 @@ class AssetsPaths {
   static const String icCheckmarkDashed = '$_pngsDir/ic_checkmark_dashed.png';
   static const String icCheckmarkFilled = '$_pngsDir/ic_checkmark_filled.png';
   static const String login = '$_pngsDir/login.png';
+  static const String icAvatar = '$_pngsDir/ic_avatar.png';
 }

@@ -38,6 +38,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.contactChatBubbleText,
     required this.overlay,
     required this.surface,
+    required this.solidNeutralBlack,
+    required this.solidNeutralWhite,
   });
 
   final Color primary;
@@ -73,6 +75,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color contactChatBubbleText;
   final Color overlay;
   final Color surface;
+  final Color solidNeutralBlack;
+  final Color solidNeutralWhite;
 
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
@@ -109,6 +113,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     contactChatBubbleText: LightAppColors.contactChatBubbleText,
     overlay: LightAppColors.overlay,
     surface: LightAppColors.surface,
+    solidNeutralBlack: LightAppColors.solidNeutralBlack,
+    solidNeutralWhite: LightAppColors.solidNeutralWhite,
   );
 
   /// Dark theme colors
@@ -146,6 +152,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     contactChatBubbleText: DarkAppColors.contactChatBubbleText,
     overlay: DarkAppColors.overlay,
     surface: DarkAppColors.surface,
+    solidNeutralBlack: DarkAppColors.solidNeutralBlack,
+    solidNeutralWhite: DarkAppColors.solidNeutralWhite,
   );
 
   @override
@@ -183,6 +191,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? contactChatBubbleText,
     Color? overlay,
     Color? surface,
+    Color? solidNeutralBlack,
+    Color? solidNeutralWhite,
   }) {
     return AppColorsThemeExt(
       primary: primary ?? this.primary,
@@ -218,6 +228,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       contactChatBubbleText: contactChatBubbleText ?? this.contactChatBubbleText,
       overlay: overlay ?? this.overlay,
       surface: surface ?? this.surface,
+      solidNeutralBlack: solidNeutralBlack ?? this.solidNeutralBlack,
+      solidNeutralWhite: solidNeutralWhite ?? this.solidNeutralWhite,
     );
   }
 
@@ -268,6 +280,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       contactChatBubbleText: Color.lerp(contactChatBubbleText, other.contactChatBubbleText, t)!,
       overlay: Color.lerp(overlay, other.overlay, t)!,
       surface: Color.lerp(surface, other.surface, t)!,
+      solidNeutralBlack: Color.lerp(solidNeutralBlack, other.solidNeutralBlack, t)!,
+      solidNeutralWhite: Color.lerp(solidNeutralWhite, other.solidNeutralWhite, t)!,
     );
   }
 }

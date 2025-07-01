@@ -73,4 +73,7 @@ class DarkAppColors {
   static const contactChatBubbleText = Color(0xffFAFAFA);
   static const overlay = Color(0xffFFFFFF);
   static const surface = Color(0xff171717);
+
+  static const solidNeutralBlack = Color(0xff000000);
+  static const solidNeutralWhite = Color(0xffFFFFFF);
 }

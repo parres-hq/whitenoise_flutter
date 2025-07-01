@@ -11,6 +11,7 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
 
 import 'package:whitenoise/ui/contact_list/widgets/group_list_tile.dart';
+import 'package:whitenoise/ui/contact_list/widgets/profile_avatar.dart';
 import 'package:whitenoise/ui/contact_list/widgets/profile_ready_card.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -58,7 +59,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     final groupList = ref.watch(groupsProvider).groups ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
     ref.watch(profileProvider);
-
+    final currentUserName = ref.watch(profileProvider).valueOrNull?.displayName ?? '';
+    final userFirstLetter =
+        currentUserName.isNotEmpty == true ? currentUserName[0].toUpperCase() : '';
     return Scaffold(
       body: Stack(
         children: [
@@ -70,44 +73,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16.r),
                     onTap: () => context.push(Routes.settings),
-                    child: Container(
-                      width: 36.r,
-                      height: 36.r,
-                      decoration: BoxDecoration(
-                        color: context.colors.avatarSurface,
-                        shape: BoxShape.circle,
-                      ),
-                      child: ClipOval(
-                        child:
-                            _profileImagePath.isNotEmpty
-                                ? Image.network(
-                                  _profileImagePath,
-                                  fit: BoxFit.cover,
-                                  width: 36.r,
-                                  height: 36.r,
-                                  errorBuilder:
-                                      (context, error, stackTrace) => Center(
-                                        child: Text(
-                                          'S',
-                                          style: TextStyle(
-                                            fontSize: 16.sp,
-                                            fontWeight: FontWeight.bold,
-                                            color: context.colors.mutedForeground,
-                                          ),
-                                        ),
-                                      ),
-                                )
-                                : Center(
-                                  child: Text(
-                                    'S',
-                                    style: TextStyle(
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.bold,
-                                      color: context.colors.mutedForeground,
-                                    ),
-                                  ),
-                                ),
-                      ),
+                    child: ProfileAvatar(
+                      profileImagePath: _profileImagePath,
+                      userFirstLetter: userFirstLetter,
                     ),
                   ),
                 ),
