@@ -62,7 +62,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       _searchQuery = _searchController.text;
       _tempContact = null; // Clear temp contact when search changes
     });
-    
+
     // If it's a valid public key, fetch metadata
     if (_isValidPublicKey(_searchQuery)) {
       _fetchMetadataForPublicKey(_searchQuery);
@@ -112,7 +112,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
   Future<void> _fetchMetadataForPublicKey(String publicKey) async {
     if (_isLoadingMetadata) return;
-    
+
     setState(() {
       _isLoadingMetadata = true;
     });
@@ -120,7 +120,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     try {
       final contactPk = await publicKeyFromString(publicKeyString: publicKey.trim());
       final metadata = await fetchMetadata(pubkey: contactPk);
-      
+
       if (mounted) {
         setState(() {
           _tempContact = ContactModel.fromMetadata(
@@ -173,7 +173,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     final contactsState = ref.watch(contactsProvider);
     final filteredContacts = _getFilteredContacts(contactsState.contactModels);
 
-    final showTempContact = _searchQuery.isNotEmpty &&
+    final showTempContact =
+        _searchQuery.isNotEmpty &&
         _isValidPublicKey(_searchQuery) &&
         filteredContacts.isEmpty &&
         _tempContact != null;
@@ -266,68 +267,69 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                       if (showTempContact) ...[
                         Container(
                           margin: EdgeInsets.symmetric(horizontal: 24.w),
-                          child: _isLoadingMetadata
-                              ? Padding(
-                                  padding: EdgeInsets.symmetric(vertical: 8.h),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        width: 56.w,
-                                        height: 56.w,
-                                        decoration: BoxDecoration(
-                                          color: context.colors.baseMuted,
-                                          borderRadius: BorderRadius.circular(30.r),
+                          child:
+                              _isLoadingMetadata
+                                  ? Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 8.h),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 56.w,
+                                          height: 56.w,
+                                          decoration: BoxDecoration(
+                                            color: context.colors.baseMuted,
+                                            borderRadius: BorderRadius.circular(30.r),
+                                          ),
+                                          child: const Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
                                         ),
-                                        child: const Center(
-                                          child: CircularProgressIndicator(),
-                                        ),
-                                      ),
-                                      Gap(12.w),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              'Loading metadata...',
-                                              style: TextStyle(
-                                                color: context.colors.mutedForeground,
-                                                fontSize: 16.sp,
+                                        Gap(12.w),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Loading metadata...',
+                                                style: TextStyle(
+                                                  color: context.colors.mutedForeground,
+                                                  fontSize: 16.sp,
+                                                ),
                                               ),
-                                            ),
-                                            Gap(2.h),
-                                            Text(
-                                              _searchQuery.length > 20
-                                                  ? '${_searchQuery.substring(0, 20)}...'
-                                                  : _searchQuery,
-                                              style: TextStyle(
-                                                color: context.colors.mutedForeground,
-                                                fontSize: 12.sp,
+                                              Gap(2.h),
+                                              Text(
+                                                _searchQuery.length > 20
+                                                    ? '${_searchQuery.substring(0, 20)}...'
+                                                    : _searchQuery,
+                                                style: TextStyle(
+                                                  color: context.colors.mutedForeground,
+                                                  fontSize: 12.sp,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
+                                  )
+                                  : ContactListTile(
+                                    contact: _tempContact!,
+                                    enableSwipeToDelete: false,
+                                    onTap: () {
+                                      StartSecureChatBottomSheet.show(
+                                        context: context,
+                                        name: _tempContact!.displayNameOrName,
+                                        nip05: _tempContact!.nip05 ?? '',
+                                        pubkey: _tempContact!.publicKey,
+                                        bio: _tempContact!.about,
+                                        imagePath: _tempContact!.imagePath,
+                                        onChatCreated: () {
+                                          // Chat created successfully, close the new chat bottom sheet
+                                          Navigator.pop(context);
+                                        },
+                                      );
+                                    },
                                   ),
-                                )
-                              : ContactListTile(
-                                  contact: _tempContact!,
-                                  enableSwipeToDelete: false,
-                                  onTap: () {
-                                    StartSecureChatBottomSheet.show(
-                                      context: context,
-                                      name: _tempContact!.displayNameOrName,
-                                      nip05: _tempContact!.nip05 ?? '',
-                                      pubkey: _tempContact!.publicKey,
-                                      bio: _tempContact!.about,
-                                      imagePath: _tempContact!.imagePath,
-                                      onChatCreated: () {
-                                        // Chat created successfully, close the new chat bottom sheet
-                                        Navigator.pop(context);
-                                      },
-                                    );
-                                  },
-                                ),
                         ),
                         Gap(16.h),
                       ],
@@ -337,19 +339,20 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                         child:
                             filteredContacts.isEmpty && !showTempContact
                                 ? Center(
-                                  child: _isLoadingMetadata
-                                      ? const CircularProgressIndicator()
-                                      : Text(
-                                        _searchQuery.isEmpty
-                                            ? 'No contacts found'
-                                            : _isValidPublicKey(_searchQuery)
+                                  child:
+                                      _isLoadingMetadata
+                                          ? const CircularProgressIndicator()
+                                          : Text(
+                                            _searchQuery.isEmpty
+                                                ? 'No contacts found'
+                                                : _isValidPublicKey(_searchQuery)
                                                 ? 'Loading metadata...'
                                                 : 'No contacts match your search',
-                                        style: TextStyle(
-                                          color: context.colors.mutedForeground,
-                                          fontSize: 16.sp,
-                                        ),
-                                      ),
+                                            style: TextStyle(
+                                              color: context.colors.mutedForeground,
+                                              fontSize: 16.sp,
+                                            ),
+                                          ),
                                 )
                                 : ListView.builder(
                                   padding: EdgeInsets.symmetric(
