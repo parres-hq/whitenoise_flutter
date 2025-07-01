@@ -194,22 +194,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                 width: 96.w,
                                                 height: 96.w,
                                                 errorBuilder:
-                                                    (context, error, stackTrace) => Center(
-                                                      child: Text(
-                                                        'S',
-                                                        style: TextStyle(
-                                                          fontSize: 32.sp,
-                                                          fontWeight: FontWeight.bold,
-                                                          color: context.colors.mutedForeground,
+                                                    (context, error, stackTrace) =>
+                                                        FallbackProfileImageWidget(
+                                                          displayName: profile.displayName ?? 'A',
                                                         ),
-                                                      ),
-                                                    ),
                                               )
-                                              : Image.asset(
-                                                AssetsPaths.icImage,
-                                                fit: BoxFit.cover,
-                                                width: 96.w,
-                                                height: 96.w,
+                                              : FallbackProfileImageWidget(
+                                                displayName: profile.displayName ?? 'A',
                                               ),
                                     ),
                                   ),
@@ -354,6 +345,33 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                 ),
             loading: () => const SizedBox.shrink(),
             error: (_, _) => const SizedBox.shrink(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class FallbackProfileImageWidget extends StatelessWidget {
+  final String displayName;
+  const FallbackProfileImageWidget({
+    super.key,
+    required this.displayName,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 96.w,
+      height: 96.w,
+      color: context.colors.input,
+      child: Center(
+        child: Text(
+          displayName[0].toUpperCase(),
+          style: TextStyle(
+            fontSize: 32.sp,
+            fontWeight: FontWeight.bold,
+            color: context.colors.mutedForeground,
           ),
         ),
       ),
