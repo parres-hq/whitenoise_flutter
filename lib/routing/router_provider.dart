@@ -9,6 +9,7 @@ import 'package:whitenoise/ui/auth_flow/login_screen.dart';
 import 'package:whitenoise/ui/auth_flow/welcome_screen.dart';
 import 'package:whitenoise/ui/chat/chat_screen.dart';
 import 'package:whitenoise/ui/contact_list/chat_list_screen.dart';
+import 'package:whitenoise/ui/settings/app_settings/app_settings_screen.dart';
 import 'package:whitenoise/ui/settings/developer/dev.dart';
 import 'package:whitenoise/ui/settings/general_settings_screen.dart';
 import 'package:whitenoise/ui/settings/network/network_screen.dart';
@@ -119,6 +120,10 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'developer',
             builder: (context, state) => const DeveloperScreen(),
+          ),
+          GoRoute(
+            path: 'app_settings',
+            builder: (context, state) => const AppSettingsScreen(),
           ),
         ],
       ),

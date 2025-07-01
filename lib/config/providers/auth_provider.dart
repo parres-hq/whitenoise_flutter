@@ -206,6 +206,10 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(isAuthenticated: false, isLoading: false);
     }
   }
+
+  void setUnAuthenticated() {
+    state = const AuthState();
+  }
 }
 
 final authProvider = NotifierProvider<AuthNotifier, AuthState>(
