@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,17 +10,12 @@ import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
-import 'package:whitenoise/ui/settings/profile/add_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
-import 'package:whitenoise/ui/settings/widgets/theme_toggle_icon_button.dart';
 
 class GeneralSettingsScreen extends ConsumerStatefulWidget {
   const GeneralSettingsScreen({super.key});
@@ -35,7 +28,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   List<AccountData> _accounts = [];
   AccountData? _currentAccount;
   Map<String, MetadataData?> _accountMetadata = {}; // Cache for metadata
-  bool _isLoading = true;
   ProviderSubscription<AsyncValue<ProfileState>>? _profileSubscription;
 
   @override
@@ -64,8 +56,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   Future<void> _loadAccounts() async {
     try {
-      setState(() => _isLoading = true);
-
       final accounts = await fetchAccounts();
       final activeAccountPubkey = ref.read(activeAccountProvider);
 
@@ -104,10 +94,8 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         _accounts = accounts;
         _currentAccount = currentAccount;
         _accountMetadata = metadataMap;
-        _isLoading = false;
       });
     } catch (e) {
-      setState(() => _isLoading = false);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Failed to load accounts: $e')),
@@ -195,121 +183,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     }
 
     context.go(Routes.home);
-  }
-
-  Future<void> _deleteAllData() async {
-    // Show confirmation dialog first
-    final confirmed = await showDialog<bool>(
-      context: context,
-      barrierColor: Colors.transparent,
-      builder:
-          (context) => BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
-            child: Container(
-              color: Colors.black.withValues(alpha: 0.3),
-              child: Dialog(
-                backgroundColor: context.colors.neutral,
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(
-                    color: context.colors.border,
-                  ),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.all(24.w),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Delete All Data',
-                        style: TextStyle(
-                          fontSize: 20.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.secondaryForeground,
-                        ),
-                      ),
-                      Gap(16.h),
-                      Text(
-                        'This will permanently delete all your accounts, messages, groups, and app data. This action cannot be undone.\n\nAre you sure you want to continue?',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          color: context.colors.mutedForeground,
-                          height: 1.4,
-                        ),
-                      ),
-                      Gap(24.h),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: AppFilledButton(
-                              title: 'Cancel',
-                              visualState: AppButtonVisualState.secondary,
-                              size: AppButtonSize.small,
-                              onPressed: () => Navigator.of(context).pop(false),
-                            ),
-                          ),
-                          Gap(12.w),
-                          Expanded(
-                            child: AppFilledButton.child(
-                              visualState: AppButtonVisualState.error,
-                              size: AppButtonSize.small,
-                              onPressed: () => Navigator.of(context).pop(true),
-                              child: Text(
-                                'Delete',
-                                style: AppButtonSize.small.textStyle().copyWith(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-    );
-
-    // If user didn't confirm, return early
-    if (confirmed != true) return;
-
-    try {
-      // Show loading dialog
-      if (!mounted) return;
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => const Center(child: CircularProgressIndicator()),
-      );
-
-      // Call the Rust API to delete all data
-      await deleteAllData();
-
-      if (!mounted) return;
-
-      // Close loading dialog
-      Navigator.of(context).pop();
-
-      // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All data deleted successfully')),
-      );
-
-      // Navigate back to home/login screen since all accounts are logged out
-      context.go(Routes.home);
-    } catch (e) {
-      if (!mounted) return;
-
-      // Close loading dialog
-      Navigator.of(context).pop();
-
-      // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete data: $e')),
-      );
-    }
   }
 
   @override
@@ -444,18 +317,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
               ),
             ],
           ),
-          // SettingsListTile(
-          //   icon: CarbonIcons.delete,
-          //   text: 'Delete all data',
-          //   onTap: _deleteAllData,
-          //   foregroundColor: context.colors.destructive,
-          // ),
-          // Divider(color: context.colors.baseMuted, height: 16.h),
-          // Gap(24.h),
-          // AppFilledButton(
-          //   title: 'Add another account',
-          //   onPressed: () => AddProfileBottomSheet.show(context: context),
-          // ),
         ],
       ),
     );
@@ -501,16 +362,4 @@ class SettingsListTile extends StatelessWidget {
       ),
     );
   }
-}
-
-class SettingsAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const SettingsAppBar({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Placeholder();
-  }
-
-  @override
-  Size get preferredSize => Size.fromHeight(64.h);
 }
