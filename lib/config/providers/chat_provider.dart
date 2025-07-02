@@ -169,7 +169,7 @@ class ChatNotifier extends Notifier<ChatState> {
         errorMessage = e.toString();
       }
       _setGroupError(groupId, errorMessage);
-      
+
       // Clear sending state
       state = state.copyWith(
         sendingStates: {
@@ -177,7 +177,7 @@ class ChatNotifier extends Notifier<ChatState> {
           groupId: false,
         },
       );
-      
+
       return null;
     }
   }
@@ -190,7 +190,7 @@ class ChatNotifier extends Notifier<ChatState> {
   /// Set the currently selected group
   void setSelectedGroup(String? groupId) {
     state = state.copyWith(selectedGroupId: groupId);
-    
+
     // Auto-load messages when selecting a group
     if (groupId != null) {
       loadMessagesForGroup(groupId);
@@ -201,7 +201,7 @@ class ChatNotifier extends Notifier<ChatState> {
   void clearMessagesForGroup(String groupId) {
     final updatedMessages = Map<String, List<MessageWithTokensData>>.from(state.groupMessages);
     updatedMessages.remove(groupId);
-    
+
     state = state.copyWith(groupMessages: updatedMessages);
   }
 
