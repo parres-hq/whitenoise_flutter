@@ -13,6 +13,7 @@ pub mod groups;
 pub mod messages;
 pub mod relays;
 pub mod utils;
+pub mod welcomes;
 
 // Re-export everything
 pub use accounts::*;
@@ -21,6 +22,7 @@ pub use groups::*;
 pub use messages::*;
 pub use relays::*;
 pub use utils::*;
+pub use welcomes::*;
 
 /// Initializes the Whitenoise system with the provided configuration.
 ///

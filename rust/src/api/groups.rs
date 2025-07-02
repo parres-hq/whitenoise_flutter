@@ -1,7 +1,8 @@
 use flutter_rust_bridge::frb;
 use hex;
 pub use whitenoise::{
-    Group, GroupId, GroupState, GroupType, PublicKey, Whitenoise, WhitenoiseError,
+    Group, GroupId, GroupState, GroupType, NostrGroupConfigData, PublicKey, Whitenoise,
+    WhitenoiseError,
 };
 
 #[derive(Debug, Clone)]
@@ -193,13 +194,21 @@ pub async fn create_group(
 ) -> Result<GroupData, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let creator_account = whitenoise.fetch_account(creator_pubkey).await?;
+
+    let nostr_group_config = NostrGroupConfigData {
+        name: group_name,
+        description: group_description,
+        image_key: None,
+        image_url: None,
+        relays: vec![],
+    };
+
     let group = tokio::task::spawn_blocking(move || {
         tokio::runtime::Handle::current().block_on(whitenoise.create_group(
             &creator_account,
             member_pubkeys,
             admin_pubkeys,
-            group_name,
-            group_description,
+            nostr_group_config,
         ))
     })
     .await
