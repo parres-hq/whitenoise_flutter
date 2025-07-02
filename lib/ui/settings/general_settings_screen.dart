@@ -304,7 +304,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     SettingsListTile(
                       icon: CarbonIcons.favorite,
                       text: 'Donate to White Noise',
-                      onTap: () => context.push('${Routes.settings}/developer'),
+                      onTap: () => context.push(Routes.settingsDonate),
                     ),
                   ],
                 ),

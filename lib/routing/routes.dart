@@ -23,6 +23,7 @@ abstract final class Routes {
   static const settingsWallet = '/settings/wallet';
   static const settingsDeveloper = '/settings/developer';
   static const settingsAppSettings = '/settings/app_settings';
+  static const settingsDonate = '/settings/donate';
 
   static void goToChat(BuildContext context, String chatId) {
     GoRouter.of(context).go('/chats/$chatId');

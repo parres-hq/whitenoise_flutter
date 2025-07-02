@@ -7,11 +7,13 @@ class CustomIconButton extends StatelessWidget {
   final void Function()? onTap;
   final String iconPath;
   final double? padding;
+  final double? size;
 
   const CustomIconButton({
     required this.onTap,
     required this.iconPath,
     this.padding,
+    this.size,
     super.key,
   });
 
@@ -20,7 +22,8 @@ class CustomIconButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        height: 40.h,
+        height: size ?? 40.h,
+        width: size,
         decoration: BoxDecoration(
           border: Border.all(color: context.colors.input),
         ),
