@@ -167,7 +167,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final List<User> members = [];
       for (final memberPubkey in memberPubkeys) {
         try {
-          final pubkeyString = await exportAccountNpub(pubkey: memberPubkey);
+          final pubkeyString = await npubFromPublicKey(publicKey: memberPubkey);
 
           try {
             final metadata = await fetchMetadata(pubkey: memberPubkey);
@@ -246,7 +246,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       for (final adminPubkey in adminPubkeys) {
         try {
           // Get pubkey string first to avoid multiple uses of the same PublicKey object
-          final pubkeyString = await exportAccountNpub(pubkey: adminPubkey);
+          final pubkeyString = await npubFromPublicKey(publicKey: adminPubkey);
 
           try {
             final metadata = await fetchMetadata(pubkey: adminPubkey);
@@ -387,8 +387,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
     // For direct messages, use the other member's name
     if (group.groupType == GroupType.directMessage) {
       try {
-        final currentUserNpub = await exportAccountNpub(
-          pubkey: await publicKeyFromString(publicKeyString: currentUserPubkey),
+        final currentUserNpub = await npubFromPublicKey(
+          publicKey: await publicKeyFromString(publicKeyString: currentUserPubkey),
         );
         final otherMember = getOtherGroupMember(group.mlsGroupId, currentUserNpub);
         return otherMember?.name ?? 'Direct Message';

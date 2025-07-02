@@ -10,7 +10,8 @@ import '../frb_generated.dart';
 import 'accounts.dart';
 import 'groups.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`
+// These functions are ignored because they are not marked as `pub`: `convert_reaction_summary`, `convert_serializable_token`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Converts a core `MessageWithTokens` object to a Flutter-compatible `MessageWithTokensData` structure.
 ///
@@ -31,6 +32,27 @@ Future<MessageWithTokensData> convertMessageWithTokensToData({
   required MessageWithTokens messageWithTokens,
 }) => RustLib.instance.api.crateApiMessagesConvertMessageWithTokensToData(
   messageWithTokens: messageWithTokens,
+);
+
+/// Converts a core `ChatMessage` object to a Flutter-compatible `ChatMessageData` structure.
+///
+/// This function handles the conversion of chat message data to Flutter-compatible
+/// formats, converting timestamps, public keys to their string representations.
+///
+/// # Parameters
+/// * `chat_message` - Reference to a ChatMessage object from the core library
+///
+/// # Returns
+/// A ChatMessageData struct with all fields converted for Flutter compatibility
+///
+/// # Notes
+/// * All IDs and public keys are converted to hex format
+/// * Timestamps are converted to u64 for JavaScript compatibility
+/// * Complex types (tokens, reactions) are converted to Flutter-compatible structs
+Future<ChatMessageData> convertChatMessageToData({
+  required ChatMessage chatMessage,
+}) => RustLib.instance.api.crateApiMessagesConvertChatMessageToData(
+  chatMessage: chatMessage,
 );
 
 /// Send a message to a group
@@ -112,11 +134,158 @@ Future<List<MessageWithTokensData>> fetchMessagesForGroup({
   groupId: groupId,
 );
 
+/// Fetches aggregated messages for a specific MLS group.
+///
+/// This function retrieves and processes messages for the specified group, returning
+/// them as aggregated `ChatMessage` objects. Unlike `fetch_messages_for_group`, which
+/// returns raw messages with token data, this function processes the messages into
+/// their final chat format, handling message threading, reactions, deletions, and
+/// other message operations to provide a clean, aggregated view of the conversation.
+///
+/// The aggregation process includes:
+/// - Combining message edits with their original messages
+/// - Processing message deletions and marking messages as deleted
+/// - Handling message reactions and their associations
+/// - Resolving message threads and reply relationships
+/// - Converting token-based content into final display format
+///
+/// # Arguments
+///
+/// * `pubkey` - The public key of the account requesting the messages. This account
+///   must be a member of the specified group to successfully fetch messages.
+/// * `group_id` - The unique identifier of the MLS group to fetch aggregated messages from.
+///
+/// # Returns
+///
+/// Returns a `Result` containing:
+/// - `Ok(Vec<ChatMessage>)` - A vector of processed chat messages ready for display
+/// - `Err(WhitenoiseError)` - If the operation fails (e.g., network error, access denied,
+///   group not found, user not a member of the group, or message processing error)
+///
+/// # Examples
+///
+/// ```rust
+/// use whitenoise::PublicKey;
+///
+/// // Fetch aggregated messages for a group
+/// let pubkey = PublicKey::from_string("npub1...")?;
+/// let group_id = GroupId::from_hex("abc123...")?;
+/// let chat_messages = fetch_aggregated_messages_for_group(&pubkey, group_id).await?;
+///
+/// println!("Fetched {} chat messages", chat_messages.len());
+/// for message in chat_messages {
+///     println!("Message from {}: {}", message.pubkey, message.content);
+/// }
+/// ```
+///
+/// # Notes
+///
+/// - Messages are returned in chronological order (oldest first)
+/// - Deleted messages may still be present but marked as deleted
+/// - Edited messages show their latest version
+/// - This function is preferred for UI display as it provides processed chat data
+/// - Use `fetch_messages_for_group` if you need access to raw message tokens
+/// - Only group members can fetch messages from a group
+Future<List<ChatMessageData>> fetchAggregatedMessagesForGroup({
+  required PublicKey pubkey,
+  required GroupId groupId,
+}) => RustLib.instance.api.crateApiMessagesFetchAggregatedMessagesForGroup(
+  pubkey: pubkey,
+  groupId: groupId,
+);
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ChatMessage>>
+abstract class ChatMessage implements RustOpaqueInterface {}
+
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<MessageWithTokens>>
 abstract class MessageWithTokens implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Tag>>
 abstract class Tag implements RustOpaqueInterface {}
+
+class ChatMessageData {
+  final String id;
+  final String pubkey;
+  final String content;
+  final BigInt createdAt;
+  final List<String> tags;
+  final bool isReply;
+  final String? replyToId;
+  final bool isDeleted;
+  final List<SerializableTokenData> contentTokens;
+  final ReactionSummaryData reactions;
+  final int kind;
+
+  const ChatMessageData({
+    required this.id,
+    required this.pubkey,
+    required this.content,
+    required this.createdAt,
+    required this.tags,
+    required this.isReply,
+    this.replyToId,
+    required this.isDeleted,
+    required this.contentTokens,
+    required this.reactions,
+    required this.kind,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      pubkey.hashCode ^
+      content.hashCode ^
+      createdAt.hashCode ^
+      tags.hashCode ^
+      isReply.hashCode ^
+      replyToId.hashCode ^
+      isDeleted.hashCode ^
+      contentTokens.hashCode ^
+      reactions.hashCode ^
+      kind.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChatMessageData &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          pubkey == other.pubkey &&
+          content == other.content &&
+          createdAt == other.createdAt &&
+          tags == other.tags &&
+          isReply == other.isReply &&
+          replyToId == other.replyToId &&
+          isDeleted == other.isDeleted &&
+          contentTokens == other.contentTokens &&
+          reactions == other.reactions &&
+          kind == other.kind;
+}
+
+/// Flutter-compatible emoji reaction details
+class EmojiReactionData {
+  final String emoji;
+  final BigInt count;
+  final List<String> users;
+
+  const EmojiReactionData({
+    required this.emoji,
+    required this.count,
+    required this.users,
+  });
+
+  @override
+  int get hashCode => emoji.hashCode ^ count.hashCode ^ users.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EmojiReactionData &&
+          runtimeType == other.runtimeType &&
+          emoji == other.emoji &&
+          count == other.count &&
+          users == other.users;
+}
 
 class MessageWithTokensData {
   final String id;
@@ -155,4 +324,73 @@ class MessageWithTokensData {
           createdAt == other.createdAt &&
           content == other.content &&
           tokens == other.tokens;
+}
+
+/// Flutter-compatible reaction summary
+class ReactionSummaryData {
+  final List<EmojiReactionData> byEmoji;
+  final List<UserReactionData> userReactions;
+
+  const ReactionSummaryData({
+    required this.byEmoji,
+    required this.userReactions,
+  });
+
+  @override
+  int get hashCode => byEmoji.hashCode ^ userReactions.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ReactionSummaryData &&
+          runtimeType == other.runtimeType &&
+          byEmoji == other.byEmoji &&
+          userReactions == other.userReactions;
+}
+
+/// Flutter-compatible serializable token
+class SerializableTokenData {
+  final String tokenType;
+  final String? content;
+
+  const SerializableTokenData({
+    required this.tokenType,
+    this.content,
+  });
+
+  @override
+  int get hashCode => tokenType.hashCode ^ content.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SerializableTokenData &&
+          runtimeType == other.runtimeType &&
+          tokenType == other.tokenType &&
+          content == other.content;
+}
+
+/// Flutter-compatible user reaction
+class UserReactionData {
+  final String user;
+  final String emoji;
+  final BigInt createdAt;
+
+  const UserReactionData({
+    required this.user,
+    required this.emoji,
+    required this.createdAt,
+  });
+
+  @override
+  int get hashCode => user.hashCode ^ emoji.hashCode ^ createdAt.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UserReactionData &&
+          runtimeType == other.runtimeType &&
+          user == other.user &&
+          emoji == other.emoji &&
+          createdAt == other.createdAt;
 }
