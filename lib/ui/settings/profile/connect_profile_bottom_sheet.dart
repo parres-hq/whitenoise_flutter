@@ -37,6 +37,8 @@ class ConnectProfileBottomSheet extends ConsumerWidget {
             visualState: AppButtonVisualState.secondary,
             onPressed: () {
               Navigator.pop(context);
+              ref.read(authProvider.notifier).setUnAuthenticated();
+              context.go(Routes.login);
             },
           ),
           Gap(4.h),

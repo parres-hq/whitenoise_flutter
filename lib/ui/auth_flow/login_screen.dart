@@ -145,8 +145,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         Gap(4.w),
                         Container(
-                          height: 52.w,
-                          width: 52.w,
+                          height: 56.w,
+                          width: 56.w,
                           decoration: BoxDecoration(
                             color: context.colors.avatarSurface,
                           ),
