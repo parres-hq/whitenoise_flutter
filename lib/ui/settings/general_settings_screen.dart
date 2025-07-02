@@ -223,7 +223,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w600,
-                      color: context.colors.primaryForeground,
+                      color: context.colors.primarySolid,
                     ),
                     overflow: TextOverflow.ellipsis,
                   ),

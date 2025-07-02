@@ -86,7 +86,26 @@ class AppSettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider).themeMode;
-    final isDarkMode = themeMode == ThemeMode.dark;
+
+    String themeText;
+    IconData themeIcon;
+    switch (themeMode) {
+      case ThemeMode.system:
+        // Currently in Auto mode, next is Light mode
+        themeText = 'Turn on Light Mode';
+        themeIcon = CarbonIcons.sun;
+        break;
+      case ThemeMode.light:
+        // Currently in Light mode, next is Dark mode
+        themeText = 'Turn on Dark Mode';
+        themeIcon = CarbonIcons.moon;
+        break;
+      case ThemeMode.dark:
+        // Currently in Dark mode, next is Auto mode
+        themeText = 'Turn on Auto Mode';
+        themeIcon = CarbonIcons.brightness_contrast;
+        break;
+    }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -129,20 +148,25 @@ class AppSettingsScreen extends ConsumerWidget {
                   Gap(40.h),
                   AppFilledButton.child(
                     onPressed: () {
-                      ref.read(themeProvider.notifier).toggleThemeMode();
+                      final nextMode = switch (themeMode) {
+                        ThemeMode.system => ThemeMode.light,
+                        ThemeMode.light => ThemeMode.dark,
+                        ThemeMode.dark => ThemeMode.system,
+                      };
+                      ref.read(themeProvider.notifier).setThemeMode(nextMode);
                     },
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          isDarkMode ? 'Turn off Dark Mode' : 'Turn on Dark Mode',
+                          themeText,
                           style: AppButtonSize.large.textStyle().copyWith(
                             color: context.colors.primaryForeground,
                           ),
                         ),
                         Gap(8.w),
                         Icon(
-                          isDarkMode ? CarbonIcons.sun : CarbonIcons.moon,
+                          themeIcon,
                           size: 20.w,
                           color: context.colors.primaryForeground,
                         ),

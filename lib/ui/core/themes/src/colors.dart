@@ -40,6 +40,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.surface,
     required this.solidNeutralBlack,
     required this.solidNeutralWhite,
+    required this.primarySolid,
   });
 
   final Color primary;
@@ -77,7 +78,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color surface;
   final Color solidNeutralBlack;
   final Color solidNeutralWhite;
-
+  final Color primarySolid;
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
     primary: LightAppColors.primary,
@@ -115,6 +116,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     surface: LightAppColors.surface,
     solidNeutralBlack: LightAppColors.solidNeutralBlack,
     solidNeutralWhite: LightAppColors.solidNeutralWhite,
+    primarySolid: LightAppColors.primarySolid,
   );
 
   /// Dark theme colors
@@ -154,6 +156,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     surface: DarkAppColors.surface,
     solidNeutralBlack: DarkAppColors.solidNeutralBlack,
     solidNeutralWhite: DarkAppColors.solidNeutralWhite,
+    primarySolid: DarkAppColors.primarySolid,
   );
 
   @override
@@ -193,6 +196,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? surface,
     Color? solidNeutralBlack,
     Color? solidNeutralWhite,
+    Color? primarySolid,
   }) {
     return AppColorsThemeExt(
       primary: primary ?? this.primary,
@@ -230,6 +234,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       surface: surface ?? this.surface,
       solidNeutralBlack: solidNeutralBlack ?? this.solidNeutralBlack,
       solidNeutralWhite: solidNeutralWhite ?? this.solidNeutralWhite,
+      primarySolid: primarySolid ?? this.primarySolid,
     );
   }
 
@@ -282,6 +287,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       surface: Color.lerp(surface, other.surface, t)!,
       solidNeutralBlack: Color.lerp(solidNeutralBlack, other.solidNeutralBlack, t)!,
       solidNeutralWhite: Color.lerp(solidNeutralWhite, other.solidNeutralWhite, t)!,
+      primarySolid: Color.lerp(primarySolid, other.primarySolid, t)!,
     );
   }
 }
