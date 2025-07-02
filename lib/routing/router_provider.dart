@@ -69,6 +69,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       GoRoute(
+        path: Routes.createProfile,
+        builder: (context, state) => const CreateProfileScreen(),
+      ),
+
+      GoRoute(
         path: Routes.contacts,
         builder: (context, state) => const ChatListScreen(),
         routes: [

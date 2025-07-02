@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 
 import '../themes/src/extensions.dart';
 
@@ -13,6 +14,7 @@ class CustomBottomSheet {
     required Widget Function(BuildContext) builder,
     String? title,
     bool showCloseButton = true,
+    bool showBackButton = false,
     double heightFactor = 0.9,
     bool wrapContent = false,
     double? maxHeight,
@@ -113,6 +115,7 @@ class CustomBottomSheet {
                                   builder: builder,
                                   title: title,
                                   showCloseButton: showCloseButton,
+                                  showBackButton: showBackButton,
                                   bottomSheetHeight: bottomSheetHeight,
                                   wrapContent: wrapContent,
                                   maxHeight: maxHeight,
@@ -124,6 +127,7 @@ class CustomBottomSheet {
                                 builder: builder,
                                 title: title,
                                 showCloseButton: showCloseButton,
+                                showBackButton: showBackButton,
                                 bottomSheetHeight: bottomSheetHeight,
                                 wrapContent: wrapContent,
                                 maxHeight: maxHeight,
@@ -149,34 +153,53 @@ class CustomBottomSheet {
     double? maxHeight,
     String? title,
     bool showCloseButton = true,
+    bool showBackButton = false,
   }) {
     final contentWidget = Column(
       mainAxisSize: wrapContent ? MainAxisSize.min : MainAxisSize.max,
       children: [
-        if (title != null || showCloseButton)
+        if (title != null || showCloseButton || showBackButton)
           Padding(
-            padding: EdgeInsets.fromLTRB(24.w, 16.h, 16.w, 24.h),
+            padding: EdgeInsets.fromLTRB(showBackButton ? 8.w : 24.w, 16.h, 16.w, 24.h),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (title != null)
-                  Flexible(
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        color: context.colors.primary,
-                        fontSize: 24.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  )
-                else
-                  const Spacer(),
+                Expanded(
+                  child: Row(
+                    children: [
+                      if (showBackButton) ...[
+                        IconButton(
+                          onPressed: () => Navigator.pop(context),
+                          icon: Icon(
+                            CarbonIcons.chevron_left,
+                            color: context.colors.primary,
+                            size: 24.w,
+                          ),
+                        ),
+                        Gap(8.w),
+                      ],
+                      if (title != null)
+                        Flexible(
+                          child: Text(
+                            title,
+                            style: TextStyle(
+                              color: context.colors.mutedForeground,
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
                 if (showCloseButton)
                   GestureDetector(
                     onTap: () => Navigator.pop(context),
-                    child: Icon(Icons.close, color: context.colors.primary, size: 24.w),
+                    child: Icon(
+                      Icons.close,
+                      color: context.colors.primary,
+                      size: 24.w,
+                    ),
                   ),
               ],
             ),
