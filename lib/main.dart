@@ -6,6 +6,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/routing/router_provider.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
+import 'package:whitenoise/ui/core/ui/toast_widget.dart';
 
 import 'ui/core/themes/src/app_theme.dart';
 
@@ -58,13 +59,15 @@ class MyApp extends ConsumerWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return MaterialApp.router(
-          title: 'White Noise',
-          debugShowCheckedModeBanner: false,
-          theme: lightTheme,
-          darkTheme: darkTheme,
-          themeMode: themeState.themeMode,
-          routerConfig: router,
+        return ToastWrapper(
+          child: MaterialApp.router(
+            title: 'White Noise',
+            debugShowCheckedModeBanner: false,
+            theme: lightTheme,
+            darkTheme: darkTheme,
+            themeMode: themeState.themeMode,
+            routerConfig: router,
+          ),
         );
       },
     );

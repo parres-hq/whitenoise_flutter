@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -72,21 +72,13 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
     });
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        throw Exception('No active account found');
-      }
-
-      _logger.info('Creating direct message group with: ${widget.pubkey}');
-
       final groupData = await ref
           .read(groupsProvider.notifier)
           .createNewGroup(
-            groupName: 'Direct Message',
-            groupDescription: 'Direct message conversation',
+            groupName: 'DM',
+            groupDescription: 'Direct message',
             memberPublicKeyHexs: [widget.pubkey],
-            adminPublicKeyHexs: [widget.pubkey],
+            adminPublicKeyHexs: [],
           );
 
       if (groupData != null) {
@@ -102,12 +94,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
             widget.onStartChat!();
           }
 
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Chat with ${widget.name} started successfully'),
-              backgroundColor: context.colors.success,
-            ),
-          );
+          ref.showSuccessToast('Chat with ${widget.name} started successfully');
         }
       } else {
         throw Exception('Failed to create direct message group');
@@ -116,12 +103,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
       _logger.severe('Failed to create direct message group: $e');
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to start chat: $e'),
-            backgroundColor: context.colors.destructive,
-          ),
-        );
+        ref.showErrorToast('Failed to start chat: $e');
       }
     } finally {
       if (mounted) {

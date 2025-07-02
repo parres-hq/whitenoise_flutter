@@ -29,6 +29,7 @@ class DarkAppColors {
   static const textDefaultSecondary = Color(0xffCDCECD);
 
   static const success = Color(0xFF4ADE80);
+  static const successForeground = Color(0xff99F6E4);
 
   /// base/destructive
   static const destructive = Color(0xFFEF4444);

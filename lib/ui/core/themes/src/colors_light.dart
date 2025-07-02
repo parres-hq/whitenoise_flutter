@@ -26,6 +26,7 @@ class LightAppColors {
   static const textDefaultSecondary = Color(0xff757575);
 
   static const success = Color(0xFF2EA970);
+  static const successForeground = Color(0xff99F6E4);
 
   /// base/destructive
   static const destructive = Color(0xFFDC2626);

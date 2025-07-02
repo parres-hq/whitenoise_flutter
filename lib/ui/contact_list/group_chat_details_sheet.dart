@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -74,12 +76,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
       if (groupData != null) {
         Navigator.of(context).pop();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Failed to create group chat. Please try again.'),
-            backgroundColor: context.colors.destructive,
-          ),
-        );
+        ref.showErrorToast('Failed to create group chat. Please try again.');
         debugPrint('Failed to create group chat with name: $groupName');
       }
     }

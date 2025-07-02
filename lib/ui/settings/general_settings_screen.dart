@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
@@ -108,9 +109,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     } catch (e) {
       setState(() => _isLoading = false);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to load accounts: $e')),
-        );
+        ref.showErrorToast('Failed to load accounts: $e');
       }
     }
   }
@@ -121,15 +120,11 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       setState(() => _currentAccount = account);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account switched successfully')),
-        );
+        ref.showSuccessToast('Account switched successfully');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to switch account: $e')),
-        );
+        ref.showErrorToast('Failed to switch account: $e');
       }
     }
   }
@@ -187,9 +182,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     Navigator.of(context).pop();
 
     if (authState.error != null) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(authState.error!)));
+      ref.showErrorToast(authState.error!);
       return;
     }
 
@@ -292,9 +285,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       Navigator.of(context).pop();
 
       // Show success message
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All data deleted successfully')),
-      );
+      ref.showSuccessToast('All data deleted successfully');
 
       // Navigate back to home/login screen since all accounts are logged out
       context.go(Routes.home);
@@ -305,9 +296,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       Navigator.of(context).pop();
 
       // Show error message
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to delete data: $e')),
-      );
+      ref.showErrorToast('Failed to delete data: $e');
     }
   }
 

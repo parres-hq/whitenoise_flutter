@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/group_chat_details_sheet.dart';
@@ -95,20 +97,12 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
               if (realPublicKey != null) {
                 await ref.read(contactsProvider.notifier).removeContactByPublicKey(realPublicKey);
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Contact removed successfully'),
-                    ),
-                  );
+                  ref.showSuccessToast('Contact removed successfully');
                 }
               }
             } catch (e) {
               if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Failed to remove contact: $e'),
-                  ),
-                );
+                ref.showErrorToast('Failed to remove contact: $e');
               }
             }
           },
