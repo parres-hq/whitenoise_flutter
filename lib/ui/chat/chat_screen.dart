@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/notifiers/chat_notifier.dart';
@@ -38,6 +39,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
       ref.read(chatNotifierProvider.notifier).initialize();
+      ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
     });
   }
 
@@ -77,10 +79,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ),
       );
     }
-
+    final messages = ref.watch(chatProvider).groupMessages[widget.groupId] ?? [];
+    final groupLoading = ref.watch(chatProvider).groupLoadingStates[widget.groupId] ?? false;
+    // print("%${messages.first.content}#");
     return Scaffold(
       resizeToAvoidBottomInset: true,
-
       body: Stack(
         children: [
           CustomScrollView(

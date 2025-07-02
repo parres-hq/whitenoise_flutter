@@ -78,7 +78,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
             groupName: 'DM',
             groupDescription: 'Direct message',
             memberPublicKeyHexs: [widget.pubkey],
-            adminPublicKeyHexs: [],
+            adminPublicKeyHexs: [widget.pubkey],
           );
 
       if (groupData != null) {
