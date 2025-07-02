@@ -6,7 +6,6 @@ import 'package:logging/logging.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
@@ -25,7 +24,6 @@ class _DeveloperScreenState extends ConsumerState<DeveloperScreen> {
 
   String? _lastSentMessage;
   List<ChatMessageData>? _lastFetchedMessages;
-  List<MessageWithTokensData>? _lastRawMessages;
   String? _comparisonResult;
   String? _error;
   bool _isLoading = false;
@@ -243,45 +241,8 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
       }
       _logger.info('Active account pubkey: ${activeAccount.pubkey}');
 
-      // Step 2: Convert pubkey (with retry for disposal issues)
-      _logger.info('Step 2: Converting pubkey...');
-      PublicKey pubkey;
-      for (int attempt = 1; attempt <= 3; attempt++) {
-        try {
-          _logger.info('Pubkey conversion attempt $attempt...');
-          pubkey = await publicKeyFromString(publicKeyString: activeAccount.pubkey);
-          _logger.info('Pubkey converted successfully on attempt $attempt');
-          break;
-        } catch (e) {
-          _logger.warning('Pubkey conversion attempt $attempt failed: $e');
-          if (attempt == 3) {
-            _logger.severe('Failed to convert pubkey after 3 attempts: $e');
-            throw Exception('Failed to convert pubkey after 3 attempts: $e');
-          }
-          // Wait a bit before retry
-          await Future.delayed(const Duration(milliseconds: 100));
-        }
-      }
-
-      // Step 3: Convert group ID (with retry for disposal issues)
-      _logger.info('Step 3: Converting group ID...');
-      GroupId groupId;
-      for (int attempt = 1; attempt <= 3; attempt++) {
-        try {
-          _logger.info('Group ID conversion attempt $attempt...');
-          groupId = await groupIdFromString(hexString: _selectedGroup!.mlsGroupId);
-          _logger.info('Group ID converted successfully on attempt $attempt');
-          break;
-        } catch (e) {
-          _logger.warning('Group ID conversion attempt $attempt failed: $e');
-          if (attempt == 3) {
-            _logger.severe('Failed to convert group ID after 3 attempts: $e');
-            throw Exception('Failed to convert group ID after 3 attempts: $e');
-          }
-          // Wait a bit before retry
-          await Future.delayed(const Duration(milliseconds: 100));
-        }
-      }
+      // Step 2 & 3: Skip initial object creation since we create fresh objects for each API call
+      _logger.info('Step 2 & 3: Skipping initial object creation to avoid disposal issues');
 
       // Step 4: Fetch raw messages (with retry for disposal issues)
       _logger.info('Step 4: Fetching raw messages...');
@@ -298,7 +259,9 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
             pubkey: freshPubkey,
             groupId: freshGroupId,
           );
-          _logger.info('Raw messages fetched successfully on attempt $attempt. Count: ${rawMessages.length}');
+          _logger.info(
+            'Raw messages fetched successfully on attempt $attempt. Count: ${rawMessages.length}',
+          );
           break;
         } catch (e, st) {
           _logger.warning('Raw messages fetch attempt $attempt failed: $e');
@@ -330,7 +293,9 @@ ${result.tokens.asMap().entries.map((e) => '  ${e.key}: ${e.value}').join('\n')}
             pubkey: freshPubkey,
             groupId: freshGroupId,
           );
-          _logger.info('Aggregated messages fetched successfully on attempt $attempt. Count: ${aggregatedMessages.length}');
+          _logger.info(
+            'Aggregated messages fetched successfully on attempt $attempt. Count: ${aggregatedMessages.length}',
+          );
           break;
         } catch (e, st) {
           _logger.warning('Aggregated messages fetch attempt $attempt failed: $e');
@@ -415,7 +380,6 @@ ${rawMessages.length == aggregatedMessages.length && rawMessages.isNotEmpty ? '-
       ''';
 
       setState(() {
-        _lastRawMessages = rawMessages;
         _lastFetchedMessages = aggregatedMessages;
         _comparisonResult = comparison;
         _isLoading = false;
@@ -423,7 +387,6 @@ ${rawMessages.length == aggregatedMessages.length && rawMessages.isNotEmpty ? '-
 
       _logger.info('=== Both fetch methods completed successfully ===');
       _logger.info('Raw: ${rawMessages.length}, Aggregated: ${aggregatedMessages.length}');
-
     } catch (e, st) {
       _logger.severe('=== Error in both fetch methods test ===');
       _logger.severe('Error type: ${e.runtimeType}');
@@ -434,7 +397,8 @@ ${rawMessages.length == aggregatedMessages.length && rawMessages.isNotEmpty ? '-
       // Try to provide more specific error context
       String errorContext = 'Unknown error occurred';
       if (e.toString().contains('DroppableDisposedException')) {
-        errorContext = 'Rust object disposal error - try restarting the app or recreating the group';
+        errorContext =
+            'Rust object disposal error - try restarting the app or recreating the group';
       } else if (e.toString().contains('pubkey')) {
         errorContext = 'Error with public key conversion or format';
       } else if (e.toString().contains('group')) {
@@ -507,17 +471,162 @@ This simple test worked! The disposal issue might be related to:
         ''';
         _isLoading = false;
       });
-
     } catch (e, st) {
       _logger.severe('=== Simple fetch test failed ===');
       _logger.severe('Error: $e');
       _logger.severe('Stack trace: $st');
 
       if (e.toString().contains('DroppableDisposedException')) {
-        _setError('Simple fetch also failed with disposal error. This suggests a fundamental issue with Rust object lifecycle. Try restarting the app completely.');
+        _setError(
+          'Simple fetch also failed with disposal error. This suggests a fundamental issue with Rust object lifecycle. Try restarting the app completely.',
+        );
       } else {
         _setError('Simple fetch failed: $e');
       }
+    }
+  }
+
+  Future<void> _testSendAndFetch() async {
+    if (_selectedGroup == null) {
+      _setError('Please select a group first');
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _error = null;
+      _comparisonResult = null;
+    });
+
+    try {
+      _logger.info('=== Starting send and fetch test ===');
+      _logger.info('Selected group: ${_selectedGroup!.name}');
+      _logger.info('Group MLS ID: ${_selectedGroup!.mlsGroupId}');
+
+      final activeAccount = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccount == null) {
+        throw Exception('No active account found');
+      }
+      _logger.info('Active account pubkey: ${activeAccount.pubkey}');
+
+      // Create objects for sending
+      _logger.info('Creating objects for sending...');
+      final sendPubkey = await publicKeyFromString(publicKeyString: activeAccount.pubkey);
+      final sendGroupId = await groupIdFromString(hexString: _selectedGroup!.mlsGroupId);
+      _logger.info(
+        'Send objects created - Pubkey: ${sendPubkey.toString()}, GroupId: ${sendGroupId.toString()}',
+      );
+
+      // Send message
+      _logger.info('Sending test message...');
+      final testMessage = 'Test message ${DateTime.now().millisecondsSinceEpoch}';
+      final result = await sendMessageToGroup(
+        pubkey: sendPubkey,
+        groupId: sendGroupId,
+        message: testMessage,
+        kind: 1,
+      );
+      _logger.info('Message sent successfully! ID: ${result.id}');
+      _logger.info('Sent message details:');
+      _logger.info('  Content: "${result.content}"');
+      _logger.info('  Pubkey: ${result.pubkey}');
+      _logger.info('  Created At: ${result.createdAt}');
+
+      // Wait a moment for message to propagate
+      _logger.info('Waiting 2 seconds for message propagation...');
+      await Future.delayed(const Duration(seconds: 2));
+
+      // Create fresh objects for fetching (to avoid disposal issues)
+      _logger.info('Creating fresh objects for fetching...');
+      final fetchPubkey = await publicKeyFromString(publicKeyString: activeAccount.pubkey);
+      final fetchGroupId = await groupIdFromString(hexString: _selectedGroup!.mlsGroupId);
+      _logger.info(
+        'Fetch objects created - Pubkey: ${fetchPubkey.toString()}, GroupId: ${fetchGroupId.toString()}',
+      );
+
+      // Verify parameters match
+      _logger.info('Parameter verification:');
+      _logger.info('  Send pubkey string: ${sendPubkey.toString()}');
+      _logger.info('  Fetch pubkey string: ${fetchPubkey.toString()}');
+      _logger.info('  Send group ID string: ${sendGroupId.toString()}');
+      _logger.info('  Fetch group ID string: ${fetchGroupId.toString()}');
+      _logger.info('  Original account pubkey: ${activeAccount.pubkey}');
+      _logger.info('  Original group MLS ID: ${_selectedGroup!.mlsGroupId}');
+
+      // Try fetching
+      _logger.info('Attempting to fetch messages...');
+      final messages = await fetchAggregatedMessagesForGroup(
+        pubkey: fetchPubkey,
+        groupId: fetchGroupId,
+      );
+
+      _logger.info('Fetch completed! Message count: ${messages.length}');
+
+      // Check if our sent message is in the results
+      bool foundOurMessage = false;
+      if (messages.isNotEmpty) {
+        _logger.info('=== Checking for our sent message ===');
+        for (int i = 0; i < messages.length; i++) {
+          final message = messages[i];
+          _logger.info('Message ${i + 1}: "${message.content}" (ID: ${message.id})');
+          if (message.content.contains(testMessage) || message.id == result.id) {
+            foundOurMessage = true;
+            _logger.info('✓ Found our sent message at index ${i + 1}!');
+          }
+        }
+      }
+
+      if (!foundOurMessage && messages.isNotEmpty) {
+        _logger.warning('Our sent message was NOT found in the fetched results');
+        _logger.warning('Sent message ID: ${result.id}');
+        _logger.warning('Sent message content: "${result.content}"');
+        _logger.warning('But found ${messages.length} other messages');
+      } else if (!foundOurMessage && messages.isEmpty) {
+        _logger.warning('No messages found at all - this suggests a fetch issue');
+      }
+
+      setState(() {
+        _comparisonResult = '''
+=== SEND AND FETCH TEST RESULT ===
+
+SEND RESULT:
+✓ Message sent successfully!
+  ID: ${result.id}
+  Content: "${result.content}"
+  Pubkey: ${result.pubkey}
+  Created: ${DateTime.fromMillisecondsSinceEpoch(result.createdAt.toInt() * 1000)}
+
+FETCH RESULT:
+${messages.isEmpty ? '✗ No messages found' : '✓ Found ${messages.length} messages'}
+
+${foundOurMessage ? '✓ Our sent message WAS found in fetch results!' : '✗ Our sent message was NOT found in fetch results'}
+
+${messages.isEmpty ? '''
+POSSIBLE ISSUES:
+- Messages not yet synchronized to fetch endpoint
+- Different data source for send vs fetch
+- Group membership or permission issues
+- Timing/propagation delay longer than 2 seconds''' : '''
+FETCHED MESSAGES:
+${messages.asMap().entries.map((e) => '''
+${e.key + 1}. ID: ${e.value.id}
+   Content: "${e.value.content}"
+   Created: ${DateTime.fromMillisecondsSinceEpoch(e.value.createdAt.toInt() * 1000)}''').join('\n')}'''}
+
+ANALYSIS:
+${foundOurMessage
+            ? 'SUCCESS: Send and fetch are working together properly!'
+            : messages.isEmpty
+            ? 'ISSUE: Fetch returns no messages despite successful send'
+            : 'ISSUE: Fetch works but doesn\'t include our sent message'}
+        ''';
+        _isLoading = false;
+      });
+    } catch (e, st) {
+      _logger.severe('=== Send and fetch test failed ===');
+      _logger.severe('Error: $e');
+      _logger.severe('Stack trace: $st');
+      _setError('Send and fetch test failed: $e');
     }
   }
 
@@ -594,7 +703,6 @@ This simple test worked! The disposal issue might be related to:
                     _selectedGroup = value;
                     _lastSentMessage = null;
                     _lastFetchedMessages = null;
-                    _lastRawMessages = null;
                     _comparisonResult = null;
                     _error = null;
                   });
@@ -735,6 +843,27 @@ This simple test worked! The disposal issue might be related to:
                 ),
               ],
             ),
+            Gap(12.h),
+            // Third row - comprehensive test
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _selectedGroup != null && !_isLoading ? _testSendAndFetch : null,
+                    icon: Icon(CarbonIcons.launch, size: 16.sp),
+                    label: const Text('Send & Fetch Test'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 12.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
             if (_isLoading) ...[
               Gap(12.h),
               const Center(child: CircularProgressIndicator()),
@@ -749,7 +878,7 @@ This simple test worked! The disposal issue might be related to:
     if (_error != null) {
       return Card(
         margin: EdgeInsets.symmetric(vertical: 8.h),
-        color: Colors.red.withOpacity(0.1),
+        color: Colors.red.withValues(alpha: 0.1),
         child: Padding(
           padding: EdgeInsets.all(16.w),
           child: Column(
@@ -788,7 +917,7 @@ This simple test worked! The disposal issue might be related to:
     if (_lastSentMessage != null) {
       return Card(
         margin: EdgeInsets.symmetric(vertical: 8.h),
-        color: Colors.green.withOpacity(0.1),
+        color: Colors.green.withValues(alpha: 0.1),
         child: Padding(
           padding: EdgeInsets.all(16.w),
           child: Column(
@@ -815,9 +944,9 @@ This simple test worked! The disposal issue might be related to:
                 width: double.infinity,
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.8),
+                  color: Colors.black.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                  border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                 ),
                 child: Text(
                   _lastSentMessage!,
@@ -838,7 +967,7 @@ This simple test worked! The disposal issue might be related to:
     if (_lastFetchedMessages != null) {
       return Card(
         margin: EdgeInsets.symmetric(vertical: 8.h),
-        color: Colors.green.withOpacity(0.1),
+        color: Colors.green.withValues(alpha: 0.1),
         child: Padding(
           padding: EdgeInsets.all(16.w),
           child: Column(
@@ -866,9 +995,9 @@ This simple test worked! The disposal issue might be related to:
                 height: 300.h,
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.8),
+                  color: Colors.black.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                  border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                 ),
                 child: SingleChildScrollView(
                   child: Text(
@@ -909,7 +1038,7 @@ Message ${index + 1}:
     if (_comparisonResult != null) {
       return Card(
         margin: EdgeInsets.symmetric(vertical: 8.h),
-        color: Colors.green.withOpacity(0.1),
+        color: Colors.green.withValues(alpha: 0.1),
         child: Padding(
           padding: EdgeInsets.all(16.w),
           child: Column(
@@ -936,9 +1065,9 @@ Message ${index + 1}:
                 width: double.infinity,
                 padding: EdgeInsets.all(12.w),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.8),
+                  color: Colors.black.withValues(alpha: 0.8),
                   borderRadius: BorderRadius.circular(8.r),
-                  border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                  border: Border.all(color: Colors.grey.withValues(alpha: 0.3)),
                 ),
                 child: Text(
                   _comparisonResult!,
@@ -979,7 +1108,7 @@ Message ${index + 1}:
             ),
             Gap(8.h),
             Text(
-              'Test send_message_to_group and fetch_aggregated_messages_for_group bridge methods. Aggregated messages provide processed chat data without token details.',
+              'Test send_message_to_group and fetch_aggregated_messages_for_group bridge methods. Includes timing and synchronization tests to debug fetch issues.',
               style: TextStyle(
                 fontSize: 14.sp,
                 color: Colors.white,
