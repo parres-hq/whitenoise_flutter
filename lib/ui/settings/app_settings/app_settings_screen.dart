@@ -92,17 +92,17 @@ class AppSettingsScreen extends ConsumerWidget {
     switch (themeMode) {
       case ThemeMode.system:
         // Currently in Auto mode, next is Light mode
-        themeText = 'Turn on Light Mode';
+        themeText = 'Auto Mode';
         themeIcon = CarbonIcons.sun;
         break;
       case ThemeMode.light:
         // Currently in Light mode, next is Dark mode
-        themeText = 'Turn on Dark Mode';
+        themeText = 'Light Mode';
         themeIcon = CarbonIcons.moon;
         break;
       case ThemeMode.dark:
         // Currently in Dark mode, next is Auto mode
-        themeText = 'Turn on Auto Mode';
+        themeText = 'Dark Mode';
         themeIcon = CarbonIcons.brightness_contrast;
         break;
     }
@@ -146,6 +146,15 @@ class AppSettingsScreen extends ConsumerWidget {
                     ],
                   ),
                   Gap(40.h),
+                  Text(
+                    'Theme',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.primary,
+                    ),
+                  ),
+                  Gap(16.h),
                   AppFilledButton.child(
                     onPressed: () {
                       final nextMode = switch (themeMode) {
@@ -171,6 +180,15 @@ class AppSettingsScreen extends ConsumerWidget {
                           color: context.colors.primaryForeground,
                         ),
                       ],
+                    ),
+                  ),
+                  Gap(32.h),
+                  Text(
+                    'Delete App Data',
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.primary,
                     ),
                   ),
                   Gap(16.h),
