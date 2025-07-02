@@ -223,12 +223,8 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     else if (_currentAccount != null)
                       ContactListTile(
                         contact: _accountToContactModel(_currentAccount!),
-                        showExpansionArrow: _accounts.length > 1,
-                        onTap: () {
-                          if (_accounts.length > 1) {
-                            _showAccountSwitcher();
-                          }
-                        },
+                        showExpansionArrow: true,
+                        onTap: () => _showAccountSwitcher(),
                       )
                     else
                       const Center(child: Text('No accounts found')),
