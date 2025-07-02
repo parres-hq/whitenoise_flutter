@@ -79,6 +79,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color solidNeutralBlack;
   final Color solidNeutralWhite;
   final Color primarySolid;
+
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
     primary: LightAppColors.primary,

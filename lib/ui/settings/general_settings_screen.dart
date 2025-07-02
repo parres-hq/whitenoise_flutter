@@ -13,9 +13,10 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
-import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 
 class GeneralSettingsScreen extends ConsumerStatefulWidget {
@@ -30,7 +31,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   AccountData? _currentAccount;
   Map<String, MetadataData?> _accountMetadata = {}; // Cache for metadata
   ProviderSubscription<AsyncValue<ProfileState>>? _profileSubscription;
-
+  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -57,6 +58,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   Future<void> _loadAccounts() async {
     try {
+      setState(() => _isLoading = true);
       final accounts = await fetchAccounts();
       final activeAccountPubkey = ref.read(activeAccountProvider);
 
@@ -100,6 +102,8 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       if (mounted) {
         ref.showErrorToast('Failed to load accounts: $e');
       }
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -184,56 +188,26 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       backgroundColor: context.colors.neutral,
       appBar: CustomAppBar(
         automaticallyImplyLeading: false,
-        title: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: GestureDetector(
-            onTap: () => _accounts.length > 1 ? _showAccountSwitcher() : null,
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 36.w,
-                  height: 36.w,
-                  child: ClipOval(
-                    child:
-                        (_accountToContactModel(_currentAccount!).imagePath ?? '') != ''
-                            ? Image.network(
-                              _accountToContactModel(_currentAccount!).imagePath ?? '',
-                              width: 2.w,
-                              height: 2.w,
-                              fit: BoxFit.cover,
-                            )
-                            : FallbackProfileImageWidget(
-                              displayName:
-                                  _accountToContactModel(_currentAccount!).displayName ?? '',
-                              fontSize: 16.sp,
-                            ),
-                  ),
-                ),
-                Gap(6.w),
-                Flexible(
-                  child: Text(
-                    _accountToContactModel(_currentAccount!).displayName ?? '',
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.primarySolid,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Gap(12.w),
-                if (_accounts.length > 1) Icon(CarbonIcons.chevron_sort, size: 16.w),
-              ],
-            ),
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: Icon(
+            CarbonIcons.chevron_left,
+            size: 24.w,
+            color: context.colors.primarySolid,
           ),
         ),
-        actions: [
-          GestureDetector(
-            onTap: () => context.pop(),
-            child: Icon(CarbonIcons.qr_code, size: 21.w),
-          ),
-          Gap(21.5.w),
-        ],
+        title: Row(
+          children: [
+            Text(
+              'Settings',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                color: context.colors.primarySolid,
+              ),
+            ),
+          ],
+        ),
       ),
       body: ListView(
         padding: EdgeInsets.symmetric(vertical: 24.h),
@@ -241,27 +215,58 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
           Column(
             children: [
               Padding(
-                padding: EdgeInsets.only(left: 24.w, right: 12.w),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Profile Settings',
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w600,
-                            color: context.colors.mutedForeground,
+                    if (_isLoading)
+                      const Center(child: CircularProgressIndicator())
+                    else if (_currentAccount != null)
+                      ContactListTile(
+                        contact: _accountToContactModel(_currentAccount!),
+                        showExpansionArrow: _accounts.length > 1,
+                        onTap: () {
+                          if (_accounts.length > 1) {
+                            _showAccountSwitcher();
+                          }
+                        },
+                      )
+                    else
+                      const Center(child: Text('No accounts found')),
+                    Gap(12.h),
+                    AppFilledButton.child(
+                      size: AppButtonSize.small,
+                      visualState: AppButtonVisualState.secondary,
+                      onPressed: () {},
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Share Profile',
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: context.colors.primary,
+                            ),
                           ),
-                        ),
-                        GestureDetector(
-                          onTap: () => context.pop(),
-                          child: Icon(CarbonIcons.close, size: 32.w),
-                        ),
-                      ],
+                          Gap(9.w),
+                          Icon(
+                            CarbonIcons.qr_code,
+                            size: 16.w,
+                            color: context.colors.primary,
+                          ),
+                        ],
+                      ),
                     ),
                     Gap(16.h),
+                  ],
+                ),
+              ),
+              Divider(color: context.colors.baseMuted, height: 0.h),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Column(
+                  children: [
+                    Gap(10.h),
                     SettingsListTile(
                       icon: CarbonIcons.user,
                       text: 'Edit Profile',
