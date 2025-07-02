@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -60,9 +62,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load profile: ${e.toString()}')),
-      );
+      ref.showErrorToast('Failed to load profile: ${e.toString()}');
     }
   }
 
@@ -80,14 +80,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           );
 
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully')),
-      );
+      ref.showSuccessToast('Profile updated successfully');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to update profile: ${e.toString()}')),
-      );
+      ref.showErrorToast('Failed to update profile: ${e.toString()}');
     }
   }
 
@@ -96,12 +92,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     ref.listen(profileProvider, (previous, next) {
       next.whenData((profile) {
         if (profile.error != null) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error: ${profile.error}'),
-              backgroundColor: context.colors.destructive,
-            ),
-          );
+          ref.showErrorToast('Error: ${profile.error}');
         }
 
         // If the save was successful, `fetchProfileData` is called, which will

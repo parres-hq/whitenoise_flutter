@@ -60,6 +60,7 @@ dependencies:
     intl: ^0.19.0
     flutter_animate: ^4.5.2
     chat_bubbles: ^1.6.0
+    uuid: ^4.5.1
 
 dev_dependencies:
     flutter_test:

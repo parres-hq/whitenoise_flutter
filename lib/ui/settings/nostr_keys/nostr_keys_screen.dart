@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
+
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
@@ -74,23 +76,13 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
         } else {
           _logger.severe('NostrKeysScreen: No active account found');
           if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('No active account found'),
-                backgroundColor: Colors.red,
-              ),
-            );
+            ref.showErrorToast('No active account found');
           }
         }
       } catch (e) {
         _logger.severe('NostrKeysScreen: Error loading keys: $e');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Error loading keys: $e'),
-              backgroundColor: Colors.red,
-            ),
-          );
+          ref.showErrorToast('Error loading keys: $e');
         }
       }
     }
@@ -108,9 +100,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
     final npub = ref.read(nostrKeysProvider).npub;
     if (npub != null) {
       Clipboard.setData(ClipboardData(text: npub));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Public key copied to clipboard')),
-      );
+      ref.showSuccessToast('Public key copied to clipboard');
     }
   }
 
@@ -118,9 +108,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
     final nsec = ref.read(nostrKeysProvider).nsec;
     if (nsec != null) {
       Clipboard.setData(ClipboardData(text: nsec));
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Private key copied to clipboard')),
-      );
+      ref.showSuccessToast('Private key copied to clipboard');
     }
   }
 

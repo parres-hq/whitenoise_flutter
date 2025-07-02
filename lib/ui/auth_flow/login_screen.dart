@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
@@ -34,9 +35,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     final key = _keyController.text.trim();
 
     if (key.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter your private key')),
-      );
+      ref.showErrorToast('Please enter your private key');
       return;
     }
 
@@ -51,9 +50,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (authState.isAuthenticated && authState.error == null) {
       context.go(Routes.chats);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(authState.error ?? 'Login failed')),
-      );
+      ref.showErrorToast(authState.error ?? 'Login failed');
     }
   }
 
@@ -62,15 +59,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (clipboardData != null && clipboardData.text != null) {
       _keyController.text = clipboardData.text!;
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('Pasted from clipboard')));
+        ref.showSuccessToast('Pasted from clipboard');
       }
     } else {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Nothing to paste from clipboard')),
-        );
+        ref.showInfoToast('Nothing to paste from clipboard');
       }
     }
   }

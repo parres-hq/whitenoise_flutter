@@ -4,6 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
+
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -83,23 +85,13 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       } else {
         _logger.severe('NewChatBottomSheet: No active account found');
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('No active account found'),
-              backgroundColor: context.colors.destructive,
-            ),
-          );
+          ref.showErrorToast('No active account found');
         }
       }
     } catch (e) {
       _logger.severe('NewChatBottomSheet: Error loading contacts: $e');
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error loading contacts: $e'),
-            backgroundColor: context.colors.destructive,
-          ),
-        );
+        ref.showErrorToast('Error loading contacts: $e');
       }
     }
   }
@@ -389,24 +381,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                                 .read(contactsProvider.notifier)
                                                 .removeContactByPublicKey(realPublicKey);
                                             if (context.mounted) {
-                                              ScaffoldMessenger.of(context).showSnackBar(
-                                                const SnackBar(
-                                                  content: Text('Contact removed successfully'),
-                                                ),
-                                              );
+                                              ref.showSuccessToast('Contact removed successfully');
                                             }
                                           }
                                         } catch (e) {
                                           if (context.mounted) {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  'Failed to remove contact: $e',
-                                                ),
-                                              ),
-                                            );
+                                            ref.showErrorToast('Failed to remove contact: $e');
                                           }
                                         }
                                       },

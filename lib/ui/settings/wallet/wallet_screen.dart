@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/shared/info_box.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -82,12 +83,8 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                     text: _connectionSecretController.text,
                                   ),
                                 );
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Connection secret copied to clipboard',
-                                    ),
-                                  ),
+                                ref.showSuccessToast(
+                                  'Connection secret copied to clipboard',
                                 );
                               },
                             ),
