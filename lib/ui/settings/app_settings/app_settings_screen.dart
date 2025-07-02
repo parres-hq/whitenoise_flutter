@@ -116,10 +116,15 @@ class AppSettingsScreen extends ConsumerWidget {
       child: Scaffold(
         backgroundColor: context.colors.appBarBackground,
         body: SafeArea(
+          bottom: false,
           child: ColoredBox(
             color: context.colors.neutral,
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              padding: EdgeInsets.only(
+                left: 16.w,
+                right: 16.w,
+                bottom: 24.w,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

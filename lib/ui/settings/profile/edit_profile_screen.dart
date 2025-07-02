@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -125,226 +126,252 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     final profileState = ref.watch(profileProvider);
 
-    return Scaffold(
-      backgroundColor: context.colors.neutral,
-      body: SafeArea(
-        child: profileState.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
-          error:
-              (error, _) => Center(
-                child: Text(
-                  'Error loading profile: $error',
-                  style: TextStyle(color: context.colors.destructive),
-                ),
-              ),
-          data:
-              (profile) => Column(
-                children: [
-                  Row(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark,
+      ),
+      child: Scaffold(
+        // extendBodyBehindAppBar: true,
+        backgroundColor: context.colors.appBarBackground,
+        body: SafeArea(
+          bottom: false,
+          child: ColoredBox(
+            color: context.colors.neutral,
+            child: profileState.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error:
+                  (error, _) => Center(
+                    child: Text(
+                      'Error loading profile: $error',
+                      style: TextStyle(color: context.colors.destructive),
+                    ),
+                  ),
+              data:
+                  (profile) => Column(
                     children: [
-                      IconButton(
-                        onPressed: () => context.pop(),
-                        icon: SvgPicture.asset(
-                          AssetsPaths.icChevronLeft,
-                          colorFilter: ColorFilter.mode(
-                            context.colors.primary,
-                            BlendMode.srcIn,
+                      Gap(24.h),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => context.pop(),
+                            icon: SvgPicture.asset(
+                              AssetsPaths.icChevronLeft,
+                              colorFilter: ColorFilter.mode(
+                                context.colors.primary,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'Edit Profile',
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                              color: context.colors.mutedForeground,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Gap(29.h),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Stack(
+                                  alignment: Alignment.bottomCenter,
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: context.colors.neutral,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Container(
+                                        width: 80.w,
+                                        height: 80.w,
+                                        margin: EdgeInsets.all(5.w),
+                                        decoration: const BoxDecoration(
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: ClipOval(
+                                          child:
+                                              (profile.picture ?? '').isNotEmpty
+                                                  ? Image.network(
+                                                    profile.picture!,
+                                                    fit: BoxFit.cover,
+                                                    width: 96.w,
+                                                    height: 96.w,
+                                                    errorBuilder:
+                                                        (context, error, stackTrace) =>
+                                                            FallbackProfileImageWidget(
+                                                              displayName:
+                                                                  profile.displayName ?? 'A',
+                                                            ),
+                                                  )
+                                                  : FallbackProfileImageWidget(
+                                                    displayName: profile.displayName ?? 'A',
+                                                  ),
+                                        ),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      left: 1.sw * 0.5 - 10.w,
+                                      bottom: 4.h,
+                                      width: 28.w,
+                                      child: EditIconWidget(
+                                        onTap: () async {
+                                          await ref
+                                              .read(profileProvider.notifier)
+                                              .pickProfileImage();
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Gap(36.h),
+                                Text(
+                                  'Profile Name',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14.sp,
+                                    color: context.colors.primary,
+                                  ),
+                                ),
+                                Gap(10.h),
+                                AppTextFormField(
+                                  controller: _displayNameController,
+                                  hintText: 'Trent Reznor',
+                                  onChanged: (value) {
+                                    ref
+                                        .read(profileProvider.notifier)
+                                        .updateLocalProfile(displayName: value);
+                                  },
+                                ),
+                                Gap(36.h),
+                                Text(
+                                  'Nostr Address (NIP-05)',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14.sp,
+                                    color: context.colors.primary,
+                                  ),
+                                ),
+                                Gap(10.h),
+                                AppTextFormField(
+                                  controller: _nostrAddressController,
+                                  hintText: 'nin@nostr.com',
+                                  onChanged: (value) {
+                                    ref
+                                        .read(profileProvider.notifier)
+                                        .updateLocalProfile(nip05: value);
+                                  },
+                                ),
+                                Gap(36.h),
+                                Text(
+                                  'About You',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14.sp,
+                                    color: context.colors.primary,
+                                  ),
+                                ),
+                                Gap(10.h),
+                                AppTextFormField(
+                                  controller: _aboutController,
+                                  hintText: 'Nothing can stop me now.',
+                                  minLines: 3,
+                                  maxLines: 3,
+                                  keyboardType: TextInputType.multiline,
+                                  onChanged: (value) {
+                                    ref
+                                        .read(profileProvider.notifier)
+                                        .updateLocalProfile(about: value);
+                                  },
+                                ),
+                                Gap(16.h),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      Text(
-                        'Edit Profile',
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.mutedForeground,
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: 16.w,
+                          right: 16.w,
+                          bottom: 24.w,
                         ),
-                      ),
-                    ],
-                  ),
-                  Gap(29.h),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Stack(
-                              alignment: Alignment.bottomCenter,
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    color: context.colors.neutral,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Container(
-                                    width: 80.w,
-                                    height: 80.w,
-                                    margin: EdgeInsets.all(5.w),
-                                    decoration: const BoxDecoration(
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: ClipOval(
-                                      child:
-                                          (profile.picture ?? '').isNotEmpty
-                                              ? Image.network(
-                                                profile.picture!,
-                                                fit: BoxFit.cover,
-                                                width: 96.w,
-                                                height: 96.w,
-                                                errorBuilder:
-                                                    (context, error, stackTrace) =>
-                                                        FallbackProfileImageWidget(
-                                                          displayName: profile.displayName ?? 'A',
+                        child: profileState.when(
+                          data:
+                              (profile) => Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  if (profile.isDirty) ...[
+                                    AppFilledButton(
+                                      onPressed:
+                                          () => showDialog(
+                                            context: context,
+                                            builder:
+                                                (dialogContext) => WhitenoiseDialog(
+                                                  title: 'Unsaved changes',
+                                                  content:
+                                                      'You have unsaved changes. Are you sure you want to leave?',
+                                                  actions: Row(
+                                                    children: [
+                                                      Expanded(
+                                                        child: AppFilledButton(
+                                                          onPressed: () {
+                                                            ref
+                                                                .read(profileProvider.notifier)
+                                                                .discardChanges();
+                                                            Navigator.of(dialogContext).pop();
+                                                          },
+                                                          title: 'Discard Changes',
+                                                          visualState:
+                                                              AppButtonVisualState.secondaryWarning,
+                                                          size: AppButtonSize.small,
                                                         ),
-                                              )
-                                              : FallbackProfileImageWidget(
-                                                displayName: profile.displayName ?? 'A',
-                                              ),
+                                                      ),
+                                                      Gap(12.w),
+                                                      Expanded(
+                                                        child: AppFilledButton(
+                                                          onPressed: () async {
+                                                            await _saveChanges();
+                                                            if (context.mounted) {
+                                                              Navigator.of(dialogContext).pop();
+                                                            }
+                                                          },
+                                                          title: 'Save',
+                                                          size: AppButtonSize.small,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                          ),
+                                      title: 'Discard Changes',
+                                      visualState: AppButtonVisualState.secondary,
                                     ),
+                                    Gap(4.h),
+                                  ],
+                                  AppFilledButton(
+                                    onPressed:
+                                        profile.isDirty && !profile.isSaving ? _saveChanges : null,
+                                    loading: profile.isSaving,
+                                    title: 'Save',
                                   ),
-                                ),
-                                Positioned(
-                                  left: 1.sw * 0.5 - 10.w,
-                                  bottom: 4.h,
-                                  width: 28.w,
-                                  child: EditIconWidget(
-                                    onTap: () async {
-                                      await ref.read(profileProvider.notifier).pickProfileImage();
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Gap(36.h),
-                            Text(
-                              'Profile Name',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14.sp,
-                                color: context.colors.primary,
+                                ],
                               ),
-                            ),
-                            Gap(10.h),
-                            AppTextFormField(
-                              controller: _displayNameController,
-                              hintText: 'Trent Reznor',
-                              onChanged: (value) {
-                                ref
-                                    .read(profileProvider.notifier)
-                                    .updateLocalProfile(displayName: value);
-                              },
-                            ),
-                            Gap(36.h),
-                            Text(
-                              'Nostr Address (NIP-05)',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14.sp,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            Gap(10.h),
-                            AppTextFormField(
-                              controller: _nostrAddressController,
-                              hintText: 'nin@nostr.com',
-                              onChanged: (value) {
-                                ref.read(profileProvider.notifier).updateLocalProfile(nip05: value);
-                              },
-                            ),
-                            Gap(36.h),
-                            Text(
-                              'About You',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14.sp,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            Gap(10.h),
-                            AppTextFormField(
-                              controller: _aboutController,
-                              hintText: 'Nothing can stop me now.',
-                              minLines: 3,
-                              maxLines: 3,
-                              keyboardType: TextInputType.multiline,
-                              onChanged: (value) {
-                                ref.read(profileProvider.notifier).updateLocalProfile(about: value);
-                              },
-                            ),
-                            Gap(16.h),
-                          ],
+                          loading: () => const SizedBox.shrink(),
+                          error: (_, _) => const SizedBox.shrink(),
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: EdgeInsets.all(16.w),
-          child: profileState.when(
-            data:
-                (profile) => Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (profile.isDirty) ...[
-                      AppFilledButton(
-                        onPressed:
-                            () => showDialog(
-                              context: context,
-                              builder:
-                                  (dialogContext) => WhitenoiseDialog(
-                                    title: 'Unsaved changes',
-                                    content:
-                                        'You have unsaved changes. Are you sure you want to leave?',
-                                    actions: Row(
-                                      children: [
-                                        Expanded(
-                                          child: AppFilledButton(
-                                            onPressed: () {
-                                              ref.read(profileProvider.notifier).discardChanges();
-                                              Navigator.of(dialogContext).pop();
-                                            },
-                                            title: 'Discard Changes',
-                                            visualState: AppButtonVisualState.secondaryWarning,
-                                            size: AppButtonSize.small,
-                                          ),
-                                        ),
-                                        Gap(12.w),
-                                        Expanded(
-                                          child: AppFilledButton(
-                                            onPressed: () async {
-                                              await _saveChanges();
-                                              if (context.mounted) {
-                                                Navigator.of(dialogContext).pop();
-                                              }
-                                            },
-                                            title: 'Save',
-                                            size: AppButtonSize.small,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                            ),
-                        title: 'Discard Changes',
-                        visualState: AppButtonVisualState.secondary,
-                      ),
-                      Gap(4.h),
                     ],
-                    AppFilledButton(
-                      onPressed: profile.isDirty && !profile.isSaving ? _saveChanges : null,
-                      loading: profile.isSaving,
-                      title: 'Save',
-                    ),
-                  ],
-                ),
-            loading: () => const SizedBox.shrink(),
-            error: (_, _) => const SizedBox.shrink(),
+                  ),
+            ),
           ),
         ),
       ),
