@@ -4,13 +4,13 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class ProfileAvatar extends StatelessWidget {
-  final String? profileImagePath;
+  final String? profileImageUrl;
   final String? userFirstLetter;
   final double size;
 
   const ProfileAvatar({
     super.key,
-    this.profileImagePath,
+    this.profileImageUrl,
     this.userFirstLetter,
     this.size = 36,
   });
@@ -31,9 +31,9 @@ class ProfileAvatar extends StatelessWidget {
   }
 
   Widget _buildChild(BuildContext context) {
-    if (profileImagePath?.isNotEmpty == true) {
+    if (profileImageUrl?.isNotEmpty == true) {
       return Image.network(
-        profileImagePath!,
+        profileImageUrl!,
         fit: BoxFit.cover,
         width: size.r,
         height: size.r,
@@ -41,27 +41,7 @@ class ProfileAvatar extends StatelessWidget {
       );
     }
 
-    if (userFirstLetter?.isNotEmpty == true) {
-      return Center(
-        child: Text(
-          userFirstLetter!,
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.bold,
-            color: context.colors.solidNeutralBlack,
-          ),
-        ),
-      );
-    }
-
-    return Padding(
-      padding: EdgeInsets.all(8.r),
-      child: Image.asset(
-        AssetsPaths.icAvatar,
-        fit: BoxFit.contain,
-        color: context.colors.solidNeutralBlack,
-      ),
-    );
+    return _buildFallback(context);
   }
 
   Widget _buildFallback(BuildContext context) {
@@ -79,7 +59,7 @@ class ProfileAvatar extends StatelessWidget {
     }
 
     return Padding(
-      padding: EdgeInsets.all(8.r),
+      padding: EdgeInsets.all(size * 0.25),
       child: Image.asset(
         AssetsPaths.icAvatar,
         fit: BoxFit.contain,

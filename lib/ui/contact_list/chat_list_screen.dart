@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_provider.dart';
@@ -62,6 +63,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     final currentUserName = ref.watch(profileProvider).valueOrNull?.displayName ?? '';
     final userFirstLetter =
         currentUserName.isNotEmpty == true ? currentUserName[0].toUpperCase() : '';
+
     return Scaffold(
       body: Stack(
         children: [
@@ -74,7 +76,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                     borderRadius: BorderRadius.circular(16.r),
                     onTap: () => context.push(Routes.settings),
                     child: ProfileAvatar(
-                      profileImagePath: _profileImagePath,
+                      profileImageUrl: _profileImagePath,
                       userFirstLetter: userFirstLetter,
                     ),
                   ),
@@ -105,7 +107,13 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                 sliver: SliverList.separated(
                   itemBuilder: (context, index) {
                     final group = groupList[index];
-                    return GroupListTile(group: group);
+                    final lastMessage = ref
+                        .watch(chatProvider.notifier)
+                        .getLatestMessageForGroup(group.mlsGroupId);
+                    return GroupListTile(
+                      group: group,
+                      lastMessage: lastMessage,
+                    );
                   },
                   itemCount: groupList.length,
                   separatorBuilder: (context, index) => Gap(8.w),

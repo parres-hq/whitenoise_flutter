@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/states/group_state.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
@@ -53,7 +54,11 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       // Now calculate display names with member data available
       await _calculateDisplayNames(groups, activeAccountData.pubkey);
-
+      await ref
+          .read(chatProvider.notifier)
+          .loadMessagesForGroups(
+            groups.map((g) => g.mlsGroupId).toList(),
+          );
       state = state.copyWith(isLoading: false);
     } catch (e, st) {
       _logger.severe('GroupsProvider.loadGroups', e, st);

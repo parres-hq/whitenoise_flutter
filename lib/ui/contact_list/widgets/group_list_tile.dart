@@ -15,10 +15,12 @@ import 'package:whitenoise/utils/timeago_formatter.dart';
 class GroupListTile extends ConsumerWidget {
   const GroupListTile({
     super.key,
+    this.lastMessage,
     required this.group,
   });
 
   final GroupData group;
+  final MessageModel? lastMessage;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,7 +37,9 @@ class GroupListTile extends ConsumerWidget {
         child: Row(
           children: [
             ContactAvatar(
-              imgPath: displayImage ?? '',
+              imageUrl: displayImage ?? '',
+              displayName: displayName,
+
               size: 56.r,
             ),
             Gap(8.w),
@@ -45,9 +49,9 @@ class GroupListTile extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SizedBox(
-                        width: 183.w,
+                      Flexible(
                         child: Text(
                           displayName,
                           style: TextStyle(
@@ -68,7 +72,7 @@ class GroupListTile extends ConsumerWidget {
                       ),
                       const Spacer(),
                       Text(
-                        DateTime.now().subtract(const Duration(days: 11)).timeago().capitalizeFirst,
+                        lastMessage?.createdAt.timeago().capitalizeFirst ?? '',
                         style: TextStyle(
                           fontSize: 14.sp,
                           color: context.colors.mutedForeground,
@@ -84,7 +88,7 @@ class GroupListTile extends ConsumerWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          'Does it bother anyone else that the group name is too long to fit in the tile?',
+                          lastMessage?.content ?? '',
                           style: TextStyle(
                             fontSize: 14.sp,
                             color: context.colors.mutedForeground,

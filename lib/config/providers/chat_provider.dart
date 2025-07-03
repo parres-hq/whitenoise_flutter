@@ -5,10 +5,12 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
+import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/utils/message_converter.dart';
 
 class ChatNotifier extends Notifier<ChatState> {
   final _logger = Logger('ChatNotifier');
@@ -57,13 +59,20 @@ class ChatNotifier extends Notifier<ChatState> {
 
       _logger.info('ChatProvider: Loading messages for group $groupId');
 
-      final messages = await fetchMessagesForGroup(
+      final messagesWithTokens = await fetchMessagesForGroup(
         pubkey: publicKey,
         groupId: groupIdObj,
       );
 
       // Sort messages by creation time (oldest first)
-      messages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+      messagesWithTokens.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      final messages = MessageConverter.fromMessageWithTokensDataList(
+        messagesWithTokens,
+        currentUserPublicKey: activeAccountData.pubkey,
+        groupId: groupId,
+        ref: ref,
+      );
 
       state = state.copyWith(
         groupMessages: {
@@ -76,7 +85,7 @@ class ChatNotifier extends Notifier<ChatState> {
         },
       );
 
-      _logger.info('ChatProvider: Loaded ${messages.length} messages for group $groupId');
+      _logger.info('ChatProvider: Loaded ${messagesWithTokens.length} messages for group $groupId');
     } catch (e, st) {
       _logger.severe('ChatProvider.loadMessagesForGroup', e, st);
       String errorMessage = 'Failed to load messages';
@@ -100,6 +109,8 @@ class ChatNotifier extends Notifier<ChatState> {
     required String message,
     int kind = 1, // Default to text message
     List<Tag>? tags,
+    bool isEditing = false,
+    void Function()? onMessageSent,
   }) async {
     if (!_isAuthAvailable()) {
       return null;
@@ -138,9 +149,15 @@ class ChatNotifier extends Notifier<ChatState> {
         tags: tags,
       );
 
-      // Add the sent message to the local state
+      // Convert sent message to MessageModel and add to local state
       final currentMessages = state.groupMessages[groupId] ?? [];
-      final updatedMessages = [...currentMessages, sentMessage];
+      final sentMessageModel = MessageConverter.fromMessageWithTokensData(
+        sentMessage,
+        currentUserPublicKey: activeAccountData.pubkey,
+        roomId: groupId,
+        ref: ref,
+      );
+      final updatedMessages = [...currentMessages, sentMessageModel];
 
       state = state.copyWith(
         groupMessages: {
@@ -154,6 +171,7 @@ class ChatNotifier extends Notifier<ChatState> {
       );
 
       _logger.info('ChatProvider: Message sent successfully to group $groupId');
+      onMessageSent?.call();
       return sentMessage;
     } catch (e, st) {
       _logger.severe('ChatProvider.sendMessage', e, st);
@@ -199,7 +217,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
   /// Clear messages for a specific group
   void clearMessagesForGroup(String groupId) {
-    final updatedMessages = Map<String, List<MessageWithTokensData>>.from(state.groupMessages);
+    final updatedMessages = Map<String, List<MessageModel>>.from(state.groupMessages);
     updatedMessages.remove(groupId);
 
     state = state.copyWith(groupMessages: updatedMessages);
@@ -245,7 +263,7 @@ class ChatNotifier extends Notifier<ChatState> {
   }
 
   /// Get messages for a specific group (convenience method)
-  List<MessageWithTokensData> getMessagesForGroup(String groupId) {
+  List<MessageModel> getMessagesForGroup(String groupId) {
     return state.getMessagesForGroup(groupId);
   }
 
@@ -265,13 +283,134 @@ class ChatNotifier extends Notifier<ChatState> {
   }
 
   /// Get the latest message for a group
-  MessageWithTokensData? getLatestMessageForGroup(String groupId) {
+  MessageModel? getLatestMessageForGroup(String groupId) {
     return state.getLatestMessageForGroup(groupId);
+  }
+
+  bool isSameSender(int index, {String? groupId}) {
+    final gId = groupId ??= state.selectedGroupId;
+    if (gId == null) return false;
+    final groupMessages = state.groupMessages[gId] ?? [];
+    if (index <= 0 || index >= groupMessages.length) return false;
+    return groupMessages[index].sender.publicKey == groupMessages[index - 1].sender.publicKey;
+  }
+
+  bool isNextSameSender(int index, {String? groupId}) {
+    final gId = groupId ??= state.selectedGroupId;
+    if (gId == null) return false;
+    final groupMessages = state.groupMessages[gId] ?? [];
+    if (index < 0 || index >= groupMessages.length - 1) return false;
+    return groupMessages[index].sender.publicKey == groupMessages[index + 1].sender.publicKey;
   }
 
   /// Get unread message count for a group
   int getUnreadCountForGroup(String groupId) {
     return state.getUnreadCountForGroup(groupId);
+  }
+
+  /// Get the message being replied to for a group
+  MessageModel? getReplyingTo(String groupId) {
+    return state.getReplyingTo(groupId);
+  }
+
+  /// Get the message being edited for a group
+  MessageModel? getEditingMessage(String groupId) {
+    return state.getEditingMessage(groupId);
+  }
+
+  /// Check if currently replying to a message in a group
+  bool isReplying(String groupId) {
+    return state.isReplying(groupId);
+  }
+
+  /// Check if currently editing a message in a group
+  bool isEditing(String groupId) {
+    return state.isEditing(groupId);
+  }
+
+  /// Get the message being replied to for the currently selected group
+  MessageModel? get currentReplyingTo {
+    if (state.selectedGroupId == null) return null;
+    return state.getReplyingTo(state.selectedGroupId!);
+  }
+
+  /// Get the message being edited for the currently selected group
+  MessageModel? get currentEditingMessage {
+    if (state.selectedGroupId == null) return null;
+    return state.getEditingMessage(state.selectedGroupId!);
+  }
+
+  /// Check if currently replying in the selected group
+  bool get isCurrentlyReplying {
+    if (state.selectedGroupId == null) return false;
+    return state.isReplying(state.selectedGroupId!);
+  }
+
+  /// Check if currently editing in the selected group
+  bool get isCurrentlyEditing {
+    if (state.selectedGroupId == null) return false;
+    return state.isEditing(state.selectedGroupId!);
+  }
+
+  Future<void> updateMessageReaction({
+    required MessageModel message,
+    required String reaction,
+  }) async {
+    // TODO: Implement reaction handling for MessageModel
+  }
+
+  void handleReply(MessageModel message) {
+    if (state.selectedGroupId == null) return;
+
+    state = state.copyWith(
+      replyingTo: {
+        ...state.replyingTo,
+        state.selectedGroupId!: message,
+      },
+      // Clear editing when starting a reply
+      editingMessage: {
+        ...state.editingMessage,
+        state.selectedGroupId!: null,
+      },
+    );
+  }
+
+  void handleEdit(MessageModel message) {
+    if (state.selectedGroupId == null) return;
+
+    state = state.copyWith(
+      editingMessage: {
+        ...state.editingMessage,
+        state.selectedGroupId!: message,
+      },
+      // Clear replying when starting an edit
+      replyingTo: {
+        ...state.replyingTo,
+        state.selectedGroupId!: null,
+      },
+    );
+  }
+
+  void cancelReply() {
+    if (state.selectedGroupId == null) return;
+
+    state = state.copyWith(
+      replyingTo: {
+        ...state.replyingTo,
+        state.selectedGroupId!: null,
+      },
+    );
+  }
+
+  void cancelEdit() {
+    if (state.selectedGroupId == null) return;
+
+    state = state.copyWith(
+      editingMessage: {
+        ...state.editingMessage,
+        state.selectedGroupId!: null,
+      },
+    );
   }
 }
 

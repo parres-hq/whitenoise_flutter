@@ -4,7 +4,7 @@ import 'package:whitenoise/src/rust/api/messages.dart';
 extension MessageWithTokensDataExtensions on MessageWithTokensData {
   /// Convert BigInt timestamp to DateTime
   DateTime get createdAtDateTime => DateTime.fromMillisecondsSinceEpoch(createdAt.toInt());
-  
+
   /// Get formatted time sent (similar to MessageModel.timeSent)
   String get timeSent {
     final now = DateTime.now();
@@ -52,19 +52,19 @@ extension MessageWithTokensDataExtensions on MessageWithTokensData {
     final day = messageTime.day.toString().padLeft(2, '0');
     return '$month/$day/$year';
   }
-  
+
   /// Check if message is from the current user
   /// Note: This requires the current user's pubkey to be passed in
   bool isFromUser(String currentUserPubkey) {
     return pubkey == currentUserPubkey;
   }
-  
+
   /// Get display content (fallback to empty string if null)
   String get displayContent => content ?? '';
-  
+
   /// Check if message has content
   bool get hasContent => content != null && content!.isNotEmpty;
-  
+
   /// Get sender name (extract from pubkey or use a default)
   String get senderName {
     // For now, just use the first 8 characters of pubkey as name
@@ -79,15 +79,15 @@ extension MessageWithTokensDataExtensions on MessageWithTokensData {
 /// Helper class to manage current user context for messages
 class MessageHelper {
   static String? _currentUserPubkey;
-  
+
   static void setCurrentUserPubkey(String pubkey) {
     _currentUserPubkey = pubkey;
   }
-  
+
   static String? getCurrentUserPubkey() {
     return _currentUserPubkey;
   }
-  
+
   static bool isMessageFromCurrentUser(MessageWithTokensData message) {
     final currentPubkey = _currentUserPubkey;
     if (currentPubkey == null) return false;

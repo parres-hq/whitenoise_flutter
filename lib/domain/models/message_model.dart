@@ -17,7 +17,7 @@ class MessageModel {
   final String? imageUrl;
   final MessageModel? replyTo;
   late final List<Reaction> reactions;
-  final String? roomId;
+  final String? groupId;
   final MessageStatus status;
 
   MessageModel({
@@ -32,7 +32,7 @@ class MessageModel {
     this.imageUrl,
     this.replyTo,
     List<Reaction> reactions = const [],
-    this.roomId,
+    this.groupId,
     this.status = MessageStatus.sent,
   }) : reactions = List.unmodifiable(reactions);
 
@@ -63,7 +63,7 @@ class MessageModel {
       imageUrl: imageUrl ?? this.imageUrl,
       replyTo: replyTo ?? this.replyTo,
       reactions: reactions ?? this.reactions,
-      roomId: roomId ?? this.roomId,
+      groupId: roomId ?? groupId,
       status: status ?? this.status,
     );
   }

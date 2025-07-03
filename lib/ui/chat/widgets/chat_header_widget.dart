@@ -51,7 +51,8 @@ class GroupChatHeader extends ConsumerWidget {
         children: [
           Gap(32.h),
           ContactAvatar(
-            imgPath: AssetsPaths.icImage,
+            imageUrl: '',
+            displayName: groupData.name,
             size: 96.r,
             showBorder: true,
           ),
@@ -145,7 +146,8 @@ class DirectMessageHeader extends ConsumerWidget {
             children: [
               Gap(32.h),
               ContactAvatar(
-                imgPath: AssetsPaths.icImage,
+                imageUrl: '',
+                displayName: otherUser.name,
                 size: 96.r,
                 showBorder: true,
               ),

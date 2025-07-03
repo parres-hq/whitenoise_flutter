@@ -4,16 +4,17 @@ import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 
 class ContactInfo extends StatelessWidget {
-  final String imgPath;
+  final String imageUrl;
   final String title;
-  const ContactInfo({super.key, required this.title, required this.imgPath});
+  const ContactInfo({super.key, required this.title, required this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         ContactAvatar(
-          imgPath: imgPath,
+          imageUrl: imageUrl,
+          displayName: title,
           size: 36.r,
           showBorder: true,
         ),

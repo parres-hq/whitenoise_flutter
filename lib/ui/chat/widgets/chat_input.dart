@@ -3,10 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/account_provider.dart';
-import 'package:whitenoise/src/rust/api/messages.dart';
-import 'package:whitenoise/ui/chat/notifiers/chat_notifier.dart';
-
+import 'package:whitenoise/config/providers/chat_provider.dart';
+import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
@@ -14,12 +12,12 @@ import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
 class ChatInput extends ConsumerStatefulWidget {
   const ChatInput({
     super.key,
-
+    required this.groupId,
     required this.onSend,
   });
 
   final void Function(String content, bool isEditing) onSend;
-
+  final String groupId;
   @override
   ConsumerState<ChatInput> createState() => _ChatInputState();
 }
@@ -44,20 +42,21 @@ class _ChatInputState extends ConsumerState<ChatInput> {
   }
 
   void _sendMessage() {
-    final chatState = ref.read(chatNotifierProvider);
-    final isEditing = chatState.editingMessage != null;
+    final chatState = ref.read(chatProvider);
+    final chatNotifier = ref.read(chatProvider.notifier);
+    final isEditing = chatState.editingMessage[widget.groupId] != null;
     final content = _textController.text.trim();
-    
+
     if (content.isEmpty) return;
 
     widget.onSend(content, isEditing);
 
     // Reset input state
     _textController.clear();
-    if (chatState.replyingTo != null) {
+    if (chatState.replyingTo[widget.groupId] != null) {
       chatNotifier.cancelReply();
     }
-    if (chatState.editingMessage != null) {
+    if (chatState.editingMessage[widget.groupId] != null) {
       chatNotifier.cancelEdit();
     }
 
@@ -66,13 +65,13 @@ class _ChatInputState extends ConsumerState<ChatInput> {
 
   @override
   Widget build(BuildContext context) {
-    final chatState = ref.watch(chatNotifierProvider);
-    final chatNotifier = ref.read(chatNotifierProvider.notifier);
+    final chatState = ref.watch(chatProvider);
+    final chatNotifier = ref.read(chatProvider.notifier);
 
     // Update text controller when editing message changes
-    if (chatState.editingMessage != null &&
-        _textController.text != chatState.editingMessage!.content) {
-      _textController.text = chatState.editingMessage!.content ?? '';
+    if (chatState.editingMessage[widget.groupId] != null &&
+        _textController.text != chatState.editingMessage[widget.groupId]!.content) {
+      _textController.text = chatState.editingMessage[widget.groupId]!.content ?? '';
     }
 
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
@@ -111,12 +110,12 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ReplyEditHeader(
-                            replyingTo: chatState.replyingTo,
-                            editingMessage: chatState.editingMessage,
+                            replyingTo: chatState.replyingTo[widget.groupId],
+                            editingMessage: chatState.editingMessage[widget.groupId],
                             onCancel: () {
-                              if (chatState.replyingTo != null) {
+                              if (chatState.replyingTo[widget.groupId] != null) {
                                 chatNotifier.cancelReply();
-                              } else if (chatState.editingMessage != null) {
+                              } else if (chatState.editingMessage[widget.groupId] != null) {
                                 chatNotifier.cancelEdit();
                                 _textController.clear();
                               }
@@ -186,8 +185,8 @@ class ReplyEditHeader extends StatelessWidget {
     required this.onCancel,
   });
 
-  final MessageWithTokensData? replyingTo;
-  final MessageWithTokensData? editingMessage;
+  final MessageModel? replyingTo;
+  final MessageModel? editingMessage;
   final VoidCallback onCancel;
 
   @override

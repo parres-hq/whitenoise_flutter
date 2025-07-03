@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
-import 'package:whitenoise/ui/chat/notifiers/chat_notifier.dart';
 import 'package:whitenoise/ui/chat/widgets/message_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_hero_dialog_route.dart';
@@ -37,7 +37,7 @@ class ChatDialogService {
             onEmojiSelected: ((category, emoji) {
               Navigator.pop(context);
               ref
-                  .read(chatNotifierProvider.notifier)
+                  .read(chatProvider.notifier)
                   .updateMessageReaction(message: message, reaction: emoji.emoji);
             }),
           ),
@@ -52,7 +52,7 @@ class ChatDialogService {
     required MessageModel message,
     required int messageIndex,
   }) {
-    final chatNotifier = ref.read(chatNotifierProvider.notifier);
+    final chatNotifier = ref.read(chatProvider.notifier);
     HapticFeedback.mediumImpact();
 
     Navigator.of(context).push(
@@ -64,8 +64,14 @@ class ChatDialogService {
             messageWidget: MessageWidget(
               message: message,
               isGroupMessage: false,
-              isSameSenderAsPrevious: chatNotifier.isSameSender(messageIndex),
-              isSameSenderAsNext: chatNotifier.isNextSameSender(messageIndex),
+              isSameSenderAsPrevious: chatNotifier.isSameSender(
+                messageIndex,
+                groupId: message.groupId,
+              ),
+              isSameSenderAsNext: chatNotifier.isNextSameSender(
+                messageIndex,
+                groupId: message.groupId,
+              ),
             ),
             onReactionTap: (reaction) {
               if (reaction == '⋯') {

@@ -18,7 +18,7 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$ChatState {
   // Map of groupId -> list of messages
-  Map<String, List<MessageWithTokensData>> get groupMessages =>
+  Map<String, List<MessageModel>> get groupMessages =>
       throw _privateConstructorUsedError; // Currently selected group ID
   String? get selectedGroupId => throw _privateConstructorUsedError; // Loading states per group
   Map<String, bool> get groupLoadingStates =>
@@ -27,7 +27,11 @@ mixin _$ChatState {
       throw _privateConstructorUsedError; // Global loading state
   bool get isLoading => throw _privateConstructorUsedError; // Global error state
   String? get error => throw _privateConstructorUsedError; // Sending message states per group
-  Map<String, bool> get sendingStates => throw _privateConstructorUsedError;
+  Map<String, bool> get sendingStates =>
+      throw _privateConstructorUsedError; // Message being replied to per group
+  Map<String, MessageModel?> get replyingTo =>
+      throw _privateConstructorUsedError; // Message being edited per group
+  Map<String, MessageModel?> get editingMessage => throw _privateConstructorUsedError;
 
   /// Create a copy of ChatState
   /// with the given fields replaced by the non-null parameter values.
@@ -41,13 +45,15 @@ abstract class $ChatStateCopyWith<$Res> {
       _$ChatStateCopyWithImpl<$Res, ChatState>;
   @useResult
   $Res call({
-    Map<String, List<MessageWithTokensData>> groupMessages,
+    Map<String, List<MessageModel>> groupMessages,
     String? selectedGroupId,
     Map<String, bool> groupLoadingStates,
     Map<String, String?> groupErrorStates,
     bool isLoading,
     String? error,
     Map<String, bool> sendingStates,
+    Map<String, MessageModel?> replyingTo,
+    Map<String, MessageModel?> editingMessage,
   });
 }
 
@@ -72,6 +78,8 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStat
     Object? isLoading = null,
     Object? error = freezed,
     Object? sendingStates = null,
+    Object? replyingTo = null,
+    Object? editingMessage = null,
   }) {
     return _then(
       _value.copyWith(
@@ -79,7 +87,7 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStat
                 null == groupMessages
                     ? _value.groupMessages
                     : groupMessages // ignore: cast_nullable_to_non_nullable
-                        as Map<String, List<MessageWithTokensData>>,
+                        as Map<String, List<MessageModel>>,
             selectedGroupId:
                 freezed == selectedGroupId
                     ? _value.selectedGroupId
@@ -110,6 +118,16 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStat
                     ? _value.sendingStates
                     : sendingStates // ignore: cast_nullable_to_non_nullable
                         as Map<String, bool>,
+            replyingTo:
+                null == replyingTo
+                    ? _value.replyingTo
+                    : replyingTo // ignore: cast_nullable_to_non_nullable
+                        as Map<String, MessageModel?>,
+            editingMessage:
+                null == editingMessage
+                    ? _value.editingMessage
+                    : editingMessage // ignore: cast_nullable_to_non_nullable
+                        as Map<String, MessageModel?>,
           )
           as $Val,
     );
@@ -125,13 +143,15 @@ abstract class _$$ChatStateImplCopyWith<$Res> implements $ChatStateCopyWith<$Res
   @override
   @useResult
   $Res call({
-    Map<String, List<MessageWithTokensData>> groupMessages,
+    Map<String, List<MessageModel>> groupMessages,
     String? selectedGroupId,
     Map<String, bool> groupLoadingStates,
     Map<String, String?> groupErrorStates,
     bool isLoading,
     String? error,
     Map<String, bool> sendingStates,
+    Map<String, MessageModel?> replyingTo,
+    Map<String, MessageModel?> editingMessage,
   });
 }
 
@@ -155,6 +175,8 @@ class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, 
     Object? isLoading = null,
     Object? error = freezed,
     Object? sendingStates = null,
+    Object? replyingTo = null,
+    Object? editingMessage = null,
   }) {
     return _then(
       _$ChatStateImpl(
@@ -162,7 +184,7 @@ class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, 
             null == groupMessages
                 ? _value._groupMessages
                 : groupMessages // ignore: cast_nullable_to_non_nullable
-                    as Map<String, List<MessageWithTokensData>>,
+                    as Map<String, List<MessageModel>>,
         selectedGroupId:
             freezed == selectedGroupId
                 ? _value.selectedGroupId
@@ -193,6 +215,16 @@ class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, 
                 ? _value._sendingStates
                 : sendingStates // ignore: cast_nullable_to_non_nullable
                     as Map<String, bool>,
+        replyingTo:
+            null == replyingTo
+                ? _value._replyingTo
+                : replyingTo // ignore: cast_nullable_to_non_nullable
+                    as Map<String, MessageModel?>,
+        editingMessage:
+            null == editingMessage
+                ? _value._editingMessage
+                : editingMessage // ignore: cast_nullable_to_non_nullable
+                    as Map<String, MessageModel?>,
       ),
     );
   }
@@ -202,25 +234,29 @@ class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, 
 
 class _$ChatStateImpl extends _ChatState {
   const _$ChatStateImpl({
-    final Map<String, List<MessageWithTokensData>> groupMessages = const {},
+    final Map<String, List<MessageModel>> groupMessages = const {},
     this.selectedGroupId,
     final Map<String, bool> groupLoadingStates = const {},
     final Map<String, String?> groupErrorStates = const {},
     this.isLoading = false,
     this.error,
     final Map<String, bool> sendingStates = const {},
+    final Map<String, MessageModel?> replyingTo = const {},
+    final Map<String, MessageModel?> editingMessage = const {},
   }) : _groupMessages = groupMessages,
        _groupLoadingStates = groupLoadingStates,
        _groupErrorStates = groupErrorStates,
        _sendingStates = sendingStates,
+       _replyingTo = replyingTo,
+       _editingMessage = editingMessage,
        super._();
 
   // Map of groupId -> list of messages
-  final Map<String, List<MessageWithTokensData>> _groupMessages;
+  final Map<String, List<MessageModel>> _groupMessages;
   // Map of groupId -> list of messages
   @override
   @JsonKey()
-  Map<String, List<MessageWithTokensData>> get groupMessages {
+  Map<String, List<MessageModel>> get groupMessages {
     if (_groupMessages is EqualUnmodifiableMapView) return _groupMessages;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_groupMessages);
@@ -269,9 +305,31 @@ class _$ChatStateImpl extends _ChatState {
     return EqualUnmodifiableMapView(_sendingStates);
   }
 
+  // Message being replied to per group
+  final Map<String, MessageModel?> _replyingTo;
+  // Message being replied to per group
+  @override
+  @JsonKey()
+  Map<String, MessageModel?> get replyingTo {
+    if (_replyingTo is EqualUnmodifiableMapView) return _replyingTo;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_replyingTo);
+  }
+
+  // Message being edited per group
+  final Map<String, MessageModel?> _editingMessage;
+  // Message being edited per group
+  @override
+  @JsonKey()
+  Map<String, MessageModel?> get editingMessage {
+    if (_editingMessage is EqualUnmodifiableMapView) return _editingMessage;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_editingMessage);
+  }
+
   @override
   String toString() {
-    return 'ChatState(groupMessages: $groupMessages, selectedGroupId: $selectedGroupId, groupLoadingStates: $groupLoadingStates, groupErrorStates: $groupErrorStates, isLoading: $isLoading, error: $error, sendingStates: $sendingStates)';
+    return 'ChatState(groupMessages: $groupMessages, selectedGroupId: $selectedGroupId, groupLoadingStates: $groupLoadingStates, groupErrorStates: $groupErrorStates, isLoading: $isLoading, error: $error, sendingStates: $sendingStates, replyingTo: $replyingTo, editingMessage: $editingMessage)';
   }
 
   @override
@@ -298,6 +356,14 @@ class _$ChatStateImpl extends _ChatState {
             const DeepCollectionEquality().equals(
               other._sendingStates,
               _sendingStates,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._replyingTo,
+              _replyingTo,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._editingMessage,
+              _editingMessage,
             ));
   }
 
@@ -311,6 +377,8 @@ class _$ChatStateImpl extends _ChatState {
     isLoading,
     error,
     const DeepCollectionEquality().hash(_sendingStates),
+    const DeepCollectionEquality().hash(_replyingTo),
+    const DeepCollectionEquality().hash(_editingMessage),
   );
 
   /// Create a copy of ChatState
@@ -324,19 +392,21 @@ class _$ChatStateImpl extends _ChatState {
 
 abstract class _ChatState extends ChatState {
   const factory _ChatState({
-    final Map<String, List<MessageWithTokensData>> groupMessages,
+    final Map<String, List<MessageModel>> groupMessages,
     final String? selectedGroupId,
     final Map<String, bool> groupLoadingStates,
     final Map<String, String?> groupErrorStates,
     final bool isLoading,
     final String? error,
     final Map<String, bool> sendingStates,
+    final Map<String, MessageModel?> replyingTo,
+    final Map<String, MessageModel?> editingMessage,
   }) = _$ChatStateImpl;
   const _ChatState._() : super._();
 
   // Map of groupId -> list of messages
   @override
-  Map<String, List<MessageWithTokensData>> get groupMessages; // Currently selected group ID
+  Map<String, List<MessageModel>> get groupMessages; // Currently selected group ID
   @override
   String? get selectedGroupId; // Loading states per group
   @override
@@ -348,7 +418,11 @@ abstract class _ChatState extends ChatState {
   @override
   String? get error; // Sending message states per group
   @override
-  Map<String, bool> get sendingStates;
+  Map<String, bool> get sendingStates; // Message being replied to per group
+  @override
+  Map<String, MessageModel?> get replyingTo; // Message being edited per group
+  @override
+  Map<String, MessageModel?> get editingMessage;
 
   /// Create a copy of ChatState
   /// with the given fields replaced by the non-null parameter values.

@@ -42,8 +42,6 @@ class MessageWidget extends StatelessWidget {
   }
 
   Widget _buildMessageContent(BuildContext context) {
-    final showMetadata = message.reactions.isNotEmpty || message.status != MessageStatus.sent;
-
     return Container(
       padding: EdgeInsets.symmetric(
         vertical: 2.h,
@@ -53,7 +51,7 @@ class MessageWidget extends StatelessWidget {
         bottom: 8.w,
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
           if (isGroupMessage && !isSameSenderAsNext && !message.isMe) ...[
@@ -81,10 +79,8 @@ class MessageWidget extends StatelessWidget {
             ),
           ),
 
-          if (showMetadata) ...[
-            Gap(8.h),
-            _buildMetadataRow(context),
-          ],
+          Gap(8.h),
+          _buildMetadataRow(context),
         ],
       ),
     );
@@ -92,9 +88,12 @@ class MessageWidget extends StatelessWidget {
 
   Widget _buildMetadataRow(BuildContext context) {
     if (message.reactions.isEmpty) {
-      return Align(
-        alignment: Alignment.centerRight,
-        child: _buildTimeAndStatus(context),
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          _buildTimeAndStatus(context),
+        ],
       );
     }
 
