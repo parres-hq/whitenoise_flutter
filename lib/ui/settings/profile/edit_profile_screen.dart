@@ -124,7 +124,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        // extendBodyBehindAppBar: true,
         backgroundColor: context.colors.appBarBackground,
         body: SafeArea(
           bottom: false,
