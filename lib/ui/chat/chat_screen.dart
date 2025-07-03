@@ -107,7 +107,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         ),
                         SliverPadding(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 16.w,
+                            horizontal: 8.w,
                             vertical: 8.h,
                           ).copyWith(
                             bottom: 200.h,
