@@ -134,6 +134,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                           Gap(16.h),
                           AppFilledButton.icon(
                             visualState: AppButtonVisualState.secondary,
+                            size: AppButtonSize.small,
                             label: SvgPicture.asset(
                               AssetsPaths.icCopy,
                               colorFilter: ColorFilter.mode(
@@ -151,7 +152,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                             ),
                             onPressed: () => _copyToClipboard(context, npub),
                           ),
-                          Gap(32.h),
+                          Gap(38.h),
                           QrImageView(
                             data: npub,
                             size: 256.w,
