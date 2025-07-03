@@ -104,7 +104,6 @@ void main() {
     });
 
     group('Callback Functionality', () {
-
       test('should handle callback with different welcome states', () {
         final notifier = container.read(welcomesProvider.notifier);
         var callbackCount = 0;

@@ -9,17 +9,14 @@ import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
-
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
-
+import 'package:whitenoise/ui/contact_list/services/welcome_notification_service.dart';
 import 'package:whitenoise/ui/contact_list/widgets/group_list_tile.dart';
 import 'package:whitenoise/ui/contact_list/widgets/profile_avatar.dart';
 import 'package:whitenoise/ui/contact_list/widgets/profile_ready_card.dart';
-import 'package:whitenoise/ui/contact_list/services/welcome_notification_service.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/bottom_fade.dart';
-
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
@@ -39,7 +36,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       // Initialize welcome notification service
       WelcomeNotificationService.initialize(context);
       WelcomeNotificationService.setupWelcomeNotifications(ref);
-      
+
       // Load data (welcomes loading will trigger callbacks if new ones exist)
       ref.read(welcomesProvider.notifier).loadWelcomes();
       ref.read(groupsProvider.notifier).loadGroups();
