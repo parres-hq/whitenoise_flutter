@@ -24,8 +24,8 @@ class GroupListTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final currentUserNpub = ref.read(nostrKeysProvider).npub ?? '';
-    final groupsNotifier = ref.read(groupsProvider.notifier);
+    final currentUserNpub = ref.watch(nostrKeysProvider).npub ?? '';
+    final groupsNotifier = ref.watch(groupsProvider.notifier);
     final displayName = groupsNotifier.getGroupDisplayName(group.mlsGroupId) ?? group.name;
     final displayImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId, currentUserNpub);
 

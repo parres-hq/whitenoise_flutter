@@ -7,6 +7,8 @@ import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -110,6 +112,9 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Future<void> _switchAccount(AccountData account) async {
     try {
       await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
+      await ref.read(profileProvider.notifier).fetchProfileData();
+      await ref.read(contactsProvider.notifier).loadContacts(account.pubkey);
+      await ref.read(groupsProvider.notifier).loadGroups();
       setState(() => _currentAccount = account);
 
       if (mounted) {

@@ -42,7 +42,7 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'Start secure chat',
-      heightFactor: 0.55,
+      heightFactor: 0.60,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
