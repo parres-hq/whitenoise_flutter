@@ -152,7 +152,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
 
       _logger.info('WelcomesProvider: Welcome accepted successfully - $welcomeEventId');
       return true;
-        } catch (e, st) {
+    } catch (e, st) {
       _logger.severe('WelcomesProvider.acceptWelcomeInvitation', e, st);
       String errorMessage = 'Failed to accept welcome';
       if (e is WhitenoiseError) {
@@ -191,7 +191,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
 
       _logger.info('WelcomesProvider: Welcome declined successfully - $welcomeEventId');
       return true;
-        } catch (e, st) {
+    } catch (e, st) {
       _logger.severe('WelcomesProvider.declineWelcomeInvitation', e, st);
       String errorMessage = 'Failed to decline welcome';
       if (e is WhitenoiseError) {

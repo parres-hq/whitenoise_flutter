@@ -196,7 +196,9 @@ pub async fn create_group(
     let creator_account = whitenoise.fetch_account(creator_pubkey).await?;
 
     // Fetch the creator's Nostr relays to include in the group configuration
-    let nostr_relays = whitenoise.fetch_relays(*creator_pubkey, whitenoise::RelayType::Nostr).await?;
+    let nostr_relays = whitenoise
+        .fetch_relays(*creator_pubkey, whitenoise::RelayType::Nostr)
+        .await?;
 
     let nostr_group_config = NostrGroupConfigData {
         name: group_name,
