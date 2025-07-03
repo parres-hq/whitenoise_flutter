@@ -195,12 +195,15 @@ pub async fn create_group(
     let whitenoise = Whitenoise::get_instance()?;
     let creator_account = whitenoise.fetch_account(creator_pubkey).await?;
 
+    // Fetch the creator's Nostr relays to include in the group configuration
+    let nostr_relays = whitenoise.fetch_relays(*creator_pubkey, whitenoise::RelayType::Nostr).await?;
+
     let nostr_group_config = NostrGroupConfigData {
         name: group_name,
         description: group_description,
         image_key: None,
         image_url: None,
-        relays: vec![],
+        relays: nostr_relays,
     };
 
     let group = tokio::task::spawn_blocking(move || {

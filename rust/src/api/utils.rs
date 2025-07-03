@@ -441,6 +441,7 @@ pub fn tag_from_vec(vec: Vec<String>) -> Result<Tag, WhitenoiseError> {
 ///     Err(e) => println!("Error: {}", whitenoise_error_to_string(&e)),
 /// }
 /// ```
+#[frb]
 pub fn whitenoise_error_to_string(error: &WhitenoiseError) -> String {
     format!("{error:?}")
 }
