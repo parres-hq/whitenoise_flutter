@@ -81,4 +81,5 @@ class LightAppColors {
   static const toastError = Color(0xffB91C1C);
   static const toastWarning = Color(0xffB45309);
   static const toastIcon = Color(0xff0A0A0A);
+  static const qrForeground = Color(0xffffffff);
 }

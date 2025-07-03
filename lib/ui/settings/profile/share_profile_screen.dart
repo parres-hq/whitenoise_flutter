@@ -157,6 +157,11 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                             data: npub,
                             size: 256.w,
                             gapless: false,
+                            eyeStyle: QrEyeStyle(
+                              eyeShape: QrEyeShape.square,
+                              color: context.colors.solidNeutralBlack,
+                            ),
+                            backgroundColor: context.colors.solidNeutralWhite,
                           ),
                           Gap(10.h),
                           Text(

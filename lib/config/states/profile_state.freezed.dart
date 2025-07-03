@@ -29,8 +29,7 @@ mixin _$ProfileState {
   /// Create a copy of ProfileState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ProfileStateCopyWith<ProfileState> get copyWith =>
-      throw _privateConstructorUsedError;
+  $ProfileStateCopyWith<ProfileState> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -137,8 +136,7 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
 }
 
 /// @nodoc
-abstract class _$$ProfileStateImplCopyWith<$Res>
-    implements $ProfileStateCopyWith<$Res> {
+abstract class _$$ProfileStateImplCopyWith<$Res> implements $ProfileStateCopyWith<$Res> {
   factory _$$ProfileStateImplCopyWith(
     _$ProfileStateImpl value,
     $Res Function(_$ProfileStateImpl) then,
@@ -268,18 +266,15 @@ class _$ProfileStateImpl extends _ProfileState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ProfileStateImpl &&
-            (identical(other.displayName, displayName) ||
-                other.displayName == displayName) &&
+            (identical(other.displayName, displayName) || other.displayName == displayName) &&
             (identical(other.about, about) || other.about == about) &&
             (identical(other.picture, picture) || other.picture == picture) &&
             (identical(other.nip05, nip05) || other.nip05 == nip05) &&
             (identical(other.initialProfile, initialProfile) ||
                 other.initialProfile == initialProfile) &&
-            (identical(other.isSaving, isSaving) ||
-                other.isSaving == isSaving) &&
+            (identical(other.isSaving, isSaving) || other.isSaving == isSaving) &&
             const DeepCollectionEquality().equals(other.error, error) &&
-            (identical(other.stackTrace, stackTrace) ||
-                other.stackTrace == stackTrace));
+            (identical(other.stackTrace, stackTrace) || other.stackTrace == stackTrace));
   }
 
   @override

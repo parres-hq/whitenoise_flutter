@@ -59,15 +59,16 @@ class MyApp extends ConsumerWidget {
       minTextAdapt: true,
       splitScreenMode: true,
       builder: (context, child) {
-        return ToastWrapper(
-          child: MaterialApp.router(
-            title: 'White Noise',
-            debugShowCheckedModeBanner: false,
-            theme: lightTheme,
-            darkTheme: darkTheme,
-            themeMode: themeState.themeMode,
-            routerConfig: router,
-          ),
+        return MaterialApp.router(
+          title: 'White Noise',
+          debugShowCheckedModeBanner: false,
+          theme: lightTheme,
+          darkTheme: darkTheme,
+          themeMode: themeState.themeMode,
+          routerConfig: router,
+          builder: (context, child) {
+            return ToastWrapper(child: child ?? const SizedBox.shrink());
+          },
         );
       },
     );

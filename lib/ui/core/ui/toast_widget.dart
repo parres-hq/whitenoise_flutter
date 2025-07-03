@@ -162,51 +162,54 @@ class _ToastMessageWidgetState extends ConsumerState<ToastMessageWidget>
           onDismissed: (_) {
             ref.read(toastMessageProvider.notifier).dismissToast(widget.message.id);
           },
-          child: Container(
-            width: double.infinity,
-            height: 64.h,
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-            decoration: BoxDecoration(
-              color: context.colors.toastSurface,
-              border: Border(
-                bottom: BorderSide(
-                  color: _getBackgroundColor(context),
-                  width: 1.h,
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              width: double.infinity,
+              height: 64.h,
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+              decoration: BoxDecoration(
+                color: context.colors.toastSurface,
+                border: Border(
+                  bottom: BorderSide(
+                    color: _getBackgroundColor(context),
+                    width: 1.h,
+                  ),
                 ),
               ),
-            ),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  _getIconPath(),
-                  height: 20.w,
-                  width: 20.w,
-                  colorFilter: ColorFilter.mode(
-                    _getBackgroundColor(context),
-                    BlendMode.srcIn,
-                  ),
-                ),
-                SizedBox(width: 8.w),
-                Expanded(
-                  child: Text(
-                    widget.message.message,
-                    style: TextStyle(
-                      color: context.colors.toastIcon,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
+              child: Row(
+                children: [
+                  SvgPicture.asset(
+                    _getIconPath(),
+                    height: 20.w,
+                    width: 20.w,
+                    colorFilter: ColorFilter.mode(
+                      _getBackgroundColor(context),
+                      BlendMode.srcIn,
                     ),
                   ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    ref.read(toastMessageProvider.notifier).dismissToast(widget.message.id);
-                  },
-                  icon: Icon(
-                    Icons.close,
-                    color: context.colors.primary,
+                  SizedBox(width: 8.w),
+                  Expanded(
+                    child: Text(
+                      widget.message.message,
+                      style: TextStyle(
+                        color: context.colors.toastIcon,
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
-                ),
-              ],
+                  IconButton(
+                    onPressed: () {
+                      ref.read(toastMessageProvider.notifier).dismissToast(widget.message.id);
+                    },
+                    icon: Icon(
+                      Icons.close,
+                      color: context.colors.primary,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

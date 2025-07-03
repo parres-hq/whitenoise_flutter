@@ -84,4 +84,5 @@ class DarkAppColors {
   static const toastError = Color(0xffB91C1C);
   static const toastWarning = Color(0xffB45309);
   static const toastIcon = Color(0xffFAFAFA);
+  static const qrForeground = Color(0xff000000);
 }
