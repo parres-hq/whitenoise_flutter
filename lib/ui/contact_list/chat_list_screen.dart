@@ -158,7 +158,7 @@ class _EmptyGroupList extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 32.w),
         child: Text(
-          'Welcome to White Noise. Private, secure,\ndecentralized, uncensorable messaging where your\nidentity stays yours.',
+          'Welcome to White Noise. Private, secure,\ndecentralized, uncensorable messaging where your identity stays yours.',
           style: TextStyle(
             fontSize: 12.sp,
             fontWeight: FontWeight.w600,
