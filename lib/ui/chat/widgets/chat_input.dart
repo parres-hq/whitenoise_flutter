@@ -94,7 +94,6 @@ class _ChatInputState extends ConsumerState<ChatInput> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
                     child: Container(
