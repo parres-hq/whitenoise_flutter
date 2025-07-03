@@ -171,6 +171,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
       enabled: widget.enabled,
       expands: widget.expands,
       readOnly: widget.readOnly,
+      enableInteractiveSelection: !widget.readOnly,
       controller: widget.controller,
       decoration: decoration,
       maxLength: widget.maxLength,
