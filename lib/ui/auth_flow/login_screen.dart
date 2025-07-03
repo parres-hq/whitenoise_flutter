@@ -20,15 +20,53 @@ class LoginScreen extends ConsumerStatefulWidget {
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
+class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingObserver {
   final TextEditingController _keyController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _focusNode = FocusNode();
+  bool _wasKeyboardVisible = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _keyController.addListener(() {
       setState(() {});
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _keyController.dispose();
+    _scrollController.dispose();
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    _handleKeyboardVisibility();
+  }
+
+  void _handleKeyboardVisibility() {
+    final keyboardVisible = View.of(context).viewInsets.bottom > 0;
+    
+    // Check if keyboard just became visible and text field has focus
+    if (keyboardVisible && !_wasKeyboardVisible && _focusNode.hasFocus) {
+      Future.delayed(const Duration(milliseconds: 300), () {
+        if (mounted && _scrollController.hasClients) {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    }
+    
+    _wasKeyboardVisible = keyboardVisible;
   }
 
   Future<void> _onContinuePressed() async {
@@ -69,116 +107,110 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   }
 
   @override
-  void dispose() {
-    _keyController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       backgroundColor: context.colors.neutral,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24).w,
-          child: Container(
+          controller: _scrollController,
+          child: ConstrainedBox(
             constraints: BoxConstraints(
               minHeight:
-                  (MediaQuery.of(context).size.height) -
-                  (MediaQuery.of(context).padding.top + MediaQuery.of(context).padding.bottom),
+                  MediaQuery.of(context).size.height -
+                  MediaQuery.of(context).padding.top -
+                  MediaQuery.of(context).padding.bottom,
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Gap(48.h),
-                    Text(
+            child: IntrinsicHeight(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 24.h),
+                    child: Text(
                       'Login to White Noise',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 32.sp,
                         fontWeight: FontWeight.w700,
                         color: context.colors.mutedForeground,
-                        height: 1.0,
                       ),
                       textHeightBehavior: const TextHeightBehavior(
                         applyHeightToFirstAscent: false,
                         applyHeightToLastDescent: false,
                       ),
                     ),
-                    Gap(79.5.h),
-                    Image.asset(
-                      AssetsPaths.login,
-                      height: 320.h,
-                      fit: BoxFit.contain,
-                      width: double.infinity,
-                    ),
-                    Gap(79.5.h),
-                  ],
-                ),
-                Gap(16.h),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Enter Your Private Key',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14.sp,
-                        color: context.colorScheme.onSurface,
+                  ),
+                  Gap(79.5.h),
+                  Expanded(
+                    child: Center(
+                      child: Image.asset(
+                        AssetsPaths.login,
+                        fit: BoxFit.contain,
+                        width: double.infinity,
                       ),
                     ),
-                    Gap(6.h),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: AppTextFormField(
-                            hintText: 'nsec...',
-                            type: FieldType.password,
-                            controller: _keyController,
-                          ),
+                  ),
+                  Gap(79.5.h),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Enter Your Private Key',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14.sp,
+                          color: context.colorScheme.onSurface,
                         ),
-                        Gap(4.w),
-                        Container(
-                          height: 56.w,
-                          width: 56.w,
-                          decoration: BoxDecoration(
-                            color: context.colors.avatarSurface,
-                          ),
-                          child: CustomIconButton(
-                            iconPath: AssetsPaths.icPaste,
-                            onTap: _pasteFromClipboard,
-                            padding: 18.w,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Gap(16.h),
-                    authState.isLoading
-                        ? Padding(
-                          padding: EdgeInsets.all(16.w),
-                          child: Center(
-                            child: CircularProgressIndicator(
-                              color: context.colorScheme.onSurface,
+                      ),
+                      Gap(6.h),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: AppTextFormField(
+                              hintText: 'nsec...',
+                              type: FieldType.password,
+                              controller: _keyController,
+                              focusNode: _focusNode,
                             ),
                           ),
-                        )
-                        : Padding(
-                          padding: EdgeInsets.zero,
-                          child: AppFilledButton(
+                          Gap(4.w),
+                          Container(
+                            height: 56.w,
+                            width: 56.w,
+                            decoration: BoxDecoration(
+                              color: context.colors.avatarSurface,
+                            ),
+                            child: CustomIconButton(
+                              iconPath: AssetsPaths.icPaste,
+                              onTap: _pasteFromClipboard,
+                              padding: 18.w,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Gap(16.h),
+                      authState.isLoading
+                          ? Padding(
+                            padding: EdgeInsets.all(16.w),
+                            child: Center(
+                              child: CircularProgressIndicator(
+                                color: context.colorScheme.onSurface,
+                              ),
+                            ),
+                          )
+                          : AppFilledButton(
                             onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
                             title: 'Login',
                           ),
-                        ),
-                    Gap(16.h),
-                  ],
-                ),
-              ],
+                      Gap(16.h),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
