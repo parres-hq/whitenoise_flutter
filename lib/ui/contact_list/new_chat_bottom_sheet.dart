@@ -225,16 +225,16 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         GestureDetector(
           onTap: () async {
             Navigator.pop(context);
-            
+
             try {
               final contactPk = await publicKeyFromString(publicKeyString: kSupportNpub);
               final metadata = await fetchMetadata(pubkey: contactPk);
-              
+
               final supportContact = ContactModel.fromMetadata(
                 publicKey: kSupportNpub,
                 metadata: metadata,
               );
-              
+
               if (context.mounted) {
                 StartSecureChatBottomSheet.show(
                   context: context,
@@ -250,12 +250,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
               }
             } catch (e) {
               _logger.warning('Failed to fetch metadata for public key: $e');
-              
+
               final basicContact = ContactModel(
                 name: 'Unknown User',
                 publicKey: kSupportNpub,
               );
-              
+
               if (context.mounted) {
                 StartSecureChatBottomSheet.show(
                   context: context,
