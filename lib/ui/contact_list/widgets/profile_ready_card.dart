@@ -3,9 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_provider.dart';
-import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -78,7 +77,8 @@ class ProfileReadyCard extends ConsumerWidget {
                 child: AppFilledButton.child(
                   onPressed: () {
                     ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
-                    context.push(Routes.newChat);
+
+                    NewChatBottomSheet.show(context);
                   },
                   size: AppButtonSize.small,
                   child: Row(
