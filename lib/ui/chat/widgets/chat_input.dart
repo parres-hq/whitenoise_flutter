@@ -94,7 +94,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Expanded(
                     child: Container(
@@ -152,7 +152,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                                       icon: Icons.arrow_upward,
                                       backgroundColor: context.colors.primary,
                                       iconColor: context.colors.primaryForeground,
-                                      size: 52.w,
+                                      size: 58.w,
                                     )
                                     .animate()
                                     .fadeIn(

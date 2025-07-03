@@ -288,11 +288,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                       text: 'Sign out',
                       onTap: _handleLogout,
                     ),
-                    SettingsListTile(
-                      icon: CarbonIcons.debug,
-                      text: 'Developer Testing',
-                      onTap: () => context.push('${Routes.settings}/developer'),
-                    ),
                   ],
                 ),
               ),
