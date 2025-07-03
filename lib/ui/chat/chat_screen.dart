@@ -34,7 +34,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
       ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
     });
@@ -48,12 +47,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _handleScrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _scrollController.animateTo(
-        _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 100),
-        curve: Curves.easeOut,
-      );
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
     });
+  }
+
+  void _scrollToBottomIfNeeded(List<dynamic> messages, bool isLoading) {
+    if (!isLoading && messages.isNotEmpty) {
+      _handleScrollToBottom();
+    }
   }
 
   @override
@@ -79,6 +82,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     final groupLoading = ref.watch(chatProvider).groupLoadingStates[widget.groupId] ?? false;
     final messages = ref.watch(chatProvider).groupMessages[widget.groupId] ?? [];
+    
+    
+    _scrollToBottomIfNeeded(messages, groupLoading);
     return PopScope(
       onPopInvokedWithResult: (didPop, result) => ref.read(groupsProvider.notifier).loadGroups(),
       child: Scaffold(
