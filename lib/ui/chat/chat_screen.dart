@@ -58,12 +58,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final groupsNotifier = ref.read(groupsProvider.notifier);
+    final groupsNotifier = ref.watch(groupsProvider.notifier);
     final groupData = groupsNotifier.findGroupById(widget.groupId);
     final displayName =
         groupsNotifier.getGroupDisplayName(widget.groupId) ?? groupData?.name ?? 'Unknown Group';
 
-    final chatNotifier = ref.read(chatProvider.notifier);
+    final chatNotifier = ref.watch(chatProvider.notifier);
 
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardOpen = keyboardHeight > 0;

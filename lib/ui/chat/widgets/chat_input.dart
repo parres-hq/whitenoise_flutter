@@ -66,7 +66,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
   @override
   Widget build(BuildContext context) {
     final chatState = ref.watch(chatProvider);
-    final chatNotifier = ref.read(chatProvider.notifier);
+    final chatNotifier = ref.watch(chatProvider.notifier);
 
     // Update text controller when editing message changes
     if (chatState.editingMessage[widget.groupId] != null &&
