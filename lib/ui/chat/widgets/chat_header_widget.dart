@@ -38,8 +38,8 @@ class GroupChatHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final admins = ref.read(groupsProvider.notifier).getGroupAdmins(groupData.mlsGroupId) ?? [];
-    final npub = ref.read(nostrKeysProvider).npub;
+    final admins = ref.watch(groupsProvider.notifier).getGroupAdmins(groupData.mlsGroupId) ?? [];
+    final npub = ref.watch(nostrKeysProvider).npub;
     // For now, we just take the first admin as the creator
     // This logic can be improved later to show the actual creator
     final firstAdmin = admins.isNotEmpty ? admins.first : null;
