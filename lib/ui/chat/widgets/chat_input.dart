@@ -4,8 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
-import 'package:whitenoise/domain/models/message_model.dart';
-import 'package:whitenoise/domain/models/user_model.dart';
+import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/ui/chat/notifiers/chat_notifier.dart';
 
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -19,7 +18,7 @@ class ChatInput extends ConsumerStatefulWidget {
     required this.onSend,
   });
 
-  final void Function(MessageModel message, bool isEditing) onSend;
+  final void Function(String content, bool isEditing) onSend;
 
   @override
   ConsumerState<ChatInput> createState() => _ChatInputState();
@@ -45,26 +44,13 @@ class _ChatInputState extends ConsumerState<ChatInput> {
   }
 
   void _sendMessage() {
-    final chatNotifier = ref.read(chatNotifierProvider.notifier);
     final chatState = ref.read(chatNotifierProvider);
-    final accountState = ref.read(accountProvider);
-    if (accountState.metadata == null || accountState.pubkey == null) return;
-
     final isEditing = chatState.editingMessage != null;
+    final content = _textController.text.trim();
+    
+    if (content.isEmpty) return;
 
-    final message = MessageModel(
-      id: chatState.editingMessage?.id ?? DateTime.now().millisecondsSinceEpoch.toString(),
-      content: _textController.text.trim(),
-      type: MessageType.text,
-      createdAt: chatState.editingMessage?.createdAt ?? DateTime.now(),
-      updatedAt: chatState.editingMessage != null ? DateTime.now() : null,
-      sender: User.fromMetadata(accountState.metadata!, accountState.pubkey!),
-      isMe: true,
-      status: MessageStatus.sending,
-      replyTo: chatState.replyingTo,
-    );
-
-    widget.onSend(message, isEditing);
+    widget.onSend(content, isEditing);
 
     // Reset input state
     _textController.clear();
@@ -200,8 +186,8 @@ class ReplyEditHeader extends StatelessWidget {
     required this.onCancel,
   });
 
-  final MessageModel? replyingTo;
-  final MessageModel? editingMessage;
+  final MessageWithTokensData? replyingTo;
+  final MessageWithTokensData? editingMessage;
   final VoidCallback onCancel;
 
   @override

@@ -79,11 +79,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         ),
       );
     }
-    final messages = ref.watch(chatProvider).groupMessages[widget.groupId] ?? [];
+
     final groupLoading = ref.watch(chatProvider).groupLoadingStates[widget.groupId] ?? false;
-    // print("%${messages.first.content}#");
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
+
       body: Stack(
         children: [
           CustomScrollView(
@@ -157,7 +158,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         onSend:
             (message, isEditing) => chatNotifier.sendNewMessageOrEdit(
               message,
-              isEditing,
+              isEditing: isEditing,
+              groupId: widget.groupId,
               onMessageSent: _handleScrollToBottom,
             ),
       ),

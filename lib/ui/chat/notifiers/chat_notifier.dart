@@ -3,19 +3,43 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
-import 'package:whitenoise/domain/models/user_model.dart';
-import 'package:whitenoise/ui/chat/notifiers/tem_test_data.dart';
-import 'package:whitenoise/ui/chat/states/chat_state.dart';
 
-class ChatNotifier extends Notifier<ChatState> {
+import 'package:whitenoise/ui/chat/states/chat_state.dart' as ui_state;
+import 'package:whitenoise/ui/chat/utils/message_extensions.dart';
+
+class ChatNotifier extends Notifier<ui_state.ChatState> {
   final _logger = Logger('ChatNotifier');
 
   @override
-  ChatState build() => const ChatState();
+  ui_state.ChatState build() => const ui_state.ChatState();
 
-  void initialize() {
-    state = ChatState(messages: testMessages().initialMessages ?? []);
+  Future<void> initialize(String groupId) async {
+    // Set current user pubkey for message helper
+    final currentUserPubkey = await _getCurrentUserPubkey();
+    if (currentUserPubkey != null) {
+      MessageHelper.setCurrentUserPubkey(currentUserPubkey);
+    }
+
+    // Load messages from chat provider
+    await loadMessagesForGroup(groupId);
+  }
+
+  Future<void> loadMessagesForGroup(String groupId) async {
+    final chatProviderNotifier = ref.read(chatProvider.notifier);
+    await chatProviderNotifier.loadMessagesForGroup(groupId);
+
+    final chatState = ref.read(chatProvider);
+    final messagesWithTokens = chatState.getMessagesForGroup(groupId);
+
+    final messages =
+        messagesWithTokens.map((message) {
+          // Convert MessageWithTokensData to MessageModel for UI
+          return MessageModel.fromMessageWithTokens(message);
+        }).toList();
+
+    state = state.copyWith(messages: messages);
   }
 
   bool _isAuthAvailable() {
@@ -27,7 +51,7 @@ class ChatNotifier extends Notifier<ChatState> {
     return true;
   }
 
-  Future<User?> _getCurrentUser() async {
+  Future<String?> _getCurrentUserPubkey() async {
     if (!_isAuthAvailable()) return null;
 
     try {
@@ -38,66 +62,58 @@ class ChatNotifier extends Notifier<ChatState> {
         return null;
       }
 
-      return User(
-        id: activeAccountData.pubkey,
-        name: 'You',
-        nip05: '',
-        publicKey: activeAccountData.pubkey,
-      );
+      return activeAccountData.pubkey;
     } catch (e) {
-      _logger.severe('Error getting current user: $e');
+      _logger.severe('Error getting current user pubkey: $e');
       return null;
     }
+  }
+
+  /// Check if a message is from the current user
+  Future<bool> isMessageFromMe(MessageModel message) async {
+    final currentUserPubkey = await _getCurrentUserPubkey();
+    if (currentUserPubkey == null) return false;
+    return message.sender.publicKey == currentUserPubkey;
   }
 
   Future<void> updateMessageReaction({
     required MessageModel message,
     required String reaction,
   }) async {
-    final currentUser = await _getCurrentUser();
-    if (currentUser == null) return;
-
-    final existingReactionIndex = message.reactions.indexWhere(
-      (r) => r.emoji == reaction && r.user.id == currentUser.id,
-    );
-
-    List<Reaction> newReactions;
-    if (existingReactionIndex != -1) {
-      newReactions = List<Reaction>.from(message.reactions)..removeAt(existingReactionIndex);
-    } else {
-      final newReaction = Reaction(emoji: reaction, user: currentUser);
-      newReactions = List<Reaction>.from(message.reactions)..add(newReaction);
-    }
-
-    final updatedMessage = message.copyWith(reactions: newReactions);
-    final updatedMessages = _updateMessage(updatedMessage);
-    state = state.copyWith(messages: updatedMessages);
+    // TODO: Implement reaction handling for MessageModel
+    // This would need to be handled via the chat provider
+    _logger.info('Reaction handling not yet implemented for MessageModel');
   }
 
   void sendNewMessageOrEdit(
-    MessageModel message,
-    bool isEditing, {
+    MessageModel message, {
+    bool isEditing = false,
+    required String groupId,
     VoidCallback? onMessageSent,
-  }) {
-    List<MessageModel> updatedMessages;
+  }) async {
+    final chatProviderNotifier = ref.read(chatProvider.notifier);
 
     if (isEditing) {
-      final index = state.messages.indexWhere((m) => m.id == message.id);
-      if (index != -1) {
-        updatedMessages = List<MessageModel>.from(state.messages);
-        updatedMessages[index] = message;
-      } else {
-        updatedMessages = state.messages;
-      }
+      // TODO: Implement message editing
+      _logger.info('Message editing not yet implemented');
     } else {
-      updatedMessages = [message, ...state.messages];
+      // Send new message via chat provider
+      final content = message.content ?? '';
+      if (content.isEmpty) {
+        _logger.warning('Cannot send empty message');
+        return;
+      }
+      final sentMessage = await chatProviderNotifier.sendMessage(
+        groupId: groupId,
+        message: content,
+      );
+
+      if (sentMessage != null) {
+        // Refresh local messages
+        await loadMessagesForGroup(groupId);
+        onMessageSent?.call();
+      }
     }
-
-    state = state.copyWith(
-      messages: updatedMessages,
-    );
-
-    onMessageSent?.call();
   }
 
   void handleReply(MessageModel message) {
@@ -128,18 +144,12 @@ class ChatNotifier extends Notifier<ChatState> {
 
   bool isSameSender(int index) {
     if (index <= 0 || index >= state.messages.length) return false;
-    return state.messages[index].sender.nip05 == state.messages[index - 1].sender.nip05;
+    return state.messages[index].sender.publicKey == state.messages[index - 1].sender.publicKey;
   }
 
   bool isNextSameSender(int index) {
     if (index < 0 || index >= state.messages.length - 1) return false;
-    return state.messages[index].sender.nip05 == state.messages[index + 1].sender.nip05;
-  }
-
-  List<MessageModel> _updateMessage(MessageModel updatedMessage) {
-    return state.messages.map((msg) {
-      return msg.id == updatedMessage.id ? updatedMessage : msg;
-    }).toList();
+    return state.messages[index].sender.publicKey == state.messages[index + 1].sender.publicKey;
   }
 
   void setError(String error) {
@@ -155,6 +165,6 @@ class ChatNotifier extends Notifier<ChatState> {
   }
 }
 
-final chatNotifierProvider = NotifierProvider<ChatNotifier, ChatState>(
+final chatNotifierProvider = NotifierProvider<ChatNotifier, ui_state.ChatState>(
   ChatNotifier.new,
 );
