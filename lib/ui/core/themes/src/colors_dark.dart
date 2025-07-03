@@ -78,4 +78,10 @@ class DarkAppColors {
   static const solidNeutralBlack = Color(0xff000000);
   static const solidNeutralWhite = Color(0xffFFFFFF);
   static const primarySolid = Color(0xfffafafa);
+  //
+  static const toastSurface = Color(0xff171717);
+  static const toastSuccess = Color(0xff4D7C0F);
+  static const toastError = Color(0xffB91C1C);
+  static const toastWarning = Color(0xffB45309);
+  static const toastIcon = Color(0xffFAFAFA);
 }

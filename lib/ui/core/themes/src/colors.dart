@@ -41,6 +41,11 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.solidNeutralBlack,
     required this.solidNeutralWhite,
     required this.primarySolid,
+    required this.toastSurface,
+    required this.toastSuccess,
+    required this.toastError,
+    required this.toastWarning,
+    required this.toastIcon,
   });
 
   final Color primary;
@@ -79,6 +84,11 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color solidNeutralBlack;
   final Color solidNeutralWhite;
   final Color primarySolid;
+  final Color toastSurface;
+  final Color toastSuccess;
+  final Color toastError;
+  final Color toastWarning;
+  final Color toastIcon;
 
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
@@ -118,6 +128,11 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     solidNeutralBlack: LightAppColors.solidNeutralBlack,
     solidNeutralWhite: LightAppColors.solidNeutralWhite,
     primarySolid: LightAppColors.primarySolid,
+    toastSurface: LightAppColors.toastSurface,
+    toastSuccess: LightAppColors.toastSuccess,
+    toastError: LightAppColors.toastError,
+    toastWarning: LightAppColors.toastWarning,
+    toastIcon: LightAppColors.toastIcon,
   );
 
   /// Dark theme colors
@@ -158,6 +173,11 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     solidNeutralBlack: DarkAppColors.solidNeutralBlack,
     solidNeutralWhite: DarkAppColors.solidNeutralWhite,
     primarySolid: DarkAppColors.primarySolid,
+    toastSurface: DarkAppColors.toastSurface,
+    toastSuccess: DarkAppColors.toastSuccess,
+    toastError: DarkAppColors.toastError,
+    toastWarning: DarkAppColors.toastWarning,
+    toastIcon: DarkAppColors.toastIcon,
   );
 
   @override
@@ -198,6 +218,11 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? solidNeutralBlack,
     Color? solidNeutralWhite,
     Color? primarySolid,
+    Color? toastSurface,
+    Color? toastSuccess,
+    Color? toastError,
+    Color? toastWarning,
+    Color? toastIcon,
   }) {
     return AppColorsThemeExt(
       primary: primary ?? this.primary,
@@ -236,6 +261,11 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       solidNeutralBlack: solidNeutralBlack ?? this.solidNeutralBlack,
       solidNeutralWhite: solidNeutralWhite ?? this.solidNeutralWhite,
       primarySolid: primarySolid ?? this.primarySolid,
+      toastSurface: toastSurface ?? this.toastSurface,
+      toastSuccess: toastSuccess ?? this.toastSuccess,
+      toastError: toastError ?? this.toastError,
+      toastWarning: toastWarning ?? this.toastWarning,
+      toastIcon: toastIcon ?? this.toastIcon,
     );
   }
 
@@ -289,6 +319,11 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       solidNeutralBlack: Color.lerp(solidNeutralBlack, other.solidNeutralBlack, t)!,
       solidNeutralWhite: Color.lerp(solidNeutralWhite, other.solidNeutralWhite, t)!,
       primarySolid: Color.lerp(primarySolid, other.primarySolid, t)!,
+      toastSurface: Color.lerp(toastSurface, other.toastSurface, t)!,
+      toastSuccess: Color.lerp(toastSuccess, other.toastSuccess, t)!,
+      toastError: Color.lerp(toastError, other.toastError, t)!,
+      toastWarning: Color.lerp(toastWarning, other.toastWarning, t)!,
+      toastIcon: Color.lerp(toastIcon, other.toastIcon, t)!,
     );
   }
 }

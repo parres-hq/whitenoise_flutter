@@ -29,6 +29,10 @@ class AssetsPaths {
   static const String icChevronLeft = '$_svgsDir/ic_chevron_left.svg';
   static const String icBitcoin = '$_svgsDir/ic_bitcoin.svg';
   static const String icFeedback = '$_svgsDir/ic_feedback.svg';
+  static const String icErrorFilled = '$_svgsDir/ic_error_filled.svg';
+  static const String icInfoFilled = '$_svgsDir/ic_info_filled.svg';
+  static const String icWarningFilled = '$_svgsDir/ic_warning_filled.svg';
+  static const String icSuccessFilled = '$_svgsDir/ic_success_filled.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';
