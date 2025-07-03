@@ -107,9 +107,14 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
         relayType: relayType,
       );
 
+      final refreshedPublicKey = await publicKeyFromString(
+        publicKeyString: activeAccountData.pubkey,
+      );
+      final refreshedRelayType = await relayTypeNostr();
+
       await updateRelays(
-        pubkey: publicKey,
-        relayType: relayType,
+        pubkey: refreshedPublicKey,
+        relayType: refreshedRelayType,
         relays: [...currentRelayUrls, relayUrl],
       );
 
@@ -239,9 +244,14 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
         relayType: relayType,
       );
 
+      final refreshedPublicKey = await publicKeyFromString(
+        publicKeyString: activeAccountData.pubkey,
+      );
+      final refreshedRelayType = await relayTypeInbox();
+
       await updateRelays(
-        pubkey: publicKey,
-        relayType: relayType,
+        pubkey: refreshedPublicKey,
+        relayType: refreshedRelayType,
         relays: [...currentRelayUrls, relayUrl],
       );
 
@@ -371,9 +381,14 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
         relayType: relayType,
       );
 
+      final refreshedPublicKey = await publicKeyFromString(
+        publicKeyString: activeAccountData.pubkey,
+      );
+      final refreshedRelayType = await relayTypeKeyPackage();
+
       await updateRelays(
-        pubkey: publicKey,
-        relayType: relayType,
+        pubkey: refreshedPublicKey,
+        relayType: refreshedRelayType,
         relays: [...currentRelayUrls, relayUrl],
       );
 

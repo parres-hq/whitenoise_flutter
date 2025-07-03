@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
@@ -8,7 +11,7 @@ import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
-class AddRelayBottomSheet extends StatefulWidget {
+class AddRelayBottomSheet extends ConsumerStatefulWidget {
   final Function(String) onRelayAdded;
   final String title;
 
@@ -19,7 +22,7 @@ class AddRelayBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<AddRelayBottomSheet> createState() => _AddRelayBottomSheetState();
+  ConsumerState<AddRelayBottomSheet> createState() => _AddRelayBottomSheetState();
 
   static Future<void> show({
     required BuildContext context,
@@ -35,9 +38,10 @@ class AddRelayBottomSheet extends StatefulWidget {
   }
 }
 
-class _AddRelayBottomSheetState extends State<AddRelayBottomSheet> {
+class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
   final TextEditingController _relayUrlController = TextEditingController();
   bool _isUrlValid = false;
+  bool _isAdding = false;
 
   @override
   void initState() {
@@ -58,10 +62,39 @@ class _AddRelayBottomSheetState extends State<AddRelayBottomSheet> {
     });
   }
 
-  void _addRelay() {
-    if (_isUrlValid) {
+  Future<void> _addRelay() async {
+    if (!_isUrlValid || _isAdding) return;
+
+    setState(() {
+      _isAdding = true;
+    });
+
+    try {
       widget.onRelayAdded(_relayUrlController.text.trim());
+      ref.showRawSuccessToast('Relay added successfully');
       Navigator.pop(context);
+    } catch (e) {
+      ref.showRawErrorToast('Failed to add relay');
+    } finally {
+      setState(() {
+        _isAdding = false;
+      });
+    }
+  }
+
+  Future<void> _pasteFromClipboard() async {
+    try {
+      final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+      if (clipboardData?.text != null) {
+        setState(() {
+          _relayUrlController.text = clipboardData!.text!;
+        });
+        ref.showRawSuccessToast('Pasted from clipboard');
+      } else {
+        ref.showRawErrorToast('No text found in clipboard');
+      }
+    } catch (e) {
+      ref.showRawErrorToast('Failed to paste from clipboard');
     }
   }
 
@@ -75,7 +108,7 @@ class _AddRelayBottomSheetState extends State<AddRelayBottomSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Paste your relay address',
+                'Enter your relay address',
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
@@ -93,11 +126,14 @@ class _AddRelayBottomSheetState extends State<AddRelayBottomSheet> {
                     ),
                   ),
                   Gap(8.w),
-                  CustomIconButton(onTap: () {}, iconPath: AssetsPaths.icPaste),
+                  CustomIconButton(
+                    onTap: _pasteFromClipboard,
+                    iconPath: AssetsPaths.icPaste,
+                  ),
                 ],
               ),
               Gap(16.h),
-              if (!_isUrlValid) ...[
+              if (!_isUrlValid && _relayUrlController.text.isNotEmpty) ...[
                 Text(
                   'Invalid format: must start with wss://',
                   style: TextStyle(
@@ -111,8 +147,9 @@ class _AddRelayBottomSheetState extends State<AddRelayBottomSheet> {
           ),
         ),
         AppFilledButton(
-          onPressed: _isUrlValid ? _addRelay : null,
-          title: 'Add Relay',
+          onPressed: _isUrlValid && !_isAdding ? _addRelay : null,
+          loading: _isAdding,
+          title: widget.title,
         ),
       ],
     );
