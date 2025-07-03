@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 
+import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
@@ -202,6 +203,91 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                 Expanded(
                   child: Text(
                     'New Group Chat',
+                    style: TextStyle(
+                      color: context.colors.mutedForeground,
+                      fontSize: 18.sp,
+                    ),
+                  ),
+                ),
+                SvgPicture.asset(
+                  AssetsPaths.icChevronRight,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.mutedForeground,
+                    BlendMode.srcIn,
+                  ),
+                  width: 8.55.w,
+                  height: 15.w,
+                ),
+              ],
+            ),
+          ),
+        ),
+        GestureDetector(
+          onTap: () async {
+            Navigator.pop(context);
+            
+            try {
+              final contactPk = await publicKeyFromString(publicKeyString: kSupportNpub);
+              final metadata = await fetchMetadata(pubkey: contactPk);
+              
+              final supportContact = ContactModel.fromMetadata(
+                publicKey: kSupportNpub,
+                metadata: metadata,
+              );
+              
+              if (context.mounted) {
+                StartSecureChatBottomSheet.show(
+                  context: context,
+                  name: supportContact.displayNameOrName,
+                  nip05: supportContact.nip05 ?? '',
+                  pubkey: supportContact.publicKey,
+                  bio: supportContact.about,
+                  imagePath: supportContact.imagePath,
+                  onChatCreated: () {
+                    Navigator.pop(context);
+                  },
+                );
+              }
+            } catch (e) {
+              _logger.warning('Failed to fetch metadata for public key: $e');
+              
+              final basicContact = ContactModel(
+                name: 'Unknown User',
+                publicKey: kSupportNpub,
+              );
+              
+              if (context.mounted) {
+                StartSecureChatBottomSheet.show(
+                  context: context,
+                  name: basicContact.displayNameOrName,
+                  nip05: '',
+                  pubkey: basicContact.publicKey,
+                  bio: basicContact.about,
+                  imagePath: basicContact.imagePath,
+                  onChatCreated: () {
+                    Navigator.pop(context);
+                  },
+                );
+              }
+            }
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+            child: Row(
+              children: [
+                SvgPicture.asset(
+                  AssetsPaths.icFeedback,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.mutedForeground,
+                    BlendMode.srcIn,
+                  ),
+                  width: 20.w,
+                  height: 20.w,
+                ),
+                Gap(10.w),
+                Expanded(
+                  child: Text(
+                    'Help and Feedback',
                     style: TextStyle(
                       color: context.colors.mutedForeground,
                       fontSize: 18.sp,
