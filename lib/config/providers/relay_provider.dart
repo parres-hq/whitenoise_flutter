@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
@@ -38,7 +37,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   @override
   RelayState build() {
-    WidgetsBinding.instance.addPostFrameCallback((_) => loadRelays());
+    Future.microtask(() => loadRelays());
     return const RelayState();
   }
 
@@ -117,6 +116,49 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to add relay: $e');
+    }
+  }
+
+  Future<void> deleteRelay(String url) async {
+    try {
+      // Get the active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        _logger.severe('RelayProvider: No active account found for deleting relay');
+        return;
+      }
+
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final relayType = await relayTypeNostr();
+
+      final currentRelayUrls = await fetchRelays(
+        pubkey: publicKey,
+        relayType: relayType,
+      );
+
+      // Filter out the relay to delete
+      final List<RelayUrl> updatedRelayUrls = [];
+      for (final relayUrl in currentRelayUrls) {
+        final urlString = await stringFromRelayUrl(relayUrl: relayUrl);
+        if (urlString != url) {
+          updatedRelayUrls.add(relayUrl);
+        }
+      }
+      final refreshedPublicKey = await publicKeyFromString(
+        publicKeyString: activeAccountData.pubkey,
+      );
+      final refreshedRelayType = await relayTypeNostr();
+      await updateRelays(
+        pubkey: refreshedPublicKey,
+        relayType: refreshedRelayType,
+        relays: updatedRelayUrls,
+      );
+
+      await loadRelays();
+    } catch (e) {
+      state = state.copyWith(error: 'Failed to delete relay: $e');
     }
   }
 }
@@ -127,7 +169,7 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   @override
   RelayState build() {
-    WidgetsBinding.instance.addPostFrameCallback((_) => loadRelays());
+    Future.microtask(() => loadRelays());
     return const RelayState();
   }
 
@@ -206,6 +248,49 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to add relay: $e');
+    }
+  }
+
+  Future<void> deleteRelay(String url) async {
+    try {
+      // Get the active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        _logger.severe('RelayProvider: No active account found for deleting relay');
+        return;
+      }
+
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final relayType = await relayTypeInbox();
+
+      final currentRelayUrls = await fetchRelays(
+        pubkey: publicKey,
+        relayType: relayType,
+      );
+
+      // Filter out the relay to delete
+      final List<RelayUrl> updatedRelayUrls = [];
+      for (final relayUrl in currentRelayUrls) {
+        final urlString = await stringFromRelayUrl(relayUrl: relayUrl);
+        if (urlString != url) {
+          updatedRelayUrls.add(relayUrl);
+        }
+      }
+      final refreshedPublicKey = await publicKeyFromString(
+        publicKeyString: activeAccountData.pubkey,
+      );
+      final refreshedRelayType = await relayTypeInbox();
+      await updateRelays(
+        pubkey: refreshedPublicKey,
+        relayType: refreshedRelayType,
+        relays: updatedRelayUrls,
+      );
+
+      await loadRelays();
+    } catch (e) {
+      state = state.copyWith(error: 'Failed to delete relay: $e');
     }
   }
 }
@@ -216,7 +301,7 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   @override
   RelayState build() {
-    WidgetsBinding.instance.addPostFrameCallback((_) => loadRelays());
+    Future.microtask(() => loadRelays());
     return const RelayState();
   }
 
@@ -295,6 +380,51 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to add relay: $e');
+    }
+  }
+
+  Future<void> deleteRelay(String url) async {
+    try {
+      // Get the active account data directly
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        _logger.severe('RelayProvider: No active account found for deleting relay');
+        return;
+      }
+
+      // Convert pubkey string to PublicKey object
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final relayType = await relayTypeKeyPackage();
+
+      final currentRelayUrls = await fetchRelays(
+        pubkey: publicKey,
+        relayType: relayType,
+      );
+
+      // Filter out the relay to delete
+      final List<RelayUrl> updatedRelayUrls = [];
+      for (final relayUrl in currentRelayUrls) {
+        final urlString = await stringFromRelayUrl(relayUrl: relayUrl);
+        if (urlString != url) {
+          updatedRelayUrls.add(relayUrl);
+        }
+      }
+
+      final refreshedPublicKey = await publicKeyFromString(
+        publicKeyString: activeAccountData.pubkey,
+      );
+      final refreshedRelayType = await relayTypeKeyPackage();
+
+      await updateRelays(
+        pubkey: refreshedPublicKey,
+        relayType: refreshedRelayType,
+        relays: updatedRelayUrls,
+      );
+
+      await loadRelays();
+    } catch (e) {
+      state = state.copyWith(error: 'Failed to delete relay: $e');
     }
   }
 }
