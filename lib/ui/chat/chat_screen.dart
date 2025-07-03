@@ -82,8 +82,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     final groupLoading = ref.watch(chatProvider).groupLoadingStates[widget.groupId] ?? false;
     final messages = ref.watch(chatProvider).groupMessages[widget.groupId] ?? [];
-    
-    
+
     _scrollToBottomIfNeeded(messages, groupLoading);
     return PopScope(
       onPopInvokedWithResult: (didPop, result) => ref.read(groupsProvider.notifier).loadGroups(),
