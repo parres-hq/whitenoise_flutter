@@ -48,6 +48,8 @@ app.*.map.json
 rust/tmp_docs/
 RUST_FFI_GUIDE.md
 
+# Generated Cargo config (auto-generated per environment)
+rust/.cargo/config.toml
 
 # AI
 **/.repomix-*

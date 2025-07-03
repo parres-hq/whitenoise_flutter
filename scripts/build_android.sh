@@ -22,10 +22,67 @@ print_error() {
     echo -e "\033[1;31m❌ $1\033[0m"
 }
 
-# Set Android NDK path
-NDK_PATH="/Users/featuremindnigerialimited1/Library/Android/sdk/ndk/27.0.12077973"
-export ANDROID_NDK_HOME="$NDK_PATH"
-export PATH="$NDK_PATH/toolchains/llvm/prebuilt/darwin-x86_64/bin:$PATH"
+# Auto-detect Android SDK and NDK paths
+print_step "Detecting Android SDK and NDK paths"
+
+# Try to find Android SDK
+if [ -z "$ANDROID_HOME" ] && [ -z "$ANDROID_SDK_ROOT" ]; then
+    # Common Android SDK locations
+    POSSIBLE_SDK_PATHS=(
+        "$HOME/Library/Android/sdk"           # macOS default
+        "$HOME/Android/Sdk"                   # Linux default
+        "$HOME/AppData/Local/Android/Sdk"     # Windows default
+        "/opt/android-sdk"                    # Linux alternative
+    )
+    
+    for path in "${POSSIBLE_SDK_PATHS[@]}"; do
+        if [ -d "$path" ]; then
+            export ANDROID_HOME="$path"
+            export ANDROID_SDK_ROOT="$path"
+            print_success "Found Android SDK at: $path"
+            break
+        fi
+    done
+else
+    export ANDROID_HOME="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
+    export ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$ANDROID_HOME}"
+    print_success "Using Android SDK from environment: $ANDROID_HOME"
+fi
+
+if [ -z "$ANDROID_HOME" ]; then
+    print_error "Android SDK not found. Please install Android SDK or set ANDROID_HOME environment variable"
+    exit 1
+fi
+
+# Auto-detect NDK path
+if [ -z "$ANDROID_NDK_HOME" ]; then
+    # Look for NDK in the SDK directory
+    NDK_DIR="$ANDROID_HOME/ndk"
+    if [ -d "$NDK_DIR" ]; then
+        # Find the latest NDK version
+        NDK_VERSION=$(ls "$NDK_DIR" | sort -V | tail -n 1)
+        if [ -n "$NDK_VERSION" ]; then
+            export ANDROID_NDK_HOME="$NDK_DIR/$NDK_VERSION"
+            print_success "Found NDK version $NDK_VERSION at: $ANDROID_NDK_HOME"
+        fi
+    fi
+fi
+
+if [ -z "$ANDROID_NDK_HOME" ] || [ ! -d "$ANDROID_NDK_HOME" ]; then
+    print_error "Android NDK not found. Please install Android NDK or set ANDROID_NDK_HOME environment variable"
+    print_error "You can install NDK through Android Studio SDK Manager"
+    exit 1
+fi
+
+# Detect host OS for NDK toolchain path
+case "$(uname -s)" in
+    Darwin*)    HOST_TAG="darwin-x86_64" ;;
+    Linux*)     HOST_TAG="linux-x86_64" ;;
+    MINGW*|CYGWIN*|MSYS*) HOST_TAG="windows-x86_64" ;;
+    *)          print_error "Unsupported host OS: $(uname -s)"; exit 1 ;;
+esac
+
+export PATH="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$HOST_TAG/bin:$PATH"
 
 # Check if required tools are installed
 print_step "Checking development environment"
@@ -33,6 +90,10 @@ if ! command -v rustup &> /dev/null; then
     print_error "Rustup is not installed or not in PATH"
     exit 1
 fi
+
+# Generate Cargo config for current environment
+print_step "Setting up Cargo configuration"
+./scripts/setup_android_config.sh
 
 # Add only 64-bit Android targets
 print_step "Adding Android targets to Rust"
