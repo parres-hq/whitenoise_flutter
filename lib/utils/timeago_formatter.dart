@@ -35,12 +35,20 @@ extension TimeagoFormatter on DateTime {
       return DateFormat('EEEE').format(this);
     }
 
-    // >6days = "Jun 10" - Month, Day
-    if (difference.inDays > 6 && difference.inDays <= 365) {
-      return DateFormat('MMM d').format(this);
+    // >6days = "Jun 10" - Month, Day (if same year) or "Jun 10, 2023" (if different year)
+    if (difference.inDays > 6) {
+      if (this.year == now.year) {
+        return DateFormat('MMM d').format(this);
+      } else {
+        return DateFormat('MMM d, yyyy').format(this);
+      }
     }
 
-    // >1year = "Jan 9, 2009" - Month,Day, Year
-    return DateFormat('MMM d, yyyy').format(this);
+    // Fallback (should not reach here)
+    if (this.year == now.year) {
+      return DateFormat('MMM d').format(this);
+    } else {
+      return DateFormat('MMM d, yyyy').format(this);
+    }
   }
 }
