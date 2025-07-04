@@ -70,6 +70,7 @@ class SwitchProfileBottomSheet extends ConsumerWidget {
               final isActiveAccount = profile.publicKey == activeAccountPubkey;
 
               return Container(
+                margin: EdgeInsets.only(bottom: 8.h),
                 padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
                 decoration:
                     isActiveAccount
@@ -92,6 +93,7 @@ class SwitchProfileBottomSheet extends ConsumerWidget {
             },
           ),
         ),
+        Gap(8.h),
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: AppFilledButton(
@@ -102,7 +104,7 @@ class SwitchProfileBottomSheet extends ConsumerWidget {
             },
           ),
         ),
-        Gap(8.h),
+        Gap(16.h),
       ],
     );
   }

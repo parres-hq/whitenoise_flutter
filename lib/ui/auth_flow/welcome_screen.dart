@@ -99,7 +99,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                     visualState: AppButtonVisualState.secondary,
                     onPressed: () => context.go('/login'),
                   ),
-                  Gap(4.h),
+                  Gap(12.h),
                   authState.isLoading
                       ? Padding(
                         padding: const EdgeInsets.symmetric(vertical: 16),
