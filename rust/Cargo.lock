@@ -2164,7 +2164,7 @@ checksum = "f0efe882e02d206d8d279c20eb40e03baf7cb5136a1476dc084a324fbc3ec42d"
 [[package]]
 name = "nostr"
 version = "0.42.1"
-source = "git+https://github.com/delcin-raj/nostr?rev=87133b9ec345a5be3bed58f83be585caf138f884#87133b9ec345a5be3bed58f83be585caf138f884"
+source = "git+https://github.com/delcin-raj/nostr?rev=c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79#c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79"
 dependencies = [
  "aes",
  "base64 0.22.1",
@@ -2187,7 +2187,7 @@ dependencies = [
 [[package]]
 name = "nostr-blossom"
 version = "0.42.0"
-source = "git+https://github.com/delcin-raj/nostr?rev=87133b9ec345a5be3bed58f83be585caf138f884#87133b9ec345a5be3bed58f83be585caf138f884"
+source = "git+https://github.com/delcin-raj/nostr?rev=c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79#c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79"
 dependencies = [
  "base64 0.22.1",
  "nostr",
@@ -2198,7 +2198,7 @@ dependencies = [
 [[package]]
 name = "nostr-database"
 version = "0.42.0"
-source = "git+https://github.com/delcin-raj/nostr?rev=87133b9ec345a5be3bed58f83be585caf138f884#87133b9ec345a5be3bed58f83be585caf138f884"
+source = "git+https://github.com/delcin-raj/nostr?rev=c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79#c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79"
 dependencies = [
  "flatbuffers",
  "lru",
@@ -2209,7 +2209,7 @@ dependencies = [
 [[package]]
 name = "nostr-lmdb"
 version = "0.42.0"
-source = "git+https://github.com/delcin-raj/nostr?rev=87133b9ec345a5be3bed58f83be585caf138f884#87133b9ec345a5be3bed58f83be585caf138f884"
+source = "git+https://github.com/delcin-raj/nostr?rev=c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79#c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79"
 dependencies = [
  "async-utility",
  "heed",
@@ -2222,7 +2222,7 @@ dependencies = [
 [[package]]
 name = "nostr-mls"
 version = "0.42.0"
-source = "git+https://github.com/delcin-raj/nostr?rev=87133b9ec345a5be3bed58f83be585caf138f884#87133b9ec345a5be3bed58f83be585caf138f884"
+source = "git+https://github.com/delcin-raj/nostr?rev=c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79#c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79"
 dependencies = [
  "aes-gcm",
  "nostr",
@@ -2238,7 +2238,7 @@ dependencies = [
 [[package]]
 name = "nostr-mls-sqlite-storage"
 version = "0.42.0"
-source = "git+https://github.com/delcin-raj/nostr?rev=87133b9ec345a5be3bed58f83be585caf138f884#87133b9ec345a5be3bed58f83be585caf138f884"
+source = "git+https://github.com/delcin-raj/nostr?rev=c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79#c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79"
 dependencies = [
  "nostr",
  "nostr-mls-storage",
@@ -2254,7 +2254,7 @@ dependencies = [
 [[package]]
 name = "nostr-mls-storage"
 version = "0.42.0"
-source = "git+https://github.com/delcin-raj/nostr?rev=87133b9ec345a5be3bed58f83be585caf138f884#87133b9ec345a5be3bed58f83be585caf138f884"
+source = "git+https://github.com/delcin-raj/nostr?rev=c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79#c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79"
 dependencies = [
  "nostr",
  "openmls",
@@ -2266,7 +2266,7 @@ dependencies = [
 [[package]]
 name = "nostr-relay-pool"
 version = "0.42.0"
-source = "git+https://github.com/delcin-raj/nostr?rev=87133b9ec345a5be3bed58f83be585caf138f884#87133b9ec345a5be3bed58f83be585caf138f884"
+source = "git+https://github.com/delcin-raj/nostr?rev=c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79#c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79"
 dependencies = [
  "async-utility",
  "async-wsocket",
@@ -2282,7 +2282,7 @@ dependencies = [
 [[package]]
 name = "nostr-sdk"
 version = "0.42.0"
-source = "git+https://github.com/delcin-raj/nostr?rev=87133b9ec345a5be3bed58f83be585caf138f884#87133b9ec345a5be3bed58f83be585caf138f884"
+source = "git+https://github.com/delcin-raj/nostr?rev=c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79#c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79"
 dependencies = [
  "async-utility",
  "nostr",
@@ -2368,7 +2368,7 @@ dependencies = [
 [[package]]
 name = "nwc"
 version = "0.42.0"
-source = "git+https://github.com/delcin-raj/nostr?rev=87133b9ec345a5be3bed58f83be585caf138f884#87133b9ec345a5be3bed58f83be585caf138f884"
+source = "git+https://github.com/delcin-raj/nostr?rev=c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79#c4d16c691f5bc03448cf95bb8b2f59f7d5d0ca79"
 dependencies = [
  "async-utility",
  "nostr",
@@ -4591,7 +4591,7 @@ checksum = "a751b3277700db47d3e574514de2eced5e54dc8a5436a3bf7a0b248b2cee16f3"
 [[package]]
 name = "whitenoise"
 version = "0.1.0"
-source = "git+https://github.com/parres-hq/whitenoise?rev=9c68596cfe3b1537f2c02d6dddc2e4df9d72e28f#9c68596cfe3b1537f2c02d6dddc2e4df9d72e28f"
+source = "git+https://github.com/parres-hq/whitenoise?rev=d64b2f88e85833b6a4f56f5d73fa83afdd5bed3a#d64b2f88e85833b6a4f56f5d73fa83afdd5bed3a"
 dependencies = [
  "anyhow",
  "async-trait",
