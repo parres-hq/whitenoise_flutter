@@ -312,20 +312,23 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                   actions: Row(
                                                     children: [
                                                       Expanded(
-                                                        child: AppFilledButton(
+                                                        child: AppFilledButton.child(
                                                           onPressed: () {
                                                             ref
                                                                 .read(profileProvider.notifier)
                                                                 .discardChanges();
                                                             Navigator.of(dialogContext).pop();
                                                           },
-                                                          title: 'Discard Changes',
                                                           visualState:
                                                               AppButtonVisualState.secondaryWarning,
                                                           size: AppButtonSize.small,
+                                                          child: const FittedBox(
+                                                            fit: BoxFit.scaleDown,
+                                                            child: Text('Discard Changes'),
+                                                          ),
                                                         ),
                                                       ),
-                                                      Gap(12.w),
+                                                      Gap(10.w),
                                                       Expanded(
                                                         child: AppFilledButton(
                                                           onPressed: () async {
