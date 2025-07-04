@@ -8,7 +8,6 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/utils/timeago_formatter.dart';
 
@@ -62,13 +61,6 @@ class GroupListTile extends ConsumerWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                      Gap(6.w),
-                      Image.asset(
-                        AssetsPaths.icNotificationMuted,
-                        width: 14.w,
-                        height: 14.w,
-                        color: context.colors.mutedForeground,
                       ),
                       const Spacer(),
                       Text(
