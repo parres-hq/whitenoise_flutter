@@ -63,7 +63,7 @@ class SwitchProfileBottomSheet extends ConsumerWidget {
         Flexible(
           child: ListView.builder(
             shrinkWrap: true,
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
             itemCount: sortedProfiles.length,
             itemBuilder: (context, index) {
               final profile = sortedProfiles[index];
