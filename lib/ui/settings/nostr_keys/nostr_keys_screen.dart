@@ -53,7 +53,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
           _logger.info('NostrKeysScreen: Found active account: ${activeAccountData.pubkey}');
 
           // Load keys directly using the new API
-          final nostrKeys = ref.read(nostrKeysProvider);
+          final nostrKeys = ref.read(nostrKeysProvider.notifier);
 
           try {
             // Convert pubkey string to PublicKey object

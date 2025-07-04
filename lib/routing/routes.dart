@@ -19,6 +19,7 @@ abstract final class Routes {
   // Settings
   static const settings = '/settings';
   static const settingsProfile = '/settings/profile';
+  static const settingsProfileShare = '/settings/profile/share';
   static const settingsNetwork = '/settings/network';
   static const settingsKeys = '/settings/keys';
   static const settingsWallet = '/settings/wallet';

@@ -16,6 +16,7 @@ import 'package:whitenoise/ui/settings/general_settings_screen.dart';
 import 'package:whitenoise/ui/settings/network/network_screen.dart';
 import 'package:whitenoise/ui/settings/nostr_keys/nostr_keys_screen.dart';
 import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
+import 'package:whitenoise/ui/settings/profile/share_profile_screen.dart';
 import 'package:whitenoise/ui/settings/wallet/wallet_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -110,6 +111,12 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'profile',
             builder: (context, state) => const EditProfileScreen(),
+            routes: [
+              GoRoute(
+                path: 'share',
+                builder: (context, state) => const ShareProfileScreen(),
+              ),
+            ],
           ),
           GoRoute(
             path: 'network',

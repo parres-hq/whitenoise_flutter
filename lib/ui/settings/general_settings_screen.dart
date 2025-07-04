@@ -237,7 +237,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     AppFilledButton.child(
                       size: AppButtonSize.small,
                       visualState: AppButtonVisualState.secondary,
-                      onPressed: () {},
+                      onPressed: () => context.push(Routes.settingsProfileShare),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
