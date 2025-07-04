@@ -230,7 +230,7 @@ dependencies = [
  "tokio",
  "tokio-rustls 0.26.2",
  "tokio-socks",
- "tokio-tungstenite",
+ "tokio-tungstenite 0.26.2",
  "url",
  "wasm-bindgen",
  "web-sys",
@@ -4102,6 +4102,18 @@ dependencies = [
 
 [[package]]
 name = "tokio-tungstenite"
+version = "0.20.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "212d5dcb2a1ce06d81107c3d0ffa3121fe974b73f068c8282cb1c32328113b6c"
+dependencies = [
+ "futures-util",
+ "log",
+ "tokio",
+ "tungstenite 0.20.1",
+]
+
+[[package]]
+name = "tokio-tungstenite"
 version = "0.26.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7a9daff607c6d2bf6c16fd681ccb7eecc83e4e2cdc1ca067ffaadfca5de7f084"
@@ -4112,7 +4124,7 @@ dependencies = [
  "rustls-pki-types",
  "tokio",
  "tokio-rustls 0.26.2",
- "tungstenite",
+ "tungstenite 0.26.2",
  "webpki-roots 0.26.11",
 ]
 
@@ -4294,6 +4306,25 @@ name = "try-lock"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
+
+[[package]]
+name = "tungstenite"
+version = "0.20.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9e3dac10fd62eaf6617d3a904ae222845979aec67c615d1c842b4002c7666fb9"
+dependencies = [
+ "byteorder",
+ "bytes",
+ "data-encoding",
+ "http 0.2.12",
+ "httparse",
+ "log",
+ "rand 0.8.5",
+ "sha1",
+ "thiserror 1.0.69",
+ "url",
+ "utf-8",
+]
 
 [[package]]
 name = "tungstenite"
@@ -4591,7 +4622,7 @@ checksum = "a751b3277700db47d3e574514de2eced5e54dc8a5436a3bf7a0b248b2cee16f3"
 [[package]]
 name = "whitenoise"
 version = "0.1.0"
-source = "git+https://github.com/parres-hq/whitenoise?rev=d64b2f88e85833b6a4f56f5d73fa83afdd5bed3a#d64b2f88e85833b6a4f56f5d73fa83afdd5bed3a"
+source = "git+https://github.com/parres-hq/whitenoise?rev=6142288f9b1db3987121673a434577d3dbc7dfdd#6142288f9b1db3987121673a434577d3dbc7dfdd"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4602,6 +4633,7 @@ dependencies = [
  "chrono",
  "clap",
  "derivative",
+ "futures",
  "hex",
  "image",
  "keyring",
@@ -4621,6 +4653,7 @@ dependencies = [
  "sqlx",
  "thiserror 2.0.12",
  "tokio",
+ "tokio-tungstenite 0.20.1",
  "tracing",
  "tracing-appender",
  "tracing-subscriber",

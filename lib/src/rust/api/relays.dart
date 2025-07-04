@@ -104,8 +104,15 @@ Future<void> updateRelays({
 Future<Event?> fetchKeyPackage({required PublicKey pubkey}) =>
     RustLib.instance.api.crateApiRelaysFetchKeyPackage(pubkey: pubkey);
 
+Future<List<(RelayUrl, RelayStatus)>> fetchRelayStatus({
+  required PublicKey pubkey,
+}) => RustLib.instance.api.crateApiRelaysFetchRelayStatus(pubkey: pubkey);
+
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
 abstract class Event implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayStatus>>
+abstract class RelayStatus implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayType>>
 abstract class RelayType implements RustOpaqueInterface {}
