@@ -44,7 +44,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.10.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1770091306;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 720086081;
 
 // Section: executor
 
@@ -2551,6 +2551,42 @@ fn wire__crate__api__accounts__fetch_onboarding_state_impl(
         },
     )
 }
+fn wire__crate__api__relays__fetch_relay_status_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "fetch_relay_status",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <PublicKey>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, WhitenoiseError>(
+                    (move || async move {
+                        let output_ok = crate::api::relays::fetch_relay_status(api_pubkey).await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__relays__fetch_relays_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -3898,6 +3934,9 @@ flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
+    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayStatus>
+);
+flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayType>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
@@ -3983,6 +4022,16 @@ impl SseDecode for PublicKey {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <RustOpaqueMoi<
             flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>,
+        >>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
+    }
+}
+
+impl SseDecode for RelayStatus {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <RustOpaqueMoi<
+            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayStatus>,
         >>::sse_decode(deserializer);
         return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
     }
@@ -4136,6 +4185,16 @@ impl SseDecode
 
 impl SseDecode
     for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <usize>::sse_decode(deserializer);
+        return decode_rust_opaque_moi(inner);
+    }
+}
+
+impl SseDecode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayStatus>>
 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -4493,6 +4552,18 @@ impl SseDecode for Vec<(PublicKey, Option<MetadataData>)> {
     }
 }
 
+impl SseDecode for Vec<(RelayUrl, RelayStatus)> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<(RelayUrl, RelayStatus)>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<(String, String)> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -4655,6 +4726,15 @@ impl SseDecode for (PublicKey, Option<MetadataData>) {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_field0 = <PublicKey>::sse_decode(deserializer);
         let mut var_field1 = <Option<MetadataData>>::sse_decode(deserializer);
+        return (var_field0, var_field1);
+    }
+}
+
+impl SseDecode for (RelayUrl, RelayStatus) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_field0 = <RelayUrl>::sse_decode(deserializer);
+        let mut var_field1 = <RelayStatus>::sse_decode(deserializer);
         return (var_field0, var_field1);
     }
 }
@@ -4892,63 +4972,64 @@ fn pde_ffi_dispatcher_primary_impl(
             rust_vec_len,
             data_len,
         ),
-        50 => wire__crate__api__relays__fetch_relays_impl(port, ptr, rust_vec_len, data_len),
-        51 => wire__crate__api__welcomes__fetch_welcome_impl(port, ptr, rust_vec_len, data_len),
-        52 => wire__crate__api__welcomes__fetch_welcomes_impl(port, ptr, rust_vec_len, data_len),
-        53 => {
+        50 => wire__crate__api__relays__fetch_relay_status_impl(port, ptr, rust_vec_len, data_len),
+        51 => wire__crate__api__relays__fetch_relays_impl(port, ptr, rust_vec_len, data_len),
+        52 => wire__crate__api__welcomes__fetch_welcome_impl(port, ptr, rust_vec_len, data_len),
+        53 => wire__crate__api__welcomes__fetch_welcomes_impl(port, ptr, rust_vec_len, data_len),
+        54 => {
             wire__crate__api__groups__group_id_from_string_impl(port, ptr, rust_vec_len, data_len)
         }
-        54 => wire__crate__api__groups__group_id_to_string_impl(port, ptr, rust_vec_len, data_len),
-        55 => wire__crate__api__utils__hex_pubkey_from_npub_impl(port, ptr, rust_vec_len, data_len),
-        56 => wire__crate__api__utils__hex_pubkey_from_public_key_impl(
+        55 => wire__crate__api__groups__group_id_to_string_impl(port, ptr, rust_vec_len, data_len),
+        56 => wire__crate__api__utils__hex_pubkey_from_npub_impl(port, ptr, rust_vec_len, data_len),
+        57 => wire__crate__api__utils__hex_pubkey_from_public_key_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        57 => wire__crate__api__initialize_whitenoise_impl(port, ptr, rust_vec_len, data_len),
-        58 => wire__crate__api__accounts__login_impl(port, ptr, rust_vec_len, data_len),
-        59 => wire__crate__api__accounts__logout_impl(port, ptr, rust_vec_len, data_len),
-        60 => wire__crate__api__utils__npub_from_hex_pubkey_impl(port, ptr, rust_vec_len, data_len),
-        61 => wire__crate__api__utils__npub_from_public_key_impl(port, ptr, rust_vec_len, data_len),
-        62 => {
+        58 => wire__crate__api__initialize_whitenoise_impl(port, ptr, rust_vec_len, data_len),
+        59 => wire__crate__api__accounts__login_impl(port, ptr, rust_vec_len, data_len),
+        60 => wire__crate__api__accounts__logout_impl(port, ptr, rust_vec_len, data_len),
+        61 => wire__crate__api__utils__npub_from_hex_pubkey_impl(port, ptr, rust_vec_len, data_len),
+        62 => wire__crate__api__utils__npub_from_public_key_impl(port, ptr, rust_vec_len, data_len),
+        63 => {
             wire__crate__api__utils__public_key_from_string_impl(port, ptr, rust_vec_len, data_len)
         }
-        63 => wire__crate__api__relays__relay_type_inbox_impl(port, ptr, rust_vec_len, data_len),
-        64 => {
+        64 => wire__crate__api__relays__relay_type_inbox_impl(port, ptr, rust_vec_len, data_len),
+        65 => {
             wire__crate__api__relays__relay_type_key_package_impl(port, ptr, rust_vec_len, data_len)
         }
-        65 => wire__crate__api__relays__relay_type_nostr_impl(port, ptr, rust_vec_len, data_len),
-        66 => {
+        66 => wire__crate__api__relays__relay_type_nostr_impl(port, ptr, rust_vec_len, data_len),
+        67 => {
             wire__crate__api__utils__relay_url_from_string_impl(port, ptr, rust_vec_len, data_len)
         }
-        67 => wire__crate__api__contacts__remove_contact_impl(port, ptr, rust_vec_len, data_len),
-        68 => wire__crate__api__groups__remove_members_from_group_impl(
+        68 => wire__crate__api__contacts__remove_contact_impl(port, ptr, rust_vec_len, data_len),
+        69 => wire__crate__api__groups__remove_members_from_group_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        69 => wire__crate__api__messages__send_message_to_group_impl(
+        70 => wire__crate__api__messages__send_message_to_group_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        70 => {
+        71 => {
             wire__crate__api__utils__string_from_relay_url_impl(port, ptr, rust_vec_len, data_len)
         }
-        71 => wire__crate__api__utils__tag_from_vec_impl(port, ptr, rust_vec_len, data_len),
-        72 => wire__crate__api__contacts__update_contacts_impl(port, ptr, rust_vec_len, data_len),
-        73 => wire__crate__api__accounts__update_metadata_impl(port, ptr, rust_vec_len, data_len),
-        74 => wire__crate__api__relays__update_relays_impl(port, ptr, rust_vec_len, data_len),
-        75 => wire__crate__api__accounts__upload_profile_picture_impl(
+        72 => wire__crate__api__utils__tag_from_vec_impl(port, ptr, rust_vec_len, data_len),
+        73 => wire__crate__api__contacts__update_contacts_impl(port, ptr, rust_vec_len, data_len),
+        74 => wire__crate__api__accounts__update_metadata_impl(port, ptr, rust_vec_len, data_len),
+        75 => wire__crate__api__relays__update_relays_impl(port, ptr, rust_vec_len, data_len),
+        76 => wire__crate__api__accounts__upload_profile_picture_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        76 => wire__crate__api__utils__whitenoise_error_to_string_impl(
+        77 => wire__crate__api__utils__whitenoise_error_to_string_impl(
             port,
             ptr,
             rust_vec_len,
@@ -5163,6 +5244,21 @@ impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<
 
 impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<PublicKey>> for PublicKey {
     fn into_into_dart(self) -> FrbWrapper<PublicKey> {
+        self.into()
+    }
+}
+
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<RelayStatus> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
+            .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<RelayStatus> {}
+
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<RelayStatus>> for RelayStatus {
+    fn into_into_dart(self) -> FrbWrapper<RelayStatus> {
         self.into()
     }
 }
@@ -5645,6 +5741,13 @@ impl SseEncode for PublicKey {
     }
 }
 
+impl SseEncode for RelayStatus {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayStatus>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
+    }
+}
+
 impl SseEncode for RelayType {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -5793,6 +5896,17 @@ impl SseEncode
 
 impl SseEncode
     for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>
+{
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        let (ptr, size) = self.sse_encode_raw();
+        <usize>::sse_encode(ptr, serializer);
+        <i32>::sse_encode(size, serializer);
+    }
+}
+
+impl SseEncode
+    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayStatus>>
 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -6092,6 +6206,16 @@ impl SseEncode for Vec<(PublicKey, Option<MetadataData>)> {
     }
 }
 
+impl SseEncode for Vec<(RelayUrl, RelayStatus)> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <(RelayUrl, RelayStatus)>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<(String, String)> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -6216,6 +6340,14 @@ impl SseEncode for (PublicKey, Option<MetadataData>) {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <PublicKey>::sse_encode(self.0, serializer);
         <Option<MetadataData>>::sse_encode(self.1, serializer);
+    }
+}
+
+impl SseEncode for (RelayUrl, RelayStatus) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <RelayUrl>::sse_encode(self.0, serializer);
+        <RelayStatus>::sse_encode(self.1, serializer);
     }
 }
 
@@ -6492,6 +6624,20 @@ mod io {
         ptr: *const std::ffi::c_void,
     ) {
         MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>::decrement_strong_count(ptr as _);
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayStatus(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayStatus>>::increment_strong_count(ptr as _);
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayStatus(
+        ptr: *const std::ffi::c_void,
+    ) {
+        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayStatus>>::decrement_strong_count(ptr as _);
     }
 
     #[unsafe(no_mangle)]

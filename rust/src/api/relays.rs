@@ -1,5 +1,7 @@
 use flutter_rust_bridge::frb;
-pub use whitenoise::{Event, PublicKey, RelayType, RelayUrl, Whitenoise, WhitenoiseError};
+pub use whitenoise::{
+    Event, PublicKey, RelayStatus, RelayType, RelayUrl, Whitenoise, WhitenoiseError,
+};
 
 /// Creates a RelayType::Nostr variant.
 ///
@@ -111,4 +113,12 @@ pub async fn fetch_key_package(pubkey: PublicKey) -> Result<Option<Event>, White
         .fetch_relays(pubkey, RelayType::KeyPackage)
         .await?;
     whitenoise.fetch_key_package_event(pubkey, relays).await
+}
+
+#[frb]
+pub async fn fetch_relay_status(
+    pubkey: PublicKey,
+) -> Result<Vec<(RelayUrl, RelayStatus)>, WhitenoiseError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    whitenoise.fetch_relay_status(pubkey).await
 }
