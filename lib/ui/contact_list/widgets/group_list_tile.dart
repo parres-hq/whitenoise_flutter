@@ -46,7 +46,8 @@ class GroupListTile extends ConsumerWidget {
               flex: 5,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: lastMessage != null ? MainAxisAlignment.start : MainAxisAlignment.center,
+                mainAxisAlignment:
+                    lastMessage != null ? MainAxisAlignment.start : MainAxisAlignment.center,
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,

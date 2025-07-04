@@ -38,11 +38,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
       _handleScrollToBottom();
     });
-    
+
     ref.listenManual(chatProvider, (previous, next) {
       final currentMessages = next.groupMessages[widget.groupId] ?? [];
       final previousMessages = previous?.groupMessages[widget.groupId] ?? [];
-      
+
       if (currentMessages.length != previousMessages.length) {
         _handleScrollToBottom();
       }
@@ -61,13 +61,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       }
     });
-    
+
     Future.delayed(const Duration(milliseconds: 100), () {
       if (_scrollController.hasClients) {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       }
     });
-    
+
     Future.delayed(const Duration(milliseconds: 300), () {
       if (_scrollController.hasClients) {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
