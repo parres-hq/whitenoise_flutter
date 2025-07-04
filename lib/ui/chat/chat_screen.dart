@@ -36,6 +36,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
       ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
+      _handleScrollToBottom();
+    });
+    
+    ref.listenManual(chatProvider, (previous, next) {
+      final currentMessages = next.groupMessages[widget.groupId] ?? [];
+      final previousMessages = previous?.groupMessages[widget.groupId] ?? [];
+      
+      if (currentMessages.length != previousMessages.length) {
+        _handleScrollToBottom();
+      }
     });
   }
 
@@ -51,12 +61,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       }
     });
+    
+    Future.delayed(const Duration(milliseconds: 100), () {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
+    
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (_scrollController.hasClients) {
+        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      }
+    });
   }
 
   void _scrollToBottomIfNeeded(List<dynamic> messages, bool isLoading) {
-    if (!isLoading && messages.isNotEmpty) {
-      _handleScrollToBottom();
-    }
+    _handleScrollToBottom();
   }
 
   @override
