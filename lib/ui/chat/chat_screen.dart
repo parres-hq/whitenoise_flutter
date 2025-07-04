@@ -100,96 +100,95 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       );
     }
 
-    final groupLoading = ref.watch(chatProvider).groupLoadingStates[widget.groupId] ?? false;
-    final messages = ref.watch(chatProvider).groupMessages[widget.groupId] ?? [];
+    final groupLoading = ref.watch(
+      chatProvider.select((state) => state.groupLoadingStates[widget.groupId] ?? false),
+    );
+    final messages = ref.watch(
+      chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
+    );
 
     _scrollToBottomIfNeeded(messages, groupLoading);
-    return PopScope(
-      onPopInvokedWithResult: (didPop, result) => ref.read(groupsProvider.notifier).loadGroups(),
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        body:
-            groupLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Stack(
-                  children: [
-                    CustomScrollView(
-                      controller: _scrollController,
-                      slivers: [
-                        CustomAppBar.sliver(
-                          floating: true,
-                          pinned: true,
-                          title: ContactInfo(
-                            title: displayName,
-                            imageUrl: '',
-                          ),
-                        ),
-                        SliverPadding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 8.h,
-                          ).copyWith(
-                            bottom: 200.h,
-                          ),
-                          sliver: SliverList.builder(
-                            itemCount: messages.length + 1,
-                            itemBuilder: (context, index) {
-                              if (index == 0) {
-                                return ChatContactHeader(groupData: groupData);
-                              }
-                              final message = messages[index - 1];
-                              return SwipeToReplyWidget(
-                                message: message,
-                                onReply: () => chatNotifier.handleReply(message),
-                                onTap:
-                                    () => ChatDialogService.showReactionDialog(
-                                      context: context,
-                                      ref: ref,
-                                      message: message,
-                                      messageIndex: index,
-                                    ),
-                                child: Hero(
-                                  tag: message.id,
-                                  child: MessageWidget(
-                                    message: message,
-                                    isGroupMessage: groupData.groupType == GroupType.group,
-                                    isSameSenderAsPrevious: chatNotifier.isSameSender(index),
-                                    isSameSenderAsNext: chatNotifier.isNextSameSender(index),
-                                    onReactionTap: (reaction) {
-                                      chatNotifier.updateMessageReaction(
-                                        message: message,
-                                        reaction: reaction,
-                                      );
-                                    },
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    if (messages.isNotEmpty)
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        height: isKeyboardOpen ? 100.h : 150.h,
-                        child: const BottomFade().animate().fadeIn(),
-                      ),
-                  ],
+    return Scaffold(
+      resizeToAvoidBottomInset: true,
+      body: Stack(
+        children: [
+          CustomScrollView(
+            controller: _scrollController,
+            slivers: [
+              CustomAppBar.sliver(
+                floating: true,
+                pinned: true,
+                title: ContactInfo(
+                  title: displayName,
+                  imageUrl: '',
                 ),
-        bottomSheet: ChatInput(
-          groupId: widget.groupId,
-          onSend:
-              (message, isEditing) => chatNotifier.sendMessage(
-                groupId: widget.groupId,
-                message: message,
-                isEditing: isEditing,
-                onMessageSent: _handleScrollToBottom,
               ),
-        ),
+              SliverPadding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 8.w,
+                  vertical: 8.h,
+                ).copyWith(
+                  bottom: 200.h,
+                ),
+                sliver: SliverList.builder(
+                  itemCount: messages.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == 0) {
+                      return ChatContactHeader(groupData: groupData);
+                    }
+                    final message = messages[index - 1];
+                    return SwipeToReplyWidget(
+                      message: message,
+                      onReply: () => chatNotifier.handleReply(message),
+                      onTap:
+                          () => ChatDialogService.showReactionDialog(
+                            context: context,
+                            ref: ref,
+                            message: message,
+                            messageIndex: index,
+                          ),
+                      child: Hero(
+                        tag: message.id,
+                        child: MessageWidget(
+                          message: message,
+                          isGroupMessage: groupData.groupType == GroupType.group,
+                          isSameSenderAsPrevious: chatNotifier.isSameSender(index),
+                          isSameSenderAsNext: chatNotifier.isNextSameSender(index),
+                          onReactionTap: (reaction) {
+                            chatNotifier.updateMessageReaction(
+                              message: message,
+                              reaction: reaction,
+                            );
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+
+          if (messages.isNotEmpty)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: isKeyboardOpen ? 100.h : 150.h,
+              child: const BottomFade().animate().fadeIn(),
+            ),
+        ],
+      ),
+
+      bottomSheet: ChatInput(
+        groupId: widget.groupId,
+        onSend:
+            (message, isEditing) => chatNotifier.sendMessage(
+              groupId: widget.groupId,
+              message: message,
+              isEditing: isEditing,
+              onMessageSent: _handleScrollToBottom,
+            ),
       ),
     );
   }

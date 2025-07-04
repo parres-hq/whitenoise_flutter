@@ -37,7 +37,7 @@ extension TimeagoFormatter on DateTime {
 
     // >6days = "Jun 10" - Month, Day (if same year) or "Jun 10, 2023" (if different year)
     if (difference.inDays > 6) {
-      if (this.year == now.year) {
+      if (year == now.year) {
         return DateFormat('MMM d').format(this);
       } else {
         return DateFormat('MMM d, yyyy').format(this);
@@ -45,7 +45,7 @@ extension TimeagoFormatter on DateTime {
     }
 
     // Fallback (should not reach here)
-    if (this.year == now.year) {
+    if (year == now.year) {
       return DateFormat('MMM d').format(this);
     } else {
       return DateFormat('MMM d, yyyy').format(this);
