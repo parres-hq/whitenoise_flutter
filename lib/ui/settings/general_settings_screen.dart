@@ -293,7 +293,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
               ),
               Divider(color: context.colors.baseMuted, height: 24.h),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 24.w),
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Column(
                   children: [
                     SettingsListTile(
