@@ -48,6 +48,13 @@ android {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
             signingConfig = signingConfigs.getByName("debug")
+            
+            // Disable code shrinking for flutter_rust_bridge compatibility
+            isMinifyEnabled = false
+            isShrinkResources = false
+            
+            // If you re-enable minification, uncomment this line:
+            // proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
 }

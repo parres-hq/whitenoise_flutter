@@ -91,20 +91,24 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
+      print('+: 0. createNewGroup\'s try');
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      print('+: 1. getActiveAccountData operation completed');
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return null;
       }
 
       final creatorPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      print('+: 2. publicKeyFromString (creator) operation completed');
 
       final resolvedMembersPublicKeys = await Future.wait(
         memberPublicKeyHexs.toSet().map(
           (hexKey) async => await publicKeyFromString(publicKeyString: hexKey.trim()),
         ),
       );
+      print('+: 3. publicKeyFromString (members) operation completed');
       _logger.info('GroupsProvider: Members pubkeys loaded - ${resolvedMembersPublicKeys.length}');
 
       final resolvedAdminPublicKeys = await Future.wait(
@@ -112,10 +116,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
           (hexKey) async => await publicKeyFromString(publicKeyString: hexKey.trim()),
         ),
       );
+      print('+: 4. publicKeyFromString (admins) operation completed');
 
       final creatorPubkeyForAdmin = await publicKeyFromString(
         publicKeyString: activeAccountData.pubkey,
       );
+      print('+: 5. publicKeyFromString (creator for admin) operation completed');
       final combinedAdminKeys = {creatorPubkeyForAdmin, ...resolvedAdminPublicKeys}.toList();
       _logger.info('GroupsProvider: Admin pubkeys loaded - ${combinedAdminKeys.length}');
 
@@ -126,23 +132,33 @@ class GroupsNotifier extends Notifier<GroupsState> {
         groupName: groupName,
         groupDescription: groupDescription,
       );
+      print('+: 6. createGroup operation completed');
 
       _logger.info('GroupsProvider: Group created successfully - ${newGroup.name}');
 
       await loadGroups();
+      print('+: 7. loadGroups operation completed');
       return newGroup;
     } catch (e, st) {
+      print(
+        '+: 🚀🚀 GroupsProvider.createNewGroup: $e, $st, ${e is WhitenoiseError}, ${e.runtimeType}',
+      );
       _logger.severe('GroupsProvider.createNewGroup', e, st);
       String errorMessage = 'Failed to create group';
+      
+      // Add more detailed error handling for release builds
       if (e is WhitenoiseError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
+          print('+: WhitenoiseError converted to string: $errorMessage');
         } catch (conversionError) {
           _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          print('+: Failed to convert WhitenoiseError: $conversionError');
           errorMessage = 'Failed to create group due to an internal error';
         }
       } else {
         errorMessage = e.toString();
+        print('+: Non-WhitenoiseError: $errorMessage');
       }
       state = state.copyWith(error: errorMessage, isLoading: false);
       return null;
