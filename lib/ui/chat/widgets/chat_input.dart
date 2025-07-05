@@ -78,101 +78,117 @@ class _ChatInputState extends ConsumerState<ChatInput> {
     final isKeyboardOpen = keyboardHeight > 0;
 
     return AnimatedPadding(
-      duration: Durations.long2,
-      curve: Curves.easeInOut,
-      padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
-        top: 4.h,
-        bottom: isKeyboardOpen ? 16.h : 54.h,
-      ),
-      child: SafeArea(
-        child: Container(
-          width: 1.sw,
-          constraints: BoxConstraints(
-            minHeight: 44.h,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOutCubic,
+          padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
+            top: 4.h,
+            bottom: isKeyboardOpen ? 16.h : 54.h,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Row(
+          child: SafeArea(
+            child: Container(
+              width: 1.sw,
+              constraints: BoxConstraints(
+                minHeight: 44.h,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: context.colors.avatarSurface,
-                        border: Border.all(
-                          color:
-                              _focusNode.hasFocus ? context.colors.primary : context.colors.input,
-                          width: 1.w,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ReplyEditHeader(
-                            replyingTo: chatState.replyingTo[widget.groupId],
-                            editingMessage: chatState.editingMessage[widget.groupId],
-                            onCancel: () {
-                              if (chatState.replyingTo[widget.groupId] != null) {
-                                chatNotifier.cancelReply();
-                              } else if (chatState.editingMessage[widget.groupId] != null) {
-                                chatNotifier.cancelEdit();
-                                _textController.clear();
-                              }
-                              setState(() {});
-                            },
-                          ),
-                          AppTextFormField(
-                            controller: _textController,
-                            focusNode: _focusNode,
-                            onChanged: (_) => setState(() {}),
-                            hintText: 'Message',
-                            maxLines: 5,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: context.colors.avatarSurface,
+                            border: Border.all(
+                              color:
+                                  _focusNode.hasFocus
+                                      ? context.colors.primary
+                                      : context.colors.input,
+                              width: 1.w,
                             ),
                           ),
-                        ],
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              ReplyEditHeader(
+                                replyingTo: chatState.replyingTo[widget.groupId],
+                                editingMessage: chatState.editingMessage[widget.groupId],
+                                onCancel: () {
+                                  if (chatState.replyingTo[widget.groupId] != null) {
+                                    chatNotifier.cancelReply();
+                                  } else if (chatState.editingMessage[widget.groupId] != null) {
+                                    chatNotifier.cancelEdit();
+                                    _textController.clear();
+                                  }
+                                  setState(() {});
+                                },
+                              ),
+                              AppTextFormField(
+                                controller: _textController,
+                                focusNode: _focusNode,
+                                onChanged: (_) => setState(() {}),
+                                hintText: 'Message',
+                                maxLines: 5,
+                                textInputAction: TextInputAction.newline,
+                                keyboardType: TextInputType.multiline,
+                                textCapitalization: TextCapitalization.sentences,
+                                decoration: const InputDecoration(
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  AnimatedSize(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeInOut,
-                    child:
-                        _textController.text.isNotEmpty
-                            ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Gap(8.w),
-                                AppIconButton(
-                                      onPressed: _sendMessage,
-                                      icon: Icons.arrow_upward,
-                                      backgroundColor: context.colors.primary,
-                                      iconColor: context.colors.primaryForeground,
-                                      size: 58.w,
-                                    )
-                                    .animate()
-                                    .fadeIn(
-                                      duration: const Duration(milliseconds: 200),
-                                    )
-                                    .scale(
-                                      begin: const Offset(0.7, 0.7),
-                                      duration: const Duration(milliseconds: 200),
-                                      curve: Curves.elasticOut,
-                                    ),
-                              ],
-                            )
-                            : const SizedBox.shrink(),
+                      AnimatedSize(
+                        duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeInOut,
+                        child:
+                            _textController.text.isNotEmpty
+                                ? Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Gap(8.w),
+                                    AppIconButton(
+                                          onPressed: _sendMessage,
+                                          icon: Icons.arrow_upward,
+                                          backgroundColor: context.colors.primary,
+                                          iconColor: context.colors.primaryForeground,
+                                          size: 58.w,
+                                        )
+                                        .animate()
+                                        .fadeIn(
+                                          duration: const Duration(milliseconds: 200),
+                                        )
+                                        .scale(
+                                          begin: const Offset(0.7, 0.7),
+                                          duration: const Duration(milliseconds: 200),
+                                          curve: Curves.elasticOut,
+                                        ),
+                                  ],
+                                )
+                                : const SizedBox.shrink(),
+                      ),
+                    ],
                   ),
                 ],
               ),
-            ],
+            ),
           ),
-        ),
-      ),
-    ).animate().fadeIn();
+        )
+        .animate()
+        .fadeIn(
+          duration: const Duration(milliseconds: 200),
+        )
+        .slideY(
+          begin: 0.3,
+          end: 0,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
+        );
   }
 }
 

@@ -43,6 +43,11 @@ class MessageWidget extends StatelessWidget {
 
   Widget _buildMessageContent(BuildContext context) {
     return Container(
+      constraints: BoxConstraints(
+        minHeight: 40.h,
+        maxWidth: 0.4.sw,
+        minWidth: 0.2.sw,
+      ),
       padding: EdgeInsets.symmetric(
         vertical: 2.h,
       ).copyWith(
@@ -89,8 +94,8 @@ class MessageWidget extends StatelessWidget {
   Widget _buildMetadataRow(BuildContext context) {
     if (message.reactions.isEmpty) {
       return Row(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
           _buildTimeAndStatus(context),
         ],
