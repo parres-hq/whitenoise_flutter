@@ -30,8 +30,7 @@ mixin _$GroupsState {
   /// Create a copy of GroupsState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $GroupsStateCopyWith<GroupsState> get copyWith =>
-      throw _privateConstructorUsedError;
+  $GroupsStateCopyWith<GroupsState> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -112,8 +111,7 @@ class _$GroupsStateCopyWithImpl<$Res, $Val extends GroupsState>
 }
 
 /// @nodoc
-abstract class _$$GroupsStateImplCopyWith<$Res>
-    implements $GroupsStateCopyWith<$Res> {
+abstract class _$$GroupsStateImplCopyWith<$Res> implements $GroupsStateCopyWith<$Res> {
   factory _$$GroupsStateImplCopyWith(
     _$GroupsStateImpl value,
     $Res Function(_$GroupsStateImpl) then,
@@ -242,8 +240,7 @@ class _$GroupsStateImpl implements _GroupsState {
   Map<String, String>? get groupDisplayNames {
     final value = _groupDisplayNames;
     if (value == null) return null;
-    if (_groupDisplayNames is EqualUnmodifiableMapView)
-      return _groupDisplayNames;
+    if (_groupDisplayNames is EqualUnmodifiableMapView) return _groupDisplayNames;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(value);
   }
@@ -278,8 +275,7 @@ class _$GroupsStateImpl implements _GroupsState {
               other._groupDisplayNames,
               _groupDisplayNames,
             ) &&
-            (identical(other.isLoading, isLoading) ||
-                other.isLoading == isLoading) &&
+            (identical(other.isLoading, isLoading) || other.isLoading == isLoading) &&
             (identical(other.error, error) || other.error == error));
   }
 
@@ -330,6 +326,5 @@ abstract class _GroupsState implements GroupsState {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$GroupsStateImplCopyWith<_$GroupsStateImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$GroupsStateImplCopyWith<_$GroupsStateImpl> get copyWith => throw _privateConstructorUsedError;
 }
