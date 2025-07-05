@@ -137,7 +137,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     horizontal: 8.w,
                     vertical: 8.h,
                   ).copyWith(
-                    bottom: 200.h,
+                    bottom: 120.h,
                   ),
                   sliver: SliverList.builder(
                     itemCount: messages.length + 1,

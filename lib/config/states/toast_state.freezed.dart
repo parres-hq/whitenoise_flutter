@@ -27,7 +27,8 @@ mixin _$ToastMessage {
   /// Create a copy of ToastMessage
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ToastMessageCopyWith<ToastMessage> get copyWith => throw _privateConstructorUsedError;
+  $ToastMessageCopyWith<ToastMessage> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -108,7 +109,8 @@ class _$ToastMessageCopyWithImpl<$Res, $Val extends ToastMessage>
 }
 
 /// @nodoc
-abstract class _$$ToastMessageImplCopyWith<$Res> implements $ToastMessageCopyWith<$Res> {
+abstract class _$$ToastMessageImplCopyWith<$Res>
+    implements $ToastMessageCopyWith<$Res> {
   factory _$$ToastMessageImplCopyWith(
     _$ToastMessageImpl value,
     $Res Function(_$ToastMessageImpl) then,
@@ -192,7 +194,7 @@ class _$ToastMessageImpl implements _ToastMessage {
     required this.type,
     this.durationMs = 8000,
     this.autoDismiss = true,
-    this.showBelowAppBar = true,
+    this.showBelowAppBar = false,
   });
 
   @override
@@ -224,8 +226,10 @@ class _$ToastMessageImpl implements _ToastMessage {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.message, message) || other.message == message) &&
             (identical(other.type, type) || other.type == type) &&
-            (identical(other.durationMs, durationMs) || other.durationMs == durationMs) &&
-            (identical(other.autoDismiss, autoDismiss) || other.autoDismiss == autoDismiss) &&
+            (identical(other.durationMs, durationMs) ||
+                other.durationMs == durationMs) &&
+            (identical(other.autoDismiss, autoDismiss) ||
+                other.autoDismiss == autoDismiss) &&
             (identical(other.showBelowAppBar, showBelowAppBar) ||
                 other.showBelowAppBar == showBelowAppBar));
   }
@@ -291,7 +295,8 @@ mixin _$ToastConfig {
   /// Create a copy of ToastConfig
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ToastConfigCopyWith<ToastConfig> get copyWith => throw _privateConstructorUsedError;
+  $ToastConfigCopyWith<ToastConfig> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -358,7 +363,8 @@ class _$ToastConfigCopyWithImpl<$Res, $Val extends ToastConfig>
 }
 
 /// @nodoc
-abstract class _$$ToastConfigImplCopyWith<$Res> implements $ToastConfigCopyWith<$Res> {
+abstract class _$$ToastConfigImplCopyWith<$Res>
+    implements $ToastConfigCopyWith<$Res> {
   factory _$$ToastConfigImplCopyWith(
     _$ToastConfigImpl value,
     $Res Function(_$ToastConfigImpl) then,
@@ -426,7 +432,7 @@ class _$ToastConfigImpl implements _ToastConfig {
     this.stackMode = ToastStackMode.replace,
     this.defaultDurationMs = 8000,
     this.autoDismiss = true,
-    this.defaultShowBelowAppBar = true,
+    this.defaultShowBelowAppBar = false,
   });
 
   @override
@@ -452,10 +458,12 @@ class _$ToastConfigImpl implements _ToastConfig {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ToastConfigImpl &&
-            (identical(other.stackMode, stackMode) || other.stackMode == stackMode) &&
+            (identical(other.stackMode, stackMode) ||
+                other.stackMode == stackMode) &&
             (identical(other.defaultDurationMs, defaultDurationMs) ||
                 other.defaultDurationMs == defaultDurationMs) &&
-            (identical(other.autoDismiss, autoDismiss) || other.autoDismiss == autoDismiss) &&
+            (identical(other.autoDismiss, autoDismiss) ||
+                other.autoDismiss == autoDismiss) &&
             (identical(other.defaultShowBelowAppBar, defaultShowBelowAppBar) ||
                 other.defaultShowBelowAppBar == defaultShowBelowAppBar));
   }
@@ -499,7 +507,8 @@ abstract class _ToastConfig implements ToastConfig {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ToastConfigImplCopyWith<_$ToastConfigImpl> get copyWith => throw _privateConstructorUsedError;
+  _$$ToastConfigImplCopyWith<_$ToastConfigImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -510,7 +519,8 @@ mixin _$ToastState {
   /// Create a copy of ToastState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ToastStateCopyWith<ToastState> get copyWith => throw _privateConstructorUsedError;
+  $ToastStateCopyWith<ToastState> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -526,7 +536,8 @@ abstract class $ToastStateCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$ToastStateCopyWithImpl<$Res, $Val extends ToastState> implements $ToastStateCopyWith<$Res> {
+class _$ToastStateCopyWithImpl<$Res, $Val extends ToastState>
+    implements $ToastStateCopyWith<$Res> {
   _$ToastStateCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -568,7 +579,8 @@ class _$ToastStateCopyWithImpl<$Res, $Val extends ToastState> implements $ToastS
 }
 
 /// @nodoc
-abstract class _$$ToastStateImplCopyWith<$Res> implements $ToastStateCopyWith<$Res> {
+abstract class _$$ToastStateImplCopyWith<$Res>
+    implements $ToastStateCopyWith<$Res> {
   factory _$$ToastStateImplCopyWith(
     _$ToastStateImpl value,
     $Res Function(_$ToastStateImpl) then,
@@ -582,7 +594,8 @@ abstract class _$$ToastStateImplCopyWith<$Res> implements $ToastStateCopyWith<$R
 }
 
 /// @nodoc
-class __$$ToastStateImplCopyWithImpl<$Res> extends _$ToastStateCopyWithImpl<$Res, _$ToastStateImpl>
+class __$$ToastStateImplCopyWithImpl<$Res>
+    extends _$ToastStateCopyWithImpl<$Res, _$ToastStateImpl>
     implements _$$ToastStateImplCopyWith<$Res> {
   __$$ToastStateImplCopyWithImpl(
     _$ToastStateImpl _value,
@@ -679,5 +692,6 @@ abstract class _ToastState extends ToastState {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ToastStateImplCopyWith<_$ToastStateImpl> get copyWith => throw _privateConstructorUsedError;
+  _$$ToastStateImplCopyWith<_$ToastStateImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }

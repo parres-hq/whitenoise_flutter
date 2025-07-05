@@ -46,8 +46,22 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final groups = await fetchGroups(pubkey: publicKey);
 
+      // Sort groups by lastMessageAt in descending order (newest first)
+      final sortedGroups = [...groups]..sort((a, b) {
+        final aTime = a.lastMessageAt;
+        final bTime = b.lastMessageAt;
+
+        // Handle null values - groups without messages go to the end
+        if (aTime == null && bTime == null) return 0;
+        if (aTime == null) return 1;
+        if (bTime == null) return -1;
+
+        // Sort by descending order (newest first)
+        return bTime.compareTo(aTime);
+      });
+
       // First set the groups
-      state = state.copyWith(groups: groups);
+      state = state.copyWith(groups: sortedGroups);
 
       // Load members for all groups to enable proper display name calculation
       await _loadMembersForAllGroups(groups);
@@ -512,8 +526,19 @@ class GroupsNotifier extends Notifier<GroupsState> {
           newGroups.where((group) => !currentGroupIds.contains(group.mlsGroupId)).toList();
 
       if (actuallyNewGroups.isNotEmpty) {
-        // Add new groups to existing list
-        final updatedGroups = [...currentGroups, ...actuallyNewGroups];
+        // Add new groups to existing list and sort by lastMessageAt (newest first)
+        final updatedGroups = [...currentGroups, ...actuallyNewGroups]..sort((a, b) {
+          final aTime = a.lastMessageAt;
+          final bTime = b.lastMessageAt;
+
+          // Handle null values - groups without messages go to the end
+          if (aTime == null && bTime == null) return 0;
+          if (aTime == null) return 1;
+          if (bTime == null) return -1;
+
+          // Sort by descending order (newest first)
+          return bTime.compareTo(aTime);
+        });
         state = state.copyWith(groups: updatedGroups);
 
         // Load members for new groups only
