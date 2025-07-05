@@ -73,7 +73,6 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
     setState(() {
       _isCreatingGroup = true;
     });
-    print('+: createDirectMessageGroup');
     try {
       final groupData = await ref
           .read(groupsProvider.notifier)
@@ -83,7 +82,6 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
             memberPublicKeyHexs: [widget.pubkey],
             adminPublicKeyHexs: [widget.pubkey],
           );
-      print('+: reaches here... $groupData is null: ${groupData == null}');
       if (groupData != null) {
         _logger.info('Direct message group created successfully: ${groupData.mlsGroupId}');
 
@@ -102,19 +100,13 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
       } else {
         throw Exception('Failed to create direct message group');
       }
-    } catch (e, st) {
+    } catch (e) {
       String errorMessage;
-      print('+: createDirectMessageGroup acught');
       if (e is WhitenoiseError) {
         errorMessage = await whitenoiseErrorToString(error: e);
       } else {
         errorMessage = e.toString();
       }
-      print('+: createDirectMessageGroup errorMessage: $errorMessage');
-      print(
-        '+: Failed to create direct message group: $errorMessage, ${e is Exception}, ${e.runtimeType}',
-      );
-
       if (mounted) {
         ref.showRawErrorToast(
           'Failed to start chat: $errorMessage, ${e is WhitenoiseErrorImpl}, ${e.runtimeType}',
