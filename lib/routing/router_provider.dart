@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/toast_message_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
 import 'package:whitenoise/ui/auth_flow/info_screen.dart';
@@ -19,10 +20,52 @@ import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/ui/settings/profile/share_profile_screen.dart';
 import 'package:whitenoise/ui/settings/wallet/wallet_screen.dart';
 
+/// Navigation observer that dismisses toasts when routes change
+class _NavigationObserver extends NavigatorObserver {
+  final Ref ref;
+
+  _NavigationObserver(this.ref);
+
+  @override
+  void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPush(route, previousRoute);
+    _dismissToasts();
+  }
+
+  @override
+  void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didPop(route, previousRoute);
+    _dismissToasts();
+  }
+
+  @override
+  void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
+    super.didReplace(newRoute: newRoute, oldRoute: oldRoute);
+    _dismissToasts();
+  }
+
+  @override
+  void didRemove(Route<dynamic> route, Route<dynamic>? previousRoute) {
+    super.didRemove(route, previousRoute);
+    _dismissToasts();
+  }
+
+  void _dismissToasts() {
+    // Dismiss all toasts when navigation occurs
+    // Use Future.microtask to avoid modifying provider during widget tree building
+    Future.microtask(() {
+      ref.read(toastMessageProvider.notifier).dismissAll();
+    });
+  }
+}
+
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     debugLogDiagnostics: true,
     initialLocation: Routes.home,
+    observers: [
+      _NavigationObserver(ref),
+    ],
     redirect: (context, state) {
       final authState = ref.read(authProvider);
       final currentLocation = state.uri.path;
