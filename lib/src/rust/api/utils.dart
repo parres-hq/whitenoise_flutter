@@ -157,10 +157,8 @@ Future<String> hexPubkeyFromNpub({required String npub}) =>
 /// let pubkey = PublicKey::parse("npub1...")?;
 /// let hex = hex_pubkey_from_public_key(&pubkey)?;
 /// ```
-Future<String> hexPubkeyFromPublicKey({required PublicKey publicKey}) => RustLib
-    .instance
-    .api
-    .crateApiUtilsHexPubkeyFromPublicKey(publicKey: publicKey);
+Future<String> hexPubkeyFromPublicKey({required PublicKey publicKey}) =>
+    RustLib.instance.api.crateApiUtilsHexPubkeyFromPublicKey(publicKey: publicKey);
 
 /// Parses a relay URL from a string.
 ///

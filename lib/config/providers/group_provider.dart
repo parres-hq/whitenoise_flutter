@@ -135,7 +135,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     } catch (e, st) {
       _logger.severe('GroupsProvider.createNewGroup', e, st);
       String errorMessage = 'Failed to create group';
-      
+
       // Add more detailed error handling for release builds
       if (e is WhitenoiseError) {
         try {
@@ -486,6 +486,84 @@ class GroupsNotifier extends Notifier<GroupsState> {
         await loadGroupDetails(group.mlsGroupId);
       }
     }
+  }
+
+  /// Check for new groups and add them incrementally (for polling)
+  Future<void> checkForNewGroups() async {
+    if (!_isAuthAvailable()) {
+      return;
+    }
+
+    try {
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        return;
+      }
+
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final newGroups = await fetchGroups(pubkey: publicKey);
+
+      final currentGroups = state.groups ?? [];
+      final currentGroupIds = currentGroups.map((g) => g.mlsGroupId).toSet();
+
+      // Find truly new groups
+      final actuallyNewGroups =
+          newGroups.where((group) => !currentGroupIds.contains(group.mlsGroupId)).toList();
+
+      if (actuallyNewGroups.isNotEmpty) {
+        // Add new groups to existing list
+        final updatedGroups = [...currentGroups, ...actuallyNewGroups];
+        state = state.copyWith(groups: updatedGroups);
+
+        // Load members for new groups only
+        await _loadMembersForSpecificGroups(actuallyNewGroups);
+
+        // Calculate display names for new groups
+        await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups, activeAccountData.pubkey);
+
+        _logger.info('GroupsProvider: Added ${actuallyNewGroups.length} new groups');
+      }
+    } catch (e, st) {
+      _logger.severe('GroupsProvider.checkForNewGroups', e, st);
+    }
+  }
+
+  /// Load members for specific groups (used for new groups)
+  Future<void> _loadMembersForSpecificGroups(List<GroupData> groups) async {
+    try {
+      final List<Future<void>> loadTasks = [];
+
+      for (final group in groups) {
+        loadTasks.add(
+          loadGroupMembers(group.mlsGroupId).catchError((e) {
+            _logger.warning('Failed to load members for new group ${group.mlsGroupId}: $e');
+            return;
+          }),
+        );
+      }
+
+      await Future.wait(loadTasks);
+    } catch (e) {
+      _logger.severe('GroupsProvider: Error loading members for new groups: $e');
+    }
+  }
+
+  /// Calculate display names for specific groups (used for new groups)
+  Future<void> _calculateDisplayNamesForSpecificGroups(
+    List<GroupData> groups,
+    String currentUserPubkey,
+  ) async {
+    final Map<String, String> displayNames = Map<String, String>.from(
+      state.groupDisplayNames ?? {},
+    );
+
+    for (final group in groups) {
+      final displayName = await _getDisplayNameForGroup(group, currentUserPubkey);
+      displayNames[group.mlsGroupId] = displayName;
+    }
+
+    state = state.copyWith(groupDisplayNames: displayNames);
   }
 }
 

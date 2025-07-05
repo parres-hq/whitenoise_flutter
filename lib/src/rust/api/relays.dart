@@ -16,8 +16,7 @@ import 'accounts.dart';
 ///
 /// # Returns
 /// RelayType::Nostr variant
-Future<RelayType> relayTypeNostr() =>
-    RustLib.instance.api.crateApiRelaysRelayTypeNostr();
+Future<RelayType> relayTypeNostr() => RustLib.instance.api.crateApiRelaysRelayTypeNostr();
 
 /// Creates a RelayType::Inbox variant.
 ///
@@ -26,8 +25,7 @@ Future<RelayType> relayTypeNostr() =>
 ///
 /// # Returns
 /// RelayType::Inbox variant
-Future<RelayType> relayTypeInbox() =>
-    RustLib.instance.api.crateApiRelaysRelayTypeInbox();
+Future<RelayType> relayTypeInbox() => RustLib.instance.api.crateApiRelaysRelayTypeInbox();
 
 /// Creates a RelayType::KeyPackage variant.
 ///
@@ -36,8 +34,7 @@ Future<RelayType> relayTypeInbox() =>
 ///
 /// # Returns
 /// RelayType::KeyPackage variant
-Future<RelayType> relayTypeKeyPackage() =>
-    RustLib.instance.api.crateApiRelaysRelayTypeKeyPackage();
+Future<RelayType> relayTypeKeyPackage() => RustLib.instance.api.crateApiRelaysRelayTypeKeyPackage();
 
 /// Fetches all relays of a specific type associated with an account.
 ///

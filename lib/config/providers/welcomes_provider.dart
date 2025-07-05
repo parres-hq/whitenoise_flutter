@@ -307,6 +307,60 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       _logger.info('WelcomesProvider: No more pending welcomes to show');
     }
   }
+
+  /// Check for new welcomes and add them incrementally (for polling)
+  Future<void> checkForNewWelcomes() async {
+    if (!_isAuthAvailable()) {
+      return;
+    }
+
+    try {
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        return;
+      }
+
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final newWelcomes = await fetchWelcomes(pubkey: publicKey);
+
+      final currentWelcomes = state.welcomes ?? [];
+      final currentWelcomeIds = currentWelcomes.map((w) => w.id).toSet();
+
+      // Find truly new welcomes
+      final actuallyNewWelcomes =
+          newWelcomes.where((welcome) => !currentWelcomeIds.contains(welcome.id)).toList();
+
+      if (actuallyNewWelcomes.isNotEmpty) {
+        // Add new welcomes to existing list
+        final updatedWelcomes = [...currentWelcomes, ...actuallyNewWelcomes];
+
+        // Update welcomeById map
+        final welcomeByData = Map<String, WelcomeData>.from(state.welcomeById ?? {});
+        for (final welcome in actuallyNewWelcomes) {
+          welcomeByData[welcome.id] = welcome;
+        }
+
+        state = state.copyWith(
+          welcomes: updatedWelcomes,
+          welcomeById: welcomeByData,
+        );
+
+        // Trigger callback for new pending welcomes
+        final newPendingWelcomes =
+            actuallyNewWelcomes.where((w) => w.state == WelcomeState.pending).toList();
+
+        if (newPendingWelcomes.isNotEmpty && _onNewWelcomeCallback != null) {
+          _logger.info('WelcomesProvider: Found ${newPendingWelcomes.length} new pending welcomes');
+          _onNewWelcomeCallback!(newPendingWelcomes.first);
+        }
+
+        _logger.info('WelcomesProvider: Added ${actuallyNewWelcomes.length} new welcomes');
+      }
+    } catch (e, st) {
+      _logger.severe('WelcomesProvider.checkForNewWelcomes', e, st);
+    }
+  }
 }
 
 final welcomesProvider = NotifierProvider<WelcomesNotifier, WelcomesState>(

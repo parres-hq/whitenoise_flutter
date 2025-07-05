@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
@@ -37,16 +38,19 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       WelcomeNotificationService.initialize(context);
       WelcomeNotificationService.setupWelcomeNotifications(ref);
 
-      // Load data (welcomes loading will trigger callbacks if new ones exist)
+      // Load initial data
       ref.read(welcomesProvider.notifier).loadWelcomes();
       ref.read(groupsProvider.notifier).loadGroups();
       _loadProfileData();
+
+      // Start polling for data updates
+      ref.read(pollingProvider.notifier).startPolling();
     });
   }
 
   @override
   void dispose() {
-    // Clear welcome notifications when screen is disposed
+    ref.read(pollingProvider.notifier).stopPolling();
     WelcomeNotificationService.clearContext();
     super.dispose();
   }
@@ -69,10 +73,13 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final groupList = ref.watch(groupsProvider).groups ?? [];
+    // Use select to only rebuild when the groups list specifically changes
+    final groupList = ref.watch(groupsProvider.select((state) => state.groups)) ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
-    ref.watch(profileProvider);
-    final currentUserName = ref.watch(profileProvider).valueOrNull?.displayName ?? '';
+
+    // Cache profile data to avoid unnecessary rebuilds
+    final profileData = ref.watch(profileProvider);
+    final currentUserName = profileData.valueOrNull?.displayName ?? '';
     final userFirstLetter =
         currentUserName.isNotEmpty == true ? currentUserName[0].toUpperCase() : '';
 
@@ -119,9 +126,12 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                 sliver: SliverList.separated(
                   itemBuilder: (context, index) {
                     final group = groupList[index];
-                    final lastMessage = ref
-                        .watch(chatProvider.notifier)
-                        .getLatestMessageForGroup(group.mlsGroupId);
+                    // Use select to only rebuild when this specific group's messages change
+                    final lastMessage = ref.watch(
+                      chatProvider.select(
+                        (state) => state.getLatestMessageForGroup(group.mlsGroupId),
+                      ),
+                    );
                     return GroupListTile(
                       group: group,
                       lastMessage: lastMessage,

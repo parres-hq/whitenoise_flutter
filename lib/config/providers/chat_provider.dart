@@ -234,7 +234,59 @@ class ChatNotifier extends Notifier<ChatState> {
     await Future.wait(futures);
   }
 
-  /// Helper method to set error for a specific group
+  Future<void> checkForNewMessages(String groupId) async {
+    if (!_isAuthAvailable()) {
+      return;
+    }
+
+    try {
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        return;
+      }
+
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final groupIdObj = await groupIdFromString(hexString: groupId);
+
+      final messagesWithTokens = await fetchMessagesForGroup(
+        pubkey: publicKey,
+        groupId: groupIdObj,
+      );
+
+      messagesWithTokens.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      final newMessages = MessageConverter.fromMessageWithTokensDataList(
+        messagesWithTokens,
+        currentUserPublicKey: activeAccountData.pubkey,
+        groupId: groupId,
+        ref: ref,
+      );
+
+      final currentMessages = state.groupMessages[groupId] ?? [];
+      if (newMessages.length > currentMessages.length) {
+        final newMessagesOnly = newMessages.skip(currentMessages.length).toList();
+
+        state = state.copyWith(
+          groupMessages: {
+            ...state.groupMessages,
+            groupId: [...currentMessages, ...newMessagesOnly],
+          },
+        );
+
+        _logger.info(
+          'ChatProvider: Added ${newMessagesOnly.length} new messages for group $groupId',
+        );
+      }
+    } catch (e, st) {
+      _logger.severe('ChatProvider.checkForNewMessages', e, st);
+    }
+  }
+
+  Future<void> checkForNewMessagesInGroups(List<String> groupIds) async {
+    final futures = groupIds.map((groupId) => checkForNewMessages(groupId));
+    await Future.wait(futures);
+  }
+
   void _setGroupError(String groupId, String error) {
     state = state.copyWith(
       groupLoadingStates: {
