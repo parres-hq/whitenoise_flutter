@@ -13,14 +13,14 @@ import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
-class LeacyInviteBottomSheet extends ConsumerStatefulWidget {
+class LegacyInviteBottomSheet extends ConsumerStatefulWidget {
   final String name;
   final String nip05;
   final String? bio;
   final String? imagePath;
   final String pubkey;
   final VoidCallback? onInviteSent;
-  const LeacyInviteBottomSheet({
+  const LegacyInviteBottomSheet({
     super.key,
     required this.name,
     required this.nip05,
@@ -46,7 +46,7 @@ class LeacyInviteBottomSheet extends ConsumerStatefulWidget {
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
-          (context) => LeacyInviteBottomSheet(
+          (context) => LegacyInviteBottomSheet(
             name: name,
             nip05: nip05,
             bio: bio,
@@ -58,10 +58,10 @@ class LeacyInviteBottomSheet extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<LeacyInviteBottomSheet> createState() => _LeacyInviteBottomSheetState();
+  ConsumerState<LegacyInviteBottomSheet> createState() => _LegacyInviteBottomSheetState();
 }
 
-class _LeacyInviteBottomSheetState extends ConsumerState<LeacyInviteBottomSheet> {
+class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomSheet> {
   final _logger = Logger('LeacyInviteBottomSheet');
   bool _isSendingInvite = false;
 

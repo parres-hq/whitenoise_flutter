@@ -202,7 +202,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             },
           );
         } else {
-          LeacyInviteBottomSheet.show(
+          LegacyInviteBottomSheet.show(
             context: context,
             name: contact.displayNameOrName,
             nip05: contact.nip05 ?? '',
