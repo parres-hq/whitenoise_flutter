@@ -198,21 +198,26 @@ class AuthNotifier extends Notifier<AuthState> {
 
         // Clear the active account
         await ref.read(activeAccountProvider.notifier).clearActiveAccount();
-        
+
         // Check if there are other accounts available
         final remainingAccounts = await fetchAccounts();
-        final otherAccounts = remainingAccounts.where(
-          (account) => account.pubkey != activeAccountData.pubkey,
-        ).toList();
-        
+        final otherAccounts =
+            remainingAccounts
+                .where(
+                  (account) => account.pubkey != activeAccountData.pubkey,
+                )
+                .toList();
+
         if (otherAccounts.isNotEmpty) {
           // Switch to the first available account
           _logger.info('Switching to another account after logout: ${otherAccounts.first.pubkey}');
-          await ref.read(activeAccountProvider.notifier).setActiveAccount(otherAccounts.first.pubkey);
-          
+          await ref
+              .read(activeAccountProvider.notifier)
+              .setActiveAccount(otherAccounts.first.pubkey);
+
           // Reload account data for the new active account
           await ref.read(accountProvider.notifier).loadAccountData();
-          
+
           // Keep authenticated state as true since we have another account
           state = state.copyWith(isAuthenticated: true, isLoading: false);
         } else {

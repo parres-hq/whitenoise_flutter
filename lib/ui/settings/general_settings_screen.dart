@@ -180,7 +180,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
     // Check the final auth state after logout
     final finalAuthState = ref.read(authProvider);
-    
+
     if (finalAuthState.error != null) {
       ref.showErrorToast(finalAuthState.error!);
       return;
