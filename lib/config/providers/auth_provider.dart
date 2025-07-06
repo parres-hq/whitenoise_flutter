@@ -198,12 +198,43 @@ class AuthNotifier extends Notifier<AuthState> {
 
         // Clear the active account
         await ref.read(activeAccountProvider.notifier).clearActiveAccount();
+        
+        // Check if there are other accounts available
+        final remainingAccounts = await fetchAccounts();
+        final otherAccounts = remainingAccounts.where(
+          (account) => account.pubkey != activeAccountData.pubkey,
+        ).toList();
+        
+        if (otherAccounts.isNotEmpty) {
+          // Switch to the first available account
+          _logger.info('Switching to another account after logout: ${otherAccounts.first.pubkey}');
+          await ref.read(activeAccountProvider.notifier).setActiveAccount(otherAccounts.first.pubkey);
+          
+          // Reload account data for the new active account
+          await ref.read(accountProvider.notifier).loadAccountData();
+          
+          // Keep authenticated state as true since we have another account
+          state = state.copyWith(isAuthenticated: true, isLoading: false);
+        } else {
+          // No other accounts available, set as unauthenticated
+          _logger.info('No other accounts available after logout, setting unauthenticated');
+          state = state.copyWith(isAuthenticated: false, isLoading: false);
+        }
+      } else {
+        // No active account to logout, but check if any accounts exist
+        final accounts = await fetchAccounts();
+        if (accounts.isNotEmpty) {
+          // Set the first account as active
+          await ref.read(activeAccountProvider.notifier).setActiveAccount(accounts.first.pubkey);
+          await ref.read(accountProvider.notifier).loadAccountData();
+          state = state.copyWith(isAuthenticated: true, isLoading: false);
+        } else {
+          state = state.copyWith(isAuthenticated: false, isLoading: false);
+        }
       }
     } catch (e, st) {
-      state = state.copyWith(error: e.toString());
+      state = state.copyWith(error: e.toString(), isLoading: false);
       _logger.severe('logoutCurrentAccount', e, st);
-    } finally {
-      state = state.copyWith(isAuthenticated: false, isLoading: false);
     }
   }
 
