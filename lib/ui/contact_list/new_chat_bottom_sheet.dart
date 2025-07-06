@@ -155,52 +155,41 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   List<ContactModel> _getFilteredContacts(List<ContactModel>? contacts) {
     if (contacts == null) return [];
 
-    // First, deduplicate contacts by publicKey to ensure no duplicate npubs
+    // 1. Deduplicate contacts with the same publicKey
     final Map<String, ContactModel> uniqueContacts = {};
     for (final contact in contacts) {
-      // Use publicKey as the unique identifier to prevent duplicates
-      if (!uniqueContacts.containsKey(contact.publicKey)) {
-        uniqueContacts[contact.publicKey] = contact;
-      }
+      final normalizedKey = contact.publicKey.trim().toLowerCase();
+      if (normalizedKey.isEmpty) continue;
+      uniqueContacts.putIfAbsent(normalizedKey, () => contact);
     }
 
     final deduplicatedContacts = uniqueContacts.values.toList();
 
-    // If no search query, return all deduplicated contacts
-    if (_searchQuery.isEmpty) return deduplicatedContacts;
+    // 2. If search is empty, return all deduplicated contacts
+    final query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return deduplicatedContacts;
 
-    // Filter contacts based on search query
-    return deduplicatedContacts
-        .where(
-          (contact) =>
-              // Search in contact name
-              contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              // Search in display name or fallback name
-              contact.displayNameOrName.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ) ||
-              // Search in nip05 identifier
-              (contact.nip05?.toLowerCase().contains(
-                    _searchQuery.toLowerCase(),
-                  ) ??
-                  false) ||
-              // Search in public key
-              contact.publicKey.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ) ||
-              // Search in about/bio field
-              (contact.about?.toLowerCase().contains(
-                    _searchQuery.toLowerCase(),
-                  ) ??
-                  false),
-        )
-        .toList();
+    // 3. Filter by search query (null-safe)
+    return deduplicatedContacts.where((contact) {
+      final name = contact.name?.toLowerCase() ?? '';
+      final displayNameOrName = contact.displayNameOrName?.toLowerCase() ?? '';
+      final nip05 = contact.nip05?.toLowerCase() ?? '';
+      final about = contact.about?.toLowerCase() ?? '';
+      final publicKey = contact.publicKey.toLowerCase();
+
+      return name.contains(query) ||
+          displayNameOrName.contains(query) ||
+          nip05.contains(query) ||
+          about.contains(query) ||
+          publicKey.contains(query);
+    }).toList();
   }
 
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
     final filteredContacts = _getFilteredContacts(contactsState.contactModels);
+    final rawContacts = contactsState.contactModels ?? [];
 
     final showTempContact =
         _searchQuery.isNotEmpty &&
@@ -389,6 +378,102 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                           ),
                         ),
                       ),
+                      // DEBUG: Raw contacts section - type "debug" to see all raw contacts
+                      if (_searchQuery.toLowerCase() == 'debug') ...[
+                        SliverToBoxAdapter(
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 24.w),
+                            padding: EdgeInsets.all(16.w),
+                            decoration: BoxDecoration(
+                              color: context.colors.baseMuted,
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'DEBUG: Raw Contacts Data',
+                                  style: TextStyle(
+                                    color: context.colors.primary,
+                                    fontSize: 16.sp,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                                Gap(8.h),
+                                Text(
+                                  'Total raw contacts: ${rawContacts.length}',
+                                  style: TextStyle(
+                                    color: context.colors.mutedForeground,
+                                    fontSize: 14.sp,
+                                  ),
+                                ),
+                                Gap(8.h),
+                                ...rawContacts.asMap().entries.map((entry) {
+                                  final index = entry.key;
+                                  final contact = entry.value;
+                                  return Container(
+                                    margin: EdgeInsets.only(bottom: 8.h),
+                                    padding: EdgeInsets.all(8.w),
+                                    decoration: BoxDecoration(
+                                      color: context.colors.surface,
+                                      borderRadius: BorderRadius.circular(4.r),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Contact #$index',
+                                          style: TextStyle(
+                                            color: context.colors.primary,
+                                            fontSize: 12.sp,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          'name: ${contact.name ?? "null"}',
+                                          style: TextStyle(
+                                            color: context.colors.mutedForeground,
+                                            fontSize: 10.sp,
+                                          ),
+                                        ),
+                                        Text(
+                                          'displayNameOrName: ${contact.displayNameOrName ?? "null"}',
+                                          style: TextStyle(
+                                            color: context.colors.mutedForeground,
+                                            fontSize: 10.sp,
+                                          ),
+                                        ),
+                                        Text(
+                                          'publicKey: ${contact.publicKey}',
+                                          style: TextStyle(
+                                            color: context.colors.mutedForeground,
+                                            fontSize: 10.sp,
+                                          ),
+                                        ),
+                                        Text(
+                                          'nip05: ${contact.nip05 ?? "null"}',
+                                          style: TextStyle(
+                                            color: context.colors.mutedForeground,
+                                            fontSize: 10.sp,
+                                          ),
+                                        ),
+                                        Text(
+                                          'about: ${contact.about ?? "null"}',
+                                          style: TextStyle(
+                                            color: context.colors.mutedForeground,
+                                            fontSize: 10.sp,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ],
+                            ),
+                          ),
+                        ),
+                        SliverToBoxAdapter(child: Gap(16.h)),
+                      ],
                       // Show temporary contact if valid public key and no matches
                       if (showTempContact) ...[
                         SliverToBoxAdapter(
