@@ -39,6 +39,8 @@ class NewChatBottomSheet extends ConsumerStatefulWidget {
 
 class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _searchFocusNode = FocusNode();
   String _searchQuery = '';
   final _logger = Logger('NewChatBottomSheet');
   ContactModel? _tempContact;
@@ -48,6 +50,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScrollChanged);
     // Load contacts when the widget initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadContacts();
@@ -57,7 +60,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
+    _scrollController.removeListener(_onScrollChanged);
     _searchController.dispose();
+    _scrollController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -70,6 +76,13 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     // If it's a valid public key, fetch metadata
     if (_isValidPublicKey(_searchQuery)) {
       _fetchMetadataForPublicKey(_searchQuery);
+    }
+  }
+
+  void _onScrollChanged() {
+    // Unfocus the text field when user starts scrolling
+    if (_searchFocusNode.hasFocus) {
+      _searchFocusNode.unfocus();
     }
   }
 
@@ -176,312 +189,319 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
+        // Search field - not auto-focused
         CustomTextField(
           textController: _searchController,
+          focusNode: _searchFocusNode,
           hintText: 'Search contact or public key...',
         ),
         Gap(16.h),
-        GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-            NewGroupChatSheet.show(context);
-          },
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  AssetsPaths.icGroupChat,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.mutedForeground,
-                    BlendMode.srcIn,
-                  ),
-                  width: 20.w,
-                  height: 20.w,
-                ),
-                Gap(10.w),
-                Expanded(
-                  child: Text(
-                    'New Group Chat',
-                    style: TextStyle(
-                      color: context.colors.mutedForeground,
-                      fontSize: 18.sp,
-                    ),
-                  ),
-                ),
-                SvgPicture.asset(
-                  AssetsPaths.icChevronRight,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.mutedForeground,
-                    BlendMode.srcIn,
-                  ),
-                  width: 8.55.w,
-                  height: 15.w,
-                ),
-              ],
-            ),
-          ),
-        ),
-        GestureDetector(
-          onTap: () async {
-            Navigator.pop(context);
-
-            try {
-              final contactPk = await publicKeyFromString(publicKeyString: kSupportNpub);
-              final metadata = await fetchMetadata(pubkey: contactPk);
-
-              final supportContact = ContactModel.fromMetadata(
-                publicKey: kSupportNpub,
-                metadata: metadata,
-              );
-
-              if (context.mounted) {
-                StartSecureChatBottomSheet.show(
-                  context: context,
-                  name: supportContact.displayNameOrName,
-                  nip05: supportContact.nip05 ?? '',
-                  pubkey: supportContact.publicKey,
-                  bio: supportContact.about,
-                  imagePath: supportContact.imagePath,
-                  onChatCreated: () {
-                    Navigator.pop(context);
-                  },
-                );
-              }
-            } catch (e) {
-              _logger.warning('Failed to fetch metadata for public key: $e');
-
-              final basicContact = ContactModel(
-                name: 'Unknown User',
-                publicKey: kSupportNpub,
-              );
-
-              if (context.mounted) {
-                StartSecureChatBottomSheet.show(
-                  context: context,
-                  name: basicContact.displayNameOrName,
-                  nip05: '',
-                  pubkey: basicContact.publicKey,
-                  bio: basicContact.about,
-                  imagePath: basicContact.imagePath,
-                  onChatCreated: () {
-                    Navigator.pop(context);
-                  },
-                );
-              }
-            }
-          },
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  AssetsPaths.icFeedback,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.mutedForeground,
-                    BlendMode.srcIn,
-                  ),
-                  width: 20.w,
-                  height: 20.w,
-                ),
-                Gap(10.w),
-                Expanded(
-                  child: Text(
-                    'Help and Feedback',
-                    style: TextStyle(
-                      color: context.colors.mutedForeground,
-                      fontSize: 18.sp,
-                    ),
-                  ),
-                ),
-                SvgPicture.asset(
-                  AssetsPaths.icChevronRight,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.mutedForeground,
-                    BlendMode.srcIn,
-                  ),
-                  width: 8.55.w,
-                  height: 15.w,
-                ),
-              ],
-            ),
-          ),
-        ),
+        // Scrollable content area
         Expanded(
-          child:
-              contactsState.isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : contactsState.error != null
+          child: contactsState.isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : contactsState.error != null
                   ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Error loading contacts',
-                          style: TextStyle(
-                            color: context.colors.mutedForeground,
-                            fontSize: 16.sp,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Error loading contacts',
+                            style: TextStyle(
+                              color: context.colors.mutedForeground,
+                              fontSize: 16.sp,
+                            ),
                           ),
-                        ),
-                        Gap(8.h),
-                        Text(
-                          contactsState.error!,
-                          style: TextStyle(
-                            color: context.colors.mutedForeground,
-                            fontSize: 12.sp,
+                          Gap(8.h),
+                          Text(
+                            contactsState.error!,
+                            style: TextStyle(
+                              color: context.colors.mutedForeground,
+                              fontSize: 12.sp,
+                            ),
+                            textAlign: TextAlign.center,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                        Gap(16.h),
-                        ElevatedButton(
-                          onPressed: _loadContacts,
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  )
-                  : Column(
-                    children: [
-                      // Show temporary contact if valid public key and no matches
-                      if (showTempContact) ...[
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: 24.w),
-                          child:
-                              _isLoadingMetadata
-                                  ? Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 56.w,
-                                          height: 56.w,
-                                          decoration: BoxDecoration(
-                                            color: context.colors.baseMuted,
-                                            borderRadius: BorderRadius.circular(30.r),
-                                          ),
-                                          child: const Center(
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                        ),
-                                        Gap(12.w),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Loading metadata...',
-                                                style: TextStyle(
-                                                  color: context.colors.mutedForeground,
-                                                  fontSize: 16.sp,
-                                                ),
-                                              ),
-                                              Gap(2.h),
-                                              Text(
-                                                _searchQuery.length > 20
-                                                    ? '${_searchQuery.substring(0, 20)}...'
-                                                    : _searchQuery,
-                                                style: TextStyle(
-                                                  color: context.colors.mutedForeground,
-                                                  fontSize: 12.sp,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
+                          Gap(16.h),
+                          ElevatedButton(
+                            onPressed: _loadContacts,
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    )
+                  : CustomScrollView(
+                      controller: _scrollController,
+                      slivers: [
+                        // New Group Chat option
+                        SliverToBoxAdapter(
+                          child: GestureDetector(
+                            onTap: () {
+                              Navigator.pop(context);
+                              NewGroupChatSheet.show(context);
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                              child: Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    AssetsPaths.icGroupChat,
+                                    colorFilter: ColorFilter.mode(
+                                      context.colors.mutedForeground,
+                                      BlendMode.srcIn,
                                     ),
-                                  )
-                                  : ContactListTile(
-                                    contact: _tempContact!,
-                                    onTap: () {
-                                      StartSecureChatBottomSheet.show(
-                                        context: context,
-                                        name: _tempContact!.displayNameOrName,
-                                        nip05: _tempContact!.nip05 ?? '',
-                                        pubkey: _tempContact!.publicKey,
-                                        bio: _tempContact!.about,
-                                        imagePath: _tempContact!.imagePath,
-                                        onChatCreated: () {
-                                          // Chat created successfully, close the new chat bottom sheet
-                                          Navigator.pop(context);
-                                        },
-                                      );
-                                    },
+                                    width: 20.w,
+                                    height: 20.w,
                                   ),
+                                  Gap(10.w),
+                                  Expanded(
+                                    child: Text(
+                                      'New Group Chat',
+                                      style: TextStyle(
+                                        color: context.colors.mutedForeground,
+                                        fontSize: 18.sp,
+                                      ),
+                                    ),
+                                  ),
+                                  SvgPicture.asset(
+                                    AssetsPaths.icChevronRight,
+                                    colorFilter: ColorFilter.mode(
+                                      context.colors.mutedForeground,
+                                      BlendMode.srcIn,
+                                    ),
+                                    width: 8.55.w,
+                                    height: 15.w,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
                         ),
-                        Gap(16.h),
-                      ],
+                        // Help and Feedback option
+                        SliverToBoxAdapter(
+                          child: GestureDetector(
+                            onTap: () async {
+                              Navigator.pop(context);
 
-                      // Contacts list
-                      Expanded(
-                        child:
-                            filteredContacts.isEmpty && !showTempContact
-                                ? Center(
-                                  child:
-                                      _isLoadingMetadata
-                                          ? const CircularProgressIndicator()
-                                          : Text(
-                                            _searchQuery.isEmpty
-                                                ? 'No contacts found'
-                                                : _isValidPublicKey(_searchQuery)
-                                                ? 'Loading metadata...'
-                                                : 'No contacts match your search',
-                                            style: TextStyle(
-                                              color: context.colors.mutedForeground,
-                                              fontSize: 16.sp,
+                              try {
+                                final contactPk = await publicKeyFromString(publicKeyString: kSupportNpub);
+                                final metadata = await fetchMetadata(pubkey: contactPk);
+
+                                final supportContact = ContactModel.fromMetadata(
+                                  publicKey: kSupportNpub,
+                                  metadata: metadata,
+                                );
+
+                                if (context.mounted) {
+                                  StartSecureChatBottomSheet.show(
+                                    context: context,
+                                    name: supportContact.displayNameOrName,
+                                    nip05: supportContact.nip05 ?? '',
+                                    pubkey: supportContact.publicKey,
+                                    bio: supportContact.about,
+                                    imagePath: supportContact.imagePath,
+                                    onChatCreated: () {
+                                      Navigator.pop(context);
+                                    },
+                                  );
+                                }
+                              } catch (e) {
+                                _logger.warning('Failed to fetch metadata for public key: $e');
+
+                                final basicContact = ContactModel(
+                                  name: 'Unknown User',
+                                  publicKey: kSupportNpub,
+                                );
+
+                                if (context.mounted) {
+                                  StartSecureChatBottomSheet.show(
+                                    context: context,
+                                    name: basicContact.displayNameOrName,
+                                    nip05: '',
+                                    pubkey: basicContact.publicKey,
+                                    bio: basicContact.about,
+                                    imagePath: basicContact.imagePath,
+                                    onChatCreated: () {
+                                      Navigator.pop(context);
+                                    },
+                                  );
+                                }
+                              }
+                            },
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+                              child: Row(
+                                children: [
+                                  SvgPicture.asset(
+                                    AssetsPaths.icFeedback,
+                                    colorFilter: ColorFilter.mode(
+                                      context.colors.mutedForeground,
+                                      BlendMode.srcIn,
+                                    ),
+                                    width: 20.w,
+                                    height: 20.w,
+                                  ),
+                                  Gap(10.w),
+                                  Expanded(
+                                    child: Text(
+                                      'Help and Feedback',
+                                      style: TextStyle(
+                                        color: context.colors.mutedForeground,
+                                        fontSize: 18.sp,
+                                      ),
+                                    ),
+                                  ),
+                                  SvgPicture.asset(
+                                    AssetsPaths.icChevronRight,
+                                    colorFilter: ColorFilter.mode(
+                                      context.colors.mutedForeground,
+                                      BlendMode.srcIn,
+                                    ),
+                                    width: 8.55.w,
+                                    height: 15.w,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        // Show temporary contact if valid public key and no matches
+                        if (showTempContact) ...[
+                          SliverToBoxAdapter(
+                            child: Container(
+                              margin: EdgeInsets.symmetric(horizontal: 24.w),
+                              child: _isLoadingMetadata
+                                  ? Padding(
+                                      padding: EdgeInsets.symmetric(vertical: 8.h),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 56.w,
+                                            height: 56.w,
+                                            decoration: BoxDecoration(
+                                              color: context.colors.baseMuted,
+                                              borderRadius: BorderRadius.circular(30.r),
+                                            ),
+                                            child: const Center(
+                                              child: CircularProgressIndicator(),
                                             ),
                                           ),
-                                )
-                                : ListView.builder(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 24.w,
-                                  ),
-                                  itemCount: filteredContacts.length,
-                                  itemBuilder: (context, index) {
-                                    final contact = filteredContacts[index];
-                                    return ContactListTile(
-                                      contact: contact,
-                                      enableSwipeToDelete: true,
+                                          Gap(12.w),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Loading metadata...',
+                                                  style: TextStyle(
+                                                    color: context.colors.mutedForeground,
+                                                    fontSize: 16.sp,
+                                                  ),
+                                                ),
+                                                Gap(2.h),
+                                                Text(
+                                                  _searchQuery.length > 20
+                                                      ? '${_searchQuery.substring(0, 20)}...'
+                                                      : _searchQuery,
+                                                  style: TextStyle(
+                                                    color: context.colors.mutedForeground,
+                                                    fontSize: 12.sp,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )
+                                  : ContactListTile(
+                                      contact: _tempContact!,
                                       onTap: () {
                                         StartSecureChatBottomSheet.show(
                                           context: context,
-                                          name: contact.displayNameOrName,
-                                          nip05: contact.nip05 ?? '',
-                                          pubkey: contact.publicKey,
-                                          bio: contact.about,
-                                          imagePath: contact.imagePath,
+                                          name: _tempContact!.displayNameOrName,
+                                          nip05: _tempContact!.nip05 ?? '',
+                                          pubkey: _tempContact!.publicKey,
+                                          bio: _tempContact!.about,
+                                          imagePath: _tempContact!.imagePath,
                                           onChatCreated: () {
-                                            // Chat created successfully, close the new chat bottom sheet
                                             Navigator.pop(context);
                                           },
                                         );
                                       },
-                                      onDelete: () async {
-                                        try {
-                                          // Get the real PublicKey from the provider
-                                          final realPublicKey = ref
+                                    ),
+                            ),
+                          ),
+                          SliverToBoxAdapter(child: Gap(16.h)),
+                        ],
+                        // Contacts list
+                        if (filteredContacts.isEmpty && !showTempContact)
+                          SliverFillRemaining(
+                            child: Center(
+                              child: _isLoadingMetadata
+                                  ? const CircularProgressIndicator()
+                                  : Text(
+                                      _searchQuery.isEmpty
+                                          ? 'No contacts found'
+                                          : _isValidPublicKey(_searchQuery)
+                                              ? 'Loading metadata...'
+                                              : 'No contacts match your search',
+                                      style: TextStyle(
+                                        color: context.colors.mutedForeground,
+                                        fontSize: 16.sp,
+                                      ),
+                                    ),
+                            ),
+                          )
+                        else
+                          SliverList(
+                            delegate: SliverChildBuilderDelegate(
+                              (context, index) {
+                                final contact = filteredContacts[index];
+                                return Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 24.w),
+                                  child: ContactListTile(
+                                    contact: contact,
+                                    enableSwipeToDelete: true,
+                                    onTap: () {
+                                      StartSecureChatBottomSheet.show(
+                                        context: context,
+                                        name: contact.displayNameOrName,
+                                        nip05: contact.nip05 ?? '',
+                                        pubkey: contact.publicKey,
+                                        bio: contact.about,
+                                        imagePath: contact.imagePath,
+                                        onChatCreated: () {
+                                          Navigator.pop(context);
+                                        },
+                                      );
+                                    },
+                                    onDelete: () async {
+                                      try {
+                                        final realPublicKey = ref
+                                            .read(contactsProvider.notifier)
+                                            .getPublicKeyForContact(contact.publicKey);
+                                        if (realPublicKey != null) {
+                                          await ref
                                               .read(contactsProvider.notifier)
-                                              .getPublicKeyForContact(contact.publicKey);
-                                          if (realPublicKey != null) {
-                                            await ref
-                                                .read(contactsProvider.notifier)
-                                                .removeContactByPublicKey(realPublicKey);
-                                            if (context.mounted) {
-                                              ref.showSuccessToast('Contact removed successfully');
-                                            }
-                                          }
-                                        } catch (e) {
+                                              .removeContactByPublicKey(realPublicKey);
                                           if (context.mounted) {
-                                            ref.showErrorToast('Failed to remove contact: $e');
+                                            ref.showSuccessToast('Contact removed successfully');
                                           }
                                         }
-                                      },
-                                    );
-                                  },
-                                ),
-                      ),
-                    ],
-                  ),
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          ref.showErrorToast('Failed to remove contact: $e');
+                                        }
+                                      }
+                                    },
+                                  ),
+                                );
+                              },
+                              childCount: filteredContacts.length,
+                            ),
+                          ),
+                      ],
+                    ),
         ),
       ],
     );
