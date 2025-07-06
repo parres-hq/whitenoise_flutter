@@ -144,7 +144,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       _logger.info('GroupsProvider: Group created successfully - ${newGroup.name}');
 
+      // Instead of calling loadGroups(), update the group's lastMessageAt to put it at the top
       await loadGroups();
+
+      // Set the new group's activity time to now to ensure it appears at the top
+      updateGroupActivityTime(newGroup.mlsGroupId, DateTime.now());
+
       return newGroup;
     } catch (e, st) {
       _logger.severe('GroupsProvider.createNewGroup', e, st);
@@ -589,6 +594,44 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     state = state.copyWith(groupDisplayNames: displayNames);
+  }
+
+  void updateGroupActivityTime(String groupId, DateTime timestamp) {
+    final groups = state.groups;
+    if (groups == null) return;
+
+    final updatedGroups =
+        groups.map((group) {
+          if (group.mlsGroupId == groupId) {
+            return GroupData(
+              mlsGroupId: group.mlsGroupId,
+              nostrGroupId: group.nostrGroupId,
+              name: group.name,
+              description: group.description,
+              adminPubkeys: group.adminPubkeys,
+              lastMessageId: group.lastMessageId,
+              lastMessageAt: BigInt.from(timestamp.millisecondsSinceEpoch),
+              groupType: group.groupType,
+              epoch: group.epoch,
+              state: group.state,
+            );
+          }
+          return group;
+        }).toList();
+
+    updatedGroups.sort((a, b) {
+      final aTime = a.lastMessageAt;
+      final bTime = b.lastMessageAt;
+
+      if (aTime == null && bTime == null) return 0;
+      if (aTime == null) return 1;
+      if (bTime == null) return -1;
+
+      // Sort by descending order (newest first)
+      return bTime.compareTo(aTime);
+    });
+
+    state = state.copyWith(groups: updatedGroups);
   }
 }
 

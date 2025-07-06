@@ -36,12 +36,9 @@ class ChatMessageBubble extends StatelessWidget {
                 constraints:
                     constraints ??
                     BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.7,
+                      maxWidth: MediaQuery.of(context).size.width * 0.8,
                     ),
-                margin:
-                    isSender
-                        ? EdgeInsets.fromLTRB(16.w, 7.h, 17.w, 7.h)
-                        : EdgeInsets.fromLTRB(17.w, 7.h, 7.w, 7.h),
+                margin: EdgeInsets.all(12.w),
                 child: child,
               ),
             ),
