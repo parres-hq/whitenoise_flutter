@@ -11,7 +11,9 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/ui/contact_list/legacy_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -64,7 +66,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   void _onSearchChanged() {
     setState(() {
       _searchQuery = _searchController.text;
-      _tempContact = null; // Clear temp contact when search changes
+      _tempContact = null;
     });
 
     // If it's a valid public key, fetch metadata
@@ -111,9 +113,18 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       _isLoadingMetadata = true;
     });
 
+    Event? keyPackage;
     try {
       final contactPk = await publicKeyFromString(publicKeyString: publicKey.trim());
       final metadata = await fetchMetadata(pubkey: contactPk);
+
+      try {
+        keyPackage = await fetchKeyPackage(pubkey: contactPk);
+        _logger.info('Key package fetched: $keyPackage');
+      } catch (e) {
+        _logger.warning('Failed to fetch key package: $e');
+        keyPackage = null;
+      }
 
       if (mounted) {
         setState(() {
@@ -128,7 +139,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       _logger.warning('Failed to fetch metadata for public key: $e');
       if (mounted) {
         setState(() {
-          // Create a basic contact model without metadata
           _tempContact = ContactModel(
             name: 'Unknown User',
             publicKey: publicKey.trim(),
@@ -160,6 +170,203 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
               ),
         )
         .toList();
+  }
+
+  Future<void> _handleContactTap(ContactModel contact) async {
+    _logger.info('Starting chat with contact: ${contact.publicKey}');
+
+    try {
+      final pubkey = await publicKeyFromString(publicKeyString: contact.publicKey);
+      Event? keyPackage;
+
+      try {
+        keyPackage = await fetchKeyPackage(pubkey: pubkey);
+      } catch (e) {
+        _logger.warning('Failed to fetch key package: $e');
+        keyPackage = null;
+      }
+
+      if (mounted) {
+        _logger.info('Fetched key package: $keyPackage');
+
+        if (keyPackage != null) {
+          StartSecureChatBottomSheet.show(
+            context: context,
+            name: contact.displayNameOrName,
+            nip05: contact.nip05 ?? '',
+            pubkey: contact.publicKey,
+            bio: contact.about,
+            imagePath: contact.imagePath,
+            onChatCreated: () {
+              Navigator.pop(context);
+            },
+          );
+        } else {
+          LeacyInviteBottomSheet.show(
+            context: context,
+            name: contact.displayNameOrName,
+            nip05: contact.nip05 ?? '',
+            pubkey: contact.publicKey,
+            bio: contact.about,
+            imagePath: contact.imagePath,
+            onInviteSent: () {
+              Navigator.pop(context);
+            },
+          );
+        }
+      }
+    } catch (e) {
+      _logger.severe('Error handling contact tap: $e');
+      if (mounted) {
+        ref.showErrorToast('Failed to start chat: $e');
+      }
+    }
+  }
+
+  Widget _buildErrorWidget(String error) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Error loading contacts',
+            style: TextStyle(
+              color: context.colors.mutedForeground,
+              fontSize: 16.sp,
+            ),
+          ),
+          Gap(8.h),
+          Text(
+            error,
+            style: TextStyle(
+              color: context.colors.mutedForeground,
+              fontSize: 12.sp,
+            ),
+            textAlign: TextAlign.center,
+          ),
+          Gap(16.h),
+          ElevatedButton(
+            onPressed: _loadContacts,
+            child: const Text('Retry'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingContactTile() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.h),
+      child: Row(
+        children: [
+          Container(
+            width: 56.w,
+            height: 56.w,
+            decoration: BoxDecoration(
+              color: context.colors.baseMuted,
+              borderRadius: BorderRadius.circular(30.r),
+            ),
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+          Gap(12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Loading metadata...',
+                  style: TextStyle(
+                    color: context.colors.mutedForeground,
+                    fontSize: 16.sp,
+                  ),
+                ),
+                Gap(2.h),
+                Text(
+                  _searchQuery.length > 20 ? '${_searchQuery.substring(0, 20)}...' : _searchQuery,
+                  style: TextStyle(
+                    color: context.colors.mutedForeground,
+                    fontSize: 12.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildContactsList(bool showTempContact, List<ContactModel> filteredContacts) {
+    return Column(
+      children: [
+        if (showTempContact) ...[
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 24.w),
+            child:
+                _isLoadingMetadata
+                    ? _buildLoadingContactTile()
+                    : ContactListTile(
+                      contact: _tempContact!,
+                      onTap: () => _handleContactTap(_tempContact!),
+                    ),
+          ),
+          Gap(16.h),
+        ],
+        Expanded(
+          child:
+              filteredContacts.isEmpty && !showTempContact
+                  ? Center(
+                    child:
+                        _isLoadingMetadata
+                            ? const CircularProgressIndicator()
+                            : Text(
+                              _searchQuery.isEmpty
+                                  ? 'No contacts found'
+                                  : _isValidPublicKey(_searchQuery)
+                                  ? 'Loading metadata...'
+                                  : 'No contacts match your search',
+                              style: TextStyle(
+                                color: context.colors.mutedForeground,
+                                fontSize: 16.sp,
+                              ),
+                            ),
+                  )
+                  : ListView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: 24.w),
+                    itemCount: filteredContacts.length,
+                    itemBuilder: (context, index) {
+                      final contact = filteredContacts[index];
+                      return ContactListTile(
+                        contact: contact,
+                        enableSwipeToDelete: true,
+                        onTap: () => _handleContactTap(contact),
+                        onDelete: () async {
+                          try {
+                            final realPublicKey = ref
+                                .read(contactsProvider.notifier)
+                                .getPublicKeyForContact(contact.publicKey);
+                            if (realPublicKey != null) {
+                              await ref
+                                  .read(contactsProvider.notifier)
+                                  .removeContactByPublicKey(realPublicKey);
+                              if (context.mounted) {
+                                ref.showSuccessToast('Contact removed successfully');
+                              }
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              ref.showErrorToast('Failed to remove contact: $e');
+                            }
+                          }
+                        },
+                      );
+                    },
+                  ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -312,176 +519,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
               contactsState.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : contactsState.error != null
-                  ? Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Error loading contacts',
-                          style: TextStyle(
-                            color: context.colors.mutedForeground,
-                            fontSize: 16.sp,
-                          ),
-                        ),
-                        Gap(8.h),
-                        Text(
-                          contactsState.error!,
-                          style: TextStyle(
-                            color: context.colors.mutedForeground,
-                            fontSize: 12.sp,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        Gap(16.h),
-                        ElevatedButton(
-                          onPressed: _loadContacts,
-                          child: const Text('Retry'),
-                        ),
-                      ],
-                    ),
-                  )
-                  : Column(
-                    children: [
-                      // Show temporary contact if valid public key and no matches
-                      if (showTempContact) ...[
-                        Container(
-                          margin: EdgeInsets.symmetric(horizontal: 24.w),
-                          child:
-                              _isLoadingMetadata
-                                  ? Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 8.h),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 56.w,
-                                          height: 56.w,
-                                          decoration: BoxDecoration(
-                                            color: context.colors.baseMuted,
-                                            borderRadius: BorderRadius.circular(30.r),
-                                          ),
-                                          child: const Center(
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                        ),
-                                        Gap(12.w),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Loading metadata...',
-                                                style: TextStyle(
-                                                  color: context.colors.mutedForeground,
-                                                  fontSize: 16.sp,
-                                                ),
-                                              ),
-                                              Gap(2.h),
-                                              Text(
-                                                _searchQuery.length > 20
-                                                    ? '${_searchQuery.substring(0, 20)}...'
-                                                    : _searchQuery,
-                                                style: TextStyle(
-                                                  color: context.colors.mutedForeground,
-                                                  fontSize: 12.sp,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                  : ContactListTile(
-                                    contact: _tempContact!,
-                                    onTap: () {
-                                      StartSecureChatBottomSheet.show(
-                                        context: context,
-                                        name: _tempContact!.displayNameOrName,
-                                        nip05: _tempContact!.nip05 ?? '',
-                                        pubkey: _tempContact!.publicKey,
-                                        bio: _tempContact!.about,
-                                        imagePath: _tempContact!.imagePath,
-                                        onChatCreated: () {
-                                          // Chat created successfully, close the new chat bottom sheet
-                                          Navigator.pop(context);
-                                        },
-                                      );
-                                    },
-                                  ),
-                        ),
-                        Gap(16.h),
-                      ],
-
-                      // Contacts list
-                      Expanded(
-                        child:
-                            filteredContacts.isEmpty && !showTempContact
-                                ? Center(
-                                  child:
-                                      _isLoadingMetadata
-                                          ? const CircularProgressIndicator()
-                                          : Text(
-                                            _searchQuery.isEmpty
-                                                ? 'No contacts found'
-                                                : _isValidPublicKey(_searchQuery)
-                                                ? 'Loading metadata...'
-                                                : 'No contacts match your search',
-                                            style: TextStyle(
-                                              color: context.colors.mutedForeground,
-                                              fontSize: 16.sp,
-                                            ),
-                                          ),
-                                )
-                                : ListView.builder(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: 24.w,
-                                  ),
-                                  itemCount: filteredContacts.length,
-                                  itemBuilder: (context, index) {
-                                    final contact = filteredContacts[index];
-                                    return ContactListTile(
-                                      contact: contact,
-                                      enableSwipeToDelete: true,
-                                      onTap: () {
-                                        StartSecureChatBottomSheet.show(
-                                          context: context,
-                                          name: contact.displayNameOrName,
-                                          nip05: contact.nip05 ?? '',
-                                          pubkey: contact.publicKey,
-                                          bio: contact.about,
-                                          imagePath: contact.imagePath,
-                                          onChatCreated: () {
-                                            // Chat created successfully, close the new chat bottom sheet
-                                            Navigator.pop(context);
-                                          },
-                                        );
-                                      },
-                                      onDelete: () async {
-                                        try {
-                                          // Get the real PublicKey from the provider
-                                          final realPublicKey = ref
-                                              .read(contactsProvider.notifier)
-                                              .getPublicKeyForContact(contact.publicKey);
-                                          if (realPublicKey != null) {
-                                            await ref
-                                                .read(contactsProvider.notifier)
-                                                .removeContactByPublicKey(realPublicKey);
-                                            if (context.mounted) {
-                                              ref.showSuccessToast('Contact removed successfully');
-                                            }
-                                          }
-                                        } catch (e) {
-                                          if (context.mounted) {
-                                            ref.showErrorToast('Failed to remove contact: $e');
-                                          }
-                                        }
-                                      },
-                                    );
-                                  },
-                                ),
-                      ),
-                    ],
-                  ),
+                  ? _buildErrorWidget(contactsState.error!)
+                  : _buildContactsList(showTempContact, filteredContacts),
         ),
       ],
     );
