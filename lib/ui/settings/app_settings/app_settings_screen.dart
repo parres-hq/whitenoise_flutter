@@ -69,9 +69,6 @@ class AppSettingsScreen extends ConsumerWidget {
       if (!context.mounted) return;
       ref.read(authProvider.notifier).setUnAuthenticated();
       Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('All data deleted successfully')),
-      );
       context.go(Routes.home);
     } catch (e) {
       if (!context.mounted) return;
