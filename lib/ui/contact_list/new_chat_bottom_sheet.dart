@@ -171,8 +171,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
     // 3. Filter by search query (null-safe)
     return deduplicatedContacts.where((contact) {
-      final name = contact.name?.toLowerCase() ?? '';
-      final displayNameOrName = contact.displayNameOrName?.toLowerCase() ?? '';
+      final name = contact.name.toLowerCase();
+      final displayNameOrName = contact.displayNameOrName.toLowerCase();
       final nip05 = contact.nip05?.toLowerCase() ?? '';
       final about = contact.about?.toLowerCase() ?? '';
       final publicKey = contact.publicKey.toLowerCase();
@@ -430,14 +430,14 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                           ),
                                         ),
                                         Text(
-                                          'name: ${contact.name ?? "null"}',
+                                          'name: ${contact.name}',
                                           style: TextStyle(
                                             color: context.colors.mutedForeground,
                                             fontSize: 10.sp,
                                           ),
                                         ),
                                         Text(
-                                          'displayNameOrName: ${contact.displayNameOrName ?? "null"}',
+                                          'displayNameOrName: ${contact.displayNameOrName}',
                                           style: TextStyle(
                                             color: context.colors.mutedForeground,
                                             fontSize: 10.sp,
