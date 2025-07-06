@@ -155,22 +155,44 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   List<ContactModel> _getFilteredContacts(List<ContactModel>? contacts) {
     if (contacts == null) return [];
 
-    if (_searchQuery.isEmpty) return contacts;
+    // First, deduplicate contacts by publicKey to ensure no duplicate npubs
+    final Map<String, ContactModel> uniqueContacts = {};
+    for (final contact in contacts) {
+      // Use publicKey as the unique identifier to prevent duplicates
+      if (!uniqueContacts.containsKey(contact.publicKey)) {
+        uniqueContacts[contact.publicKey] = contact;
+      }
+    }
 
-    return contacts
+    final deduplicatedContacts = uniqueContacts.values.toList();
+
+    // If no search query, return all deduplicated contacts
+    if (_searchQuery.isEmpty) return deduplicatedContacts;
+
+    // Filter contacts based on search query
+    return deduplicatedContacts
         .where(
           (contact) =>
+              // Search in contact name
               contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
+              // Search in display name or fallback name
               contact.displayNameOrName.toLowerCase().contains(
                 _searchQuery.toLowerCase(),
               ) ||
+              // Search in nip05 identifier
               (contact.nip05?.toLowerCase().contains(
                     _searchQuery.toLowerCase(),
                   ) ??
                   false) ||
+              // Search in public key
               contact.publicKey.toLowerCase().contains(
                 _searchQuery.toLowerCase(),
-              ),
+              ) ||
+              // Search in about/bio field
+              (contact.about?.toLowerCase().contains(
+                    _searchQuery.toLowerCase(),
+                  ) ??
+                  false),
         )
         .toList();
   }
