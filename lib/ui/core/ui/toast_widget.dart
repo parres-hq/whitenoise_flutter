@@ -24,7 +24,6 @@ class ToastOverlay extends ConsumerWidget {
 
     return Stack(
       children: [
-        // Toasts at the very top of screen with safe area
         if (topToasts.isNotEmpty)
           Positioned(
             top: MediaQuery.of(context).padding.top,
@@ -45,10 +44,9 @@ class ToastOverlay extends ConsumerWidget {
             ),
           ),
 
-        // Toasts below the app bar (original position)
         if (belowAppBarToasts.isNotEmpty)
           Positioned(
-            top: kToolbarHeight + MediaQuery.of(context).padding.top + 16.h,
+            top: kToolbarHeight + MediaQuery.of(context).padding.top + 8.h,
             left: 0,
             right: 0,
             child: Column(
@@ -166,7 +164,6 @@ class _ToastMessageWidgetState extends ConsumerState<ToastMessageWidget>
             color: Colors.transparent,
             child: Container(
               width: double.infinity,
-              height: 64.h,
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
               decoration: BoxDecoration(
                 color: context.colors.toastSurface,

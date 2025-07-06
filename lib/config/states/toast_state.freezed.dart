@@ -192,7 +192,7 @@ class _$ToastMessageImpl implements _ToastMessage {
     required this.type,
     this.durationMs = 8000,
     this.autoDismiss = true,
-    this.showBelowAppBar = true,
+    this.showBelowAppBar = false,
   });
 
   @override
@@ -426,7 +426,7 @@ class _$ToastConfigImpl implements _ToastConfig {
     this.stackMode = ToastStackMode.replace,
     this.defaultDurationMs = 8000,
     this.autoDismiss = true,
-    this.defaultShowBelowAppBar = true,
+    this.defaultShowBelowAppBar = false,
   });
 
   @override

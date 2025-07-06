@@ -22,7 +22,7 @@ class ToastMessage with _$ToastMessage {
     required ToastType type,
     @Default(8000) int durationMs,
     @Default(true) bool autoDismiss,
-    @Default(true) bool showBelowAppBar,
+    @Default(false) bool showBelowAppBar,
   }) = _ToastMessage;
 }
 
@@ -32,7 +32,7 @@ class ToastConfig with _$ToastConfig {
     @Default(ToastStackMode.replace) ToastStackMode stackMode,
     @Default(8000) int defaultDurationMs,
     @Default(true) bool autoDismiss,
-    @Default(true) bool defaultShowBelowAppBar,
+    @Default(false) bool defaultShowBelowAppBar,
   }) = _ToastConfig;
 }
 

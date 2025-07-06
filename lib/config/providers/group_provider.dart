@@ -46,8 +46,22 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final groups = await fetchGroups(pubkey: publicKey);
 
+      // Sort groups by lastMessageAt in descending order (newest first)
+      final sortedGroups = [...groups]..sort((a, b) {
+        final aTime = a.lastMessageAt;
+        final bTime = b.lastMessageAt;
+
+        // Handle null values - groups without messages go to the end
+        if (aTime == null && bTime == null) return 0;
+        if (aTime == null) return 1;
+        if (bTime == null) return -1;
+
+        // Sort by descending order (newest first)
+        return bTime.compareTo(aTime);
+      });
+
       // First set the groups
-      state = state.copyWith(groups: groups);
+      state = state.copyWith(groups: sortedGroups);
 
       // Load members for all groups to enable proper display name calculation
       await _loadMembersForAllGroups(groups);
@@ -130,7 +144,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       _logger.info('GroupsProvider: Group created successfully - ${newGroup.name}');
 
+      // Instead of calling loadGroups(), update the group's lastMessageAt to put it at the top
       await loadGroups();
+
+      // Set the new group's activity time to now to ensure it appears at the top
+      updateGroupActivityTime(newGroup.mlsGroupId, DateTime.now());
+
       return newGroup;
     } catch (e, st) {
       _logger.severe('GroupsProvider.createNewGroup', e, st);
@@ -512,8 +531,19 @@ class GroupsNotifier extends Notifier<GroupsState> {
           newGroups.where((group) => !currentGroupIds.contains(group.mlsGroupId)).toList();
 
       if (actuallyNewGroups.isNotEmpty) {
-        // Add new groups to existing list
-        final updatedGroups = [...currentGroups, ...actuallyNewGroups];
+        // Add new groups to existing list and sort by lastMessageAt (newest first)
+        final updatedGroups = [...currentGroups, ...actuallyNewGroups]..sort((a, b) {
+          final aTime = a.lastMessageAt;
+          final bTime = b.lastMessageAt;
+
+          // Handle null values - groups without messages go to the end
+          if (aTime == null && bTime == null) return 0;
+          if (aTime == null) return 1;
+          if (bTime == null) return -1;
+
+          // Sort by descending order (newest first)
+          return bTime.compareTo(aTime);
+        });
         state = state.copyWith(groups: updatedGroups);
 
         // Load members for new groups only
@@ -564,6 +594,44 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     state = state.copyWith(groupDisplayNames: displayNames);
+  }
+
+  void updateGroupActivityTime(String groupId, DateTime timestamp) {
+    final groups = state.groups;
+    if (groups == null) return;
+
+    final updatedGroups =
+        groups.map((group) {
+          if (group.mlsGroupId == groupId) {
+            return GroupData(
+              mlsGroupId: group.mlsGroupId,
+              nostrGroupId: group.nostrGroupId,
+              name: group.name,
+              description: group.description,
+              adminPubkeys: group.adminPubkeys,
+              lastMessageId: group.lastMessageId,
+              lastMessageAt: BigInt.from(timestamp.millisecondsSinceEpoch),
+              groupType: group.groupType,
+              epoch: group.epoch,
+              state: group.state,
+            );
+          }
+          return group;
+        }).toList();
+
+    updatedGroups.sort((a, b) {
+      final aTime = a.lastMessageAt;
+      final bTime = b.lastMessageAt;
+
+      if (aTime == null && bTime == null) return 0;
+      if (aTime == null) return 1;
+      if (bTime == null) return -1;
+
+      // Sort by descending order (newest first)
+      return bTime.compareTo(aTime);
+    });
+
+    state = state.copyWith(groups: updatedGroups);
   }
 }
 

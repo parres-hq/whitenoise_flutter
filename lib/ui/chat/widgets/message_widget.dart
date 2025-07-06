@@ -42,66 +42,168 @@ class MessageWidget extends StatelessWidget {
   }
 
   Widget _buildMessageContent(BuildContext context) {
-    return Container(
-      constraints: BoxConstraints(
-        minHeight: 40.h,
-        maxWidth: 0.4.sw,
-        minWidth: 0.2.sw,
-      ),
-      padding: EdgeInsets.symmetric(
-        vertical: 2.h,
-      ).copyWith(
-        right: 8.w,
-        left: message.isMe ? 0 : 8.w,
-        bottom: 8.w,
-      ),
-      child: Column(
-        crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (isGroupMessage && !isSameSenderAsNext && !message.isMe) ...[
-            Text(
-              message.sender.name,
-              style: TextStyle(
-                fontSize: 12.sp,
-                fontWeight: FontWeight.w600,
-                color: context.colors.mutedForeground,
-              ),
-            ),
-            Gap(4.h),
-          ],
-
-          ReplyBox(replyingTo: message.replyTo),
-          Text(
-            message.content ?? '',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w500,
-              color:
-                  message.isMe
-                      ? context.colors.meChatBubbleText
-                      : context.colors.contactChatBubbleText,
-            ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          constraints: BoxConstraints(
+            maxWidth: constraints.maxWidth,
           ),
+          padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 12.w),
+          child: Column(
+            crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (isGroupMessage && !isSameSenderAsNext && !message.isMe) ...[
+                Text(
+                  message.sender.name,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.mutedForeground,
+                  ),
+                ),
+                Gap(4.h),
+              ],
+              ReplyBox(replyingTo: message.replyTo),
+              _buildMessageWithTimestamp(
+                context,
+                constraints.maxWidth - 16.w,
+              ),
 
-          Gap(8.h),
-          _buildMetadataRow(context),
-        ],
-      ),
+              if (message.reactions.isNotEmpty) ...[
+                SizedBox(height: 4.h),
+                _buildReactionsRow(context),
+              ],
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildMetadataRow(BuildContext context) {
+  Widget _buildMessageWithTimestamp(BuildContext context, double maxWidth) {
     if (message.reactions.isEmpty) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        mainAxisAlignment: MainAxisAlignment.end,
+      final messageContent = message.content ?? '';
+      final timestampWidth = _getTimestampWidth(context);
+      final minPadding = 12.w;
+      final textStyle = TextStyle(
+        fontSize: 16.sp,
+        fontWeight: FontWeight.w500,
+        color:
+            message.isMe ? context.colors.meChatBubbleText : context.colors.contactChatBubbleText,
+      );
+
+      final textPainter = TextPainter(
+        text: TextSpan(text: messageContent, style: textStyle),
+        textDirection: message.isMe ? TextDirection.rtl : TextDirection.ltr,
+      );
+
+      textPainter.layout(maxWidth: maxWidth);
+
+      final lines = textPainter.computeLineMetrics();
+      if (lines.isNotEmpty) {
+        final lastLineWidth = lines.last.width;
+        final availableWidth = maxWidth - lastLineWidth;
+        final fitsOnLastLine = availableWidth >= (timestampWidth + minPadding);
+
+        if (fitsOnLastLine && lines.length > 1) {
+          return Column(
+            crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                width: maxWidth,
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(text: messageContent, style: textStyle),
+                      WidgetSpan(
+                        child: SizedBox(width: minPadding),
+                        alignment: PlaceholderAlignment.baseline,
+                        baseline: TextBaseline.alphabetic,
+                      ),
+                      WidgetSpan(
+                        child: _buildTimeAndStatus(context),
+                        alignment: PlaceholderAlignment.baseline,
+                        baseline: TextBaseline.alphabetic,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        } else if (lines.length == 1 && fitsOnLastLine) {
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Flexible(
+                child: Text(
+                  messageContent,
+                  style: textStyle,
+                ),
+              ),
+              SizedBox(width: minPadding),
+              _buildTimeAndStatus(context),
+            ],
+          );
+        }
+      }
+
+      return Column(
+        crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
+          SizedBox(
+            width: maxWidth,
+            child: Text(
+              messageContent,
+              style: textStyle,
+              textAlign: TextAlign.start,
+            ),
+          ),
+          SizedBox(height: 4.w),
           _buildTimeAndStatus(context),
         ],
       );
+    } else {
+      return SizedBox(
+        width: maxWidth,
+        child: Text(
+          message.content ?? '',
+          style: TextStyle(
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w500,
+            color:
+                message.isMe
+                    ? context.colors.meChatBubbleText
+                    : context.colors.contactChatBubbleText,
+          ),
+          textAlign: message.isMe ? TextAlign.end : TextAlign.start,
+        ),
+      );
     }
+  }
 
+  double _getTimestampWidth(BuildContext context) {
+    final timestampText = message.isMe ? '${message.timeSent} ' : message.timeSent;
+
+    final textPainter = TextPainter(
+      text: TextSpan(
+        text: timestampText,
+        style: TextStyle(
+          fontSize: 12.sp,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout();
+    final statusIconWidth = message.isMe ? (8.w + 14.w) : 0;
+    return textPainter.width + statusIconWidth;
+  }
+
+  Widget _buildReactionsRow(BuildContext context) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
@@ -135,7 +237,6 @@ class MessageWidget extends StatelessWidget {
                         text: ' ${count > 99 ? '99+' : count}',
                         style: TextStyle(
                           fontSize: 14.sp,
-
                           fontWeight: FontWeight.w600,
                           color:
                               message.isMe
@@ -194,6 +295,7 @@ class MessageWidget extends StatelessWidget {
 class ReplyBox extends StatelessWidget {
   const ReplyBox({super.key, this.replyingTo});
   final MessageModel? replyingTo;
+
   @override
   Widget build(BuildContext context) {
     if (replyingTo == null) {

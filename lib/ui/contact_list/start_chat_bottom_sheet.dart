@@ -44,7 +44,7 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
   }) {
     return CustomBottomSheet.show(
       context: context,
-      title: 'Start secure chat',
+      title: 'Start Secure Chat',
       heightFactor: 0.60,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
@@ -217,7 +217,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
         ),
         AppFilledButton(
           onPressed: _isCreatingGroup ? null : _createDirectMessageGroup,
-          title: _isCreatingGroup ? 'Creating Chat...' : 'Start & Send Invite',
+          title: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
         ),
       ],
     );

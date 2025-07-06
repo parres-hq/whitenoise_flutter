@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
@@ -170,6 +171,9 @@ class ChatNotifier extends Notifier<ChatState> {
         },
       );
 
+      // Update group order by triggering a resort based on the new message
+      _updateGroupOrderForNewMessage(groupId);
+
       _logger.info('ChatProvider: Message sent successfully to group $groupId');
       onMessageSent?.call();
       return sentMessage;
@@ -272,6 +276,9 @@ class ChatNotifier extends Notifier<ChatState> {
             groupId: [...currentMessages, ...newMessagesOnly],
           },
         );
+
+        // Update group order when new messages are received
+        _updateGroupOrderForNewMessage(groupId);
 
         _logger.info(
           'ChatProvider: Added ${newMessagesOnly.length} new messages for group $groupId',
@@ -463,6 +470,12 @@ class ChatNotifier extends Notifier<ChatState> {
         state.selectedGroupId!: null,
       },
     );
+  }
+
+  void _updateGroupOrderForNewMessage(String groupId) {
+    final now = DateTime.now();
+
+    ref.read(groupsProvider.notifier).updateGroupActivityTime(groupId, now);
   }
 }
 
