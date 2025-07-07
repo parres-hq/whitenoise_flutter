@@ -1,0 +1,8 @@
+# metadata cache root_cause hodlbod kind:0
+**METADATA MIXUP ROOT CAUSE DISCOVERED**:
+- npub1nmt6ctq704tpd3weesj3yagz8a75yxs0erqsmmu7f84qlvucdtjq7xeuyf has NO kind:0 metadata event on relays
+- npub1jlrs53pkdfjnts29kveljul2sm0actt6n8dxrrzqcersttvcuv3qdjynqn has correct hodlbod metadata on relays  
+- The missing metadata issue causes the cache to return stale/incorrect data when no relay response is received
+- Need to implement proper 'no metadata found' vs 'cached metadata' handling in MetadataCacheProvider
+- This explains why both npubs show "hodlbod" - the first npub has no metadata so it's inheriting cached data from the second npub
+

@@ -8,8 +8,8 @@ import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/legacy_invite_bottom_sheet.dart';
@@ -170,28 +170,13 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     });
 
     try {
-      // Create fresh pubkey for metadata fetching
-      final contactPk = await publicKeyFromString(publicKeyString: publicKey.trim());
-      final metadata = await fetchMetadata(pubkey: contactPk);
-
-      Event? keyPackage;
-      try {
-        // Use retry mechanism for key package fetching
-        keyPackage = await _fetchKeyPackageWithRetry(publicKey.trim());
-        _logger.info(
-          'Key package fetched for search: ${keyPackage != null ? "found" : "not found"}',
-        );
-      } catch (e) {
-        _logger.warning('Failed to fetch key package for search after all retries: $e');
-        keyPackage = null;
-      }
+      // Use metadata cache to fetch contact model
+      final metadataCache = ref.read(metadataCacheProvider.notifier);
+      final contactModel = await metadataCache.getContactModel(publicKey.trim());
 
       if (mounted) {
         setState(() {
-          _tempContact = ContactModel.fromMetadata(
-            publicKey: publicKey.trim(),
-            metadata: metadata,
-          );
+          _tempContact = contactModel;
           _isLoadingMetadata = false;
         });
       }
@@ -430,24 +415,18 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             Navigator.pop(context);
 
             try {
-              final contactPk = await publicKeyFromString(
-                publicKeyString: kSupportNpub,
-              );
-              final metadata = await fetchMetadata(pubkey: contactPk);
-
-              final supportContact = ContactModel.fromMetadata(
-                publicKey: kSupportNpub,
-                metadata: metadata,
-              );
+              // Use metadata cache for support contact
+              final metadataCache = ref.read(metadataCacheProvider.notifier);
+              final supportContact = await metadataCache.getContactModel(kSupportNpub);
 
               if (context.mounted) {
                 _handleContactTap(supportContact);
               }
             } catch (e) {
-              _logger.warning('Failed to fetch metadata for public key: $e');
+              _logger.warning('Failed to fetch metadata for support contact: $e');
 
               final basicContact = ContactModel(
-                name: 'Unknown User',
+                name: 'Support',
                 publicKey: kSupportNpub,
               );
 
@@ -571,6 +550,19 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     );
   }
 
+  Widget _buildContactsLoadingWidget() {
+    return Center(
+      child: SizedBox(
+        width: 32.w,
+        height: 32.w,
+        child: CircularProgressIndicator(
+          strokeWidth: 4.0,
+          valueColor: AlwaysStoppedAnimation<Color>(context.colorScheme.onSurface),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
@@ -597,7 +589,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         Expanded(
           child:
               contactsState.isLoading
-                  ? const Center(child: CircularProgressIndicator())
+                  ? _buildContactsLoadingWidget()
                   : contactsState.error != null
                   ? _buildErrorWidget(contactsState.error!)
                   : SingleChildScrollView(

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
@@ -59,7 +60,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
   // Fetch contacts for a given public key (hex string)
   Future<void> loadContacts(String ownerHex) async {
-    state = state.copyWith(isLoading: true);
+    state = state.copyWith(isLoading: true, error: null);
 
     if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);
@@ -70,50 +71,147 @@ class ContactsNotifier extends Notifier<ContactsState> {
       final ownerPk = await publicKeyFromString(publicKeyString: ownerHex);
       final raw = await fetchContacts(pubkey: ownerPk);
 
-      _logger.info('ContactsProvider: Loaded ${raw.length} contacts');
+      _logger.info('ContactsProvider: Loaded ${raw.length} raw contacts from backend');
 
+      // DEBUG: Check if we have duplicate metadata at the raw level
+      final rawMetadataValues = <String, List<String>>{};
+      for (final entry in raw.entries) {
+        final metadata = entry.value;
+        if (metadata?.name != null) {
+          final name = metadata!.name!;
+          final keyHash = entry.key.hashCode.toString();
+          rawMetadataValues.putIfAbsent(name, () => []).add('Key$keyHash');
+        }
+      }
+
+      for (final entry in rawMetadataValues.entries) {
+        if (entry.value.length > 1) {
+          _logger.severe(
+            'ContactsProvider: 🔴 RAW DUPLICATE DETECTED: Name "${entry.key}" found for keys: ${entry.value}',
+          );
+        }
+      }
+
+      _logger.info(
+        'ContactsProvider: Raw metadata check complete - ${rawMetadataValues.length} unique names found',
+      );
+
+      final metadataCache = ref.read(metadataCacheProvider.notifier);
       final contactModels = <ContactModel>[];
       final publicKeyMap = <String, PublicKey>{};
 
+      // First, convert all PublicKey objects to standardized string identifiers
+      final keyConversions = <PublicKey, String>{};
       for (final entry in raw.entries) {
-        final metadata = entry.value;
-
-        String? contactIdentifier;
-        bool npubSuccess = false;
         try {
-          contactIdentifier = await npubFromPublicKey(publicKey: entry.key);
-          npubSuccess = true;
-          _logger.info('ContactsProvider: ✅ Direct npub conversion successful: $contactIdentifier');
+          final npub = await npubFromPublicKey(publicKey: entry.key);
+          keyConversions[entry.key] = npub;
+          _logger.info('ContactsProvider: ✅ Converted PublicKey to npub: $npub');
+        } catch (e) {
+          try {
+            final hex = await hexPubkeyFromPublicKey(publicKey: entry.key);
+            keyConversions[entry.key] = hex;
+            _logger.warning('ContactsProvider: ⚠️ Fallback to hex for PublicKey: $hex');
+          } catch (hexError) {
+            _logger.severe(
+              'ContactsProvider: ❌ All conversions failed for PublicKey: ${entry.key.hashCode}',
+            );
+            continue; // Skip this contact entirely
+          }
+        }
+      }
+
+      _logger.info(
+        'ContactsProvider: Successfully converted ${keyConversions.length}/${raw.length} PublicKeys',
+      );
+
+      // Now fetch metadata using the cache for each converted key
+      for (final entry in keyConversions.entries) {
+        final publicKey = entry.key;
+        final stringKey = entry.value;
+
+        try {
+          _logger.info('ContactsProvider: Fetching metadata for key: $stringKey');
+
+          // Get contact model from cache (this will fetch from network if needed)
+          final contactModel = await metadataCache.getContactModel(stringKey);
+
+          _logger.info(
+            'ContactsProvider: Got contact: ${contactModel.displayNameOrName} (${contactModel.publicKey})',
+          );
+
+          // Validate that the contact model has the correct public key
+          if (contactModel.publicKey.toLowerCase() != stringKey.toLowerCase()) {
+            _logger.warning(
+              'ContactsProvider: 🔥 KEY MISMATCH! Expected: $stringKey, Got: ${contactModel.publicKey}',
+            );
+
+            // Create a corrected contact model with the right key
+            final correctedContact = ContactModel(
+              name: contactModel.name,
+              displayName: contactModel.displayName,
+              publicKey: stringKey, // Use the CORRECT key
+              imagePath: contactModel.imagePath,
+              about: contactModel.about,
+              website: contactModel.website,
+              nip05: contactModel.nip05,
+              lud16: contactModel.lud16,
+            );
+
+            contactModels.add(correctedContact);
+            _logger.info(
+              'ContactsProvider: ✅ Added CORRECTED contact: ${correctedContact.displayNameOrName} (${correctedContact.publicKey})',
+            );
+          } else {
+            contactModels.add(contactModel);
+            _logger.info(
+              'ContactsProvider: ✅ Added contact: ${contactModel.displayNameOrName} (${contactModel.publicKey})',
+            );
+          }
+
+          // Map the string key to the original PublicKey for operations
+          publicKeyMap[stringKey] = publicKey;
         } catch (e, st) {
-          _logger.warning('ContactsProvider: ❌ Direct exportAccountNpub failed: $e \n$st');
-        }
-        if (!npubSuccess) {
-          _logger.severe(
-            'ContactsProvider: 💥 ALL npub attempts failed, using fallback: $contactIdentifier',
-          );
-          _logger.severe(
-            'ContactsProvider: PublicKey type: ${entry.key.runtimeType}, hash: ${entry.key.hashCode}',
-          );
-        }
+          _logger.severe('ContactsProvider: Failed to get metadata for $stringKey: $e\n$st');
 
-        // Create the contact model with the resolved identifier
-        final contactModel = ContactModel.fromMetadata(
-          publicKey: contactIdentifier ?? 'unknown',
-          metadata: metadata,
+          // Add fallback contact
+          final fallbackContact = ContactModel(
+            name: 'Unknown User',
+            publicKey: stringKey,
+          );
+
+          contactModels.add(fallbackContact);
+          publicKeyMap[stringKey] = publicKey;
+
+          _logger.info('ContactsProvider: ⚠️ Added fallback contact for: $stringKey');
+        }
+      }
+
+      // Final validation - check for duplicate display names
+      final nameToKeys = <String, List<String>>{};
+      for (final contact in contactModels) {
+        final name = contact.displayNameOrName;
+        nameToKeys.putIfAbsent(name, () => []).add(contact.publicKey);
+      }
+
+      for (final entry in nameToKeys.entries) {
+        if (entry.value.length > 1 && entry.key != 'Unknown User') {
+          _logger.severe(
+            'ContactsProvider: 🚨 DUPLICATE NAME DETECTED: "${entry.key}" for keys: ${entry.value}',
+          );
+        }
+      }
+
+      _logger.info(
+        'ContactsProvider: ✅ Successfully processed ${contactModels.length} contacts with ${nameToKeys.length} unique names',
+      );
+
+      // Debug: Log all final contacts
+      for (int i = 0; i < contactModels.length; i++) {
+        final contact = contactModels[i];
+        _logger.info(
+          'ContactsProvider: Final contact #$i: ${contact.displayNameOrName} -> ${contact.publicKey}',
         );
-
-        publicKeyMap[contactIdentifier!] = entry.key;
-        contactModels.add(contactModel);
-
-        if (metadata != null) {
-          _logger.info(
-            'ContactsProvider: Contact processed - name: ${contactModel.name}, displayName: ${contactModel.displayName}, id: $contactIdentifier',
-          );
-        } else {
-          _logger.info(
-            'ContactsProvider: Contact processed with NULL metadata - name: ${contactModel.name}, id: $contactIdentifier',
-          );
-        }
       }
 
       state = state.copyWith(
@@ -122,7 +220,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
         publicKeyMap: publicKeyMap,
       );
     } catch (e, st) {
-      _logger.severe('loadContacts', e, st);
+      _logger.severe('ContactsProvider: loadContacts failed: $e\n$st');
       String errorMessage = 'Failed to load contacts';
       if (e is WhitenoiseError) {
         try {

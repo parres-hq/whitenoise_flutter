@@ -1,0 +1,22 @@
+# ui loading_spinner exceptions warnings user_experience
+**UI IMPROVEMENTS COMPLETED**:
+1. **Exception Removal**: Removed all severe exceptions from metadata cache and replaced with warning logs
+   - Changed 🔥 CRITICAL BUG exceptions to ⚠️ warnings with "continuing with mitigation in place"
+   - Changed 🔥 RUST DUPLICATE DETECTED from severe to warning logs
+   - Changed 🛡️ MITIGATION logging from severe to warning
+   - App now gracefully handles metadata issues without crashing
+
+2. **Loading Spinner Enhancement**: Added prominent loading spinner to NewChatBottomSheet
+   - Created _buildContactsLoadingWidget() with large spinner (80x80) and descriptive text
+   - Shows "Loading contacts..." with subtitle "Fetching metadata and validating contacts"  
+   - Replaces simple CircularProgressIndicator with better UX
+   - Uses theme colors for consistent styling
+
+# ui_refinement loading_spinner minimal subtle
+**LOADING SPINNER REFINEMENT**:
+- Simplified loading widget to match account creation screen style
+- Removed large custom spinner (80x80) and descriptive text
+- Now uses simple, subtle `const Center(child: CircularProgressIndicator())`
+- Clean and minimal loading experience that matches app's design language
+- No loading text - just the standard system spinner in center
+
