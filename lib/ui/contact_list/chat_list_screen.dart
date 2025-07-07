@@ -56,7 +56,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   @override
   void dispose() {
     // Use dispose method instead of stopPolling to avoid state modification during disposal
-    _pollingNotifier.dispose();
+    _pollingNotifier.stopPolling();
     WelcomeNotificationService.clearContext();
     super.dispose();
   }
