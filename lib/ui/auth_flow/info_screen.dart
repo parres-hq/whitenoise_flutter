@@ -20,42 +20,44 @@ class InfoScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: context.colors.neutral,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 32, 24, 0).w,
-          child: Column(
-            children: [
-              Text(
-                'Security Without\nCompromise',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 32.sp,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.mutedForeground,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 32, 24, 0).w,
+            child: Column(
+              children: [
+                Text(
+                  'Security Without\nCompromise',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 32.sp,
+                    fontWeight: FontWeight.w700,
+                    color: context.colors.mutedForeground,
+                  ),
                 ),
-              ),
-              Gap(48.h),
-              FeatureItem(
-                context: context,
-                imagePath: AssetsPaths.blueHoodie,
-                title: 'Privacy & Security',
-                subtitle:
-                    'Keep your conversations private. Even in case of a breach, your messages remain secure.',
-              ),
-              FeatureItem(
-                context: context,
-                imagePath: AssetsPaths.purpleWoman,
-                title: 'Choose Identity',
-                subtitle:
-                    'Chat without revealing your phone number or email. Choose your identity: real name, pseudonym, or anonymous.',
-              ),
-              FeatureItem(
-                context: context,
-                imagePath: AssetsPaths.greenBird,
-                title: 'Decentralized & Permissionless',
-                subtitle:
-                    'No central authority controls your communication—no permissions needed, no censorship possible.',
-              ),
-            ],
+                Gap(48.h),
+                FeatureItem(
+                  context: context,
+                  imagePath: AssetsPaths.blueHoodie,
+                  title: 'Privacy & Security',
+                  subtitle:
+                      'Keep your conversations private. Even in case of a breach, your messages remain secure.',
+                ),
+                FeatureItem(
+                  context: context,
+                  imagePath: AssetsPaths.purpleWoman,
+                  title: 'Choose Identity',
+                  subtitle:
+                      'Chat without revealing your phone number or email. Choose your identity: real name, pseudonym, or anonymous.',
+                ),
+                FeatureItem(
+                  context: context,
+                  imagePath: AssetsPaths.greenBird,
+                  title: 'Decentralized & Permissionless',
+                  subtitle:
+                      'No central authority controls your communication—no permissions needed, no censorship possible.',
+                ),
+              ],
+            ),
           ),
         ),
       ),
