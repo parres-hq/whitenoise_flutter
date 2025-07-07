@@ -112,9 +112,30 @@ pub async fn fetch_key_package(pubkey: PublicKey) -> Result<Option<Event>, White
     let relays = whitenoise
         .fetch_relays(pubkey, RelayType::KeyPackage)
         .await?;
+    if relays.is_empty() {
+        return Ok(None);
+    }
     whitenoise.fetch_key_package_event(pubkey, relays).await
 }
 
+/// Fetches the connection status of all relays associated with an account.
+///
+/// This function retrieves the current connection status for all relay URLs
+/// configured across all relay types (Nostr, Inbox, and KeyPackage) for the
+/// specified account. This is useful for monitoring relay connectivity and
+/// diagnosing connection issues.
+///
+/// # Parameters
+/// * `pubkey` - The public key of the account whose relay statuses to check
+///
+/// # Returns
+/// * `Ok(Vec<(RelayUrl, RelayStatus)>)` - Vector of tuples containing each relay URL and its current status
+/// * `Err(WhitenoiseError)` - If there was an error fetching relay statuses or account not found
+///
+/// # Notes
+/// * The status reflects the current connection state at the time of the call
+/// * Relay statuses can change frequently due to network conditions
+/// * This function checks all relay types configured for the account
 #[frb]
 pub async fn fetch_relay_status(
     pubkey: PublicKey,

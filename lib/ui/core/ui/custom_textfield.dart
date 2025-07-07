@@ -8,9 +8,10 @@ class CustomTextField extends StatelessWidget {
   const CustomTextField({
     super.key,
     this.textController,
+    this.focusNode,
     this.padding,
     this.contentPadding,
-    this.autofocus = true,
+    this.autofocus = false,
     this.hintText,
     this.obscureText = false,
     this.label,
@@ -18,6 +19,7 @@ class CustomTextField extends StatelessWidget {
   });
 
   final TextEditingController? textController;
+  final FocusNode? focusNode;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? contentPadding;
   final bool autofocus;
@@ -49,6 +51,7 @@ class CustomTextField extends StatelessWidget {
             height: 40.h,
             child: TextField(
               controller: textController,
+              focusNode: focusNode,
               autofocus: autofocus,
               obscureText: obscureText,
               readOnly: readOnly,

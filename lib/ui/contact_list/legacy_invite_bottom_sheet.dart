@@ -3,29 +3,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
+import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/chat_provider.dart';
+import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
-class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
+class LegacyInviteBottomSheet extends ConsumerStatefulWidget {
   final String name;
   final String nip05;
   final String? bio;
   final String? imagePath;
   final String pubkey;
-  final VoidCallback? onStartChat;
-  final VoidCallback? onChatCreated;
-  const StartSecureChatBottomSheet({
+  final VoidCallback? onInviteSent;
+  const LegacyInviteBottomSheet({
     super.key,
     required this.name,
     required this.nip05,
     this.bio,
     this.imagePath,
-    this.onStartChat,
-    this.onChatCreated,
+    this.onInviteSent,
     required this.pubkey,
   });
 
@@ -36,78 +37,75 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
     required String pubkey,
     String? bio,
     String? imagePath,
-    VoidCallback? onStartChat,
-    VoidCallback? onChatCreated,
+    VoidCallback? onInviteSent,
   }) {
     return CustomBottomSheet.show(
       context: context,
-      title: 'Start Secure Chat',
-      heightFactor: 0.60,
+      title: 'Invite to Chat',
+      heightFactor: 0.75,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
-          (context) => StartSecureChatBottomSheet(
+          (context) => LegacyInviteBottomSheet(
             name: name,
             nip05: nip05,
             bio: bio,
             imagePath: imagePath,
-            onStartChat: onStartChat,
-            onChatCreated: onChatCreated,
+            onInviteSent: onInviteSent,
             pubkey: pubkey,
           ),
     );
   }
 
   @override
-  ConsumerState<StartSecureChatBottomSheet> createState() => _StartSecureChatBottomSheetState();
+  ConsumerState<LegacyInviteBottomSheet> createState() => _LegacyInviteBottomSheetState();
 }
 
-class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBottomSheet> {
-  final _logger = Logger('StartSecureChatBottomSheet');
-  bool _isCreatingGroup = false;
+class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomSheet> {
+  final _logger = Logger('LeacyInviteBottomSheet');
+  bool _isSendingInvite = false;
 
-  Future<void> _createDirectMessageGroup() async {
+  Future<void> _legacyInvite() async {
     setState(() {
-      _isCreatingGroup = true;
+      _isSendingInvite = true;
     });
-
     try {
-      final groupData = await ref
-          .read(groupsProvider.notifier)
-          .createNewGroup(
-            groupName: 'DM',
-            groupDescription: 'Direct message',
-            memberPublicKeyHexs: [widget.pubkey],
-            adminPublicKeyHexs: [widget.pubkey],
+      final invited = await ref
+          .read(chatProvider.notifier)
+          .sendLegacyNip44Message(
+            contactPubkey: widget.pubkey,
           );
-
-      if (groupData != null) {
-        _logger.info('Direct message group created successfully: ${groupData.mlsGroupId}');
+      if (invited != null) {
+        _logger.info('Invite sent successfully: ${widget.name} (${widget.pubkey})');
 
         if (mounted) {
           Navigator.pop(context);
 
-          // Call the appropriate callback
-          if (widget.onChatCreated != null) {
-            widget.onChatCreated!();
-          } else if (widget.onStartChat != null) {
-            widget.onStartChat!();
+          if (widget.onInviteSent != null) {
+            widget.onInviteSent!();
           }
 
-          ref.showSuccessToast('Chat with ${widget.name} started successfully');
+          ref.showSuccessToast('Invite sent successfully!');
         }
       } else {
-        // Group creation failed - check the provider state for the error message
-        if (mounted) {
-          final groupsState = ref.read(groupsProvider);
-          final errorMessage = groupsState.error ?? 'Failed to create direct message group';
-          ref.showErrorToast(errorMessage);
-        }
+        throw Exception('Failed to create direct message group');
+      }
+    } catch (e) {
+      String errorMessage;
+      if (e is WhitenoiseError) {
+        errorMessage = await whitenoiseErrorToString(error: e);
+      } else {
+        errorMessage = e.toString();
+      }
+      if (mounted) {
+        ref.showRawErrorToast('Failed to send Invite');
+
+        _logger.severe('Failed to send invite: $errorMessage', e);
       }
     } finally {
       if (mounted) {
         setState(() {
-          _isCreatingGroup = false;
+          _isSendingInvite = false;
         });
       }
     }
@@ -172,7 +170,6 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
                 ),
               ),
               Gap(12.h),
-
               Text(
                 widget.nip05,
                 style: TextStyle(
@@ -186,30 +183,62 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
                 textAlign: TextAlign.center,
               ),
               Gap(12.h),
-
-              if (widget.bio != null && widget.bio!.isNotEmpty) ...[
-                Gap(8.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Text(
-                    widget.bio!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: context.colors.mutedForeground,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
+              Gap(32.h),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                  vertical: 12.h,
                 ),
-              ],
+                width: 1.sw,
+                decoration: BoxDecoration(
+                  border: Border.all(color: context.colors.primary),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          CarbonIcons.information_filled,
+                          color: context.colors.primary,
+                          size: 18.w,
+                        ),
+                        Gap(8.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Invite with Legacy DM',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: context.colors.primary,
+                                ),
+                              ),
+                              Gap(8.h),
+                              Text(
+                                'This contact isn’t on MLS yet. We’ll deliver an invitation through Nostr’s original direct-message system.',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: context.colors.mutedForeground,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
               Gap(48.h),
             ],
           ),
         ),
         AppFilledButton(
-          onPressed: _isCreatingGroup ? null : _createDirectMessageGroup,
-          title: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
+          onPressed: _isSendingInvite ? null : _legacyInvite,
+          title: _isSendingInvite ? 'Sending invite...' : 'Invite to Chat',
         ),
       ],
     );

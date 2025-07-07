@@ -204,6 +204,26 @@ class ChatNotifier extends Notifier<ChatState> {
     }
   }
 
+  /// Send a legacy NIP-44 message
+  Future<bool?> sendLegacyNip44Message({required String contactPubkey}) async {
+    if (!_isAuthAvailable()) {
+      throw Exception('Not authenticated');
+    }
+
+    final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+    if (activeAccountData == null) {
+      throw Exception('No active account found');
+    }
+
+    final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+    final contactPublicKey = await publicKeyFromString(publicKeyString: contactPubkey);
+    _logger.info(
+      'ChatProvider: Sending legacy NIP-44 message to $contactPublicKey from $publicKey',
+    );
+    return null;
+  }
+
+  ///
   /// Refresh messages for a group (reload from server)
   Future<void> refreshMessagesForGroup(String groupId) async {
     await loadMessagesForGroup(groupId);
