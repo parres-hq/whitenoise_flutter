@@ -477,33 +477,35 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           )
         else
           // Build contacts list without ListView.builder to avoid nested scrolling
-          ...filteredContacts.map((contact) => Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
-            child: ContactListTile(
-              contact: contact,
-              enableSwipeToDelete: true,
-              onTap: () => _handleContactTap(contact),
-              onDelete: () async {
-                try {
-                  final realPublicKey = ref
-                      .read(contactsProvider.notifier)
-                      .getPublicKeyForContact(contact.publicKey);
-                  if (realPublicKey != null) {
-                    await ref
+          ...filteredContacts.map(
+            (contact) => Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: ContactListTile(
+                contact: contact,
+                enableSwipeToDelete: true,
+                onTap: () => _handleContactTap(contact),
+                onDelete: () async {
+                  try {
+                    final realPublicKey = ref
                         .read(contactsProvider.notifier)
-                        .removeContactByPublicKey(realPublicKey);
+                        .getPublicKeyForContact(contact.publicKey);
+                    if (realPublicKey != null) {
+                      await ref
+                          .read(contactsProvider.notifier)
+                          .removeContactByPublicKey(realPublicKey);
+                      if (context.mounted) {
+                        ref.showSuccessToast('Contact removed successfully');
+                      }
+                    }
+                  } catch (e) {
                     if (context.mounted) {
-                      ref.showSuccessToast('Contact removed successfully');
+                      ref.showErrorToast('Failed to remove contact: $e');
                     }
                   }
-                } catch (e) {
-                  if (context.mounted) {
-                    ref.showErrorToast('Failed to remove contact: $e');
-                  }
-                }
-              },
+                },
+              ),
             ),
-          )),
+          ),
         // Add some bottom padding
         Gap(40.h),
       ],
