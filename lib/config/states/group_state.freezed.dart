@@ -18,6 +18,8 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$GroupsState {
   List<GroupData>? get groups => throw _privateConstructorUsedError;
+  Map<String, GroupData>? get groupsMap =>
+      throw _privateConstructorUsedError; // groupId -> GroupData
   Map<String, List<User>>? get groupMembers =>
       throw _privateConstructorUsedError; // groupId -> members
   Map<String, List<User>>? get groupAdmins =>
@@ -42,6 +44,7 @@ abstract class $GroupsStateCopyWith<$Res> {
   @useResult
   $Res call({
     List<GroupData>? groups,
+    Map<String, GroupData>? groupsMap,
     Map<String, List<User>>? groupMembers,
     Map<String, List<User>>? groupAdmins,
     Map<String, String>? groupDisplayNames,
@@ -66,6 +69,7 @@ class _$GroupsStateCopyWithImpl<$Res, $Val extends GroupsState>
   @override
   $Res call({
     Object? groups = freezed,
+    Object? groupsMap = freezed,
     Object? groupMembers = freezed,
     Object? groupAdmins = freezed,
     Object? groupDisplayNames = freezed,
@@ -79,6 +83,11 @@ class _$GroupsStateCopyWithImpl<$Res, $Val extends GroupsState>
                     ? _value.groups
                     : groups // ignore: cast_nullable_to_non_nullable
                         as List<GroupData>?,
+            groupsMap:
+                freezed == groupsMap
+                    ? _value.groupsMap
+                    : groupsMap // ignore: cast_nullable_to_non_nullable
+                        as Map<String, GroupData>?,
             groupMembers:
                 freezed == groupMembers
                     ? _value.groupMembers
@@ -120,6 +129,7 @@ abstract class _$$GroupsStateImplCopyWith<$Res> implements $GroupsStateCopyWith<
   @useResult
   $Res call({
     List<GroupData>? groups,
+    Map<String, GroupData>? groupsMap,
     Map<String, List<User>>? groupMembers,
     Map<String, List<User>>? groupAdmins,
     Map<String, String>? groupDisplayNames,
@@ -143,6 +153,7 @@ class __$$GroupsStateImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? groups = freezed,
+    Object? groupsMap = freezed,
     Object? groupMembers = freezed,
     Object? groupAdmins = freezed,
     Object? groupDisplayNames = freezed,
@@ -156,6 +167,11 @@ class __$$GroupsStateImplCopyWithImpl<$Res>
                 ? _value._groups
                 : groups // ignore: cast_nullable_to_non_nullable
                     as List<GroupData>?,
+        groupsMap:
+            freezed == groupsMap
+                ? _value._groupsMap
+                : groupsMap // ignore: cast_nullable_to_non_nullable
+                    as Map<String, GroupData>?,
         groupMembers:
             freezed == groupMembers
                 ? _value._groupMembers
@@ -191,12 +207,14 @@ class __$$GroupsStateImplCopyWithImpl<$Res>
 class _$GroupsStateImpl implements _GroupsState {
   const _$GroupsStateImpl({
     final List<GroupData>? groups,
+    final Map<String, GroupData>? groupsMap,
     final Map<String, List<User>>? groupMembers,
     final Map<String, List<User>>? groupAdmins,
     final Map<String, String>? groupDisplayNames,
     this.isLoading = false,
     this.error,
   }) : _groups = groups,
+       _groupsMap = groupsMap,
        _groupMembers = groupMembers,
        _groupAdmins = groupAdmins,
        _groupDisplayNames = groupDisplayNames;
@@ -211,7 +229,19 @@ class _$GroupsStateImpl implements _GroupsState {
     return EqualUnmodifiableListView(value);
   }
 
+  final Map<String, GroupData>? _groupsMap;
+  @override
+  Map<String, GroupData>? get groupsMap {
+    final value = _groupsMap;
+    if (value == null) return null;
+    if (_groupsMap is EqualUnmodifiableMapView) return _groupsMap;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
+  // groupId -> GroupData
   final Map<String, List<User>>? _groupMembers;
+  // groupId -> GroupData
   @override
   Map<String, List<User>>? get groupMembers {
     final value = _groupMembers;
@@ -254,7 +284,7 @@ class _$GroupsStateImpl implements _GroupsState {
 
   @override
   String toString() {
-    return 'GroupsState(groups: $groups, groupMembers: $groupMembers, groupAdmins: $groupAdmins, groupDisplayNames: $groupDisplayNames, isLoading: $isLoading, error: $error)';
+    return 'GroupsState(groups: $groups, groupsMap: $groupsMap, groupMembers: $groupMembers, groupAdmins: $groupAdmins, groupDisplayNames: $groupDisplayNames, isLoading: $isLoading, error: $error)';
   }
 
   @override
@@ -263,6 +293,10 @@ class _$GroupsStateImpl implements _GroupsState {
         (other.runtimeType == runtimeType &&
             other is _$GroupsStateImpl &&
             const DeepCollectionEquality().equals(other._groups, _groups) &&
+            const DeepCollectionEquality().equals(
+              other._groupsMap,
+              _groupsMap,
+            ) &&
             const DeepCollectionEquality().equals(
               other._groupMembers,
               _groupMembers,
@@ -283,6 +317,7 @@ class _$GroupsStateImpl implements _GroupsState {
   int get hashCode => Object.hash(
     runtimeType,
     const DeepCollectionEquality().hash(_groups),
+    const DeepCollectionEquality().hash(_groupsMap),
     const DeepCollectionEquality().hash(_groupMembers),
     const DeepCollectionEquality().hash(_groupAdmins),
     const DeepCollectionEquality().hash(_groupDisplayNames),
@@ -302,6 +337,7 @@ class _$GroupsStateImpl implements _GroupsState {
 abstract class _GroupsState implements GroupsState {
   const factory _GroupsState({
     final List<GroupData>? groups,
+    final Map<String, GroupData>? groupsMap,
     final Map<String, List<User>>? groupMembers,
     final Map<String, List<User>>? groupAdmins,
     final Map<String, String>? groupDisplayNames,
@@ -311,6 +347,8 @@ abstract class _GroupsState implements GroupsState {
 
   @override
   List<GroupData>? get groups;
+  @override
+  Map<String, GroupData>? get groupsMap; // groupId -> GroupData
   @override
   Map<String, List<User>>? get groupMembers; // groupId -> members
   @override

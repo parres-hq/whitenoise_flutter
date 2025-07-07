@@ -33,6 +33,10 @@ class AssetsPaths {
   static const String icInfoFilled = '$_svgsDir/ic_info_filled.svg';
   static const String icWarningFilled = '$_svgsDir/ic_warning_filled.svg';
   static const String icSuccessFilled = '$_svgsDir/ic_success_filled.svg';
+  static const String icNotification = '$_svgsDir/ic_notification.svg';
+  static const String icMutedNotification = '$_svgsDir/ic_mute_notfication.svg';
+  static const String icAddUser = '$_svgsDir/ic_add_user.svg';
+  static const String icRemoveUser = '$_svgsDir/ic_remove_user.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';

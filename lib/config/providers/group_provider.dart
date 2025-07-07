@@ -60,8 +60,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
         return bTime.compareTo(aTime);
       });
 
-      // First set the groups
-      state = state.copyWith(groups: sortedGroups);
+      // First set the groups and create groupsMap
+      final groupsMap = <String, GroupData>{};
+      for (final group in sortedGroups) {
+        groupsMap[group.mlsGroupId] = group;
+      }
+      state = state.copyWith(groups: sortedGroups, groupsMap: groupsMap);
 
       // Load members for all groups to enable proper display name calculation
       await _loadMembersForAllGroups(groups);
@@ -451,6 +455,14 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   GroupData? findGroupById(String groupId) {
+    // First try to get from groupsMap for faster lookup
+    final groupsMap = state.groupsMap;
+    if (groupsMap != null) {
+      final group = groupsMap[groupId];
+      if (group != null) return group;
+    }
+
+    // Fallback to searching through groups list
     final groups = state.groups;
     if (groups == null) return null;
 
@@ -473,6 +485,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   String? getGroupDisplayName(String groupId) {
     return state.groupDisplayNames?[groupId];
+  }
+
+  GroupData? getGroupById(String groupId) {
+    return state.groupsMap?[groupId];
   }
 
   Future<bool> isCurrentUserAdmin(String groupId) async {
@@ -544,7 +560,14 @@ class GroupsNotifier extends Notifier<GroupsState> {
           // Sort by descending order (newest first)
           return bTime.compareTo(aTime);
         });
-        state = state.copyWith(groups: updatedGroups);
+
+        // Update groupsMap with all groups
+        final updatedGroupsMap = Map<String, GroupData>.from(state.groupsMap ?? {});
+        for (final group in updatedGroups) {
+          updatedGroupsMap[group.mlsGroupId] = group;
+        }
+
+        state = state.copyWith(groups: updatedGroups, groupsMap: updatedGroupsMap);
 
         // Load members for new groups only
         await _loadMembersForSpecificGroups(actuallyNewGroups);
@@ -631,7 +654,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
       return bTime.compareTo(aTime);
     });
 
-    state = state.copyWith(groups: updatedGroups);
+    // Update groupsMap with the updated groups
+    final updatedGroupsMap = <String, GroupData>{};
+    for (final group in updatedGroups) {
+      updatedGroupsMap[group.mlsGroupId] = group;
+    }
+
+    state = state.copyWith(groups: updatedGroups, groupsMap: updatedGroupsMap);
   }
 }
 

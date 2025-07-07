@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -130,6 +131,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   title: ContactInfo(
                     title: displayName,
                     imageUrl: '',
+                    onTap:
+                        () => context.push(
+                          '/chats/${widget.groupId}/info',
+                        ),
                   ),
                 ),
                 SliverPadding(
