@@ -148,12 +148,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     );
   }
 
-  void _showAccountSwitcher() {
+  void _showAccountSwitcher({bool isDismissible = true, bool showSuccessToast = false}) {
     final contactModels = _accounts.map(_accountToContactModel).toList();
 
     SwitchProfileBottomSheet.show(
       context: context,
       profiles: contactModels,
+      isDismissible: isDismissible,
+      showSuccessToast: showSuccessToast,
       onProfileSelected: (selectedProfile) {
         // Find the corresponding AccountData
         final selectedAccount = _accounts.firstWhere(
@@ -166,17 +168,16 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   Future<void> _handleLogout() async {
     final authNotifier = ref.read(authProvider.notifier);
+    
+    // Check if there are multiple accounts before logout
+    final accounts = await fetchAccounts();
+    final hasMultipleAccounts = accounts.length > 2;
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-    );
+    if (!mounted) return;
 
     await authNotifier.logoutCurrentAccount();
 
     if (!mounted) return;
-    Navigator.of(context).pop();
 
     // Check the final auth state after logout
     final finalAuthState = ref.read(authProvider);
@@ -187,14 +188,21 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     }
 
     if (finalAuthState.isAuthenticated) {
-      // User was switched to another account
-      ref.showSuccessToast('Account signed out. Switched to another account.');
-      // Reload the accounts list to reflect the change
-      await _loadAccounts();
+      if (hasMultipleAccounts) {
+        await _loadAccounts();
+
+        if (mounted) {
+          _showAccountSwitcher(isDismissible: false, showSuccessToast: true);
+        }
+      } else {
+        ref.showSuccessToast('Account signed out. Switched to the other available account.');
+        await _loadAccounts();
+      }
     } else {
-      // No other accounts available, redirect to home
       ref.showSuccessToast('Signed out successfully.');
-      context.go(Routes.home);
+      if (mounted) {
+        context.go(Routes.home);
+      }
     }
   }
 
