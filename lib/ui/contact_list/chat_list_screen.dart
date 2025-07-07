@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
@@ -173,14 +174,29 @@ class _EmptyGroupList extends StatelessWidget {
     return Center(
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 32.w),
-        child: Text(
-          'Welcome to White Noise.\nDecentralized. Uncensorable. Secure.',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w600,
-            color: context.colors.mutedForeground,
-          ),
-          textAlign: TextAlign.center,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SvgPicture.asset(
+              AssetsPaths.icWhiteNoiseSvg,
+              width: 69.17.w,
+              height: 53.20.h,
+              colorFilter: ColorFilter.mode(
+                context.colors.primary,
+                BlendMode.srcIn,
+              ),
+            ),
+            Gap(12.h),
+            Text(
+              'Decentralized. Uncensorable.\nSecure Messaging.',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: context.colors.mutedForeground,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ),
     );
