@@ -34,6 +34,8 @@ class SearchChatBottomSheet extends ConsumerStatefulWidget {
 
 class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _searchFocusNode = FocusNode();
   String _searchQuery = '';
   bool _hasSearchResults = false;
   final Map<String, PublicKey> _publicKeyMap = {}; // Map ContactModel.publicKey to real PublicKey
@@ -43,6 +45,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScrollChanged);
     // Load contacts when the widget initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadContacts();
@@ -52,7 +55,10 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
+    _scrollController.removeListener(_onScrollChanged);
     _searchController.dispose();
+    _scrollController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -61,6 +67,13 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
       _searchQuery = _searchController.text;
       _hasSearchResults = _searchQuery.isNotEmpty;
     });
+  }
+
+  void _onScrollChanged() {
+    // Unfocus the text field when user starts scrolling
+    if (_searchFocusNode.hasFocus) {
+      _searchFocusNode.unfocus();
+    }
   }
 
   Future<void> _loadContacts() async {
@@ -134,11 +147,14 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
       children: [
         CustomTextField(
           textController: _searchController,
+          focusNode: _searchFocusNode,
           hintText: 'Search contacts and chats...',
+          autofocus: false, // Explicitly set to false to prevent auto-focus
         ),
         if (_hasSearchResults) ...[
           Expanded(
             child: ListView(
+              controller: _scrollController,
               padding: EdgeInsets.symmetric(horizontal: 16.w),
               children: [
                 // Chats section
