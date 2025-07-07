@@ -1,0 +1,6 @@
+DroppableDisposedException fix in new_chat_bottom_sheet.dart - Fixed issue where PublicKey objects created by publicKeyFromString() were being disposed before use in fetchKeyPackage(). Solution: Reorganized code to create and use PublicKey objects immediately within the same async block to prevent disposal. Modified both _handleContactTap() and _fetchMetadataForPublicKey() methods to ensure proper object lifecycle management with Rust bindings.
+
+DroppableDisposedException comprehensive fix - Implemented robust retry mechanism for fetchKeyPackage calls based on pattern from dev.dart. Added _fetchKeyPackageWithRetry() method that creates fresh PublicKey objects for each retry attempt (3 attempts max with 200ms delays). Updated both _fetchMetadataForPublicKey() and _handleContactTap() to use the retry mechanism. This addresses the fundamental issue where RustArc objects were being disposed between creation and usage in flutter_rust_bridge.
+
+UI decision logic debugging - Added comprehensive logging to _handleContactTap to diagnose why successful key package fetches were still showing legacy invite. Enhanced logging shows raw fetch results, null checks, type information, and final UI decision logic. This will help identify if the issue is in the fetch result handling or UI logic flow.
+

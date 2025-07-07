@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
-
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
@@ -149,7 +148,6 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
           textController: _searchController,
           focusNode: _searchFocusNode,
           hintText: 'Search contacts and chats...',
-          autofocus: false, // Explicitly set to false to prevent auto-focus
         ),
         if (_hasSearchResults) ...[
           Expanded(

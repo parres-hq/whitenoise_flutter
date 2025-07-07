@@ -59,7 +59,7 @@ class ActiveAccountNotifier extends Notifier<String?> {
   }
 
   Future<AccountData?> getActiveAccountData() async {
-    _logger.info('Getting active account data, state: $state');
+    _logger.fine('Getting active account data, state: $state');
     if (state == null) {
       _logger.warning('No active account set');
       return null;
@@ -69,7 +69,7 @@ class ActiveAccountNotifier extends Notifier<String?> {
       // Use the new fetchAccount API function for better performance
       final publicKey = await publicKeyFromString(publicKeyString: state!);
       final activeAccount = await fetchAccount(pubkey: publicKey);
-      _logger.info('Found active account: ${activeAccount.pubkey}');
+      _logger.fine('Found active account: ${activeAccount.pubkey}');
       return activeAccount;
     } catch (e) {
       _logger.warning('Error with new fetchAccount API: $e');
