@@ -51,7 +51,7 @@ class ProfileReadyCard extends ConsumerWidget {
           ),
           Gap(8.h),
           Text(
-            'Tap Chat to search for contacts now, or use the + chat icon in the top-right corner whenever you like.',
+            'Tap Start Chatting to search for contacts now, or use the + chat icon in the top-right corner whenever you like.',
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
