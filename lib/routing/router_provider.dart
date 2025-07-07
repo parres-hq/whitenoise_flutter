@@ -8,6 +8,7 @@ import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
 import 'package:whitenoise/ui/auth_flow/info_screen.dart';
 import 'package:whitenoise/ui/auth_flow/login_screen.dart';
 import 'package:whitenoise/ui/auth_flow/welcome_screen.dart';
+import 'package:whitenoise/ui/chat/chat_info/chat_info_screen.dart';
 import 'package:whitenoise/ui/chat/chat_screen.dart';
 import 'package:whitenoise/ui/contact_list/chat_list_screen.dart';
 import 'package:whitenoise/ui/settings/app_settings/app_settings_screen.dart';
@@ -142,6 +143,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             builder: (context, state) {
               final groupId = state.pathParameters['id']!;
               return ChatScreen(groupId: groupId);
+            },
+          ),
+          GoRoute(
+            path: ':id/info',
+            builder: (context, state) {
+              final groupId = state.pathParameters['id']!;
+              return ChatInfoScreen(groupId: groupId);
             },
           ),
         ],

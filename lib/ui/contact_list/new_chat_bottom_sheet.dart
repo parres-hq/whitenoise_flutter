@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
-
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
@@ -41,6 +40,8 @@ class NewChatBottomSheet extends ConsumerStatefulWidget {
 
 class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _searchFocusNode = FocusNode();
   String _searchQuery = '';
   final _logger = Logger('NewChatBottomSheet');
   ContactModel? _tempContact;
@@ -50,6 +51,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_onScrollChanged);
     // Load contacts when the widget initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadContacts();
@@ -59,7 +61,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   @override
   void dispose() {
     _searchController.removeListener(_onSearchChanged);
+    _scrollController.removeListener(_onScrollChanged);
     _searchController.dispose();
+    _scrollController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
   }
 
@@ -72,6 +77,13 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     // If it's a valid public key, fetch metadata
     if (_isValidPublicKey(_searchQuery)) {
       _fetchMetadataForPublicKey(_searchQuery);
+    }
+  }
+
+  void _onScrollChanged() {
+    // Unfocus the text field when user starts scrolling
+    if (_searchFocusNode.hasFocus) {
+      _searchFocusNode.unfocus();
     }
   }
 
@@ -152,24 +164,34 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   List<ContactModel> _getFilteredContacts(List<ContactModel>? contacts) {
     if (contacts == null) return [];
 
-    if (_searchQuery.isEmpty) return contacts;
+    // 1. Deduplicate contacts with the same publicKey
+    final Map<String, ContactModel> uniqueContacts = {};
+    for (final contact in contacts) {
+      final normalizedKey = contact.publicKey.trim().toLowerCase();
+      if (normalizedKey.isEmpty) continue;
+      uniqueContacts.putIfAbsent(normalizedKey, () => contact);
+    }
 
-    return contacts
-        .where(
-          (contact) =>
-              contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              contact.displayNameOrName.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ) ||
-              (contact.nip05?.toLowerCase().contains(
-                    _searchQuery.toLowerCase(),
-                  ) ??
-                  false) ||
-              contact.publicKey.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ),
-        )
-        .toList();
+    final deduplicatedContacts = uniqueContacts.values.toList();
+
+    // 2. If search is empty, return all deduplicated contacts
+    final query = _searchQuery.trim().toLowerCase();
+    if (query.isEmpty) return deduplicatedContacts;
+
+    // 3. Filter by search query (null-safe)
+    return deduplicatedContacts.where((contact) {
+      final name = contact.name.toLowerCase();
+      final displayNameOrName = contact.displayNameOrName.toLowerCase();
+      final nip05 = contact.nip05?.toLowerCase() ?? '';
+      final about = contact.about?.toLowerCase() ?? '';
+      final publicKey = contact.publicKey.toLowerCase();
+
+      return name.contains(query) ||
+          displayNameOrName.contains(query) ||
+          nip05.contains(query) ||
+          about.contains(query) ||
+          publicKey.contains(query);
+    }).toList();
   }
 
   Future<void> _handleContactTap(ContactModel contact) async {
@@ -298,6 +320,123 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     );
   }
 
+  Widget _buildMainOptions() {
+    return Column(
+      children: [
+        // New Group Chat option
+        GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+            NewGroupChatSheet.show(context);
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+            child: Row(
+              children: [
+                SvgPicture.asset(
+                  AssetsPaths.icGroupChat,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.mutedForeground,
+                    BlendMode.srcIn,
+                  ),
+                  width: 20.w,
+                  height: 20.w,
+                ),
+                Gap(10.w),
+                Expanded(
+                  child: Text(
+                    'New Group Chat',
+                    style: TextStyle(
+                      color: context.colors.mutedForeground,
+                      fontSize: 18.sp,
+                    ),
+                  ),
+                ),
+                SvgPicture.asset(
+                  AssetsPaths.icChevronRight,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.mutedForeground,
+                    BlendMode.srcIn,
+                  ),
+                  width: 8.55.w,
+                  height: 15.w,
+                ),
+              ],
+            ),
+          ),
+        ),
+        // Help and Feedback option
+        GestureDetector(
+          onTap: () async {
+            Navigator.pop(context);
+
+            try {
+              final contactPk = await publicKeyFromString(
+                publicKeyString: kSupportNpub,
+              );
+              final metadata = await fetchMetadata(pubkey: contactPk);
+
+              final supportContact = ContactModel.fromMetadata(
+                publicKey: kSupportNpub,
+                metadata: metadata,
+              );
+
+              if (context.mounted) {
+                _handleContactTap(supportContact);
+              }
+            } catch (e) {
+              _logger.warning('Failed to fetch metadata for public key: $e');
+
+              final basicContact = ContactModel(
+                name: 'Unknown User',
+                publicKey: kSupportNpub,
+              );
+
+              if (context.mounted) {
+                _handleContactTap(basicContact);
+              }
+            }
+          },
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
+            child: Row(
+              children: [
+                SvgPicture.asset(
+                  AssetsPaths.icFeedback,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.mutedForeground,
+                    BlendMode.srcIn,
+                  ),
+                  width: 20.w,
+                  height: 20.w,
+                ),
+                Gap(10.w),
+                Expanded(
+                  child: Text(
+                    'Help and Feedback',
+                    style: TextStyle(
+                      color: context.colors.mutedForeground,
+                      fontSize: 18.sp,
+                    ),
+                  ),
+                ),
+                SvgPicture.asset(
+                  AssetsPaths.icChevronRight,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.mutedForeground,
+                    BlendMode.srcIn,
+                  ),
+                  width: 8.55.w,
+                  height: 15.w,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildContactsList(bool showTempContact, List<ContactModel> filteredContacts) {
     return Column(
       children: [
@@ -373,6 +512,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
     final filteredContacts = _getFilteredContacts(contactsState.contactModels);
+    final rawContacts = contactsState.contactModels ?? [];
 
     final showTempContact =
         _searchQuery.isNotEmpty &&
@@ -383,144 +523,125 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     return Column(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
+        // Search field - not auto-focused
         CustomTextField(
           textController: _searchController,
+          focusNode: _searchFocusNode,
           hintText: 'Search contact or public key...',
         ),
         Gap(16.h),
-        GestureDetector(
-          onTap: () {
-            Navigator.pop(context);
-            NewGroupChatSheet.show(context);
-          },
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  AssetsPaths.icGroupChat,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.mutedForeground,
-                    BlendMode.srcIn,
-                  ),
-                  width: 20.w,
-                  height: 20.w,
-                ),
-                Gap(10.w),
-                Expanded(
-                  child: Text(
-                    'New Group Chat',
-                    style: TextStyle(
-                      color: context.colors.mutedForeground,
-                      fontSize: 18.sp,
-                    ),
-                  ),
-                ),
-                SvgPicture.asset(
-                  AssetsPaths.icChevronRight,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.mutedForeground,
-                    BlendMode.srcIn,
-                  ),
-                  width: 8.55.w,
-                  height: 15.w,
-                ),
-              ],
-            ),
-          ),
-        ),
-        GestureDetector(
-          onTap: () async {
-            Navigator.pop(context);
-
-            try {
-              final contactPk = await publicKeyFromString(publicKeyString: kSupportNpub);
-              final metadata = await fetchMetadata(pubkey: contactPk);
-
-              final supportContact = ContactModel.fromMetadata(
-                publicKey: kSupportNpub,
-                metadata: metadata,
-              );
-
-              if (context.mounted) {
-                StartSecureChatBottomSheet.show(
-                  context: context,
-                  name: supportContact.displayNameOrName,
-                  nip05: supportContact.nip05 ?? '',
-                  pubkey: supportContact.publicKey,
-                  bio: supportContact.about,
-                  imagePath: supportContact.imagePath,
-                  onChatCreated: () {
-                    Navigator.pop(context);
-                  },
-                );
-              }
-            } catch (e) {
-              _logger.warning('Failed to fetch metadata for public key: $e');
-
-              final basicContact = ContactModel(
-                name: 'Unknown User',
-                publicKey: kSupportNpub,
-              );
-
-              if (context.mounted) {
-                StartSecureChatBottomSheet.show(
-                  context: context,
-                  name: basicContact.displayNameOrName,
-                  nip05: '',
-                  pubkey: basicContact.publicKey,
-                  bio: basicContact.about,
-                  imagePath: basicContact.imagePath,
-                  onChatCreated: () {
-                    Navigator.pop(context);
-                  },
-                );
-              }
-            }
-          },
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),
-            child: Row(
-              children: [
-                SvgPicture.asset(
-                  AssetsPaths.icFeedback,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.mutedForeground,
-                    BlendMode.srcIn,
-                  ),
-                  width: 20.w,
-                  height: 20.w,
-                ),
-                Gap(10.w),
-                Expanded(
-                  child: Text(
-                    'Help and Feedback',
-                    style: TextStyle(
-                      color: context.colors.mutedForeground,
-                      fontSize: 18.sp,
-                    ),
-                  ),
-                ),
-                SvgPicture.asset(
-                  AssetsPaths.icChevronRight,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.mutedForeground,
-                    BlendMode.srcIn,
-                  ),
-                  width: 8.55.w,
-                  height: 15.w,
-                ),
-              ],
-            ),
-          ),
-        ),
+        // Scrollable content area
         Expanded(
           child:
               contactsState.isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : contactsState.error != null
                   ? _buildErrorWidget(contactsState.error!)
-                  : _buildContactsList(showTempContact, filteredContacts),
+                  : Column(
+                    children: [
+                      // Main options (New Group Chat, Help & Feedback)
+                      _buildMainOptions(),
+                      // DEBUG: Raw contacts section
+                      if (_searchQuery.toLowerCase() == 'debug') ...[
+                        Gap(16.h),
+                        Container(
+                          margin: EdgeInsets.symmetric(horizontal: 24.w),
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            color: context.colors.baseMuted,
+                            borderRadius: BorderRadius.circular(8.r),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'DEBUG: Raw Contacts Data',
+                                style: TextStyle(
+                                  color: context.colors.primary,
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Gap(8.h),
+                              Text(
+                                'Total raw contacts: ${rawContacts.length}',
+                                style: TextStyle(
+                                  color: context.colors.mutedForeground,
+                                  fontSize: 14.sp,
+                                ),
+                              ),
+                              Gap(8.h),
+                              ...rawContacts.asMap().entries.map((entry) {
+                                final index = entry.key;
+                                final contact = entry.value;
+                                return Container(
+                                  margin: EdgeInsets.only(bottom: 8.h),
+                                  padding: EdgeInsets.all(8.w),
+                                  decoration: BoxDecoration(
+                                    color: context.colors.surface,
+                                    borderRadius: BorderRadius.circular(4.r),
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Contact #$index',
+                                        style: TextStyle(
+                                          color: context.colors.primary,
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        'name: ${contact.name}',
+                                        style: TextStyle(
+                                          color: context.colors.mutedForeground,
+                                          fontSize: 10.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        'displayNameOrName: ${contact.displayNameOrName}',
+                                        style: TextStyle(
+                                          color: context.colors.mutedForeground,
+                                          fontSize: 10.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        'publicKey: ${contact.publicKey}',
+                                        style: TextStyle(
+                                          color: context.colors.mutedForeground,
+                                          fontSize: 10.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        'nip05: ${contact.nip05 ?? "null"}',
+                                        style: TextStyle(
+                                          color: context.colors.mutedForeground,
+                                          fontSize: 10.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        'about: ${contact.about ?? "null"}',
+                                        style: TextStyle(
+                                          color: context.colors.mutedForeground,
+                                          fontSize: 10.sp,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
+                        Gap(16.h),
+                      ],
+                      // Contacts list
+                      Expanded(
+                        child: _buildContactsList(showTempContact, filteredContacts),
+                      ),
+                    ],
+                  ),
         ),
       ],
     );

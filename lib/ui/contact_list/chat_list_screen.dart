@@ -29,10 +29,15 @@ class ChatListScreen extends ConsumerStatefulWidget {
 
 class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   String _profileImagePath = '';
+  late final PollingNotifier _pollingNotifier;
 
   @override
   void initState() {
     super.initState();
+
+    // Store reference to notifier early to avoid ref access in dispose
+    _pollingNotifier = ref.read(pollingProvider.notifier);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Initialize welcome notification service
       WelcomeNotificationService.initialize(context);
@@ -44,13 +49,14 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       _loadProfileData();
 
       // Start polling for data updates
-      ref.read(pollingProvider.notifier).startPolling();
+      _pollingNotifier.startPolling();
     });
   }
 
   @override
   void dispose() {
-    ref.read(pollingProvider.notifier).stopPolling();
+    // Use dispose method instead of stopPolling to avoid state modification during disposal
+    _pollingNotifier.dispose();
     WelcomeNotificationService.clearContext();
     super.dispose();
   }

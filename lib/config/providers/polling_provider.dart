@@ -9,14 +9,21 @@ class PollingNotifier extends Notifier<bool> {
   static final _logger = Logger('PollingNotifier');
   Timer? _pollingTimer;
   bool _hasInitialDataLoaded = false;
+  bool _isDisposed = false;
 
   @override
   bool build() => false;
 
   void startPolling() {
-    if (state) return;
+    if (_isDisposed || state) return;
     _logger.info('Starting data polling');
-    state = true;
+
+    try {
+      state = true;
+    } catch (e) {
+      _logger.warning('Failed to set polling state to true: $e');
+      return;
+    }
 
     // Load initial data if not already loaded
     if (!_hasInitialDataLoaded) {
@@ -32,12 +39,29 @@ class PollingNotifier extends Notifier<bool> {
 
   /// Stop polling
   void stopPolling() {
-    if (!state) return;
+    if (_isDisposed || !state) return;
 
     _logger.info('Stopping data polling');
-    state = false;
+
+    // Cancel timer first before changing state
     _pollingTimer?.cancel();
     _pollingTimer = null;
+
+    // Try to set state, but don't fail if provider is being disposed
+    try {
+      state = false;
+    } catch (e) {
+      _logger.warning('Failed to set polling state to false (provider may be disposed): $e');
+      // This is ok during disposal - the timer is already cancelled
+    }
+  }
+
+  /// Safely dispose resources without modifying state
+  void dispose() {
+    _isDisposed = true;
+    _pollingTimer?.cancel();
+    _pollingTimer = null;
+    _logger.info('Polling provider disposed');
   }
 
   /// Load initial data (full load on first run)

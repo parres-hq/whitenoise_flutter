@@ -60,8 +60,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
         return bTime.compareTo(aTime);
       });
 
-      // First set the groups
-      state = state.copyWith(groups: sortedGroups);
+      // First set the groups and create groupsMap
+      final groupsMap = <String, GroupData>{};
+      for (final group in sortedGroups) {
+        groupsMap[group.mlsGroupId] = group;
+      }
+      state = state.copyWith(groups: sortedGroups, groupsMap: groupsMap);
 
       // Load members for all groups to enable proper display name calculation
       await _loadMembersForAllGroups(groups);
@@ -134,6 +138,16 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final combinedAdminKeys = {creatorPubkeyForAdmin, ...resolvedAdminPublicKeys}.toList();
       _logger.info('GroupsProvider: Admin pubkeys loaded - ${combinedAdminKeys.length}');
 
+      // Debug logging before the createGroup call
+      _logger.info('GroupsProvider: Creating group with the following parameters:');
+      _logger.info('  - Group name: "$groupName"');
+      _logger.info('  - Group description: "$groupDescription"');
+      _logger.info('  - Creator pubkey: ${activeAccountData.pubkey}');
+      _logger.info('  - Members count: ${resolvedMembersPublicKeys.length}');
+      _logger.info('  - Admins count: ${combinedAdminKeys.length}');
+      _logger.info('  - Member pubkeys: $memberPublicKeyHexs');
+      _logger.info('  - Admin pubkeys: $adminPublicKeyHexs');
+
       final newGroup = await createGroup(
         creatorPubkey: creatorPubkey,
         memberPubkeys: resolvedMembersPublicKeys,
@@ -155,17 +169,56 @@ class GroupsNotifier extends Notifier<GroupsState> {
       _logger.severe('GroupsProvider.createNewGroup', e, st);
       String errorMessage = 'Failed to create group';
 
-      // Add more detailed error handling for release builds
+      // Enhanced error handling with more debugging info
       if (e is WhitenoiseError) {
         try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to create group due to an internal error';
+          _logger.info('Attempting to convert WhitenoiseError to string...');
+          final rawErrorMessage = await whitenoiseErrorToString(error: e);
+          _logger.info('WhitenoiseError converted to: $rawErrorMessage');
+
+          // Check for specific error types and provide user-friendly messages
+          if (rawErrorMessage.contains('KeyPackage') &&
+              rawErrorMessage.contains('Does not exist')) {
+            errorMessage =
+                'Cannot create group: One or more users do not have valid encryption keys.\n\n'
+                'This typically means:\n'
+                '• The user has not used the app recently\n'
+                '• Their encryption keys have expired\n'
+                '• They need to open the app to refresh their keys\n\n'
+                'Please ask the user(s) to open WhiteNoise and try creating the group again.';
+          } else if (rawErrorMessage.contains('Network') ||
+              rawErrorMessage.contains('Connection')) {
+            errorMessage = 'Network error: Please check your internet connection and try again.';
+          } else if (rawErrorMessage.contains('Permission') ||
+              rawErrorMessage.contains('Unauthorized')) {
+            errorMessage =
+                'Permission error: You may not have permission to create groups with these users.';
+          } else {
+            // Use the raw error message for other cases
+            errorMessage = 'Failed to create group: $rawErrorMessage';
+          }
+        } catch (conversionError, conversionSt) {
+          _logger.severe(
+            'Failed to convert WhitenoiseError to string',
+            conversionError,
+            conversionSt,
+          );
+
+          // Provide more context about the error
+          errorMessage =
+              'Group creation failed. This could be due to:\n'
+              '• Invalid member public keys\n'
+              '• Network connectivity issues\n'
+              '• Insufficient permissions\n'
+              '• Backend service unavailable\n\n'
+              'Please check that all member public keys are valid and try again.';
         }
       } else {
-        errorMessage = e.toString();
+        _logger.info('Error type: ${e.runtimeType}');
+        _logger.info('Error details: $e');
+        errorMessage = 'Group creation failed: $e';
       }
+
       state = state.copyWith(error: errorMessage, isLoading: false);
       return null;
     }
@@ -451,6 +504,14 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   GroupData? findGroupById(String groupId) {
+    // First try to get from groupsMap for faster lookup
+    final groupsMap = state.groupsMap;
+    if (groupsMap != null) {
+      final group = groupsMap[groupId];
+      if (group != null) return group;
+    }
+
+    // Fallback to searching through groups list
     final groups = state.groups;
     if (groups == null) return null;
 
@@ -473,6 +534,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   String? getGroupDisplayName(String groupId) {
     return state.groupDisplayNames?[groupId];
+  }
+
+  GroupData? getGroupById(String groupId) {
+    return state.groupsMap?[groupId];
   }
 
   Future<bool> isCurrentUserAdmin(String groupId) async {
@@ -544,7 +609,14 @@ class GroupsNotifier extends Notifier<GroupsState> {
           // Sort by descending order (newest first)
           return bTime.compareTo(aTime);
         });
-        state = state.copyWith(groups: updatedGroups);
+
+        // Update groupsMap with all groups
+        final updatedGroupsMap = Map<String, GroupData>.from(state.groupsMap ?? {});
+        for (final group in updatedGroups) {
+          updatedGroupsMap[group.mlsGroupId] = group;
+        }
+
+        state = state.copyWith(groups: updatedGroups, groupsMap: updatedGroupsMap);
 
         // Load members for new groups only
         await _loadMembersForSpecificGroups(actuallyNewGroups);
@@ -631,7 +703,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
       return bTime.compareTo(aTime);
     });
 
-    state = state.copyWith(groups: updatedGroups);
+    // Update groupsMap with the updated groups
+    final updatedGroupsMap = <String, GroupData>{};
+    for (final group in updatedGroups) {
+      updatedGroupsMap[group.mlsGroupId] = group;
+    }
+
+    state = state.copyWith(groups: updatedGroups, groupsMap: updatedGroupsMap);
   }
 }
 

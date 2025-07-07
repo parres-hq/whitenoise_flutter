@@ -166,7 +166,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   Future<void> _handleLogout() async {
     final authNotifier = ref.read(authProvider.notifier);
-    final authState = ref.read(authProvider);
 
     showDialog(
       context: context,
@@ -179,12 +178,24 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     if (!mounted) return;
     Navigator.of(context).pop();
 
-    if (authState.error != null) {
-      ref.showErrorToast(authState.error!);
+    // Check the final auth state after logout
+    final finalAuthState = ref.read(authProvider);
+
+    if (finalAuthState.error != null) {
+      ref.showErrorToast(finalAuthState.error!);
       return;
     }
 
-    context.go(Routes.home);
+    if (finalAuthState.isAuthenticated) {
+      // User was switched to another account
+      ref.showSuccessToast('Account signed out. Switched to another account.');
+      // Reload the accounts list to reflect the change
+      await _loadAccounts();
+    } else {
+      // No other accounts available, redirect to home
+      ref.showSuccessToast('Signed out successfully.');
+      context.go(Routes.home);
+    }
   }
 
   @override

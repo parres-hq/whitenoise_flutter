@@ -11,6 +11,7 @@ abstract final class Routes {
   static const chats = '/chats';
   static const chat = '/chats/:id';
   static const newChat = '/chats/new';
+  static const chatInfo = '/chats/:id/info';
 
   // Contacts
   static const contacts = '/contacts';
