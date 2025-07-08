@@ -484,7 +484,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Create reaction content (emoji)
       final reactionContent = reaction;
-      
+
       // Create tags for reaction
       // "e" tag references the message being reacted to
       final eTags = [
