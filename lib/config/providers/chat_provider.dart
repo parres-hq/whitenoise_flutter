@@ -60,19 +60,33 @@ class ChatNotifier extends Notifier<ChatState> {
 
       _logger.info('ChatProvider: Loading messages for group $groupId');
 
+      // TODO: Temporary solution - fetch both data sources to map reply information
+      // We use messagesWithTokens for primary message data and aggregatedMessages for reply mapping
       final messagesWithTokens = await fetchMessagesForGroup(
         pubkey: publicKey,
         groupId: groupIdObj,
       );
 
-      // Sort messages by creation time (oldest first)
+      final publicKeyAgr = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final groupIdObjAgr = await groupIdFromString(hexString: groupId);
+      final aggregatedMessages = await fetchAggregatedMessagesForGroup(
+        pubkey: publicKeyAgr,
+        groupId: groupIdObjAgr,
+      );
 
+      _logger.info(
+        'ChatProvider: Fetched ${messagesWithTokens.length} messages with tokens and ${aggregatedMessages.length} aggregated messages',
+      );
+
+      // Sort messages by creation time (oldest first)
       messagesWithTokens.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
       final messages = await MessageConverter.fromMessageWithTokensDataList(
         messagesWithTokens,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
         ref: ref,
+        aggregatedMessages: aggregatedMessages, // Pass aggregated data for reply mapping
       );
 
       state = state.copyWith(
@@ -302,9 +316,17 @@ class ChatNotifier extends Notifier<ChatState> {
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final groupIdObj = await groupIdFromString(hexString: groupId);
 
+      // TODO: Use dual API approach for reply information in polling
       final messagesWithTokens = await fetchMessagesForGroup(
         pubkey: publicKey,
         groupId: groupIdObj,
+      );
+
+      final publicKeyAgr = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final groupIdObjAgr = await groupIdFromString(hexString: groupId);
+      final aggregatedMessages = await fetchAggregatedMessagesForGroup(
+        pubkey: publicKeyAgr,
+        groupId: groupIdObjAgr,
       );
 
       messagesWithTokens.sort((a, b) => a.createdAt.compareTo(b.createdAt));
@@ -313,6 +335,7 @@ class ChatNotifier extends Notifier<ChatState> {
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
         ref: ref,
+        aggregatedMessages: aggregatedMessages, // Pass aggregated data for reply mapping
       );
 
       final currentMessages = state.groupMessages[groupId] ?? [];
@@ -579,11 +602,46 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Convert to MessageModel and add to local state
       final currentMessages = state.groupMessages[groupId] ?? [];
-      final sentMessageModel = MessageConverter.fromMessageWithTokensData(
+
+      // Find the original message for reply context
+      final originalMessage = currentMessages.firstWhere(
+        (msg) => msg.id == replyToMessageId,
+        orElse: () => throw StateError('Original message not found'),
+      );
+
+      // Create a mock ChatMessageData with reply information for the sent message
+      final mockReplyInfo = ChatMessageData(
+        id: sentMessage.id,
+        pubkey: sentMessage.pubkey,
+        content: sentMessage.content ?? '',
+        createdAt: sentMessage.createdAt,
+        tags: const [],
+        isReply: true,
+        replyToId: replyToMessageId,
+        isDeleted: false,
+        contentTokens: const [],
+        reactions: const ReactionSummaryData(byEmoji: [], userReactions: []),
+        kind: sentMessage.kind,
+      );
+
+      // Build lookup map for the original message
+      final originalMessageLookup = <String, MessageWithTokensData>{};
+      originalMessageLookup[replyToMessageId] = MessageWithTokensData(
+        id: originalMessage.id,
+        pubkey: originalMessage.sender.publicKey,
+        kind: 1,
+        createdAt: BigInt.from(originalMessage.createdAt.millisecondsSinceEpoch ~/ 1000),
+        content: originalMessage.content,
+        tokens: const [],
+      );
+
+      final sentMessageModel = await MessageConverter.fromMessageWithTokensData(
         sentMessage,
         currentUserPublicKey: activeAccountData.pubkey,
-        roomId: groupId,
+        groupId: groupId,
         ref: ref,
+        replyInfo: mockReplyInfo,
+        originalMessageLookup: originalMessageLookup,
       );
       final updatedMessages = [...currentMessages, sentMessageModel];
 
@@ -678,56 +736,60 @@ class ChatNotifier extends Notifier<ChatState> {
     }
   }
 
-  void handleReply(MessageModel message) {
-    if (state.selectedGroupId == null) return;
+  void handleReply(MessageModel message, {String? groupId}) {
+    final targetGroupId = groupId ?? message.groupId;
+    if (targetGroupId == null) return;
 
     state = state.copyWith(
       replyingTo: {
         ...state.replyingTo,
-        state.selectedGroupId!: message,
+        targetGroupId: message,
       },
       // Clear editing when starting a reply
       editingMessage: {
         ...state.editingMessage,
-        state.selectedGroupId!: null,
+        targetGroupId: null,
       },
     );
   }
 
-  void handleEdit(MessageModel message) {
-    if (state.selectedGroupId == null) return;
+  void handleEdit(MessageModel message, {String? groupId}) {
+    final targetGroupId = groupId ?? message.groupId;
+    if (targetGroupId == null) return;
 
     state = state.copyWith(
       editingMessage: {
         ...state.editingMessage,
-        state.selectedGroupId!: message,
+        targetGroupId: message,
       },
       // Clear replying when starting an edit
       replyingTo: {
         ...state.replyingTo,
-        state.selectedGroupId!: null,
+        targetGroupId: null,
       },
     );
   }
 
-  void cancelReply() {
-    if (state.selectedGroupId == null) return;
+  void cancelReply({String? groupId}) {
+    if (groupId == null && state.selectedGroupId == null) return;
+    final targetGroupId = groupId ?? state.selectedGroupId!;
 
     state = state.copyWith(
       replyingTo: {
         ...state.replyingTo,
-        state.selectedGroupId!: null,
+        targetGroupId: null,
       },
     );
   }
 
-  void cancelEdit() {
-    if (state.selectedGroupId == null) return;
+  void cancelEdit({String? groupId}) {
+    if (groupId == null && state.selectedGroupId == null) return;
+    final targetGroupId = groupId ?? state.selectedGroupId!;
 
     state = state.copyWith(
       editingMessage: {
         ...state.editingMessage,
-        state.selectedGroupId!: null,
+        targetGroupId: null,
       },
     );
   }

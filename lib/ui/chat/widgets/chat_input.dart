@@ -62,10 +62,10 @@ class _ChatInputState extends ConsumerState<ChatInput> {
     // Reset input state
     _textController.clear();
     if (chatState.replyingTo[widget.groupId] != null) {
-      chatNotifier.cancelReply();
+      chatNotifier.cancelReply(groupId: widget.groupId);
     }
     if (chatState.editingMessage[widget.groupId] != null) {
-      chatNotifier.cancelEdit();
+      chatNotifier.cancelEdit(groupId: widget.groupId);
     }
 
     setState(() {});
@@ -124,9 +124,9 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                                 editingMessage: chatState.editingMessage[widget.groupId],
                                 onCancel: () {
                                   if (chatState.replyingTo[widget.groupId] != null) {
-                                    chatNotifier.cancelReply();
+                                    chatNotifier.cancelReply(groupId: widget.groupId);
                                   } else if (chatState.editingMessage[widget.groupId] != null) {
-                                    chatNotifier.cancelEdit();
+                                    chatNotifier.cancelEdit(groupId: widget.groupId);
                                     _textController.clear();
                                   }
                                   setState(() {});
@@ -232,25 +232,28 @@ class ReplyEditHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Align(
-            alignment: Alignment.topRight,
-            child: GestureDetector(
-              onTap: onCancel,
-              child: Icon(
-                Icons.close,
-                size: 14.w,
-                color: context.colors.mutedForeground,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                replyingTo?.sender.name ?? editingMessage?.sender.name ?? 'Unknown User',
+                style: TextStyle(
+                  color: context.colors.mutedForeground,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
+              GestureDetector(
+                onTap: onCancel,
+                child: Icon(
+                  Icons.close,
+                  size: 14.w,
+                  color: context.colors.mutedForeground,
+                ),
+              ),
+            ],
           ),
-          Text(
-            replyingTo?.sender.name ?? editingMessage?.sender.name ?? 'User Name',
-            style: TextStyle(
-              color: context.colors.mutedForeground,
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+
           Gap(4.h),
           Text(
             replyingTo?.content ?? editingMessage?.content ?? 'Quote Text...',

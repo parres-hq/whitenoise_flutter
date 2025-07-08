@@ -159,7 +159,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         final message = messages[index - 1];
                         return SwipeToReplyWidget(
                           message: message,
-                          onReply: () => chatNotifier.handleReply(message),
+                          onReply: () => chatNotifier.handleReply(message, groupId: widget.groupId),
                           onTap:
                               () => ChatDialogService.showReactionDialog(
                                 context: context,
@@ -212,14 +212,27 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
       bottomSheet: ChatInput(
         groupId: widget.groupId,
-        onInputFocused: _handleScrollToBottom, // Add callback for when input gets focus
-        onSend:
-            (message, isEditing) => chatNotifier.sendMessage(
+        onInputFocused: _handleScrollToBottom,
+        onSend: (message, isEditing) async {
+          final chatState = ref.read(chatProvider);
+          final replyingTo = chatState.replyingTo[widget.groupId];
+
+          if (replyingTo != null) {
+            await chatNotifier.sendReplyMessage(
+              groupId: widget.groupId,
+              replyToMessageId: replyingTo.id,
+              message: message,
+              onMessageSent: _handleScrollToBottom,
+            );
+          } else {
+            await chatNotifier.sendMessage(
               groupId: widget.groupId,
               message: message,
               isEditing: isEditing,
               onMessageSent: _handleScrollToBottom,
-            ),
+            );
+          }
+        },
       ),
     );
   }
