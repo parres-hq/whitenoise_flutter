@@ -204,8 +204,11 @@ class ChatNotifier extends Notifier<ChatState> {
     }
   }
 
-  /// Send a legacy NIP-44 message
-  Future<bool?> sendLegacyNip44Message({required String contactPubkey}) async {
+  /// Send a legacy NIP-04 message
+  Future<bool> sendLegacyNip04Message({
+    required String contactPubkey,
+    required String message,
+  }) async {
     if (!_isAuthAvailable()) {
       throw Exception('Not authenticated');
     }
@@ -217,13 +220,39 @@ class ChatNotifier extends Notifier<ChatState> {
 
     final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
     final contactPublicKey = await publicKeyFromString(publicKeyString: contactPubkey);
+
     _logger.info(
-      'ChatProvider: Sending legacy NIP-44 message to $contactPublicKey from $publicKey',
+      'ChatProvider: Sending legacy NIP-04 message to $contactPubkey from ${activeAccountData.pubkey}',
     );
-    return null;
+
+    try {
+      final tags = <Tag>[];
+      await sendDirectMessageNip04(
+        sender: publicKey,
+        receiver: contactPublicKey,
+        content: message,
+        tags: tags,
+      );
+
+      _logger.info('ChatProvider: Legacy NIP-04 message sent successfully');
+      return true;
+    } catch (e, st) {
+      _logger.severe('ChatProvider.sendLegacyNip04Message', e, st);
+      String errorMessage = 'Failed to send legacy NIP-04 message';
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+        } catch (conversionError) {
+          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          errorMessage = 'Failed to send message due to an internal error';
+        }
+      } else {
+        errorMessage = e.toString();
+      }
+      throw Exception(errorMessage);
+    }
   }
 
-  ///
   /// Refresh messages for a group (reload from server)
   Future<void> refreshMessagesForGroup(String groupId) async {
     await loadMessagesForGroup(groupId);
