@@ -137,7 +137,11 @@ class AccountNotifier extends Notifier<AccountState> {
   }
 
   // Update metadata for the current account
-  Future<void> updateAccountMetadata(String displayName, String bio) async {
+  Future<void> updateAccountMetadata(
+    String displayName,
+    String bio, {
+    String? profilePictureUrl,
+  }) async {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
@@ -150,7 +154,7 @@ class AccountNotifier extends Notifier<AccountState> {
         final isBioProvided = bio.isNotEmpty;
 
         // Skipping update if there's nothing to change
-        if (!isDisplayNameChanged && !isBioProvided) {
+        if (!isDisplayNameChanged && !isBioProvided && profilePictureUrl == null) {
           return;
         }
 
@@ -160,6 +164,10 @@ class AccountNotifier extends Notifier<AccountState> {
 
         if (isBioProvided) {
           accountMetadata.about = bio;
+        }
+
+        if (profilePictureUrl != null) {
+          accountMetadata.picture = profilePictureUrl;
         }
 
         final publicKey = await publicKeyFromString(publicKeyString: pubkey);
