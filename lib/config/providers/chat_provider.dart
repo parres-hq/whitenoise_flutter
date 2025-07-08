@@ -579,10 +579,10 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Convert to MessageModel and add to local state
       final currentMessages = state.groupMessages[groupId] ?? [];
-      final sentMessageModel = MessageConverter.fromMessageWithTokensData(
+      final sentMessageModel = await MessageConverter.fromMessageWithTokensData(
         sentMessage,
         currentUserPublicKey: activeAccountData.pubkey,
-        roomId: groupId,
+        groupId: groupId,
         ref: ref,
       );
       final updatedMessages = [...currentMessages, sentMessageModel];
