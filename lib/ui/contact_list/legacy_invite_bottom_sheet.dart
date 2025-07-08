@@ -72,10 +72,11 @@ class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomShee
     try {
       final invited = await ref
           .read(chatProvider.notifier)
-          .sendLegacyNip44Message(
+          .sendLegacyNip04Message(
             contactPubkey: widget.pubkey,
+            message: 'You have been invited to chat on Whitenoise!',
           );
-      if (invited != null) {
+      if (invited) {
         _logger.info('Invite sent successfully: ${widget.name} (${widget.pubkey})');
 
         if (mounted) {
