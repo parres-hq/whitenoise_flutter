@@ -168,7 +168,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   Future<void> _handleLogout() async {
     final authNotifier = ref.read(authProvider.notifier);
-    
+
     // Check if there are multiple accounts before logout
     final accounts = await fetchAccounts();
     final hasMultipleAccounts = accounts.length > 2;

@@ -456,7 +456,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         ],
         // Show message when no contacts or build the list
         if (filteredContacts.isEmpty && !showTempContact)
-          Container(
+          SizedBox(
             height: 200.h, // Fixed height for the message
             child: Center(
               child:
@@ -532,7 +532,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           textController: _searchController,
           focusNode: _searchFocusNode,
           hintText: 'Search contact or public key...',
-          autofocus: false, // Explicitly set to false to prevent auto-focus
         ),
         Gap(16.h),
         // Scrollable content area
