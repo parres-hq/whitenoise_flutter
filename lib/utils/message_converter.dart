@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
@@ -7,22 +8,21 @@ import 'package:whitenoise/src/rust/api/messages.dart';
 /// Converts MessageWithTokensData to MessageModel for UI display
 class MessageConverter {
   /// Converts a MessageWithTokensData to MessageModel
-  static MessageModel fromMessageWithTokensData(
+  static Future<MessageModel> fromMessageWithTokensData(
     MessageWithTokensData messageData, {
     required String? currentUserPublicKey,
-    String? roomId,
+    String? groupId,
     required Ref ref,
-  }) {
-    // Create a User object from the message sender
-    final sender = User(
-      id: messageData.pubkey,
-      name: _getDisplayName(messageData.pubkey, currentUserPubkey: currentUserPublicKey, ref: ref),
-      nip05: '',
-      publicKey: messageData.pubkey,
-    );
-
+  }) async {
     // Determine if this message is from the current user
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
+
+    // Create a User object from the message sender using metadata
+    final sender = await _createUserFromMetadata(
+      messageData.pubkey,
+      currentUserPubkey: currentUserPublicKey,
+      ref: ref,
+    );
 
     // Convert BigInt timestamp to DateTime
     final createdAt = DateTime.fromMillisecondsSinceEpoch(
@@ -39,43 +39,70 @@ class MessageConverter {
       createdAt: createdAt,
       sender: sender,
       isMe: isMe,
-      groupId: roomId,
+      groupId: groupId,
       status: status,
     );
   }
 
   /// Converts a list of MessageWithTokensData to MessageModel list
-  static List<MessageModel> fromMessageWithTokensDataList(
+  static Future<List<MessageModel>> fromMessageWithTokensDataList(
     List<MessageWithTokensData> messageDataList, {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
-  }) {
-    return messageDataList
-        .map(
-          (messageData) => fromMessageWithTokensData(
-            messageData,
-            currentUserPublicKey: currentUserPublicKey,
-            roomId: groupId,
-            ref: ref,
-          ),
-        )
-        .toList();
+  }) async {
+    final List<MessageModel> messages = [];
+
+    for (final messageData in messageDataList) {
+      final message = await fromMessageWithTokensData(
+        messageData,
+        currentUserPublicKey: currentUserPublicKey,
+        groupId: groupId,
+        ref: ref,
+      );
+      messages.add(message);
+    }
+
+    return messages;
   }
 
-  /// Gets a display name for a public key
-  /// Returns 'You' if pubkey matches current user, otherwise returns contact name or 'user'
-  static String _getDisplayName(
+  /// Creates a User object from metadata
+  static Future<User> _createUserFromMetadata(
     String pubkey, {
     String? currentUserPubkey,
     required Ref ref,
-  }) {
+  }) async {
     // If this is the current user, return 'You'
     if (currentUserPubkey != null && pubkey == currentUserPubkey) {
-      return 'You';
+      return User(
+        id: pubkey,
+        name: 'You',
+        nip05: '',
+        publicKey: pubkey,
+      );
     }
 
-    // Try to find the contact name from the contact provider
+    try {
+      // Try to get metadata from the metadata cache
+      final metadataCache = ref.read(metadataCacheProvider.notifier);
+      final contactModel = await metadataCache.getContactModel(pubkey);
+
+      return User(
+        id: pubkey,
+        name: contactModel.displayNameOrName,
+        nip05: contactModel.nip05 ?? '',
+        publicKey: pubkey,
+        imagePath: contactModel.imagePath,
+        username: contactModel.displayName,
+      );
+    } catch (e) {
+      // Fallback to contact provider if metadata cache fails
+      return _createUserFromContactProvider(pubkey, ref: ref);
+    }
+  }
+
+  /// Fallback method to create User from contact provider
+  static User _createUserFromContactProvider(String pubkey, {required Ref ref}) {
     try {
       final contacts = ref.read(contactsProvider);
       final contactModels = contacts.contactModels ?? [];
@@ -83,16 +110,29 @@ class MessageConverter {
       final contact = contactModels.where((contact) => contact.publicKey == pubkey).toList();
 
       if (contact.isNotEmpty) {
-        // Return displayName if available, otherwise name
-        return contact.first.displayName?.isNotEmpty == true
-            ? contact.first.displayName!
-            : contact.first.name;
+        final contactModel = contact.first;
+        return User(
+          id: pubkey,
+          name:
+              contactModel.displayName?.isNotEmpty == true
+                  ? contactModel.displayName!
+                  : contactModel.name,
+          nip05: contactModel.nip05 ?? '',
+          publicKey: pubkey,
+          imagePath: contactModel.imagePath,
+          username: contactModel.displayName,
+        );
       }
     } catch (e) {
       // Continue to fallback if contact lookup fails
     }
 
-    // Return 'user' if contact not found
-    return 'user';
+    // Return fallback user if contact not found
+    return User(
+      id: pubkey,
+      name: 'Unknown User',
+      nip05: '',
+      publicKey: pubkey,
+    );
   }
 }

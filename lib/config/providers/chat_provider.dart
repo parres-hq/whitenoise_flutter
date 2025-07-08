@@ -68,7 +68,7 @@ class ChatNotifier extends Notifier<ChatState> {
       // Sort messages by creation time (oldest first)
 
       messagesWithTokens.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-      final messages = MessageConverter.fromMessageWithTokensDataList(
+      final messages = await MessageConverter.fromMessageWithTokensDataList(
         messagesWithTokens,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
@@ -152,10 +152,10 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Convert sent message to MessageModel and add to local state
       final currentMessages = state.groupMessages[groupId] ?? [];
-      final sentMessageModel = MessageConverter.fromMessageWithTokensData(
+      final sentMessageModel = await MessageConverter.fromMessageWithTokensData(
         sentMessage,
         currentUserPublicKey: activeAccountData.pubkey,
-        roomId: groupId,
+        groupId: groupId,
         ref: ref,
       );
       final updatedMessages = [...currentMessages, sentMessageModel];
@@ -308,7 +308,7 @@ class ChatNotifier extends Notifier<ChatState> {
       );
 
       messagesWithTokens.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-      final newMessages = MessageConverter.fromMessageWithTokensDataList(
+      final newMessages = await MessageConverter.fromMessageWithTokensDataList(
         messagesWithTokens,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
