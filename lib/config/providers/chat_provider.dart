@@ -557,7 +557,7 @@ class ChatNotifier extends Notifier<ChatState> {
         pubkey: publicKey,
         groupId: groupIdObj,
         message: message,
-        kind: 1, // Regular text message
+        kind: 9, // Kind 9 for replies
         tags: replyTags,
       );
 
