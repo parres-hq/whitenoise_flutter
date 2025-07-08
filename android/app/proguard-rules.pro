@@ -12,7 +12,7 @@
 }
 
 # Keep all classes in the rust package
--keep class com.example.whitenoise.** { *; }
+-keep class org.parres.whitenoise.** { *; }
 
 # Prevent stripping of Rust library native methods
 -keep class * {
@@ -23,4 +23,4 @@
 -keepattributes *Annotation*
 -keepattributes Signature
 -keepattributes InnerClasses
--keepattributes EnclosingMethod 
+-keepattributes EnclosingMethod
