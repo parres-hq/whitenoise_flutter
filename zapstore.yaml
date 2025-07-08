@@ -1,17 +1,28 @@
 name: White Noise
-summary: A truly secure and private messenger that’s lightning fast, infinitely scalable, and identity-free
-description: (insert longer text, markdown ok)
+summary: A truly secure and private messenger that's lightning fast, infinitely scalable, and identity-free.
+description: |
+  **White Noise: The Identity-Free Messenger for Private, Censorship-Resistant Communication**
+
+  In a world where every message is tracked, White Noise offers a refuge. Built on the decentralized Nostr network and fortified with cutting-edge MLS encryption, it's the first messenger that's *truly* private, fast, and scalable—no phone numbers, no emails, and no central authority.
+
+  **Why You Need It:**
+  - **Private by Design:** End-to-end encryption with forward secrecy and post-compromise security—your messages stay hidden, even if keys leak.
+  - **No Censorship. Ever.** Thousands of independent relays keep conversations flowing, no matter the pressure. Run your own or use trusted nodes.
+  - **Identity Freedom:** Choose anonymity, a pseudonym, or your real name. Your data, your rules.
+  - **Scale Without Limits:** From one-on-one chats to groups with thousands, White Noise stays fast, secure, and seamless.
+  - **Open Source & Community-Driven:** Backed by Human Rights Foundation and OpenSats, we're funded by the people, not corporations.
 repository: https://github.com/parres-hq/whitenoise_flutter
-homepage: https://whitenoise-web.vercel.app/
+homepage: https://whitenoise.chat
 images:
   - test/assets/i1.jpg
   - test/assets/i2.jpg
 icon: test/assets/icon.png
 changelog: CHANGELOG.md
-tags: privacy security android messenger cryptography freedom-tech
+tags: privacy security android messenger cryptography freedom-tech MLS E2EE
 license: AGPL-3.0-only
 blossom_servers:
   - https://cdn.zapstore.dev
   - https://blossom.band
+  - https://blossom.primal.net
 assets:
   - build/app/outputs/flutter-apk/app-arm64-v8a-release.apk

@@ -74,7 +74,7 @@ enum AppButtonVisualState {
       AppButtonVisualState.success => colors.success.withValues(alpha: 0.5),
       AppButtonVisualState.warning => colors.warning.withValues(alpha: 0.5),
       AppButtonVisualState.primary => colors.primary.withValues(alpha: 0.5),
-      AppButtonVisualState.secondary => colors.warning.withValues(
+      AppButtonVisualState.secondary => colors.secondary.withValues(
         alpha: 0.5,
       ),
       AppButtonVisualState.secondaryWarning => colors.destructive.withValues(

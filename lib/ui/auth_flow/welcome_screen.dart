@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -97,16 +96,16 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                   AppFilledButton(
                     title: 'Login',
                     visualState: AppButtonVisualState.secondary,
-                    onPressed: () => context.go('/login'),
+                    onPressed: authState.isLoading ? null : () => context.go('/login'),
                   ),
                   Gap(12.h),
                   authState.isLoading
-                      ? Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        child: Center(
-                          child: CircularProgressIndicator(color: context.colors.primary),
-                        ),
-                      )
+                      ? SizedBox(
+                          height: 56.h, // Match the button height
+                          child: Center(
+                            child: CircularProgressIndicator(color: context.colors.primary),
+                          ),
+                        )
                       : AppFilledButton(
                         title: 'Sign Up',
                         onPressed: () => _handleCreateAccount(context),

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 
@@ -27,6 +28,8 @@ class ConnectProfileBottomSheet extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authProvider);
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.w),
       child: Column(
@@ -35,28 +38,37 @@ class ConnectProfileBottomSheet extends ConsumerWidget {
           AppFilledButton(
             title: 'Login With Existing Profile',
             visualState: AppButtonVisualState.secondary,
-            onPressed: () {
+            onPressed: authState.isLoading ? null : () {
               Navigator.pop(context);
               ref.read(authProvider.notifier).setUnAuthenticated();
               context.go(Routes.login);
             },
           ),
           Gap(4.h),
-          AppFilledButton(
-            title: 'Create New Profile',
-            onPressed: () async {
-              await ref.read(authProvider.notifier).createAccount();
-              final authState = ref.read(authProvider);
+          authState.isLoading
+              ? SizedBox(
+                  height: 56.h, // Match the button height
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      color: context.colorScheme.onSurface,
+                    ),
+                  ),
+                )
+              : AppFilledButton(
+                  title: 'Create New Profile',
+                  onPressed: () async {
+                    await ref.read(authProvider.notifier).createAccount();
+                    final authState = ref.read(authProvider);
 
-              if (authState.isAuthenticated && authState.error == null) {
-                if (!context.mounted) return;
-                context.go(Routes.createProfile);
-              } else {
-                if (!context.mounted) return;
-                ref.showErrorToast(authState.error ?? 'Unknown error');
-              }
-            },
-          ),
+                    if (authState.isAuthenticated && authState.error == null) {
+                      if (!context.mounted) return;
+                      context.go(Routes.createProfile);
+                    } else {
+                      if (!context.mounted) return;
+                      ref.showErrorToast(authState.error ?? 'Unknown error');
+                    }
+                  },
+                ),
           Gap(16.h),
         ],
       ),
