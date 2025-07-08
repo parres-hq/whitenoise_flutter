@@ -144,10 +144,7 @@ class AccountNotifier extends Notifier<AccountState> {
   }
 
   // Update metadata for the current account
-  Future<void> updateAccountMetadata(
-    WidgetRef ref,
-    String displayName,
-    String bio) async {
+  Future<void> updateAccountMetadata(WidgetRef ref, String displayName, String bio) async {
     if (displayName.isEmpty) {
       ref.showRawErrorToast('Please enter a name');
       return;
@@ -156,7 +153,6 @@ class AccountNotifier extends Notifier<AccountState> {
     String? profilePictureUrl;
     state = state.copyWith(isLoading: true, error: null);
     final profilePicPath = state.selectedImagePath;
-    
 
     try {
       final accountMetadata = state.metadata;

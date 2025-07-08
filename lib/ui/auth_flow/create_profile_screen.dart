@@ -22,7 +22,7 @@ class CreateProfileScreen extends ConsumerStatefulWidget {
 class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
-  
+
   @override
   void initState() {
     super.initState();
