@@ -33,7 +33,7 @@ class AppTextFormField extends StatefulWidget {
     this.onTap,
     this.style,
     this.obscureText,
-    this.obscuringCharacter = '•',
+    this.obscuringCharacter = '●',
     this.autocorrect = true,
     this.type = FieldType.standard,
     this.textAlign = TextAlign.start,
