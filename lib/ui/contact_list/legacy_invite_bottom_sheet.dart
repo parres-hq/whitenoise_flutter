@@ -75,7 +75,7 @@ class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomShee
           .sendLegacyNip04Message(
             contactPubkey: widget.pubkey,
             message:
-                'I\'d like to connect with you on White Noise. Download the app here: https://whitenoise.chat!',
+                'I\'d like to connect with you on White Noise. Download the app here: https://whitenoise.chat',
           );
       if (invited) {
         _logger.info('Invite sent successfully: ${widget.name} (${widget.pubkey})');
