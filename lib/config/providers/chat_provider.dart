@@ -464,6 +464,7 @@ class ChatNotifier extends Notifier<ChatState> {
   Future<bool> updateMessageReaction({
     required MessageModel message,
     required String reaction,
+    int? messageKind,
   }) async {
     if (!_isAuthAvailable()) {
       return false;
@@ -486,10 +487,21 @@ class ChatNotifier extends Notifier<ChatState> {
       final reactionContent = reaction;
 
       // Create tags for reaction
-      // "e" tag references the message being reacted to
-      final eTags = [
-        await tagFromVec(vec: ['e', message.id]),
-      ];
+      List<Tag> reactionTags = [];
+      
+      if (messageKind != null) {
+        // NIP-25 compliant reaction with full tags
+        reactionTags = [
+          await tagFromVec(vec: ['e', message.id]), // Event being reacted to
+          await tagFromVec(vec: ['p', message.sender.publicKey]), // Author of the event being reacted to
+          await tagFromVec(vec: ['k', messageKind.toString()]), // Kind of the event being reacted to
+        ];
+      } else {
+        // Legacy reaction - only reference the message
+        reactionTags = [
+          await tagFromVec(vec: ['e', message.id]), // Event being reacted to
+        ];
+      }
 
       // Send reaction message (kind 7 for reactions in Nostr)
       await sendMessageToGroup(
@@ -497,7 +509,7 @@ class ChatNotifier extends Notifier<ChatState> {
         groupId: groupIdObj,
         message: reactionContent,
         kind: 7, // Nostr kind 7 = reaction
-        tags: eTags,
+        tags: reactionTags,
       );
 
       // Refresh messages to get updated reactions
@@ -603,6 +615,8 @@ class ChatNotifier extends Notifier<ChatState> {
   Future<bool> deleteMessage({
     required String groupId,
     required String messageId,
+    required int messageKind,
+    required String messagePubkey,
   }) async {
     if (!_isAuthAvailable()) {
       return false;
@@ -621,9 +635,11 @@ class ChatNotifier extends Notifier<ChatState> {
 
       _logger.info('ChatProvider: Deleting message $messageId');
 
-      // Create tags for deletion
+      // Create tags for deletion (NIP-09)
       final deleteTags = [
         await tagFromVec(vec: ['e', messageId]),
+        await tagFromVec(vec: ['p', messagePubkey]), // Author of the message being deleted
+        await tagFromVec(vec: ['k', messageKind.toString()]), // Kind of the message being deleted
       ];
 
       // Send deletion message using rust API
