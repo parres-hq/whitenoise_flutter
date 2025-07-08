@@ -38,37 +38,40 @@ class ConnectProfileBottomSheet extends ConsumerWidget {
           AppFilledButton(
             title: 'Login With Existing Profile',
             visualState: AppButtonVisualState.secondary,
-            onPressed: authState.isLoading ? null : () {
-              Navigator.pop(context);
-              ref.read(authProvider.notifier).setUnAuthenticated();
-              context.go(Routes.login);
-            },
+            onPressed:
+                authState.isLoading
+                    ? null
+                    : () {
+                      Navigator.pop(context);
+                      ref.read(authProvider.notifier).setUnAuthenticated();
+                      context.go(Routes.login);
+                    },
           ),
           Gap(4.h),
           authState.isLoading
               ? SizedBox(
-                  height: 56.h, // Match the button height
-                  child: Center(
-                    child: CircularProgressIndicator(
-                      color: context.colorScheme.onSurface,
-                    ),
+                height: 56.h, // Match the button height
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: context.colorScheme.onSurface,
                   ),
-                )
-              : AppFilledButton(
-                  title: 'Create New Profile',
-                  onPressed: () async {
-                    await ref.read(authProvider.notifier).createAccount();
-                    final authState = ref.read(authProvider);
-
-                    if (authState.isAuthenticated && authState.error == null) {
-                      if (!context.mounted) return;
-                      context.go(Routes.createProfile);
-                    } else {
-                      if (!context.mounted) return;
-                      ref.showErrorToast(authState.error ?? 'Unknown error');
-                    }
-                  },
                 ),
+              )
+              : AppFilledButton(
+                title: 'Create New Profile',
+                onPressed: () async {
+                  await ref.read(authProvider.notifier).createAccount();
+                  final authState = ref.read(authProvider);
+
+                  if (authState.isAuthenticated && authState.error == null) {
+                    if (!context.mounted) return;
+                    context.go(Routes.createProfile);
+                  } else {
+                    if (!context.mounted) return;
+                    ref.showErrorToast(authState.error ?? 'Unknown error');
+                  }
+                },
+              ),
           Gap(16.h),
         ],
       ),

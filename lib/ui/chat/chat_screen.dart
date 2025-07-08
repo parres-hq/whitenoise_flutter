@@ -131,69 +131,69 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               child: CustomScrollView(
                 controller: _scrollController,
                 slivers: [
-                CustomAppBar.sliver(
-                  floating: true,
-                  pinned: true,
-                  title: ContactInfo(
-                    title: displayName,
-                    imageUrl: '',
-                    onTap:
-                        () => context.push(
-                          '/chats/${widget.groupId}/info',
-                        ),
+                  CustomAppBar.sliver(
+                    floating: true,
+                    pinned: true,
+                    title: ContactInfo(
+                      title: displayName,
+                      imageUrl: '',
+                      onTap:
+                          () => context.push(
+                            '/chats/${widget.groupId}/info',
+                          ),
+                    ),
                   ),
-                ),
-                SliverPadding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 8.w,
-                    vertical: 8.h,
-                  ).copyWith(
-                    bottom: 120.h,
-                  ),
-                  sliver: SliverList.builder(
-                    itemCount: messages.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == 0) {
-                        return ChatContactHeader(groupData: groupData);
-                      }
-                      final message = messages[index - 1];
-                      return SwipeToReplyWidget(
-                        message: message,
-                        onReply: () => chatNotifier.handleReply(message),
-                        onTap:
-                            () => ChatDialogService.showReactionDialog(
-                              context: context,
-                              ref: ref,
-                              message: message,
-                              messageIndex: index,
-                            ),
-                        child: Hero(
-                          tag: message.id,
-                          child: MessageWidget(
+                  SliverPadding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 8.w,
+                      vertical: 8.h,
+                    ).copyWith(
+                      bottom: 120.h,
+                    ),
+                    sliver: SliverList.builder(
+                      itemCount: messages.length + 1,
+                      itemBuilder: (context, index) {
+                        if (index == 0) {
+                          return ChatContactHeader(groupData: groupData);
+                        }
+                        final message = messages[index - 1];
+                        return SwipeToReplyWidget(
+                          message: message,
+                          onReply: () => chatNotifier.handleReply(message),
+                          onTap:
+                              () => ChatDialogService.showReactionDialog(
+                                context: context,
+                                ref: ref,
                                 message: message,
-                                isGroupMessage: groupData.groupType == GroupType.group,
-                                isSameSenderAsPrevious: chatNotifier.isSameSender(index),
-                                isSameSenderAsNext: chatNotifier.isNextSameSender(index),
-                                onReactionTap: (reaction) {
-                                  chatNotifier.updateMessageReaction(
-                                    message: message,
-                                    reaction: reaction,
-                                  );
-                                },
-                              )
-                              .animate()
-                              .fadeIn(
-                                duration: const Duration(milliseconds: 200),
-                              )
-                              .slide(
-                                begin: const Offset(0, 0.1),
-                                duration: const Duration(milliseconds: 200),
+                                messageIndex: index,
                               ),
-                        ),
-                      );
-                    },
+                          child: Hero(
+                            tag: message.id,
+                            child: MessageWidget(
+                                  message: message,
+                                  isGroupMessage: groupData.groupType == GroupType.group,
+                                  isSameSenderAsPrevious: chatNotifier.isSameSender(index),
+                                  isSameSenderAsNext: chatNotifier.isNextSameSender(index),
+                                  onReactionTap: (reaction) {
+                                    chatNotifier.updateMessageReaction(
+                                      message: message,
+                                      reaction: reaction,
+                                    );
+                                  },
+                                )
+                                .animate()
+                                .fadeIn(
+                                  duration: const Duration(milliseconds: 200),
+                                )
+                                .slide(
+                                  begin: const Offset(0, 0.1),
+                                  duration: const Duration(milliseconds: 200),
+                                ),
+                          ),
+                        );
+                      },
+                    ),
                   ),
-                ),
                 ],
               ),
             ),
@@ -213,12 +213,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       bottomSheet: ChatInput(
         groupId: widget.groupId,
         onInputFocused: _handleScrollToBottom, // Add callback for when input gets focus
-        onSend: (message, isEditing) => chatNotifier.sendMessage(
-          groupId: widget.groupId,
-          message: message,
-          isEditing: isEditing,
-          onMessageSent: _handleScrollToBottom,
-        ),
+        onSend:
+            (message, isEditing) => chatNotifier.sendMessage(
+              groupId: widget.groupId,
+              message: message,
+              isEditing: isEditing,
+              onMessageSent: _handleScrollToBottom,
+            ),
       ),
     );
   }

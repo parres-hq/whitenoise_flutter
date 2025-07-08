@@ -101,11 +101,11 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                   Gap(12.h),
                   authState.isLoading
                       ? SizedBox(
-                          height: 56.h, // Match the button height
-                          child: Center(
-                            child: CircularProgressIndicator(color: context.colors.primary),
-                          ),
-                        )
+                        height: 56.h, // Match the button height
+                        child: Center(
+                          child: CircularProgressIndicator(color: context.colors.primary),
+                        ),
+                      )
                       : AppFilledButton(
                         title: 'Sign Up',
                         onPressed: () => _handleCreateAccount(context),
