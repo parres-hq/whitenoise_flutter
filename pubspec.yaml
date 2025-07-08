@@ -43,7 +43,6 @@ dependencies:
     gap: ^3.0.1
     emoji_picker_flutter: ^4.3.0
     date_format: ^2.0.9
-    #carbon_icons: ^0.0.1+2
     just_audio: ^0.9.40
     audio_session: ^0.1.21
     image_picker: ^1.1.2
@@ -66,6 +65,7 @@ dependencies:
 dev_dependencies:
     flutter_test:
         sdk: flutter
+    flutter_native_splash: ^2.3.2
 
     # The "flutter_lints" package below contains a set of recommended lints to
     # encourage good coding practices. The lint set provided by the package is
@@ -132,3 +132,13 @@ flutter:
     #
     # For details regarding fonts from package dependencies,
     # see https://flutter.dev/to/font-from-package
+
+flutter_native_splash:
+  color: "#FFFFFF"  # Background color
+  image: assets/pngs/wn-logo-light.png
+  color_dark: "#000000"  # Dark mode background
+  image_dark: assets/pngs/wn-logo-dark.png
+
+  ios: true
+  android: true
+  web: false
