@@ -14,9 +14,11 @@ class ChatInput extends ConsumerStatefulWidget {
     super.key,
     required this.groupId,
     required this.onSend,
+    this.onInputFocused,
   });
 
   final void Function(String content, bool isEditing) onSend;
+  final VoidCallback? onInputFocused;
   final String groupId;
   @override
   ConsumerState<ChatInput> createState() => _ChatInputState();
@@ -30,6 +32,12 @@ class _ChatInputState extends ConsumerState<ChatInput> {
   void initState() {
     super.initState();
     _focusNode.addListener(() {
+      if (_focusNode.hasFocus && widget.onInputFocused != null) {
+        // Trigger scroll to bottom when input gains focus
+        Future.delayed(const Duration(milliseconds: 300), () {
+          widget.onInputFocused!();
+        });
+      }
       setState(() {});
     });
   }

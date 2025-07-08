@@ -122,9 +122,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               }
               return false;
             },
-            child: CustomScrollView(
-              controller: _scrollController,
-              slivers: [
+            child: GestureDetector(
+              onTap: () {
+                // Dismiss keyboard when tapping in empty space
+                FocusManager.instance.primaryFocus?.unfocus();
+              },
+              behavior: HitTestBehavior.translucent,
+              child: CustomScrollView(
+                controller: _scrollController,
+                slivers: [
                 CustomAppBar.sliver(
                   floating: true,
                   pinned: true,
@@ -188,7 +194,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     },
                   ),
                 ),
-              ],
+                ],
+              ),
             ),
           ),
 
@@ -205,13 +212,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
       bottomSheet: ChatInput(
         groupId: widget.groupId,
-        onSend:
-            (message, isEditing) => chatNotifier.sendMessage(
-              groupId: widget.groupId,
-              message: message,
-              isEditing: isEditing,
-              onMessageSent: _handleScrollToBottom,
-            ),
+        onInputFocused: _handleScrollToBottom, // Add callback for when input gets focus
+        onSend: (message, isEditing) => chatNotifier.sendMessage(
+          groupId: widget.groupId,
+          message: message,
+          isEditing: isEditing,
+          onMessageSent: _handleScrollToBottom,
+        ),
       ),
     );
   }
