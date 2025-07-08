@@ -460,11 +460,202 @@ class ChatNotifier extends Notifier<ChatState> {
     return state.isEditing(state.selectedGroupId!);
   }
 
-  Future<void> updateMessageReaction({
+  /// Add or remove a reaction to/from a message
+  Future<bool> updateMessageReaction({
     required MessageModel message,
     required String reaction,
   }) async {
-    // TODO: Implement reaction handling for MessageModel
+    if (!_isAuthAvailable()) {
+      return false;
+    }
+
+    try {
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        _setGroupError(message.groupId ?? '', 'No active account found');
+        return false;
+      }
+
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final groupIdObj = await groupIdFromString(hexString: message.groupId ?? '');
+
+      _logger.info('ChatProvider: Adding reaction "$reaction" to message ${message.id}');
+
+      // Create reaction content (emoji)
+      final reactionContent = reaction;
+      
+      // Create tags for reaction
+      // "e" tag references the message being reacted to
+      final eTags = [
+        await tagFromVec(vec: ['e', message.id]),
+      ];
+
+      // Send reaction message (kind 7 for reactions in Nostr)
+      await sendMessageToGroup(
+        pubkey: publicKey,
+        groupId: groupIdObj,
+        message: reactionContent,
+        kind: 7, // Nostr kind 7 = reaction
+        tags: eTags,
+      );
+
+      // Refresh messages to get updated reactions
+      await refreshMessagesForGroup(message.groupId ?? '');
+
+      _logger.info('ChatProvider: Reaction added successfully');
+      return true;
+    } catch (e, st) {
+      _logger.severe('ChatProvider.updateMessageReaction', e, st);
+      String errorMessage = 'Failed to add reaction';
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+        } catch (conversionError) {
+          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          errorMessage = 'Failed to update reaction due to an internal error';
+        }
+      } else {
+        errorMessage = e.toString();
+      }
+      _setGroupError(message.groupId ?? '', errorMessage);
+      return false;
+    }
+  }
+
+  /// Send a reply message to a specific message
+  Future<MessageWithTokensData?> sendReplyMessage({
+    required String groupId,
+    required String replyToMessageId,
+    required String message,
+    void Function()? onMessageSent,
+  }) async {
+    if (!_isAuthAvailable()) {
+      return null;
+    }
+
+    try {
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        _setGroupError(groupId, 'No active account found');
+        return null;
+      }
+
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final groupIdObj = await groupIdFromString(hexString: groupId);
+
+      _logger.info('ChatProvider: Sending reply to message $replyToMessageId');
+
+      // Create tags for reply
+      final replyTags = [
+        await tagFromVec(vec: ['e', replyToMessageId]),
+      ];
+
+      // Send the reply message using rust API
+      final sentMessage = await sendMessageToGroup(
+        pubkey: publicKey,
+        groupId: groupIdObj,
+        message: message,
+        kind: 1, // Regular text message
+        tags: replyTags,
+      );
+
+      // Convert to MessageModel and add to local state
+      final currentMessages = state.groupMessages[groupId] ?? [];
+      final sentMessageModel = MessageConverter.fromMessageWithTokensData(
+        sentMessage,
+        currentUserPublicKey: activeAccountData.pubkey,
+        roomId: groupId,
+        ref: ref,
+      );
+      final updatedMessages = [...currentMessages, sentMessageModel];
+
+      state = state.copyWith(
+        groupMessages: {
+          ...state.groupMessages,
+          groupId: updatedMessages,
+        },
+      );
+
+      _updateGroupOrderForNewMessage(groupId);
+      onMessageSent?.call();
+      return sentMessage;
+    } catch (e, st) {
+      _logger.severe('ChatProvider.sendReplyMessage', e, st);
+      String errorMessage = 'Failed to send reply';
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+        } catch (conversionError) {
+          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          errorMessage = 'Failed to send reply due to an internal error';
+        }
+      } else {
+        errorMessage = e.toString();
+      }
+      _setGroupError(groupId, errorMessage);
+      return null;
+    }
+  }
+
+  /// Delete a message
+  Future<bool> deleteMessage({
+    required String groupId,
+    required String messageId,
+  }) async {
+    if (!_isAuthAvailable()) {
+      return false;
+    }
+
+    try {
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        _setGroupError(groupId, 'No active account found');
+        return false;
+      }
+
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final groupIdObj = await groupIdFromString(hexString: groupId);
+
+      _logger.info('ChatProvider: Deleting message $messageId');
+
+      // Create tags for deletion
+      final deleteTags = [
+        await tagFromVec(vec: ['e', messageId]),
+      ];
+
+      // Send deletion message using rust API
+      await sendMessageToGroup(
+        pubkey: publicKey,
+        groupId: groupIdObj,
+        message: '', // Empty content for deletion
+        kind: 5, // Nostr kind 5 = deletion
+        tags: deleteTags,
+      );
+
+      // Refresh messages to get updated state
+      await refreshMessagesForGroup(groupId);
+
+      _logger.info('ChatProvider: Message deleted successfully');
+      return true;
+    } catch (e, st) {
+      _logger.severe('ChatProvider.deleteMessage', e, st);
+      String errorMessage = 'Failed to delete message';
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+        } catch (conversionError) {
+          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          errorMessage = 'Failed to delete message due to an internal error';
+        }
+      } else {
+        errorMessage = e.toString();
+      }
+      _setGroupError(groupId, errorMessage);
+      return false;
+    }
   }
 
   void handleReply(MessageModel message) {
