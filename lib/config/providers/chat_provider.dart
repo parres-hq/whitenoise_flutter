@@ -488,13 +488,17 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Create tags for reaction
       List<Tag> reactionTags = [];
-      
+
       if (messageKind != null) {
         // NIP-25 compliant reaction with full tags
         reactionTags = [
           await tagFromVec(vec: ['e', message.id]), // Event being reacted to
-          await tagFromVec(vec: ['p', message.sender.publicKey]), // Author of the event being reacted to
-          await tagFromVec(vec: ['k', messageKind.toString()]), // Kind of the event being reacted to
+          await tagFromVec(
+            vec: ['p', message.sender.publicKey],
+          ), // Author of the event being reacted to
+          await tagFromVec(
+            vec: ['k', messageKind.toString()],
+          ), // Kind of the event being reacted to
         ];
       } else {
         // Legacy reaction - only reference the message
