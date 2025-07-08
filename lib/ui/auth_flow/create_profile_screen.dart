@@ -5,16 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:path/path.dart' as path;
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/src/rust/frb_generated.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -30,84 +22,7 @@ class CreateProfileScreen extends ConsumerStatefulWidget {
 class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
-  final ImagePicker _imagePicker = ImagePicker();
-  String? _selectedImagePath;
-
-  Future<void> _pickProfileImage() async {
-    try {
-      final XFile? image = await _imagePicker.pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 85,
-      );
-
-      if (image != null) {
-        setState(() {
-          _selectedImagePath = image.path;
-        });
-      }
-    } catch (e) {
-      if (!mounted) return;
-      ref.showRawErrorToast('Failed to pick image: $e');
-    }
-  }
-
-  Future<void> _onFinishPressed() async {
-    final username = _usernameController.text.trim();
-    final bio = _bioController.text.trim();
-
-    if (username.isEmpty) {
-      ref.showRawErrorToast('Please enter a name');
-      return;
-    }
-
-    try {
-      String? profilePictureUrl;
-
-      // Upload profile image if one was selected
-      if (_selectedImagePath != null) {
-        // Get file extension to determine image type
-        final fileExtension = path.extension(_selectedImagePath!);
-        final imageType = await imageTypeFromExtension(extension_: fileExtension);
-
-        // Get active account public key
-        final activeAccount = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-        if (activeAccount == null) {
-          ref.showRawErrorToast('No active account found');
-          return;
-        }
-
-        final serverUrl = await getDefaultBlossomServerUrl();
-        final publicKey = await publicKeyFromString(publicKeyString: activeAccount.pubkey);
-
-        // Upload the image to Blossom server
-        profilePictureUrl = await uploadProfilePicture(
-          pubkey: publicKey,
-          serverUrl: serverUrl,
-          filePath: _selectedImagePath!,
-          imageType: imageType,
-        );
-      }
-
-      // Update account metadata using the account provider
-      await ref
-          .read(accountProvider.notifier)
-          .updateAccountMetadata(
-            username,
-            bio,
-            profilePictureUrl: profilePictureUrl,
-          );
-      if (!mounted) return;
-      context.go('/chats');
-    } catch (e) {
-      if (!mounted) return;
-      final error = e as WhitenoiseErrorImpl;
-      final errorMessage = await whitenoiseErrorToString(error: error);
-      ref.showRawErrorToast('Failed to create profile: $errorMessage');
-    }
-  }
-
+  
   @override
   void initState() {
     super.initState();
@@ -156,11 +71,11 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                         radius: 48.r,
                         backgroundColor: context.colors.primarySolid,
                         backgroundImage:
-                            _selectedImagePath != null
-                                ? FileImage(File(_selectedImagePath!))
+                            ref.watch(accountProvider).selectedImagePath != null
+                                ? FileImage(File(ref.watch(accountProvider).selectedImagePath!))
                                 : null,
                         child:
-                            _selectedImagePath == null
+                            ref.watch(accountProvider).selectedImagePath == null
                                 ? (firstLetter.isNotEmpty
                                     ? Text(
                                       firstLetter,
@@ -180,7 +95,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                     },
                   ),
                   GestureDetector(
-                    onTap: _pickProfileImage,
+                    onTap: () => ref.read(accountProvider.notifier).pickProfileImage(ref),
                     child: Container(
                       width: 28.w,
                       height: 28.w,
@@ -255,7 +170,14 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
             horizontal: 24.w,
           ).copyWith(bottom: 32.h),
           child: AppFilledButton(
-            onPressed: _onFinishPressed,
+            onPressed:
+                () => ref
+                    .read(accountProvider.notifier)
+                    .updateAccountMetadata(
+                      ref,
+                      _usernameController.text.trim(),
+                      _bioController.text.trim(),
+                    ),
             title: 'Finish',
           ),
         ),
