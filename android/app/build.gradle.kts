@@ -30,10 +30,9 @@ android {
         versionCode = flutter.versionCode
         versionName = flutter.versionName
         
-        // Add support for native libraries
-        ndk {
-            abiFilters.addAll(listOf("armeabi-v7a", "arm64-v8a", "x86", "x86_64"))
-        }
+        // Configure native ABI compatibility
+        // Note: When building with --split-per-abi, don't use abiFilters here
+        // as it conflicts with Flutter's ABI splitting mechanism
     }
     
     // Ensure the jniLibs directory is included in the APK
