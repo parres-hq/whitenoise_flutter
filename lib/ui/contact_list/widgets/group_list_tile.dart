@@ -52,7 +52,7 @@ class GroupListTile extends ConsumerWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Flexible(
+                      Expanded(
                         child: Text(
                           displayName,
                           style: TextStyle(
@@ -64,7 +64,7 @@ class GroupListTile extends ConsumerWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      const Spacer(),
+
                       Text(
                         lastMessage?.createdAt.timeago().capitalizeFirst ?? '',
                         style: TextStyle(

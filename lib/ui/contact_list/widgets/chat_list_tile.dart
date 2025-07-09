@@ -31,12 +31,12 @@ class ChatListTile extends StatelessWidget {
                     : Container(
                       width: 56.w,
                       height: 56.w,
-                      color: Colors.orange,
+                      color: context.colors.warning,
                       alignment: Alignment.center,
                       child: Text(
                         chat.name.substring(0, 1).toUpperCase(),
                         style: TextStyle(
-                          color: Colors.white,
+                          color: context.colors.neutral,
                           fontSize: 24.sp,
                           fontWeight: FontWeight.bold,
                         ),

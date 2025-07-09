@@ -7,7 +7,6 @@ import 'package:whitenoise/src/rust/api/messages.dart';
 
 /// Converts ChatMessageData to MessageModel for UI display
 class MessageConverter {
-  /// Converts a ChatMessageData to MessageModel
   static Future<MessageModel> fromChatMessageData(
     ChatMessageData messageData, {
     required String? currentUserPublicKey,
@@ -28,7 +27,6 @@ class MessageConverter {
 
     final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
 
-    // Convert reactions from ChatMessageData
     final reactions = _convertReactions(messageData.reactions);
 
     return MessageModel(
@@ -44,7 +42,6 @@ class MessageConverter {
     );
   }
 
-  /// Converts a list of ChatMessageData to MessageModel list
   static Future<List<MessageModel>> fromChatMessageDataList(
     List<ChatMessageData> messageDataList, {
     required String? currentUserPublicKey,
@@ -54,7 +51,6 @@ class MessageConverter {
     final List<MessageModel> messages = [];
 
     for (final messageData in messageDataList) {
-      // Skip deleted messages if desired (or include them with special handling)
       if (!messageData.isDeleted && messageData.content.isNotEmpty) {
         final message = await fromChatMessageData(
           messageData,
@@ -75,9 +71,8 @@ class MessageConverter {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
-    ChatMessageData? replyInfo, // For reply information mapping
-    Map<String, MessageWithTokensData>?
-    originalMessageLookup, // For looking up original message content
+    ChatMessageData? replyInfo,
+    Map<String, MessageWithTokensData>? originalMessageLookup,
   }) async {
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
 
@@ -93,7 +88,6 @@ class MessageConverter {
 
     final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
 
-    // Extract reply information from aggregated data if available
     MessageModel? replyToMessage;
     if (replyInfo != null && replyInfo.isReply && replyInfo.replyToId != null) {
       final originalMessage = originalMessageLookup?[replyInfo.replyToId!];
@@ -269,35 +263,8 @@ class MessageConverter {
     }
   }
 
-  /// Convert ReactionSummaryData to MessageModel reactions format
+  ///TODO Convert ReactionSummaryData to MessageModel reactions format
   static List<Reaction> _convertReactions(ReactionSummaryData reactions) {
-    final List<Reaction> result = [];
-
-    for (final userReaction in reactions.userReactions) {
-      final reactionDateTime = DateTime.fromMillisecondsSinceEpoch(
-        userReaction.createdAt.toInt() * 1000,
-      );
-
-      // Create a simple user object for the reaction with fallback name
-      final fallbackName =
-          userReaction.user.length >= 8 ? userReaction.user.substring(0, 8) : userReaction.user;
-
-      final reactionUser = User(
-        id: userReaction.user,
-        name: fallbackName,
-        nip05: '',
-        publicKey: userReaction.user,
-      );
-
-      result.add(
-        Reaction(
-          emoji: userReaction.emoji,
-          user: reactionUser,
-          createdAt: reactionDateTime,
-        ),
-      );
-    }
-
-    return result;
+    return [];
   }
 }

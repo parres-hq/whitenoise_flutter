@@ -77,6 +77,48 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     });
   }
 
+  void _scrollToMessage(String messageId) {
+    final messages = ref.read(
+      chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
+    );
+    final messageIndex = messages.indexWhere((msg) => msg.id == messageId);
+
+    if (messageIndex != -1 && _scrollController.hasClients) {
+      // Calculate position - account for header (index 0) and message position
+      // Use dynamic height estimation based on message content
+      final estimatedMessageHeight = 80.0;
+      final headerHeight = 100.0;
+      double targetPosition = headerHeight;
+
+      // Calculate cumulative height more accurately
+      for (int i = 0; i < messageIndex; i++) {
+        final message = messages[i];
+        // Estimate height based on content length and whether it has replies
+        double messageHeight = estimatedMessageHeight;
+        if (message.content != null && message.content!.length > 100) {
+          messageHeight += 20.0; // Add height for longer messages
+        }
+        if (message.replyTo != null) {
+          messageHeight += 40.0; // Add height for reply box
+        }
+        if (message.reactions.isNotEmpty) {
+          messageHeight += 25.0; // Add height for reactions
+        }
+        targetPosition += messageHeight;
+      }
+
+      // Clamp to valid scroll range
+      final maxScroll = _scrollController.position.maxScrollExtent;
+      final clampedPosition = targetPosition.clamp(0.0, maxScroll);
+
+      _scrollController.animateTo(
+        clampedPosition,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOut,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
@@ -179,6 +221,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                       message: message,
                                       reaction: reaction,
                                     );
+                                  },
+                                  onReplyTap: (messageId) {
+                                    _scrollToMessage(messageId);
                                   },
                                 )
                                 .animate()

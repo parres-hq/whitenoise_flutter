@@ -12,6 +12,7 @@ class MessageWidget extends StatelessWidget {
   final bool isSameSenderAsNext;
   final VoidCallback? onTap;
   final Function(String)? onReactionTap;
+  final Function(String)? onReplyTap;
 
   const MessageWidget({
     super.key,
@@ -21,6 +22,7 @@ class MessageWidget extends StatelessWidget {
     required this.isSameSenderAsNext,
     this.onTap,
     this.onReactionTap,
+    this.onReplyTap,
   });
 
   @override
@@ -64,7 +66,10 @@ class MessageWidget extends StatelessWidget {
                 ),
                 Gap(4.h),
               ],
-              ReplyBox(replyingTo: message.replyTo),
+              ReplyBox(
+                replyingTo: message.replyTo,
+                onTap: message.replyTo != null ? () => onReplyTap?.call(message.replyTo!.id) : null,
+              ),
               _buildMessageWithTimestamp(
                 context,
                 constraints.maxWidth - 16.w,
@@ -293,8 +298,9 @@ class MessageWidget extends StatelessWidget {
 }
 
 class ReplyBox extends StatelessWidget {
-  const ReplyBox({super.key, this.replyingTo});
+  const ReplyBox({super.key, this.replyingTo, this.onTap});
   final MessageModel? replyingTo;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -303,40 +309,50 @@ class ReplyBox extends StatelessWidget {
     }
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
-      padding: EdgeInsets.all(8.w),
-      decoration: BoxDecoration(
+
+      child: Material(
         color: context.colors.secondary,
-        border: Border(
-          left: BorderSide(
-            color: context.colors.mutedForeground,
+
+        child: InkWell(
+          onTap: onTap,
+          child: Container(
+            padding: EdgeInsets.all(8.w),
+            decoration: BoxDecoration(
+              border: Border(
+                left: BorderSide(
+                  color: context.colors.mutedForeground,
+                  width: 3.0,
+                ),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  replyingTo?.sender.name ?? '',
+                  style: TextStyle(
+                    color: context.colors.mutedForeground,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Gap(4.h),
+                Text(
+                  replyingTo?.content ?? '',
+                  style: TextStyle(
+                    color: context.colors.primary,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Text(
-            replyingTo?.sender.name ?? '',
-            style: TextStyle(
-              color: context.colors.mutedForeground,
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          Gap(4.h),
-          Text(
-            replyingTo?.content ?? '',
-            style: TextStyle(
-              color: context.colors.primary,
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
       ),
     );
   }
