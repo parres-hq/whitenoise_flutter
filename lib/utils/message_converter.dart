@@ -49,17 +49,18 @@ class MessageConverter {
     required Ref ref,
   }) async {
     // Filter valid messages first
-    final validMessages = messageDataList
-        .where((msg) => !msg.isDeleted && msg.content.isNotEmpty)
-        .toList();
+    final validMessages =
+        messageDataList.where((msg) => !msg.isDeleted && msg.content.isNotEmpty).toList();
 
     // Process all messages in parallel for better performance
-    final futures = validMessages.map((messageData) => fromChatMessageData(
-      messageData,
-      currentUserPublicKey: currentUserPublicKey,
-      groupId: groupId,
-      ref: ref,
-    ));
+    final futures = validMessages.map(
+      (messageData) => fromChatMessageData(
+        messageData,
+        currentUserPublicKey: currentUserPublicKey,
+        groupId: groupId,
+        ref: ref,
+      ),
+    );
 
     // Wait for all conversions to complete
     final messages = await Future.wait(futures);
@@ -181,9 +182,8 @@ class MessageConverter {
     }
 
     // Filter messages with content
-    final validMessages = messageDataList
-        .where((msg) => msg.content != null && msg.content!.isNotEmpty)
-        .toList();
+    final validMessages =
+        messageDataList.where((msg) => msg.content != null && msg.content!.isNotEmpty).toList();
 
     // Pre-fetch unique user metadata to avoid duplicate lookups
     final uniquePubkeys = <String>{};
@@ -201,22 +201,25 @@ class MessageConverter {
 
     // Batch fetch all user metadata in parallel
     final metadataCache = ref.read(metadataCacheProvider.notifier);
-    final userFutures = uniquePubkeys.map((pubkey) => 
-      metadataCache.getContactModel(pubkey).then((contact) => MapEntry(pubkey, contact))
+    final userFutures = uniquePubkeys.map(
+      (pubkey) =>
+          metadataCache.getContactModel(pubkey).then((contact) => MapEntry(pubkey, contact)),
     );
     final userResults = await Future.wait(userFutures);
     final userCache = Map<String, User>.fromEntries(
-      userResults.map((entry) => MapEntry(
-        entry.key,
-        User(
-          id: entry.key,
-          name: entry.key == currentUserPublicKey ? 'You' : entry.value.displayNameOrName,
-          nip05: entry.value.nip05 ?? '',
-          publicKey: entry.key,
-          imagePath: entry.value.imagePath,
-          username: entry.value.displayName,
+      userResults.map(
+        (entry) => MapEntry(
+          entry.key,
+          User(
+            id: entry.key,
+            name: entry.key == currentUserPublicKey ? 'You' : entry.value.displayNameOrName,
+            nip05: entry.value.nip05 ?? '',
+            publicKey: entry.key,
+            imagePath: entry.value.imagePath,
+            username: entry.value.displayName,
+          ),
         ),
-      ))
+      ),
     );
 
     // Process messages in parallel using cached user data
@@ -250,12 +253,14 @@ class MessageConverter {
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
 
     // Use cached user data instead of fetching
-    final sender = userCache[messageData.pubkey] ?? User(
-      id: messageData.pubkey,
-      name: 'Unknown User',
-      nip05: '',
-      publicKey: messageData.pubkey,
-    );
+    final sender =
+        userCache[messageData.pubkey] ??
+        User(
+          id: messageData.pubkey,
+          name: 'Unknown User',
+          nip05: '',
+          publicKey: messageData.pubkey,
+        );
 
     final createdAt = DateTime.fromMillisecondsSinceEpoch(
       messageData.createdAt.toInt() * 1000,
@@ -267,23 +272,26 @@ class MessageConverter {
     MessageModel? replyToMessage;
     if (replyInfo != null && replyInfo.isReply && replyInfo.replyToId != null) {
       final originalMessage = originalMessageLookup?[replyInfo.replyToId!];
-      
+
       if (originalMessage != null) {
-        final replyContent = originalMessage.content?.isNotEmpty == true 
-            ? originalMessage.content! 
-            : 'No content available';
+        final replyContent =
+            originalMessage.content?.isNotEmpty == true
+                ? originalMessage.content!
+                : 'No content available';
         final replyTimestamp = DateTime.fromMillisecondsSinceEpoch(
           originalMessage.createdAt.toInt() * 1000,
         );
-        
+
         // Use cached user data for reply sender too
-        final replySender = userCache[originalMessage.pubkey] ?? User(
-          id: originalMessage.pubkey,
-          name: 'Unknown User',
-          nip05: '',
-          publicKey: originalMessage.pubkey,
-        );
-        
+        final replySender =
+            userCache[originalMessage.pubkey] ??
+            User(
+              id: originalMessage.pubkey,
+              name: 'Unknown User',
+              nip05: '',
+              publicKey: originalMessage.pubkey,
+            );
+
         replyToMessage = MessageModel(
           id: replyInfo.replyToId!,
           content: replyContent,
