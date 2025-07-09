@@ -31,7 +31,7 @@ class LegacyInviteBottomSheet extends ConsumerStatefulWidget {
   }) {
     return CustomBottomSheet.show(
       context: context,
-      title: contacts.length > 1 ? 'Bulk Invite' : 'Invite to Chat',
+      title: 'Invite to Chat',
       heightFactor: 0.8,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
@@ -233,7 +233,7 @@ class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomShee
                                 ),
                                 Gap(8.h),
                                 Text(
-                                  'This contact isn\'t on MLS yet. We\'ll deliver an invitation through Nostr\'s original direct-message system.',
+                                  'This contact isn\'t ready for secure messaging yet. Invite them to download White Noise?',
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     color: context.colors.mutedForeground,
@@ -291,7 +291,7 @@ class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomShee
                                 ),
                                 Gap(8.h),
                                 Text(
-                                  'These contacts aren\'t on MLS yet. We\'ll deliver invitations through Nostr\'s original direct-message system.',
+                                  'These contacts aren\'t ready for secure messaging yet. Invite them to download White Noise?.',
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     color: context.colors.mutedForeground,
@@ -326,12 +326,7 @@ class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomShee
             padding: EdgeInsets.symmetric(horizontal: 24.w).copyWith(bottom: 16.h),
             child: AppFilledButton(
               onPressed: _isSendingInvite ? null : _legacyInvite,
-              title:
-                  _isSendingInvite
-                      ? 'Sending invite...'
-                      : isSingleContact
-                      ? 'Invite to Chat'
-                      : 'Bulk Invite',
+              title: _isSendingInvite ? 'Sending invite...' : 'Invite to Chat',
             ),
           ),
         ),
