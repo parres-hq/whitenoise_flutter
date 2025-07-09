@@ -540,8 +540,8 @@ class ChatNotifier extends Notifier<ChatState> {
       // - SHOULD have p tag with pubkey of event being reacted to
       // - SHOULD have k tag with stringified kind number of reacted event
       final reactionTags = [
-        // e tag: ["e", <event-id>, <relay-hint>, <pubkey-hint>]
-        await tagFromVec(vec: ['e', message.id, '', message.sender.publicKey]),
+        // e tag: ["e", <event-id>]
+        await tagFromVec(vec: ['e', message.id]),
         // p tag: ["p", <pubkey>, <relay-hint>]
         await tagFromVec(vec: ['p', message.sender.publicKey, '']),
         // k tag: ["k", <kind-number>]
