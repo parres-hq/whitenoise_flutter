@@ -231,9 +231,10 @@ class MessageWidget extends StatelessWidget {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    color: message.isMe
-                        ? context.colors.primary.withOpacity(0.1)
-                        : context.colors.secondary.withOpacity(0.1),
+                    color:
+                        message.isMe
+                            ? context.colors.primary.withOpacity(0.1)
+                            : context.colors.secondary.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: RichText(

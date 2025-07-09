@@ -564,7 +564,7 @@ class ChatNotifier extends Notifier<ChatState> {
       return true;
     } catch (e, st) {
       _logger.severe('ChatProvider.updateMessageReaction', e, st);
-      
+
       String errorMessage = 'Failed to add reaction';
       if (e is WhitenoiseError) {
         try {

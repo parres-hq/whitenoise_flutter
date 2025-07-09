@@ -531,7 +531,10 @@ class MessageConverter {
     }
 
     // Convert reactions from aggregated data if available
-    final reactions = replyInfo != null ? _convertReactionsWithCache(replyInfo.reactions, userCache) : <Reaction>[];
+    final reactions =
+        replyInfo != null
+            ? _convertReactionsWithCache(replyInfo.reactions, userCache)
+            : <Reaction>[];
 
     return MessageModel(
       id: messageData.id,
@@ -612,21 +615,21 @@ class MessageConverter {
   /// Convert ReactionSummaryData to MessageModel reactions format
   static List<Reaction> _convertReactions(ReactionSummaryData reactions) {
     final List<Reaction> convertedReactions = [];
-    
+
     // Debug logging
     print('Converting reactions: ${reactions.userReactions.length} user reactions');
-    
+
     // Convert user reactions to Reaction objects
     for (final userReaction in reactions.userReactions) {
       print('Converting reaction: ${userReaction.emoji} by ${userReaction.user}');
-      
+
       final user = User(
         id: userReaction.user,
         name: 'Unknown User', // Will be resolved by metadata cache later
         nip05: '',
         publicKey: userReaction.user,
       );
-      
+
       final reaction = Reaction(
         emoji: userReaction.emoji,
         user: user,
@@ -634,10 +637,10 @@ class MessageConverter {
           userReaction.createdAt.toInt() * 1000,
         ),
       );
-      
+
       convertedReactions.add(reaction);
     }
-    
+
     print('Converted ${convertedReactions.length} reactions');
     return convertedReactions;
   }
@@ -648,16 +651,18 @@ class MessageConverter {
     Map<String, User> userCache,
   ) {
     final List<Reaction> convertedReactions = [];
-    
+
     // Convert user reactions to Reaction objects
     for (final userReaction in reactions.userReactions) {
-      final user = userCache[userReaction.user] ?? User(
-        id: userReaction.user,
-        name: 'Unknown User',
-        nip05: '',
-        publicKey: userReaction.user,
-      );
-      
+      final user =
+          userCache[userReaction.user] ??
+          User(
+            id: userReaction.user,
+            name: 'Unknown User',
+            nip05: '',
+            publicKey: userReaction.user,
+          );
+
       final reaction = Reaction(
         emoji: userReaction.emoji,
         user: user,
@@ -665,10 +670,10 @@ class MessageConverter {
           userReaction.createdAt.toInt() * 1000,
         ),
       );
-      
+
       convertedReactions.add(reaction);
     }
-    
+
     return convertedReactions;
   }
 }

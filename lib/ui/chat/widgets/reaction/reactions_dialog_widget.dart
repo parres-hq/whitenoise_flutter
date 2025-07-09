@@ -220,4 +220,3 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
     );
   }
 }
-
