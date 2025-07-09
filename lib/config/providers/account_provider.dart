@@ -35,13 +35,15 @@ class AccountState {
     bool? isLoading,
     String? error,
     String? selectedImagePath,
+    bool clearSelectedImagePath = false,
   }) => AccountState(
     metadata: metadata ?? this.metadata,
     pubkey: pubkey ?? this.pubkey,
     accounts: accounts ?? this.accounts,
     isLoading: isLoading ?? this.isLoading,
     error: error ?? this.error,
-    selectedImagePath: selectedImagePath ?? this.selectedImagePath,
+    selectedImagePath:
+        clearSelectedImagePath ? null : (selectedImagePath ?? this.selectedImagePath),
   );
 }
 
@@ -216,7 +218,7 @@ class AccountNotifier extends Notifier<AccountState> {
       _logger.severe('updateMetadata', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
-      state = state.copyWith(isLoading: false);
+      state = state.copyWith(isLoading: false, clearSelectedImagePath: true);
     }
   }
 
