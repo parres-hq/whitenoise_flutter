@@ -270,11 +270,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           _logger.info('Showing LegacyInviteBottomSheet for legacy invite');
           LegacyInviteBottomSheet.show(
             context: context,
-            name: contact.displayNameOrName,
-            nip05: contact.nip05 ?? '',
-            pubkey: contact.publicKey,
-            bio: contact.about,
-            imagePath: contact.imagePath,
+            contacts: [contact],
             onInviteSent: () {
               Navigator.pop(context);
             },

@@ -7,6 +7,9 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/src/rust/api/relays.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/ui/contact_list/legacy_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -43,11 +46,14 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
   final TextEditingController _groupNameController = TextEditingController();
   bool _hasGroupImage = false;
   bool _isGroupNameValid = false;
+  bool _isCreatingGroup = false;
+  bool _hasContactsWithKeyPackage = true;
 
   @override
   void initState() {
     super.initState();
     _groupNameController.addListener(_onGroupNameChanged);
+    _checkContactsKeyPackages();
   }
 
   void _onGroupNameChanged() {
@@ -59,25 +65,77 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
     }
   }
 
+  Future<void> _checkContactsKeyPackages() async {
+    try {
+      final filteredContacts = await _filterContactsByKeyPackage(widget.selectedContacts);
+      final contactsWithKeyPackage = filteredContacts['withKeyPackage']!;
+
+      setState(() {
+        _hasContactsWithKeyPackage = contactsWithKeyPackage.isNotEmpty;
+      });
+    } catch (e) {
+      // If there's an error checking keypackages, assume no contacts have keypackages
+      setState(() {
+        _hasContactsWithKeyPackage = false;
+      });
+    }
+  }
+
   void _createGroupChat() async {
     if (!_isGroupNameValid) return;
     final groupName = _groupNameController.text.trim();
 
-    final groupData = await ref
-        .read(groupsProvider.notifier)
-        .createNewGroup(
-          groupName: groupName,
-          groupDescription: '',
-          memberPublicKeyHexs: widget.selectedContacts.map((c) => c.publicKey).toList(),
-          adminPublicKeyHexs: [],
-        );
+    setState(() {
+      _isCreatingGroup = true;
+    });
 
-    if (mounted) {
-      if (groupData != null) {
-        Navigator.of(context).pop();
-      } else {
-        ref.showErrorToast('Failed to create group chat. Please try again.');
-        debugPrint('Failed to create group chat with name: $groupName');
+    try {
+      // Filter contacts based on keypackage availability
+      final filteredContacts = await _filterContactsByKeyPackage(widget.selectedContacts);
+      final contactsWithKeyPackage = filteredContacts['withKeyPackage']!;
+      final contactsWithoutKeyPackage = filteredContacts['withoutKeyPackage']!;
+
+      if (contactsWithKeyPackage.isEmpty) {
+        ref.showErrorToast('No contacts have keypackages available for group creation');
+        return;
+      }
+
+      // Create group with contacts that have keypackages
+      final groupData = await ref
+          .read(groupsProvider.notifier)
+          .createNewGroup(
+            groupName: groupName,
+            groupDescription: '',
+            memberPublicKeyHexs: contactsWithKeyPackage.map((c) => c.publicKey).toList(),
+            adminPublicKeyHexs: [],
+          );
+
+      if (mounted) {
+        if (groupData != null) {
+          Navigator.of(context).pop();
+
+          // Show legacy invite bottom sheet for members without keypackages
+          if (contactsWithoutKeyPackage.isNotEmpty) {
+            await LegacyInviteBottomSheet.show(
+              context: context,
+              contacts: contactsWithoutKeyPackage,
+            );
+          }
+        } else {
+          ref.showErrorToast('Failed to create group chat. Please try again.');
+          debugPrint('Failed to create group chat with name: $groupName');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ref.showErrorToast('Error creating group: ${e.toString()}');
+        debugPrint('Error creating group: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCreatingGroup = false;
+        });
       }
     }
   }
@@ -87,6 +145,36 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
     _groupNameController.removeListener(_onGroupNameChanged);
     _groupNameController.dispose();
     super.dispose();
+  }
+
+  /// Filters contacts by keypackage availability
+  Future<Map<String, List<ContactModel>>> _filterContactsByKeyPackage(
+    List<ContactModel> contacts,
+  ) async {
+    final contactsWithKeyPackage = <ContactModel>[];
+    final contactsWithoutKeyPackage = <ContactModel>[];
+
+    for (final contact in contacts) {
+      try {
+        final pubkey = await publicKeyFromString(publicKeyString: contact.publicKey);
+        final keyPackage = await fetchKeyPackage(pubkey: pubkey);
+
+        if (keyPackage != null) {
+          contactsWithKeyPackage.add(contact);
+        } else {
+          contactsWithoutKeyPackage.add(contact);
+        }
+      } catch (e) {
+        // If there's an error checking keypackage, assume contact doesn't have one
+        contactsWithoutKeyPackage.add(contact);
+        debugPrint('Error checking keypackage for ${contact.name}: $e');
+      }
+    }
+
+    return {
+      'withKeyPackage': contactsWithKeyPackage,
+      'withoutKeyPackage': contactsWithoutKeyPackage,
+    };
   }
 
   @override
@@ -180,8 +268,11 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(bottom: 16.h),
             child: AppFilledButton(
-              onPressed: () => _createGroupChat(),
-              title: 'Create Group',
+              onPressed:
+                  _isCreatingGroup || !_isGroupNameValid || !_hasContactsWithKeyPackage
+                      ? null
+                      : () => _createGroupChat(),
+              title: _isCreatingGroup ? 'Creating Group...' : 'Create Group',
             ),
           ),
         ),
