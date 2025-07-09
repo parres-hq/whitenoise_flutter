@@ -165,6 +165,7 @@ class AccountNotifier extends Notifier<AccountState> {
 
         // Skipping update if there's nothing to change
         if (!isDisplayNameChanged && !isBioProvided && profilePicPath == null) {
+          ref.read(routerProvider).go('/chats');
           return;
         }
 
