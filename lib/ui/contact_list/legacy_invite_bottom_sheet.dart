@@ -67,7 +67,7 @@ class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomShee
               .sendLegacyNip04Message(
                 contactPubkey: contact.publicKey,
                 message:
-                    'I\'d like to connect with you on White Noise. Download the app here: https://whitenoise.chat',
+                    'I\'d love to chat securely and keep our conversations private. White Noise offers fully encrypted, ad-free, tracker-free communication, built for privacy from the ground up. Join me here: https://whitenoise.chat',
               );
 
           if (invited) {

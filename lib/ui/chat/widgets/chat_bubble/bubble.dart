@@ -24,23 +24,20 @@ class ChatMessageBubble extends StatelessWidget {
       mainAxisAlignment: isSender ? MainAxisAlignment.end : MainAxisAlignment.start,
       children: [
         Flexible(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 8.w),
-            child: CustomPaint(
-              painter: CustomChatBubbleNoBorderPainter(
-                color: color ?? context.colors.meChatBubble,
-                alignment: isSender ? Alignment.topRight : Alignment.topLeft,
-                tail: tail,
-              ),
-              child: Container(
-                constraints:
-                    constraints ??
-                    BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.8,
-                    ),
-                margin: EdgeInsets.all(12.w),
-                child: child,
-              ),
+          child: CustomPaint(
+            painter: CustomChatBubbleNoBorderPainter(
+              color: color ?? context.colors.meChatBubble,
+              alignment: isSender ? Alignment.topRight : Alignment.topLeft,
+              tail: tail,
+            ),
+            child: Container(
+              constraints:
+                  constraints ??
+                  BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.8,
+                  ),
+              margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.w),
+              child: child,
             ),
           ),
         ),

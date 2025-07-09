@@ -57,6 +57,7 @@ class MessageConverter {
           isMe: currentUserPublicKey != null && originalMessage.pubkey == currentUserPublicKey,
           groupId: groupId,
           status: MessageStatus.delivered,
+          kind: originalMessage.kind, // Use the original message's kind
         );
       } else {
         // Fallback for missing original message
@@ -74,6 +75,7 @@ class MessageConverter {
           isMe: false,
           groupId: groupId,
           status: MessageStatus.delivered,
+          kind: 9, // Default to chat message kind
         );
       }
     }
@@ -89,6 +91,7 @@ class MessageConverter {
       status: status,
       reactions: reactions,
       replyTo: replyToMessage,
+      kind: messageData.kind, // Use the actual kind from the backend data
     );
   }
 
@@ -118,6 +121,10 @@ class MessageConverter {
         if (originalMsg != null) {
           uniquePubkeys.add(originalMsg.pubkey);
         }
+      }
+      // Add reaction users
+      for (final userReaction in msg.reactions.userReactions) {
+        uniquePubkeys.add(userReaction.user);
       }
     }
 
@@ -187,7 +194,7 @@ class MessageConverter {
 
     final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
 
-    final reactions = _convertReactions(messageData.reactions);
+    final reactions = _convertReactionsWithCache(messageData.reactions, userCache);
 
     // Handle reply information
     MessageModel? replyToMessage;
@@ -219,6 +226,7 @@ class MessageConverter {
           isMe: currentUserPublicKey != null && originalMessage.pubkey == currentUserPublicKey,
           groupId: groupId,
           status: MessageStatus.delivered,
+          kind: originalMessage.kind, // Use the original message's kind
         );
       } else {
         // Fallback for missing original message
@@ -236,6 +244,7 @@ class MessageConverter {
           isMe: false,
           groupId: groupId,
           status: MessageStatus.delivered,
+          kind: 9, // Default to chat message kind
         );
       }
     }
@@ -251,6 +260,7 @@ class MessageConverter {
       status: status,
       reactions: reactions,
       replyTo: replyToMessage,
+      kind: messageData.kind, // Use the actual kind from the backend data
     );
   }
 
@@ -305,6 +315,7 @@ class MessageConverter {
           isMe: currentUserPublicKey != null && originalMessage.pubkey == currentUserPublicKey,
           groupId: groupId,
           status: MessageStatus.delivered,
+          kind: originalMessage.kind, // Use the original message's kind
         );
       } else {
         // Fallback for missing original message
@@ -322,6 +333,7 @@ class MessageConverter {
           isMe: false,
           groupId: groupId,
           status: MessageStatus.delivered,
+          kind: 9, // Default to chat message kind
         );
       }
     }
@@ -340,6 +352,7 @@ class MessageConverter {
       status: status,
       replyTo: replyToMessage,
       reactions: reactions,
+      kind: messageData.kind, // Use the actual kind from the backend data
     );
   }
 
@@ -382,6 +395,12 @@ class MessageConverter {
         final originalMsg = originalMessageMap[replyInfo!.replyToId!];
         if (originalMsg != null) {
           uniquePubkeys.add(originalMsg.pubkey);
+        }
+      }
+      // Add reaction users from aggregated data
+      if (replyInfo != null) {
+        for (final userReaction in replyInfo.reactions.userReactions) {
+          uniquePubkeys.add(userReaction.user);
         }
       }
     }
@@ -488,6 +507,7 @@ class MessageConverter {
           isMe: currentUserPublicKey != null && originalMessage.pubkey == currentUserPublicKey,
           groupId: groupId,
           status: MessageStatus.delivered,
+          kind: originalMessage.kind, // Use the original message's kind
         );
       } else {
         // Fallback for missing original message
@@ -505,12 +525,16 @@ class MessageConverter {
           isMe: false,
           groupId: groupId,
           status: MessageStatus.delivered,
+          kind: 9, // Default to chat message kind
         );
       }
     }
 
     // Convert reactions from aggregated data if available
-    final reactions = replyInfo != null ? _convertReactions(replyInfo.reactions) : <Reaction>[];
+    final reactions =
+        replyInfo != null
+            ? _convertReactionsWithCache(replyInfo.reactions, userCache)
+            : <Reaction>[];
 
     return MessageModel(
       id: messageData.id,
@@ -523,6 +547,7 @@ class MessageConverter {
       status: status,
       replyTo: replyToMessage,
       reactions: reactions,
+      kind: messageData.kind, // Use the actual kind from the backend data
     );
   }
 
@@ -587,8 +612,68 @@ class MessageConverter {
     }
   }
 
-  ///TODO Convert ReactionSummaryData to MessageModel reactions format
+  /// Convert ReactionSummaryData to MessageModel reactions format
   static List<Reaction> _convertReactions(ReactionSummaryData reactions) {
-    return [];
+    final List<Reaction> convertedReactions = [];
+
+    // Debug logging
+    print('Converting reactions: ${reactions.userReactions.length} user reactions');
+
+    // Convert user reactions to Reaction objects
+    for (final userReaction in reactions.userReactions) {
+      print('Converting reaction: ${userReaction.emoji} by ${userReaction.user}');
+
+      final user = User(
+        id: userReaction.user,
+        name: 'Unknown User', // Will be resolved by metadata cache later
+        nip05: '',
+        publicKey: userReaction.user,
+      );
+
+      final reaction = Reaction(
+        emoji: userReaction.emoji,
+        user: user,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(
+          userReaction.createdAt.toInt() * 1000,
+        ),
+      );
+
+      convertedReactions.add(reaction);
+    }
+
+    print('Converted ${convertedReactions.length} reactions');
+    return convertedReactions;
+  }
+
+  /// Convert ReactionSummaryData to MessageModel reactions format with user cache
+  static List<Reaction> _convertReactionsWithCache(
+    ReactionSummaryData reactions,
+    Map<String, User> userCache,
+  ) {
+    final List<Reaction> convertedReactions = [];
+
+    // Convert user reactions to Reaction objects
+    for (final userReaction in reactions.userReactions) {
+      final user =
+          userCache[userReaction.user] ??
+          User(
+            id: userReaction.user,
+            name: 'Unknown User',
+            nip05: '',
+            publicKey: userReaction.user,
+          );
+
+      final reaction = Reaction(
+        emoji: userReaction.emoji,
+        user: user,
+        createdAt: DateTime.fromMillisecondsSinceEpoch(
+          userReaction.createdAt.toInt() * 1000,
+        ),
+      );
+
+      convertedReactions.add(reaction);
+    }
+
+    return convertedReactions;
   }
 }

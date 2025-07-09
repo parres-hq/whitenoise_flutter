@@ -188,7 +188,7 @@ class ChatNotifier extends Notifier<ChatState> {
           isDeleted: false,
           contentTokens: const [],
           reactions: const ReactionSummaryData(byEmoji: [], userReactions: []),
-          kind: 1, // Default to text message kind
+          kind: msg.kind, // Use the actual message kind
         );
         messageCache[msg.id] = chatMessageData;
       }
@@ -526,29 +526,27 @@ class ChatNotifier extends Notifier<ChatState> {
 
       _logger.info('ChatProvider: Adding reaction "$reaction" to message ${message.id}');
 
-      // Create reaction content (emoji)
-      final reactionContent = reaction;
+      // Create reaction content (emoji) - NIP-25 compliant
+      // Content MUST include user-generated-content indicating the value of the reaction
+      // (conventionally +, -, or an emoji)
+      final reactionContent = reaction; // This should be an emoji like 👍, ❤️, etc.
 
-      // Create tags for reaction
-      List<Tag> reactionTags = [];
+      // Use the message's actual kind (now stored in MessageModel)
+      final originalMessageKind = messageKind ?? message.kind;
 
-      if (messageKind != null) {
-        // NIP-25 compliant reaction with full tags
-        reactionTags = [
-          await tagFromVec(vec: ['e', message.id]), // Event being reacted to
-          await tagFromVec(
-            vec: ['p', message.sender.publicKey],
-          ), // Author of the event being reacted to
-          await tagFromVec(
-            vec: ['k', messageKind.toString()],
-          ), // Kind of the event being reacted to
-        ];
-      } else {
-        // Legacy reaction - only reference the message
-        reactionTags = [
-          await tagFromVec(vec: ['e', message.id]), // Event being reacted to
-        ];
-      }
+      // NIP-25 compliant reaction tags
+      // According to NIP-25:
+      // - MUST have e tag with event id being reacted to
+      // - SHOULD have p tag with pubkey of event being reacted to
+      // - SHOULD have k tag with stringified kind number of reacted event
+      final reactionTags = [
+        // e tag: ["e", <event-id>]
+        await tagFromVec(vec: ['e', message.id]),
+        // p tag: ["p", <pubkey>, <relay-hint>]
+        await tagFromVec(vec: ['p', message.sender.publicKey, '']),
+        // k tag: ["k", <kind-number>]
+        await tagFromVec(vec: ['k', originalMessageKind.toString()]),
+      ];
 
       // Send reaction message (kind 7 for reactions in Nostr)
       await sendMessageToGroup(
@@ -566,6 +564,7 @@ class ChatNotifier extends Notifier<ChatState> {
       return true;
     } catch (e, st) {
       _logger.severe('ChatProvider.updateMessageReaction', e, st);
+
       String errorMessage = 'Failed to add reaction';
       if (e is WhitenoiseError) {
         try {
@@ -653,7 +652,7 @@ class ChatNotifier extends Notifier<ChatState> {
           isDeleted: false,
           contentTokens: const [],
           reactions: const ReactionSummaryData(byEmoji: [], userReactions: []),
-          kind: 1, // Default to text message kind
+          kind: msg.kind, // Use the actual message kind
         );
         messageCache[msg.id] = chatMessageData;
       }

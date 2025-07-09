@@ -31,7 +31,7 @@ class MessageWidget extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: EdgeInsets.only(
-          bottom: isSameSenderAsPrevious ? 1.w : 8.w,
+          bottom: isSameSenderAsPrevious ? 4.w : 12.w,
         ),
         child: ChatMessageBubble(
           isSender: message.isMe,
@@ -50,7 +50,7 @@ class MessageWidget extends StatelessWidget {
           constraints: BoxConstraints(
             maxWidth: constraints.maxWidth,
           ),
-          padding: EdgeInsets.symmetric(vertical: 2.h, horizontal: 12.w),
+          padding: EdgeInsets.only(right: message.isMe ? 8.w : 0, left: message.isMe ? 0 : 8.w),
           child: Column(
             crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
@@ -77,7 +77,7 @@ class MessageWidget extends StatelessWidget {
 
               if (message.reactions.isNotEmpty) ...[
                 SizedBox(height: 4.h),
-                _buildReactionsRow(context),
+                ReactionsRow(message: message, onReactionTap: onReactionTap, context: context),
               ],
             ],
           ),
@@ -127,7 +127,7 @@ class MessageWidget extends StatelessWidget {
                         baseline: TextBaseline.alphabetic,
                       ),
                       WidgetSpan(
-                        child: _buildTimeAndStatus(context),
+                        child: TimeAndStatus(message: message, context: context),
                         alignment: PlaceholderAlignment.baseline,
                         baseline: TextBaseline.alphabetic,
                       ),
@@ -149,7 +149,7 @@ class MessageWidget extends StatelessWidget {
                 ),
               ),
               SizedBox(width: minPadding),
-              _buildTimeAndStatus(context),
+              TimeAndStatus(message: message, context: context),
             ],
           );
         }
@@ -167,7 +167,7 @@ class MessageWidget extends StatelessWidget {
             ),
           ),
           SizedBox(height: 4.w),
-          _buildTimeAndStatus(context),
+          TimeAndStatus(message: message, context: context),
         ],
       );
     } else {
@@ -207,10 +207,23 @@ class MessageWidget extends StatelessWidget {
     final statusIconWidth = message.isMe ? (8.w + 14.w) : 0;
     return textPainter.width + statusIconWidth;
   }
+}
 
-  Widget _buildReactionsRow(BuildContext context) {
+class ReactionsRow extends StatelessWidget {
+  const ReactionsRow({
+    super.key,
+    required this.message,
+    required this.onReactionTap,
+    required this.context,
+  });
+
+  final MessageModel message;
+  final Function(String p1)? onReactionTap;
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
       children: [
         ...(() {
@@ -222,34 +235,47 @@ class MessageWidget extends StatelessWidget {
             final emoji = entry.key;
             final count = entry.value.length;
             return GestureDetector(
-              onTap: () => onReactionTap?.call(emoji),
+              onTap: () {
+                // Call the reaction tap handler to add/remove reaction
+                onReactionTap?.call(emoji);
+              },
               child: Padding(
                 padding: EdgeInsets.only(right: 8.w),
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: emoji,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color:
-                              message.isMe
-                                  ? context.colors.primaryForeground
-                                  : context.colors.mutedForeground,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color:
+                        message.isMe
+                            ? context.colors.primary.withOpacity(0.1)
+                            : context.colors.secondary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: emoji,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color:
+                                message.isMe
+                                    ? context.colors.primaryForeground
+                                    : context.colors.mutedForeground,
+                          ),
                         ),
-                      ),
-                      TextSpan(
-                        text: ' ${count > 99 ? '99+' : count}',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                          color:
-                              message.isMe
-                                  ? context.colors.primaryForeground
-                                  : context.colors.mutedForeground,
+                        TextSpan(
+                          text: ' ${count > 99 ? '99+' : count}',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color:
+                                message.isMe
+                                    ? context.colors.primaryForeground
+                                    : context.colors.mutedForeground,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -266,12 +292,24 @@ class MessageWidget extends StatelessWidget {
             ),
           ),
         const Spacer(),
-        _buildTimeAndStatus(context),
+        TimeAndStatus(message: message, context: context),
       ],
     );
   }
+}
 
-  Widget _buildTimeAndStatus(BuildContext context) {
+class TimeAndStatus extends StatelessWidget {
+  const TimeAndStatus({
+    super.key,
+    required this.message,
+    required this.context,
+  });
+
+  final MessageModel message;
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

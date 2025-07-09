@@ -196,8 +196,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             child: MessageWidget(
                                   message: message,
                                   isGroupMessage: groupData.groupType == GroupType.group,
-                                  isSameSenderAsPrevious: chatNotifier.isSameSender(index),
-                                  isSameSenderAsNext: chatNotifier.isNextSameSender(index),
+                                  isSameSenderAsPrevious: chatNotifier.isSameSender(
+                                    index,
+                                    groupId: widget.groupId,
+                                  ),
+                                  isSameSenderAsNext: chatNotifier.isSameSender(
+                                    index - 1,
+                                    groupId: widget.groupId,
+                                  ),
                                   onReactionTap: (reaction) {
                                     chatNotifier.updateMessageReaction(
                                       message: message,

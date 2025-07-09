@@ -57,7 +57,11 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
+    return GestureDetector(
+      onTap: () {
+        // Close the dialog when tapping outside the menu
+        Navigator.of(context).pop();
+      },
       child: Material(
         color: context.colors.overlay.withValues(alpha: 0.06),
         child: BackdropFilter(
@@ -206,6 +210,8 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
           IconButton(
             onPressed: () {
               Navigator.of(context).pop();
+              // Trigger the emoji picker by calling onReactionTap with a special value
+              widget.onReactionTap('⋯');
             },
             icon: Icon(
               Icons.add_reaction_outlined,
