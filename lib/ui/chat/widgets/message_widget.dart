@@ -222,34 +222,46 @@ class MessageWidget extends StatelessWidget {
             final emoji = entry.key;
             final count = entry.value.length;
             return GestureDetector(
-              onTap: () => onReactionTap?.call(emoji),
+              onTap: () {
+                // Call the reaction tap handler to add/remove reaction
+                onReactionTap?.call(emoji);
+              },
               child: Padding(
                 padding: EdgeInsets.only(right: 8.w),
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: emoji,
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color:
-                              message.isMe
-                                  ? context.colors.primaryForeground
-                                  : context.colors.mutedForeground,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                  decoration: BoxDecoration(
+                    color: message.isMe
+                        ? context.colors.primary.withOpacity(0.1)
+                        : context.colors.secondary.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: emoji,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color:
+                                message.isMe
+                                    ? context.colors.primaryForeground
+                                    : context.colors.mutedForeground,
+                          ),
                         ),
-                      ),
-                      TextSpan(
-                        text: ' ${count > 99 ? '99+' : count}',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                          color:
-                              message.isMe
-                                  ? context.colors.primaryForeground
-                                  : context.colors.mutedForeground,
+                        TextSpan(
+                          text: ' ${count > 99 ? '99+' : count}',
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            fontWeight: FontWeight.w600,
+                            color:
+                                message.isMe
+                                    ? context.colors.primaryForeground
+                                    : context.colors.mutedForeground,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),

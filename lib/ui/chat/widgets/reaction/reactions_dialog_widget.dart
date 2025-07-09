@@ -206,6 +206,8 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
           IconButton(
             onPressed: () {
               Navigator.of(context).pop();
+              // Trigger the emoji picker by calling onReactionTap with a special value
+              widget.onReactionTap('⋯');
             },
             icon: Icon(
               Icons.add_reaction_outlined,
@@ -218,3 +220,4 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
     );
   }
 }
+

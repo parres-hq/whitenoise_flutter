@@ -19,6 +19,7 @@ class MessageModel {
   late final List<Reaction> reactions;
   final String? groupId;
   final MessageStatus status;
+  final int kind;
 
   MessageModel({
     required this.id,
@@ -34,6 +35,7 @@ class MessageModel {
     List<Reaction> reactions = const [],
     this.groupId,
     this.status = MessageStatus.sent,
+    this.kind = 9, // Default to chat message kind (kind 9 for group chat messages)
   }) : reactions = List.unmodifiable(reactions);
 
   MessageModel copyWith({
@@ -50,6 +52,7 @@ class MessageModel {
     List<Reaction>? reactions,
     String? roomId,
     MessageStatus? status,
+    int? kind,
   }) {
     return MessageModel(
       id: id ?? this.id,
@@ -65,6 +68,7 @@ class MessageModel {
       reactions: reactions ?? this.reactions,
       groupId: roomId ?? groupId,
       status: status ?? this.status,
+      kind: kind ?? this.kind,
     );
   }
 
