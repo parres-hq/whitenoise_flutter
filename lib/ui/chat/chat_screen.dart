@@ -84,32 +84,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final messageIndex = messages.indexWhere((msg) => msg.id == messageId);
 
     if (messageIndex != -1 && _scrollController.hasClients) {
-      // Calculate position - account for header (index 0) and message position
-      // Use dynamic height estimation based on message content
-      final estimatedMessageHeight = 80.0;
-      final headerHeight = 100.0;
-      double targetPosition = headerHeight;
+      final targetIndex = messageIndex + 1;
 
-      // Calculate cumulative height more accurately
-      for (int i = 0; i < messageIndex; i++) {
-        final message = messages[i];
-        // Estimate height based on content length and whether it has replies
-        double messageHeight = estimatedMessageHeight;
-        if (message.content != null && message.content!.length > 100) {
-          messageHeight += 20.0; // Add height for longer messages
-        }
-        if (message.replyTo != null) {
-          messageHeight += 40.0; // Add height for reply box
-        }
-        if (message.reactions.isNotEmpty) {
-          messageHeight += 25.0; // Add height for reactions
-        }
-        targetPosition += messageHeight;
-      }
+      final totalItems = messages.length + 1;
+      final maxScrollExtent = _scrollController.position.maxScrollExtent;
 
-      // Clamp to valid scroll range
-      final maxScroll = _scrollController.position.maxScrollExtent;
-      final clampedPosition = targetPosition.clamp(0.0, maxScroll);
+      final approximateItemHeight = maxScrollExtent / totalItems;
+      final targetPosition = targetIndex * approximateItemHeight;
+
+      final clampedPosition = targetPosition.clamp(0.0, maxScrollExtent);
 
       _scrollController.animateTo(
         clampedPosition,
@@ -166,7 +149,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             },
             child: GestureDetector(
               onTap: () {
-                // Dismiss keyboard when tapping in empty space
                 FocusManager.instance.primaryFocus?.unfocus();
               },
               behavior: HitTestBehavior.translucent,
