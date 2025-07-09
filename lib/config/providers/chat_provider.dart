@@ -609,7 +609,6 @@ class ChatNotifier extends Notifier<ChatState> {
         orElse: () => throw StateError('Original message not found'),
       );
 
-      // Create a mock ChatMessageData with reply information for the sent message
       final mockReplyInfo = ChatMessageData(
         id: sentMessage.id,
         pubkey: sentMessage.pubkey,
@@ -624,7 +623,6 @@ class ChatNotifier extends Notifier<ChatState> {
         kind: sentMessage.kind,
       );
 
-      // Build lookup map for the original message
       final originalMessageLookup = <String, MessageWithTokensData>{};
       originalMessageLookup[replyToMessageId] = MessageWithTokensData(
         id: originalMessage.id,

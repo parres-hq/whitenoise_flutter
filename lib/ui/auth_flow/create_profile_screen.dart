@@ -1,9 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
+import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -20,21 +22,6 @@ class CreateProfileScreen extends ConsumerStatefulWidget {
 class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
-
-  Future<void> _onFinishPressed() async {
-    final username = _usernameController.text.trim();
-    final bio = _bioController.text.trim();
-    await ref.read(accountProvider.notifier).updateAccountMetadata(username, bio);
-    if (username.isNotEmpty) {
-      if (!mounted) return;
-      context.go('/chats');
-    } else {
-      if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Please enter a name')));
-    }
-  }
 
   @override
   void initState() {
@@ -74,44 +61,65 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
               Stack(
                 alignment: Alignment.bottomRight,
                 children: [
-                  CircleAvatar(
-                    radius: 48.r,
-                    backgroundImage: const AssetImage(
-                      AssetsPaths.profileBackground,
-                    ),
+                  ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: _usernameController,
+                    builder: (context, value, child) {
+                      final displayText = value.text.trim();
+                      final firstLetter =
+                          displayText.isNotEmpty ? displayText[0].toUpperCase() : '';
+                      return CircleAvatar(
+                        radius: 48.r,
+                        backgroundColor: context.colors.primarySolid,
+                        backgroundImage:
+                            ref.watch(accountProvider).selectedImagePath != null
+                                ? FileImage(File(ref.watch(accountProvider).selectedImagePath!))
+                                : null,
+                        child:
+                            ref.watch(accountProvider).selectedImagePath == null
+                                ? (firstLetter.isNotEmpty
+                                    ? Text(
+                                      firstLetter,
+                                      style: TextStyle(
+                                        fontSize: 32.sp,
+                                        fontWeight: FontWeight.w700,
+                                        color: context.colors.primaryForeground,
+                                      ),
+                                    )
+                                    : Icon(
+                                      CarbonIcons.user,
+                                      size: 32.sp,
+                                      color: context.colors.primaryForeground,
+                                    ))
+                                : null,
+                      );
+                    },
                   ),
-                  Container(
-                    width: 28.w,
-                    height: 28.w,
-                    padding: EdgeInsets.all(6.w),
-                    decoration: BoxDecoration(
-                      color: context.colors.mutedForeground,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: context.colors.secondary,
-                        width: 1.w,
+                  GestureDetector(
+                    onTap: () => ref.read(accountProvider.notifier).pickProfileImage(ref),
+                    child: Container(
+                      width: 28.w,
+                      height: 28.w,
+                      padding: EdgeInsets.all(6.w),
+                      decoration: BoxDecoration(
+                        color: context.colors.mutedForeground,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: context.colors.secondary,
+                          width: 1.w,
+                        ),
                       ),
-                    ),
-                    child: SvgPicture.asset(
-                      AssetsPaths.icEdit,
-                      colorFilter: ColorFilter.mode(
-                        context.colors.primaryForeground,
-                        BlendMode.srcIn,
+                      child: SvgPicture.asset(
+                        AssetsPaths.icEdit,
+                        colorFilter: ColorFilter.mode(
+                          context.colors.primaryForeground,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                   ),
                 ],
               ),
-              Gap(12.h),
-              Text(
-                'Upload Avatar',
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.primary,
-                ),
-              ),
-              Gap(32.h),
+              Gap(36.h),
               Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
@@ -162,7 +170,14 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
             horizontal: 24.w,
           ).copyWith(bottom: 32.h),
           child: AppFilledButton(
-            onPressed: _onFinishPressed,
+            onPressed:
+                () => ref
+                    .read(accountProvider.notifier)
+                    .updateAccountMetadata(
+                      ref,
+                      _usernameController.text.trim(),
+                      _bioController.text.trim(),
+                    ),
             title: 'Finish',
           ),
         ),

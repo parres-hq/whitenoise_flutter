@@ -287,6 +287,120 @@ Future<Tag> tagFromVec({required List<String> vec}) =>
 Future<String> whitenoiseErrorToString({required WhitenoiseError error}) =>
     RustLib.instance.api.crateApiUtilsWhitenoiseErrorToString(error: error);
 
+/// Creates an ImageType::Png variant.
+///
+/// This function provides a way to create PNG ImageType instances from Flutter
+/// for use with profile picture upload functionality.
+///
+/// # Returns
+/// ImageType::Png variant
+///
+/// # Example
+/// ```dart
+/// final pngType = imageTypePng();
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, pngType);
+/// ```
+Future<ImageType> imageTypePng() => RustLib.instance.api.crateApiUtilsImageTypePng();
+
+/// Creates an ImageType::Jpeg variant.
+///
+/// This function provides a way to create JPEG ImageType instances from Flutter
+/// for use with profile picture upload functionality.
+///
+/// # Returns
+/// ImageType::Jpeg variant
+///
+/// # Example
+/// ```dart
+/// final jpegType = imageTypeJpeg();
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, jpegType);
+/// ```
+Future<ImageType> imageTypeJpeg() => RustLib.instance.api.crateApiUtilsImageTypeJpeg();
+
+/// Creates an ImageType::Jpg variant.
+///
+/// This function provides a way to create JPG ImageType instances from Flutter
+/// for use with profile picture upload functionality.
+///
+/// # Returns
+/// ImageType::Jpg variant
+///
+/// # Example
+/// ```dart
+/// final jpgType = imageTypeJpg();
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, jpgType);
+/// ```
+Future<ImageType> imageTypeJpg() => RustLib.instance.api.crateApiUtilsImageTypeJpg();
+
+/// Creates an ImageType::Gif variant.
+///
+/// This function provides a way to create GIF ImageType instances from Flutter
+/// for use with profile picture upload functionality.
+///
+/// # Returns
+/// ImageType::Gif variant
+///
+/// # Example
+/// ```dart
+/// final gifType = imageTypeGif();
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, gifType);
+/// ```
+Future<ImageType> imageTypeGif() => RustLib.instance.api.crateApiUtilsImageTypeGif();
+
+/// Creates an ImageType::Webp variant.
+///
+/// This function provides a way to create WebP ImageType instances from Flutter
+/// for use with profile picture upload functionality.
+///
+/// # Returns
+/// ImageType::Webp variant
+///
+/// # Example
+/// ```dart
+/// final webpType = imageTypeWebp();
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, webpType);
+/// ```
+Future<ImageType> imageTypeWebp() => RustLib.instance.api.crateApiUtilsImageTypeWebp();
+
+/// Determines the appropriate ImageType based on a file extension.
+///
+/// This helper function maps common image file extensions to their corresponding
+/// ImageType variants for convenient use in Flutter.
+///
+/// # Parameters
+/// * `extension` - File extension string (e.g., "jpg", "png", ".jpeg")
+///
+/// # Returns
+/// * `Ok(ImageType)` - Appropriate ImageType for the extension
+/// * `Err(WhitenoiseError)` - If the extension is not supported
+///
+/// # Example
+/// ```dart
+/// final imageType = imageTypeFromExtension("jpg")?;
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, imageType);
+/// ```
+Future<ImageType> imageTypeFromExtension({required String extension_}) =>
+    RustLib.instance.api.crateApiUtilsImageTypeFromExtension(
+      extension_: extension_,
+    );
+
+/// Returns the default Blossom server URL based on build configuration.
+///
+/// This function provides the appropriate Blossom server URL for image uploads:
+/// - Development builds use localhost (requires local docker setup)
+/// - Release builds use the production Primal Blossom server
+///
+/// # Returns
+/// String containing the default Blossom server URL
+///
+/// # Example
+/// ```dart
+/// final serverUrl = getDefaultBlossomServerUrl();
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, imageType);
+/// ```
+Future<String> getDefaultBlossomServerUrl() =>
+    RustLib.instance.api.crateApiUtilsGetDefaultBlossomServerUrl();
+
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Metadata>>
 abstract class Metadata implements RustOpaqueInterface {}
 

@@ -445,3 +445,152 @@ pub fn tag_from_vec(vec: Vec<String>) -> Result<Tag, WhitenoiseError> {
 pub fn whitenoise_error_to_string(error: &WhitenoiseError) -> String {
     format!("{error:?}")
 }
+
+// ImageType constructor functions for Flutter bridge
+use whitenoise::ImageType;
+
+/// Creates an ImageType::Png variant.
+///
+/// This function provides a way to create PNG ImageType instances from Flutter
+/// for use with profile picture upload functionality.
+///
+/// # Returns
+/// ImageType::Png variant
+///
+/// # Example
+/// ```dart
+/// final pngType = imageTypePng();
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, pngType);
+/// ```
+#[frb]
+pub fn image_type_png() -> ImageType {
+    ImageType::Png
+}
+
+/// Creates an ImageType::Jpeg variant.
+///
+/// This function provides a way to create JPEG ImageType instances from Flutter
+/// for use with profile picture upload functionality.
+///
+/// # Returns
+/// ImageType::Jpeg variant
+///
+/// # Example
+/// ```dart
+/// final jpegType = imageTypeJpeg();
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, jpegType);
+/// ```
+#[frb]
+pub fn image_type_jpeg() -> ImageType {
+    ImageType::Jpeg
+}
+
+/// Creates an ImageType::Jpg variant.
+///
+/// This function provides a way to create JPG ImageType instances from Flutter
+/// for use with profile picture upload functionality.
+///
+/// # Returns
+/// ImageType::Jpg variant
+///
+/// # Example
+/// ```dart
+/// final jpgType = imageTypeJpg();
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, jpgType);
+/// ```
+#[frb]
+pub fn image_type_jpg() -> ImageType {
+    ImageType::Jpg
+}
+
+/// Creates an ImageType::Gif variant.
+///
+/// This function provides a way to create GIF ImageType instances from Flutter
+/// for use with profile picture upload functionality.
+///
+/// # Returns
+/// ImageType::Gif variant
+///
+/// # Example
+/// ```dart
+/// final gifType = imageTypeGif();
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, gifType);
+/// ```
+#[frb]
+pub fn image_type_gif() -> ImageType {
+    ImageType::Gif
+}
+
+/// Creates an ImageType::Webp variant.
+///
+/// This function provides a way to create WebP ImageType instances from Flutter
+/// for use with profile picture upload functionality.
+///
+/// # Returns
+/// ImageType::Webp variant
+///
+/// # Example
+/// ```dart
+/// final webpType = imageTypeWebp();
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, webpType);
+/// ```
+#[frb]
+pub fn image_type_webp() -> ImageType {
+    ImageType::Webp
+}
+
+/// Determines the appropriate ImageType based on a file extension.
+///
+/// This helper function maps common image file extensions to their corresponding
+/// ImageType variants for convenient use in Flutter.
+///
+/// # Parameters
+/// * `extension` - File extension string (e.g., "jpg", "png", ".jpeg")
+///
+/// # Returns
+/// * `Ok(ImageType)` - Appropriate ImageType for the extension
+/// * `Err(WhitenoiseError)` - If the extension is not supported
+///
+/// # Example
+/// ```dart
+/// final imageType = imageTypeFromExtension("jpg")?;
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, imageType);
+/// ```
+#[frb]
+pub fn image_type_from_extension(extension: String) -> Result<ImageType, WhitenoiseError> {
+    let ext = extension.trim_start_matches('.').to_lowercase();
+    match ext.as_str() {
+        "png" => Ok(ImageType::Png),
+        "jpg" => Ok(ImageType::Jpg),
+        "jpeg" => Ok(ImageType::Jpeg),
+        "gif" => Ok(ImageType::Gif),
+        "webp" => Ok(ImageType::Webp),
+        _ => Err(WhitenoiseError::from(std::io::Error::other(format!(
+            "Unsupported image extension: {}",
+            extension
+        )))),
+    }
+}
+
+/// Returns the default Blossom server URL based on build configuration.
+///
+/// This function provides the appropriate Blossom server URL for image uploads:
+/// - Development builds use localhost (requires local docker setup)
+/// - Release builds use the production Primal Blossom server
+///
+/// # Returns
+/// String containing the default Blossom server URL
+///
+/// # Example
+/// ```dart
+/// final serverUrl = getDefaultBlossomServerUrl();
+/// await uploadProfilePicture(pubkey, serverUrl, filePath, imageType);
+/// ```
+#[frb]
+pub fn get_default_blossom_server_url() -> String {
+    if cfg!(debug_assertions) {
+        "http://localhost:3000".to_string()
+    } else {
+        "https://blossom.primal.net".to_string()
+    }
+}
