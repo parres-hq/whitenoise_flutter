@@ -33,6 +33,8 @@ class AddRelayBottomSheet extends ConsumerStatefulWidget {
       context: context,
       title: title,
       heightFactor: 0.35,
+      keyboardAware: true,
+      wrapContent: true,
       builder: (context) => AddRelayBottomSheet(onRelayAdded: onRelayAdded, title: title),
     );
   }
@@ -100,58 +102,56 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Enter your relay address',
+            style: TextStyle(
+              fontSize: 14.sp,
+              fontWeight: FontWeight.w500,
+              color: AppColors.glitch900,
+            ),
+          ),
+          Gap(8.h),
+          Row(
             children: [
-              Text(
-                'Enter your relay address',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: AppColors.glitch900,
+              Expanded(
+                child: CustomTextField(
+                  textController: _relayUrlController,
+                  hintText: 'wss://',
+                  padding: EdgeInsets.zero,
                 ),
               ),
-              Gap(8.h),
-              Row(
-                children: [
-                  Expanded(
-                    child: CustomTextField(
-                      textController: _relayUrlController,
-                      hintText: 'wss://',
-                      padding: EdgeInsets.zero,
-                    ),
-                  ),
-                  Gap(8.w),
-                  CustomIconButton(
-                    onTap: _pasteFromClipboard,
-                    iconPath: AssetsPaths.icPaste,
-                  ),
-                ],
+              Gap(8.w),
+              CustomIconButton(
+                onTap: _pasteFromClipboard,
+                iconPath: AssetsPaths.icPaste,
               ),
-              Gap(16.h),
-              if (!_isUrlValid && _relayUrlController.text.isNotEmpty) ...[
-                Text(
-                  'Invalid format: must start with wss://',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: AppColors.colorDC2626,
-                  ),
-                ),
-              ],
-              Gap(16.h),
             ],
           ),
-        ),
-        AppFilledButton(
-          onPressed: _isUrlValid && !_isAdding ? _addRelay : null,
-          loading: _isAdding,
-          title: widget.title,
-        ),
-      ],
+          Gap(16.h),
+          if (!_isUrlValid && _relayUrlController.text.isNotEmpty) ...[
+            Text(
+              'Invalid format: must start with wss://',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: AppColors.colorDC2626,
+              ),
+            ),
+            Gap(8.h),
+          ],
+          AppFilledButton(
+            onPressed: _isUrlValid && !_isAdding ? _addRelay : null,
+            loading: _isAdding,
+            title: widget.title,
+          ),
+          Gap(16.h),
+        ],
+      ),
     );
   }
 }
