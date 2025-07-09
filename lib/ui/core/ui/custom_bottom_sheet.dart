@@ -24,6 +24,7 @@ class CustomBottomSheet {
     double blurSigma = 10.0,
     Duration transitionDuration = const Duration(milliseconds: 300),
     Curve curve = Curves.easeOutCubic,
+    bool keyboardAware = false,
   }) {
     return showGeneralDialog<T>(
       context: context,
@@ -120,6 +121,7 @@ class CustomBottomSheet {
                                   wrapContent: wrapContent,
                                   maxHeight: maxHeight,
                                   backgroundColor: context.colors.neutral,
+                                  keyboardAware: keyboardAware,
                                 ),
                               )
                               : _buildBottomSheetContent(
@@ -132,6 +134,7 @@ class CustomBottomSheet {
                                 wrapContent: wrapContent,
                                 maxHeight: maxHeight,
                                 backgroundColor: context.colors.neutral,
+                                keyboardAware: keyboardAware,
                               ),
                     ),
                   ],
@@ -154,6 +157,7 @@ class CustomBottomSheet {
     String? title,
     bool showCloseButton = true,
     bool showBackButton = false,
+    bool keyboardAware = false,
   }) {
     final contentWidget = Column(
       mainAxisSize: wrapContent ? MainAxisSize.min : MainAxisSize.max,
@@ -215,13 +219,29 @@ class CustomBottomSheet {
           maxHeight: maxHeight ?? 1.sh * 0.9, // Default max height
         ),
         decoration: BoxDecoration(color: backgroundColor),
-        child: contentWidget,
+        child:
+            keyboardAware
+                ? Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  child: contentWidget,
+                )
+                : contentWidget,
       );
     } else {
       return Container(
         height: bottomSheetHeight!,
         decoration: BoxDecoration(color: backgroundColor),
-        child: contentWidget,
+        child:
+            keyboardAware
+                ? Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  child: contentWidget,
+                )
+                : contentWidget,
       );
     }
   }
