@@ -57,7 +57,11 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return IgnorePointer(
+    return GestureDetector(
+      onTap: () {
+        // Close the dialog when tapping outside the menu
+        Navigator.of(context).pop();
+      },
       child: Material(
         color: context.colors.overlay.withValues(alpha: 0.06),
         child: BackdropFilter(
