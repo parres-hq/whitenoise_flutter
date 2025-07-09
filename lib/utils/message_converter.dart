@@ -12,6 +12,7 @@ class MessageConverter {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
+    Map<String, ChatMessageData>? messageCache,
   }) async {
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
 
@@ -29,6 +30,54 @@ class MessageConverter {
 
     final reactions = _convertReactions(messageData.reactions);
 
+    // Handle reply information
+    MessageModel? replyToMessage;
+    if (messageData.isReply && messageData.replyToId != null) {
+      final originalMessage = messageCache?[messageData.replyToId!];
+      if (originalMessage != null) {
+        final replyContent =
+            originalMessage.content.isNotEmpty ? originalMessage.content : 'No content available';
+
+        final replyTimestamp = DateTime.fromMillisecondsSinceEpoch(
+          originalMessage.createdAt.toInt() * 1000,
+        );
+
+        final replySender = await _createUserFromMetadata(
+          originalMessage.pubkey,
+          currentUserPubkey: currentUserPublicKey,
+          ref: ref,
+        );
+
+        replyToMessage = MessageModel(
+          id: messageData.replyToId!,
+          content: replyContent,
+          type: MessageType.text,
+          createdAt: replyTimestamp,
+          sender: replySender,
+          isMe: currentUserPublicKey != null && originalMessage.pubkey == currentUserPublicKey,
+          groupId: groupId,
+          status: MessageStatus.delivered,
+        );
+      } else {
+        // Fallback for missing original message
+        replyToMessage = MessageModel(
+          id: messageData.replyToId!,
+          content: 'Message not found',
+          type: MessageType.text,
+          createdAt: DateTime.now(),
+          sender: User(
+            id: 'unknown',
+            name: 'Unknown User',
+            nip05: '',
+            publicKey: 'unknown',
+          ),
+          isMe: false,
+          groupId: groupId,
+          status: MessageStatus.delivered,
+        );
+      }
+    }
+
     return MessageModel(
       id: messageData.id,
       content: messageData.content,
@@ -39,6 +88,7 @@ class MessageConverter {
       groupId: groupId,
       status: status,
       reactions: reactions,
+      replyTo: replyToMessage,
     );
   }
 
@@ -52,19 +102,156 @@ class MessageConverter {
     final validMessages =
         messageDataList.where((msg) => !msg.isDeleted && msg.content.isNotEmpty).toList();
 
-    // Process all messages in parallel for better performance
-    final futures = validMessages.map(
-      (messageData) => fromChatMessageData(
-        messageData,
-        currentUserPublicKey: currentUserPublicKey,
-        groupId: groupId,
-        ref: ref,
+    // Build message cache for reply lookups
+    final messageCache = <String, ChatMessageData>{};
+    for (final msg in validMessages) {
+      messageCache[msg.id] = msg;
+    }
+
+    // Pre-fetch unique user metadata to avoid duplicate lookups
+    final uniquePubkeys = <String>{};
+    for (final msg in validMessages) {
+      uniquePubkeys.add(msg.pubkey);
+      // Also add reply authors if they exist
+      if (msg.isReply && msg.replyToId != null) {
+        final originalMsg = messageCache[msg.replyToId!];
+        if (originalMsg != null) {
+          uniquePubkeys.add(originalMsg.pubkey);
+        }
+      }
+    }
+
+    // Batch fetch all user metadata in parallel
+    final metadataCache = ref.read(metadataCacheProvider.notifier);
+    final userFutures = uniquePubkeys.map(
+      (pubkey) =>
+          metadataCache.getContactModel(pubkey).then((contact) => MapEntry(pubkey, contact)),
+    );
+    final userResults = await Future.wait(userFutures);
+    final userCache = Map<String, User>.fromEntries(
+      userResults.map(
+        (entry) => MapEntry(
+          entry.key,
+          User(
+            id: entry.key,
+            name: entry.key == currentUserPublicKey ? 'You' : entry.value.displayNameOrName,
+            nip05: entry.value.nip05 ?? '',
+            publicKey: entry.key,
+            imagePath: entry.value.imagePath,
+            username: entry.value.displayName,
+          ),
+        ),
       ),
     );
 
-    // Wait for all conversions to complete
-    final messages = await Future.wait(futures);
+    // Process all messages using cached data
+    final messages =
+        validMessages
+            .map(
+              (messageData) => _fromChatMessageDataWithCache(
+                messageData,
+                currentUserPublicKey: currentUserPublicKey,
+                groupId: groupId,
+                messageCache: messageCache,
+                userCache: userCache,
+              ),
+            )
+            .toList();
+
     return messages;
+  }
+
+  /// Convert ChatMessageData to MessageModel using cached user data
+  static MessageModel _fromChatMessageDataWithCache(
+    ChatMessageData messageData, {
+    required String? currentUserPublicKey,
+    String? groupId,
+    required Map<String, ChatMessageData> messageCache,
+    required Map<String, User> userCache,
+  }) {
+    final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
+
+    // Use cached user data
+    final sender =
+        userCache[messageData.pubkey] ??
+        User(
+          id: messageData.pubkey,
+          name: 'Unknown User',
+          nip05: '',
+          publicKey: messageData.pubkey,
+        );
+
+    final createdAt = DateTime.fromMillisecondsSinceEpoch(
+      messageData.createdAt.toInt() * 1000,
+    );
+
+    final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
+
+    final reactions = _convertReactions(messageData.reactions);
+
+    // Handle reply information
+    MessageModel? replyToMessage;
+    if (messageData.isReply && messageData.replyToId != null) {
+      final originalMessage = messageCache[messageData.replyToId!];
+      if (originalMessage != null) {
+        final replyContent =
+            originalMessage.content.isNotEmpty ? originalMessage.content : 'No content available';
+
+        final replyTimestamp = DateTime.fromMillisecondsSinceEpoch(
+          originalMessage.createdAt.toInt() * 1000,
+        );
+
+        final replySender =
+            userCache[originalMessage.pubkey] ??
+            User(
+              id: originalMessage.pubkey,
+              name: 'Unknown User',
+              nip05: '',
+              publicKey: originalMessage.pubkey,
+            );
+
+        replyToMessage = MessageModel(
+          id: messageData.replyToId!,
+          content: replyContent,
+          type: MessageType.text,
+          createdAt: replyTimestamp,
+          sender: replySender,
+          isMe: currentUserPublicKey != null && originalMessage.pubkey == currentUserPublicKey,
+          groupId: groupId,
+          status: MessageStatus.delivered,
+        );
+      } else {
+        // Fallback for missing original message
+        replyToMessage = MessageModel(
+          id: messageData.replyToId!,
+          content: 'Message not found',
+          type: MessageType.text,
+          createdAt: DateTime.now(),
+          sender: User(
+            id: 'unknown',
+            name: 'Unknown User',
+            nip05: '',
+            publicKey: 'unknown',
+          ),
+          isMe: false,
+          groupId: groupId,
+          status: MessageStatus.delivered,
+        );
+      }
+    }
+
+    return MessageModel(
+      id: messageData.id,
+      content: messageData.content,
+      type: MessageType.text,
+      createdAt: createdAt,
+      sender: sender,
+      isMe: isMe,
+      groupId: groupId,
+      status: status,
+      reactions: reactions,
+      replyTo: replyToMessage,
+    );
   }
 
   /// Convert MessageWithTokensData to MessageModel

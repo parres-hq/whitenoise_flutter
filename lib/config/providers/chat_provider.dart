@@ -60,33 +60,24 @@ class ChatNotifier extends Notifier<ChatState> {
 
       _logger.info('ChatProvider: Loading messages for group $groupId');
 
-      // TODO: Temporary solution - fetch both data sources to map reply information
-      // We use messagesWithTokens for primary message data and aggregatedMessages for reply mapping
-      final messagesWithTokens = await fetchMessagesForGroup(
+      // Use fetchAggregatedMessagesForGroup which includes all message data including replies
+      final aggregatedMessages = await fetchAggregatedMessagesForGroup(
         pubkey: publicKey,
         groupId: groupIdObj,
       );
 
-      final publicKeyAgr = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final groupIdObjAgr = await groupIdFromString(hexString: groupId);
-      final aggregatedMessages = await fetchAggregatedMessagesForGroup(
-        pubkey: publicKeyAgr,
-        groupId: groupIdObjAgr,
-      );
-
       _logger.info(
-        'ChatProvider: Fetched ${messagesWithTokens.length} messages with tokens and ${aggregatedMessages.length} aggregated messages',
+        'ChatProvider: Fetched ${aggregatedMessages.length} aggregated messages',
       );
 
       // Sort messages by creation time (oldest first)
-      messagesWithTokens.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      aggregatedMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
-      final messages = await MessageConverter.fromMessageWithTokensDataList(
-        messagesWithTokens,
+      final messages = await MessageConverter.fromChatMessageDataList(
+        aggregatedMessages,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
         ref: ref,
-        aggregatedMessages: aggregatedMessages, // Pass aggregated data for reply mapping
       );
 
       state = state.copyWith(
@@ -100,7 +91,7 @@ class ChatNotifier extends Notifier<ChatState> {
         },
       );
 
-      _logger.info('ChatProvider: Loaded ${messagesWithTokens.length} messages for group $groupId');
+      _logger.info('ChatProvider: Loaded ${aggregatedMessages.length} messages for group $groupId');
     } catch (e, st) {
       _logger.severe('ChatProvider.loadMessagesForGroup', e, st);
       String errorMessage = 'Failed to load messages';
@@ -122,7 +113,7 @@ class ChatNotifier extends Notifier<ChatState> {
   Future<MessageWithTokensData?> sendMessage({
     required String groupId,
     required String message,
-    int kind = 1, // Default to text message
+    int kind = 9, // Default to text message
     List<Tag>? tags,
     bool isEditing = false,
     void Function()? onMessageSent,
@@ -166,11 +157,48 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Convert sent message to MessageModel and add to local state
       final currentMessages = state.groupMessages[groupId] ?? [];
-      final sentMessageModel = await MessageConverter.fromMessageWithTokensData(
-        sentMessage,
+
+      // Create ChatMessageData from the sent message
+      final sentChatMessageData = ChatMessageData(
+        id: sentMessage.id,
+        pubkey: sentMessage.pubkey,
+        content: sentMessage.content ?? '',
+        createdAt: sentMessage.createdAt,
+        tags: const [],
+        isReply: false,
+        replyToId: null,
+        isDeleted: false,
+        contentTokens: const [],
+        reactions: const ReactionSummaryData(byEmoji: [], userReactions: []),
+        kind: sentMessage.kind,
+      );
+
+      // Build message cache from current messages for consistency
+      final messageCache = <String, ChatMessageData>{};
+      for (final msg in currentMessages) {
+        // Convert existing MessageModel back to ChatMessageData for cache
+        final chatMessageData = ChatMessageData(
+          id: msg.id,
+          pubkey: msg.sender.publicKey,
+          content: msg.content ?? '',
+          createdAt: BigInt.from(msg.createdAt.millisecondsSinceEpoch ~/ 1000),
+          tags: const [],
+          isReply: msg.replyTo != null,
+          replyToId: msg.replyTo?.id,
+          isDeleted: false,
+          contentTokens: const [],
+          reactions: const ReactionSummaryData(byEmoji: [], userReactions: []),
+          kind: 1, // Default to text message kind
+        );
+        messageCache[msg.id] = chatMessageData;
+      }
+
+      final sentMessageModel = await MessageConverter.fromChatMessageData(
+        sentChatMessageData,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
         ref: ref,
+        messageCache: messageCache,
       );
       final updatedMessages = [...currentMessages, sentMessageModel];
 
@@ -316,26 +344,18 @@ class ChatNotifier extends Notifier<ChatState> {
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final groupIdObj = await groupIdFromString(hexString: groupId);
 
-      // TODO: Use dual API approach for reply information in polling
-      final messagesWithTokens = await fetchMessagesForGroup(
+      // Use fetchAggregatedMessagesForGroup for polling as well
+      final aggregatedMessages = await fetchAggregatedMessagesForGroup(
         pubkey: publicKey,
         groupId: groupIdObj,
       );
 
-      final publicKeyAgr = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final groupIdObjAgr = await groupIdFromString(hexString: groupId);
-      final aggregatedMessages = await fetchAggregatedMessagesForGroup(
-        pubkey: publicKeyAgr,
-        groupId: groupIdObjAgr,
-      );
-
-      messagesWithTokens.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-      final newMessages = await MessageConverter.fromMessageWithTokensDataList(
-        messagesWithTokens,
+      aggregatedMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      final newMessages = await MessageConverter.fromChatMessageDataList(
+        aggregatedMessages,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
         ref: ref,
-        aggregatedMessages: aggregatedMessages, // Pass aggregated data for reply mapping
       );
 
       final currentMessages = state.groupMessages[groupId] ?? [];
@@ -603,13 +623,8 @@ class ChatNotifier extends Notifier<ChatState> {
       // Convert to MessageModel and add to local state
       final currentMessages = state.groupMessages[groupId] ?? [];
 
-      // Find the original message for reply context
-      final originalMessage = currentMessages.firstWhere(
-        (msg) => msg.id == replyToMessageId,
-        orElse: () => throw StateError('Original message not found'),
-      );
-
-      final mockReplyInfo = ChatMessageData(
+      // Create ChatMessageData for the reply message
+      final sentChatMessageData = ChatMessageData(
         id: sentMessage.id,
         pubkey: sentMessage.pubkey,
         content: sentMessage.content ?? '',
@@ -623,23 +638,32 @@ class ChatNotifier extends Notifier<ChatState> {
         kind: sentMessage.kind,
       );
 
-      final originalMessageLookup = <String, MessageWithTokensData>{};
-      originalMessageLookup[replyToMessageId] = MessageWithTokensData(
-        id: originalMessage.id,
-        pubkey: originalMessage.sender.publicKey,
-        kind: 1,
-        createdAt: BigInt.from(originalMessage.createdAt.millisecondsSinceEpoch ~/ 1000),
-        content: originalMessage.content,
-        tokens: const [],
-      );
+      // Build message cache from current messages for reply lookup
+      final messageCache = <String, ChatMessageData>{};
+      for (final msg in currentMessages) {
+        // Convert existing MessageModel back to ChatMessageData for cache
+        final chatMessageData = ChatMessageData(
+          id: msg.id,
+          pubkey: msg.sender.publicKey,
+          content: msg.content ?? '',
+          createdAt: BigInt.from(msg.createdAt.millisecondsSinceEpoch ~/ 1000),
+          tags: const [],
+          isReply: msg.replyTo != null,
+          replyToId: msg.replyTo?.id,
+          isDeleted: false,
+          contentTokens: const [],
+          reactions: const ReactionSummaryData(byEmoji: [], userReactions: []),
+          kind: 1, // Default to text message kind
+        );
+        messageCache[msg.id] = chatMessageData;
+      }
 
-      final sentMessageModel = await MessageConverter.fromMessageWithTokensData(
-        sentMessage,
+      final sentMessageModel = await MessageConverter.fromChatMessageData(
+        sentChatMessageData,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
         ref: ref,
-        replyInfo: mockReplyInfo,
-        originalMessageLookup: originalMessageLookup,
+        messageCache: messageCache,
       );
       final updatedMessages = [...currentMessages, sentMessageModel];
 
