@@ -123,13 +123,11 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
           }
         } else {
           ref.showErrorToast('Failed to create group chat. Please try again.');
-          debugPrint('Failed to create group chat with name: $groupName');
         }
       }
     } catch (e) {
       if (mounted) {
         ref.showErrorToast('Error creating group: ${e.toString()}');
-        debugPrint('Error creating group: $e');
       }
     } finally {
       if (mounted) {
@@ -167,7 +165,6 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
       } catch (e) {
         // If there's an error checking keypackage, assume contact doesn't have one
         contactsWithoutKeyPackage.add(contact);
-        debugPrint('Error checking keypackage for ${contact.name}: $e');
       }
     }
 

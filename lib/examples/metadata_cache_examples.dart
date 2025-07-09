@@ -128,7 +128,6 @@ class _ContactListExampleState extends ConsumerState<ContactListExample> {
         });
       }
     } catch (e) {
-      print('Error loading contacts: $e');
       if (mounted) {
         setState(() {
           isLoading = false;
@@ -160,7 +159,6 @@ class _ContactListExampleState extends ConsumerState<ContactListExample> {
           ),
           onTap: () {
             // Handle contact tap
-            print('Tapped contact: ${contact.displayNameOrName}');
           },
         );
       },
