@@ -210,7 +210,6 @@ class MessageWidget extends StatelessWidget {
 
   Widget _buildReactionsRow(BuildContext context) {
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
       children: [
         ...(() {
