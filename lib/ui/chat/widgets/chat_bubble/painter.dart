@@ -12,7 +12,7 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
   });
 
   final double _x = 10.0;
-  final double _borderRadius = 2.0;
+  final double _borderRadius = 0.0;
 
   @override
   void paint(Canvas canvas, Size size) {
