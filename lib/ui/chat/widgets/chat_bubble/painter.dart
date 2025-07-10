@@ -16,15 +16,19 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..style = PaintingStyle.fill;
+    final paint =
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.fill;
 
     if (alignment == Alignment.topRight) {
       if (tail) {
         // Main rounded rectangle (right side)
         final mainRect = RRect.fromLTRBAndCorners(
-          0, 0, size.width - _x, size.height,
+          0,
+          0,
+          size.width - _x,
+          size.height,
           topLeft: Radius.circular(_borderRadius),
           topRight: const Radius.circular(1.0), // Less rounded where tail connects
           bottomLeft: Radius.circular(_borderRadius),
@@ -42,7 +46,10 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
       } else {
         // Rounded rectangle without tail (right side)
         final rect = RRect.fromLTRBAndCorners(
-          0, 0, size.width - _x, size.height,
+          0,
+          0,
+          size.width - _x,
+          size.height,
           topLeft: Radius.circular(_borderRadius),
           topRight: Radius.circular(_borderRadius),
           bottomLeft: Radius.circular(_borderRadius),
@@ -54,7 +61,10 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
       if (tail) {
         // Main rounded rectangle (left side)
         final mainRect = RRect.fromLTRBAndCorners(
-          _x, 0, size.width, size.height,
+          _x,
+          0,
+          size.width,
+          size.height,
           topLeft: const Radius.circular(1.0), // Less rounded where tail connects
           topRight: Radius.circular(_borderRadius),
           bottomLeft: Radius.circular(_borderRadius),
@@ -72,7 +82,10 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
       } else {
         // Rounded rectangle without tail (left side)
         final rect = RRect.fromLTRBAndCorners(
-          _x, 0, size.width, size.height,
+          _x,
+          0,
+          size.width,
+          size.height,
           topLeft: Radius.circular(_borderRadius),
           topRight: Radius.circular(_borderRadius),
           bottomLeft: Radius.circular(_borderRadius),

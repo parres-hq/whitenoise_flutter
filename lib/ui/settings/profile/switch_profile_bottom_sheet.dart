@@ -106,12 +106,14 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
     if (activeAccountPubkey != null) {
       sortedProfiles.sort((a, b) {
         // Use cached _activeAccountHex for sorting if available
-        final aIsActive = _activeAccountHex != null &&
+        final aIsActive =
+            _activeAccountHex != null &&
             (a.publicKey == _activeAccountHex ||
-             a.publicKey.startsWith('npub1')); // Will be resolved async
-        final bIsActive = _activeAccountHex != null &&
+                a.publicKey.startsWith('npub1')); // Will be resolved async
+        final bIsActive =
+            _activeAccountHex != null &&
             (b.publicKey == _activeAccountHex ||
-             b.publicKey.startsWith('npub1')); // Will be resolved async
+                b.publicKey.startsWith('npub1')); // Will be resolved async
 
         if (aIsActive && !bIsActive) return -1;
         if (!aIsActive && bIsActive) return 1;
@@ -141,11 +143,12 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
                       final isActiveAccount = snapshot.data ?? false;
 
                       return Container(
-                        decoration: isActiveAccount
-                            ? BoxDecoration(
-                                color: context.colors.primary.withValues(alpha: 0.1),
-                              )
-                            : null,
+                        decoration:
+                            isActiveAccount
+                                ? BoxDecoration(
+                                  color: context.colors.primary.withValues(alpha: 0.1),
+                                )
+                                : null,
                         padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
                         child: ContactListTile(
                           contact: profile,

@@ -284,7 +284,9 @@ class ReactionsRow extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 14.sp,
                     color:
-                        message.isMe ? context.colors.primaryForeground : context.colors.mutedForeground,
+                        message.isMe
+                            ? context.colors.primaryForeground
+                            : context.colors.mutedForeground,
                   ),
                 ),
             ],

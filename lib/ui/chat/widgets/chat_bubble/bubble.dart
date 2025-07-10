@@ -26,7 +26,8 @@ class ChatMessageBubble extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            constraints: constraints ??
+            constraints:
+                constraints ??
                 BoxConstraints(
                   maxWidth: MediaQuery.of(context).size.width * 0.8,
                 ),

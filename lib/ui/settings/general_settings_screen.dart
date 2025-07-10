@@ -158,7 +158,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       profiles: contactModels,
       isDismissible: isDismissible,
       showSuccessToast: showSuccessToast,
-                  onProfileSelected: (selectedProfile) async {
+      onProfileSelected: (selectedProfile) async {
         // Find the corresponding AccountData
         // Note: selectedProfile.publicKey is in npub format (from metadata cache)
         // but account.pubkey is in hex format (from fetchAccounts)
@@ -173,14 +173,11 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
             hexKey = await hexPubkeyFromNpub(npub: selectedProfile.publicKey);
           }
 
-          selectedAccount = _accounts
-              .where((account) => account.pubkey == hexKey)
-              .firstOrNull;
+          selectedAccount = _accounts.where((account) => account.pubkey == hexKey).firstOrNull;
         } catch (e) {
           // If conversion fails, try direct matching as fallback
-          selectedAccount = _accounts
-              .where((account) => account.pubkey == selectedProfile.publicKey)
-              .firstOrNull;
+          selectedAccount =
+              _accounts.where((account) => account.pubkey == selectedProfile.publicKey).firstOrNull;
         }
 
         if (selectedAccount != null) {
