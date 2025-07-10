@@ -23,6 +23,7 @@ mixin _$ProfileState {
   String? get nip05 => throw _privateConstructorUsedError;
   ProfileState? get initialProfile => throw _privateConstructorUsedError;
   bool get isSaving => throw _privateConstructorUsedError;
+  String? get selectedImagePath => throw _privateConstructorUsedError;
   Object? get error => throw _privateConstructorUsedError;
   StackTrace? get stackTrace => throw _privateConstructorUsedError;
 
@@ -46,6 +47,7 @@ abstract class $ProfileStateCopyWith<$Res> {
     String? nip05,
     ProfileState? initialProfile,
     bool isSaving,
+    String? selectedImagePath,
     Object? error,
     StackTrace? stackTrace,
   });
@@ -74,6 +76,7 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
     Object? nip05 = freezed,
     Object? initialProfile = freezed,
     Object? isSaving = null,
+    Object? selectedImagePath = freezed,
     Object? error = freezed,
     Object? stackTrace = freezed,
   }) {
@@ -109,6 +112,11 @@ class _$ProfileStateCopyWithImpl<$Res, $Val extends ProfileState>
                     ? _value.isSaving
                     : isSaving // ignore: cast_nullable_to_non_nullable
                         as bool,
+            selectedImagePath:
+                freezed == selectedImagePath
+                    ? _value.selectedImagePath
+                    : selectedImagePath // ignore: cast_nullable_to_non_nullable
+                        as String?,
             error: freezed == error ? _value.error : error,
             stackTrace:
                 freezed == stackTrace
@@ -150,6 +158,7 @@ abstract class _$$ProfileStateImplCopyWith<$Res> implements $ProfileStateCopyWit
     String? nip05,
     ProfileState? initialProfile,
     bool isSaving,
+    String? selectedImagePath,
     Object? error,
     StackTrace? stackTrace,
   });
@@ -178,6 +187,7 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
     Object? nip05 = freezed,
     Object? initialProfile = freezed,
     Object? isSaving = null,
+    Object? selectedImagePath = freezed,
     Object? error = freezed,
     Object? stackTrace = freezed,
   }) {
@@ -213,6 +223,11 @@ class __$$ProfileStateImplCopyWithImpl<$Res>
                 ? _value.isSaving
                 : isSaving // ignore: cast_nullable_to_non_nullable
                     as bool,
+        selectedImagePath:
+            freezed == selectedImagePath
+                ? _value.selectedImagePath
+                : selectedImagePath // ignore: cast_nullable_to_non_nullable
+                    as String?,
         error: freezed == error ? _value.error : error,
         stackTrace:
             freezed == stackTrace
@@ -234,6 +249,7 @@ class _$ProfileStateImpl extends _ProfileState {
     this.nip05,
     this.initialProfile,
     this.isSaving = false,
+    this.selectedImagePath,
     this.error,
     this.stackTrace,
   }) : super._();
@@ -252,13 +268,15 @@ class _$ProfileStateImpl extends _ProfileState {
   @JsonKey()
   final bool isSaving;
   @override
+  final String? selectedImagePath;
+  @override
   final Object? error;
   @override
   final StackTrace? stackTrace;
 
   @override
   String toString() {
-    return 'ProfileState(displayName: $displayName, about: $about, picture: $picture, nip05: $nip05, initialProfile: $initialProfile, isSaving: $isSaving, error: $error, stackTrace: $stackTrace)';
+    return 'ProfileState(displayName: $displayName, about: $about, picture: $picture, nip05: $nip05, initialProfile: $initialProfile, isSaving: $isSaving, selectedImagePath: $selectedImagePath, error: $error, stackTrace: $stackTrace)';
   }
 
   @override
@@ -273,6 +291,8 @@ class _$ProfileStateImpl extends _ProfileState {
             (identical(other.initialProfile, initialProfile) ||
                 other.initialProfile == initialProfile) &&
             (identical(other.isSaving, isSaving) || other.isSaving == isSaving) &&
+            (identical(other.selectedImagePath, selectedImagePath) ||
+                other.selectedImagePath == selectedImagePath) &&
             const DeepCollectionEquality().equals(other.error, error) &&
             (identical(other.stackTrace, stackTrace) || other.stackTrace == stackTrace));
   }
@@ -286,6 +306,7 @@ class _$ProfileStateImpl extends _ProfileState {
     nip05,
     initialProfile,
     isSaving,
+    selectedImagePath,
     const DeepCollectionEquality().hash(error),
     stackTrace,
   );
@@ -307,6 +328,7 @@ abstract class _ProfileState extends ProfileState {
     final String? nip05,
     final ProfileState? initialProfile,
     final bool isSaving,
+    final String? selectedImagePath,
     final Object? error,
     final StackTrace? stackTrace,
   }) = _$ProfileStateImpl;
@@ -324,6 +346,8 @@ abstract class _ProfileState extends ProfileState {
   ProfileState? get initialProfile;
   @override
   bool get isSaving;
+  @override
+  String? get selectedImagePath;
   @override
   Object? get error;
   @override

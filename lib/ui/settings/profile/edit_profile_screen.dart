@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +7,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
@@ -66,7 +69,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     }
   }
 
-  Future<void> _saveChanges() async {
+  Future<void> _saveChanges(WidgetRef ref) async {
     final profileState = ref.read(profileProvider).value;
     if (profileState == null) return;
     try {
@@ -77,8 +80,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
             about: profileState.about,
             picture: profileState.picture,
             nip05: profileState.nip05,
+            ref: ref,
           );
-
       if (!mounted) return;
       ref.showSuccessToast('Profile updated successfully');
     } catch (e) {
@@ -175,48 +178,66 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 Stack(
                                   alignment: Alignment.bottomCenter,
                                   children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: context.colors.neutral,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Container(
-                                        width: 80.w,
-                                        height: 80.w,
-                                        margin: EdgeInsets.all(5.w),
-                                        decoration: const BoxDecoration(
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: ClipOval(
+                                    ValueListenableBuilder<TextEditingValue>(
+                                      valueListenable: _displayNameController,
+                                      builder: (context, value, child) {
+                                        final displayText = value.text.trim();
+                                        final firstLetter =
+                                            displayText.isNotEmpty
+                                                ? displayText[0].toUpperCase()
+                                                : '';
+                                        final selectedImagePath =
+                                            ref.watch(profileProvider).value?.selectedImagePath ??
+                                            '';
+                                        final profilePicture =
+                                            ref.watch(profileProvider).value?.picture ?? '';
+                                        print('+: profilePicture: $profilePicture');
+                                        print('+: selectedImagePath: $selectedImagePath');
+                                        print('+: firstLetter: $firstLetter');
+                                        return CircleAvatar(
+                                          radius: 48.r,
+                                          backgroundColor: context.colors.primarySolid,
+                                          backgroundImage:
+                                              selectedImagePath.isNotEmpty
+                                                  ? FileImage(File(selectedImagePath))
+                                                  : null,
                                           child:
-                                              (profile.picture ?? '').isNotEmpty
-                                                  ? Image.network(
-                                                    profile.picture!,
-                                                    fit: BoxFit.cover,
-                                                    width: 96.w,
-                                                    height: 96.w,
-                                                    errorBuilder:
-                                                        (context, error, stackTrace) =>
-                                                            FallbackProfileImageWidget(
-                                                              displayName:
-                                                                  profile.displayName ?? 'A',
-                                                            ),
+                                              profilePicture.isNotEmpty && selectedImagePath.isEmpty
+                                                  ? ClipOval(
+                                                    child: Image.network(
+                                                      profilePicture,
+                                                      fit: BoxFit.contain,
+                                                    ),
                                                   )
-                                                  : FallbackProfileImageWidget(
-                                                    displayName: profile.displayName ?? 'A',
-                                                  ),
-                                        ),
-                                      ),
+                                                  : profilePicture.isEmpty &&
+                                                      selectedImagePath.isEmpty
+                                                  ? (firstLetter.isNotEmpty
+                                                      ? Text(
+                                                        firstLetter,
+                                                        style: TextStyle(
+                                                          fontSize: 32.sp,
+                                                          fontWeight: FontWeight.w700,
+                                                          color: context.colors.primaryForeground,
+                                                        ),
+                                                      )
+                                                      : Icon(
+                                                        CarbonIcons.user,
+                                                        size: 32.sp,
+                                                        color: context.colors.primaryForeground,
+                                                      ))
+                                                  : null,
+                                        );
+                                      },
                                     ),
                                     Positioned(
-                                      left: 1.sw * 0.5 - 10.w,
+                                      left: 1.sw * 0.5,
                                       bottom: 4.h,
                                       width: 28.w,
                                       child: EditIconWidget(
                                         onTap: () async {
                                           await ref
                                               .read(profileProvider.notifier)
-                                              .pickProfileImage();
+                                              .pickProfileImage(ref);
                                         },
                                       ),
                                     ),
@@ -292,7 +313,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         padding: EdgeInsets.only(
                           left: 16.w,
                           right: 16.w,
-                          bottom: 24.w,
+                          bottom: MediaQuery.of(context).viewPadding.bottom,
                         ),
                         child: profileState.when(
                           data:
@@ -332,7 +353,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                       Expanded(
                                                         child: AppFilledButton(
                                                           onPressed: () async {
-                                                            await _saveChanges();
+                                                            await _saveChanges(ref);
                                                             if (context.mounted) {
                                                               Navigator.of(dialogContext).pop();
                                                             }
@@ -352,7 +373,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ],
                                   AppFilledButton(
                                     onPressed:
-                                        profile.isDirty && !profile.isSaving ? _saveChanges : null,
+                                        profile.isDirty && !profile.isSaving
+                                            ? () => _saveChanges(ref)
+                                            : null,
                                     loading: profile.isSaving,
                                     title: 'Save',
                                   ),

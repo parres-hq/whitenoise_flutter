@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
+import 'package:path/path.dart' as path;
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
@@ -9,7 +11,6 @@ import 'package:whitenoise/src/rust/api/utils.dart';
 
 class ProfileNotifier extends AsyncNotifier<ProfileState> {
   final _logger = Logger('ProfileNotifier');
-  final ImagePicker _imagePicker = ImagePicker();
 
   @override
   Future<ProfileState> build() async {
@@ -47,7 +48,10 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         about: metadata?.about,
         picture: metadata?.picture,
         nip05: metadata?.nip05,
+        selectedImagePath: '',
       );
+      print('+: InitialProfileState selectedImagePath: ${profileState.selectedImagePath}');
+      print('+: InitialProfileState picture: ${profileState.picture}');
 
       state = AsyncValue.data(
         profileState.copyWith(initialProfile: profileState),
@@ -55,6 +59,10 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
     } catch (e, st) {
       _logger.severe('loadProfileData', e, st);
       state = AsyncValue.error(e.toString(), st);
+    } finally {
+      state = AsyncValue.data(
+        state.value!.copyWith(isSaving: false, stackTrace: null, error: null),
+      );
     }
   }
 
@@ -91,24 +99,25 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
     });
   }
 
-  Future<String?> pickProfileImage() async {
+  Future<void> pickProfileImage(WidgetRef ref) async {
     try {
-      final XFile? image = await _imagePicker.pickImage(
+      final XFile? image = await ImagePicker().pickImage(
         source: ImageSource.gallery,
+        maxWidth: 512,
+        maxHeight: 512,
+        imageQuality: 85,
       );
       if (image != null) {
         state.whenData(
           (value) =>
               state = AsyncValue.data(
-                value.copyWith(picture: image.path),
+                value.copyWith(selectedImagePath: image.path),
               ),
         );
-        return image.path;
       }
-      return null;
     } catch (e, st) {
       _logger.severe('pickProfileImage', e, st);
-      return null;
+      ref.showRawErrorToast('Failed to pick profile image');
     }
   }
 
@@ -117,11 +126,13 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
     String? about,
     String? picture,
     String? nip05,
+    required WidgetRef ref,
   }) async {
     state = AsyncValue.data(
       state.value!.copyWith(isSaving: true, error: null, stackTrace: null),
     );
     try {
+      String? profilePictureUrl;
       final authState = ref.read(authProvider);
       if (!authState.isAuthenticated) {
         state = AsyncValue.error('Not authenticated', StackTrace.current);
@@ -136,6 +147,27 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
+      if ((state.value?.selectedImagePath?.isNotEmpty) ?? false) {
+        final fileExtension = path.extension(state.value!.selectedImagePath!);
+        final imageType = await imageTypeFromExtension(extension_: fileExtension);
+
+        final activeAccount = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+        if (activeAccount == null) {
+          ref.showRawErrorToast('No active account found');
+          return;
+        }
+
+        final serverUrl = await getDefaultBlossomServerUrl();
+        final publicKey = await publicKeyFromString(publicKeyString: activeAccount.pubkey);
+
+        profilePictureUrl = await uploadProfilePicture(
+          pubkey: publicKey,
+          serverUrl: serverUrl,
+          filePath: state.value!.selectedImagePath!,
+          imageType: imageType,
+        );
+      }
+
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final metadata = await fetchMetadata(
         pubkey: publicKey,
@@ -146,7 +178,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       }
       metadata.displayName = displayName;
       metadata.about = about;
-      metadata.picture = picture;
+      metadata.picture = profilePictureUrl;
       metadata.nip05 = nip05;
 
       // Create a new PublicKey object just before using it to avoid disposal issues
