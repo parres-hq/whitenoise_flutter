@@ -3,22 +3,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/src/rust/api.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
-class LegacyInviteBottomSheet extends ConsumerStatefulWidget {
+class ShareInviteBottomSheet extends ConsumerStatefulWidget {
   final List<ContactModel> contacts;
   final VoidCallback? onInviteSent;
-  const LegacyInviteBottomSheet({
+  const ShareInviteBottomSheet({
     super.key,
     required this.contacts,
     this.onInviteSent,
@@ -36,7 +35,7 @@ class LegacyInviteBottomSheet extends ConsumerStatefulWidget {
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
-          (context) => LegacyInviteBottomSheet(
+          (context) => ShareInviteBottomSheet(
             contacts: contacts,
             onInviteSent: onInviteSent,
           ),
@@ -44,43 +43,20 @@ class LegacyInviteBottomSheet extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<LegacyInviteBottomSheet> createState() => _LegacyInviteBottomSheetState();
+  ConsumerState<ShareInviteBottomSheet> createState() => _ShareInviteBottomSheetState();
 }
 
-class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomSheet> {
-  final _logger = Logger('LegacyInviteBottomSheet');
+class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet> {
+  final _logger = Logger('ShareInviteBottomSheet');
   bool _isSendingInvite = false;
 
-  Future<void> _legacyInvite() async {
+  Future<void> _shareInvite() async {
     setState(() {
       _isSendingInvite = true;
     });
 
     try {
-      int successCount = 0;
-      int failureCount = 0;
-
-      for (final contact in widget.contacts) {
-        try {
-          final invited = await ref
-              .read(chatProvider.notifier)
-              .sendLegacyNip04Message(
-                contactPubkey: contact.publicKey,
-                message:
-                    'I\'d love to chat securely and keep our conversations private. White Noise offers fully encrypted, ad-free, tracker-free communication, built for privacy from the ground up. Join me here: https://whitenoise.chat',
-              );
-
-          if (invited) {
-            successCount++;
-            _logger.info('Invite sent successfully: ${contact.name} (${contact.publicKey})');
-          } else {
-            failureCount++;
-          }
-        } catch (e) {
-          failureCount++;
-          _logger.severe('Failed to send invite to ${contact.name}: $e');
-        }
-      }
+      await Share.share(kInviteMessage);
 
       if (mounted) {
         Navigator.pop(context);
@@ -89,29 +65,13 @@ class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomShee
           widget.onInviteSent!();
         }
 
-        // Show result toast
-        if (successCount > 0 && failureCount == 0) {
-          ref.showSuccessToast(
-            widget.contacts.length > 1
-                ? 'All invites sent successfully!'
-                : 'Invite sent successfully!',
-          );
-        } else if (successCount > 0 && failureCount > 0) {
-          ref.showSuccessToast('$successCount invites sent, $failureCount failed');
-        } else {
-          ref.showErrorToast('Failed to send invites');
-        }
+        // Show success toast
+        ref.showSuccessToast('Invite shared successfully!');
       }
     } catch (e) {
-      String errorMessage;
-      if (e is WhitenoiseError) {
-        errorMessage = await whitenoiseErrorToString(error: e);
-      } else {
-        errorMessage = e.toString();
-      }
+      _logger.severe('Failed to share invite: $e');
       if (mounted) {
-        ref.showRawErrorToast('Failed to send Invite');
-        _logger.severe('Failed to send invite: $errorMessage', e);
+        ref.showErrorToast('Failed to share invite');
       }
     } finally {
       if (mounted) {
@@ -224,7 +184,7 @@ class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomShee
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Invite with Legacy DM',
+                                  'Invite to White Noise',
                                   style: TextStyle(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.w600,
@@ -233,7 +193,7 @@ class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomShee
                                 ),
                                 Gap(8.h),
                                 Text(
-                                  'This contact isn\'t ready for secure messaging yet. Invite them to download White Noise?',
+                                  "${contact.name.isNotEmpty && contact.name != 'Unknown User' ? contact.name : 'This user'} isn't on White Noise yet. Share the download link to start a secure chat.",
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     color: context.colors.mutedForeground,
@@ -282,7 +242,7 @@ class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomShee
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Invite with Legacy DM',
+                                  'Invite to White Noise',
                                   style: TextStyle(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.w600,
@@ -291,7 +251,7 @@ class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomShee
                                 ),
                                 Gap(8.h),
                                 Text(
-                                  'These contacts aren\'t ready for secure messaging yet. Invite them to download White Noise?.',
+                                  'These contacts aren\'t ready for secure messaging yet. Share White Noise with them to get started!',
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     color: context.colors.mutedForeground,
@@ -323,10 +283,10 @@ class _LegacyInviteBottomSheetState extends ConsumerState<LegacyInviteBottomShee
         ],
         SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w).copyWith(bottom: 16.h),
+            padding: EdgeInsets.symmetric(horizontal: 24.w).copyWith(bottom: 4.h),
             child: AppFilledButton(
-              onPressed: _isSendingInvite ? null : _legacyInvite,
-              title: _isSendingInvite ? 'Sending invite...' : 'Invite to Chat',
+              onPressed: _isSendingInvite ? null : _shareInvite,
+              title: _isSendingInvite ? 'Sharing...' : 'Share',
             ),
           ),
         ),
