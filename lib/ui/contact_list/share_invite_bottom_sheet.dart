@@ -184,7 +184,7 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Share White Noise',
+                                  'Invite to White Noise',
                                   style: TextStyle(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.w600,
