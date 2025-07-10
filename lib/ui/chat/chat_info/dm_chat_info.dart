@@ -51,14 +51,16 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
 
   Future<void> _fetchUserMetadata(String userNpub) async {
     try {
-      final publicKey = await publicKeyFromString(publicKeyString: userNpub);
-      final metadata = await fetchMetadata(pubkey: publicKey);
-      if (metadata != null && mounted) {
+      // Use metadata cache instead of direct fetchMetadata call
+      final metadataCache = ref.read(metadataCacheProvider.notifier);
+      final contactModel = await metadataCache.getContactModel(userNpub);
+
+      if (mounted && contactModel.name != 'Unknown User') {
         setState(() {
-          otherUserNip05 = metadata.nip05;
+          otherUserNip05 = contactModel.nip05;
           // Update image path if we got fresh metadata
-          if (metadata.picture != null) {
-            otherUserImagePath = metadata.picture;
+          if (contactModel.imagePath?.isNotEmpty == true) {
+            otherUserImagePath = contactModel.imagePath;
           }
         });
       }

@@ -271,7 +271,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 Gap(10.h),
                                 AppTextFormField(
                                   controller: _nostrAddressController,
-                                  hintText: 'nin@nostr.com',
+                                  hintText: 'example@whitenoise.chat',
                                   onChanged: (value) {
                                     ref
                                         .read(profileProvider.notifier)
@@ -290,7 +290,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 Gap(10.h),
                                 AppTextFormField(
                                   controller: _aboutController,
-                                  hintText: 'Nothing can stop me now.',
+                                  hintText: 'Write something about yourself.',
                                   minLines: 3,
                                   maxLines: 3,
                                   keyboardType: TextInputType.multiline,

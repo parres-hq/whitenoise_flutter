@@ -69,9 +69,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       final ownerPk = await publicKeyFromString(publicKeyString: ownerHex);
-      final raw = await fetchContacts(pubkey: ownerPk);
+      final raw = await queryContacts(pubkey: ownerPk);
 
-      _logger.info('ContactsProvider: Loaded ${raw.length} raw contacts from backend');
+      _logger.info('ContactsProvider: Loaded ${raw.length} raw contacts from nostr database cache');
 
       // DEBUG: Check if we have duplicate metadata at the raw level
       final rawMetadataValues = <String, List<String>>{};
@@ -84,24 +84,24 @@ class ContactsNotifier extends Notifier<ContactsState> {
         }
       }
 
-      for (final entry in rawMetadataValues.entries) {
-        if (entry.value.length > 1) {
-          _logger.severe(
-            'ContactsProvider: 🔴 RAW DUPLICATE DETECTED: Name "${entry.key}" found for keys: ${entry.value}',
-          );
-        }
-      }
-
       _logger.info(
         'ContactsProvider: Raw metadata check complete - ${rawMetadataValues.length} unique names found',
       );
 
       final metadataCache = ref.read(metadataCacheProvider.notifier);
+
+      _logger.info('ContactsProvider: Pre-populating metadata cache from query results...');
+      await metadataCache.bulkPopulateFromQueryResults(raw);
+      _logger.info('ContactsProvider: Metadata cache pre-population complete');
+
       final contactModels = <ContactModel>[];
       final publicKeyMap = <String, PublicKey>{};
 
-      // First, convert all PublicKey objects to standardized string identifiers
       final keyConversions = <PublicKey, String>{};
+      _logger.info(
+        'ContactsProvider: Starting batch key conversions for ${raw.length} contacts...',
+      );
+
       for (final entry in raw.entries) {
         try {
           final npub = await npubFromPublicKey(publicKey: entry.key);
@@ -125,15 +125,58 @@ class ContactsNotifier extends Notifier<ContactsState> {
         'ContactsProvider: Successfully converted ${keyConversions.length}/${raw.length} PublicKeys',
       );
 
-      // Now fetch metadata using the cache for each converted key
+      // VALIDATION: Cross-check cache population with original queryContacts data
+      _logger.info('ContactsProvider: Validating cache consistency with query results...');
+      final cacheValidationErrors = <String>[];
+
+      for (final rawEntry in raw.entries) {
+        try {
+          final npub = await npubFromPublicKey(publicKey: rawEntry.key);
+          final queryMetadata = rawEntry.value;
+
+          // Check if our cache has the right data for this npub
+          final cached = await metadataCache.getContactModel(npub);
+
+          // Validate that the cached name matches what we'd expect from raw data
+          final expectedName = queryMetadata?.name ?? queryMetadata?.displayName ?? 'Unknown User';
+          final actualName = cached.displayNameOrName;
+
+          // Only flag as error if we expected a real name but got Unknown User, or vice versa
+          if (queryMetadata != null &&
+              actualName == 'Unknown User' &&
+              expectedName != 'Unknown User') {
+            cacheValidationErrors.add(
+              'Cache mismatch for $npub: expected "$expectedName", got "Unknown User" (metadata was lost)',
+            );
+          } else if (queryMetadata == null && actualName != 'Unknown User') {
+            cacheValidationErrors.add(
+              'Cache mismatch for $npub: expected "Unknown User", got "$actualName" (unexpected metadata)',
+            );
+          }
+        } catch (e) {
+          // Skip validation for this entry if conversion fails
+        }
+      }
+
+      if (cacheValidationErrors.isNotEmpty) {
+        _logger.warning('ContactsProvider: ⚠️ CACHE VALIDATION WARNINGS:');
+        for (final error in cacheValidationErrors) {
+          _logger.warning('  - $error - continuing with mitigation in place');
+        }
+      } else {
+        _logger.info('ContactsProvider: ✅ Cache validation passed - no inconsistencies detected');
+      }
+
+      // Now get contact models from cache (they should mostly be cached due to bulk population)
+      _logger.info('ContactsProvider: Fetching contact models from cache...');
       for (final entry in keyConversions.entries) {
         final publicKey = entry.key;
         final stringKey = entry.value;
 
         try {
-          _logger.info('ContactsProvider: Fetching metadata for key: $stringKey');
+          _logger.info('ContactsProvider: Getting cached contact model for key: $stringKey');
 
-          // Get contact model from cache (this will fetch from network if needed)
+          // Get contact model from cache (should be fast due to pre-population)
           final contactModel = await metadataCache.getContactModel(stringKey);
 
           _logger.info(
@@ -196,14 +239,28 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
       for (final entry in nameToKeys.entries) {
         if (entry.value.length > 1 && entry.key != 'Unknown User') {
-          _logger.severe(
-            'ContactsProvider: 🚨 DUPLICATE NAME DETECTED: "${entry.key}" for keys: ${entry.value}',
+          _logger.warning(
+            'ContactsProvider: 🚨 DUPLICATE NAME DETECTED: "${entry.key}" for keys: ${entry.value} - continuing with mitigation in place',
           );
         }
       }
 
+      // PERFORMANCE: Sort contacts alphabetically by display name (putting Unknown Users at bottom)
+      contactModels.sort((a, b) {
+        final aName = a.displayNameOrName;
+        final bName = b.displayNameOrName;
+
+        // Put "Unknown User" entries at the bottom
+        if (aName == 'Unknown User' && bName != 'Unknown User') return 1;
+        if (bName == 'Unknown User' && aName != 'Unknown User') return -1;
+        if (aName == 'Unknown User' && bName == 'Unknown User') return 0;
+
+        // Normal alphabetical sorting for everything else
+        return aName.toLowerCase().compareTo(bName.toLowerCase());
+      });
+
       _logger.info(
-        'ContactsProvider: ✅ Successfully processed ${contactModels.length} contacts with ${nameToKeys.length} unique names',
+        'ContactsProvider: ✅ Successfully processed ${contactModels.length} contacts with ${nameToKeys.length} unique names (sorted alphabetically)',
       );
 
       // Debug: Log all final contacts

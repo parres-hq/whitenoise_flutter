@@ -203,10 +203,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
       // VALIDATION: Log warning if null metadata doesn't result in "Unknown User"
       if (effectiveMetadata == null && contactModel.name != 'Unknown User') {
         _logger.warning(
-          '⚠️ METADATA VALIDATION: NULL effective metadata but contact name is "${contactModel.name}" instead of "Unknown User" for $fetchKey',
-        );
-        _logger.warning(
-          '⚠️ This may indicate metadata contamination - but continuing with mitigation in place',
+          '⚠️ METADATA VALIDATION: NULL effective metadata but contact name is "${contactModel.name}" instead of "Unknown User" for $fetchKey - continuing with mitigation in place',
         );
         // Continue with the contactModel as-is since our mitigation should have handled this
       }
@@ -310,6 +307,71 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
 
       rethrow;
     }
+  }
+
+  /// Bulk populate cache from queryContacts results - PERFORMANCE OPTIMIZATION
+  /// This pre-populates the metadata cache with raw results from queryContacts
+  /// to avoid redundant individual fetchMetadata calls
+  Future<void> bulkPopulateFromQueryResults(
+    Map<PublicKey, MetadataData?> queryResults,
+  ) async {
+    _logger.info(
+      '🚀 MetadataCache: Starting bulk cache population from ${queryResults.length} query results',
+    );
+
+    final newCache = Map<String, CachedMetadata>.from(state.cache);
+    int populated = 0;
+    int skipped = 0;
+
+    for (final entry in queryResults.entries) {
+      try {
+        final publicKey = entry.key;
+        final metadata = entry.value;
+
+        // Convert PublicKey to standardized npub format
+        final npub = await npubFromPublicKey(publicKey: publicKey);
+        final standardNpub = _normalizePublicKey(npub);
+
+        // Check if we already have fresh cache data
+        final existing = newCache[standardNpub];
+        if (existing != null && !existing.isExpired) {
+          skipped++;
+          continue;
+        }
+
+        // Check for Rust duplicate metadata (same detection logic as individual fetching)
+        final isRustDuplicate = _detectAndHandleRustDuplicate(standardNpub, metadata);
+        final effectiveMetadata = isRustDuplicate ? null : metadata;
+
+        // Create contact model with the validated metadata
+        final contactModel = ContactModel.fromMetadata(
+          publicKey: standardNpub,
+          metadata: effectiveMetadata,
+        );
+
+        // Cache the result
+        newCache[standardNpub] = CachedMetadata(
+          contactModel: contactModel,
+          cachedAt: DateTime.now(),
+        );
+
+        populated++;
+        _logger.info(
+          '✅ MetadataCache: Bulk cached $standardNpub -> ${contactModel.displayNameOrName}',
+        );
+      } catch (e) {
+        _logger.warning(
+          '⚠️ MetadataCache: Failed to bulk cache entry ${entry.key.hashCode}: $e',
+        );
+      }
+    }
+
+    // Update cache state
+    state = state.copyWith(cache: newCache);
+
+    _logger.info(
+      '🎉 MetadataCache: Bulk population complete - populated: $populated, skipped: $skipped',
+    );
   }
 
   /// Get multiple contact models efficiently (batch operation)

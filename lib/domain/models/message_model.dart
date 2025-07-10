@@ -1,6 +1,5 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
-
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -276,7 +275,7 @@ enum MessageStatus {
       case MessageStatus.sending:
       case MessageStatus.failed:
       case MessageStatus.sent:
-        return AssetsPaths.icCheckmarkDashed;
+        return AssetsPaths.icCheckmarkSolid;
       case MessageStatus.delivered:
         return AssetsPaths.icCheckmarkSolid;
       case MessageStatus.read:
