@@ -27,7 +27,18 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _usernameController.text = ref.read(accountProvider).metadata?.displayName ?? '';
+      // Try to load existing metadata first
+      final currentMetadata = ref.read(accountProvider).metadata;
+      if (currentMetadata?.displayName != null && currentMetadata!.displayName!.isNotEmpty) {
+        _usernameController.text = currentMetadata.displayName!;
+      } else {
+        // If no metadata, try to load it
+        await ref.read(accountProvider.notifier).loadAccountData();
+        final newMetadata = ref.read(accountProvider).metadata;
+        if (newMetadata?.displayName != null && newMetadata!.displayName!.isNotEmpty) {
+          _usernameController.text = newMetadata.displayName!;
+        }
+      }
     });
   }
 
@@ -40,6 +51,15 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Listen to account provider changes and update username when metadata is loaded
+    ref.listen<AccountState>(accountProvider, (previous, next) {
+      if (next.metadata?.displayName != null &&
+          next.metadata!.displayName!.isNotEmpty &&
+          _usernameController.text.isEmpty) {
+        _usernameController.text = next.metadata!.displayName!;
+      }
+    });
+
     return Scaffold(
       backgroundColor: context.colors.neutral,
       resizeToAvoidBottomInset: true,
@@ -169,16 +189,30 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
           padding: EdgeInsets.symmetric(
             horizontal: 24.w,
           ).copyWith(bottom: 32.h),
-          child: AppFilledButton(
-            onPressed:
-                () => ref
-                    .read(accountProvider.notifier)
-                    .updateAccountMetadata(
-                      ref,
-                      _usernameController.text.trim(),
-                      _bioController.text.trim(),
+          child: Consumer(
+            builder: (context, ref, child) {
+              final accountState = ref.watch(accountProvider);
+              return accountState.isLoading
+                  ? SizedBox(
+                    height: 56.h,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: context.colors.primary,
+                      ),
                     ),
-            title: 'Finish',
+                  )
+                  : AppFilledButton(
+                    onPressed:
+                        () => ref
+                            .read(accountProvider.notifier)
+                            .updateAccountMetadata(
+                              ref,
+                              _usernameController.text.trim(),
+                              _bioController.text.trim(),
+                            ),
+                    title: 'Finish',
+                  );
+            },
           ),
         ),
       ),
