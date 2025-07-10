@@ -8,7 +8,8 @@ pub use whitenoise::{PublicKey, Whitenoise, WhitenoiseError};
 /// This function retrieves the complete contact list for a specified account,
 /// including metadata information for each contact when available. The contacts
 /// are returned as a HashMap where keys are contact public keys and values are
-/// optional metadata.
+/// optional metadata. This uses the `fetch_contacts` method of the Whitenoise
+/// library, which will go to relays to fetch the contacts and their metadata.
 ///
 /// # Parameters
 /// * `pubkey` - The public key of the account whose contacts to fetch
@@ -38,6 +39,41 @@ pub async fn fetch_contacts(
     Ok(converted_contacts)
 }
 
+/// Queries all contacts associated with an account.
+///
+/// This function retrieves the complete contact list for a specified account,
+/// including metadata information for each contact when available. The contacts
+/// are returned as a HashMap where keys are contact public keys and values are
+/// optional metadata. This uses the `query_contacts` method of the Whitenoise
+/// library, which just hits the local nostr database cache to fetch the contacts and their metadata.
+///
+/// # Parameters
+/// * `pubkey` - The public key of the account whose contacts to fetch
+///
+/// # Returns
+/// * `Ok(HashMap<PublicKey, Option<MetadataData>>)` - Map of contact public keys to their metadata
+/// * `Err(WhitenoiseError)` - If there was an error fetching contacts or account not found
+///
+/// # Example
+/// ```rust
+/// let contacts = fetch_contacts(account_pubkey).await?;
+/// println!("Found {} contacts", contacts.len());
+/// ```
+#[frb]
+pub async fn query_contacts(
+    pubkey: PublicKey,
+) -> Result<HashMap<PublicKey, Option<MetadataData>>, WhitenoiseError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let contacts = whitenoise.query_contacts(pubkey).await?;
+    let converted_contacts = contacts
+        .into_iter()
+        .map(|(pk, metadata_opt)| {
+            let converted_metadata = metadata_opt.map(|m| convert_metadata_to_data(&m));
+            (pk, converted_metadata)
+        })
+        .collect();
+    Ok(converted_contacts)
+}
 /// Adds a new contact to an account's contact list.
 ///
 /// This function adds the specified contact public key to the account's contact list.

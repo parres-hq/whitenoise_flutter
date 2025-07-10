@@ -1,0 +1,22 @@
+# performance cache contacts metadata optimization
+**CONTACTS + METADATA CACHE OPTIMIZATION PLAN**:
+
+**Current Issues**:
+1. ContactsProvider processes contacts sequentially (slow)
+2. MetadataCache uses `fetchMetadata` while ContactsProvider uses `queryContacts` 
+3. Redundant key conversions and individual metadata fetching
+4. Risk of key format mismatches causing wrong metadata associations
+
+**Optimization Strategy**:
+1. **Pre-populate metadata cache** from queryContacts raw results before individual processing
+2. **Batch process** contact key conversions
+3. **Ensure consistent key normalization** between both providers
+4. **Add cross-validation** between queryContacts results and cache entries
+5. **Implement efficient bulk cache population** method
+
+**Key Safety Requirements**:
+- Always use standardized npub format as cache keys
+- Validate that cache entries match expected npub->metadata mappings
+- Log any mismatches between queryContacts and cache results
+- Maintain existing duplicate detection and mitigation logic
+

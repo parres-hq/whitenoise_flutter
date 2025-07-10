@@ -75,7 +75,6 @@ class MessageConverter {
           isMe: false,
           groupId: groupId,
           status: MessageStatus.delivered,
-          kind: 9, // Default to chat message kind
         );
       }
     }
@@ -244,7 +243,6 @@ class MessageConverter {
           isMe: false,
           groupId: groupId,
           status: MessageStatus.delivered,
-          kind: 9, // Default to chat message kind
         );
       }
     }
@@ -333,7 +331,6 @@ class MessageConverter {
           isMe: false,
           groupId: groupId,
           status: MessageStatus.delivered,
-          kind: 9, // Default to chat message kind
         );
       }
     }
@@ -525,7 +522,6 @@ class MessageConverter {
           isMe: false,
           groupId: groupId,
           status: MessageStatus.delivered,
-          kind: 9, // Default to chat message kind
         );
       }
     }
@@ -616,13 +612,8 @@ class MessageConverter {
   static List<Reaction> _convertReactions(ReactionSummaryData reactions) {
     final List<Reaction> convertedReactions = [];
 
-    // Debug logging
-    print('Converting reactions: ${reactions.userReactions.length} user reactions');
-
     // Convert user reactions to Reaction objects
     for (final userReaction in reactions.userReactions) {
-      print('Converting reaction: ${userReaction.emoji} by ${userReaction.user}');
-
       final user = User(
         id: userReaction.user,
         name: 'Unknown User', // Will be resolved by metadata cache later
@@ -641,7 +632,6 @@ class MessageConverter {
       convertedReactions.add(reaction);
     }
 
-    print('Converted ${convertedReactions.length} reactions');
     return convertedReactions;
   }
 

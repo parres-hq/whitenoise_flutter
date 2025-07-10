@@ -246,8 +246,8 @@ class ReactionsRow extends StatelessWidget {
                   decoration: BoxDecoration(
                     color:
                         message.isMe
-                            ? context.colors.primary.withOpacity(0.1)
-                            : context.colors.secondary.withOpacity(0.1),
+                            ? context.colors.primary.withValues(alpha: 0.1)
+                            : context.colors.secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12.r),
                   ),
                   child: RichText(
