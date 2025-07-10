@@ -193,7 +193,7 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
                                 ),
                                 Gap(8.h),
 Text(
-                                  "${contact!.name.isNotEmpty && contact.name != 'Unknown User' ? contact.name : 'This user'} isn't on White Noise yet. Share the app link to start a secure chat.",
+                                  "${contact.name.isNotEmpty && contact.name != 'Unknown User' ? contact.name : 'This user'} isn't on White Noise yet. Share the app link to start a secure chat.",
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     color: context.colors.mutedForeground,
@@ -242,7 +242,7 @@ Text(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Share White Noise',
+                                  'Invite to White Noise',
                                   style: TextStyle(
                                     fontSize: 16.sp,
                                     fontWeight: FontWeight.w600,
