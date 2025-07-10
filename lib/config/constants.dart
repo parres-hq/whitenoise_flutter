@@ -3,4 +3,4 @@ final String kBitcoinAddress =
 final String kLightningAddress = 'whitenoise@npub.cash';
 final String kSupportNpub = 'npub1zymqqmvktw8lkr5dp6zzw5xk3fkdqcynj4l3f080k3amy28ses6setzznv';
 final String kInviteMessage =
-    'I would like to write you privately. Download White Noise here: https://www.whitenoise.chat/download';
+    'Join me on White Noise. No phone number. No surveillance. Just real privacy. Download it here: https://www.whitenoise.chat/download';
