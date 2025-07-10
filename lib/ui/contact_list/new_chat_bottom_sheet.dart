@@ -12,7 +12,7 @@ import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/ui/contact_list/legacy_invite_bottom_sheet.dart';
+import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -250,7 +250,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         _logger.info('=== UI Decision Logic ===');
         _logger.info('keyPackage != null: ${keyPackage != null}');
         _logger.info(
-          'Final decision: ${keyPackage != null ? "StartSecureChatBottomSheet" : "LegacyInviteBottomSheet"}',
+          'Final decision: ${keyPackage != null ? "StartSecureChatBottomSheet" : "ShareInviteBottomSheet"}',
         );
 
         if (keyPackage != null) {
@@ -267,8 +267,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             },
           );
         } else {
-          _logger.info('Showing LegacyInviteBottomSheet for legacy invite');
-          LegacyInviteBottomSheet.show(
+          _logger.info('Showing ShareInviteBottomSheet for sharing invite');
+          ShareInviteBottomSheet.show(
             context: context,
             contacts: [contact],
             onInviteSent: () {

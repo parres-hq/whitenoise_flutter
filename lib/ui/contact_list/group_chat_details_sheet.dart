@@ -9,7 +9,7 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/ui/contact_list/legacy_invite_bottom_sheet.dart';
+import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -114,9 +114,9 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
         if (groupData != null) {
           Navigator.of(context).pop();
 
-          // Show legacy invite bottom sheet for members without keypackages
+          // Show share invite bottom sheet for members without keypackages
           if (contactsWithoutKeyPackage.isNotEmpty) {
-            await LegacyInviteBottomSheet.show(
+            await ShareInviteBottomSheet.show(
               context: context,
               contacts: contactsWithoutKeyPackage,
             );
