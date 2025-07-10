@@ -12,7 +12,7 @@
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="32" />
     <application
-        android:label="whitenoise"
+        android:label="White Noise"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

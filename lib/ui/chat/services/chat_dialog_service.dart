@@ -89,6 +89,21 @@ class ChatDialogService {
                 chatNotifier.handleReply(message);
               } else if (menuItem.label == 'Edit') {
                 chatNotifier.handleEdit(message);
+              } else if (menuItem.label == 'Copy') {
+                Clipboard.setData(ClipboardData(text: message.content ?? ''));
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Message copied to clipboard'),
+                    duration: Duration(seconds: 2),
+                  ),
+                );
+              } else if (menuItem.label == 'Delete') {
+                chatNotifier.deleteMessage(
+                  groupId: message.groupId ?? '',
+                  messageId: message.id,
+                  messageKind: message.kind,
+                  messagePubkey: message.sender.publicKey,
+                );
               }
             },
             widgetAlignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
