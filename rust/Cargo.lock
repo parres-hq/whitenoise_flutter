@@ -4796,7 +4796,7 @@ dependencies = [
 [[package]]
 name = "whitenoise"
 version = "0.1.0"
-source = "git+https://github.com/parres-hq/whitenoise?rev=08d310b66ca6448dcaa13a3dd0446f16efb09085#08d310b66ca6448dcaa13a3dd0446f16efb09085"
+source = "git+https://github.com/parres-hq/whitenoise?rev=3b281afdafd39413e01bc3d847c8df8a7d300a6b#3b281afdafd39413e01bc3d847c8df8a7d300a6b"
 dependencies = [
  "anyhow",
  "async-trait",
