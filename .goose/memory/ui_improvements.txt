@@ -55,3 +55,17 @@
 - **Type Safety**: Fixed all double/int type assignment issues for compliant code
 - **File**: `/lib/ui/contact_list/legacy_invite_bottom_sheet.dart`
 
+# chat ui design bubble padding rounded_corners
+**CHAT BUBBLE DESIGN ENHANCEMENTS**:
+- **Rounded Corners Added**: Updated CustomChatBubbleNoBorderPainter to use RRect.fromLTRBAndCorners() instead of sharp rectangles
+  - Main bubble corners: 8.0 radius for smooth, subtle rounding
+  - Tail connection corners: 2.0 radius for seamless tail integration
+- **Internal Padding Added**: Added symmetric padding to chat bubble container
+  - Horizontal: 12.w (responsive width units)
+  - Vertical: 8.h (responsive height units)
+  - Provides breathing room for text content inside bubbles
+- **Files Modified**: 
+  - `/lib/ui/chat/widgets/chat_bubble/painter.dart` - Added rounded corners to bubble painting
+  - `/lib/ui/chat/widgets/chat_bubble/bubble.dart` - Added internal padding
+- **Design Impact**: More modern, polished appearance with improved text readability and visual comfort
+

@@ -37,6 +37,8 @@ class ChatMessageBubble extends StatelessWidget {
                     maxWidth: MediaQuery.of(context).size.width * 0.8,
                   ),
               margin: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.w),
+              // Add subtle internal padding
+              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
               child: child,
             ),
           ),

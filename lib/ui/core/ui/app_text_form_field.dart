@@ -148,7 +148,7 @@ class _AppTextFormFieldState extends State<AppTextFormField> {
       fillColor: context.colors.avatarSurface,
       contentPadding: EdgeInsets.symmetric(
         horizontal: 12.w,
-        vertical: 19.h,
+        vertical: 12.h,
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.zero,

@@ -15,6 +15,7 @@ import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -157,12 +158,45 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       profiles: contactModels,
       isDismissible: isDismissible,
       showSuccessToast: showSuccessToast,
-      onProfileSelected: (selectedProfile) {
+                  onProfileSelected: (selectedProfile) async {
         // Find the corresponding AccountData
-        final selectedAccount = _accounts.firstWhere(
-          (account) => account.pubkey == selectedProfile.publicKey,
-        );
-        _switchAccount(selectedAccount);
+        // Note: selectedProfile.publicKey is in npub format (from metadata cache)
+        // but account.pubkey is in hex format (from fetchAccounts)
+        // So we need to convert npub back to hex for matching
+
+        AccountData? selectedAccount;
+
+        try {
+          // Try to convert npub to hex for matching
+          String hexKey = selectedProfile.publicKey;
+          if (selectedProfile.publicKey.startsWith('npub1')) {
+            hexKey = await hexPubkeyFromNpub(npub: selectedProfile.publicKey);
+          }
+
+          selectedAccount = _accounts
+              .where((account) => account.pubkey == hexKey)
+              .firstOrNull;
+        } catch (e) {
+          // If conversion fails, try direct matching as fallback
+          selectedAccount = _accounts
+              .where((account) => account.pubkey == selectedProfile.publicKey)
+              .firstOrNull;
+        }
+
+        if (selectedAccount != null) {
+          _switchAccount(selectedAccount);
+        } else {
+          // Account not found, reload accounts and show error
+          if (mounted) {
+            try {
+              ref.showErrorToast('Account not found. Refreshing account list...');
+            } catch (e) {
+              // Fallback if toast fails - just reload accounts silently
+              debugPrint('Toast error: $e');
+            }
+            _loadAccounts();
+          }
+        }
       },
     );
   }

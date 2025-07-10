@@ -12,21 +12,25 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
   });
 
   final double _x = 10.0;
+  final double _borderRadius = 8.0;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint =
-        Paint()
-          ..color = color
-          ..style = PaintingStyle.fill;
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.fill;
 
     if (alignment == Alignment.topRight) {
       if (tail) {
-        // Main rectangle (right side - no border radius)
-        canvas.drawRect(
-          Rect.fromLTRB(0, 0, size.width - _x, size.height),
-          paint,
+        // Main rounded rectangle (right side)
+        final mainRect = RRect.fromLTRBAndCorners(
+          0, 0, size.width - _x, size.height,
+          topLeft: Radius.circular(_borderRadius),
+          topRight: Radius.circular(2.0), // Less rounded where tail connects
+          bottomLeft: Radius.circular(_borderRadius),
+          bottomRight: Radius.circular(_borderRadius),
         );
+        canvas.drawRRect(mainRect, paint);
 
         // Tail triangle (right side)
         final path = Path();
@@ -36,19 +40,27 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
         path.close();
         canvas.drawPath(path, paint);
       } else {
-        // Rectangle without tail (right side - no border radius)
-        canvas.drawRect(
-          Rect.fromLTRB(0, 0, size.width - _x, size.height),
-          paint,
+        // Rounded rectangle without tail (right side)
+        final rect = RRect.fromLTRBAndCorners(
+          0, 0, size.width - _x, size.height,
+          topLeft: Radius.circular(_borderRadius),
+          topRight: Radius.circular(_borderRadius),
+          bottomLeft: Radius.circular(_borderRadius),
+          bottomRight: Radius.circular(_borderRadius),
         );
+        canvas.drawRRect(rect, paint);
       }
     } else {
       if (tail) {
-        // Main rectangle (left side - no border radius)
-        canvas.drawRect(
-          Rect.fromLTRB(_x, 0, size.width, size.height),
-          paint,
+        // Main rounded rectangle (left side)
+        final mainRect = RRect.fromLTRBAndCorners(
+          _x, 0, size.width, size.height,
+          topLeft: Radius.circular(2.0), // Less rounded where tail connects
+          topRight: Radius.circular(_borderRadius),
+          bottomLeft: Radius.circular(_borderRadius),
+          bottomRight: Radius.circular(_borderRadius),
         );
+        canvas.drawRRect(mainRect, paint);
 
         // Tail triangle (left side)
         final path = Path();
@@ -58,11 +70,15 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
         path.close();
         canvas.drawPath(path, paint);
       } else {
-        // Rectangle without tail (left side - no border radius)
-        canvas.drawRect(
-          Rect.fromLTRB(_x, 0, size.width, size.height),
-          paint,
+        // Rounded rectangle without tail (left side)
+        final rect = RRect.fromLTRBAndCorners(
+          _x, 0, size.width, size.height,
+          topLeft: Radius.circular(_borderRadius),
+          topRight: Radius.circular(_borderRadius),
+          bottomLeft: Radius.circular(_borderRadius),
+          bottomRight: Radius.circular(_borderRadius),
         );
+        canvas.drawRRect(rect, paint);
       }
     }
   }

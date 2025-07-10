@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -253,7 +252,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 Gap(10.h),
                                 AppTextFormField(
                                   controller: _nostrAddressController,
-                                  hintText: 'nin@nostr.com',
+                                  hintText: 'example@whitenoise.chat',
                                   onChanged: (value) {
                                     ref
                                         .read(profileProvider.notifier)
@@ -272,7 +271,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 Gap(10.h),
                                 AppTextFormField(
                                   controller: _aboutController,
-                                  hintText: 'Nothing can stop me now.',
+                                  hintText: 'Write something about yourself.',
                                   minLines: 3,
                                   maxLines: 3,
                                   keyboardType: TextInputType.multiline,

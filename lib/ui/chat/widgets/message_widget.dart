@@ -87,16 +87,17 @@ class MessageWidget extends StatelessWidget {
   }
 
   Widget _buildMessageWithTimestamp(BuildContext context, double maxWidth) {
+    // Single source of truth for message text style
+    final textStyle = TextStyle(
+      fontSize: 16.sp,
+      fontWeight: FontWeight.w500,
+      color: message.isMe ? context.colors.meChatBubbleText : context.colors.contactChatBubbleText,
+    );
+
     if (message.reactions.isEmpty) {
       final messageContent = message.content ?? '';
       final timestampWidth = _getTimestampWidth(context);
       final minPadding = 12.w;
-      final textStyle = TextStyle(
-        fontSize: 16.sp,
-        fontWeight: FontWeight.w500,
-        color:
-            message.isMe ? context.colors.meChatBubbleText : context.colors.contactChatBubbleText,
-      );
 
       final textPainter = TextPainter(
         text: TextSpan(text: messageContent, style: textStyle),
@@ -171,18 +172,12 @@ class MessageWidget extends StatelessWidget {
         ],
       );
     } else {
+      // Use the same textStyle for messages with reactions
       return SizedBox(
         width: maxWidth,
         child: Text(
           message.content ?? '',
-          style: TextStyle(
-            fontSize: 16.sp,
-            fontWeight: FontWeight.w500,
-            color:
-                message.isMe
-                    ? context.colors.meChatBubbleText
-                    : context.colors.contactChatBubbleText,
-          ),
+          style: textStyle,
           textAlign: message.isMe ? TextAlign.end : TextAlign.start,
         ),
       );
