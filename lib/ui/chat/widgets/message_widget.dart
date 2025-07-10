@@ -97,65 +97,59 @@ class MessageWidget extends StatelessWidget {
     if (message.reactions.isEmpty) {
       final messageContent = message.content ?? '';
       final timestampWidth = _getTimestampWidth(context);
-      final minPadding = 12.w;
+      final minPadding = 8.w;
 
+      // Calculate if timestamp can fit on the last line
       final textPainter = TextPainter(
         text: TextSpan(text: messageContent, style: textStyle),
-        textDirection: message.isMe ? TextDirection.rtl : TextDirection.ltr,
+        textDirection: TextDirection.ltr,
       );
 
       textPainter.layout(maxWidth: maxWidth);
-
       final lines = textPainter.computeLineMetrics();
+
       if (lines.isNotEmpty) {
         final lastLineWidth = lines.last.width;
         final availableWidth = maxWidth - lastLineWidth;
-        final fitsOnLastLine = availableWidth >= (timestampWidth + minPadding);
+        final canFitInline = availableWidth >= (timestampWidth + minPadding);
 
-        if (fitsOnLastLine && lines.length > 1) {
-          return Column(
-            crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                width: maxWidth,
-                child: RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(text: messageContent, style: textStyle),
-                      WidgetSpan(
-                        child: SizedBox(width: minPadding),
-                        alignment: PlaceholderAlignment.baseline,
-                        baseline: TextBaseline.alphabetic,
-                      ),
-                      WidgetSpan(
-                        child: TimeAndStatus(message: message, context: context),
-                        alignment: PlaceholderAlignment.baseline,
-                        baseline: TextBaseline.alphabetic,
-                      ),
-                    ],
-                  ),
+        if (canFitInline) {
+          // For very short messages, use compact layout
+          if (messageContent.length <= 12) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  messageContent,
+                  style: textStyle,
+                  textAlign: TextAlign.left,
                 ),
-              ),
-            ],
-          );
-        } else if (lines.length == 1 && fitsOnLastLine) {
+                SizedBox(width: minPadding),
+                TimeAndStatus(message: message, context: context),
+              ],
+            );
+          }
+
+          // For longer messages that fit inline, use spaceBetween layout
           return Row(
-            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Flexible(
                 child: Text(
                   messageContent,
                   style: textStyle,
+                  textAlign: TextAlign.left,
                 ),
               ),
-              SizedBox(width: minPadding),
               TimeAndStatus(message: message, context: context),
             ],
           );
         }
       }
 
+      // Fallback to separate lines when timestamp doesn't fit
       return Column(
         crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         children: [
@@ -167,19 +161,25 @@ class MessageWidget extends StatelessWidget {
               textAlign: TextAlign.start,
             ),
           ),
-          SizedBox(height: 4.w),
+          SizedBox(height: 4.h),
           TimeAndStatus(message: message, context: context),
         ],
       );
     } else {
-      // Use the same textStyle for messages with reactions
-      return SizedBox(
-        width: maxWidth,
-        child: Text(
-          message.content ?? '',
-          style: textStyle,
-          textAlign: message.isMe ? TextAlign.end : TextAlign.start,
-        ),
+      // Messages with reactions: Display text separately and timestamp in ReactionsRow
+      return Column(
+        crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: maxWidth,
+            child: Text(
+              message.content ?? '',
+              style: textStyle,
+              textAlign: TextAlign.start,
+            ),
+          ),
+          SizedBox(height: 4.h),
+        ],
       );
     }
   }
@@ -219,74 +219,77 @@ class ReactionsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        ...(() {
-          final reactionGroups = <String, List<Reaction>>{};
-          for (final reaction in message.reactions) {
-            reactionGroups.putIfAbsent(reaction.emoji, () => []).add(reaction);
-          }
-          return reactionGroups.entries.take(3).map((entry) {
-            final emoji = entry.key;
-            final count = entry.value.length;
-            return GestureDetector(
-              onTap: () {
-                // Call the reaction tap handler to add/remove reaction
-                onReactionTap?.call(emoji);
-              },
-              child: Padding(
-                padding: EdgeInsets.only(right: 8.w),
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color:
-                        message.isMe
-                            ? context.colors.primary.withValues(alpha: 0.1)
-                            : context.colors.secondary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12.r),
-                  ),
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: emoji,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color:
-                                message.isMe
-                                    ? context.colors.primaryForeground
-                                    : context.colors.mutedForeground,
-                          ),
+        Expanded(
+          child: Wrap(
+            spacing: 8.w,
+            children: [
+              ...(() {
+                final reactionGroups = <String, List<Reaction>>{};
+                for (final reaction in message.reactions) {
+                  reactionGroups.putIfAbsent(reaction.emoji, () => []).add(reaction);
+                }
+                return reactionGroups.entries.take(3).map((entry) {
+                  final emoji = entry.key;
+                  final count = entry.value.length;
+                  return GestureDetector(
+                    onTap: () {
+                      // Call the reaction tap handler to add/remove reaction
+                      onReactionTap?.call(emoji);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color:
+                            message.isMe
+                                ? context.colors.primary.withValues(alpha: 0.1)
+                                : context.colors.secondary.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12.r),
+                      ),
+                      child: RichText(
+                        text: TextSpan(
+                          children: [
+                            TextSpan(
+                              text: emoji,
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color:
+                                    message.isMe
+                                        ? context.colors.primaryForeground
+                                        : context.colors.mutedForeground,
+                              ),
+                            ),
+                            TextSpan(
+                              text: ' ${count > 99 ? '99+' : count}',
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                                color:
+                                    message.isMe
+                                        ? context.colors.primaryForeground
+                                        : context.colors.mutedForeground,
+                              ),
+                            ),
+                          ],
                         ),
-                        TextSpan(
-                          text: ' ${count > 99 ? '99+' : count}',
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                            color:
-                                message.isMe
-                                    ? context.colors.primaryForeground
-                                    : context.colors.mutedForeground,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
+                  );
+                }).toList();
+              })(),
+              if (message.reactions.length > 3)
+                Text(
+                  '...',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color:
+                        message.isMe ? context.colors.primaryForeground : context.colors.mutedForeground,
                   ),
                 ),
-              ),
-            );
-          }).toList();
-        })(),
-        if (message.reactions.length > 3)
-          Text(
-            '...',
-            style: TextStyle(
-              fontSize: 14.sp,
-              color:
-                  message.isMe ? context.colors.primaryForeground : context.colors.mutedForeground,
-            ),
+            ],
           ),
-        const Spacer(),
+        ),
         TimeAndStatus(message: message, context: context),
       ],
     );

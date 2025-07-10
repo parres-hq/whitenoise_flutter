@@ -12,7 +12,7 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
   });
 
   final double _x = 10.0;
-  final double _borderRadius = 8.0;
+  final double _borderRadius = 2.0;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -26,7 +26,7 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
         final mainRect = RRect.fromLTRBAndCorners(
           0, 0, size.width - _x, size.height,
           topLeft: Radius.circular(_borderRadius),
-          topRight: Radius.circular(2.0), // Less rounded where tail connects
+          topRight: const Radius.circular(1.0), // Less rounded where tail connects
           bottomLeft: Radius.circular(_borderRadius),
           bottomRight: Radius.circular(_borderRadius),
         );
@@ -55,7 +55,7 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
         // Main rounded rectangle (left side)
         final mainRect = RRect.fromLTRBAndCorners(
           _x, 0, size.width, size.height,
-          topLeft: Radius.circular(2.0), // Less rounded where tail connects
+          topLeft: const Radius.circular(1.0), // Less rounded where tail connects
           topRight: Radius.circular(_borderRadius),
           bottomLeft: Radius.circular(_borderRadius),
           bottomRight: Radius.circular(_borderRadius),
