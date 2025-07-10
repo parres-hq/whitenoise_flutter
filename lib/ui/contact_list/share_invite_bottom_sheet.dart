@@ -30,7 +30,7 @@ class ShareInviteBottomSheet extends ConsumerStatefulWidget {
   }) {
     return CustomBottomSheet.show(
       context: context,
-      title: 'Share White Noise',
+      title: 'Invite to Chat',
       heightFactor: 0.8,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
@@ -192,8 +192,8 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
                                   ),
                                 ),
                                 Gap(8.h),
-                                Text(
-                                  'This contact isn\'t ready for secure messaging yet. Share White Noise with them to get started!',
+Text(
+                                  "${contact!.name.isNotEmpty && contact.name != 'Unknown User' ? contact.name : 'This user'} isn't on White Noise yet. Share the app link to start a secure chat.",
                                   style: TextStyle(
                                     fontSize: 14.sp,
                                     color: context.colors.mutedForeground,
@@ -283,10 +283,10 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
         ],
         SafeArea(
           child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w).copyWith(bottom: 16.h),
+            padding: EdgeInsets.symmetric(horizontal: 24.w).copyWith(bottom: 4.h),
             child: AppFilledButton(
               onPressed: _isSendingInvite ? null : _shareInvite,
-              title: _isSendingInvite ? 'Sharing...' : 'Share White Noise',
+              title: _isSendingInvite ? 'Sharing...' : 'Share',
             ),
           ),
         ),
