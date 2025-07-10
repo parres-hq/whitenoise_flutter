@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
@@ -75,7 +76,6 @@ class MessageConverter {
           isMe: false,
           groupId: groupId,
           status: MessageStatus.delivered,
-          kind: 9, // Default to chat message kind
         );
       }
     }
@@ -244,7 +244,6 @@ class MessageConverter {
           isMe: false,
           groupId: groupId,
           status: MessageStatus.delivered,
-          kind: 9, // Default to chat message kind
         );
       }
     }
@@ -333,7 +332,6 @@ class MessageConverter {
           isMe: false,
           groupId: groupId,
           status: MessageStatus.delivered,
-          kind: 9, // Default to chat message kind
         );
       }
     }
@@ -525,7 +523,6 @@ class MessageConverter {
           isMe: false,
           groupId: groupId,
           status: MessageStatus.delivered,
-          kind: 9, // Default to chat message kind
         );
       }
     }
@@ -614,14 +611,15 @@ class MessageConverter {
 
   /// Convert ReactionSummaryData to MessageModel reactions format
   static List<Reaction> _convertReactions(ReactionSummaryData reactions) {
+    final logger = Logger('MessageConverter');
     final List<Reaction> convertedReactions = [];
 
     // Debug logging
-    print('Converting reactions: ${reactions.userReactions.length} user reactions');
+    logger.info('Converting reactions: ${reactions.userReactions.length} user reactions');
 
     // Convert user reactions to Reaction objects
     for (final userReaction in reactions.userReactions) {
-      print('Converting reaction: ${userReaction.emoji} by ${userReaction.user}');
+      logger.info('Converting reaction: ${userReaction.emoji} by ${userReaction.user}');
 
       final user = User(
         id: userReaction.user,
@@ -641,7 +639,7 @@ class MessageConverter {
       convertedReactions.add(reaction);
     }
 
-    print('Converted ${convertedReactions.length} reactions');
+    logger.info('Converted ${convertedReactions.length} reactions');
     return convertedReactions;
   }
 

@@ -50,8 +50,6 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         nip05: metadata?.nip05,
         selectedImagePath: '',
       );
-      print('+: InitialProfileState selectedImagePath: ${profileState.selectedImagePath}');
-      print('+: InitialProfileState picture: ${profileState.picture}');
 
       state = AsyncValue.data(
         profileState.copyWith(initialProfile: profileState),

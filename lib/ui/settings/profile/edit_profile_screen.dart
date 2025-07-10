@@ -191,9 +191,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                             '';
                                         final profilePicture =
                                             ref.watch(profileProvider).value?.picture ?? '';
-                                        print('+: profilePicture: $profilePicture');
-                                        print('+: selectedImagePath: $selectedImagePath');
-                                        print('+: firstLetter: $firstLetter');
                                         return CircleAvatar(
                                           radius: 48.r,
                                           backgroundColor: context.colors.primarySolid,
