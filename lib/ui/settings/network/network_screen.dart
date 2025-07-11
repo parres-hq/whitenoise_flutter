@@ -35,7 +35,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
   Future<void> _refreshData() async {
     // Önce relay status provider'ı yenile
     await ref.read(relayStatusProvider.notifier).loadRelayStatuses();
-    
+
     // Sonra tüm relay provider'ları yenile
     await Future.wait([
       ref.read(normalRelaysProvider.notifier).loadRelays(),
