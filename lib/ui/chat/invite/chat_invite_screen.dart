@@ -2,12 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
-import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/welcomes.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
+import 'package:whitenoise/utils/string_extensions.dart';
 
 class ChatInviteScreen extends ConsumerWidget {
   final String groupId;
@@ -44,85 +50,14 @@ class ChatInviteScreen extends ConsumerWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
-            child: Column(
-              children: [
-                Icon(
-                  Icons.group,
-                  size: 64.r,
-                  color: context.colors.primary,
-                ),
-                SizedBox(height: 16.h),
-                Text(
-                  welcomeData.groupName,
-                  style: TextStyle(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.bold,
-                    color: context.colors.primary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                if (welcomeData.groupDescription.isNotEmpty) ...[
-                  SizedBox(height: 8.h),
-                  Text(
-                    welcomeData.groupDescription,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      color: context.colors.mutedForeground,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-                SizedBox(height: 16.h),
-                Container(
-                  padding: EdgeInsets.all(12.w),
-                  decoration: BoxDecoration(
-                    color: context.colors.border,
-                    borderRadius: BorderRadius.circular(8.r),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.people,
-                        size: 16.r,
-                        color: context.colors.mutedForeground,
-                      ),
-                      SizedBox(width: 8.w),
-                      Text(
-                        '${welcomeData.memberCount} members',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: context.colors.mutedForeground,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Spacer to push buttons to bottom
+          _buildInviteHeader(context, ref, welcomeData),
           const Spacer(),
-
-          // Accept/Decline buttons
           Container(
             padding: EdgeInsets.all(24.w),
 
             child: SafeArea(
               child: Column(
                 children: [
-                  AppFilledButton(
-                    title: 'Accept',
-                    onPressed: () async {
-                      await welcomesNotifier.acceptWelcomeInvitation(inviteId);
-                      if (context.mounted) {
-                        Routes.goToChat(context, groupId);
-                      }
-                    },
-                  ),
                   Gap(4.h),
                   AppFilledButton(
                     title: 'Decline',
@@ -134,12 +69,219 @@ class ChatInviteScreen extends ConsumerWidget {
                       }
                     },
                   ),
+                  AppFilledButton(
+                    title: 'Accept',
+                    onPressed: () async {
+                      try {
+                        // Accept the invitation first
+                        final success = await welcomesNotifier.acceptWelcomeInvitation(inviteId);
+
+                        if (success && context.mounted) {
+                          // Load group details after accepting
+                          final groupsNotifier = ref.read(groupsProvider.notifier);
+
+                          // First, reload all groups to get the newly joined group
+                          await groupsNotifier.loadGroups();
+
+                          // Add a delay to allow the backend to fully process the join
+                          await Future.delayed(const Duration(milliseconds: 1000));
+
+                          if (context.mounted) {
+                            // Use pushReplacement to completely replace the current screen
+                            // This ensures the chat screen starts fresh and loads everything properly
+                            context.pushReplacement('/chats/$groupId');
+                          }
+                        }
+                      } catch (e) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Error accepting invitation: $e'),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildInviteHeader(BuildContext context, WidgetRef ref, WelcomeData welcomeData) {
+    final isDMInvite = welcomeData.memberCount <= 2;
+
+    if (isDMInvite) {
+      return _buildDMInviteHeader(context, ref, welcomeData);
+    } else {
+      return _buildGroupInviteHeader(context, ref, welcomeData);
+    }
+  }
+
+  Widget _buildGroupInviteHeader(BuildContext context, WidgetRef ref, WelcomeData welcomeData) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        children: [
+          Gap(32.h),
+          ContactAvatar(
+            imageUrl: '',
+            displayName: welcomeData.groupName,
+            size: 96.r,
+            showBorder: true,
+          ),
+          Gap(12.h),
+          Text(
+            welcomeData.groupName,
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+              color: context.colors.primary,
+            ),
+          ),
+          Gap(16.h),
+          FutureBuilder(
+            future: npubFromHexPubkey(hexPubkey: welcomeData.nostrGroupId),
+            builder: (context, asyncSnapshot) {
+              final groupNpub = asyncSnapshot.data ?? '';
+              return Text(
+                groupNpub.formatPublicKey(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: context.colors.mutedForeground,
+                ),
+              );
+            },
+          ),
+          Gap(12.h),
+          if (welcomeData.groupDescription.isNotEmpty) ...[
+            Text(
+              'Group Description:',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: context.colors.mutedForeground,
+              ),
+            ),
+            Gap(4.h),
+            Text(
+              welcomeData.groupDescription,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: context.colors.primary,
+              ),
+            ),
+            Gap(16.h),
+          ],
+          Text.rich(
+            TextSpan(
+              text: 'Group Chat Invitation • ',
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: context.colors.mutedForeground,
+              ),
+              children: [
+                TextSpan(
+                  text: '${welcomeData.memberCount} members',
+                  style: TextStyle(
+                    color: context.colors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Gap(32.h),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDMInviteHeader(BuildContext context, WidgetRef ref, WelcomeData welcomeData) {
+    final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
+
+    return FutureBuilder(
+      future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
+      builder: (context, snapshot) {
+        final welcomerContact = snapshot.data;
+        final welcomerName = welcomerContact?.displayNameOrName ?? 'Unknown User';
+        final welcomerImageUrl = welcomerContact?.imagePath ?? '';
+
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          child: Column(
+            children: [
+              Gap(32.h),
+              ContactAvatar(
+                imageUrl: welcomerImageUrl,
+                displayName: welcomerName,
+                size: 96.r,
+                showBorder: true,
+              ),
+              Gap(12.h),
+              Text(
+                welcomerName.capitalizeFirst,
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.primary,
+                ),
+              ),
+              Gap(4.h),
+              Text(
+                welcomerContact?.nip05 ?? '',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: context.colors.mutedForeground,
+                ),
+              ),
+              Gap(12.h),
+              FutureBuilder(
+                future: npubFromHexPubkey(hexPubkey: welcomeData.welcomer),
+                builder: (context, asyncSnapshot) {
+                  final welcomerNpub = asyncSnapshot.data ?? '';
+                  return Text(
+                    welcomerNpub.formatPublicKey(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      color: context.colors.mutedForeground,
+                    ),
+                  );
+                },
+              ),
+              Gap(32.h),
+              Text.rich(
+                TextSpan(
+                  text: welcomerName,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+
+                    color: context.colors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                  children: [
+                    TextSpan(
+                      text: ' invited you to a secure chat.',
+                      style: TextStyle(
+                        color: context.colors.mutedForeground,
+                      ),
+                    ),
+                  ],
+                ),
+                textAlign: TextAlign.center,
+              ),
+              Gap(32.h),
+            ],
+          ),
+        );
+      },
     );
   }
 }

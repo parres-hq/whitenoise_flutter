@@ -39,9 +39,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
-      ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
-      _handleScrollToBottom();
+      if (widget.inviteId == null) {
+        ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
+        ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
+        _handleScrollToBottom();
+      }
     });
 
     ref.listenManual(chatProvider, (previous, next) {

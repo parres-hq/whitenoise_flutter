@@ -175,5 +175,4 @@ class ChatListItemTile extends ConsumerWidget {
       ),
     );
   }
-
 }

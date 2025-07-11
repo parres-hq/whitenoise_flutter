@@ -31,7 +31,6 @@ class WelcomeNotificationService {
     ref.read(welcomesProvider.notifier).clearOnNewWelcomeCallback();
   }
 
-
   /// Show welcome invitation bottom sheet
   static Future<void> _showWelcomeBottomSheet(
     BuildContext context,

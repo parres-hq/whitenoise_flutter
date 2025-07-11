@@ -25,7 +25,7 @@ class WelcomeTile extends ConsumerWidget {
     if (welcomeData == null) {
       return const SizedBox.shrink();
     }
-    
+
     final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
 
     return FutureBuilder(
