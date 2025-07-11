@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
+import 'package:whitenoise/config/providers/toast_message_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
@@ -15,7 +16,7 @@ import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
-class ChatInviteScreen extends ConsumerWidget {
+class ChatInviteScreen extends ConsumerStatefulWidget {
   final String groupId;
   final String inviteId;
 
@@ -26,9 +27,16 @@ class ChatInviteScreen extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final welcomesNotifier = ref.read(welcomesProvider.notifier);
-    final welcomeData = welcomesNotifier.getWelcomeById(inviteId);
+  ConsumerState<ChatInviteScreen> createState() => _ChatInviteScreenState();
+}
+
+class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
+  bool _isAccepting = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final welcomesNotifier = ref.watch(welcomesProvider.notifier);
+    final welcomeData = welcomesNotifier.getWelcomeById(widget.inviteId);
     if (welcomeData == null) {
       return Scaffold(
         backgroundColor: context.colors.neutral,
@@ -45,7 +53,7 @@ class ChatInviteScreen extends ConsumerWidget {
       appBar: CustomAppBar(
         title:
             isDMInvite
-                ? _buildDMAppBarTitle(ref, welcomeData)
+                ? DMAppBarTitle(welcomeData: welcomeData)
                 : ContactInfo(
                   title: welcomeData.groupName,
                   imageUrl: '',
@@ -54,7 +62,7 @@ class ChatInviteScreen extends ConsumerWidget {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _buildInviteHeader(context, ref, welcomeData),
+          InviteHeader(welcomeData: welcomeData),
           const Spacer(),
           Container(
             padding: EdgeInsets.all(24.w),
@@ -66,7 +74,7 @@ class ChatInviteScreen extends ConsumerWidget {
                     title: 'Decline',
                     visualState: AppButtonVisualState.secondary,
                     onPressed: () async {
-                      await welcomesNotifier.declineWelcomeInvitation(inviteId);
+                      await welcomesNotifier.declineWelcomeInvitation(widget.inviteId);
                       if (context.mounted) {
                         Navigator.of(context).pop();
                       }
@@ -75,27 +83,38 @@ class ChatInviteScreen extends ConsumerWidget {
                   Gap(8.h),
                   AppFilledButton(
                     title: 'Accept',
-                    onPressed: () async {
-                      try {
-                        final success = await welcomesNotifier.acceptWelcomeInvitation(inviteId);
-                        if (success && context.mounted) {
-                          final groupsNotifier = ref.read(groupsProvider.notifier);
-                          await groupsNotifier.loadGroups();
-                          await Future.delayed(const Duration(milliseconds: 1000));
-                          if (context.mounted) {
-                            context.pushReplacement('/chats/$groupId');
-                          }
-                        }
-                      } catch (e) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Error accepting invitation: $e'),
-                            ),
-                          );
-                        }
-                      }
-                    },
+                    loading: _isAccepting,
+                    onPressed:
+                        _isAccepting
+                            ? null
+                            : () async {
+                              setState(() {
+                                _isAccepting = true;
+                              });
+                              try {
+                                final success = await welcomesNotifier.acceptWelcomeInvitation(
+                                  widget.inviteId,
+                                );
+                                if (success && context.mounted) {
+                                  final groupsNotifier = ref.read(groupsProvider.notifier);
+                                  await groupsNotifier.loadGroups();
+                                  await Future.delayed(const Duration(milliseconds: 1000));
+                                  if (context.mounted) {
+                                    context.pushReplacement('/chats/${widget.groupId}');
+                                  }
+                                }
+                              } catch (e) {
+                                ref
+                                    .read(toastMessageProvider.notifier)
+                                    .showError('Error accepting invitation: $e');
+                              } finally {
+                                if (mounted) {
+                                  setState(() {
+                                    _isAccepting = false;
+                                  });
+                                }
+                              }
+                            },
                   ),
                 ],
               ),
@@ -105,18 +124,38 @@ class ChatInviteScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildInviteHeader(BuildContext context, WidgetRef ref, WelcomeData welcomeData) {
+class InviteHeader extends ConsumerWidget {
+  final WelcomeData welcomeData;
+
+  const InviteHeader({
+    super.key,
+    required this.welcomeData,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDMInvite = welcomeData.memberCount <= 2;
 
     if (isDMInvite) {
-      return _buildDMInviteHeader(context, ref, welcomeData);
+      return DMInviteHeader(welcomeData: welcomeData);
     } else {
-      return _buildGroupInviteHeader(context, ref, welcomeData);
+      return GroupInviteHeader(welcomeData: welcomeData);
     }
   }
+}
 
-  Widget _buildGroupInviteHeader(BuildContext context, WidgetRef ref, WelcomeData welcomeData) {
+class GroupInviteHeader extends StatelessWidget {
+  final WelcomeData welcomeData;
+
+  const GroupInviteHeader({
+    super.key,
+    required this.welcomeData,
+  });
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
@@ -196,8 +235,18 @@ class ChatInviteScreen extends ConsumerWidget {
       ),
     );
   }
+}
 
-  Widget _buildDMInviteHeader(BuildContext context, WidgetRef ref, WelcomeData welcomeData) {
+class DMInviteHeader extends ConsumerWidget {
+  final WelcomeData welcomeData;
+
+  const DMInviteHeader({
+    super.key,
+    required this.welcomeData,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
 
     return FutureBuilder(
@@ -256,7 +305,6 @@ class ChatInviteScreen extends ConsumerWidget {
                   text: welcomerName,
                   style: TextStyle(
                     fontSize: 14.sp,
-
                     color: context.colors.primary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -278,8 +326,18 @@ class ChatInviteScreen extends ConsumerWidget {
       },
     );
   }
+}
 
-  Widget _buildDMAppBarTitle(WidgetRef ref, WelcomeData welcomeData) {
+class DMAppBarTitle extends ConsumerWidget {
+  final WelcomeData welcomeData;
+
+  const DMAppBarTitle({
+    super.key,
+    required this.welcomeData,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
     final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
 
     return FutureBuilder(
