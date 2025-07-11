@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 
 class ChatInviteScreen extends ConsumerWidget {
@@ -108,64 +110,29 @@ class ChatInviteScreen extends ConsumerWidget {
           // Accept/Decline buttons
           Container(
             padding: EdgeInsets.all(24.w),
-            decoration: BoxDecoration(
-              color: context.colors.neutral,
-              border: Border(
-                top: BorderSide(
-                  color: context.colors.border,
-                ),
-              ),
-            ),
+
             child: SafeArea(
               child: Column(
                 children: [
-                  ElevatedButton(
+                  AppFilledButton(
+                    title: 'Accept',
+                    onPressed: () async {
+                      await welcomesNotifier.acceptWelcomeInvitation(inviteId);
+                      if (context.mounted) {
+                        Routes.goToChat(context, groupId);
+                      }
+                    },
+                  ),
+                  Gap(4.h),
+                  AppFilledButton(
+                    title: 'Decline',
+                    visualState: AppButtonVisualState.secondary,
                     onPressed: () async {
                       await welcomesNotifier.declineWelcomeInvitation(inviteId);
                       if (context.mounted) {
                         Navigator.of(context).pop();
                       }
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: context.colors.destructive,
-                      foregroundColor: Colors.white,
-                      padding: EdgeInsets.symmetric(vertical: 16.h),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                    child: Text(
-                      'Decline',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 16.w),
-                  ElevatedButton(
-                    onPressed: () async {
-                      await welcomesNotifier.acceptWelcomeInvitation(inviteId);
-                      if (context.mounted) {
-                        // Navigate to normal chat after accepting
-                        Routes.goToChat(context, groupId);
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: context.colors.primary,
-                      foregroundColor: context.colors.primaryForeground,
-                      padding: EdgeInsets.symmetric(vertical: 16.h),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8.r),
-                      ),
-                    ),
-                    child: Text(
-                      'Accept',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
                   ),
                 ],
               ),
