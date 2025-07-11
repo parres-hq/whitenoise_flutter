@@ -11,8 +11,6 @@ import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
-import 'package:whitenoise/src/rust/api.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -67,38 +65,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      ref.showErrorToast('Failed to load profile: ${e.toString()}');
-    }
-  }
-
-  Future<void> _saveChanges(WidgetRef ref) async {
-    final profileState = ref.read(profileProvider).value;
-    if (profileState == null) return;
-    try {
-      await ref
-          .read(profileProvider.notifier)
-          .updateProfileData(
-            displayName: profileState.displayName,
-            about: profileState.about,
-            picture: profileState.picture,
-            nip05: profileState.nip05,
-            ref: ref,
-          );
-      if (!mounted) return;
-      ref.showSuccessToast('Profile updated successfully');
-    } catch (e) {
-      if (!mounted) return;
-      String? errorMessage;
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          errorMessage = 'Failed to update profile due to an internal error';
-        }
-      } else {
-        errorMessage = e.toString();
-      }
-      ref.showRawErrorToast('Failed to update profile: $errorMessage');
+      ref.showRawErrorToast('Failed to load profile}');
     }
   }
 
@@ -107,7 +74,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     ref.listen(profileProvider, (previous, next) {
       next.whenData((profile) {
         if (profile.error != null) {
-          ref.showErrorToast('Error: ${profile.error}');
+          ref.showRawErrorToast('Error: ${profile.error}');
         }
 
         // If the save was successful, `fetchProfileData` is called, which will
@@ -369,7 +336,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                       Expanded(
                                                         child: AppFilledButton(
                                                           onPressed: () async {
-                                                            await _saveChanges(ref);
+                                                            await ref
+                                                                .read(profileProvider.notifier)
+                                                                .updateProfileData(ref: ref);
                                                             if (context.mounted) {
                                                               Navigator.of(dialogContext).pop();
                                                             }
@@ -390,7 +359,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   AppFilledButton(
                                     onPressed:
                                         profile.isDirty && !profile.isSaving
-                                            ? () => _saveChanges(ref)
+                                            ? () async => await ref
+                                                .read(profileProvider.notifier)
+                                                .updateProfileData(ref: ref)
                                             : null,
                                     loading: profile.isSaving,
                                     title: 'Save',

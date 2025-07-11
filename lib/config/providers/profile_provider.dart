@@ -6,6 +6,7 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
+import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 
@@ -120,10 +121,6 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
   }
 
   Future<void> updateProfileData({
-    String? displayName,
-    String? about,
-    String? picture,
-    String? nip05,
     required WidgetRef ref,
   }) async {
     state = AsyncValue.data(
@@ -134,6 +131,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       final authState = ref.read(authProvider);
       if (!authState.isAuthenticated) {
         state = AsyncValue.error('Not authenticated', StackTrace.current);
+        ref.showErrorToast('Not authenticated');
         return;
       }
 
@@ -142,6 +140,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
+        ref.showErrorToast('No active account found');
         return;
       }
 
@@ -174,10 +173,12 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       if (metadata == null) {
         throw Exception('Metadata not found');
       }
-      metadata.displayName = displayName;
-      metadata.about = about;
-      metadata.picture = profilePictureUrl;
-      metadata.nip05 = nip05;
+      
+      final currentState = state.value!;
+      metadata.displayName = currentState.displayName;
+      metadata.about = currentState.about;
+      metadata.picture = profilePictureUrl ?? currentState.picture;
+      metadata.nip05 = currentState.nip05;
 
       // Create a new PublicKey object just before using it to avoid disposal issues
       final publicKeyForUpdate = await publicKeyFromString(
@@ -190,12 +191,25 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       );
 
       await fetchProfileData();
+      ref.showSuccessToast('Profile updated successfully');
     } catch (e, st) {
       _logger.severe('updateProfileData', e, st);
       state = AsyncValue.data(
         state.value!.copyWith(isSaving: false, error: e, stackTrace: st),
       );
-      rethrow;
+      
+      // Handle error messaging
+      String? errorMessage;
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+        } catch (conversionError) {
+          errorMessage = 'Failed to update profile due to an internal error';
+        }
+      } else {
+        errorMessage = e.toString();
+      }
+      ref.showRawErrorToast('Failed to update profile: $errorMessage');
     }
   }
 }
