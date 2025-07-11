@@ -5,7 +5,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/welcomes_provider.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
+import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/chat/services/chat_dialog_service.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input.dart';
@@ -18,10 +21,12 @@ import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String groupId;
+  final String? inviteId;
 
   const ChatScreen({
     super.key,
     required this.groupId,
+    this.inviteId,
   });
 
   @override
@@ -105,14 +110,34 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
-    final groupData = groupsNotifier.findGroupById(widget.groupId);
-    final displayName =
-        groupsNotifier.getGroupDisplayName(widget.groupId) ?? groupData?.name ?? 'Unknown Group';
-
     final chatNotifier = ref.watch(chatProvider.notifier);
 
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardOpen = keyboardHeight > 0;
+
+    final isInviteMode = widget.inviteId != null;
+
+    if (isInviteMode) {
+      // In invite mode, get group info from welcome data
+      final welcomesNotifier = ref.read(welcomesProvider.notifier);
+      final welcomeData = welcomesNotifier.getWelcomeById(widget.inviteId!);
+
+      if (welcomeData == null) {
+        return Scaffold(
+          backgroundColor: context.colors.neutral,
+          body: const Center(
+            child: Text('Invitation not found'),
+          ),
+        );
+      }
+
+      return _buildInviteMode(context, welcomeData);
+    }
+
+    // Normal chat mode - get group info from groups provider
+    final groupData = groupsNotifier.findGroupById(widget.groupId);
+    final displayName =
+        groupsNotifier.getGroupDisplayName(widget.groupId) ?? groupData?.name ?? 'Unknown Group';
 
     if (groupData == null) {
       return Scaffold(
@@ -266,6 +291,161 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
             );
           }
         },
+      ),
+    );
+  }
+
+  Widget _buildInviteMode(BuildContext context, WelcomeData welcomeData) {
+    final welcomesNotifier = ref.read(welcomesProvider.notifier);
+
+    return Scaffold(
+      backgroundColor: context.colors.neutral,
+      appBar: AppBar(
+        title: ContactInfo(
+          title: welcomeData.groupName,
+          imageUrl: '',
+          onTap: () {}, // Disable info tap for invites
+        ),
+        backgroundColor: context.colors.neutral,
+        elevation: 0,
+      ),
+      body: Column(
+        children: [
+          // Invite info display
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.group,
+                  size: 64.r,
+                  color: context.colors.primary,
+                ),
+                SizedBox(height: 16.h),
+                Text(
+                  welcomeData.groupName,
+                  style: TextStyle(
+                    fontSize: 24.sp,
+                    fontWeight: FontWeight.bold,
+                    color: context.colors.primary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                if (welcomeData.groupDescription.isNotEmpty) ...[
+                  SizedBox(height: 8.h),
+                  Text(
+                    welcomeData.groupDescription,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      color: context.colors.mutedForeground,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+                SizedBox(height: 16.h),
+                Container(
+                  padding: EdgeInsets.all(12.w),
+                  decoration: BoxDecoration(
+                    color: context.colors.mutedForeground,
+                    borderRadius: BorderRadius.circular(8.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.people,
+                        size: 16.r,
+                        color: context.colors.mutedForeground,
+                      ),
+                      SizedBox(width: 8.w),
+                      Text(
+                        '${welcomeData.memberCount} members',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color: context.colors.mutedForeground,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Spacer to push buttons to bottom
+          const Spacer(),
+
+          // Accept/Decline buttons
+          Container(
+            padding: EdgeInsets.all(24.w),
+            decoration: BoxDecoration(
+              color: context.colors.neutral,
+              border: Border(
+                top: BorderSide(
+                  color: context.colors.border,
+                ),
+              ),
+            ),
+            child: SafeArea(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await welcomesNotifier.declineWelcomeInvitation(widget.inviteId!);
+                        if (context.mounted) {
+                          context.pop();
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: context.colors.destructive,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 16.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                      child: Text(
+                        'Decline',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 16.w),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        await welcomesNotifier.acceptWelcomeInvitation(widget.inviteId!);
+                        if (context.mounted) {
+                          // Reload the same screen without inviteId to show normal chat
+                          Routes.goToChat(context, widget.groupId);
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: context.colors.primary,
+                        foregroundColor: context.colors.primaryForeground,
+                        padding: EdgeInsets.symmetric(vertical: 16.h),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.r),
+                        ),
+                      ),
+                      child: Text(
+                        'Accept',
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
