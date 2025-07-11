@@ -38,13 +38,18 @@ class ChatInviteScreen extends ConsumerWidget {
       );
     }
 
+    final isDMInvite = welcomeData.memberCount <= 2;
+
     return Scaffold(
       backgroundColor: context.colors.neutral,
       appBar: CustomAppBar(
-        title: ContactInfo(
-          title: welcomeData.groupName,
-          imageUrl: '',
-        ),
+        title:
+            isDMInvite
+                ? _buildDMAppBarTitle(ref, welcomeData)
+                : ContactInfo(
+                  title: welcomeData.groupName,
+                  imageUrl: '',
+                ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -72,22 +77,12 @@ class ChatInviteScreen extends ConsumerWidget {
                     title: 'Accept',
                     onPressed: () async {
                       try {
-                        // Accept the invitation first
                         final success = await welcomesNotifier.acceptWelcomeInvitation(inviteId);
-
                         if (success && context.mounted) {
-                          // Load group details after accepting
                           final groupsNotifier = ref.read(groupsProvider.notifier);
-
-                          // First, reload all groups to get the newly joined group
                           await groupsNotifier.loadGroups();
-
-                          // Add a delay to allow the backend to fully process the join
                           await Future.delayed(const Duration(milliseconds: 1000));
-
                           if (context.mounted) {
-                            // Use pushReplacement to completely replace the current screen
-                            // This ensures the chat screen starts fresh and loads everything properly
                             context.pushReplacement('/chats/$groupId');
                           }
                         }
@@ -279,6 +274,24 @@ class ChatInviteScreen extends ConsumerWidget {
               Gap(32.h),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDMAppBarTitle(WidgetRef ref, WelcomeData welcomeData) {
+    final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
+
+    return FutureBuilder(
+      future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
+      builder: (context, snapshot) {
+        final welcomerContact = snapshot.data;
+        final welcomerName = welcomerContact?.displayNameOrName ?? 'Unknown User';
+        final welcomerImageUrl = welcomerContact?.imagePath ?? '';
+
+        return ContactInfo(
+          title: welcomerName,
+          imageUrl: welcomerImageUrl,
         );
       },
     );
