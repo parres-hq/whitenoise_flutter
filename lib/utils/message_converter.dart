@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';

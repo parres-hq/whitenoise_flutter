@@ -11,6 +11,8 @@ import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
+import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -86,7 +88,17 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ref.showSuccessToast('Profile updated successfully');
     } catch (e) {
       if (!mounted) return;
-      ref.showErrorToast('Failed to update profile: ${e.toString()}');
+      String? errorMessage;
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+        } catch (conversionError) {
+          errorMessage = 'Failed to update profile due to an internal error';
+        }
+      } else {
+        errorMessage = e.toString();
+      }
+      ref.showRawErrorToast('Failed to update profile: $errorMessage');
     }
   }
 
@@ -191,38 +203,45 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                             '';
                                         final profilePicture =
                                             ref.watch(profileProvider).value?.picture ?? '';
-                                        return CircleAvatar(
-                                          radius: 48.r,
-                                          backgroundColor: context.colors.primarySolid,
-                                          backgroundImage:
-                                              selectedImagePath.isNotEmpty
-                                                  ? FileImage(File(selectedImagePath))
-                                                  : null,
-                                          child:
-                                              profilePicture.isNotEmpty && selectedImagePath.isEmpty
-                                                  ? ClipOval(
-                                                    child: Image.network(
-                                                      profilePicture,
-                                                      fit: BoxFit.contain,
-                                                    ),
-                                                  )
-                                                  : profilePicture.isEmpty &&
-                                                      selectedImagePath.isEmpty
-                                                  ? (firstLetter.isNotEmpty
-                                                      ? Text(
-                                                        firstLetter,
-                                                        style: TextStyle(
-                                                          fontSize: 32.sp,
-                                                          fontWeight: FontWeight.w700,
-                                                          color: context.colors.primaryForeground,
-                                                        ),
+                                        return ClipOval(
+                                          child: Container(
+                                            width: 96.w,
+                                            height: 96.w,
+                                            decoration: BoxDecoration(
+                                              color: context.colors.primarySolid,
+                                              image:
+                                                  selectedImagePath.isNotEmpty
+                                                      ? DecorationImage(
+                                                        image: FileImage(File(selectedImagePath)),
+                                                        fit: BoxFit.cover,
                                                       )
-                                                      : Icon(
-                                                        CarbonIcons.user,
-                                                        size: 32.sp,
-                                                        color: context.colors.primaryForeground,
-                                                      ))
-                                                  : null,
+                                                      : null,
+                                            ),
+                                            child:
+                                                profilePicture.isNotEmpty &&
+                                                        selectedImagePath.isEmpty
+                                                    ? Image.network(
+                                                      profilePicture,
+                                                      fit: BoxFit.cover,
+                                                    )
+                                                    : profilePicture.isEmpty &&
+                                                        selectedImagePath.isEmpty
+                                                    ? (firstLetter.isNotEmpty
+                                                        ? Text(
+                                                          firstLetter,
+                                                          style: TextStyle(
+                                                            fontSize: 32.sp,
+                                                            fontWeight: FontWeight.w700,
+                                                            color: context.colors.primaryForeground,
+                                                          ),
+                                                        )
+                                                        : Icon(
+                                                          CarbonIcons.user,
+                                                          size: 32.sp,
+                                                          color: context.colors.primaryForeground,
+                                                        ))
+                                                    : null,
+                                          ),
                                         );
                                       },
                                     ),
