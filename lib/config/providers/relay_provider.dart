@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
@@ -71,10 +72,20 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
         relayType: relayType,
       );
 
+      // Ensure relay status provider is loaded first
+      final statusState = ref.read(relayStatusProvider);
+      if (statusState.relayStatuses.isEmpty && !statusState.isLoading) {
+        await ref.read(relayStatusProvider.notifier).loadRelayStatuses();
+      }
+
       final relayInfos = await Future.wait(
         relayUrls.map((relayUrl) async {
           final url = await stringFromRelayUrl(relayUrl: relayUrl);
-          return RelayInfo(url: url, connected: false);
+          // Get status from relay status provider
+          final statusNotifier = ref.read(relayStatusProvider.notifier);
+          final status = statusNotifier.getRelayStatus(url);
+          final connected = statusNotifier.isRelayConnected(url);
+          return RelayInfo(url: url, connected: connected, status: status);
         }),
       );
 
@@ -208,10 +219,20 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
         relayType: relayType,
       );
 
+      // Ensure relay status provider is loaded first
+      final statusState = ref.read(relayStatusProvider);
+      if (statusState.relayStatuses.isEmpty && !statusState.isLoading) {
+        await ref.read(relayStatusProvider.notifier).loadRelayStatuses();
+      }
+
       final relayInfos = await Future.wait(
         relayUrls.map((relayUrl) async {
           final url = await stringFromRelayUrl(relayUrl: relayUrl);
-          return RelayInfo(url: url, connected: false);
+          // Get status from relay status provider
+          final statusNotifier = ref.read(relayStatusProvider.notifier);
+          final status = statusNotifier.getRelayStatus(url);
+          final connected = statusNotifier.isRelayConnected(url);
+          return RelayInfo(url: url, connected: connected, status: status);
         }),
       );
 
@@ -348,7 +369,11 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       final relayInfos = await Future.wait(
         relayUrls.map((relayUrl) async {
           final url = await stringFromRelayUrl(relayUrl: relayUrl);
-          return RelayInfo(url: url, connected: false);
+          // Get status from relay status provider
+          final statusNotifier = ref.read(relayStatusProvider.notifier);
+          final status = statusNotifier.getRelayStatus(url);
+          final connected = statusNotifier.isRelayConnected(url);
+          return RelayInfo(url: url, connected: connected, status: status);
         }),
       );
 

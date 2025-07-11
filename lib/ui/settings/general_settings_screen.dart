@@ -328,11 +328,11 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                       text: 'Profile Keys',
                       onTap: () => context.push('${Routes.settings}/keys'),
                     ),
-                    // SettingsListTile(
-                    //   icon: CarbonIcons.data_vis_3,
-                    //   text: 'Network Relays',
-                    //   onTap: () => context.push('${Routes.settings}/network'),
-                    // ),
+                    SettingsListTile(
+                      icon: CarbonIcons.data_vis_3,
+                      text: 'Network Relays',
+                      onTap: () => context.push('${Routes.settings}/network'),
+                    ),
                     SettingsListTile(
                       icon: CarbonIcons.logout,
                       text: 'Sign out',
