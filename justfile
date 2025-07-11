@@ -27,7 +27,7 @@ build: clean-all regenerate deps build-rust-debug deps-flutter analyze
 build-release: clean-all regenerate deps build-rust-release deps-flutter
 
 # Pre-commit checks: run the same checks as CI locally
-precommit: check-rust-format check-dart-format lint-rust analyze test-rust
+precommit: check-rust-format check-dart-format lint-rust analyze test-flutter test-rust
     @echo "✅ All pre-commit checks passed!"
 
 # ==============================================================================

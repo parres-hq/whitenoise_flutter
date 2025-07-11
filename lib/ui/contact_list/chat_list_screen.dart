@@ -10,10 +10,12 @@ import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
+import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/services/welcome_notification_service.dart';
-import 'package:whitenoise/ui/contact_list/widgets/group_list_tile.dart';
+import 'package:whitenoise/ui/contact_list/widgets/chat_list_item_tile.dart';
 import 'package:whitenoise/ui/contact_list/widgets/profile_avatar.dart';
 import 'package:whitenoise/ui/contact_list/widgets/profile_ready_card.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -80,8 +82,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Use select to only rebuild when the groups list specifically changes
+    // Watch both groups and welcomes
     final groupList = ref.watch(groupsProvider.select((state) => state.groups)) ?? [];
+    final welcomesList = ref.watch(welcomesProvider.select((state) => state.welcomes)) ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
 
     // Cache profile data to avoid unnecessary rebuilds
@@ -89,6 +92,31 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     final currentUserName = profileData.valueOrNull?.displayName ?? '';
     final userFirstLetter =
         currentUserName.isNotEmpty == true ? currentUserName[0].toUpperCase() : '';
+
+    final chatItems = <ChatListItem>[];
+
+    for (final group in groupList) {
+      final lastMessage = ref.watch(
+        chatProvider.select(
+          (state) => state.getLatestMessageForGroup(group.mlsGroupId),
+        ),
+      );
+      chatItems.add(
+        ChatListItem.fromGroup(
+          groupData: group,
+          lastMessage: lastMessage,
+        ),
+      );
+    }
+
+    // Add pending welcomes as chat items
+    final pendingWelcomes = welcomesList.where((welcome) => welcome.state == WelcomeState.pending);
+    for (final welcome in pendingWelcomes) {
+      chatItems.add(ChatListItem.fromWelcome(welcomeData: welcome));
+    }
+
+    // Sort by date created (most recent first)
+    chatItems.sort((a, b) => b.dateCreated.compareTo(a.dateCreated));
 
     return Scaffold(
       body: Stack(
@@ -121,37 +149,27 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                 pinned: true,
                 floating: true,
               ),
-              if (groupList.isEmpty)
+              if (chatItems.isEmpty)
                 const SliverFillRemaining(
                   hasScrollBody: false,
                   child: _EmptyGroupList(),
                 )
               else
-                ...[],
-              SliverPadding(
-                padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
-                sliver: SliverList.separated(
-                  itemBuilder: (context, index) {
-                    final group = groupList[index];
-                    // Use select to only rebuild when this specific group's messages change
-                    final lastMessage = ref.watch(
-                      chatProvider.select(
-                        (state) => state.getLatestMessageForGroup(group.mlsGroupId),
-                      ),
-                    );
-                    return GroupListTile(
-                      group: group,
-                      lastMessage: lastMessage,
-                    );
-                  },
-                  itemCount: groupList.length,
-                  separatorBuilder: (context, index) => Gap(8.w),
+                SliverPadding(
+                  padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
+                  sliver: SliverList.separated(
+                    itemBuilder: (context, index) {
+                      final item = chatItems[index];
+                      return ChatListItemTile(item: item);
+                    },
+                    itemCount: chatItems.length,
+                    separatorBuilder: (context, index) => Gap(8.w),
+                  ),
                 ),
-              ),
             ],
           ),
 
-          if (groupList.isNotEmpty)
+          if (chatItems.isNotEmpty)
             Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const BottomFade()),
         ],
       ),

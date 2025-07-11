@@ -11,6 +11,7 @@ class ProfileState with _$ProfileState {
     String? nip05,
     ProfileState? initialProfile,
     @Default(false) bool isSaving,
+    String? selectedImagePath,
     Object? error,
     StackTrace? stackTrace,
   }) = _ProfileState;
@@ -38,7 +39,11 @@ class ProfileState with _$ProfileState {
         nip05 == initialProfile!.nip05 ||
         (nip05 == null && initialProfile!.nip05 == '') ||
         (nip05 == '' && initialProfile!.nip05 == null);
+    final selectedImage =
+        selectedImagePath == initialProfile!.selectedImagePath ||
+        (selectedImagePath == null && initialProfile!.selectedImagePath == '') ||
+        (selectedImagePath == '' && initialProfile!.selectedImagePath == null);
 
-    return !(dName && abt && pic && nip);
+    return !(dName && abt && pic && nip && selectedImage);
   }
 }

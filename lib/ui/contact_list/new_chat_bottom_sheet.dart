@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,8 +14,8 @@ import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/ui/contact_list/legacy_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
+import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -207,24 +209,40 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
     final deduplicatedContacts = uniqueContacts.values.toList();
 
-    // 2. If search is empty, return all deduplicated contacts
+    // 2. Apply search filter if needed
     final query = _searchQuery.trim().toLowerCase();
-    if (query.isEmpty) return deduplicatedContacts;
+    final filteredContacts =
+        query.isEmpty
+            ? deduplicatedContacts
+            : deduplicatedContacts.where((contact) {
+              final name = contact.name.toLowerCase();
+              final displayNameOrName = contact.displayNameOrName.toLowerCase();
+              final nip05 = contact.nip05?.toLowerCase() ?? '';
+              final about = contact.about?.toLowerCase() ?? '';
+              final publicKey = contact.publicKey.toLowerCase();
 
-    // 3. Filter by search query (null-safe)
-    return deduplicatedContacts.where((contact) {
-      final name = contact.name.toLowerCase();
-      final displayNameOrName = contact.displayNameOrName.toLowerCase();
-      final nip05 = contact.nip05?.toLowerCase() ?? '';
-      final about = contact.about?.toLowerCase() ?? '';
-      final publicKey = contact.publicKey.toLowerCase();
+              return name.contains(query) ||
+                  displayNameOrName.contains(query) ||
+                  nip05.contains(query) ||
+                  about.contains(query) ||
+                  publicKey.contains(query);
+            }).toList();
 
-      return name.contains(query) ||
-          displayNameOrName.contains(query) ||
-          nip05.contains(query) ||
-          about.contains(query) ||
-          publicKey.contains(query);
-    }).toList();
+    // 3. Sort the filtered contacts alphabetically (Unknown User at bottom) for consistent ordering
+    filteredContacts.sort((a, b) {
+      final aName = a.displayNameOrName;
+      final bName = b.displayNameOrName;
+
+      // Put "Unknown User" entries at the bottom
+      if (aName == 'Unknown User' && bName != 'Unknown User') return 1;
+      if (bName == 'Unknown User' && aName != 'Unknown User') return -1;
+      if (aName == 'Unknown User' && bName == 'Unknown User') return 0;
+
+      // Normal alphabetical sorting for everything else
+      return aName.toLowerCase().compareTo(bName.toLowerCase());
+    });
+
+    return filteredContacts;
   }
 
   Future<void> _handleContactTap(ContactModel contact) async {
@@ -250,7 +268,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         _logger.info('=== UI Decision Logic ===');
         _logger.info('keyPackage != null: ${keyPackage != null}');
         _logger.info(
-          'Final decision: ${keyPackage != null ? "StartSecureChatBottomSheet" : "LegacyInviteBottomSheet"}',
+          'Final decision: ${keyPackage != null ? "StartSecureChatBottomSheet" : "ShareInviteBottomSheet"}',
         );
 
         if (keyPackage != null) {
@@ -267,8 +285,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             },
           );
         } else {
-          _logger.info('Showing LegacyInviteBottomSheet for legacy invite');
-          LegacyInviteBottomSheet.show(
+          _logger.info('Showing ShareInviteBottomSheet for sharing invite');
+          ShareInviteBottomSheet.show(
             context: context,
             contacts: [contact],
             onInviteSent: () {
@@ -471,11 +489,16 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     );
   }
 
-  Widget _buildContactsList(bool showTempContact, List<ContactModel> filteredContacts) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        if (showTempContact) ...[
+  Widget _buildContactsList(
+    bool showTempContact,
+    List<ContactModel> filteredContacts,
+    double availableHeight,
+  ) {
+    // Handle temp contact display first
+    if (showTempContact) {
+      return Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
           Container(
             margin: EdgeInsets.symmetric(horizontal: 24.w),
             child:
@@ -488,31 +511,43 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           ),
           Gap(16.h),
         ],
-        // Show message when no contacts or build the list
-        if (filteredContacts.isEmpty && !showTempContact)
-          SizedBox(
-            height: 200.h, // Fixed height for the message
-            child: Center(
-              child:
-                  _isLoadingMetadata
-                      ? const CircularProgressIndicator()
-                      : Text(
-                        _searchQuery.isEmpty
-                            ? 'No contacts found'
-                            : _isValidPublicKey(_searchQuery)
-                            ? 'Loading metadata...'
-                            : 'No contacts match your search',
-                        style: TextStyle(
-                          color: context.colors.mutedForeground,
-                          fontSize: 16.sp,
-                        ),
-                      ),
-            ),
-          )
-        else
-          // Build contacts list without ListView.builder to avoid nested scrolling
-          ...filteredContacts.map(
-            (contact) => Padding(
+      );
+    }
+
+    // Handle empty contacts case
+    if (filteredContacts.isEmpty) {
+      return SizedBox(
+        height: availableHeight, // Use available space
+        child: Center(
+          child:
+              _isLoadingMetadata
+                  ? const CircularProgressIndicator()
+                  : Text(
+                    _searchQuery.isEmpty
+                        ? 'No contacts found'
+                        : _isValidPublicKey(_searchQuery)
+                        ? 'Loading metadata...'
+                        : 'No contacts match your search',
+                    style: TextStyle(
+                      color: context.colors.mutedForeground,
+                      fontSize: 16.sp,
+                    ),
+                  ),
+        ),
+      );
+    }
+
+    // PERFORMANCE: For large contact lists, use virtualized ListView to fill available space
+    if (filteredContacts.length > 15) {
+      return SizedBox(
+        height: availableHeight, // Fill all available space
+        child: ListView.separated(
+          padding: EdgeInsets.only(bottom: 20.h), // Bottom padding for last item
+          itemCount: filteredContacts.length,
+          separatorBuilder: (context, index) => SizedBox(height: 4.h),
+          itemBuilder: (context, index) {
+            final contact = filteredContacts[index];
+            return Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: ContactListTile(
                 contact: contact,
@@ -538,11 +573,54 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                   }
                 },
               ),
+            );
+          },
+        ),
+      );
+    }
+
+    // For smaller lists, use Column for simplicity but still fill available space
+    return SizedBox(
+      height: availableHeight,
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Build contacts list for smaller lists
+            ...filteredContacts.map(
+              (contact) => Padding(
+                padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 2.h),
+                child: ContactListTile(
+                  contact: contact,
+                  enableSwipeToDelete: true,
+                  onTap: () => _handleContactTap(contact),
+                  onDelete: () async {
+                    try {
+                      final realPublicKey = ref
+                          .read(contactsProvider.notifier)
+                          .getPublicKeyForContact(contact.publicKey);
+                      if (realPublicKey != null) {
+                        await ref
+                            .read(contactsProvider.notifier)
+                            .removeContactByPublicKey(realPublicKey);
+                        if (context.mounted) {
+                          ref.showSuccessToast('Contact removed successfully');
+                        }
+                      }
+                    } catch (e) {
+                      if (context.mounted) {
+                        ref.showErrorToast('Failed to remove contact: $e');
+                      }
+                    }
+                  },
+                ),
+              ),
             ),
-          ),
-        // Add some bottom padding
-        Gap(40.h),
-      ],
+            // Add bottom padding
+            Gap(20.h),
+          ],
+        ),
+      ),
     );
   }
 
@@ -588,111 +666,125 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                   ? _buildContactsLoadingWidget()
                   : contactsState.error != null
                   ? _buildErrorWidget(contactsState.error!)
-                  : SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(
-                      children: [
-                        // Main options (New Group Chat, Help & Feedback) - now scrollable
-                        _buildMainOptions(),
-                        // DEBUG: Raw contacts section
-                        if (_searchQuery.toLowerCase() == 'debug') ...[
-                          Gap(16.h),
-                          Container(
-                            margin: EdgeInsets.symmetric(horizontal: 24.w),
-                            padding: EdgeInsets.all(16.w),
-                            decoration: BoxDecoration(
-                              color: context.colors.baseMuted,
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'DEBUG: Raw Contacts Data',
-                                  style: TextStyle(
-                                    color: context.colors.primary,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                  : LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Calculate available height for contact list
+                      // Reserve space for main options (about 120.h) and debug section if shown
+                      final reservedHeight =
+                          120.h + (_searchQuery.toLowerCase() == 'debug' ? 200.h : 0);
+                      final availableHeight = constraints.maxHeight - reservedHeight;
+
+                      return SingleChildScrollView(
+                        controller: _scrollController,
+                        child: Column(
+                          children: [
+                            // Main options (New Group Chat, Help & Feedback) - now scrollable
+                            _buildMainOptions(),
+                            // DEBUG: Raw contacts section
+                            if (_searchQuery.toLowerCase() == 'debug') ...[
+                              Gap(16.h),
+                              Container(
+                                margin: EdgeInsets.symmetric(horizontal: 24.w),
+                                padding: EdgeInsets.all(16.w),
+                                decoration: BoxDecoration(
+                                  color: context.colors.baseMuted,
+                                  borderRadius: BorderRadius.circular(8.r),
                                 ),
-                                Gap(8.h),
-                                Text(
-                                  'Total raw contacts: ${rawContacts.length}',
-                                  style: TextStyle(
-                                    color: context.colors.mutedForeground,
-                                    fontSize: 14.sp,
-                                  ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'DEBUG: Raw Contacts Data',
+                                      style: TextStyle(
+                                        color: context.colors.primary,
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Gap(8.h),
+                                    Text(
+                                      'Total raw contacts: ${rawContacts.length}',
+                                      style: TextStyle(
+                                        color: context.colors.mutedForeground,
+                                        fontSize: 14.sp,
+                                      ),
+                                    ),
+                                    Gap(8.h),
+                                    ...rawContacts.asMap().entries.map((entry) {
+                                      final index = entry.key;
+                                      final contact = entry.value;
+                                      return Container(
+                                        margin: EdgeInsets.only(bottom: 8.h),
+                                        padding: EdgeInsets.all(8.w),
+                                        decoration: BoxDecoration(
+                                          color: context.colors.surface,
+                                          borderRadius: BorderRadius.circular(4.r),
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Contact #$index',
+                                              style: TextStyle(
+                                                color: context.colors.primary,
+                                                fontSize: 12.sp,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            Text(
+                                              'name: ${contact.name}',
+                                              style: TextStyle(
+                                                color: context.colors.mutedForeground,
+                                                fontSize: 10.sp,
+                                              ),
+                                            ),
+                                            Text(
+                                              'displayNameOrName: ${contact.displayNameOrName}',
+                                              style: TextStyle(
+                                                color: context.colors.mutedForeground,
+                                                fontSize: 10.sp,
+                                              ),
+                                            ),
+                                            Text(
+                                              'publicKey: ${contact.publicKey}',
+                                              style: TextStyle(
+                                                color: context.colors.mutedForeground,
+                                                fontSize: 10.sp,
+                                              ),
+                                            ),
+                                            Text(
+                                              'nip05: ${contact.nip05 ?? "null"}',
+                                              style: TextStyle(
+                                                color: context.colors.mutedForeground,
+                                                fontSize: 10.sp,
+                                              ),
+                                            ),
+                                            Text(
+                                              'about: ${contact.about ?? "null"}',
+                                              style: TextStyle(
+                                                color: context.colors.mutedForeground,
+                                                fontSize: 10.sp,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }),
+                                  ],
                                 ),
-                                Gap(8.h),
-                                ...rawContacts.asMap().entries.map((entry) {
-                                  final index = entry.key;
-                                  final contact = entry.value;
-                                  return Container(
-                                    margin: EdgeInsets.only(bottom: 8.h),
-                                    padding: EdgeInsets.all(8.w),
-                                    decoration: BoxDecoration(
-                                      color: context.colors.surface,
-                                      borderRadius: BorderRadius.circular(4.r),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Contact #$index',
-                                          style: TextStyle(
-                                            color: context.colors.primary,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          'name: ${contact.name}',
-                                          style: TextStyle(
-                                            color: context.colors.mutedForeground,
-                                            fontSize: 10.sp,
-                                          ),
-                                        ),
-                                        Text(
-                                          'displayNameOrName: ${contact.displayNameOrName}',
-                                          style: TextStyle(
-                                            color: context.colors.mutedForeground,
-                                            fontSize: 10.sp,
-                                          ),
-                                        ),
-                                        Text(
-                                          'publicKey: ${contact.publicKey}',
-                                          style: TextStyle(
-                                            color: context.colors.mutedForeground,
-                                            fontSize: 10.sp,
-                                          ),
-                                        ),
-                                        Text(
-                                          'nip05: ${contact.nip05 ?? "null"}',
-                                          style: TextStyle(
-                                            color: context.colors.mutedForeground,
-                                            fontSize: 10.sp,
-                                          ),
-                                        ),
-                                        Text(
-                                          'about: ${contact.about ?? "null"}',
-                                          style: TextStyle(
-                                            color: context.colors.mutedForeground,
-                                            fontSize: 10.sp,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                              ],
+                              ),
+                              Gap(16.h),
+                            ],
+                            // Contacts list - now fills remaining space efficiently
+                            _buildContactsList(
+                              showTempContact,
+                              filteredContacts,
+                              math.max(200.h, availableHeight),
                             ),
-                          ),
-                          Gap(16.h),
-                        ],
-                        // Contacts list - now part of the scrollable content
-                        _buildContactsList(showTempContact, filteredContacts),
-                      ],
-                    ),
+                          ],
+                        ),
+                      );
+                    },
                   ),
         ),
       ],

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -57,6 +58,8 @@ class SwitchProfileBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSheet> {
+  String? _activeAccountHex;
+
   @override
   void initState() {
     super.initState();
@@ -64,7 +67,34 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
       if (widget.showSuccessToast) {
         ref.showRawSuccessToast('Signed out. Choose different profile.');
       }
+      _loadActiveAccountHex();
     });
+  }
+
+  Future<void> _loadActiveAccountHex() async {
+    final activeAccountPubkey = ref.read(activeAccountProvider);
+    if (activeAccountPubkey != null) {
+      setState(() {
+        _activeAccountHex = activeAccountPubkey;
+      });
+    }
+  }
+
+  Future<bool> _isActiveAccount(ContactModel profile) async {
+    if (_activeAccountHex == null) return false;
+
+    try {
+      // Convert profile's npub key to hex for comparison
+      String profileHex = profile.publicKey;
+      if (profile.publicKey.startsWith('npub1')) {
+        profileHex = await hexPubkeyFromNpub(npub: profile.publicKey);
+      }
+
+      return profileHex == _activeAccountHex;
+    } catch (e) {
+      // If conversion fails, try direct comparison as fallback
+      return profile.publicKey == _activeAccountHex;
+    }
   }
 
   @override
@@ -75,8 +105,15 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
     final sortedProfiles = [...widget.profiles];
     if (activeAccountPubkey != null) {
       sortedProfiles.sort((a, b) {
-        final aIsActive = a.publicKey == activeAccountPubkey;
-        final bIsActive = b.publicKey == activeAccountPubkey;
+        // Use cached _activeAccountHex for sorting if available
+        final aIsActive =
+            _activeAccountHex != null &&
+            (a.publicKey == _activeAccountHex ||
+                a.publicKey.startsWith('npub1')); // Will be resolved async
+        final bIsActive =
+            _activeAccountHex != null &&
+            (b.publicKey == _activeAccountHex ||
+                b.publicKey.startsWith('npub1')); // Will be resolved async
 
         if (aIsActive && !bIsActive) return -1;
         if (!aIsActive && bIsActive) return 1;
@@ -96,33 +133,43 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
               itemCount: sortedProfiles.length,
               itemBuilder: (context, index) {
                 final profile = sortedProfiles[index];
-                final isActiveAccount = profile.publicKey == activeAccountPubkey;
 
                 return Container(
                   margin: EdgeInsets.only(bottom: 8.h),
-                  padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 4.h),
-                  decoration:
-                      isActiveAccount
-                          ? BoxDecoration(
-                            color: context.colors.primary.withValues(alpha: 0.1),
-                          )
-                          : null,
-                  child: ContactListTile(
-                    contact: profile,
-                    onTap: () {
-                      if (isActiveAccount && !widget.showSuccessToast) {
-                        ref.showRawErrorToast('This profile is already active.');
-                      } else {
-                        widget.onProfileSelected(profile);
-                        Navigator.pop(context);
-                      }
+                  padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
+                  child: FutureBuilder<bool>(
+                    future: _isActiveAccount(profile),
+                    builder: (context, snapshot) {
+                      final isActiveAccount = snapshot.data ?? false;
+
+                      return Container(
+                        decoration:
+                            isActiveAccount
+                                ? BoxDecoration(
+                                  color: context.colors.primary.withValues(alpha: 0.1),
+                                )
+                                : null,
+                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                        child: ContactListTile(
+                          contact: profile,
+                          onTap: () {
+                            if (isActiveAccount && !widget.showSuccessToast) {
+                              // Just close the sheet if selecting the currently active profile
+                              Navigator.pop(context);
+                            } else {
+                              widget.onProfileSelected(profile);
+                              Navigator.pop(context);
+                            }
+                          },
+                        ),
+                      );
                     },
                   ),
                 );
               },
             ),
           ),
-          Gap(8.h),
+          Gap(4.h),
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: AppFilledButton(

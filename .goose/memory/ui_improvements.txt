@@ -20,3 +20,52 @@
 - Clean and minimal loading experience that matches app's design language
 - No loading text - just the standard system spinner in center
 
+# performance ui-fixes alphabetical-sorting virtualization error-handling
+**CONTACT LIST PERFORMANCE & ERROR FIXES COMPLETED**:
+- **Exception Removal**: Fixed cache validation errors by changing severe exceptions to warning logs with "continuing with mitigation in place" message
+- **Alphabetical Sorting**: Added automatic sorting of contacts by display name with "Unknown User" entries pushed to bottom
+- **Performance Virtualization**: Implemented smart list rendering - virtualized ListView for >20 contacts, simple Column for smaller lists  
+- **Consistent Filtering**: Fixed search filtering to maintain alphabetical order after filtering
+- **Enhanced UX**: Improved loading states and error handling for contact list interactions
+- **Cache Validation**: Changed all validation errors to warnings to prevent app crashes while maintaining debugging info
+- **Memory Efficiency**: Reduced rendering load by only rendering visible items in large contact lists
+- **User Experience**: Contacts are now ordered predictably (alphabetically) with unknown contacts at bottom making them easier to find
+
+# bottom_sheet bio_truncation dynamic_height ui_enhancement
+**START SECURE CHAT BOTTOM SHEET ENHANCEMENTS**:
+- **Dynamic Height Calculation**: Sheet now dynamically adjusts height (65%-75% of screen) based on content length instead of fixed 60%
+- **Smart Bio Truncation**: Bios longer than 150 characters are truncated to 3 lines with "Show more/Show less" toggle
+- **Scrollable Content**: Main content area is now scrollable to handle expanded bios without layout issues
+- **Improved Layout**: Better spacing and padding with button positioned at bottom outside scroll area
+- **Performance**: Efficient height estimation based on bio length to prevent sheets exceeding 75% screen height
+- **User Experience**: Users can expand long bios while maintaining sheet height constraints for optimal usability
+- **File**: `/lib/ui/contact_list/start_chat_bottom_sheet.dart`
+
+# legacy_invite bottom_padding bio_support dynamic_height ui_enhancement
+**LEGACY INVITE BOTTOM SHEET ENHANCEMENTS**:
+- **Fixed Excessive Bottom Padding**: Removed SafeArea wrapper and reduced bottom padding from 16.h to 24.h for better spacing
+- **Dynamic Height Calculation**: Sheet now dynamically adjusts height (60%-75% of screen) based on:
+  - Single contact: avatar + profile + bio + info box + button
+  - Multiple contacts: info box + contact list height + button
+- **Bio Support Added**: Added bio section with same truncation logic as Start Secure Chat sheet
+  - Shows bios longer than 150 characters with "Show more/Show less" toggle
+  - Bio is displayed between public key and info box
+- **Scrollable Single Contact View**: Made single contact view scrollable to handle long bios
+- **Enhanced UX**: Better spacing and improved layout for both single and multiple contact scenarios
+- **Type Safety**: Fixed all double/int type assignment issues for compliant code
+- **File**: `/lib/ui/contact_list/legacy_invite_bottom_sheet.dart`
+
+# chat ui design bubble padding rounded_corners
+**CHAT BUBBLE DESIGN ENHANCEMENTS**:
+- **Rounded Corners Added**: Updated CustomChatBubbleNoBorderPainter to use RRect.fromLTRBAndCorners() instead of sharp rectangles
+  - Main bubble corners: 8.0 radius for smooth, subtle rounding
+  - Tail connection corners: 2.0 radius for seamless tail integration
+- **Internal Padding Added**: Added symmetric padding to chat bubble container
+  - Horizontal: 12.w (responsive width units)
+  - Vertical: 8.h (responsive height units)
+  - Provides breathing room for text content inside bubbles
+- **Files Modified**: 
+  - `/lib/ui/chat/widgets/chat_bubble/painter.dart` - Added rounded corners to bubble painting
+  - `/lib/ui/chat/widgets/chat_bubble/bubble.dart` - Added internal padding
+- **Design Impact**: More modern, polished appearance with improved text readability and visual comfort
+

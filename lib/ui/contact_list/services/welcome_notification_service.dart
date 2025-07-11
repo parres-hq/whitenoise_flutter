@@ -16,29 +16,19 @@ class WelcomeNotificationService {
   }
 
   /// Set up the callback for new welcome notifications
+  /// NOTE: Automatic bottom sheet notifications are disabled as welcomes now show in the chat list
   static void setupWelcomeNotifications(WidgetRef ref) {
-    ref
-        .read(welcomesProvider.notifier)
-        .setOnNewWelcomeCallback(
-          (welcomeData) => _handleNewWelcome(ref, welcomeData),
-        );
+    // Welcomes are now integrated into the chat list, so we don't need automatic popups
+    // ref
+    //     .read(welcomesProvider.notifier)
+    //     .setOnNewWelcomeCallback(
+    //       (welcomeData) => _handleNewWelcome(ref, welcomeData),
+    //     );
   }
 
   /// Clear the welcome notifications callback
   static void clearWelcomeNotifications(WidgetRef ref) {
     ref.read(welcomesProvider.notifier).clearOnNewWelcomeCallback();
-  }
-
-  /// Handle a new welcome invitation by showing bottom sheet
-  static void _handleNewWelcome(WidgetRef ref, WelcomeData welcomeData) {
-    final context = _currentContext;
-    if (context == null || !context.mounted) {
-      _logger.warning('WelcomeNotificationService: No valid context available');
-      return;
-    }
-
-    _logger.info('WelcomeNotificationService: Showing welcome ${welcomeData.id}');
-    _showWelcomeBottomSheet(context, ref, welcomeData);
   }
 
   /// Show welcome invitation bottom sheet

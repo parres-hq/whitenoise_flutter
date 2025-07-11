@@ -9,7 +9,7 @@ void main() {
     late ProviderContainer container;
 
     // Test data
-    const testWelcomeData = WelcomeData(
+    final testWelcomeData = WelcomeData(
       id: 'test_welcome_1',
       mlsGroupId: 'mls_group_1',
       nostrGroupId: 'nostr_group_1',
@@ -20,6 +20,7 @@ void main() {
       welcomer: 'welcomer_pubkey_123',
       memberCount: 5,
       state: WelcomeState.pending,
+      createdAt: BigInt.from(1715404800),
     );
 
     setUp(() {
@@ -117,7 +118,7 @@ void main() {
         expect(callbackCount, 1);
 
         // Non-pending welcome should not trigger callback
-        const acceptedWelcome = WelcomeData(
+        final acceptedWelcome = WelcomeData(
           id: 'accepted_welcome',
           mlsGroupId: 'mls_group_accepted',
           nostrGroupId: 'nostr_group_accepted',
@@ -128,6 +129,7 @@ void main() {
           welcomer: 'welcomer_123',
           memberCount: 3,
           state: WelcomeState.accepted,
+          createdAt: BigInt.from(1715404800),
         );
 
         notifier.triggerWelcomeCallback(acceptedWelcome);

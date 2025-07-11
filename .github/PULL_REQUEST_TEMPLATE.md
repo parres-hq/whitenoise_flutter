@@ -21,3 +21,10 @@
 - [ ] ✅ Build configuration change
 - [ ] 📝 Documentation
 - [ ] 🗑️ Chore
+
+## Checklist
+
+<!-- Please make sure you've done the following before submitting your PR: -->
+
+- [ ] Run `just precommit` to ensure that formatting and linting are correct
+- [ ] Updated the `CHANGELOG.md` file with your changes

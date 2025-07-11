@@ -196,6 +196,23 @@ class RelayItem extends StatelessWidget {
 class RelayInfo {
   final String url;
   final bool connected;
+  final String? status;
 
-  const RelayInfo({required this.url, required this.connected});
+  const RelayInfo({
+    required this.url,
+    required this.connected,
+    this.status,
+  });
+
+  RelayInfo copyWith({
+    String? url,
+    bool? connected,
+    String? status,
+  }) {
+    return RelayInfo(
+      url: url ?? this.url,
+      connected: connected ?? this.connected,
+      status: status ?? this.status,
+    );
+  }
 }

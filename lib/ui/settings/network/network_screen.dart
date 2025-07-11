@@ -7,6 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
+import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -14,8 +15,34 @@ import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
 import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 
-class NetworkScreen extends ConsumerWidget {
+class NetworkScreen extends ConsumerStatefulWidget {
   const NetworkScreen({super.key});
+
+  @override
+  ConsumerState<NetworkScreen> createState() => _NetworkScreenState();
+}
+
+class _NetworkScreenState extends ConsumerState<NetworkScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Sayfaya her girişte verileri yenile
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshData();
+    });
+  }
+
+  Future<void> _refreshData() async {
+    // Önce relay status provider'ı yenile
+    await ref.read(relayStatusProvider.notifier).loadRelayStatuses();
+
+    // Sonra tüm relay provider'ları yenile
+    await Future.wait([
+      ref.read(normalRelaysProvider.notifier).loadRelays(),
+      ref.read(inboxRelaysProvider.notifier).loadRelays(),
+      ref.read(keyPackageRelaysProvider.notifier).loadRelays(),
+    ]);
+  }
 
   Future<void> _deleteRelay(
     BuildContext context,
@@ -65,7 +92,7 @@ class NetworkScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final normalRelaysState = ref.watch(normalRelaysProvider);
     final inboxRelaysState = ref.watch(inboxRelaysProvider);
     final keyPackageRelaysState = ref.watch(keyPackageRelaysProvider);

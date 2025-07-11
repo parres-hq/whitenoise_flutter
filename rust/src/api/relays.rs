@@ -123,23 +123,38 @@ pub async fn fetch_key_package(pubkey: PublicKey) -> Result<Option<Event>, White
 /// This function retrieves the current connection status for all relay URLs
 /// configured across all relay types (Nostr, Inbox, and KeyPackage) for the
 /// specified account. This is useful for monitoring relay connectivity and
-/// diagnosing connection issues.
+/// diagnosing connection issues. Both relay URLs and statuses are converted
+/// to string format for Flutter compatibility.
 ///
 /// # Parameters
 /// * `pubkey` - The public key of the account whose relay statuses to check
 ///
 /// # Returns
-/// * `Ok(Vec<(RelayUrl, RelayStatus)>)` - Vector of tuples containing each relay URL and its current status
+/// * `Ok(Vec<(String, String)>)` - Vector of tuples containing each relay URL as a string and its current status as a string
 /// * `Err(WhitenoiseError)` - If there was an error fetching relay statuses or account not found
 ///
 /// # Notes
 /// * The status reflects the current connection state at the time of the call
 /// * Relay statuses can change frequently due to network conditions
 /// * This function checks all relay types configured for the account
+/// * Possible status values include: "Initialized", "Pending", "Connecting", "Connected", "Disconnected", "Terminated", "Banned", "Sleeping"
+///
+/// # Example
+/// ```rust
+/// let statuses = fetch_relay_status(pubkey).await?;
+/// for (url, status) in statuses {
+///     println!("Relay {} is {}", url, status);
+/// }
+/// ```
 #[frb]
 pub async fn fetch_relay_status(
     pubkey: PublicKey,
-) -> Result<Vec<(RelayUrl, RelayStatus)>, WhitenoiseError> {
+) -> Result<Vec<(String, String)>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.fetch_relay_status(pubkey).await
+    let statuses = whitenoise.fetch_relay_status(pubkey).await?;
+    let converted_statuses = statuses
+        .into_iter()
+        .map(|(url, status)| (url.to_string(), status.to_string()))
+        .collect();
+    Ok(converted_statuses)
 }

@@ -9,6 +9,7 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -31,7 +32,7 @@ class GeneralSettingsScreen extends ConsumerStatefulWidget {
 class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   List<AccountData> _accounts = [];
   AccountData? _currentAccount;
-  Map<String, MetadataData?> _accountMetadata = {}; // Cache for metadata
+  Map<String, ContactModel> _accountContactModels = {}; // Cache for contact models
   ProviderSubscription<AsyncValue<ProfileState>>? _profileSubscription;
   bool _isLoading = false;
   @override
@@ -64,15 +65,20 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       final accounts = await fetchAccounts();
       final activeAccountPubkey = ref.read(activeAccountProvider);
 
-      // Load metadata for all accounts
-      final metadataMap = <String, MetadataData?>{};
+      // Load metadata for all accounts using metadata cache
+      final metadataCache = ref.read(metadataCacheProvider.notifier);
+      final contactModels = <String, ContactModel>{};
       for (final account in accounts) {
         try {
-          final publicKey = await publicKeyFromString(publicKeyString: account.pubkey);
-          final metadata = await fetchMetadata(pubkey: publicKey);
-          metadataMap[account.pubkey] = metadata;
+          // Use metadata cache instead of direct fetchMetadata
+          final contactModel = await metadataCache.getContactModel(account.pubkey);
+          contactModels[account.pubkey] = contactModel;
         } catch (e) {
-          metadataMap[account.pubkey] = null;
+          // Create fallback contact model
+          contactModels[account.pubkey] = ContactModel(
+            name: 'Unknown User',
+            publicKey: account.pubkey,
+          );
         }
       }
 
@@ -98,7 +104,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       setState(() {
         _accounts = accounts;
         _currentAccount = currentAccount;
-        _accountMetadata = metadataMap;
+        _accountContactModels = contactModels;
       });
     } catch (e) {
       if (mounted) {
@@ -128,23 +134,18 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   }
 
   ContactModel _accountToContactModel(AccountData account) {
-    final metadata = _accountMetadata[account.pubkey];
+    final contactModel = _accountContactModels[account.pubkey];
 
-    // Use metadata if available, otherwise fallback to pubkey
-    final name = metadata?.name ?? account.pubkey.substring(0, 8);
-    final displayName =
-        metadata?.displayName ?? metadata?.name ?? 'Account ${account.pubkey.substring(0, 8)}';
-    final about = metadata?.about ?? '';
-    final picture = metadata?.picture ?? '';
-    final nip05 = metadata?.nip05;
+    // Use cached contact model if available, otherwise create fallback
+    if (contactModel != null) {
+      return contactModel;
+    }
 
+    // Fallback contact model
     return ContactModel(
       publicKey: account.pubkey,
-      name: name,
-      displayName: displayName,
-      about: about,
-      imagePath: picture,
-      nip05: nip05,
+      name: account.pubkey.substring(0, 8),
+      displayName: 'Account ${account.pubkey.substring(0, 8)}',
     );
   }
 
@@ -156,12 +157,42 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       profiles: contactModels,
       isDismissible: isDismissible,
       showSuccessToast: showSuccessToast,
-      onProfileSelected: (selectedProfile) {
+      onProfileSelected: (selectedProfile) async {
         // Find the corresponding AccountData
-        final selectedAccount = _accounts.firstWhere(
-          (account) => account.pubkey == selectedProfile.publicKey,
-        );
-        _switchAccount(selectedAccount);
+        // Note: selectedProfile.publicKey is in npub format (from metadata cache)
+        // but account.pubkey is in hex format (from fetchAccounts)
+        // So we need to convert npub back to hex for matching
+
+        AccountData? selectedAccount;
+
+        try {
+          // Try to convert npub to hex for matching
+          String hexKey = selectedProfile.publicKey;
+          if (selectedProfile.publicKey.startsWith('npub1')) {
+            hexKey = await hexPubkeyFromNpub(npub: selectedProfile.publicKey);
+          }
+
+          selectedAccount = _accounts.where((account) => account.pubkey == hexKey).firstOrNull;
+        } catch (e) {
+          // If conversion fails, try direct matching as fallback
+          selectedAccount =
+              _accounts.where((account) => account.pubkey == selectedProfile.publicKey).firstOrNull;
+        }
+
+        if (selectedAccount != null) {
+          _switchAccount(selectedAccount);
+        } else {
+          // Account not found, reload accounts and show error
+          if (mounted) {
+            try {
+              ref.showErrorToast('Account not found. Refreshing account list...');
+            } catch (e) {
+              // Fallback if toast fails - just reload accounts silently
+              debugPrint('Toast error: $e');
+            }
+            _loadAccounts();
+          }
+        }
       },
     );
   }
@@ -297,11 +328,11 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                       text: 'Profile Keys',
                       onTap: () => context.push('${Routes.settings}/keys'),
                     ),
-                    // SettingsListTile(
-                    //   icon: CarbonIcons.data_vis_3,
-                    //   text: 'Network Relays',
-                    //   onTap: () => context.push('${Routes.settings}/network'),
-                    // ),
+                    SettingsListTile(
+                      icon: CarbonIcons.data_vis_3,
+                      text: 'Network Relays',
+                      onTap: () => context.push('${Routes.settings}/network'),
+                    ),
                     SettingsListTile(
                       icon: CarbonIcons.logout,
                       text: 'Sign out',

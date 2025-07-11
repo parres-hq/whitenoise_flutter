@@ -19,6 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$AuthState {
   bool get isAuthenticated => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
+  bool get isBackgroundProcessing => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
   /// Create a copy of AuthState
@@ -32,7 +33,12 @@ abstract class $AuthStateCopyWith<$Res> {
   factory $AuthStateCopyWith(AuthState value, $Res Function(AuthState) then) =
       _$AuthStateCopyWithImpl<$Res, AuthState>;
   @useResult
-  $Res call({bool isAuthenticated, bool isLoading, String? error});
+  $Res call({
+    bool isAuthenticated,
+    bool isLoading,
+    bool isBackgroundProcessing,
+    String? error,
+  });
 }
 
 /// @nodoc
@@ -51,6 +57,7 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState> implements $AuthStat
   $Res call({
     Object? isAuthenticated = null,
     Object? isLoading = null,
+    Object? isBackgroundProcessing = null,
     Object? error = freezed,
   }) {
     return _then(
@@ -64,6 +71,11 @@ class _$AuthStateCopyWithImpl<$Res, $Val extends AuthState> implements $AuthStat
                 null == isLoading
                     ? _value.isLoading
                     : isLoading // ignore: cast_nullable_to_non_nullable
+                        as bool,
+            isBackgroundProcessing:
+                null == isBackgroundProcessing
+                    ? _value.isBackgroundProcessing
+                    : isBackgroundProcessing // ignore: cast_nullable_to_non_nullable
                         as bool,
             error:
                 freezed == error
@@ -84,7 +96,12 @@ abstract class _$$AuthStateImplCopyWith<$Res> implements $AuthStateCopyWith<$Res
   ) = __$$AuthStateImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({bool isAuthenticated, bool isLoading, String? error});
+  $Res call({
+    bool isAuthenticated,
+    bool isLoading,
+    bool isBackgroundProcessing,
+    String? error,
+  });
 }
 
 /// @nodoc
@@ -102,6 +119,7 @@ class __$$AuthStateImplCopyWithImpl<$Res> extends _$AuthStateCopyWithImpl<$Res, 
   $Res call({
     Object? isAuthenticated = null,
     Object? isLoading = null,
+    Object? isBackgroundProcessing = null,
     Object? error = freezed,
   }) {
     return _then(
@@ -115,6 +133,11 @@ class __$$AuthStateImplCopyWithImpl<$Res> extends _$AuthStateCopyWithImpl<$Res, 
             null == isLoading
                 ? _value.isLoading
                 : isLoading // ignore: cast_nullable_to_non_nullable
+                    as bool,
+        isBackgroundProcessing:
+            null == isBackgroundProcessing
+                ? _value.isBackgroundProcessing
+                : isBackgroundProcessing // ignore: cast_nullable_to_non_nullable
                     as bool,
         error:
             freezed == error
@@ -132,6 +155,7 @@ class _$AuthStateImpl extends _AuthState {
   const _$AuthStateImpl({
     this.isAuthenticated = false,
     this.isLoading = false,
+    this.isBackgroundProcessing = false,
     this.error,
   }) : super._();
 
@@ -142,11 +166,14 @@ class _$AuthStateImpl extends _AuthState {
   @JsonKey()
   final bool isLoading;
   @override
+  @JsonKey()
+  final bool isBackgroundProcessing;
+  @override
   final String? error;
 
   @override
   String toString() {
-    return 'AuthState(isAuthenticated: $isAuthenticated, isLoading: $isLoading, error: $error)';
+    return 'AuthState(isAuthenticated: $isAuthenticated, isLoading: $isLoading, isBackgroundProcessing: $isBackgroundProcessing, error: $error)';
   }
 
   @override
@@ -157,11 +184,19 @@ class _$AuthStateImpl extends _AuthState {
             (identical(other.isAuthenticated, isAuthenticated) ||
                 other.isAuthenticated == isAuthenticated) &&
             (identical(other.isLoading, isLoading) || other.isLoading == isLoading) &&
+            (identical(other.isBackgroundProcessing, isBackgroundProcessing) ||
+                other.isBackgroundProcessing == isBackgroundProcessing) &&
             (identical(other.error, error) || other.error == error));
   }
 
   @override
-  int get hashCode => Object.hash(runtimeType, isAuthenticated, isLoading, error);
+  int get hashCode => Object.hash(
+    runtimeType,
+    isAuthenticated,
+    isLoading,
+    isBackgroundProcessing,
+    error,
+  );
 
   /// Create a copy of AuthState
   /// with the given fields replaced by the non-null parameter values.
@@ -176,6 +211,7 @@ abstract class _AuthState extends AuthState {
   const factory _AuthState({
     final bool isAuthenticated,
     final bool isLoading,
+    final bool isBackgroundProcessing,
     final String? error,
   }) = _$AuthStateImpl;
   const _AuthState._() : super._();
@@ -184,6 +220,8 @@ abstract class _AuthState extends AuthState {
   bool get isAuthenticated;
   @override
   bool get isLoading;
+  @override
+  bool get isBackgroundProcessing;
   @override
   String? get error;
 

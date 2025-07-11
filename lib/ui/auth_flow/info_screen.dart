@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
@@ -8,10 +9,30 @@ import 'package:whitenoise/ui/core/ui/app_button.dart';
 import '../core/themes/assets.dart';
 import '../core/themes/src/extensions.dart';
 
-class InfoScreen extends StatelessWidget {
+class InfoScreen extends ConsumerStatefulWidget {
   const InfoScreen({super.key});
 
-  void _onContinuePressed(BuildContext context) {
+  @override
+  ConsumerState<InfoScreen> createState() => _InfoScreenState();
+}
+
+class _InfoScreenState extends ConsumerState<InfoScreen> {
+  bool _isLoading = false;
+
+  Future<void> _onContinuePressed(BuildContext context) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Wait a bit for any background processes to complete
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    if (!context.mounted) return;
+
+    setState(() {
+      _isLoading = false;
+    });
+
     context.go('/onboarding/create-profile');
   }
 
@@ -67,27 +88,40 @@ class InfoScreen extends StatelessWidget {
           padding: EdgeInsets.symmetric(
             horizontal: 24.w,
           ).copyWith(bottom: 32.h),
-          child: AppFilledButton.child(
-            onPressed: () => _onContinuePressed(context),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Setup Profile',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.primaryForeground,
+          child:
+              _isLoading
+                  ? SizedBox(
+                    height: 56.h,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        color: context.colors.primaryForeground,
+                      ),
+                    ),
+                  )
+                  : AppFilledButton.child(
+                    onPressed: () => _onContinuePressed(context),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Setup Profile',
+                          style: TextStyle(
+                            fontSize: 16.sp,
+                            fontWeight: FontWeight.w600,
+                            color: context.colors.primaryForeground,
+                          ),
+                        ),
+                        Gap(14.w),
+                        SvgPicture.asset(
+                          AssetsPaths.icArrowRight,
+                          colorFilter: ColorFilter.mode(
+                            context.colors.primaryForeground,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Gap(14.w),
-                SvgPicture.asset(
-                  AssetsPaths.icArrowRight,
-                  colorFilter: ColorFilter.mode(context.colors.primaryForeground, BlendMode.srcIn),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );

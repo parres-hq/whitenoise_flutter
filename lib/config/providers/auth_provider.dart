@@ -110,6 +110,33 @@ class AuthNotifier extends Notifier<AuthState> {
     }
   }
 
+  /// Create account in background without showing loading state
+  Future<void> createAccountInBackground() async {
+    if (!state.isAuthenticated) {
+      await initialize();
+    }
+
+    state = state.copyWith(error: null);
+
+    try {
+      final account = await createIdentity();
+
+      // Account created successfully
+
+      // Get the newly created account data and set it as active
+      final accountData = await convertAccountToData(account: account);
+      await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
+
+      state = state.copyWith(isAuthenticated: true);
+
+      // Load account data after creating identity
+      await ref.read(accountProvider.notifier).loadAccountData();
+    } catch (e, st) {
+      _logger.severe('createAccountInBackground', e, st);
+      state = state.copyWith(error: e.toString());
+    }
+  }
+
   /// Login with a private key (nsec or hex)
   Future<void> loginWithKey(String nsecOrPrivkey) async {
     if (!state.isAuthenticated) {
@@ -157,6 +184,54 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(error: errorMessage);
     } finally {
       state = state.copyWith(isLoading: false);
+    }
+  }
+
+  /// Login with a private key in background without showing loading state
+  Future<void> loginWithKeyInBackground(String nsecOrPrivkey) async {
+    if (!state.isAuthenticated) {
+      await initialize();
+    }
+
+    state = state.copyWith(error: null);
+
+    try {
+      /// 1. Perform login using Rust API
+      final account = await login(nsecOrHexPrivkey: nsecOrPrivkey);
+
+      // Account logged in successfully
+
+      // Get the logged in account data and set it as active
+      final accountData = await convertAccountToData(account: account);
+      await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
+
+      state = state.copyWith(isAuthenticated: true);
+
+      // Load account data after login
+      await ref.read(accountProvider.notifier).loadAccountData();
+    } catch (e, st) {
+      String errorMessage;
+
+      // Check if it's a WhitenoiseError and convert it to a readable message
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+          if (errorMessage.contains('InvalidSecretKey')) {
+            errorMessage = 'Invalid nsec or private key';
+          }
+        } catch (conversionError) {
+          // Fallback if conversion fails
+          errorMessage = 'Invalid nsec or private key';
+        }
+        // Log the user-friendly error message for WhitenoiseError instead of the raw exception
+        _logger.warning('loginWithKeyInBackground failed: $errorMessage');
+      } else {
+        errorMessage = e.toString();
+        // Log unexpected errors as severe with full stack trace
+        _logger.severe('loginWithKeyInBackground unexpected error', e, st);
+      }
+
+      state = state.copyWith(error: errorMessage);
     }
   }
 

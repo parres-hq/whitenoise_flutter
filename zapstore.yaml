@@ -19,11 +19,11 @@ images:
   - assets/zapstore/zapstore-3.png
   - assets/zapstore/zapstore-4.png
 icon: assets/pngs/ic_whitenoise.png
-version: 0.1.0
+version: 0.1.1
 changelog: CHANGELOG.md
 tags: privacy security android messenger cryptography freedom-tech MLS E2EE
 license: AGPL-3.0-only
 blossom_servers:
   - https://cdn.zapstore.dev
 assets:
-  - build/app/outputs/apk/release/app-arm64-v8a-release.apk
+  - build/app/outputs/flutter-apk/app-arm64-v8a-release.apk

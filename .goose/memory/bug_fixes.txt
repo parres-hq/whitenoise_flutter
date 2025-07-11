@@ -4,3 +4,12 @@ DroppableDisposedException comprehensive fix - Implemented robust retry mechanis
 
 UI decision logic debugging - Added comprehensive logging to _handleContactTap to diagnose why successful key package fetches were still showing legacy invite. Enhanced logging shows raw fetch results, null checks, type information, and final UI decision logic. This will help identify if the issue is in the fetch result handling or UI logic flow.
 
+# chat messaging ui text_styling consistency
+**MESSAGE TEXT INCONSISTENCY BUG FIX**:
+- **Problem**: Messages with reactions vs messages without reactions had different text styling, causing inconsistent font sizes/weights in chat bubbles
+- **Root Cause**: Duplicate TextStyle definitions in _buildMessageWithTimestamp() method - one for messages without reactions (shared textStyle variable) and another inline TextStyle for messages with reactions
+- **Fix**: Moved textStyle definition to top of method as single source of truth, ensuring ALL message text uses identical styling regardless of whether they have reactions
+- **Files Modified**: `/lib/ui/chat/widgets/message_widget.dart`
+- **Key Change**: Both code paths now use the same `textStyle` variable instead of creating duplicate inline styles
+- **Result**: Consistent message text appearance across all chat messages
+
