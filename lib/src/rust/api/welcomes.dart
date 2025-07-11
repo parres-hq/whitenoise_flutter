@@ -152,6 +152,7 @@ class WelcomeData {
   final String welcomer;
   final int memberCount;
   final WelcomeState state;
+  final BigInt createdAt;
 
   const WelcomeData({
     required this.id,
@@ -164,6 +165,7 @@ class WelcomeData {
     required this.welcomer,
     required this.memberCount,
     required this.state,
+    required this.createdAt,
   });
 
   @override
@@ -177,7 +179,8 @@ class WelcomeData {
       groupRelays.hashCode ^
       welcomer.hashCode ^
       memberCount.hashCode ^
-      state.hashCode;
+      state.hashCode ^
+      createdAt.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -193,7 +196,8 @@ class WelcomeData {
           groupRelays == other.groupRelays &&
           welcomer == other.welcomer &&
           memberCount == other.memberCount &&
-          state == other.state;
+          state == other.state &&
+          createdAt == other.createdAt;
 }
 
 enum WelcomeState {

@@ -8,7 +8,7 @@ void main() {
     late ProviderContainer container;
 
     // Test data
-    final testWelcomeData1 = const WelcomeData(
+    final testWelcomeData1 = WelcomeData(
       id: 'welcome_1',
       mlsGroupId: 'mls_group_1',
       nostrGroupId: 'nostr_group_1',
@@ -19,9 +19,10 @@ void main() {
       welcomer: 'welcomer_pubkey_123',
       memberCount: 5,
       state: WelcomeState.pending,
+      createdAt: BigInt.from(1715404800),
     );
 
-    final testWelcomeData2 = const WelcomeData(
+    final testWelcomeData2 = WelcomeData(
       id: 'welcome_2',
       mlsGroupId: 'mls_group_2',
       nostrGroupId: 'nostr_group_2',
@@ -32,9 +33,10 @@ void main() {
       welcomer: 'welcomer_pubkey_456',
       memberCount: 10,
       state: WelcomeState.accepted,
+      createdAt: BigInt.from(1715404800),
     );
 
-    final testWelcomeData3 = const WelcomeData(
+    final testWelcomeData3 = WelcomeData(
       id: 'welcome_3',
       mlsGroupId: 'mls_group_3',
       nostrGroupId: 'nostr_group_3',
@@ -45,9 +47,10 @@ void main() {
       welcomer: 'welcomer_pubkey_789',
       memberCount: 15,
       state: WelcomeState.declined,
+      createdAt: BigInt.from(1715404800),
     );
 
-    final testWelcomeData4 = const WelcomeData(
+    final testWelcomeData4 = WelcomeData(
       id: 'welcome_4',
       mlsGroupId: 'mls_group_4',
       nostrGroupId: 'nostr_group_4',
@@ -58,6 +61,7 @@ void main() {
       welcomer: 'welcomer_pubkey_000',
       memberCount: 3,
       state: WelcomeState.ignored,
+      createdAt: BigInt.from(1715404800),
     );
 
     final testWelcomes = [testWelcomeData1, testWelcomeData2, testWelcomeData3, testWelcomeData4];
@@ -376,7 +380,7 @@ void main() {
 
     group('Edge Cases', () {
       test('should handle welcome with empty description', () {
-        final welcomeWithEmptyDesc = const WelcomeData(
+        final welcomeWithEmptyDesc = WelcomeData(
           id: 'welcome_empty_desc',
           mlsGroupId: 'mls_group_empty',
           nostrGroupId: 'nostr_group_empty',
@@ -387,6 +391,7 @@ void main() {
           welcomer: 'welcomer_123',
           memberCount: 1,
           state: WelcomeState.pending,
+          createdAt: BigInt.from(1715404800),
         );
 
         final notifier = container.read(welcomesProvider.notifier);
@@ -402,7 +407,7 @@ void main() {
       });
 
       test('should handle welcome with single member', () {
-        final singleMemberWelcome = const WelcomeData(
+        final singleMemberWelcome = WelcomeData(
           id: 'welcome_single',
           mlsGroupId: 'mls_group_single',
           nostrGroupId: 'nostr_group_single',
@@ -413,6 +418,7 @@ void main() {
           welcomer: 'welcomer_123',
           memberCount: 1,
           state: WelcomeState.pending,
+          createdAt: BigInt.from(1715404800),
         );
 
         final notifier = container.read(welcomesProvider.notifier);
@@ -427,7 +433,7 @@ void main() {
       });
 
       test('should handle welcome with multiple admins', () {
-        final multiAdminWelcome = const WelcomeData(
+        final multiAdminWelcome = WelcomeData(
           id: 'welcome_multi_admin',
           mlsGroupId: 'mls_group_multi',
           nostrGroupId: 'nostr_group_multi',
@@ -438,6 +444,7 @@ void main() {
           welcomer: 'welcomer_123',
           memberCount: 10,
           state: WelcomeState.pending,
+          createdAt: BigInt.from(1715404800),
         );
 
         final notifier = container.read(welcomesProvider.notifier);
@@ -456,7 +463,7 @@ void main() {
       });
 
       test('should handle welcome with multiple relays', () {
-        final multiRelayWelcome = const WelcomeData(
+        final multiRelayWelcome = WelcomeData(
           id: 'welcome_multi_relay',
           mlsGroupId: 'mls_group_relay',
           nostrGroupId: 'nostr_group_relay',
@@ -471,6 +478,7 @@ void main() {
           welcomer: 'welcomer_123',
           memberCount: 5,
           state: WelcomeState.pending,
+          createdAt: BigInt.from(1715404800),
         );
 
         final notifier = container.read(welcomesProvider.notifier);
@@ -717,7 +725,7 @@ void main() {
 
         // Reset for next test
         receivedWelcome = null;
-        
+
         // Trigger another callback
         notifier.triggerWelcomeCallback(testWelcomeData1);
         expect(receivedWelcome, testWelcomeData1);
@@ -736,7 +744,7 @@ void main() {
       test('should show next pending welcome', () {
         final notifier = container.read(welcomesProvider.notifier);
         final welcomeById = <String, WelcomeData>{};
-        
+
         // Set up multiple pending welcomes
         final pendingWelcomes = [testWelcomeData1, testWelcomeData4]; // both pending
         for (final welcome in pendingWelcomes) {
@@ -760,7 +768,7 @@ void main() {
 
       test('should handle no pending welcomes when showing next', () {
         final notifier = container.read(welcomesProvider.notifier);
-        
+
         // Set up with no pending welcomes
         notifier.state = notifier.state.copyWith(
           welcomes: [testWelcomeData2, testWelcomeData3], // accepted and declined
@@ -879,6 +887,7 @@ extension WelcomeDataCopyWith on WelcomeData {
     String? welcomer,
     int? memberCount,
     WelcomeState? state,
+    BigInt? createdAt,
   }) {
     return WelcomeData(
       id: id ?? this.id,
@@ -891,6 +900,7 @@ extension WelcomeDataCopyWith on WelcomeData {
       welcomer: welcomer ?? this.welcomer,
       memberCount: memberCount ?? this.memberCount,
       state: state ?? this.state,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 }

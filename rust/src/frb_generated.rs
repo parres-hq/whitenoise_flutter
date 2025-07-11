@@ -5170,6 +5170,7 @@ impl SseDecode for crate::api::welcomes::WelcomeData {
         let mut var_welcomer = <String>::sse_decode(deserializer);
         let mut var_memberCount = <u32>::sse_decode(deserializer);
         let mut var_state = <crate::api::welcomes::WelcomeState>::sse_decode(deserializer);
+        let mut var_createdAt = <u64>::sse_decode(deserializer);
         return crate::api::welcomes::WelcomeData {
             id: var_id,
             mls_group_id: var_mlsGroupId,
@@ -5181,6 +5182,7 @@ impl SseDecode for crate::api::welcomes::WelcomeData {
             welcomer: var_welcomer,
             member_count: var_memberCount,
             state: var_state,
+            created_at: var_createdAt,
         };
     }
 }
@@ -5996,6 +5998,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::welcomes::WelcomeData {
             self.welcomer.into_into_dart().into_dart(),
             self.member_count.into_into_dart().into_dart(),
             self.state.into_into_dart().into_dart(),
+            self.created_at.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -6799,6 +6802,7 @@ impl SseEncode for crate::api::welcomes::WelcomeData {
         <String>::sse_encode(self.welcomer, serializer);
         <u32>::sse_encode(self.member_count, serializer);
         <crate::api::welcomes::WelcomeState>::sse_encode(self.state, serializer);
+        <u64>::sse_encode(self.created_at, serializer);
     }
 }
 

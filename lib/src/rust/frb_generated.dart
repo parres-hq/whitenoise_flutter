@@ -4532,7 +4532,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   WelcomeData dco_decode_welcome_data(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 10) throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
+    if (arr.length != 11) throw Exception('unexpected arr length: expect 11 but see ${arr.length}');
     return WelcomeData(
       id: dco_decode_String(arr[0]),
       mlsGroupId: dco_decode_String(arr[1]),
@@ -4544,6 +4544,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       welcomer: dco_decode_String(arr[7]),
       memberCount: dco_decode_u_32(arr[8]),
       state: dco_decode_welcome_state(arr[9]),
+      createdAt: dco_decode_u_64(arr[10]),
     );
   }
 
@@ -5714,6 +5715,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     final var_welcomer = sse_decode_String(deserializer);
     final var_memberCount = sse_decode_u_32(deserializer);
     final var_state = sse_decode_welcome_state(deserializer);
+    final var_createdAt = sse_decode_u_64(deserializer);
     return WelcomeData(
       id: var_id,
       mlsGroupId: var_mlsGroupId,
@@ -5725,6 +5727,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       welcomer: var_welcomer,
       memberCount: var_memberCount,
       state: var_state,
+      createdAt: var_createdAt,
     );
   }
 
@@ -6827,6 +6830,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.welcomer, serializer);
     sse_encode_u_32(self.memberCount, serializer);
     sse_encode_welcome_state(self.state, serializer);
+    sse_encode_u_64(self.createdAt, serializer);
   }
 
   @protected

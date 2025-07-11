@@ -237,6 +237,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         welcomer: currentWelcome.welcomer,
         memberCount: currentWelcome.memberCount,
         state: newState,
+        createdAt: currentWelcome.createdAt,
       );
 
       final updatedWelcomeById = Map<String, WelcomeData>.from(state.welcomeById ?? {});

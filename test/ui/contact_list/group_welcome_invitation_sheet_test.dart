@@ -4,7 +4,7 @@ import 'package:whitenoise/src/rust/api/welcomes.dart';
 void main() {
   group('GroupWelcomeInvitationSheet Logic Tests', () {
     // Test data for direct message (memberCount <= 2)
-    const directMessageWelcome = WelcomeData(
+    final directMessageWelcome = WelcomeData(
       id: 'dm_welcome_1',
       mlsGroupId: 'mls_dm_1',
       nostrGroupId: 'nostr_dm_1',
@@ -15,10 +15,11 @@ void main() {
       welcomer: 'abc123def456789012345678901234567890123456789012345678901234567890', // 64-char hex public key
       memberCount: 2, // Direct message
       state: WelcomeState.pending,
+      createdAt: BigInt.from(1715404800),
     );
 
     // Test data for group message (memberCount > 2)
-    const groupMessageWelcome = WelcomeData(
+    final groupMessageWelcome = WelcomeData(
       id: 'group_welcome_1',
       mlsGroupId: 'mls_group_1',
       nostrGroupId: 'nostr_group_1',
@@ -29,6 +30,7 @@ void main() {
       welcomer: 'abc123def456789012345678901234567890123456789012345678901234567890',
       memberCount: 5, // Group message
       state: WelcomeState.pending,
+      createdAt: BigInt.from(1715404800),
     );
 
     group('Welcome Data Validation', () {
@@ -50,8 +52,8 @@ void main() {
       test('should distinguish between direct and group messages by member count', () {
         // Direct message criteria
         expect(directMessageWelcome.memberCount, lessThanOrEqualTo(2));
-        
-        // Group message criteria  
+
+        // Group message criteria
         expect(groupMessageWelcome.memberCount, greaterThan(2));
       });
 
@@ -59,7 +61,7 @@ void main() {
         expect(directMessageWelcome.mlsGroupId, isNotEmpty);
         expect(directMessageWelcome.nostrGroupId, isNotEmpty);
         expect(directMessageWelcome.groupRelays, isNotEmpty);
-        
+
         expect(groupMessageWelcome.mlsGroupId, isNotEmpty);
         expect(groupMessageWelcome.nostrGroupId, isNotEmpty);
         expect(groupMessageWelcome.groupRelays, isNotEmpty);
@@ -118,7 +120,7 @@ void main() {
       test('should prefer nip05 over npub for display', () {
         // Test the display priority logic
         // 1. Display name (if available)
-        // 2. NIP-05 identifier (if available) 
+        // 2. NIP-05 identifier (if available)
         // 3. npub format (fallback)
         // This test validates the logic exists, actual API calls would be tested in integration tests
         expect(true, true); // Placeholder for display priority logic validation
