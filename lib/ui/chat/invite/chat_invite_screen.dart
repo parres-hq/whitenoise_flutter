@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 
 class ChatInviteScreen extends ConsumerWidget {
   final String groupId;
@@ -33,18 +33,15 @@ class ChatInviteScreen extends ConsumerWidget {
 
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: AppBar(
+      appBar: CustomAppBar(
         title: ContactInfo(
           title: welcomeData.groupName,
           imageUrl: '',
-          onTap: () {}, // Disable info tap for invites
         ),
-        backgroundColor: context.colors.neutral,
-        elevation: 0,
       ),
       body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Invite info display
           Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 24.h),
             child: Column(
@@ -79,7 +76,7 @@ class ChatInviteScreen extends ConsumerWidget {
                 Container(
                   padding: EdgeInsets.all(12.w),
                   decoration: BoxDecoration(
-                    color: context.colors.muted,
+                    color: context.colors.border,
                     borderRadius: BorderRadius.circular(8.r),
                   ),
                   child: Row(
@@ -120,57 +117,53 @@ class ChatInviteScreen extends ConsumerWidget {
               ),
             ),
             child: SafeArea(
-              child: Row(
+              child: Column(
                 children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await welcomesNotifier.declineWelcomeInvitation(inviteId);
-                        if (context.mounted) {
-                          Navigator.of(context).pop();
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: context.colors.destructive,
-                        foregroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(vertical: 16.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await welcomesNotifier.declineWelcomeInvitation(inviteId);
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: context.colors.destructive,
+                      foregroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
-                      child: Text(
-                        'Decline',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    ),
+                    child: Text(
+                      'Decline',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
                   SizedBox(width: 16.w),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () async {
-                        await welcomesNotifier.acceptWelcomeInvitation(inviteId);
-                        if (context.mounted) {
-                          // Navigate to normal chat after accepting
-                          Routes.goToChat(context, groupId);
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: context.colors.primary,
-                        foregroundColor: context.colors.primaryForeground,
-                        padding: EdgeInsets.symmetric(vertical: 16.h),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8.r),
-                        ),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await welcomesNotifier.acceptWelcomeInvitation(inviteId);
+                      if (context.mounted) {
+                        // Navigate to normal chat after accepting
+                        Routes.goToChat(context, groupId);
+                      }
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: context.colors.primary,
+                      foregroundColor: context.colors.primaryForeground,
+                      padding: EdgeInsets.symmetric(vertical: 16.h),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8.r),
                       ),
-                      child: Text(
-                        'Accept',
-                        style: TextStyle(
-                          fontSize: 16.sp,
-                          fontWeight: FontWeight.w600,
-                        ),
+                    ),
+                    child: Text(
+                      'Accept',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ),
