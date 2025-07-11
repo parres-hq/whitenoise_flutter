@@ -68,7 +68,9 @@ class WelcomeTile extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            item.dateCreated.timeago().capitalizeFirst,
+                            DateTime.fromMillisecondsSinceEpoch(
+                              welcomeData.createdAt.toInt(),
+                            ).timeago().capitalizeFirst,
                             style: TextStyle(
                               fontSize: 14.sp,
                               color: context.colors.mutedForeground,
