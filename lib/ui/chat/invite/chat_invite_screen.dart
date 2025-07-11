@@ -29,7 +29,6 @@ class ChatInviteScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final welcomesNotifier = ref.read(welcomesProvider.notifier);
     final welcomeData = welcomesNotifier.getWelcomeById(inviteId);
-
     if (welcomeData == null) {
       return Scaffold(
         backgroundColor: context.colors.neutral,
@@ -58,7 +57,6 @@ class ChatInviteScreen extends ConsumerWidget {
             child: SafeArea(
               child: Column(
                 children: [
-                  Gap(4.h),
                   AppFilledButton(
                     title: 'Decline',
                     visualState: AppButtonVisualState.secondary,
@@ -69,6 +67,7 @@ class ChatInviteScreen extends ConsumerWidget {
                       }
                     },
                   ),
+                  Gap(8.h),
                   AppFilledButton(
                     title: 'Accept',
                     onPressed: () async {
