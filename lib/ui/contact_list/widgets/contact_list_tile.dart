@@ -36,7 +36,8 @@ class ContactListTile extends StatelessWidget {
       final npub = await exportAccountNpub(pubkey: publicKey);
       return npub.formatPublicKey();
     } catch (e) {
-      return '';
+      // Return the full hex key as fallback
+      return publicKeyHex.formatPublicKey();
     }
   }
 
@@ -106,25 +107,37 @@ class ContactListTile extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Gap(6.w),
-                      if (contact.nip05 != null && contact.nip05!.isNotEmpty)
-                        SvgPicture.asset(
-                          AssetsPaths.icVerifiedUser,
-                          height: 12.w,
-                          width: 12.w,
-                        ),
                     ],
                   ),
                   Gap(2.h),
                   FutureBuilder<String>(
                     future: _getNpub(contact.publicKey),
                     builder: (context, snapshot) {
-                      if (snapshot.hasData) {
+                      if (snapshot.connectionState == ConnectionState.waiting) {
+                        return Text(
+                          'Loading...',
+                          style: TextStyle(
+                            color: context.colors.mutedForeground.withValues(alpha: 0.6),
+                            fontSize: 12.sp,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        );
+                      } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                         return Text(
                           snapshot.data!,
                           style: TextStyle(
                             color: context.colors.mutedForeground,
                             fontSize: 12.sp,
+                            fontFamily: 'monospace',
+                          ),
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text(
+                          'Error loading npub',
+                          style: TextStyle(
+                            color: context.colors.mutedForeground.withValues(alpha: 0.6),
+                            fontSize: 12.sp,
+                            fontStyle: FontStyle.italic,
                           ),
                         );
                       }

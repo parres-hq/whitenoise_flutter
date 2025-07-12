@@ -80,12 +80,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     final welcomesList = ref.watch(welcomesProvider.select((state) => state.welcomes)) ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
 
-    // Cache profile data to avoid unnecessary rebuilds
-    final profileData = ref.watch(profileProvider);
-    final currentUserName = profileData.valueOrNull?.displayName ?? '';
-    // final userFirstLetter =
-    //     currentUserName.isNotEmpty == true ? currentUserName[0].toUpperCase() : '';
-
     final chatItems = <ChatListItem>[];
 
     for (final group in groupList) {
