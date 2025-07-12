@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
@@ -98,7 +97,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
     });
   }
 
-  Future<void> pickProfileImage(WidgetRef ref) async {
+  Future<void> pickProfileImage() async {
     try {
       final XFile? image = await ImagePicker().pickImage(
         source: ImageSource.gallery,
@@ -116,13 +115,11 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       }
     } catch (e, st) {
       _logger.severe('pickProfileImage', e, st);
-      ref.showRawErrorToast('Failed to pick profile image');
+      state = AsyncValue.error('Failed to pick profile image', st);
     }
   }
 
-  Future<void> updateProfileData({
-    required WidgetRef ref,
-  }) async {
+  Future<void> updateProfileData() async {
     state = AsyncValue.data(
       state.value!.copyWith(isSaving: true, error: null, stackTrace: null),
     );
@@ -131,7 +128,6 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       final authState = ref.read(authProvider);
       if (!authState.isAuthenticated) {
         state = AsyncValue.error('Not authenticated', StackTrace.current);
-        ref.showErrorToast('Not authenticated');
         return;
       }
 
@@ -140,7 +136,6 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
-        ref.showErrorToast('No active account found');
         return;
       }
 
@@ -150,7 +145,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
 
         final activeAccount = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
         if (activeAccount == null) {
-          ref.showRawErrorToast('No active account found');
+          state = AsyncValue.error('No active account found', StackTrace.current);
           return;
         }
 
@@ -191,7 +186,6 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       );
 
       await fetchProfileData();
-      ref.showSuccessToast('Profile updated successfully');
     } catch (e, st) {
       _logger.severe('updateProfileData', e, st);
       state = AsyncValue.data(
@@ -209,7 +203,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       } else {
         errorMessage = e.toString();
       }
-      ref.showRawErrorToast('Failed to update profile: $errorMessage');
+      state = AsyncValue.error(errorMessage, st);
     }
   }
 }

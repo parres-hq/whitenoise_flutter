@@ -37,8 +37,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _aboutController = TextEditingController();
     _nostrAddressController = TextEditingController();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadProfileData();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(profileProvider.notifier).fetchProfileData();
     });
   }
 
@@ -50,51 +50,39 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _loadProfileData() async {
-    try {
-      await ref.read(profileProvider.notifier).fetchProfileData();
-
-      final profileData = ref.read(profileProvider);
-
-      profileData.whenData((profile) {
-        setState(() {
-          _displayNameController.text = profile.displayName ?? '';
-          _aboutController.text = profile.about ?? '';
-          _nostrAddressController.text = profile.nip05 ?? '';
-        });
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ref.showRawErrorToast('Failed to load profile}');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     ref.listen(profileProvider, (previous, next) {
-      next.whenData((profile) {
-        if (profile.error != null) {
-          ref.showRawErrorToast('Error: ${profile.error}');
-        }
+      next.when(
+        data: (profile) {
+          if (profile.error != null) {
+            ref.showErrorToast('Error: ${profile.error}');
+          }
 
-        // If the save was successful, `fetchProfileData` is called, which will
-        // make the new state not have a value, but `isRefreshing` will be true.
-        // In that case, we can pop the screen.
-        if (previous?.value != null && !next.hasValue && next.isRefreshing) {
-          context.pop();
-          return;
-        }
+          // If the save was successful, `fetchProfileData` is called, which will
+          // make the new state not have a value, but `isRefreshing` will be true.
+          // In that case, we can pop the screen and show success toast.
+          if (previous?.value != null && !next.hasValue && next.isRefreshing) {
+            ref.showSuccessToast('Profile updated successfully');
+            context.pop();
+            return;
+          }
 
-        if (previous?.value?.displayName != profile.displayName) {
-          _displayNameController.text = profile.displayName ?? '';
-        }
-        if (previous?.value?.about != profile.about) {
-          _aboutController.text = profile.about ?? '';
-        }
-        if (previous?.value?.nip05 != profile.nip05) {
-          _nostrAddressController.text = profile.nip05 ?? '';
-        }
-      });
+          if (previous?.value?.displayName != profile.displayName) {
+            _displayNameController.text = profile.displayName ?? '';
+          }
+          if (previous?.value?.about != profile.about) {
+            _aboutController.text = profile.about ?? '';
+          }
+          if (previous?.value?.nip05 != profile.nip05) {
+            _nostrAddressController.text = profile.nip05 ?? '';
+          }
+        },
+        error: (error, stackTrace) {
+          ref.showErrorToast(error.toString());
+        },
+        loading: () {},
+      );
     });
 
     final profileState = ref.watch(profileProvider);
@@ -218,9 +206,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       width: 28.w,
                                       child: EditIconWidget(
                                         onTap: () async {
-                                          await ref
-                                              .read(profileProvider.notifier)
-                                              .pickProfileImage(ref);
+                                          try {
+                                            await ref
+                                                .read(profileProvider.notifier)
+                                                .pickProfileImage();
+                                          } catch (e) {
+                                            if (context.mounted) {
+                                              ref.showErrorToast('Failed to pick profile image');
+                                            }
+                                          }
                                         },
                                       ),
                                     ),
@@ -338,7 +332,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                           onPressed: () async {
                                                             await ref
                                                                 .read(profileProvider.notifier)
-                                                                .updateProfileData(ref: ref);
+                                                                .updateProfileData();
                                                             if (context.mounted) {
                                                               Navigator.of(dialogContext).pop();
                                                             }
@@ -361,7 +355,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                         profile.isDirty && !profile.isSaving
                                             ? () async => await ref
                                                 .read(profileProvider.notifier)
-                                                .updateProfileData(ref: ref)
+                                                    .updateProfileData()
                                             : null,
                                     loading: profile.isSaving,
                                     title: 'Save',
