@@ -146,19 +146,53 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
+      // Save existing accounts (before login)
+      List<AccountData> existingAccounts = [];
+      try {
+        existingAccounts = await fetchAccounts();
+        _logger.info('Existing accounts before login: ${existingAccounts.length}');
+      } catch (e) {
+        _logger.info('No existing accounts or error fetching: $e');
+      }
+
       /// 1. Perform login using Rust API
       final account = await login(nsecOrHexPrivkey: nsecOrPrivkey);
+      _logger.info('Login successful, account created');
 
       // Account logged in successfully
 
       // Get the logged in account data and set it as active
       final accountData = await convertAccountToData(account: account);
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
+      _logger.info('Converting account to data: ${accountData.pubkey}');
 
+      // Set authenticated state first
       state = state.copyWith(isAuthenticated: true);
+
+      // Then set the active account
+      await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
+      _logger.info('Set active account: ${accountData.pubkey}');
 
       // Load account data after login
       await ref.read(accountProvider.notifier).loadAccountData();
+      _logger.info('Account data loaded');
+
+      // Check account count after login
+      try {
+        final accountsAfterLogin = await fetchAccounts();
+        _logger.info('Accounts after login: ${accountsAfterLogin.length}');
+
+        // Check that the active account is set correctly
+        final currentActiveAccount = ref.read(activeAccountProvider);
+        _logger.info('Current active account after login: $currentActiveAccount');
+
+        // Warn if previous accounts have been lost
+        if (existingAccounts.isNotEmpty &&
+            accountsAfterLogin.length < existingAccounts.length + 1) {
+          _logger.warning('Some existing accounts may have been lost during login');
+        }
+      } catch (e) {
+        _logger.warning('Error checking accounts after login: $e');
+      }
     } catch (e, st) {
       String errorMessage;
 
@@ -319,6 +353,8 @@ class AuthNotifier extends Notifier<AuthState> {
   }
 
   void setUnAuthenticated() {
+    // Only reset auth state, don't clear active account info
+    // This preserves the active account when going to login screen
     state = const AuthState();
   }
 }

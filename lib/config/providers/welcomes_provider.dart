@@ -14,9 +14,22 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
   void Function(WelcomeData)? _onNewWelcomeCallback;
 
   @override
-  WelcomesState build() => const WelcomesState();
+  WelcomesState build() {
+    // Listen to active account changes and refresh welcomes automatically
+    ref.listen<String?>(activeAccountProvider, (previous, next) {
+      if (previous != null && next != null && previous != next) {
+        clearWelcomeData();
+        Future.microtask(() => loadWelcomes());
+      } else if (previous != null && next == null) {
+        clearWelcomeData();
+      } else if (previous == null && next != null) {
+        Future.microtask(() => loadWelcomes());
+      }
+    });
 
-  /// Set a callback that will be triggered when a new pending welcome is detected
+    return const WelcomesState();
+  }
+
   void setOnNewWelcomeCallback(void Function(WelcomeData)? callback) {
     _onNewWelcomeCallback = callback;
   }

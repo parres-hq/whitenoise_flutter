@@ -46,7 +46,33 @@ class ContactsNotifier extends Notifier<ContactsState> {
   final _logger = Logger('ContactsNotifier');
 
   @override
-  ContactsState build() => const ContactsState();
+  ContactsState build() {
+    // Listen to active account changes and refresh contacts automatically
+    ref.listen<String?>(activeAccountProvider, (previous, next) {
+      if (previous != null && next != null && previous != next) {
+        state = const ContactsState();
+        Future.microtask(() async {
+          final activeAccountData =
+              await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          if (activeAccountData != null) {
+            await loadContacts(activeAccountData.pubkey);
+          }
+        });
+      } else if (previous != null && next == null) {
+        state = const ContactsState();
+      } else if (previous == null && next != null) {
+        Future.microtask(() async {
+          final activeAccountData =
+              await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          if (activeAccountData != null) {
+            await loadContacts(activeAccountData.pubkey);
+          }
+        });
+      }
+    });
+
+    return const ContactsState();
+  }
 
   // Helper to check if auth is available
   bool _isAuthAvailable() {

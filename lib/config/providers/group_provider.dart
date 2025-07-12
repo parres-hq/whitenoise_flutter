@@ -16,7 +16,24 @@ class GroupsNotifier extends Notifier<GroupsState> {
   final _logger = Logger('GroupsNotifier');
 
   @override
-  GroupsState build() => const GroupsState();
+  GroupsState build() {
+    // Listen to active account changes and refresh groups automatically
+    ref.listen<String?>(activeAccountProvider, (previous, next) {
+      if (previous != null && next != null && previous != next) {
+        // Account switched, clear current groups and load for new account
+        clearGroupData();
+        Future.microtask(() => loadGroups());
+      } else if (previous != null && next == null) {
+        // Account logged out, clear groups
+        clearGroupData();
+      } else if (previous == null && next != null) {
+        // Account logged in, load groups
+        Future.microtask(() => loadGroups());
+      }
+    });
+
+    return const GroupsState();
+  }
 
   bool _isAuthAvailable() {
     final authState = ref.read(authProvider);
