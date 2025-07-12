@@ -39,6 +39,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(profileProvider.notifier).fetchProfileData();
+      setState(() {
+        _displayNameController.text = ref.read(profileProvider).value?.displayName ?? '';
+        _aboutController.text = ref.read(profileProvider).value?.about ?? '';
+        _nostrAddressController.text = ref.read(profileProvider).value?.nip05 ?? '';
+      });
     });
   }
 
@@ -58,13 +63,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
           if (profile.error != null) {
             ref.showErrorToast('Error: ${profile.error}');
           }
-
-          // If the save was successful, `fetchProfileData` is called, which will
-          // make the new state not have a value, but `isRefreshing` will be true.
-          // In that case, we can pop the screen and show success toast.
-          if (previous?.value != null && !next.hasValue && next.isRefreshing) {
+          // Check if we just finished saving (was saving before, not saving now, no error)
+          if (previous?.value?.isSaving == true && !profile.isSaving && profile.error == null) {
             ref.showSuccessToast('Profile updated successfully');
-            context.pop();
             return;
           }
 
@@ -353,8 +354,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   AppFilledButton(
                                     onPressed:
                                         profile.isDirty && !profile.isSaving
-                                            ? () async => await ref
-                                                .read(profileProvider.notifier)
+                                            ? () async =>
+                                                await ref
+                                                    .read(profileProvider.notifier)
                                                     .updateProfileData()
                                             : null,
                                     loading: profile.isSaving,

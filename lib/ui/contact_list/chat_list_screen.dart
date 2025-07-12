@@ -31,7 +31,6 @@ class ChatListScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatListScreenState extends ConsumerState<ChatListScreen> {
-  String _profileImagePath = '';
   late final PollingNotifier _pollingNotifier;
 
   @override
@@ -49,7 +48,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       // Load initial data
       ref.read(welcomesProvider.notifier).loadWelcomes();
       ref.read(groupsProvider.notifier).loadGroups();
-      _loadProfileData();
+      ref.read(profileProvider.notifier).fetchProfileData();
 
       // Start polling for data updates
       _pollingNotifier.startPolling();
@@ -64,22 +63,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     super.dispose();
   }
 
-  Future<void> _loadProfileData() async {
-    try {
-      await ref.read(profileProvider.notifier).fetchProfileData();
-
-      final profileData = ref.read(profileProvider);
-
-      profileData.whenData((profile) {
-        setState(() {
-          _profileImagePath = profile.picture ?? '';
-        });
-      });
-    } catch (e) {
-      // Handle error silently for avatar
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     // Watch both groups and welcomes
@@ -92,6 +75,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     final currentUserName = profileData.valueOrNull?.displayName ?? '';
     final userFirstLetter =
         currentUserName.isNotEmpty == true ? currentUserName[0].toUpperCase() : '';
+    final profileImagePath = profileData.valueOrNull?.picture ?? '';
 
     final chatItems = <ChatListItem>[];
 
@@ -130,7 +114,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                     borderRadius: BorderRadius.circular(16.r),
                     onTap: () => context.push(Routes.settings),
                     child: ProfileAvatar(
-                      profileImageUrl: _profileImagePath,
+                      profileImageUrl: profileImagePath,
                       userFirstLetter: userFirstLetter,
                     ),
                   ),

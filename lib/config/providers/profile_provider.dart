@@ -2,10 +2,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
@@ -169,7 +170,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       if (metadata == null) {
         throw Exception('Metadata not found');
       }
-      
+
       final currentState = state.value!;
       metadata.displayName = currentState.displayName;
       metadata.about = currentState.about;
@@ -186,13 +187,16 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         metadata: metadata,
       );
 
+      // Update the metadata cache with the new profile data
+      await _updateMetadataCache(activeAccountData.pubkey, metadata);
+
       await fetchProfileData();
     } catch (e, st) {
       _logger.severe('updateProfileData', e, st);
       state = AsyncValue.data(
         state.value!.copyWith(isSaving: false, error: e, stackTrace: st),
       );
-      
+
       // Handle error messaging
       String? errorMessage;
       if (e is WhitenoiseError) {
@@ -205,6 +209,28 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         errorMessage = e.toString();
       }
       state = AsyncValue.error(errorMessage, st);
+    }
+  }
+
+  /// Update the metadata cache with new profile data
+  Future<void> _updateMetadataCache(String pubkey, MetadataData metadata) async {
+    try {
+      // Convert pubkey to npub format for consistent caching
+      final npub = await npubFromHexPubkey(hexPubkey: pubkey);
+
+      // Create a ContactModel from the updated metadata
+      final contactModel = ContactModel.fromMetadata(
+        publicKey: npub,
+        metadata: metadata,
+      );
+
+      // Update the metadata cache
+      ref.read(metadataCacheProvider.notifier).updateCachedMetadata(npub, contactModel);
+
+      _logger.info('Updated metadata cache for user: $npub');
+    } catch (e, _) {
+      _logger.warning('Failed to update metadata cache: $e');
+      // Don't throw - this is not critical for the profile update
     }
   }
 }
