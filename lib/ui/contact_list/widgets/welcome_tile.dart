@@ -8,6 +8,7 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
+import 'package:whitenoise/utils/big_int_extension.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/utils/timeago_formatter.dart';
 
@@ -68,9 +69,7 @@ class WelcomeTile extends ConsumerWidget {
                             ),
                           ),
                           Text(
-                            DateTime.fromMillisecondsSinceEpoch(
-                              welcomeData.createdAt.toInt(),
-                            ).timeago().capitalizeFirst,
+                            welcomeData.createdAt.toDateTime().timeago().capitalizeFirst,
                             style: TextStyle(
                               fontSize: 14.sp,
                               color: context.colors.mutedForeground,
