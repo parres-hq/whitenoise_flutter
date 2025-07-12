@@ -53,3 +53,4 @@ rust/.cargo/config.toml
 
 # AI
 **/.repomix-*
+.goose/**

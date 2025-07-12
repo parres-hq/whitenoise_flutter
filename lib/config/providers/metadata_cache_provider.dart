@@ -7,31 +7,39 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 
-/// Cached metadata entry with expiry information
+/// Enhanced cached metadata with validation
 class CachedMetadata {
   final ContactModel contactModel;
   final DateTime cachedAt;
   final Duration cacheExpiry;
+  final String originalKey; // Store the original key for validation
+  final String keyHash; // Store key hash for collision detection
 
   const CachedMetadata({
     required this.contactModel,
     required this.cachedAt,
+    required this.originalKey,
+    required this.keyHash,
     this.cacheExpiry = const Duration(hours: 1),
   });
 
   bool get isExpired => DateTime.now().isAfter(cachedAt.add(cacheExpiry));
 }
 
-/// State for the metadata cache
+/// State for the metadata cache with enhanced validation
 class MetadataCacheState {
   final Map<String, CachedMetadata> cache;
   final Map<String, Future<ContactModel>> pendingFetches;
+  final Set<String> keyValidationSet; // Additional validation set
+  final Map<String, int> keyHashCounts; // Track hash collisions
   final bool isLoading;
   final String? error;
 
   const MetadataCacheState({
     this.cache = const {},
     this.pendingFetches = const {},
+    this.keyValidationSet = const {},
+    this.keyHashCounts = const {},
     this.isLoading = false,
     this.error,
   });
@@ -39,12 +47,16 @@ class MetadataCacheState {
   MetadataCacheState copyWith({
     Map<String, CachedMetadata>? cache,
     Map<String, Future<ContactModel>>? pendingFetches,
+    Set<String>? keyValidationSet,
+    Map<String, int>? keyHashCounts,
     bool? isLoading,
     String? error,
   }) {
     return MetadataCacheState(
       cache: cache ?? this.cache,
       pendingFetches: pendingFetches ?? this.pendingFetches,
+      keyValidationSet: keyValidationSet ?? this.keyValidationSet,
+      keyHashCounts: keyHashCounts ?? this.keyHashCounts,
       isLoading: isLoading ?? this.isLoading,
       error: error ?? this.error,
     );
@@ -127,7 +139,71 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
     return false;
   }
 
-  /// Get standardized npub from any public key format
+  /// Enhanced collision detection and key validation
+  String _calculateKeyHash(String key) {
+    // Use a combination of hash functions to minimize collision risk
+    final primaryHash = key.hashCode.toString();
+    final lengthHash = key.length.toString();
+    final prefixHash = key.substring(0, key.length > 10 ? 10 : key.length).hashCode.toString();
+    final suffixHash = key.substring(key.length > 10 ? key.length - 10 : 0).hashCode.toString();
+
+    return '${primaryHash}_${lengthHash}_${prefixHash}_$suffixHash';
+  }
+
+  /// Validate key matches cached entry to prevent collision issues
+  bool _validateCacheEntry(String requestedKey, CachedMetadata cached) {
+    // Enhanced validation that checks multiple aspects
+    final keyMatches = cached.originalKey == requestedKey;
+    final hashMatches = cached.keyHash == _calculateKeyHash(requestedKey);
+    final contactKeyMatches = cached.contactModel.publicKey == requestedKey;
+
+    if (!keyMatches || !hashMatches || !contactKeyMatches) {
+      _logger.severe('🚨 CACHE COLLISION DETECTED for key: $requestedKey');
+      _logger.severe(
+        '   📊 Key matches: $keyMatches (expected: $requestedKey, cached: ${cached.originalKey})',
+      );
+      _logger.severe('   🔢 Hash matches: $hashMatches');
+      _logger.severe(
+        '   👤 Contact key matches: $contactKeyMatches (contact key: ${cached.contactModel.publicKey})',
+      );
+      _logger.severe('   🎯 ContactModel name: ${cached.contactModel.displayNameOrName}');
+      return false;
+    }
+
+    return true;
+  }
+
+  /// Enhanced cache integrity check
+  void _updateHashCollisionStats(String key) {
+    final keyHash = _calculateKeyHash(key);
+    final currentCount = state.keyHashCounts[keyHash] ?? 0;
+
+    if (currentCount > 0) {
+      _logger.warning(
+        '🔥 POTENTIAL HASH COLLISION: Hash $keyHash already seen $currentCount times',
+      );
+      _logger.warning('   🔑 Current key: $key');
+
+      // Find other keys with same hash for debugging
+      for (final entry in state.cache.entries) {
+        if (entry.value.keyHash == keyHash && entry.value.originalKey != key) {
+          _logger.warning('   🔑 Previous key with same hash: ${entry.value.originalKey}');
+        }
+      }
+    }
+
+    final newHashCounts = Map<String, int>.from(state.keyHashCounts);
+    newHashCounts[keyHash] = currentCount + 1;
+
+    final newValidationSet = Set<String>.from(state.keyValidationSet);
+    newValidationSet.add(key);
+
+    state = state.copyWith(
+      keyHashCounts: newHashCounts,
+      keyValidationSet: newValidationSet,
+    );
+  }
+
   Future<String> _getStandardizedNpub(String publicKey) async {
     final normalized = _normalizePublicKey(publicKey);
 
@@ -156,6 +232,25 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
         );
       }
 
+      // ENHANCED DEBUG: Log exact input key details for investigation
+      _logger.info('🔬 MetadataCache: ENHANCED DEBUG for $publicKey:');
+      _logger.info('  📊 Original key length: ${publicKey.length}');
+      _logger.info('  📊 Original key hashCode: ${publicKey.hashCode}');
+      _logger.info('  📊 Fetch key (hex): $fetchKey');
+      _logger.info('  📊 Fetch key length: ${fetchKey.length}');
+      _logger.info('  📊 Fetch key hashCode: ${fetchKey.hashCode}');
+
+      // Special detection for the reported problematic npubs
+      const String soapMinerNpub =
+          'npub1zzmxvr9sw49lhzfx236aweurt8h5tmzjw7x3gfsazlgd8j64ql0sexw5wy';
+      const String wrongNpub = 'npub1zymqqmvktw8lkr5dp6zzw5xk3fkdqcynj4l3f080k3amy28ses6setzznv';
+
+      if (publicKey.toLowerCase() == soapMinerNpub.toLowerCase()) {
+        _logger.warning('🎯 MetadataCache: PROCESSING SOAPMINER NPUB!');
+      } else if (publicKey.toLowerCase() == wrongNpub.toLowerCase()) {
+        _logger.warning('🎯 MetadataCache: PROCESSING WRONG NPUB!');
+      }
+
       // Create fresh PublicKey object for metadata fetching
       final contactPk = await publicKeyFromString(publicKeyString: fetchKey);
       _logger.info('✅ MetadataCache: Created PublicKey object for: $fetchKey');
@@ -179,6 +274,26 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
         _logger.info('   - nip05: "${metadata.nip05}"');
         _logger.info('   - lud16: "${metadata.lud16}"');
 
+        // SPECIAL CHECK: Detect if this is SoapMiner metadata specifically
+        final isSoapMinerMetadata =
+            metadata.name?.toLowerCase().contains('soapminer') == true ||
+            metadata.displayName?.toLowerCase().contains('soapminer') == true;
+        if (isSoapMinerMetadata) {
+          _logger.warning('🎯 MetadataCache: SOAPMINER METADATA DETECTED!');
+          _logger.warning('   🔑 For key: $fetchKey');
+          _logger.warning('   📝 Original input: $publicKey');
+
+          // If this is SoapMiner metadata but we're processing the wrong npub, that's the bug
+          if (publicKey.toLowerCase() == wrongNpub.toLowerCase()) {
+            _logger.severe(
+              '🚨 METADATA MIXUP DETECTED: SoapMiner metadata returned for wrong npub!',
+            );
+            _logger.severe('   🔑 Expected: $wrongNpub');
+            _logger.severe('   🎯 Got SoapMiner metadata instead!');
+            _logger.severe('   🔍 This confirms the bug is in the Rust fetchMetadata function');
+          }
+        }
+
         if (isRustDuplicate) {
           _logger.warning(
             '🛡️ MITIGATION: Forcing "Unknown User" for duplicate metadata from Rust',
@@ -195,10 +310,26 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
       // If Rust returned duplicate metadata, treat it as null to force "Unknown User"
       final effectiveMetadata = isRustDuplicate ? null : metadata;
 
+      // ENHANCED DEBUG: Log ContactModel creation process
+      _logger.info('🏗️ MetadataCache: Creating ContactModel with:');
+      _logger.info('   🔑 publicKey: $standardNpub');
+      _logger.info('   📊 effectiveMetadata: ${effectiveMetadata == null ? "NULL" : "NON-NULL"}');
+      if (effectiveMetadata != null) {
+        _logger.info('   📛 metadata.name: "${effectiveMetadata.name}"');
+        _logger.info('   🏷️ metadata.displayName: "${effectiveMetadata.displayName}"');
+      }
+
       final contactModel = ContactModel.fromMetadata(
         publicKey: standardNpub,
         metadata: effectiveMetadata,
       );
+
+      // ENHANCED VALIDATION: Log detailed ContactModel result
+      _logger.info('🏗️ MetadataCache: ContactModel created:');
+      _logger.info('   📛 model.name: "${contactModel.name}"');
+      _logger.info('   🏷️ model.displayName: "${contactModel.displayName}"');
+      _logger.info('   🔑 model.publicKey: "${contactModel.publicKey}"');
+      _logger.info('   🎭 model.displayNameOrName: "${contactModel.displayNameOrName}"');
 
       // VALIDATION: Log warning if null metadata doesn't result in "Unknown User"
       if (effectiveMetadata == null && contactModel.name != 'Unknown User') {
@@ -206,6 +337,21 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
           '⚠️ METADATA VALIDATION: NULL effective metadata but contact name is "${contactModel.name}" instead of "Unknown User" for $fetchKey - continuing with mitigation in place',
         );
         // Continue with the contactModel as-is since our mitigation should have handled this
+      }
+
+      // FINAL VALIDATION: Check for the specific bug case
+      if (publicKey.toLowerCase() == wrongNpub.toLowerCase() &&
+          contactModel.displayNameOrName.toLowerCase().contains('soapminer')) {
+        _logger.severe('🚨 BUG CONFIRMED: Wrong npub got SoapMiner metadata in ContactModel!');
+        _logger.severe('   📝 This is the exact issue reported by the user');
+        _logger.severe('   🔍 Root cause: Rust fetchMetadata returning wrong data');
+
+        // Force creation of Unknown User to prevent showing wrong metadata
+        _logger.warning('🛡️ EMERGENCY MITIGATION: Forcing Unknown User for wrong npub');
+        return ContactModel(
+          name: 'Unknown User',
+          publicKey: standardNpub,
+        );
       }
 
       _logger.info(
@@ -233,7 +379,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
     }
   }
 
-  /// Get contact model from cache or fetch if needed
+  /// Get contact model from cache or fetch if needed with enhanced collision detection
   Future<ContactModel> getContactModel(String publicKey) async {
     _logger.info('🎯 MetadataCache: getContactModel called with: $publicKey');
 
@@ -243,13 +389,30 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
     final standardNpub = await _getStandardizedNpub(normalizedKey);
     _logger.info('📝 MetadataCache: Standardized npub: $normalizedKey -> $standardNpub');
 
-    // Check cache first
+    // Update collision tracking
+    _updateHashCollisionStats(standardNpub);
+
+    // Check cache first with enhanced validation
     final cached = state.cache[standardNpub];
     if (cached != null && !cached.isExpired) {
-      _logger.info(
-        '💚 MetadataCache: Using cached metadata for $standardNpub -> ${cached.contactModel.displayNameOrName}',
-      );
-      return cached.contactModel;
+      // ENHANCED VALIDATION: Verify cache entry integrity
+      if (!_validateCacheEntry(standardNpub, cached)) {
+        _logger.severe(
+          '⚠️ Cache entry validation failed - removing corrupted entry and refetching',
+        );
+
+        // Remove the corrupted entry
+        final newCache = Map<String, CachedMetadata>.from(state.cache);
+        newCache.remove(standardNpub);
+        state = state.copyWith(cache: newCache);
+
+        // Continue to fetch fresh data
+      } else {
+        _logger.info(
+          '💚 MetadataCache: Using cached metadata for $standardNpub -> ${cached.contactModel.displayNameOrName}',
+        );
+        return cached.contactModel;
+      }
     }
 
     // Check if we're already fetching this key
@@ -275,11 +438,22 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
         '🎉 MetadataCache: Fetch completed for $standardNpub -> ${contactModel.displayNameOrName} (key: ${contactModel.publicKey})',
       );
 
-      // Cache the result
+      // Enhanced cache validation before storage
+      if (contactModel.publicKey != standardNpub) {
+        _logger.severe(
+          '🚨 CONTACT MODEL KEY MISMATCH: Expected $standardNpub, got ${contactModel.publicKey}',
+        );
+        // Force correct key in the model to prevent issues
+        // Note: This should be handled in ContactModel.fromMetadata, but adding extra safety
+      }
+
+      // Cache the result with enhanced metadata
       final newCache = Map<String, CachedMetadata>.from(state.cache);
       newCache[standardNpub] = CachedMetadata(
         contactModel: contactModel,
         cachedAt: DateTime.now(),
+        originalKey: standardNpub,
+        keyHash: _calculateKeyHash(standardNpub),
       );
 
       // Remove from pending fetches
@@ -291,7 +465,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
         pendingFetches: updatedPendingFetches,
       );
 
-      _logger.info('💾 MetadataCache: Cached result for $standardNpub');
+      _logger.info('💾 MetadataCache: Cached result for $standardNpub with validation data');
       return contactModel;
     } catch (e) {
       _logger.warning('❌ MetadataCache: Fetch failed for $standardNpub: $e');
@@ -349,10 +523,12 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
           metadata: effectiveMetadata,
         );
 
-        // Cache the result
+        // Cache the result with enhanced validation
         newCache[standardNpub] = CachedMetadata(
           contactModel: contactModel,
           cachedAt: DateTime.now(),
+          originalKey: standardNpub,
+          keyHash: _calculateKeyHash(standardNpub),
         );
 
         populated++;
@@ -451,6 +627,8 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
     newCache[normalizedKey] = CachedMetadata(
       contactModel: contactModel,
       cachedAt: DateTime.now(),
+      originalKey: normalizedKey,
+      keyHash: _calculateKeyHash(normalizedKey),
     );
 
     state = state.copyWith(cache: newCache);

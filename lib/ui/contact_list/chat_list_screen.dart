@@ -4,8 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_provider.dart';
@@ -31,7 +33,6 @@ class ChatListScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatListScreenState extends ConsumerState<ChatListScreen> {
-  String _profileImagePath = '';
   late final PollingNotifier _pollingNotifier;
 
   @override
@@ -67,14 +68,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   Future<void> _loadProfileData() async {
     try {
       await ref.read(profileProvider.notifier).fetchProfileData();
-
-      final profileData = ref.read(profileProvider);
-
-      profileData.whenData((profile) {
-        setState(() {
-          _profileImagePath = profile.picture ?? '';
-        });
-      });
     } catch (e) {
       // Handle error silently for avatar
     }
@@ -90,8 +83,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     // Cache profile data to avoid unnecessary rebuilds
     final profileData = ref.watch(profileProvider);
     final currentUserName = profileData.valueOrNull?.displayName ?? '';
-    final userFirstLetter =
-        currentUserName.isNotEmpty == true ? currentUserName[0].toUpperCase() : '';
+    // final userFirstLetter =
+    //     currentUserName.isNotEmpty == true ? currentUserName[0].toUpperCase() : '';
 
     final chatItems = <ChatListItem>[];
 
@@ -129,10 +122,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16.r),
                     onTap: () => context.push(Routes.settings),
-                    child: ProfileAvatar(
-                      profileImageUrl: _profileImagePath,
-                      userFirstLetter: userFirstLetter,
-                    ),
+                    child: _buildProfileAvatar(),
                   ),
                 ),
                 actions: [
@@ -180,6 +170,46 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
           error: (error, stack) => const SizedBox.shrink(),
         ),
       ),
+    );
+  }
+
+  /// Build profile avatar that properly reacts to account switches and uses metadata cache
+  Widget _buildProfileAvatar() {
+    final activeAccountPubkey = ref.watch(activeAccountProvider);
+
+    if (activeAccountPubkey == null) {
+      // No active account, show fallback avatar
+      return const ProfileAvatar();
+    }
+
+    // Use metadata cache to get contact model for current account
+    return FutureBuilder(
+      // This future will rebuild when activeAccountPubkey changes
+      future: ref.read(metadataCacheProvider.notifier).getContactModel(activeAccountPubkey),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final contactModel = snapshot.data!;
+          final firstLetter =
+              contactModel.displayNameOrName.isNotEmpty
+                  ? contactModel.displayNameOrName[0].toUpperCase()
+                  : null;
+
+          return ProfileAvatar(
+            profileImageUrl: contactModel.imagePath,
+            userFirstLetter: firstLetter,
+          );
+        }
+
+        // While loading or on error, show fallback with account-based letter
+        final fallbackLetter =
+            activeAccountPubkey.isNotEmpty
+                ? activeAccountPubkey.substring(0, 1).toUpperCase()
+                : null;
+
+        return ProfileAvatar(
+          userFirstLetter: fallbackLetter,
+        );
+      },
     );
   }
 }

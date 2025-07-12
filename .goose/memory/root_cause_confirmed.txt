@@ -1,9 +1,0 @@
-# rust_bug confirmed fetchMetadata duplicate_detection
-**ROOT CAUSE CONFIRMED FROM LOGS**:
-- Debug logs show "RAW DUPLICATE DETECTED: Name 'hodlbod' found for keys: [Key220515139, Key586308498]"
-- This confirms two different keys are returning identical 'hodlbod' metadata from Rust layer
-- One npub has no kind:0 event on relays but Rust fetchMetadata() returns 'hodlbod' instead of null
-- The bug is in the Rust backend - fetchMetadata() is incorrectly returning cached/wrong metadata instead of null
-- Dart layer duplicate detection is working correctly and caught the issue
-- Need to investigate Rust metadata caching/fetching logic
-

@@ -11,6 +11,7 @@ import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/utils/error_handling.dart';
 
 class GroupsNotifier extends Notifier<GroupsState> {
   final _logger = Logger('GroupsNotifier');
@@ -80,17 +81,15 @@ class GroupsNotifier extends Notifier<GroupsState> {
       state = state.copyWith(isLoading: false);
     } catch (e, st) {
       _logger.severe('GroupsProvider.loadGroups', e, st);
-      String errorMessage = 'Failed to load groups';
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to load groups due to an internal error';
-        }
-      } else {
-        errorMessage = e.toString();
-      }
+
+      final errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
+        error: e,
+        stackTrace: st,
+        fallbackMessage:
+            'Failed to load groups due to an internal error. Please check your connection and try again.',
+        context: 'loadGroups',
+      );
+
       state = state.copyWith(error: errorMessage, isLoading: false);
     }
   }
@@ -167,57 +166,14 @@ class GroupsNotifier extends Notifier<GroupsState> {
       return newGroup;
     } catch (e, st) {
       _logger.severe('GroupsProvider.createNewGroup', e, st);
-      String errorMessage = 'Failed to create group';
 
-      // Enhanced error handling with more debugging info
-      if (e is WhitenoiseError) {
-        try {
-          _logger.info('Attempting to convert WhitenoiseError to string...');
-          final rawErrorMessage = await whitenoiseErrorToString(error: e);
-          _logger.info('WhitenoiseError converted to: $rawErrorMessage');
-
-          // Check for specific error types and provide user-friendly messages
-          if (rawErrorMessage.contains('KeyPackage') &&
-              rawErrorMessage.contains('Does not exist')) {
-            errorMessage =
-                'Cannot create group: One or more users do not have valid encryption keys.\n\n'
-                'This typically means:\n'
-                '• The user has not used the app recently\n'
-                '• Their encryption keys have expired\n'
-                '• They need to open the app to refresh their keys\n\n'
-                'Please ask the user(s) to open WhiteNoise and try creating the group again.';
-          } else if (rawErrorMessage.contains('Network') ||
-              rawErrorMessage.contains('Connection')) {
-            errorMessage = 'Network error: Please check your internet connection and try again.';
-          } else if (rawErrorMessage.contains('Permission') ||
-              rawErrorMessage.contains('Unauthorized')) {
-            errorMessage =
-                'Permission error: You may not have permission to create groups with these users.';
-          } else {
-            // Use the raw error message for other cases
-            errorMessage = 'Failed to create group: $rawErrorMessage';
-          }
-        } catch (conversionError, conversionSt) {
-          _logger.severe(
-            'Failed to convert WhitenoiseError to string',
-            conversionError,
-            conversionSt,
-          );
-
-          // Provide more context about the error
-          errorMessage =
-              'Group creation failed. This could be due to:\n'
-              '• Invalid member public keys\n'
-              '• Network connectivity issues\n'
-              '• Insufficient permissions\n'
-              '• Backend service unavailable\n\n'
-              'Please check that all member public keys are valid and try again.';
-        }
-      } else {
-        _logger.info('Error type: ${e.runtimeType}');
-        _logger.info('Error details: $e');
-        errorMessage = 'Group creation failed: $e';
-      }
+      // Use the new error handling utility
+      final errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
+        error: e,
+        stackTrace: st,
+        fallbackMessage: ErrorHandlingUtils.getGroupCreationFallbackMessage(),
+        context: 'createNewGroup',
+      );
 
       state = state.copyWith(error: errorMessage, isLoading: false);
       return null;
