@@ -164,10 +164,10 @@ class AuthNotifier extends Notifier<AuthState> {
       // Get the logged in account data and set it as active
       final accountData = await convertAccountToData(account: account);
       _logger.info('Converting account to data: ${accountData.pubkey}');
-      
+
       // Set authenticated state first
       state = state.copyWith(isAuthenticated: true);
-      
+
       // Then set the active account
       await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
       _logger.info('Set active account: ${accountData.pubkey}');
@@ -180,13 +180,14 @@ class AuthNotifier extends Notifier<AuthState> {
       try {
         final accountsAfterLogin = await fetchAccounts();
         _logger.info('Accounts after login: ${accountsAfterLogin.length}');
-        
+
         // Check that the active account is set correctly
         final currentActiveAccount = ref.read(activeAccountProvider);
         _logger.info('Current active account after login: $currentActiveAccount');
-        
+
         // Warn if previous accounts have been lost
-        if (existingAccounts.isNotEmpty && accountsAfterLogin.length < existingAccounts.length + 1) {
+        if (existingAccounts.isNotEmpty &&
+            accountsAfterLogin.length < existingAccounts.length + 1) {
           _logger.warning('Some existing accounts may have been lost during login');
         }
       } catch (e) {
