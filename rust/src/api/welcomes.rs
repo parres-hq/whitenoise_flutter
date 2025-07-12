@@ -14,6 +14,7 @@ pub struct WelcomeData {
     pub welcomer: String,
     pub member_count: u32,
     pub state: WelcomeState,
+    pub created_at: u64,
 }
 
 #[frb(mirror(WelcomeState))]
@@ -45,6 +46,7 @@ pub fn convert_welcome_to_data(welcome: &Welcome) -> WelcomeData {
         welcomer: welcome.welcomer.to_hex(),
         member_count: welcome.member_count,
         state: welcome.state,
+        created_at: welcome.event.created_at.as_u64(),
     }
 }
 

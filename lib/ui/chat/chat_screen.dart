@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
+import 'package:whitenoise/ui/chat/invite/chat_invite_screen.dart';
 import 'package:whitenoise/ui/chat/services/chat_dialog_service.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input.dart';
@@ -18,10 +19,12 @@ import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String groupId;
+  final String? inviteId;
 
   const ChatScreen({
     super.key,
     required this.groupId,
+    this.inviteId,
   });
 
   @override
@@ -36,9 +39,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
-      ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
-      _handleScrollToBottom();
+      if (widget.inviteId == null) {
+        ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
+        ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
+        _handleScrollToBottom();
+      }
     });
 
     ref.listenManual(chatProvider, (previous, next) {
@@ -105,14 +110,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
-    final groupData = groupsNotifier.findGroupById(widget.groupId);
-    final displayName =
-        groupsNotifier.getGroupDisplayName(widget.groupId) ?? groupData?.name ?? 'Unknown Group';
-
     final chatNotifier = ref.watch(chatProvider.notifier);
 
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final isKeyboardOpen = keyboardHeight > 0;
+
+    final isInviteMode = widget.inviteId != null;
+
+    if (isInviteMode) {
+      return ChatInviteScreen(
+        groupId: widget.groupId,
+        inviteId: widget.inviteId!,
+      );
+    }
+
+    // Normal chat mode - get group info from groups provider
+    final groupData = groupsNotifier.findGroupById(widget.groupId);
+    final displayName =
+        groupsNotifier.getGroupDisplayName(widget.groupId) ?? groupData?.name ?? 'Unknown Group';
 
     if (groupData == null) {
       return Scaffold(

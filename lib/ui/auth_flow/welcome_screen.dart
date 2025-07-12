@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
@@ -20,21 +19,17 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   Future<void> _handleCreateAccount(BuildContext context) async {
     final authNotifier = ref.read(authProvider.notifier);
 
-    await authNotifier.createAccount();
+    // Start account creation in background without loading state
+    authNotifier.createAccountInBackground();
 
-    final authState = ref.read(authProvider);
-    if (authState.isAuthenticated && authState.error == null) {
-      if (!context.mounted) return;
-      context.go('/onboarding');
-    } else {
-      if (!context.mounted) return;
-      ref.showErrorToast(authState.error ?? 'Unknown error');
-    }
+    // Navigate immediately to onboarding
+    if (!context.mounted) return;
+    context.go('/onboarding');
   }
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
+    ref.watch(authProvider);
 
     return Stack(
       children: [
@@ -96,20 +91,13 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                   AppFilledButton(
                     title: 'Login',
                     visualState: AppButtonVisualState.secondary,
-                    onPressed: authState.isLoading ? null : () => context.go('/login'),
+                    onPressed: () => context.go('/login'),
                   ),
                   Gap(12.h),
-                  authState.isLoading
-                      ? SizedBox(
-                        height: 56.h, // Match the button height
-                        child: Center(
-                          child: CircularProgressIndicator(color: context.colors.primary),
-                        ),
-                      )
-                      : AppFilledButton(
-                        title: 'Sign Up',
-                        onPressed: () => _handleCreateAccount(context),
-                      ),
+                  AppFilledButton(
+                    title: 'Sign Up',
+                    onPressed: () => _handleCreateAccount(context),
+                  ),
                 ],
               ),
             ),

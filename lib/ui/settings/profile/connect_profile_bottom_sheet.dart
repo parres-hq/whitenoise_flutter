@@ -4,8 +4,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
@@ -41,10 +44,17 @@ class ConnectProfileBottomSheet extends ConsumerWidget {
             onPressed:
                 authState.isLoading
                     ? null
-                    : () {
+                    : () async {
                       Navigator.pop(context);
+
+                      // Go directly to login screen without logging out current account
+                      // This preserves the current account and prevents previous accounts
+                      // from being deleted when a new account is added
                       ref.read(authProvider.notifier).setUnAuthenticated();
-                      context.go(Routes.login);
+
+                      if (context.mounted) {
+                        context.go(Routes.login);
+                      }
                     },
           ),
           Gap(4.h),

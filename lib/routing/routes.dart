@@ -28,8 +28,8 @@ abstract final class Routes {
   static const settingsDonate = '/settings/donate';
   static const settingsShareProfile = '/settings/share_profile';
 
-  static void goToChat(BuildContext context, String chatId) {
-    GoRouter.of(context).go('/chats/$chatId');
+  static void goToChat(BuildContext context, String chatId, {String? inviteId}) {
+    GoRouter.of(context).go('/chats/$chatId', extra: inviteId);
   }
 
   static void goToContact(BuildContext context, String contactId) {

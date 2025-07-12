@@ -142,7 +142,8 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: ':id',
             builder: (context, state) {
               final groupId = state.pathParameters['id']!;
-              return ChatScreen(groupId: groupId);
+              final inviteId = state.extra as String?;
+              return ChatScreen(groupId: groupId, inviteId: inviteId);
             },
           ),
           GoRoute(

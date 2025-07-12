@@ -78,18 +78,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     }
 
     final authNotifier = ref.read(authProvider.notifier);
-    await authNotifier.loginWithKey(key);
+
+    // Start login in background
+    authNotifier.loginWithKeyInBackground(key);
 
     if (!mounted) return;
-
-    // Read the auth state AFTER the login attempt to get the updated state
-    final authState = ref.read(authProvider);
-
-    if (authState.isAuthenticated && authState.error == null) {
-      context.go(Routes.chats);
-    } else {
-      ref.showErrorToast(authState.error ?? 'Login failed');
-    }
+    context.go(Routes.chats);
   }
 
   Future<void> _pasteFromClipboard() async {
@@ -108,7 +102,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
+    ref.watch(authProvider);
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -194,19 +188,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                         ],
                       ),
                       Gap(16.h),
-                      authState.isLoading
-                          ? Padding(
-                            padding: EdgeInsets.all(16.w),
-                            child: Center(
-                              child: CircularProgressIndicator(
-                                color: context.colorScheme.onSurface,
-                              ),
-                            ),
-                          )
-                          : AppFilledButton(
-                            onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
-                            title: 'Login',
-                          ),
+                      AppFilledButton(
+                        onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
+                        title: 'Login',
+                      ),
                       Gap(16.h),
                     ],
                   ),

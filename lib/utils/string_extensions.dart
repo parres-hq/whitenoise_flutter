@@ -20,4 +20,10 @@ extension StringExtensions on String {
       return null;
     }
   }
+
+  /// Capitalizes the first letter of the string
+  String get capitalizeFirst {
+    if (isEmpty) return '';
+    return '${this[0].toUpperCase()}${substring(1)}';
+  }
 }
