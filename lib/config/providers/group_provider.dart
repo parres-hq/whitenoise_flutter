@@ -165,15 +165,34 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       return newGroup;
     } catch (e, st) {
-      _logger.severe('GroupsProvider.createNewGroup', e, st);
+      // Basic error logging that won't throw exceptions
+      try {
+        _logger.severe('GroupsProvider.createNewGroup - Error occurred');
+        _logger.severe('GroupsProvider.createNewGroup - Error type: ${e.runtimeType}');
+        _logger.severe('GroupsProvider.createNewGroup - Error string: $e');
+      } catch (loggingError) {
+        // If even basic logging fails, just print directly
+        print('GroupsProvider.createNewGroup - Error occurred: $e');
+      }
 
-      // Use the new error handling utility
-      final errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
-        error: e,
-        stackTrace: st,
-        fallbackMessage: ErrorHandlingUtils.getGroupCreationFallbackMessage(),
-        context: 'createNewGroup',
-      );
+      // Try to get a user-friendly error message, but with fallback
+      String errorMessage;
+      try {
+        errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
+          error: e,
+          stackTrace: st,
+          fallbackMessage: ErrorHandlingUtils.getGroupCreationFallbackMessage(),
+          context: 'createNewGroup',
+        );
+      } catch (errorHandlingError) {
+        // If error handling fails, use a simple fallback
+        try {
+          _logger.severe('GroupsProvider.createNewGroup - Error handling failed: $errorHandlingError');
+        } catch (_) {
+          print('GroupsProvider.createNewGroup - Error handling failed: $errorHandlingError');
+        }
+        errorMessage = 'Failed to create group due to an internal error. Please try again.';
+      }
 
       state = state.copyWith(error: errorMessage, isLoading: false);
       return null;
