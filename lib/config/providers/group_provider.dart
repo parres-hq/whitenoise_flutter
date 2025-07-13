@@ -90,11 +90,16 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       // Now calculate display names with member data available
       await _calculateDisplayNames(groups, activeAccountData.pubkey);
-      await ref
-          .read(chatProvider.notifier)
-          .loadMessagesForGroups(
-            groups.map((g) => g.mlsGroupId).toList(),
-          );
+
+      // Schedule message loading after the current build cycle completes
+      Future.microtask(() async {
+        await ref
+            .read(chatProvider.notifier)
+            .loadMessagesForGroups(
+              groups.map((g) => g.mlsGroupId).toList(),
+            );
+      });
+
       state = state.copyWith(isLoading: false);
     } catch (e, st) {
       _logger.severe('GroupsProvider.loadGroups', e, st);

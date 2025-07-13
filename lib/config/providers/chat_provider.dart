@@ -315,9 +315,9 @@ class ChatNotifier extends Notifier<ChatState> {
   void setSelectedGroup(String? groupId) {
     state = state.copyWith(selectedGroupId: groupId);
 
-    // Auto-load messages when selecting a group
+    // Auto-load messages when selecting a group, but schedule it outside the build phase
     if (groupId != null) {
-      loadMessagesForGroup(groupId);
+      Future.microtask(() => loadMessagesForGroup(groupId));
     }
   }
 
