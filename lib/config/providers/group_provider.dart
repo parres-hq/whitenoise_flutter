@@ -135,12 +135,16 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       final creatorPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
 
-      final resolvedMembersPublicKeys = await Future.wait(
-        memberPublicKeyHexs.toSet().map(
+            // Filter out the creator from the members list since they shouldn't be explicitly included
+      final creatorPubkeyHex = activeAccountData.pubkey.trim();
+      final filteredMemberHexs = memberPublicKeyHexs.where((hex) => hex.trim() != creatorPubkeyHex).toList();
+
+      final filteredMemberPubkeys = await Future.wait(
+        filteredMemberHexs.map(
           (hexKey) async => await publicKeyFromString(publicKeyString: hexKey.trim()),
         ),
       );
-      _logger.info('GroupsProvider: Members pubkeys loaded - ${resolvedMembersPublicKeys.length}');
+      _logger.info('GroupsProvider: Members pubkeys loaded (excluding creator) - ${filteredMemberPubkeys.length}');
 
       final resolvedAdminPublicKeys = await Future.wait(
         adminPublicKeyHexs.toSet().map(
@@ -159,14 +163,14 @@ class GroupsNotifier extends Notifier<GroupsState> {
       _logger.info('  - Group name: "$groupName"');
       _logger.info('  - Group description: "$groupDescription"');
       _logger.info('  - Creator pubkey: ${activeAccountData.pubkey}');
-      _logger.info('  - Members count: ${resolvedMembersPublicKeys.length}');
+      _logger.info('  - Members count (filtered): ${filteredMemberPubkeys.length}');
       _logger.info('  - Admins count: ${combinedAdminKeys.length}');
-      _logger.info('  - Member pubkeys: $memberPublicKeyHexs');
+      _logger.info('  - Member pubkeys (filtered): $filteredMemberHexs');
       _logger.info('  - Admin pubkeys: $adminPublicKeyHexs');
 
       final newGroup = await createGroup(
         creatorPubkey: creatorPubkey,
-        memberPubkeys: resolvedMembersPublicKeys,
+        memberPubkeys: filteredMemberPubkeys,
         adminPubkeys: combinedAdminKeys,
         groupName: groupName,
         groupDescription: groupDescription,
