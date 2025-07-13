@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_redundant_argument_values
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
@@ -21,9 +22,14 @@ class ChatNotifier extends Notifier<ChatState> {
     // Listen to active account changes and refresh chats automatically
     ref.listen<String?>(activeAccountProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
-        clearAllData();
+        // Schedule state changes after the build phase to avoid provider modification errors
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          clearAllData();
+        });
       } else if (previous != null && next == null) {
-        clearAllData();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          clearAllData();
+        });
       }
     });
 

@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_redundant_argument_values
 
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
@@ -16,20 +17,46 @@ import 'package:whitenoise/utils/error_handling.dart';
 class GroupsNotifier extends Notifier<GroupsState> {
   final _logger = Logger('GroupsNotifier');
 
+  /// Helper function to log WhitenoiseError details synchronously
+  /// This is used in catchError blocks where async operations aren't supported
+  void _logErrorSync(String methodName, dynamic error) {
+    final logMessage = '$methodName - Exception: $error (Type: ${error.runtimeType})';
+    _logger.warning(logMessage, error);
+
+    // For WhitenoiseError, we schedule an async operation to get detailed error info
+    if (error is WhitenoiseError) {
+      Future.microtask(() async {
+        try {
+          final errorDetails = await whitenoiseErrorToString(error: error);
+          _logger.info('$methodName - Detailed WhitenoiseError: $errorDetails');
+        } catch (conversionError) {
+          _logger.warning('$methodName - WhitenoiseError conversion failed: $conversionError');
+        }
+      });
+    }
+  }
+
   @override
   GroupsState build() {
     // Listen to active account changes and refresh groups automatically
     ref.listen<String?>(activeAccountProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
         // Account switched, clear current groups and load for new account
-        clearGroupData();
-        Future.microtask(() => loadGroups());
+        // Schedule state changes after the build phase to avoid provider modification errors
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          clearGroupData();
+          loadGroups();
+        });
       } else if (previous != null && next == null) {
         // Account logged out, clear groups
-        clearGroupData();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          clearGroupData();
+        });
       } else if (previous == null && next != null) {
         // Account logged in, load groups
-        Future.microtask(() => loadGroups());
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          loadGroups();
+        });
       }
     });
 
@@ -102,7 +129,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       state = state.copyWith(isLoading: false);
     } catch (e, st) {
-      _logger.severe('GroupsProvider.loadGroups', e, st);
+      // Log the full exception details with proper WhitenoiseError unpacking
+      String logMessage = 'GroupsProvider.loadGroups - Exception: ';
+      if (e is WhitenoiseError) {
+        try {
+          final errorDetails = await whitenoiseErrorToString(error: e);
+          logMessage += '$errorDetails (Type: ${e.runtimeType})';
+        } catch (conversionError) {
+          logMessage +=
+              'WhitenoiseError conversion failed: $conversionError (Type: ${e.runtimeType})';
+        }
+      } else {
+        logMessage += '$e (Type: ${e.runtimeType})';
+      }
+      _logger.severe(logMessage, e, st);
 
       final errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
         error: e,
@@ -194,10 +234,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       return newGroup;
     } catch (e, st) {
-      // Basic error logging that won't throw exceptions
-      _logger.severe('GroupsProvider.createNewGroup - Error occurred');
-      _logger.severe('GroupsProvider.createNewGroup - Error type: ${e.runtimeType}');
-      _logger.severe('GroupsProvider.createNewGroup - Error string: $e');
+      // Log the full exception details with proper WhitenoiseError unpacking
+      String logMessage = 'GroupsProvider.createNewGroup - Exception: ';
+      if (e is WhitenoiseError) {
+        try {
+          final errorDetails = await whitenoiseErrorToString(error: e);
+          logMessage += '$errorDetails (Type: ${e.runtimeType})';
+        } catch (conversionError) {
+          logMessage +=
+              'WhitenoiseError conversion failed: $conversionError (Type: ${e.runtimeType})';
+        }
+      } else {
+        logMessage += '$e (Type: ${e.runtimeType})';
+      }
+      _logger.severe(logMessage, e, st);
 
       // Try to get a user-friendly error message, but with fallback
       String errorMessage;
@@ -212,6 +262,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         // If error handling fails, use a simple fallback
         _logger.severe(
           'GroupsProvider.createNewGroup - Error handling failed: $errorHandlingError',
+          errorHandlingError,
         );
 
         errorMessage = 'Failed to create group due to an internal error. Please try again.';
@@ -263,7 +314,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
               members.add(fallbackUser);
             }
           } catch (metadataError) {
-            _logger.warning('Failed to fetch metadata for member: $metadataError');
+            // Log the full exception details with proper WhitenoiseError unpacking
+            String logMessage = 'Failed to fetch metadata for member - Exception: ';
+            if (metadataError is WhitenoiseError) {
+              try {
+                final errorDetails = await whitenoiseErrorToString(error: metadataError);
+                logMessage += '$errorDetails (Type: ${metadataError.runtimeType})';
+              } catch (conversionError) {
+                logMessage +=
+                    'WhitenoiseError conversion failed: $conversionError (Type: ${metadataError.runtimeType})';
+              }
+            } else {
+              logMessage += '$metadataError (Type: ${metadataError.runtimeType})';
+            }
+            _logger.warning(logMessage, metadataError);
             // Create a fallback user with minimal info
             final fallbackUser = User(
               id: pubkeyString,
@@ -274,7 +338,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
             members.add(fallbackUser);
           }
         } catch (e) {
-          _logger.severe('Failed to process member pubkey: $e');
+          // Log the full exception details with proper WhitenoiseError unpacking
+          String logMessage = 'Failed to process member pubkey - Exception: ';
+          if (e is WhitenoiseError) {
+            try {
+              final errorDetails = await whitenoiseErrorToString(error: e);
+              logMessage += '$errorDetails (Type: ${e.runtimeType})';
+            } catch (conversionError) {
+              logMessage +=
+                  'WhitenoiseError conversion failed: $conversionError (Type: ${e.runtimeType})';
+            }
+          } else {
+            logMessage += '$e (Type: ${e.runtimeType})';
+          }
+          _logger.severe(logMessage, e);
           // Skip this member if we can't even get the pubkey string
         }
       }
@@ -284,13 +361,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       state = state.copyWith(groupMembers: updatedGroupMembers);
     } catch (e, st) {
-      _logger.severe('GroupsProvider.loadGroupMembers', e, st);
+      _logger.severe(
+        'GroupsProvider.loadGroupMembers - Exception: $e (Type: ${e.runtimeType})',
+        e,
+        st,
+      );
       String errorMessage = 'Failed to load group members';
       if (e is WhitenoiseError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
         } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          _logger.warning(
+            'Failed to convert WhitenoiseError to string: $conversionError',
+            conversionError,
+          );
           errorMessage = 'Failed to load group members due to an internal error';
         }
       } else {
@@ -342,7 +426,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
               admins.add(fallbackUser);
             }
           } catch (metadataError) {
-            _logger.warning('Failed to fetch metadata for admin: $metadataError');
+            // Log the full exception details with proper WhitenoiseError unpacking
+            String logMessage = 'Failed to fetch metadata for admin - Exception: ';
+            if (metadataError is WhitenoiseError) {
+              try {
+                final errorDetails = await whitenoiseErrorToString(error: metadataError);
+                logMessage += '$errorDetails (Type: ${metadataError.runtimeType})';
+              } catch (conversionError) {
+                logMessage +=
+                    'WhitenoiseError conversion failed: $conversionError (Type: ${metadataError.runtimeType})';
+              }
+            } else {
+              logMessage += '$metadataError (Type: ${metadataError.runtimeType})';
+            }
+            _logger.warning(logMessage, metadataError);
             // Create a fallback user with minimal info
             final fallbackUser = User(
               id: pubkeyString,
@@ -353,7 +450,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
             admins.add(fallbackUser);
           }
         } catch (e) {
-          _logger.severe('Failed to process admin pubkey: $e');
+          // Log the full exception details with proper WhitenoiseError unpacking
+          String logMessage = 'Failed to process admin pubkey - Exception: ';
+          if (e is WhitenoiseError) {
+            try {
+              final errorDetails = await whitenoiseErrorToString(error: e);
+              logMessage += '$errorDetails (Type: ${e.runtimeType})';
+            } catch (conversionError) {
+              logMessage +=
+                  'WhitenoiseError conversion failed: $conversionError (Type: ${e.runtimeType})';
+            }
+          } else {
+            logMessage += '$e (Type: ${e.runtimeType})';
+          }
+          _logger.severe(logMessage, e);
           // Skip this admin if we can't even get the pubkey string
         }
       }
@@ -363,13 +473,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       state = state.copyWith(groupAdmins: updatedGroupAdmins);
     } catch (e, st) {
-      _logger.severe('GroupsProvider.loadGroupAdmins', e, st);
+      _logger.severe(
+        'GroupsProvider.loadGroupAdmins - Exception: $e (Type: ${e.runtimeType})',
+        e,
+        st,
+      );
       String errorMessage = 'Failed to load group admins';
       if (e is WhitenoiseError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
         } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          _logger.warning(
+            'Failed to convert WhitenoiseError to string: $conversionError',
+            conversionError,
+          );
           errorMessage = 'Failed to load group admins due to an internal error';
         }
       } else {
@@ -429,7 +546,19 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       state = state.copyWith(groupDisplayNames: updatedDisplayNames);
     } catch (e) {
-      _logger.warning('Failed to calculate display name for group $groupId: $e');
+      String logMessage = 'Failed to calculate display name for group $groupId - Exception: ';
+      if (e is WhitenoiseError) {
+        try {
+          final errorDetails = await whitenoiseErrorToString(error: e);
+          logMessage += '$errorDetails (Type: ${e.runtimeType})';
+        } catch (conversionError) {
+          logMessage +=
+              'WhitenoiseError conversion failed: $conversionError (Type: ${e.runtimeType})';
+        }
+      } else {
+        logMessage += '$e (Type: ${e.runtimeType})';
+      }
+      _logger.warning(logMessage, e);
     }
   }
 
@@ -443,7 +572,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         // since they need member data for display names
         loadTasks.add(
           loadGroupMembers(group.mlsGroupId).catchError((e) {
-            _logger.warning('Failed to load members for group ${group.mlsGroupId}: $e');
+            _logErrorSync('Failed to load members for group ${group.mlsGroupId}', e);
             // Don't let one group failure stop the others
             return;
           }),
@@ -455,7 +584,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       _logger.info('GroupsProvider: Loaded members for ${groups.length} groups');
     } catch (e) {
-      _logger.severe('GroupsProvider: Error loading members for groups: $e');
+      // Log the full exception details with proper WhitenoiseError unpacking
+      String logMessage = 'GroupsProvider: Error loading members for groups - Exception: ';
+      if (e is WhitenoiseError) {
+        try {
+          final errorDetails = await whitenoiseErrorToString(error: e);
+          logMessage += '$errorDetails (Type: ${e.runtimeType})';
+        } catch (conversionError) {
+          logMessage +=
+              'WhitenoiseError conversion failed: $conversionError (Type: ${e.runtimeType})';
+        }
+      } else {
+        logMessage += '$e (Type: ${e.runtimeType})';
+      }
+      _logger.severe(logMessage, e);
       // Don't throw - we want to continue even if some member loading fails
     }
   }
@@ -469,9 +611,31 @@ class GroupsNotifier extends Notifier<GroupsState> {
           publicKey: await publicKeyFromString(publicKeyString: currentUserPubkey),
         );
         final otherMember = getOtherGroupMember(group.mlsGroupId, currentUserNpub);
-        return otherMember?.name ?? 'Direct Message';
+
+        if (otherMember == null) {
+          _logger.warning(
+            'GroupsProvider: Could not find other member for DM group ${group.mlsGroupId}. '
+            'This might indicate a data loading issue.',
+          );
+          return 'Direct Message';
+        }
+
+        return otherMember.name.isNotEmpty ? otherMember.name : 'Unknown User';
       } catch (e) {
-        _logger.warning('Failed to get other member name for DM group ${group.mlsGroupId}: $e');
+        String logMessage =
+            'Failed to get other member name for DM group ${group.mlsGroupId} - Exception: ';
+        if (e is WhitenoiseError) {
+          try {
+            final errorDetails = await whitenoiseErrorToString(error: e);
+            logMessage += '$errorDetails (Type: ${e.runtimeType})';
+          } catch (conversionError) {
+            logMessage +=
+                'WhitenoiseError conversion failed: $conversionError (Type: ${e.runtimeType})';
+          }
+        } else {
+          logMessage += '$e (Type: ${e.runtimeType})';
+        }
+        _logger.warning(logMessage, e);
         return 'Direct Message';
       }
     }
@@ -549,7 +713,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       return group.adminPubkeys.contains(activeAccountData.pubkey);
     } catch (e) {
-      _logger.info('GroupsProvider: Error checking admin status: $e');
+      // Log the full exception details with proper WhitenoiseError unpacking
+      String logMessage = 'GroupsProvider: Error checking admin status - Exception: ';
+      if (e is WhitenoiseError) {
+        try {
+          final errorDetails = await whitenoiseErrorToString(error: e);
+          logMessage += '$errorDetails (Type: ${e.runtimeType})';
+        } catch (conversionError) {
+          logMessage +=
+              'WhitenoiseError conversion failed: $conversionError (Type: ${e.runtimeType})';
+        }
+      } else {
+        logMessage += '$e (Type: ${e.runtimeType})';
+      }
+      _logger.info(logMessage, e);
       return false;
     }
   }
@@ -625,7 +802,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
         _logger.info('GroupsProvider: Added ${actuallyNewGroups.length} new groups');
       }
     } catch (e, st) {
-      _logger.severe('GroupsProvider.checkForNewGroups', e, st);
+      // Log the full exception details with proper WhitenoiseError unpacking
+      String logMessage = 'GroupsProvider.checkForNewGroups - Exception: ';
+      if (e is WhitenoiseError) {
+        try {
+          final errorDetails = await whitenoiseErrorToString(error: e);
+          logMessage += '$errorDetails (Type: ${e.runtimeType})';
+        } catch (conversionError) {
+          logMessage +=
+              'WhitenoiseError conversion failed: $conversionError (Type: ${e.runtimeType})';
+        }
+      } else {
+        logMessage += '$e (Type: ${e.runtimeType})';
+      }
+      _logger.severe(logMessage, e, st);
     }
   }
 
@@ -637,7 +827,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       for (final group in groups) {
         loadTasks.add(
           loadGroupMembers(group.mlsGroupId).catchError((e) {
-            _logger.warning('Failed to load members for new group ${group.mlsGroupId}: $e');
+            _logErrorSync('Failed to load members for new group ${group.mlsGroupId}', e);
             return;
           }),
         );
@@ -645,7 +835,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       await Future.wait(loadTasks);
     } catch (e) {
-      _logger.severe('GroupsProvider: Error loading members for new groups: $e');
+      // Log the full exception details with proper WhitenoiseError unpacking
+      String logMessage = 'GroupsProvider: Error loading members for new groups - Exception: ';
+      if (e is WhitenoiseError) {
+        try {
+          final errorDetails = await whitenoiseErrorToString(error: e);
+          logMessage += '$errorDetails (Type: ${e.runtimeType})';
+        } catch (conversionError) {
+          logMessage +=
+              'WhitenoiseError conversion failed: $conversionError (Type: ${e.runtimeType})';
+        }
+      } else {
+        logMessage += '$e (Type: ${e.runtimeType})';
+      }
+      _logger.severe(logMessage, e);
     }
   }
 
@@ -721,10 +924,18 @@ extension GroupMemberUtils on GroupsNotifier {
     final members = getGroupMembers(groupId);
     if (members == null || members.isEmpty) return null;
 
-    return members.firstWhere(
-      (member) => member.publicKey != currentUserNpub,
-      orElse: () => members.first,
-    );
+    // Use safe filtering - never return the current user as fallback
+    final otherMembers = members.where((member) => member.publicKey != currentUserNpub).toList();
+
+    if (otherMembers.isEmpty) {
+      _logger.warning(
+        'GroupsProvider: No other members found in DM group $groupId. '
+        'Total members: ${members.length}, Current user: $currentUserNpub',
+      );
+      return null;
+    }
+
+    return otherMembers.first;
   }
 
   User? getFirstOtherMember(String? groupId, String? currentUserNpub) {

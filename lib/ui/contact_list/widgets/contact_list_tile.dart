@@ -41,6 +41,25 @@ class ContactListTile extends StatelessWidget {
     }
   }
 
+  Widget _buildSkeletonLoader(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _SkeletonLine(
+          width: 300.w,
+          height: 12.h,
+          color: context.colors.mutedForeground.withValues(alpha: 0.05),
+        ),
+        Gap(4.h),
+        _SkeletonLine(
+          width: 140.w,
+          height: 12.h,
+          color: context.colors.mutedForeground.withValues(alpha: 0.05),
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final contactTile = GestureDetector(
@@ -114,14 +133,7 @@ class ContactListTile extends StatelessWidget {
                     future: _getNpub(contact.publicKey),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
-                        return Text(
-                          'Loading...',
-                          style: TextStyle(
-                            color: context.colors.mutedForeground.withValues(alpha: 0.6),
-                            fontSize: 12.sp,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        );
+                        return _buildSkeletonLoader(context);
                       } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                         return Text(
                           snapshot.data!,
@@ -213,5 +225,61 @@ class ContactListTile extends StatelessWidget {
     }
 
     return contactTile;
+  }
+}
+
+class _SkeletonLine extends StatefulWidget {
+  final double width;
+  final double height;
+  final Color color;
+
+  const _SkeletonLine({
+    required this.width,
+    required this.height,
+    required this.color,
+  });
+
+  @override
+  State<_SkeletonLine> createState() => _SkeletonLineState();
+}
+
+class _SkeletonLineState extends State<_SkeletonLine> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 100),
+      vsync: this,
+    );
+    _animation = Tween<double>(begin: 0.05, end: 0.1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+    _controller.repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: widget.color.withValues(alpha: _animation.value),
+            borderRadius: BorderRadius.circular(2.r),
+          ),
+        );
+      },
+    );
   }
 }

@@ -1,4 +1,5 @@
 // ignore_for_file: avoid_redundant_argument_values
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
@@ -50,8 +51,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
     // Listen to active account changes and refresh contacts automatically
     ref.listen<String?>(activeAccountProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
-        state = const ContactsState();
-        Future.microtask(() async {
+        // Schedule state changes after the build phase to avoid provider modification errors
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          state = const ContactsState();
           final activeAccountData =
               await ref.read(activeAccountProvider.notifier).getActiveAccountData();
           if (activeAccountData != null) {
@@ -59,9 +61,11 @@ class ContactsNotifier extends Notifier<ContactsState> {
           }
         });
       } else if (previous != null && next == null) {
-        state = const ContactsState();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          state = const ContactsState();
+        });
       } else if (previous == null && next != null) {
-        Future.microtask(() async {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
           final activeAccountData =
               await ref.read(activeAccountProvider.notifier).getActiveAccountData();
           if (activeAccountData != null) {
