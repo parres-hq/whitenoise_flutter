@@ -83,7 +83,9 @@ class PollingNotifier extends Notifier<bool> {
           final groups = ref.read(groupsProvider).groups;
           if (groups != null && groups.isNotEmpty) {
             final groupIds = groups.map((g) => g.mlsGroupId).toList();
-            _logger.info('PollingProvider: Loading messages for ${groupIds.length} groups for chat previews');
+            _logger.info(
+              'PollingProvider: Loading messages for ${groupIds.length} groups for chat previews',
+            );
             await ref.read(chatProvider.notifier).loadMessagesForGroups(groupIds);
             _logger.info('PollingProvider: Message loading completed for chat previews');
           }

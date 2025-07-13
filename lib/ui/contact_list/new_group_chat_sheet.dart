@@ -116,11 +116,12 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     if (contacts == null) return [];
 
     // First filter out the creator (current user) from the contacts
-    final contactsWithoutCreator = contacts.where((contact) {
-      // Compare public keys, ensuring both are trimmed and lowercased for comparison
-      return currentUserPubkey == null ||
-             contact.publicKey.trim().toLowerCase() != currentUserPubkey.trim().toLowerCase();
-    }).toList();
+    final contactsWithoutCreator =
+        contacts.where((contact) {
+          // Compare public keys, ensuring both are trimmed and lowercased for comparison
+          return currentUserPubkey == null ||
+              contact.publicKey.trim().toLowerCase() != currentUserPubkey.trim().toLowerCase();
+        }).toList();
 
     // Then apply search filter if there's a search query
     if (_searchQuery.isEmpty) return contactsWithoutCreator;

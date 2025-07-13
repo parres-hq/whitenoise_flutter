@@ -33,7 +33,9 @@ class ErrorHandlingUtils {
           _logger.severe('${logPrefix}WhitenoiseError converted to: $rawErrorMessage');
           return _parseSpecificErrorPatterns(rawErrorMessage);
         } catch (conversionError) {
-          _logger.severe('${logPrefix}Failed to convert WhitenoiseError to string: $conversionError');
+          _logger.severe(
+            '${logPrefix}Failed to convert WhitenoiseError to string: $conversionError',
+          );
           return fallbackMessage;
         }
       } else if (error is Exception) {
@@ -49,17 +51,12 @@ class ErrorHandlingUtils {
         return '$fallbackMessage: $error';
       }
     } catch (unexpectedError) {
-      // If anything goes wrong in error handling, just return the fallback
-      try {
-        _logger.severe('${logPrefix}Unexpected error in error handling: $unexpectedError');
-      } catch (_) {
-        print('${logPrefix}Unexpected error in error handling: $unexpectedError');
-      }
+      _logger.severe('${logPrefix}Unexpected error in error handling: $unexpectedError');
       return fallbackMessage;
     }
   }
 
-    /// Handles exceptions that may wrap WhitenoiseErrorImpl
+  /// Handles exceptions that may wrap WhitenoiseErrorImpl
   static String _handleWrappedException({
     required Exception error,
     StackTrace? stackTrace,
@@ -128,11 +125,7 @@ class ErrorHandlingUtils {
       }
     } catch (handlingError) {
       // If anything goes wrong in exception handling, just return the fallback
-      try {
-        _logger.severe('${logPrefix}Error in exception handling: $handlingError');
-      } catch (_) {
-        print('${logPrefix}Error in exception handling: $handlingError');
-      }
+      _logger.severe('${logPrefix}Error in exception handling: $handlingError');
       return fallbackMessage;
     }
   }
@@ -144,7 +137,8 @@ class ErrorHandlingUtils {
         return '$rawErrorMessage\n\n${_getKeyPackageHelpText()}';
       } else if (rawErrorMessage.contains('Network') || rawErrorMessage.contains('Connection')) {
         return '$rawErrorMessage\n\nThis appears to be a network connectivity issue. Please check your internet connection and try again.';
-      } else if (rawErrorMessage.contains('Permission') || rawErrorMessage.contains('Unauthorized')) {
+      } else if (rawErrorMessage.contains('Permission') ||
+          rawErrorMessage.contains('Unauthorized')) {
         return '$rawErrorMessage\n\nThis appears to be a permission issue. You may not have permission to perform this operation.';
       } else if (rawErrorMessage.contains('Relay')) {
         return '$rawErrorMessage\n\nUnable to connect to Nostr relays. Please check your network connection.';

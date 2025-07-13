@@ -140,16 +140,19 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       final creatorPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
 
-            // Filter out the creator from the members list since they shouldn't be explicitly included
+      // Filter out the creator from the members list since they shouldn't be explicitly included
       final creatorPubkeyHex = activeAccountData.pubkey.trim();
-      final filteredMemberHexs = memberPublicKeyHexs.where((hex) => hex.trim() != creatorPubkeyHex).toList();
+      final filteredMemberHexs =
+          memberPublicKeyHexs.where((hex) => hex.trim() != creatorPubkeyHex).toList();
 
       final filteredMemberPubkeys = await Future.wait(
         filteredMemberHexs.map(
           (hexKey) async => await publicKeyFromString(publicKeyString: hexKey.trim()),
         ),
       );
-      _logger.info('GroupsProvider: Members pubkeys loaded (excluding creator) - ${filteredMemberPubkeys.length}');
+      _logger.info(
+        'GroupsProvider: Members pubkeys loaded (excluding creator) - ${filteredMemberPubkeys.length}',
+      );
 
       final resolvedAdminPublicKeys = await Future.wait(
         adminPublicKeyHexs.toSet().map(
@@ -192,14 +195,9 @@ class GroupsNotifier extends Notifier<GroupsState> {
       return newGroup;
     } catch (e, st) {
       // Basic error logging that won't throw exceptions
-      try {
-        _logger.severe('GroupsProvider.createNewGroup - Error occurred');
-        _logger.severe('GroupsProvider.createNewGroup - Error type: ${e.runtimeType}');
-        _logger.severe('GroupsProvider.createNewGroup - Error string: $e');
-      } catch (loggingError) {
-        // If even basic logging fails, just print directly
-        print('GroupsProvider.createNewGroup - Error occurred: $e');
-      }
+      _logger.severe('GroupsProvider.createNewGroup - Error occurred');
+      _logger.severe('GroupsProvider.createNewGroup - Error type: ${e.runtimeType}');
+      _logger.severe('GroupsProvider.createNewGroup - Error string: $e');
 
       // Try to get a user-friendly error message, but with fallback
       String errorMessage;
@@ -212,11 +210,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
         );
       } catch (errorHandlingError) {
         // If error handling fails, use a simple fallback
-        try {
-          _logger.severe('GroupsProvider.createNewGroup - Error handling failed: $errorHandlingError');
-        } catch (_) {
-          print('GroupsProvider.createNewGroup - Error handling failed: $errorHandlingError');
-        }
+        _logger.severe(
+          'GroupsProvider.createNewGroup - Error handling failed: $errorHandlingError',
+        );
+
         errorMessage = 'Failed to create group due to an internal error. Please try again.';
       }
 
