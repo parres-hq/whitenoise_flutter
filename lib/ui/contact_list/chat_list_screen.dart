@@ -4,10 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_provider.dart';
@@ -50,7 +48,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       // Load initial data
       ref.read(welcomesProvider.notifier).loadWelcomes();
       ref.read(groupsProvider.notifier).loadGroups();
-      _loadProfileData();
+      ref.read(profileProvider.notifier).fetchProfileData();
 
       // Start polling for data updates
       _pollingNotifier.startPolling();
@@ -65,20 +63,19 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
     super.dispose();
   }
 
-  Future<void> _loadProfileData() async {
-    try {
-      await ref.read(profileProvider.notifier).fetchProfileData();
-    } catch (e) {
-      // Handle error silently for avatar
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     // Watch both groups and welcomes
     final groupList = ref.watch(groupsProvider.select((state) => state.groups)) ?? [];
     final welcomesList = ref.watch(welcomesProvider.select((state) => state.welcomes)) ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
+
+    // Cache profile data to avoid unnecessary rebuilds
+    final profileData = ref.watch(profileProvider);
+    final currentUserName = profileData.valueOrNull?.displayName ?? '';
+    final userFirstLetter =
+        currentUserName.isNotEmpty == true ? currentUserName[0].toUpperCase() : '';
+    final profileImagePath = profileData.valueOrNull?.picture ?? '';
 
     final chatItems = <ChatListItem>[];
 
@@ -116,7 +113,10 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16.r),
                     onTap: () => context.push(Routes.settings),
-                    child: _buildProfileAvatar(),
+                    child: ProfileAvatar(
+                      profileImageUrl: profileImagePath,
+                      userFirstLetter: userFirstLetter,
+                    ),
                   ),
                 ),
                 actions: [
@@ -168,44 +168,44 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
   }
 
   /// Build profile avatar that properly reacts to account switches and uses metadata cache
-  Widget _buildProfileAvatar() {
-    final activeAccountPubkey = ref.watch(activeAccountProvider);
+  // Widget _buildProfileAvatar() {
+  //   final activeAccountPubkey = ref.watch(activeAccountProvider);
 
-    if (activeAccountPubkey == null) {
-      // No active account, show fallback avatar
-      return const ProfileAvatar();
-    }
+  //   if (activeAccountPubkey == null) {
+  //     // No active account, show fallback avatar
+  //     return const ProfileAvatar();
+  //   }
 
-    // Use metadata cache to get contact model for current account
-    return FutureBuilder(
-      // This future will rebuild when activeAccountPubkey changes
-      future: ref.read(metadataCacheProvider.notifier).getContactModel(activeAccountPubkey),
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          final contactModel = snapshot.data!;
-          final firstLetter =
-              contactModel.displayNameOrName.isNotEmpty
-                  ? contactModel.displayNameOrName[0].toUpperCase()
-                  : null;
+  //   // Use metadata cache to get contact model for current account
+  //   return FutureBuilder(
+  //     // This future will rebuild when activeAccountPubkey changes
+  //     future: ref.read(metadataCacheProvider.notifier).getContactModel(activeAccountPubkey),
+  //     builder: (context, snapshot) {
+  //       if (snapshot.hasData) {
+  //         final contactModel = snapshot.data!;
+  //         final firstLetter =
+  //             contactModel.displayNameOrName.isNotEmpty
+  //                 ? contactModel.displayNameOrName[0].toUpperCase()
+  //                 : null;
 
-          return ProfileAvatar(
-            profileImageUrl: contactModel.imagePath,
-            userFirstLetter: firstLetter,
-          );
-        }
+  //         return ProfileAvatar(
+  //           profileImageUrl: contactModel.imagePath,
+  //           userFirstLetter: firstLetter,
+  //         );
+  //       }
 
-        // While loading or on error, show fallback with account-based letter
-        final fallbackLetter =
-            activeAccountPubkey.isNotEmpty
-                ? activeAccountPubkey.substring(0, 1).toUpperCase()
-                : null;
+  //       // While loading or on error, show fallback with account-based letter
+  //       final fallbackLetter =
+  //           activeAccountPubkey.isNotEmpty
+  //               ? activeAccountPubkey.substring(0, 1).toUpperCase()
+  //               : null;
 
-        return ProfileAvatar(
-          userFirstLetter: fallbackLetter,
-        );
-      },
-    );
-  }
+  //       return ProfileAvatar(
+  //         userFirstLetter: fallbackLetter,
+  //       );
+  //     },
+  //   );
+  // }
 }
 
 class _EmptyGroupList extends StatelessWidget {

@@ -17,7 +17,18 @@ class ChatNotifier extends Notifier<ChatState> {
   final _logger = Logger('ChatNotifier');
 
   @override
-  ChatState build() => const ChatState();
+  ChatState build() {
+    // Listen to active account changes and refresh chats automatically
+    ref.listen<String?>(activeAccountProvider, (previous, next) {
+      if (previous != null && next != null && previous != next) {
+        clearAllData();
+      } else if (previous != null && next == null) {
+        clearAllData();
+      }
+    });
+
+    return const ChatState();
+  }
 
   // Helper to check if auth is available
   bool _isAuthAvailable() {

@@ -41,10 +41,17 @@ class ConnectProfileBottomSheet extends ConsumerWidget {
             onPressed:
                 authState.isLoading
                     ? null
-                    : () {
+                    : () async {
                       Navigator.pop(context);
+
+                      // Go directly to login screen without logging out current account
+                      // This preserves the current account and prevents previous accounts
+                      // from being deleted when a new account is added
                       ref.read(authProvider.notifier).setUnAuthenticated();
-                      context.go(Routes.login);
+
+                      if (context.mounted) {
+                        context.go(Routes.login);
+                      }
                     },
           ),
           Gap(4.h),

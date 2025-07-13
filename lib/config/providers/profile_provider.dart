@@ -2,10 +2,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 
@@ -97,7 +99,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
     });
   }
 
-  Future<void> pickProfileImage(WidgetRef ref) async {
+  Future<void> pickProfileImage() async {
     try {
       final XFile? image = await ImagePicker().pickImage(
         source: ImageSource.gallery,
@@ -115,17 +117,11 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       }
     } catch (e, st) {
       _logger.severe('pickProfileImage', e, st);
-      ref.showRawErrorToast('Failed to pick profile image');
+      state = AsyncValue.error('Failed to pick profile image', st);
     }
   }
 
-  Future<void> updateProfileData({
-    String? displayName,
-    String? about,
-    String? picture,
-    String? nip05,
-    required WidgetRef ref,
-  }) async {
+  Future<void> updateProfileData() async {
     state = AsyncValue.data(
       state.value!.copyWith(isSaving: true, error: null, stackTrace: null),
     );
@@ -151,7 +147,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
 
         final activeAccount = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
         if (activeAccount == null) {
-          ref.showRawErrorToast('No active account found');
+          state = AsyncValue.error('No active account found', StackTrace.current);
           return;
         }
 
@@ -174,10 +170,12 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       if (metadata == null) {
         throw Exception('Metadata not found');
       }
-      metadata.displayName = displayName;
-      metadata.about = about;
-      metadata.picture = profilePictureUrl;
-      metadata.nip05 = nip05;
+
+      final currentState = state.value!;
+      metadata.displayName = currentState.displayName;
+      metadata.about = currentState.about;
+      metadata.picture = profilePictureUrl ?? currentState.picture;
+      metadata.nip05 = currentState.nip05;
 
       // Create a new PublicKey object just before using it to avoid disposal issues
       final publicKeyForUpdate = await publicKeyFromString(
@@ -189,13 +187,50 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         metadata: metadata,
       );
 
+      // Update the metadata cache with the new profile data
+      await _updateMetadataCache(activeAccountData.pubkey, metadata);
+
       await fetchProfileData();
     } catch (e, st) {
       _logger.severe('updateProfileData', e, st);
       state = AsyncValue.data(
         state.value!.copyWith(isSaving: false, error: e, stackTrace: st),
       );
-      rethrow;
+
+      // Handle error messaging
+      String? errorMessage;
+      if (e is WhitenoiseError) {
+        try {
+          errorMessage = await whitenoiseErrorToString(error: e);
+        } catch (conversionError) {
+          errorMessage = 'Failed to update profile due to an internal error';
+        }
+      } else {
+        errorMessage = e.toString();
+      }
+      state = AsyncValue.error(errorMessage, st);
+    }
+  }
+
+  /// Update the metadata cache with new profile data
+  Future<void> _updateMetadataCache(String pubkey, MetadataData metadata) async {
+    try {
+      // Convert pubkey to npub format for consistent caching
+      final npub = await npubFromHexPubkey(hexPubkey: pubkey);
+
+      // Create a ContactModel from the updated metadata
+      final contactModel = ContactModel.fromMetadata(
+        publicKey: npub,
+        metadata: metadata,
+      );
+
+      // Update the metadata cache
+      ref.read(metadataCacheProvider.notifier).updateCachedMetadata(npub, contactModel);
+
+      _logger.info('Updated metadata cache for user: $npub');
+    } catch (e, _) {
+      _logger.warning('Failed to update metadata cache: $e');
+      // Don't throw - this is not critical for the profile update
     }
   }
 }
