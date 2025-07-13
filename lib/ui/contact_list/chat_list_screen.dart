@@ -166,46 +166,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> {
       ),
     );
   }
-
-  /// Build profile avatar that properly reacts to account switches and uses metadata cache
-  // Widget _buildProfileAvatar() {
-  //   final activeAccountPubkey = ref.watch(activeAccountProvider);
-
-  //   if (activeAccountPubkey == null) {
-  //     // No active account, show fallback avatar
-  //     return const ProfileAvatar();
-  //   }
-
-  //   // Use metadata cache to get contact model for current account
-  //   return FutureBuilder(
-  //     // This future will rebuild when activeAccountPubkey changes
-  //     future: ref.read(metadataCacheProvider.notifier).getContactModel(activeAccountPubkey),
-  //     builder: (context, snapshot) {
-  //       if (snapshot.hasData) {
-  //         final contactModel = snapshot.data!;
-  //         final firstLetter =
-  //             contactModel.displayNameOrName.isNotEmpty
-  //                 ? contactModel.displayNameOrName[0].toUpperCase()
-  //                 : null;
-
-  //         return ProfileAvatar(
-  //           profileImageUrl: contactModel.imagePath,
-  //           userFirstLetter: firstLetter,
-  //         );
-  //       }
-
-  //       // While loading or on error, show fallback with account-based letter
-  //       final fallbackLetter =
-  //           activeAccountPubkey.isNotEmpty
-  //               ? activeAccountPubkey.substring(0, 1).toUpperCase()
-  //               : null;
-
-  //       return ProfileAvatar(
-  //         userFirstLetter: fallbackLetter,
-  //       );
-  //     },
-  //   );
-  // }
 }
 
 class _EmptyGroupList extends StatelessWidget {
