@@ -37,8 +37,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _aboutController = TextEditingController();
     _nostrAddressController = TextEditingController();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadProfileData();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await ref.read(profileProvider.notifier).fetchProfileData();
+      setState(() {
+        _displayNameController.text = ref.read(profileProvider).value?.displayName ?? '';
+        _aboutController.text = ref.read(profileProvider).value?.about ?? '';
+        _nostrAddressController.text = ref.read(profileProvider).value?.nip05 ?? '';
+      });
     });
   }
 
@@ -50,72 +55,35 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _loadProfileData() async {
-    try {
-      await ref.read(profileProvider.notifier).fetchProfileData();
-
-      final profileData = ref.read(profileProvider);
-
-      profileData.whenData((profile) {
-        setState(() {
-          _displayNameController.text = profile.displayName ?? '';
-          _aboutController.text = profile.about ?? '';
-          _nostrAddressController.text = profile.nip05 ?? '';
-        });
-      });
-    } catch (e) {
-      if (!mounted) return;
-      ref.showErrorToast('Failed to load profile: ${e.toString()}');
-    }
-  }
-
-  Future<void> _saveChanges(WidgetRef ref) async {
-    final profileState = ref.read(profileProvider).value;
-    if (profileState == null) return;
-    try {
-      await ref
-          .read(profileProvider.notifier)
-          .updateProfileData(
-            displayName: profileState.displayName,
-            about: profileState.about,
-            picture: profileState.picture,
-            nip05: profileState.nip05,
-            ref: ref,
-          );
-      if (!mounted) return;
-      ref.showSuccessToast('Profile updated successfully');
-    } catch (e) {
-      if (!mounted) return;
-      ref.showErrorToast('Failed to update profile: ${e.toString()}');
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     ref.listen(profileProvider, (previous, next) {
-      next.whenData((profile) {
-        if (profile.error != null) {
-          ref.showErrorToast('Error: ${profile.error}');
-        }
+      next.when(
+        data: (profile) {
+          if (profile.error != null) {
+            ref.showErrorToast('Error: ${profile.error}');
+          }
+          // Check if we just finished saving (was saving before, not saving now, no error)
+          if (previous?.value?.isSaving == true && !profile.isSaving && profile.error == null) {
+            ref.showSuccessToast('Profile updated successfully');
+            return;
+          }
 
-        // If the save was successful, `fetchProfileData` is called, which will
-        // make the new state not have a value, but `isRefreshing` will be true.
-        // In that case, we can pop the screen.
-        if (previous?.value != null && !next.hasValue && next.isRefreshing) {
-          context.pop();
-          return;
-        }
-
-        if (previous?.value?.displayName != profile.displayName) {
-          _displayNameController.text = profile.displayName ?? '';
-        }
-        if (previous?.value?.about != profile.about) {
-          _aboutController.text = profile.about ?? '';
-        }
-        if (previous?.value?.nip05 != profile.nip05) {
-          _nostrAddressController.text = profile.nip05 ?? '';
-        }
-      });
+          if (previous?.value?.displayName != profile.displayName) {
+            _displayNameController.text = profile.displayName ?? '';
+          }
+          if (previous?.value?.about != profile.about) {
+            _aboutController.text = profile.about ?? '';
+          }
+          if (previous?.value?.nip05 != profile.nip05) {
+            _nostrAddressController.text = profile.nip05 ?? '';
+          }
+        },
+        error: (error, stackTrace) {
+          ref.showErrorToast(error.toString());
+        },
+        loading: () {},
+      );
     });
 
     final profileState = ref.watch(profileProvider);
@@ -191,38 +159,45 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                             '';
                                         final profilePicture =
                                             ref.watch(profileProvider).value?.picture ?? '';
-                                        return CircleAvatar(
-                                          radius: 48.r,
-                                          backgroundColor: context.colors.primarySolid,
-                                          backgroundImage:
-                                              selectedImagePath.isNotEmpty
-                                                  ? FileImage(File(selectedImagePath))
-                                                  : null,
-                                          child:
-                                              profilePicture.isNotEmpty && selectedImagePath.isEmpty
-                                                  ? ClipOval(
-                                                    child: Image.network(
-                                                      profilePicture,
-                                                      fit: BoxFit.contain,
-                                                    ),
-                                                  )
-                                                  : profilePicture.isEmpty &&
-                                                      selectedImagePath.isEmpty
-                                                  ? (firstLetter.isNotEmpty
-                                                      ? Text(
-                                                        firstLetter,
-                                                        style: TextStyle(
-                                                          fontSize: 32.sp,
-                                                          fontWeight: FontWeight.w700,
-                                                          color: context.colors.primaryForeground,
-                                                        ),
+                                        return ClipOval(
+                                          child: Container(
+                                            width: 96.w,
+                                            height: 96.w,
+                                            decoration: BoxDecoration(
+                                              color: context.colors.primarySolid,
+                                              image:
+                                                  selectedImagePath.isNotEmpty
+                                                      ? DecorationImage(
+                                                        image: FileImage(File(selectedImagePath)),
+                                                        fit: BoxFit.cover,
                                                       )
-                                                      : Icon(
-                                                        CarbonIcons.user,
-                                                        size: 32.sp,
-                                                        color: context.colors.primaryForeground,
-                                                      ))
-                                                  : null,
+                                                      : null,
+                                            ),
+                                            child:
+                                                profilePicture.isNotEmpty &&
+                                                        selectedImagePath.isEmpty
+                                                    ? Image.network(
+                                                      profilePicture,
+                                                      fit: BoxFit.cover,
+                                                    )
+                                                    : profilePicture.isEmpty &&
+                                                        selectedImagePath.isEmpty
+                                                    ? (firstLetter.isNotEmpty
+                                                        ? Text(
+                                                          firstLetter,
+                                                          style: TextStyle(
+                                                            fontSize: 32.sp,
+                                                            fontWeight: FontWeight.w700,
+                                                            color: context.colors.primaryForeground,
+                                                          ),
+                                                        )
+                                                        : Icon(
+                                                          CarbonIcons.user,
+                                                          size: 32.sp,
+                                                          color: context.colors.primaryForeground,
+                                                        ))
+                                                    : null,
+                                          ),
                                         );
                                       },
                                     ),
@@ -232,9 +207,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       width: 28.w,
                                       child: EditIconWidget(
                                         onTap: () async {
-                                          await ref
-                                              .read(profileProvider.notifier)
-                                              .pickProfileImage(ref);
+                                          try {
+                                            await ref
+                                                .read(profileProvider.notifier)
+                                                .pickProfileImage();
+                                          } catch (e) {
+                                            if (context.mounted) {
+                                              ref.showErrorToast('Failed to pick profile image');
+                                            }
+                                          }
                                         },
                                       ),
                                     ),
@@ -350,7 +331,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                       Expanded(
                                                         child: AppFilledButton(
                                                           onPressed: () async {
-                                                            await _saveChanges(ref);
+                                                            await ref
+                                                                .read(profileProvider.notifier)
+                                                                .updateProfileData();
                                                             if (context.mounted) {
                                                               Navigator.of(dialogContext).pop();
                                                             }
@@ -371,7 +354,10 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   AppFilledButton(
                                     onPressed:
                                         profile.isDirty && !profile.isSaving
-                                            ? () => _saveChanges(ref)
+                                            ? () async =>
+                                                await ref
+                                                    .read(profileProvider.notifier)
+                                                    .updateProfileData()
                                             : null,
                                     loading: profile.isSaving,
                                     title: 'Save',
