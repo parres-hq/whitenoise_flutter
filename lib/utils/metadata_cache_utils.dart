@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class MetadataCacheUtils {
   static final _logger = Logger('MetadataCacheUtils');
@@ -142,16 +143,8 @@ class MetadataCacheUtils {
   static String? validateAndNormalizePublicKey(String publicKey) {
     final trimmed = publicKey.trim().toLowerCase();
 
-    // Check for npub format
-    if (trimmed.startsWith('npub1')) {
-      if (trimmed.length >= 63) {
-        return trimmed;
-      }
-      return null; // Invalid npub length
-    }
-
-    // Check for hex format
-    if (trimmed.length == 64 && RegExp(r'^[0-9a-f]+$').hasMatch(trimmed)) {
+    // Use the extension to validate the public key
+    if (trimmed.isValidPublicKey) {
       return trimmed;
     }
 

@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 /// Cached metadata with basic expiration
 class CachedMetadata {
@@ -87,9 +88,9 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
   Future<String> _getStandardizedNpub(String publicKey) async {
     final normalized = _normalizePublicKey(publicKey);
 
-    if (normalized.startsWith('npub1')) {
+    if (normalized.isValidNpubPublicKey) {
       return normalized;
-    } else if (normalized.length == 64 && RegExp(r'^[0-9a-f]+$').hasMatch(normalized)) {
+    } else if (normalized.isValidHexPublicKey) {
       return await _safeHexToNpub(normalized);
     } else {
       _logger.warning('Unrecognized public key format: $normalized');

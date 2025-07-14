@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
@@ -13,7 +12,7 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
@@ -24,6 +23,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
+import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class NewChatBottomSheet extends ConsumerStatefulWidget {
   const NewChatBottomSheet({super.key});
@@ -116,10 +116,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   }
 
   bool _isValidPublicKey(String input) {
-    final trimmed = input.trim();
-    // Check if it's a hex key (64 characters) or npub format
-    return (trimmed.length == 64 && RegExp(r'^[0-9a-fA-F]+$').hasMatch(trimmed)) ||
-        (trimmed.startsWith('npub1') && trimmed.length > 10);
+    return input.isValidPublicKey;
   }
 
   Future<Event?> _fetchKeyPackageWithRetry(String publicKeyString) async {
@@ -282,12 +279,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             pubkey: contact.publicKey,
             bio: contact.about,
             imagePath: contact.imagePath,
-            onChatCreated: (groupData) {
-              if (groupData != null) {
-                context.go(Routes.home);
-                Routes.goToChat(context, groupData.mlsGroupId);
-              }
-            },
+            onChatCreated: context.createChatNavigationCallback(),
           );
         } else {
           _logger.info('Showing ShareInviteBottomSheet for sharing invite');
@@ -392,13 +384,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             Navigator.pop(context);
             NewGroupChatSheet.show(
               context,
-              onGroupCreated: (groupData) {
-                if (groupData != null) {
-                  // Navigate to the group chat and pop all the way back to home
-                  context.go(Routes.home);
-                  Routes.goToChat(context, groupData.mlsGroupId);
-                }
-              },
+              onGroupCreated: context.createChatNavigationCallback(),
             );
           },
           child: Padding(

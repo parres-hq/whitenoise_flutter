@@ -7,12 +7,14 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
-import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class ShareProfileQrScanScreen extends ConsumerStatefulWidget {
   const ShareProfileQrScanScreen({super.key});
@@ -153,6 +155,16 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
     final barcode = capture.barcodes.first;
     if (barcode.rawValue != null && barcode.rawValue!.isNotEmpty) {
       final npub = barcode.rawValue!;
+      if (!npub.isValidPublicKey) {
+        ref.showWarningToast('Invalid public key format');
+        _controller.stop();
+        Future.delayed(const Duration(seconds: 2), () {
+          if (mounted) {
+            _controller.start();
+          }
+        });
+        return;
+      }
       _controller.stop();
       final contact = await ref.read(metadataCacheProvider.notifier).getContactModel(npub);
       if (mounted) {
@@ -161,12 +173,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
           name: contact.name,
           nip05: contact.nip05 ?? '',
           pubkey: npub,
-          onChatCreated: (groupData) {
-            if (groupData != null) {
-              context.go(Routes.home);
-              Routes.goToChat(context, groupData.mlsGroupId);
-            }
-          },
+          onChatCreated: context.createChatNavigationCallback(),
         );
       }
       _controller.start();
