@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed profile picture upload issue.
 - Ensure that group creator cannot be included as member
+- Prevent duplicate chats on clicking contact
 
 ### Security
 
