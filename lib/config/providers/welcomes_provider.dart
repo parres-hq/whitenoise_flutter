@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
@@ -18,12 +19,19 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     // Listen to active account changes and refresh welcomes automatically
     ref.listen<String?>(activeAccountProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
-        clearWelcomeData();
-        Future.microtask(() => loadWelcomes());
+        // Schedule state changes after the build phase to avoid provider modification errors
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          clearWelcomeData();
+          loadWelcomes();
+        });
       } else if (previous != null && next == null) {
-        clearWelcomeData();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          clearWelcomeData();
+        });
       } else if (previous == null && next != null) {
-        Future.microtask(() => loadWelcomes());
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          loadWelcomes();
+        });
       }
     });
 
