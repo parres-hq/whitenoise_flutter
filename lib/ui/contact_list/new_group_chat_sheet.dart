@@ -15,7 +15,7 @@ import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class NewGroupChatSheet extends ConsumerStatefulWidget {
   final ValueChanged<GroupData?>? onGroupCreated;
-  
+
   const NewGroupChatSheet({super.key, this.onGroupCreated});
 
   @override
