@@ -37,11 +37,12 @@ class ContactLoadingBottomSheet extends ConsumerStatefulWidget {
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       barrierDismissible: false, // Prevent manual dismissal during loading
-      builder: (context) => ContactLoadingBottomSheet(
-        contact: contact,
-        onChatCreated: onChatCreated,
-        onInviteSent: onInviteSent,
-      ),
+      builder:
+          (context) => ContactLoadingBottomSheet(
+            contact: contact,
+            onChatCreated: onChatCreated,
+            onInviteSent: onInviteSent,
+          ),
     );
   }
 
@@ -218,15 +219,32 @@ class _ContactLoadingBottomSheetState extends ConsumerState<ContactLoadingBottom
                       color: context.colors.warning,
                       borderRadius: BorderRadius.circular(40.r),
                     ),
-                    child: widget.contact.imagePath != null && widget.contact.imagePath!.isNotEmpty
-                        ? Image.network(
-                            widget.contact.imagePath!,
-                            width: 80.w,
-                            height: 80.w,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) => Center(
+                    child:
+                        widget.contact.imagePath != null && widget.contact.imagePath!.isNotEmpty
+                            ? Image.network(
+                              widget.contact.imagePath!,
+                              width: 80.w,
+                              height: 80.w,
+                              fit: BoxFit.cover,
+                              errorBuilder:
+                                  (context, error, stackTrace) => Center(
+                                    child: Text(
+                                      widget.contact.name.isNotEmpty
+                                          ? widget.contact.name[0].toUpperCase()
+                                          : '?',
+                                      style: TextStyle(
+                                        color: context.colors.neutral,
+                                        fontSize: 32.sp,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                            )
+                            : Center(
                               child: Text(
-                                widget.contact.name.isNotEmpty ? widget.contact.name[0].toUpperCase() : '?',
+                                widget.contact.name.isNotEmpty
+                                    ? widget.contact.name[0].toUpperCase()
+                                    : '?',
                                 style: TextStyle(
                                   color: context.colors.neutral,
                                   fontSize: 32.sp,
@@ -234,17 +252,6 @@ class _ContactLoadingBottomSheetState extends ConsumerState<ContactLoadingBottom
                                 ),
                               ),
                             ),
-                          )
-                        : Center(
-                            child: Text(
-                              widget.contact.name.isNotEmpty ? widget.contact.name[0].toUpperCase() : '?',
-                              style: TextStyle(
-                                color: context.colors.neutral,
-                                fontSize: 32.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
                   ),
                 ),
                 Gap(16.h),
