@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show the npub of each user on the contacts list
 - Add developer settings screen with some basic cache management functions
 - Confirmation dialog when signing out
+- Fixed back navigation when connecting another account 
 
 ### Changed
 
@@ -42,4 +43,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.0] - 2025-07-09
 
 Initial release of White Noise!
-

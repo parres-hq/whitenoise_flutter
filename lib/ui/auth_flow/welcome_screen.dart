@@ -16,7 +16,13 @@ class WelcomeScreen extends ConsumerStatefulWidget {
 }
 
 class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
+  bool _isCreatingAccount = false;
+
   Future<void> _handleCreateAccount(BuildContext context) async {
+    setState(() {
+      _isCreatingAccount = true;
+    });
+
     final authNotifier = ref.read(authProvider.notifier);
 
     // Start account creation in background without loading state
@@ -31,79 +37,76 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   Widget build(BuildContext context) {
     ref.watch(authProvider);
 
-    return Stack(
-      children: [
-        Scaffold(
-          backgroundColor: context.colors.neutral,
-          body: SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 24.w),
-                  child: Column(
-                    children: [
-                      SvgPicture.asset(
-                        AssetsPaths.icWhiteNoiseSvg,
-                        width: 170.w,
-                        height: 130.h,
-                        colorFilter: ColorFilter.mode(
-                          context.colors.primary,
-                          BlendMode.srcIn,
-                        ),
-                      ),
-                      Gap(24.h),
-                      Text(
-                        'White Noise',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 48.sp,
-                          letterSpacing: -0.6.sp,
-                          color: context.colors.primary,
-                        ),
-                      ),
-                      Gap(6.h),
-                      Text(
-                        'Decentralized. Uncensorable.\nSecure Messaging. ',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w400,
-                          fontSize: 18.sp,
-                          letterSpacing: 0.1.sp,
-                          color: context.colors.mutedForeground,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          bottomNavigationBar: SafeArea(
-            top: false,
-            child: Padding(
-              padding: EdgeInsets.only(bottom: 32.h),
+    return Scaffold(
+      backgroundColor: context.colors.neutral,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Column(
-                mainAxisSize: MainAxisSize.min,
                 children: [
-                  AppFilledButton(
-                    title: 'Login',
-                    visualState: AppButtonVisualState.secondary,
-                    onPressed: () => context.go('/login'),
+                  SvgPicture.asset(
+                    AssetsPaths.icWhiteNoiseSvg,
+                    width: 170.w,
+                    height: 130.h,
+                    colorFilter: ColorFilter.mode(
+                      context.colors.primary,
+                      BlendMode.srcIn,
+                    ),
                   ),
-                  Gap(12.h),
-                  AppFilledButton(
-                    title: 'Sign Up',
-                    onPressed: () => _handleCreateAccount(context),
+                  Gap(24.h),
+                  Text(
+                    'White Noise',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 48.sp,
+                      letterSpacing: -0.6.sp,
+                      color: context.colors.primary,
+                    ),
+                  ),
+                  Gap(6.h),
+                  Text(
+                    'Decentralized. Uncensorable.\nSecure Messaging. ',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 18.sp,
+                      letterSpacing: 0.1.sp,
+                      color: context.colors.mutedForeground,
+                    ),
                   ),
                 ],
               ),
             ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.only(bottom: 32.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AppFilledButton(
+                title: 'Login',
+                visualState: AppButtonVisualState.secondary,
+                onPressed: _isCreatingAccount ? null : () => context.go('/login'),
+              ),
+              Gap(12.h),
+              AppFilledButton(
+                title: 'Sign Up',
+                loading: _isCreatingAccount,
+                onPressed: _isCreatingAccount ? null : () => _handleCreateAccount(context),
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

@@ -11,20 +11,28 @@ class DMChatInfo extends ConsumerStatefulWidget {
 class _DMChatInfoState extends ConsumerState<DMChatInfo> {
   final _logger = Logger('DMChatInfo');
   String? otherUserNpub;
-  String? otherUserNip05;
-  String? otherUserImagePath;
   bool isContact = false;
   bool isContactLoading = false;
+  Future<DMChatData?>? _dmChatDataFuture;
 
   @override
   void initState() {
     super.initState();
+    _dmChatDataFuture = ref.getDMChatData(widget.groupId);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadDMData();
+      _loadContact();
     });
   }
 
-  Future<void> _loadDMData() async {
+  @override
+  void didUpdateWidget(DMChatInfo oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.groupId != widget.groupId) {
+      _dmChatDataFuture = ref.getDMChatData(widget.groupId);
+    }
+  }
+
+  Future<void> _loadContact() async {
     final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
     if (activeAccountData != null) {
       final currentUserNpub = await npubFromPublicKey(
@@ -34,38 +42,9 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
           .read(groupsProvider.notifier)
           .getOtherGroupMember(widget.groupId, currentUserNpub);
       if (otherMember != null && mounted) {
-        setState(() {
-          otherUserNpub = otherMember.publicKey;
-          otherUserNip05 = otherMember.nip05;
-          otherUserImagePath = otherMember.imagePath;
-        });
-
+        otherUserNpub = otherMember.publicKey;
         _checkContactStatus(otherMember.publicKey);
-
-        if (otherMember.nip05.isEmpty) {
-          _fetchUserMetadata(otherMember.publicKey);
-        }
       }
-    }
-  }
-
-  Future<void> _fetchUserMetadata(String userNpub) async {
-    try {
-      // Use metadata cache instead of direct fetchMetadata call
-      final metadataCache = ref.read(metadataCacheProvider.notifier);
-      final contactModel = await metadataCache.getContactModel(userNpub);
-
-      if (mounted && contactModel.name != 'Unknown User') {
-        setState(() {
-          otherUserNip05 = contactModel.nip05;
-          // Update image path if we got fresh metadata
-          if (contactModel.imagePath?.isNotEmpty == true) {
-            otherUserImagePath = contactModel.imagePath;
-          }
-        });
-      }
-    } catch (e) {
-      _logger.warning('Error fetching user metadata: $e');
     }
   }
 
@@ -81,7 +60,6 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
 
   Future<void> _addContact() async {
     if (otherUserNpub == null) return;
-
     setState(() {
       isContactLoading = true;
     });
@@ -131,117 +109,127 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
 
   @override
   Widget build(BuildContext context) {
-    final displayName = ref.watch(groupsProvider).groupDisplayNames?[widget.groupId];
-
     ref.listen(contactsProvider, (previous, next) {
       if (otherUserNpub != null) {
         _checkContactStatus(otherUserNpub!);
       }
     });
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 32.w),
-      child: Column(
-        children: [
-          Gap(64.h),
-          ContactAvatar(
-            imageUrl: otherUserImagePath ?? '',
-            size: 96.w,
-          ),
-          SizedBox(height: 16.h),
-          Text(
-            displayName ?? 'Unknown',
-            style: context.textTheme.bodyLarge?.copyWith(
-              color: context.colors.primary,
-              fontSize: 18.sp,
-            ),
-          ),
-          Gap(2.h),
-          if (otherUserNip05 != null && otherUserNip05!.isNotEmpty)
-            Text(
-              otherUserNip05!,
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: context.colors.mutedForeground,
-                fontSize: 14.sp,
+    return FutureBuilder(
+      future: _dmChatDataFuture,
+      builder: (context, asyncSnapshot) {
+        if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final dmChatData = asyncSnapshot.data;
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 32.w),
+          child: Column(
+            children: [
+              Gap(64.h),
+              ContactAvatar(
+                imageUrl: dmChatData?.displayImage ?? '',
+                size: 96.w,
               ),
-            ),
-          Gap(16.h),
-          if (otherUserNpub != null)
-            Text(
-              otherUserNpub!.formatPublicKey(),
-              textAlign: TextAlign.center,
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: context.colors.mutedForeground,
-                fontSize: 14.sp,
+              SizedBox(height: 16.h),
+              Text(
+                dmChatData?.displayName ?? 'Unknown',
+                style: context.textTheme.bodyLarge?.copyWith(
+                  color: context.colors.primary,
+                  fontSize: 18.sp,
+                ),
               ),
-            ),
-          Gap(32.h),
-          AppFilledButton.icon(
-            visualState:
-                isContact ? AppButtonVisualState.secondaryWarning : AppButtonVisualState.primary,
-            icon:
-                isContactLoading
-                    ? SizedBox(
-                      width: 14.w,
-                      height: 14.w,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: context.colors.primaryForeground,
-                      ),
-                    )
-                    : SvgPicture.asset(
-                      isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
-                      width: 14.w,
-                      colorFilter: ColorFilter.mode(
-                        isContact ? context.colors.destructive : context.colors.primaryForeground,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-            label: Text(isContact ? 'Remove Contact' : 'Add Contact'),
-            onPressed:
-                isContactLoading
-                    ? null
-                    : () {
-                      if (isContact) {
-                        _removeContact();
-                      } else {
-                        _addContact();
-                      }
-                    },
+              Gap(2.h),
+              Text(
+                dmChatData?.nip05 ?? '',
+                style: context.textTheme.bodyMedium?.copyWith(
+                  color: context.colors.mutedForeground,
+                  fontSize: 14.sp,
+                ),
+              ),
+              Gap(16.h),
+
+              Text(
+                dmChatData?.publicKey?.formatPublicKey() ?? '',
+                textAlign: TextAlign.center,
+                style: context.textTheme.bodyMedium?.copyWith(
+                  color: context.colors.mutedForeground,
+                  fontSize: 14.sp,
+                ),
+              ),
+              Gap(32.h),
+              AppFilledButton.icon(
+                visualState:
+                    isContact
+                        ? AppButtonVisualState.secondaryWarning
+                        : AppButtonVisualState.primary,
+                icon:
+                    isContactLoading
+                        ? SizedBox(
+                          width: 14.w,
+                          height: 14.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: context.colors.primaryForeground,
+                          ),
+                        )
+                        : SvgPicture.asset(
+                          isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+                          width: 14.w,
+                          colorFilter: ColorFilter.mode(
+                            isContact
+                                ? context.colors.destructive
+                                : context.colors.primaryForeground,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                label: Text(isContact ? 'Remove Contact' : 'Add Contact'),
+                onPressed:
+                    isContactLoading
+                        ? null
+                        : () {
+                          if (isContact) {
+                            _removeContact();
+                          } else {
+                            _addContact();
+                          }
+                        },
+              ),
+              Gap(12.h),
+              // TODO: Reenable when we have a search and mute features
+              // Row(
+              //   spacing: 12.w,
+              //   children: [
+              //     Expanded(
+              //       child: AppFilledButton.icon(
+              //         visualState: AppButtonVisualState.secondary,
+              //         icon: SvgPicture.asset(
+              //           AssetsPaths.icSearch,
+              //           width: 14.w,
+              //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
+              //         ),
+              //         label: const Text('Search Chat'),
+              //         onPressed: () {},
+              //       ),
+              //     ),
+              //     Expanded(
+              //       child: AppFilledButton.icon(
+              //         visualState: AppButtonVisualState.secondary,
+              //         icon: SvgPicture.asset(
+              //           AssetsPaths.icMutedNotification,
+              //           width: 14.w,
+              //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
+              //         ),
+              //         label: const Text('Mute Chat'),
+              //         onPressed: () {},
+              //       ),
+              //     ),
+              //   ],
+              // ),
+            ],
           ),
-          Gap(12.h),
-          // TODO: Reenable when we have a search and mute features
-          // Row(
-          //   spacing: 12.w,
-          //   children: [
-          //     Expanded(
-          //       child: AppFilledButton.icon(
-          //         visualState: AppButtonVisualState.secondary,
-          //         icon: SvgPicture.asset(
-          //           AssetsPaths.icSearch,
-          //           width: 14.w,
-          //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-          //         ),
-          //         label: const Text('Search Chat'),
-          //         onPressed: () {},
-          //       ),
-          //     ),
-          //     Expanded(
-          //       child: AppFilledButton.icon(
-          //         visualState: AppButtonVisualState.secondary,
-          //         icon: SvgPicture.asset(
-          //           AssetsPaths.icMutedNotification,
-          //           width: 14.w,
-          //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-          //         ),
-          //         label: const Text('Mute Chat'),
-          //         onPressed: () {},
-          //       ),
-          //     ),
-          //   ],
-          // ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

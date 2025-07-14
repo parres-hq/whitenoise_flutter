@@ -121,7 +121,6 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
               ),
             ),
             Gap(32.h),
-
             // TODO: Reenable when we have a search and mute features
             // Row(
             //   spacing: 12.w,

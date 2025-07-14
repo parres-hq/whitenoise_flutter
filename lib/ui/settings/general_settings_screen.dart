@@ -23,6 +23,7 @@ import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
+import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class GeneralSettingsScreen extends ConsumerStatefulWidget {
   const GeneralSettingsScreen({super.key});
@@ -170,7 +171,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         try {
           // Try to convert npub to hex for matching
           String hexKey = selectedProfile.publicKey;
-          if (selectedProfile.publicKey.startsWith('npub1')) {
+          if (selectedProfile.publicKey.isValidNpubPublicKey) {
             hexKey = await hexPubkeyFromNpub(npub: selectedProfile.publicKey);
           }
 
@@ -182,7 +183,11 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         }
 
         if (selectedAccount != null) {
-          _switchAccount(selectedAccount);
+          await _switchAccount(selectedAccount);
+          // Close the sheet after successful account switch
+          if (mounted) {
+            Navigator.pop(context);
+          }
         } else {
           // Account not found, reload accounts and show error
           if (mounted) {
@@ -193,6 +198,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
               debugPrint('Toast error: $e');
             }
             _loadAccounts();
+            Navigator.pop(context);
           }
         }
       },

@@ -5,6 +5,7 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/contact_list/group_chat_details_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -13,18 +14,20 @@ import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class NewGroupChatSheet extends ConsumerStatefulWidget {
-  const NewGroupChatSheet({super.key});
+  final ValueChanged<GroupData?>? onGroupCreated;
+
+  const NewGroupChatSheet({super.key, this.onGroupCreated});
 
   @override
   ConsumerState<NewGroupChatSheet> createState() => _NewGroupChatSheetState();
 
-  static Future<void> show(BuildContext context) {
+  static Future<void> show(BuildContext context, {ValueChanged<GroupData?>? onGroupCreated}) {
     return CustomBottomSheet.show(
       context: context,
       title: 'New group chat',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
-      builder: (context) => const NewGroupChatSheet(),
+      builder: (context) => NewGroupChatSheet(onGroupCreated: onGroupCreated),
     );
   }
 }
@@ -203,6 +206,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                         GroupChatDetailsSheet.show(
                           context: context,
                           selectedContacts: _selectedContacts.toList(),
+                          onGroupCreated: widget.onGroupCreated,
                         );
                       }
                       : null,

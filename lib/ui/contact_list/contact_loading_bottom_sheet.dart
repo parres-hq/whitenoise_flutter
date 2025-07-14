@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
@@ -163,7 +164,7 @@ class _ContactLoadingBottomSheetState extends ConsumerState<ContactLoadingBottom
               pubkey: widget.contact.publicKey,
               bio: widget.contact.about,
               imagePath: widget.contact.imagePath,
-              onChatCreated: widget.onChatCreated,
+              onChatCreated: context.createChatNavigationCallback(),
             );
           } else {
             _logger.info('Showing ShareInviteBottomSheet for sharing invite');

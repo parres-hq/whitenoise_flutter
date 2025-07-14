@@ -10,7 +10,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 
-class ConnectProfileBottomSheet extends ConsumerWidget {
+class ConnectProfileBottomSheet extends ConsumerStatefulWidget {
   const ConnectProfileBottomSheet({super.key});
 
   static Future<void> show({
@@ -27,7 +27,14 @@ class ConnectProfileBottomSheet extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ConnectProfileBottomSheet> createState() => _ConnectProfileBottomSheetState();
+}
+
+class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottomSheet> {
+  bool _isLoginLoading = false;
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
     return Padding(
@@ -35,25 +42,38 @@ class ConnectProfileBottomSheet extends ConsumerWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          AppFilledButton(
-            title: 'Login With Existing Profile',
-            visualState: AppButtonVisualState.secondary,
-            onPressed:
-                authState.isLoading
-                    ? null
-                    : () async {
-                      Navigator.pop(context);
+          _isLoginLoading
+              ? SizedBox(
+                height: 56.h, // Match the button height
+                child: Center(
+                  child: CircularProgressIndicator(
+                    color: context.colorScheme.onSurface,
+                  ),
+                ),
+              )
+              : AppFilledButton(
+                title: 'Login With Existing Profile',
+                visualState: AppButtonVisualState.secondary,
+                onPressed:
+                    authState.isLoading
+                        ? null
+                        : () async {
+                          setState(() {
+                            _isLoginLoading = true;
+                          });
 
-                      // Go directly to login screen without logging out current account
-                      // This preserves the current account and prevents previous accounts
-                      // from being deleted when a new account is added
-                      ref.read(authProvider.notifier).setUnAuthenticated();
+                          Navigator.pop(context);
 
-                      if (context.mounted) {
-                        context.go(Routes.login);
-                      }
-                    },
-          ),
+                          // Go directly to login screen without logging out current account
+                          // This preserves the current account and prevents previous accounts
+                          // from being deleted when a new account is added
+                          ref.read(authProvider.notifier).setUnAuthenticated();
+
+                          if (context.mounted) {
+                            context.go(Routes.login);
+                          }
+                        },
+              ),
           Gap(4.h),
           authState.isLoading
               ? SizedBox(
@@ -67,6 +87,7 @@ class ConnectProfileBottomSheet extends ConsumerWidget {
               : AppFilledButton(
                 title: 'Create New Profile',
                 onPressed: () async {
+                  // Wait for account creation and metadata generation
                   await ref.read(authProvider.notifier).createAccount();
                   final authState = ref.read(authProvider);
 

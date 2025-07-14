@@ -22,6 +22,7 @@ class CreateProfileScreen extends ConsumerStatefulWidget {
 class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
+  bool _isLoadingUsername = true;
 
   @override
   void initState() {
@@ -31,6 +32,9 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
       final currentMetadata = ref.read(accountProvider).metadata;
       if (currentMetadata?.displayName != null && currentMetadata!.displayName!.isNotEmpty) {
         _usernameController.text = currentMetadata.displayName!;
+        setState(() {
+          _isLoadingUsername = false;
+        });
       } else {
         // If no metadata, try to load it
         await ref.read(accountProvider.notifier).loadAccountData();
@@ -38,6 +42,9 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
         if (newMetadata?.displayName != null && newMetadata!.displayName!.isNotEmpty) {
           _usernameController.text = newMetadata.displayName!;
         }
+        setState(() {
+          _isLoadingUsername = false;
+        });
       }
     });
   }
@@ -57,6 +64,9 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
           next.metadata!.displayName!.isNotEmpty &&
           _usernameController.text.isEmpty) {
         _usernameController.text = next.metadata!.displayName!;
+        setState(() {
+          _isLoadingUsername = false;
+        });
       }
     });
 
@@ -152,11 +162,29 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                 ),
               ),
               Gap(10.h),
-              AppTextFormField(
-                hintText: 'Free Citizen',
-                obscureText: false,
-                controller: _usernameController,
-              ),
+              _isLoadingUsername
+                  ? Container(
+                    height: 56.h,
+                    decoration: BoxDecoration(
+                      color: context.colors.avatarSurface,
+                      borderRadius: BorderRadius.circular(8.r),
+                    ),
+                    child: Center(
+                      child: SizedBox(
+                        width: 20.w,
+                        height: 20.w,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.w,
+                          color: context.colors.primary,
+                        ),
+                      ),
+                    ),
+                  )
+                  : AppTextFormField(
+                    hintText: 'Free Citizen',
+                    obscureText: false,
+                    controller: _usernameController,
+                  ),
               Gap(36.h),
               Align(
                 alignment: Alignment.centerLeft,
@@ -192,26 +220,22 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
           child: Consumer(
             builder: (context, ref, child) {
               final accountState = ref.watch(accountProvider);
-              return accountState.isLoading
-                  ? SizedBox(
-                    height: 56.h,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: context.colors.primary,
-                      ),
-                    ),
-                  )
-                  : AppFilledButton(
-                    onPressed:
-                        () => ref
+              final isButtonDisabled = accountState.isLoading || _isLoadingUsername;
+
+              return AppFilledButton(
+                title: 'Finish',
+                loading: isButtonDisabled,
+                onPressed:
+                    isButtonDisabled
+                        ? null
+                        : () => ref
                             .read(accountProvider.notifier)
                             .updateAccountMetadata(
                               ref,
                               _usernameController.text.trim(),
                               _bioController.text.trim(),
                             ),
-                    title: 'Finish',
-                  );
+              );
             },
           ),
         ),

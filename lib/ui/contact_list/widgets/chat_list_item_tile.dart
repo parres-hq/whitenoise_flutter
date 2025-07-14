@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
+import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
-import 'package:whitenoise/ui/contact_list/widgets/group_list_tile.dart';
+import 'package:whitenoise/ui/contact_list/widgets/message_read_status.dart';
 import 'package:whitenoise/ui/contact_list/widgets/welcome_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
@@ -42,8 +42,8 @@ class ChatListItemTile extends ConsumerWidget {
     // For DM chats, get the other member and use metadata cache for better user info
     if (group.groupType == GroupType.directMessage) {
       return FutureBuilder(
-        future: _getDMChatData(group.mlsGroupId, ref),
-        builder: (context, snapshot) {
+        future: ref.getDMChatData(group.mlsGroupId),
+        builder: (context, AsyncSnapshot<DMChatData?> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Show loading state with basic info
             return _buildChatTileContent(context, group.name, null, group);
@@ -72,41 +72,6 @@ class ChatListItemTile extends ConsumerWidget {
     final displayImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId, currentUserNpub);
 
     return _buildChatTileContent(context, displayName, displayImage, group);
-  }
-
-  Future<_DMChatData?> _getDMChatData(String groupId, WidgetRef ref) async {
-    try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) return null;
-
-      final currentUserHexPubkey = activeAccountData.pubkey;
-
-      // Convert hex pubkey to npub format for proper comparison
-      final currentUserNpub = await npubFromPublicKey(
-        publicKey: await publicKeyFromString(publicKeyString: currentUserHexPubkey),
-      );
-
-      final otherMember = ref
-          .read(groupsProvider.notifier)
-          .getOtherGroupMember(
-            groupId,
-            currentUserNpub,
-          );
-
-      if (otherMember != null) {
-        final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
-        final contactModel = await metadataCacheNotifier.getContactModel(otherMember.publicKey);
-        final displayName = contactModel.displayNameOrName;
-        final displayImage = contactModel.imagePath ?? (otherMember.imagePath ?? '');
-
-        return _DMChatData(displayName: displayName, displayImage: displayImage);
-      }
-
-      return null;
-    } catch (e) {
-      return null;
-    }
   }
 
   Widget _buildChatTileContent(
@@ -199,14 +164,4 @@ class ChatListItemTile extends ConsumerWidget {
     }
     return content;
   }
-}
-
-class _DMChatData {
-  final String displayName;
-  final String? displayImage;
-
-  _DMChatData({
-    required this.displayName,
-    this.displayImage,
-  });
 }

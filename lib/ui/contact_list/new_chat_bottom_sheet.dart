@@ -12,6 +12,7 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/ui/contact_list/contact_loading_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -307,7 +308,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         GestureDetector(
           onTap: () {
             Navigator.pop(context);
-            NewGroupChatSheet.show(context);
+            NewGroupChatSheet.show(
+              context,
+              onGroupCreated: context.createChatNavigationCallback(),
+            );
           },
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),

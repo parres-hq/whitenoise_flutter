@@ -88,40 +88,31 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
           padding: EdgeInsets.symmetric(
             horizontal: 24.w,
           ).copyWith(bottom: 32.h),
-          child:
-              _isLoading
-                  ? SizedBox(
-                    height: 56.h,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: context.colors.primaryForeground,
-                      ),
-                    ),
-                  )
-                  : AppFilledButton.child(
-                    onPressed: () => _onContinuePressed(context),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Setup Profile',
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: context.colors.primaryForeground,
-                          ),
-                        ),
-                        Gap(14.w),
-                        SvgPicture.asset(
-                          AssetsPaths.icArrowRight,
-                          colorFilter: ColorFilter.mode(
-                            context.colors.primaryForeground,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ],
-                    ),
+          child: AppFilledButton.child(
+            loading: _isLoading,
+            onPressed: _isLoading ? null : () => _onContinuePressed(context),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Setup Profile',
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.primaryForeground,
                   ),
+                ),
+                Gap(14.w),
+                SvgPicture.asset(
+                  AssetsPaths.icArrowRight,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.primaryForeground,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

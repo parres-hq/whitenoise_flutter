@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
+import 'package:whitenoise/domain/models/dm_chat_data.dart';
+import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -28,7 +28,7 @@ class ChatContactHeader extends ConsumerWidget {
   }
 }
 
-class GroupChatHeader extends ConsumerWidget {
+class GroupChatHeader extends ConsumerStatefulWidget {
   final GroupData groupData;
 
   const GroupChatHeader({
@@ -37,14 +37,28 @@ class GroupChatHeader extends ConsumerWidget {
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final admins = ref.watch(groupsProvider.notifier).getGroupAdmins(groupData.mlsGroupId) ?? [];
-    final npub = ref.watch(nostrKeysProvider).npub;
-    // For now, we just take the first admin as the creator
-    // This logic can be improved later to show the actual creator
-    final firstAdmin = admins.isNotEmpty ? admins.first : null;
-    final isCurrentUserAdmin = firstAdmin?.publicKey == npub;
+  ConsumerState<GroupChatHeader> createState() => _GroupChatHeaderState();
+}
 
+class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
+  Future<String>? _groupNpubFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _groupNpubFuture = npubFromHexPubkey(hexPubkey: widget.groupData.nostrGroupId);
+  }
+
+  @override
+  void didUpdateWidget(GroupChatHeader oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.groupData.nostrGroupId != widget.groupData.nostrGroupId) {
+      _groupNpubFuture = npubFromHexPubkey(hexPubkey: widget.groupData.nostrGroupId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
@@ -52,13 +66,13 @@ class GroupChatHeader extends ConsumerWidget {
           Gap(32.h),
           ContactAvatar(
             imageUrl: '',
-            displayName: groupData.name,
+            displayName: widget.groupData.name,
             size: 96.r,
             showBorder: true,
           ),
           Gap(12.h),
           Text(
-            groupData.name,
+            widget.groupData.name,
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
@@ -66,16 +80,22 @@ class GroupChatHeader extends ConsumerWidget {
             ),
           ),
           Gap(16.h),
-          Text(
-            'nbup${groupData.nostrGroupId}'.formatPublicKey(),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: context.colors.mutedForeground,
-            ),
+          FutureBuilder(
+            future: _groupNpubFuture,
+            builder: (context, asyncSnapshot) {
+              final groupNpub = asyncSnapshot.data ?? '';
+              return Text(
+                groupNpub.formatPublicKey(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: context.colors.mutedForeground,
+                ),
+              );
+            },
           ),
           Gap(12.h),
-          if (groupData.description.isNotEmpty) ...[
+          if (widget.groupData.description.isNotEmpty) ...[
             Text(
               'Group Description:',
               style: TextStyle(
@@ -86,32 +106,11 @@ class GroupChatHeader extends ConsumerWidget {
             ),
             Gap(4.h),
             Text(
-              groupData.description,
+              widget.groupData.description,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14.sp,
                 color: context.colors.primary,
-              ),
-            ),
-            Gap(16.h),
-          ],
-          if (firstAdmin != null) ...[
-            Text.rich(
-              TextSpan(
-                text: 'Group Chat Started by ',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: context.colors.mutedForeground,
-                ),
-                children: [
-                  TextSpan(
-                    text: isCurrentUserAdmin ? 'You' : firstAdmin.name.capitalizeFirst,
-                    style: TextStyle(
-                      color: context.colors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
               ),
             ),
           ],
@@ -122,38 +121,55 @@ class GroupChatHeader extends ConsumerWidget {
   }
 }
 
-class DirectMessageHeader extends ConsumerWidget {
+class DirectMessageHeader extends ConsumerStatefulWidget {
   final GroupData groupData;
 
   const DirectMessageHeader({super.key, required this.groupData});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return FutureBuilder<String?>(
-      future: ref.read(activeAccountProvider)?.toNpub(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) {
+  ConsumerState<DirectMessageHeader> createState() => _DirectMessageHeaderState();
+}
+
+class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
+  Future<DMChatData?>? _dmChatDataFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _dmChatDataFuture = ref.getDMChatData(widget.groupData.mlsGroupId);
+  }
+
+  @override
+  void didUpdateWidget(DirectMessageHeader oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.groupData.mlsGroupId != widget.groupData.mlsGroupId) {
+      _dmChatDataFuture = ref.getDMChatData(widget.groupData.mlsGroupId);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: _dmChatDataFuture,
+      builder: (context, asyncSnapshot) {
+        final otherUser = asyncSnapshot.data;
+        if (otherUser == null) {
           return const SizedBox.shrink();
         }
-        final npubKey = snapshot.data!;
-        final otherUser = ref
-            .read(groupsProvider.notifier)
-            .getFirstOtherMember(groupData.mlsGroupId, npubKey);
-        if (otherUser == null) return const SizedBox.shrink();
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
             children: [
               Gap(32.h),
               ContactAvatar(
-                imageUrl: '',
-                displayName: otherUser.name,
+                imageUrl: otherUser.displayImage ?? '',
+                displayName: otherUser.displayName,
                 size: 96.r,
                 showBorder: true,
               ),
               Gap(12.h),
               Text(
-                otherUser.name.capitalizeFirst,
+                otherUser.displayName.capitalizeFirst,
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
@@ -162,7 +178,7 @@ class DirectMessageHeader extends ConsumerWidget {
               ),
               Gap(4.h),
               Text(
-                otherUser.nip05,
+                otherUser.nip05 ?? '',
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: context.colors.mutedForeground,
@@ -170,30 +186,11 @@ class DirectMessageHeader extends ConsumerWidget {
               ),
               Gap(12.h),
               Text(
-                otherUser.publicKey.formatPublicKey(),
+                otherUser.publicKey?.formatPublicKey() ?? '',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 12.sp,
                   color: context.colors.mutedForeground,
-                ),
-              ),
-              Gap(32.h),
-              Text.rich(
-                TextSpan(
-                  text: 'Chat started by ',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: context.colors.mutedForeground,
-                  ),
-                  children: [
-                    TextSpan(
-                      text: 'You',
-                      style: TextStyle(
-                        color: context.colors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
                 ),
               ),
               Gap(32.h),

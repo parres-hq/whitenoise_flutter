@@ -3,12 +3,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/toast_message_provider.dart';
 import 'package:whitenoise/config/states/toast_state.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
@@ -49,7 +51,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
     ref
         .read(toastMessageProvider.notifier)
         .showRawToast(
-          message: 'Copied to clipboard',
+          message: 'Public Key copied.',
           type: ToastType.success,
         );
   }
@@ -87,32 +89,87 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                     ),
                   ],
                 ),
-                currentProfile.when(
-                  data: (profile) {
-                    return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: Column(
-                        children: [
-                          Gap(16.h),
-                          ContactAvatar(
-                            imageUrl: profile.picture ?? '',
-                            displayName: profile.displayName ?? '',
-                            size: 96.w,
-                            showBorder: true,
-                          ),
-                          Gap(8.h),
-                          Text(
-                            profile.displayName ?? '',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.primary,
+                Expanded(
+                  child: currentProfile.when(
+                    data: (profile) {
+                      return Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Column(
+                          children: [
+                            Gap(16.h),
+                            ContactAvatar(
+                              imageUrl: profile.picture ?? '',
+                              displayName: profile.displayName ?? '',
+                              size: 96.w,
+                              showBorder: true,
                             ),
-                          ),
-                          if (profile.nip05 != null) ...[
+                            Gap(8.h),
                             Text(
-                              profile.nip05!,
+                              profile.displayName ?? '',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.primary,
+                              ),
+                            ),
+                            if (profile.nip05 != null) ...[
+                              Text(
+                                profile.nip05!,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: context.colors.mutedForeground,
+                                ),
+                              ),
+                            ],
+                            Gap(18.h),
+                            Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      npub.formatPublicKey(),
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w500,
+                                        color: context.colors.mutedForeground,
+                                      ),
+                                    ),
+                                  ),
+                                  Gap(8.w),
+                                  InkWell(
+                                    onTap: () => _copyToClipboard(context, npub),
+                                    child: SvgPicture.asset(
+                                      AssetsPaths.icCopy,
+                                      width: 24.w,
+                                      height: 24.w,
+                                      colorFilter: ColorFilter.mode(
+                                        context.colors.primary,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Gap(32.h),
+                            QrImageView(
+                              data: npub,
+                              size: 256.w,
+                              gapless: false,
+                              eyeStyle: QrEyeStyle(
+                                eyeShape: QrEyeShape.square,
+                                color: context.colors.solidNeutralBlack,
+                              ),
+                              backgroundColor: context.colors.solidNeutralWhite,
+                            ),
+                            Gap(10.h),
+                            Text(
+                              'Scan to connect.',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 14.sp,
@@ -120,68 +177,36 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                                 color: context.colors.mutedForeground,
                               ),
                             ),
+                            const Spacer(),
+                            AppFilledButton.icon(
+                              label: SvgPicture.asset(
+                                AssetsPaths.icScan,
+                                colorFilter: ColorFilter.mode(
+                                  context.colors.primaryForeground,
+                                  BlendMode.srcIn,
+                                ),
+                              ),
+                              icon: Text(
+                                'Scan QR Code',
+                                style: TextStyle(
+                                  color: context.colors.primaryForeground,
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              onPressed: () => context.push(Routes.settingsShareProfileQrScan),
+                            ),
+                            Gap(64.h),
                           ],
-                          Gap(18.h),
-                          Text(
-                            npub.formatPublicKey(),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                              color: context.colors.mutedForeground,
-                            ),
-                          ),
-                          Gap(16.h),
-                          AppFilledButton.icon(
-                            visualState: AppButtonVisualState.secondary,
-                            size: AppButtonSize.small,
-                            label: SvgPicture.asset(
-                              AssetsPaths.icCopy,
-                              colorFilter: ColorFilter.mode(
-                                context.colors.primary,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                            icon: Text(
-                              'Copy Public Key',
-                              style: TextStyle(
-                                color: context.colors.primary,
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            onPressed: () => _copyToClipboard(context, npub),
-                          ),
-                          Gap(38.h),
-                          QrImageView(
-                            data: npub,
-                            size: 256.w,
-                            gapless: false,
-                            eyeStyle: QrEyeStyle(
-                              eyeShape: QrEyeShape.square,
-                              color: context.colors.solidNeutralBlack,
-                            ),
-                            backgroundColor: context.colors.solidNeutralWhite,
-                          ),
-                          Gap(10.h),
-                          Text(
-                            'Scan to connect.',
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
-                              color: context.colors.mutedForeground,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                  loading: () => const Center(child: CircularProgressIndicator()),
-                  error:
-                      (error, stackTrace) => const Center(
-                        child: Text('Error loading profile'),
-                      ),
+                        ),
+                      );
+                    },
+                    loading: () => const Center(child: CircularProgressIndicator()),
+                    error:
+                        (error, stackTrace) => const Center(
+                          child: Text('Error loading profile'),
+                        ),
+                  ),
                 ),
               ],
             ),
