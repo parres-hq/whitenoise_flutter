@@ -1,0 +1,311 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
+import 'package:logging/logging.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/src/rust/api/relays.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
+import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/utils/string_extensions.dart';
+
+class ContactLoadingBottomSheet extends ConsumerStatefulWidget {
+  final ContactModel contact;
+  final VoidCallback? onChatCreated;
+  final VoidCallback? onInviteSent;
+
+  const ContactLoadingBottomSheet({
+    required this.contact,
+    this.onChatCreated,
+    this.onInviteSent,
+    super.key,
+  });
+
+  static Future<void> show({
+    required BuildContext context,
+    required ContactModel contact,
+    VoidCallback? onChatCreated,
+    VoidCallback? onInviteSent,
+  }) {
+    return CustomBottomSheet.show(
+      context: context,
+      title: 'Connecting...',
+      heightFactor: 0.5,
+      blurSigma: 8.0,
+      transitionDuration: const Duration(milliseconds: 400),
+      barrierDismissible: false, // Prevent manual dismissal during loading
+      builder: (context) => ContactLoadingBottomSheet(
+        contact: contact,
+        onChatCreated: onChatCreated,
+        onInviteSent: onInviteSent,
+      ),
+    );
+  }
+
+  @override
+  ConsumerState<ContactLoadingBottomSheet> createState() => _ContactLoadingBottomSheetState();
+}
+
+class _ContactLoadingBottomSheetState extends ConsumerState<ContactLoadingBottomSheet> {
+  final _logger = Logger('ContactLoadingBottomSheet');
+  bool _isCompleted = false;
+  String _loadingMessage = 'Checking secure chat availability...';
+
+  @override
+  void initState() {
+    super.initState();
+    // Start fetching key package immediately
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkKeyPackageAndNavigate();
+    });
+  }
+
+  Future<Event?> _fetchKeyPackageWithRetry(String publicKeyString) async {
+    const maxAttempts = 3;
+    Event? lastSuccessfulResult;
+
+    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        _logger.info('Key package fetch attempt $attempt for $publicKeyString');
+
+        // Create fresh PublicKey object for each attempt to avoid disposal issues
+        final freshPubkey = await publicKeyFromString(publicKeyString: publicKeyString);
+        final keyPackage = await fetchKeyPackage(pubkey: freshPubkey);
+
+        _logger.info(
+          'Key package fetch successful on attempt $attempt - result: ${keyPackage != null ? "found" : "null"}',
+        );
+        lastSuccessfulResult = keyPackage;
+        return keyPackage; // Return immediately on success (whether null or not)
+      } catch (e) {
+        _logger.warning('Key package fetch attempt $attempt failed: $e');
+
+        if (e.toString().contains('DroppableDisposedException')) {
+          _logger.warning('Detected disposal exception, will retry with fresh objects');
+        } else if (e.toString().contains('RustArc')) {
+          _logger.warning('Detected RustArc error, will retry with fresh objects');
+        } else {
+          // For non-disposal errors, don't retry
+          _logger.severe('Non-disposal error encountered, not retrying: $e');
+          rethrow;
+        }
+
+        if (attempt == maxAttempts) {
+          _logger.severe('Failed to fetch key package after $maxAttempts attempts: $e');
+          throw Exception('Failed to fetch key package after $maxAttempts attempts: $e');
+        }
+
+        // Wait a bit before retry
+        await Future.delayed(const Duration(milliseconds: 200));
+      }
+    }
+
+    // This should never be reached due to the logic above, but just in case
+    return lastSuccessfulResult;
+  }
+
+  Future<void> _checkKeyPackageAndNavigate() async {
+    if (_isCompleted) return;
+
+    try {
+      Event? keyPackage;
+
+      try {
+        // Update loading message
+        if (mounted) {
+          setState(() {
+            _loadingMessage = 'Checking secure chat availability...';
+          });
+        }
+
+        // Use retry mechanism for key package fetching
+        keyPackage = await _fetchKeyPackageWithRetry(widget.contact.publicKey);
+        _logger.info('Raw key package fetch result for ${widget.contact.publicKey}: $keyPackage');
+        _logger.info('Key package is null: ${keyPackage == null}');
+      } catch (e) {
+        _logger.warning(
+          'Failed to fetch key package for ${widget.contact.publicKey} after all retries: $e',
+        );
+        keyPackage = null;
+      }
+
+      // Mark as completed first to prevent multiple navigations
+      if (mounted) {
+        setState(() {
+          _isCompleted = true;
+          _loadingMessage = keyPackage != null ? 'Secure chat available!' : 'Preparing invite...';
+        });
+
+        // Short delay to show the completion message
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        if (mounted) {
+          _logger.info('=== Navigation Decision ===');
+          _logger.info('keyPackage != null: ${keyPackage != null}');
+          _logger.info(
+            'Final decision: ${keyPackage != null ? "StartSecureChatBottomSheet" : "ShareInviteBottomSheet"}',
+          );
+
+          // Close this loading sheet first
+          Navigator.pop(context);
+
+          // Navigate to the appropriate sheet
+          if (keyPackage != null) {
+            _logger.info('Showing StartSecureChatBottomSheet for secure chat');
+            await StartSecureChatBottomSheet.show(
+              context: context,
+              name: widget.contact.displayNameOrName,
+              nip05: widget.contact.nip05 ?? '',
+              pubkey: widget.contact.publicKey,
+              bio: widget.contact.about,
+              imagePath: widget.contact.imagePath,
+              onChatCreated: widget.onChatCreated,
+            );
+          } else {
+            _logger.info('Showing ShareInviteBottomSheet for sharing invite');
+            await ShareInviteBottomSheet.show(
+              context: context,
+              contacts: [widget.contact],
+              onInviteSent: widget.onInviteSent,
+            );
+          }
+        }
+      }
+    } catch (e) {
+      _logger.severe('Error checking key package: $e');
+
+      if (mounted) {
+        setState(() {
+          _isCompleted = true;
+          _loadingMessage = 'Connection failed. Preparing invite...';
+        });
+
+        // Short delay to show the error message, then navigate to invite sheet as fallback
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        if (mounted) {
+          Navigator.pop(context);
+          await ShareInviteBottomSheet.show(
+            context: context,
+            contacts: [widget.contact],
+            onInviteSent: widget.onInviteSent,
+          );
+        }
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Expanded(
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Contact avatar
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(40.r),
+                  child: Container(
+                    width: 80.w,
+                    height: 80.w,
+                    decoration: BoxDecoration(
+                      color: context.colors.warning,
+                      borderRadius: BorderRadius.circular(40.r),
+                    ),
+                    child: widget.contact.imagePath != null && widget.contact.imagePath!.isNotEmpty
+                        ? Image.network(
+                            widget.contact.imagePath!,
+                            width: 80.w,
+                            height: 80.w,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) => Center(
+                              child: Text(
+                                widget.contact.name.isNotEmpty ? widget.contact.name[0].toUpperCase() : '?',
+                                style: TextStyle(
+                                  color: context.colors.neutral,
+                                  fontSize: 32.sp,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          )
+                        : Center(
+                            child: Text(
+                              widget.contact.name.isNotEmpty ? widget.contact.name[0].toUpperCase() : '?',
+                              style: TextStyle(
+                                color: context.colors.neutral,
+                                fontSize: 32.sp,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                  ),
+                ),
+                Gap(16.h),
+
+                // Contact name
+                Text(
+                  widget.contact.displayNameOrName,
+                  style: TextStyle(
+                    fontSize: 20.sp,
+                    fontWeight: FontWeight.w500,
+                    color: context.colors.primary,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                Gap(8.h),
+
+                // Contact public key (formatted)
+                Text(
+                  widget.contact.publicKey.formatPublicKey(),
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    color: context.colors.mutedForeground,
+                    fontFamily: 'monospace',
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                Gap(32.h),
+
+                // Loading indicator and message
+                if (!_isCompleted) ...[
+                  SizedBox(
+                    width: 32.w,
+                    height: 32.w,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 3.0,
+                      valueColor: AlwaysStoppedAnimation<Color>(context.colors.primary),
+                    ),
+                  ),
+                  Gap(16.h),
+                ] else ...[
+                  Icon(
+                    Icons.check_circle,
+                    color: context.colors.primary,
+                    size: 32.w,
+                  ),
+                  Gap(16.h),
+                ],
+
+                Text(
+                  _loadingMessage,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: context.colors.mutedForeground,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}

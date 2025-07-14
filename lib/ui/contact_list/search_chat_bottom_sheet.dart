@@ -10,6 +10,7 @@ import 'package:whitenoise/domain/models/chat_model.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/ui/contact_list/contact_loading_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
@@ -136,6 +137,33 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
     return [];
   }
 
+  Future<void> _handleContactTap(ContactModel contact) async {
+    _logger.info('Starting chat flow with contact: ${contact.publicKey}');
+
+    try {
+      // Show the loading bottom sheet immediately
+      if (mounted) {
+        ContactLoadingBottomSheet.show(
+          context: context,
+          contact: contact,
+          onChatCreated: () {
+            // Close the parent search bottom sheet when chat is created
+            Navigator.pop(context);
+          },
+          onInviteSent: () {
+            // Close the parent search bottom sheet when invite is sent
+            Navigator.pop(context);
+          },
+        );
+      }
+    } catch (e) {
+      _logger.severe('Error handling contact tap: $e');
+      if (mounted) {
+        ref.showErrorToast('Failed to start chat: $e');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
@@ -258,6 +286,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
                     (contact) => ContactListTile(
                       contact: contact,
                       enableSwipeToDelete: true,
+                      onTap: () => _handleContactTap(contact),
                       onDelete: () async {
                         try {
                           // Get the real PublicKey from our map
