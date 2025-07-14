@@ -41,10 +41,11 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
         final newMetadata = ref.read(accountProvider).metadata;
         if (newMetadata?.displayName != null && newMetadata!.displayName!.isNotEmpty) {
           _usernameController.text = newMetadata.displayName!;
+          setState(() {
+            _isLoadingUsername = false;
+          });
         }
-        setState(() {
-          _isLoadingUsername = false;
-        });
+        // Keep loading if no displayName is found - don't stop loading
       }
     });
   }
@@ -181,7 +182,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                     ),
                   )
                   : AppTextFormField(
-                    hintText: 'Free Citizen',
+                    hintText: 'Your name',
                     obscureText: false,
                     controller: _usernameController,
                   ),
