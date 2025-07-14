@@ -171,55 +171,81 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
   }
 
   Widget buildReactions(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isSmallScreen = screenWidth < 380.w;
+
     return Container(
       width: double.infinity,
       padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: context.colors.primaryForeground,
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          for (var reaction in widget.reactions)
-            FadeInLeft(
-              from: 0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
-              duration: const Duration(milliseconds: 50),
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    reactionClicked = true;
-                    clickedReactionIndex = widget.reactions.indexOf(reaction);
-                  });
-                  Navigator.of(context).pop();
-                  widget.onReactionTap(reaction);
-                },
-                child: Pulse(
-                  duration: const Duration(milliseconds: 50),
-                  animate:
-                      reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction),
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                    child: Text(
-                      reaction,
-                      style: TextStyle(fontSize: 24.sp),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          IconButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              // Trigger the emoji picker by calling onReactionTap with a special value
-              widget.onReactionTap('⋯');
-            },
-            icon: Icon(
-              Icons.add_reaction_outlined,
-              size: 24.sp,
-              color: context.colors.primary,
+      child: isSmallScreen ? _buildWrappedReactions() : _buildRowReactions(),
+    );
+  }
+
+  Widget _buildRowReactions() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        for (var reaction in widget.reactions) _buildReactionItem(reaction),
+        _buildAddReactionButton(),
+      ],
+    );
+  }
+
+  Widget _buildWrappedReactions() {
+    return Wrap(
+      alignment: WrapAlignment.spaceEvenly,
+      runAlignment: WrapAlignment.center,
+      spacing: 4.w,
+      runSpacing: 8.h,
+      children: [
+        for (var reaction in widget.reactions) _buildReactionItem(reaction),
+        _buildAddReactionButton(),
+      ],
+    );
+  }
+
+  Widget _buildReactionItem(String reaction) {
+    return FadeInLeft(
+      from: 0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
+      duration: const Duration(milliseconds: 50),
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            reactionClicked = true;
+            clickedReactionIndex = widget.reactions.indexOf(reaction);
+          });
+          Navigator.of(context).pop();
+          widget.onReactionTap(reaction);
+        },
+        child: Pulse(
+          duration: const Duration(milliseconds: 50),
+          animate: reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction),
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+            child: Text(
+              reaction,
+              style: TextStyle(fontSize: 24.sp),
             ),
           ),
-        ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAddReactionButton() {
+    return IconButton(
+      onPressed: () {
+        Navigator.of(context).pop();
+        // Trigger the emoji picker by calling onReactionTap with a special value
+        widget.onReactionTap('⋯');
+      },
+      icon: Icon(
+        Icons.add_reaction_outlined,
+        size: 24.sp,
+        color: context.colors.primary,
       ),
     );
   }
