@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -60,6 +59,7 @@ class SwitchProfileBottomSheet extends ConsumerStatefulWidget {
 class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSheet> {
   String? _activeAccountHex;
   String? _loadingProfileKey; // Track which profile is being loaded
+  bool _isConnectProfileSheetOpen = false;
 
   @override
   void initState() {
@@ -98,6 +98,26 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
     }
   }
 
+  /// Returns true if the ConnectProfileBottomSheet is currently open
+  bool get isConnectProfileSheetOpen => _isConnectProfileSheetOpen;
+
+  /// Handles opening the ConnectProfileBottomSheet and managing visibility state
+  Future<void> _handleConnectAnotherProfile() async {
+    setState(() {
+      _isConnectProfileSheetOpen = true;
+    });
+
+    try {
+      await ConnectProfileBottomSheet.show(context: context);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isConnectProfileSheetOpen = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final activeAccountPubkey = ref.watch(activeAccountProvider);
@@ -124,9 +144,11 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
 
     return PopScope(
       canPop: widget.isDismissible,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
+      child: Visibility(
+        visible: !_isConnectProfileSheetOpen,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
           Flexible(
             child: ListView.builder(
               shrinkWrap: true,
@@ -217,19 +239,12 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
               onPressed:
                   _loadingProfileKey != null
                       ? null // Disable button when any profile is loading
-                      : () {
-                        if (widget.isDismissible) {
-                          context.pop();
-                          ConnectProfileBottomSheet.show(context: context);
-                        } else {
-                          // For non-dismissible mode, show connect profile without popping
-                          ConnectProfileBottomSheet.show(context: context);
-                        }
-                      },
+                        : _handleConnectAnotherProfile,
             ),
           ),
           Gap(16.h),
         ],
+        ),
       ),
     );
   }
