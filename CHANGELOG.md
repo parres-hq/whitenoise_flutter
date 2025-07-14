@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Show the npub of each user on the contacts list
 - Add developer settings screen with some basic cache management functions
+- Confirmation dialog when signing out
 
 ### Changed
 
