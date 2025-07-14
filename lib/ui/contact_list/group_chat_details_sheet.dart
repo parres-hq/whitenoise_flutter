@@ -7,6 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
@@ -18,23 +19,30 @@ import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 
 class GroupChatDetailsSheet extends ConsumerStatefulWidget {
-  final List<ContactModel> selectedContacts;
-
   const GroupChatDetailsSheet({
     super.key,
     required this.selectedContacts,
+    this.onGroupCreated,
   });
+
+  final List<ContactModel> selectedContacts;
+  final ValueChanged<GroupData?>? onGroupCreated;
 
   static Future<void> show({
     required BuildContext context,
     required List<ContactModel> selectedContacts,
+    ValueChanged<GroupData?>? onGroupCreated,
   }) {
     return CustomBottomSheet.show(
       context: context,
       title: 'Group chat details',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
-      builder: (context) => GroupChatDetailsSheet(selectedContacts: selectedContacts),
+      builder:
+          (context) => GroupChatDetailsSheet(
+            selectedContacts: selectedContacts,
+            onGroupCreated: onGroupCreated,
+          ),
     );
   }
 
@@ -112,8 +120,6 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
 
       if (mounted) {
         if (groupData != null) {
-          Navigator.of(context).pop();
-
           // Show share invite bottom sheet for members without keypackages
           if (contactsWithoutKeyPackage.isNotEmpty) {
             await ShareInviteBottomSheet.show(
@@ -121,6 +127,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
               contacts: contactsWithoutKeyPackage,
             );
           }
+          widget.onGroupCreated?.call(groupData);
         } else {
           ref.showErrorToast('Failed to create group chat. Please try again.');
         }

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
@@ -12,6 +13,7 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
@@ -280,8 +282,11 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             pubkey: contact.publicKey,
             bio: contact.about,
             imagePath: contact.imagePath,
-            onChatCreated: () {
-              Navigator.pop(context);
+            onChatCreated: (groupData) {
+              if (groupData != null) {
+                context.go(Routes.home);
+                Routes.goToChat(context, groupData.mlsGroupId);
+              }
             },
           );
         } else {
@@ -385,7 +390,16 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         GestureDetector(
           onTap: () {
             Navigator.pop(context);
-            NewGroupChatSheet.show(context);
+            NewGroupChatSheet.show(
+              context,
+              onGroupCreated: (groupData) {
+                if (groupData != null) {
+                  // Navigate to the group chat and pop all the way back to home
+                  context.go(Routes.home);
+                  Routes.goToChat(context, groupData.mlsGroupId);
+                }
+              },
+            );
           },
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 12.h),

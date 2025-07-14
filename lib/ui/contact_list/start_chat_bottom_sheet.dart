@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
@@ -17,7 +18,7 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
   final String? imagePath;
   final String pubkey;
   final VoidCallback? onStartChat;
-  final VoidCallback? onChatCreated;
+  final ValueChanged<GroupData?>? onChatCreated;
   const StartSecureChatBottomSheet({
     super.key,
     required this.name,
@@ -37,7 +38,7 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
     String? bio,
     String? imagePath,
     VoidCallback? onStartChat,
-    VoidCallback? onChatCreated,
+    ValueChanged<GroupData?>? onChatCreated,
   }) {
     return CustomBottomSheet.show(
       context: context,
@@ -89,7 +90,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
 
           // Call the appropriate callback
           if (widget.onChatCreated != null) {
-            widget.onChatCreated!();
+            widget.onChatCreated?.call(groupData);
           } else if (widget.onStartChat != null) {
             widget.onStartChat!();
           }

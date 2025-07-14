@@ -8,6 +8,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
@@ -160,9 +161,11 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
           name: contact.name,
           nip05: contact.nip05 ?? '',
           pubkey: npub,
-          onChatCreated: () {
-            // pop to the home screen after creating the chat
-            context.go('/');
+          onChatCreated: (groupData) {
+            if (groupData != null) {
+              context.go(Routes.home);
+              Routes.goToChat(context, groupData.mlsGroupId);
+            }
           },
         );
       }
