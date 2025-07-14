@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -43,13 +41,11 @@ class GroupChatHeader extends ConsumerStatefulWidget {
 }
 
 class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
-  Future<String?>? _npubFuture;
   Future<String>? _groupNpubFuture;
 
   @override
   void initState() {
     super.initState();
-    _npubFuture = ref.read(activeAccountProvider)?.toNpub();
     _groupNpubFuture = npubFromHexPubkey(hexPubkey: widget.groupData.nostrGroupId);
   }
 
@@ -63,98 +59,64 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
 
   @override
   Widget build(BuildContext context) {
-    final admins =
-        ref.watch(groupsProvider.notifier).getGroupAdmins(widget.groupData.mlsGroupId) ?? [];
-    // For now, we just take the first admin as the creator
-    // This logic can be improved later to show the actual creator
-    final firstAdmin = admins.isNotEmpty ? admins.first : null;
-
-    return FutureBuilder(
-      future: _npubFuture,
-      builder: (context, asyncSnapshot) {
-        final npub = asyncSnapshot.data;
-        final isCurrentUserFirstAdmin = firstAdmin?.publicKey == npub;
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: Column(
-            children: [
-              Gap(32.h),
-              ContactAvatar(
-                imageUrl: '',
-                displayName: widget.groupData.name,
-                size: 96.r,
-                showBorder: true,
-              ),
-              Gap(12.h),
-              Text(
-                widget.groupData.name,
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.primary,
-                ),
-              ),
-              Gap(16.h),
-              FutureBuilder(
-                future: _groupNpubFuture,
-                builder: (context, asyncSnapshot) {
-                  final groupNpub = asyncSnapshot.data ?? '';
-                  return Text(
-                    groupNpub.formatPublicKey(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: context.colors.mutedForeground,
-                    ),
-                  );
-                },
-              ),
-              Gap(12.h),
-              if (widget.groupData.description.isNotEmpty) ...[
-                Text(
-                  'Group Description:',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.mutedForeground,
-                  ),
-                ),
-                Gap(4.h),
-                Text(
-                  widget.groupData.description,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: context.colors.primary,
-                  ),
-                ),
-                Gap(16.h),
-              ],
-              if (firstAdmin != null) ...[
-                Text.rich(
-                  TextSpan(
-                    text: 'Group Chat Started by ',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: context.colors.mutedForeground,
-                    ),
-                    children: [
-                      TextSpan(
-                        text: isCurrentUserFirstAdmin ? 'You' : firstAdmin.name.capitalizeFirst,
-                        style: TextStyle(
-                          color: context.colors.primary,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-              Gap(32.h),
-            ],
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        children: [
+          Gap(32.h),
+          ContactAvatar(
+            imageUrl: '',
+            displayName: widget.groupData.name,
+            size: 96.r,
+            showBorder: true,
           ),
-        );
-      },
+          Gap(12.h),
+          Text(
+            widget.groupData.name,
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+              color: context.colors.primary,
+            ),
+          ),
+          Gap(16.h),
+          FutureBuilder(
+            future: _groupNpubFuture,
+            builder: (context, asyncSnapshot) {
+              final groupNpub = asyncSnapshot.data ?? '';
+              return Text(
+                groupNpub.formatPublicKey(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: context.colors.mutedForeground,
+                ),
+              );
+            },
+          ),
+          Gap(12.h),
+          if (widget.groupData.description.isNotEmpty) ...[
+            Text(
+              'Group Description:',
+              style: TextStyle(
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: context.colors.mutedForeground,
+              ),
+            ),
+            Gap(4.h),
+            Text(
+              widget.groupData.description,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: context.colors.primary,
+              ),
+            ),
+          ],
+          Gap(32.h),
+        ],
+      ),
     );
   }
 }
@@ -188,89 +150,52 @@ class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: ref.watch(activeAccountProvider)?.toNpub(),
+      future: _dmChatDataFuture,
       builder: (context, asyncSnapshot) {
-        // TODO: (temp fix)  when creating a DM, the groupData.name is the other npub
-        //we can use this to determine the creator of the DM chat
-        // the creator should be the other member that is not the group name
-        final otherUserNpub = widget.groupData.name;
-        final currentUserPubHex = asyncSnapshot.data;
-
-        if (currentUserPubHex == null) {
+        final otherUser = asyncSnapshot.data;
+        if (otherUser == null) {
           return const SizedBox.shrink();
         }
-        final isCurrentUserCreator = otherUserNpub != currentUserPubHex;
-        return FutureBuilder(
-          future: _dmChatDataFuture,
-          builder: (context, asyncSnapshot) {
-            final otherUser = asyncSnapshot.data;
-            if (otherUser == null) {
-              return const SizedBox.shrink();
-            }
-            return Container(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Column(
-                children: [
-                  Gap(32.h),
-                  ContactAvatar(
-                    imageUrl: otherUser.displayImage ?? '',
-                    displayName: otherUser.displayName,
-                    size: 96.r,
-                    showBorder: true,
-                  ),
-                  Gap(12.h),
-                  Text(
-                    otherUser.displayName.capitalizeFirst,
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.primary,
-                    ),
-                  ),
-                  Gap(4.h),
-                  Text(
-                    otherUser.nip05 ?? '',
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: context.colors.mutedForeground,
-                    ),
-                  ),
-                  Gap(12.h),
-                  Text(
-                    otherUser.publicKey?.formatPublicKey() ?? '',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: context.colors.mutedForeground,
-                    ),
-                  ),
-                  Gap(32.h),
-
-                  Text.rich(
-                    TextSpan(
-                      text: 'Chat started by ',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: context.colors.mutedForeground,
-                      ),
-                      children: [
-                        TextSpan(
-                          text:
-                              isCurrentUserCreator ? 'You' : otherUser.displayName.capitalizeFirst,
-                          style: TextStyle(
-                            color: context.colors.primary,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  Gap(32.h),
-                ],
+        return Container(
+          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          child: Column(
+            children: [
+              Gap(32.h),
+              ContactAvatar(
+                imageUrl: otherUser.displayImage ?? '',
+                displayName: otherUser.displayName,
+                size: 96.r,
+                showBorder: true,
               ),
-            );
-          },
+              Gap(12.h),
+              Text(
+                otherUser.displayName.capitalizeFirst,
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.primary,
+                ),
+              ),
+              Gap(4.h),
+              Text(
+                otherUser.nip05 ?? '',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color: context.colors.mutedForeground,
+                ),
+              ),
+              Gap(12.h),
+              Text(
+                otherUser.publicKey?.formatPublicKey() ?? '',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: context.colors.mutedForeground,
+                ),
+              ),
+              Gap(32.h),
+            ],
+          ),
         );
       },
     );

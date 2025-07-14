@@ -334,7 +334,6 @@ class MessageConverter {
   }
 
   /// Converts a list of MessageWithTokensData to MessageModel list with reply mapping
-  /// TODO: Temporary solution using aggregated messages for reply information until API consolidation
   static Future<List<MessageModel>> fromMessageWithTokensDataList(
     List<MessageWithTokensData> messageDataList, {
     required String? currentUserPublicKey,

@@ -196,35 +196,36 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                         },
               ),
               Gap(12.h),
-              Row(
-                spacing: 12.w,
-                children: [
-                  Expanded(
-                    child: AppFilledButton.icon(
-                      visualState: AppButtonVisualState.secondary,
-                      icon: SvgPicture.asset(
-                        AssetsPaths.icSearch,
-                        width: 14.w,
-                        colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-                      ),
-                      label: const Text('Search Chat'),
-                      onPressed: () {},
-                    ),
-                  ),
-                  Expanded(
-                    child: AppFilledButton.icon(
-                      visualState: AppButtonVisualState.secondary,
-                      icon: SvgPicture.asset(
-                        AssetsPaths.icMutedNotification,
-                        width: 14.w,
-                        colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-                      ),
-                      label: const Text('Mute Chat'),
-                      onPressed: () {},
-                    ),
-                  ),
-                ],
-              ),
+              // TODO: Reenable when we have a search and mute features
+              // Row(
+              //   spacing: 12.w,
+              //   children: [
+              //     Expanded(
+              //       child: AppFilledButton.icon(
+              //         visualState: AppButtonVisualState.secondary,
+              //         icon: SvgPicture.asset(
+              //           AssetsPaths.icSearch,
+              //           width: 14.w,
+              //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
+              //         ),
+              //         label: const Text('Search Chat'),
+              //         onPressed: () {},
+              //       ),
+              //     ),
+              //     Expanded(
+              //       child: AppFilledButton.icon(
+              //         visualState: AppButtonVisualState.secondary,
+              //         icon: SvgPicture.asset(
+              //           AssetsPaths.icMutedNotification,
+              //           width: 14.w,
+              //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
+              //         ),
+              //         label: const Text('Mute Chat'),
+              //         onPressed: () {},
+              //       ),
+              //     ),
+              //   ],
+              // ),
             ],
           ),
         );

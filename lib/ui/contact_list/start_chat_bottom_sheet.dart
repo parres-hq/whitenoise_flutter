@@ -75,10 +75,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
       final groupData = await ref
           .read(groupsProvider.notifier)
           .createNewGroup(
-            // TODO: (temp fix)  when creating a DM, the groupData.name is the other pubHex
-            // we can use this to determine the creator of the DM chat
-            // the creator should be the other member that is not the group name
-            groupName: widget.pubkey,
+            groupName: 'DM',
             groupDescription: 'Direct message',
             memberPublicKeyHexs: [widget.pubkey],
             adminPublicKeyHexs: [widget.pubkey],
