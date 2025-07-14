@@ -149,101 +149,101 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-          Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
-              itemCount: sortedProfiles.length,
-              itemBuilder: (context, index) {
-                final profile = sortedProfiles[index];
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
+                itemCount: sortedProfiles.length,
+                itemBuilder: (context, index) {
+                  final profile = sortedProfiles[index];
 
-                return Container(
-                  margin: EdgeInsets.only(bottom: 8.h),
-                  padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
-                  child: FutureBuilder<bool>(
-                    future: _isActiveAccount(profile),
-                    builder: (context, snapshot) {
-                      final isActiveAccount = snapshot.data ?? false;
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 8.h),
+                    padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
+                    child: FutureBuilder<bool>(
+                      future: _isActiveAccount(profile),
+                      builder: (context, snapshot) {
+                        final isActiveAccount = snapshot.data ?? false;
 
-                      return Container(
-                        decoration:
-                            isActiveAccount
-                                ? BoxDecoration(
-                                  color: context.colors.primary.withValues(alpha: 0.1),
-                                )
-                                : null,
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                        child: Stack(
-                          children: [
-                            ContactListTile(
-                              contact: profile,
-                              onTap:
-                                  _loadingProfileKey != null
-                                      ? null // Disable all taps when any profile is loading
-                                      : () async {
-                                        if (isActiveAccount && !widget.showSuccessToast) {
-                                          // Just close the sheet if selecting the currently active profile
-                                          Navigator.pop(context);
-                                        } else {
-                                          // Show loading state for this profile
-                                          setState(() {
-                                            _loadingProfileKey = profile.publicKey;
-                                          });
+                        return Container(
+                          decoration:
+                              isActiveAccount
+                                  ? BoxDecoration(
+                                    color: context.colors.primary.withValues(alpha: 0.1),
+                                  )
+                                  : null,
+                          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                          child: Stack(
+                            children: [
+                              ContactListTile(
+                                contact: profile,
+                                onTap:
+                                    _loadingProfileKey != null
+                                        ? null // Disable all taps when any profile is loading
+                                        : () async {
+                                          if (isActiveAccount && !widget.showSuccessToast) {
+                                            // Just close the sheet if selecting the currently active profile
+                                            Navigator.pop(context);
+                                          } else {
+                                            // Show loading state for this profile
+                                            setState(() {
+                                              _loadingProfileKey = profile.publicKey;
+                                            });
 
-                                          // Call the profile selection handler and wait for completion
-                                          try {
-                                            widget.onProfileSelected(profile);
-                                            // Don't close the sheet here - let the parent handle navigation
-                                            // after the account switch is complete
-                                          } catch (e) {
-                                            // Reset loading state on error
-                                            if (mounted) {
-                                              setState(() {
-                                                _loadingProfileKey = null;
-                                              });
+                                            // Call the profile selection handler and wait for completion
+                                            try {
+                                              widget.onProfileSelected(profile);
+                                              // Don't close the sheet here - let the parent handle navigation
+                                              // after the account switch is complete
+                                            } catch (e) {
+                                              // Reset loading state on error
+                                              if (mounted) {
+                                                setState(() {
+                                                  _loadingProfileKey = null;
+                                                });
+                                              }
                                             }
                                           }
-                                        }
-                                      },
-                            ),
-                            if (_loadingProfileKey == profile.publicKey)
-                              Positioned(
-                                right: 16.w,
-                                top: 0,
-                                bottom: 0,
-                                child: Center(
-                                  child: SizedBox(
-                                    width: 20.w,
-                                    height: 20.w,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2.w,
-                                      color: context.colors.primary,
+                                        },
+                              ),
+                              if (_loadingProfileKey == profile.publicKey)
+                                Positioned(
+                                  right: 16.w,
+                                  top: 0,
+                                  bottom: 0,
+                                  child: Center(
+                                    child: SizedBox(
+                                      width: 20.w,
+                                      height: 20.w,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 2.w,
+                                        color: context.colors.primary,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-          Gap(4.h),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: AppFilledButton(
-              title: 'Connect Another Profile',
-              onPressed:
-                  _loadingProfileKey != null
-                      ? null // Disable button when any profile is loading
+            Gap(4.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: AppFilledButton(
+                title: 'Connect Another Profile',
+                onPressed:
+                    _loadingProfileKey != null
+                        ? null // Disable button when any profile is loading
                         : _handleConnectAnotherProfile,
+              ),
             ),
-          ),
-          Gap(16.h),
-        ],
+            Gap(16.h),
+          ],
         ),
       ),
     );
