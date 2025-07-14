@@ -20,6 +20,7 @@ import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
+import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 
 class GeneralSettingsScreen extends ConsumerStatefulWidget {
@@ -359,20 +360,20 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                   ],
                 ),
               ),
-              // Divider(color: context.colors.baseMuted, height: 24.h),
-              // Padding(
-              //   padding: EdgeInsets.symmetric(horizontal: 16.w),
-              //   child: Column(
-              //     children: [
-              //       SettingsListTile(
-              //         icon: CarbonIcons.development,
-              //         text: 'Developer Settings',
-              //         onTap: () => DeveloperSettingsScreen.show(context),
-              //         foregroundColor: context.colors.mutedForeground,
-              //       ),
-              //     ],
-              //   ),
-              // ),
+              Divider(color: context.colors.baseMuted, height: 24.h),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Column(
+                  children: [
+                    SettingsListTile(
+                      icon: CarbonIcons.development,
+                      text: 'Developer Settings',
+                      onTap: () => DeveloperSettingsScreen.show(context),
+                      foregroundColor: context.colors.mutedForeground,
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ],

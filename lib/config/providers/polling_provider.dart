@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
@@ -75,12 +76,23 @@ class PollingNotifier extends Notifier<bool> {
       await ref.read(welcomesProvider.notifier).loadWelcomes();
       await ref.read(groupsProvider.notifier).loadGroups();
 
-      // Load messages for all groups
-      final groups = ref.read(groupsProvider).groups;
-      if (groups != null && groups.isNotEmpty) {
-        final groupIds = groups.map((g) => g.mlsGroupId).toList();
-        await ref.read(chatProvider.notifier).loadMessagesForGroups(groupIds);
-      }
+      // Load messages for all groups in a build-safe way
+      // Schedule this in a microtask to ensure it happens after the current build cycle
+      Future.microtask(() async {
+        try {
+          final groups = ref.read(groupsProvider).groups;
+          if (groups != null && groups.isNotEmpty) {
+            final groupIds = groups.map((g) => g.mlsGroupId).toList();
+            _logger.info(
+              'PollingProvider: Loading messages for ${groupIds.length} groups for chat previews',
+            );
+            await ref.read(chatProvider.notifier).loadMessagesForGroups(groupIds);
+            _logger.info('PollingProvider: Message loading completed for chat previews');
+          }
+        } catch (e) {
+          _logger.warning('Error loading messages for chat previews: $e');
+        }
+      });
 
       _hasInitialDataLoaded = true;
       _logger.info('Initial data load completed');

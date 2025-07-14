@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:whitenoise/config/extensions/toast_extension.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/group_chat_details_sheet.dart';
@@ -112,12 +112,21 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     );
   }
 
-  List<ContactModel> _getFilteredContacts(List<ContactModel>? contacts) {
+  List<ContactModel> _getFilteredContacts(List<ContactModel>? contacts, String? currentUserPubkey) {
     if (contacts == null) return [];
 
-    if (_searchQuery.isEmpty) return contacts;
+    // First filter out the creator (current user) from the contacts
+    final contactsWithoutCreator =
+        contacts.where((contact) {
+          // Compare public keys, ensuring both are trimmed and lowercased for comparison
+          return currentUserPubkey == null ||
+              contact.publicKey.trim().toLowerCase() != currentUserPubkey.trim().toLowerCase();
+        }).toList();
 
-    return contacts
+    // Then apply search filter if there's a search query
+    if (_searchQuery.isEmpty) return contactsWithoutCreator;
+
+    return contactsWithoutCreator
         .where(
           (contact) =>
               contact.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
@@ -138,7 +147,8 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
-    final filteredContacts = _getFilteredContacts(contactsState.contactModels);
+    final activeAccount = ref.watch(activeAccountProvider);
+    final filteredContacts = _getFilteredContacts(contactsState.contactModels, activeAccount);
 
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h),

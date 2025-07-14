@@ -111,30 +111,11 @@ class MessageWidget extends StatelessWidget {
       if (lines.isNotEmpty) {
         final lastLineWidth = lines.last.width;
         final availableWidth = maxWidth - lastLineWidth;
-        final canFitInline = availableWidth >= (timestampWidth + minPadding);
+        final canFitInline = lines.length == 1 && availableWidth >= (timestampWidth + minPadding);
 
         if (canFitInline) {
-          // For very short messages, use compact layout
-          if (messageContent.length <= 12) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  messageContent,
-                  style: textStyle,
-                  textAlign: TextAlign.left,
-                ),
-                SizedBox(width: minPadding),
-                TimeAndStatus(message: message, context: context),
-              ],
-            );
-          }
-
-          // For longer messages that fit inline, use spaceBetween layout
           return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Flexible(
                 child: Text(
@@ -143,6 +124,7 @@ class MessageWidget extends StatelessWidget {
                   textAlign: TextAlign.left,
                 ),
               ),
+              SizedBox(width: minPadding),
               TimeAndStatus(message: message, context: context),
             ],
           );
@@ -151,7 +133,7 @@ class MessageWidget extends StatelessWidget {
 
       // Fallback to separate lines when timestamp doesn't fit
       return Column(
-        crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: maxWidth,
@@ -162,7 +144,12 @@ class MessageWidget extends StatelessWidget {
             ),
           ),
           SizedBox(height: 4.h),
-          TimeAndStatus(message: message, context: context),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              TimeAndStatus(message: message, context: context),
+            ],
+          ),
         ],
       );
     } else {
@@ -316,9 +303,9 @@ class TimeAndStatus extends StatelessWidget {
         Text(
           message.timeSent,
           style: TextStyle(
-            fontSize: 12.sp,
+            fontSize: 13.sp,
             fontWeight: FontWeight.w600,
-            color: message.isMe ? context.colors.primaryForeground : context.colors.mutedForeground,
+            color: context.colors.mutedForeground,
           ),
         ),
         if (message.isMe) ...[

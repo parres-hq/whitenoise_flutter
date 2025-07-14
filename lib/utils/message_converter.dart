@@ -127,28 +127,8 @@ class MessageConverter {
       }
     }
 
-    // Batch fetch all user metadata in parallel
-    final metadataCache = ref.read(metadataCacheProvider.notifier);
-    final userFutures = uniquePubkeys.map(
-      (pubkey) =>
-          metadataCache.getContactModel(pubkey).then((contact) => MapEntry(pubkey, contact)),
-    );
-    final userResults = await Future.wait(userFutures);
-    final userCache = Map<String, User>.fromEntries(
-      userResults.map(
-        (entry) => MapEntry(
-          entry.key,
-          User(
-            id: entry.key,
-            name: entry.key == currentUserPublicKey ? 'You' : entry.value.displayNameOrName,
-            nip05: entry.value.nip05 ?? '',
-            publicKey: entry.key,
-            imagePath: entry.value.imagePath,
-            username: entry.value.displayName,
-          ),
-        ),
-      ),
-    );
+    // Batch fetch all user metadata using build-safe helper
+    final userCache = await _batchFetchUserMetadata(uniquePubkeys, currentUserPublicKey, ref);
 
     // Process all messages using cached data
     final messages =
@@ -402,28 +382,8 @@ class MessageConverter {
       }
     }
 
-    // Batch fetch all user metadata in parallel
-    final metadataCache = ref.read(metadataCacheProvider.notifier);
-    final userFutures = uniquePubkeys.map(
-      (pubkey) =>
-          metadataCache.getContactModel(pubkey).then((contact) => MapEntry(pubkey, contact)),
-    );
-    final userResults = await Future.wait(userFutures);
-    final userCache = Map<String, User>.fromEntries(
-      userResults.map(
-        (entry) => MapEntry(
-          entry.key,
-          User(
-            id: entry.key,
-            name: entry.key == currentUserPublicKey ? 'You' : entry.value.displayNameOrName,
-            nip05: entry.value.nip05 ?? '',
-            publicKey: entry.key,
-            imagePath: entry.value.imagePath,
-            username: entry.value.displayName,
-          ),
-        ),
-      ),
-    );
+    // Batch fetch all user metadata in parallel using build-safe helper
+    final userCache = await _batchFetchUserMetadata(uniquePubkeys, currentUserPublicKey, ref);
 
     // Process messages in parallel using cached user data
     final futures = validMessages.map((messageData) async {
@@ -547,7 +507,7 @@ class MessageConverter {
     );
   }
 
-  /// Creates a User object from metadata cache (asynchronous)
+  /// Creates a User object from metadata cache with build-safe fetching
   static Future<User> _createUserFromMetadata(
     String pubkey, {
     String? currentUserPubkey,
@@ -585,18 +545,20 @@ class MessageConverter {
         );
       }
 
-      // If not found in contacts, try metadata cache
-      final metadataCache = ref.read(metadataCacheProvider.notifier);
-      final contactModel = await metadataCache.getContactModel(pubkey);
+      // If not found in contacts, try metadata cache with build-safe scheduling
+      return await Future.microtask(() async {
+        final metadataCache = ref.read(metadataCacheProvider.notifier);
+        final contactModel = await metadataCache.getContactModel(pubkey);
 
-      return User(
-        id: pubkey,
-        name: contactModel.displayNameOrName,
-        nip05: contactModel.nip05 ?? '',
-        publicKey: pubkey,
-        imagePath: contactModel.imagePath,
-        username: contactModel.displayName,
-      );
+        return User(
+          id: pubkey,
+          name: contactModel.displayNameOrName,
+          nip05: contactModel.nip05 ?? '',
+          publicKey: pubkey,
+          imagePath: contactModel.imagePath,
+          username: contactModel.displayName,
+        );
+      });
     } catch (e) {
       // Return fallback user if both lookups fail
       return User(
@@ -606,6 +568,38 @@ class MessageConverter {
         publicKey: pubkey,
       );
     }
+  }
+
+  /// Batch fetch all user metadata in parallel with build-safe scheduling
+  static Future<Map<String, User>> _batchFetchUserMetadata(
+    Set<String> uniquePubkeys,
+    String? currentUserPublicKey,
+    Ref ref,
+  ) async {
+    // Schedule metadata fetching in microtask to avoid build-time modifications
+    return await Future.microtask(() async {
+      final metadataCache = ref.read(metadataCacheProvider.notifier);
+      final userFutures = uniquePubkeys.map(
+        (pubkey) =>
+            metadataCache.getContactModel(pubkey).then((contact) => MapEntry(pubkey, contact)),
+      );
+      final userResults = await Future.wait(userFutures);
+      return Map<String, User>.fromEntries(
+        userResults.map(
+          (entry) => MapEntry(
+            entry.key,
+            User(
+              id: entry.key,
+              name: entry.key == currentUserPublicKey ? 'You' : entry.value.displayNameOrName,
+              nip05: entry.value.nip05 ?? '',
+              publicKey: entry.key,
+              imagePath: entry.value.imagePath,
+              username: entry.value.displayName,
+            ),
+          ),
+        ),
+      );
+    });
   }
 
   /// Convert ReactionSummaryData to MessageModel reactions format

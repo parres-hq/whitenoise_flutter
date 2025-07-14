@@ -12,7 +12,7 @@ import 'package:whitenoise/ui/chat/chat_info/chat_info_screen.dart';
 import 'package:whitenoise/ui/chat/chat_screen.dart';
 import 'package:whitenoise/ui/contact_list/chat_list_screen.dart';
 import 'package:whitenoise/ui/settings/app_settings/app_settings_screen.dart';
-import 'package:whitenoise/ui/settings/developer/dev.dart';
+import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/donate/donate_screen.dart';
 import 'package:whitenoise/ui/settings/general_settings_screen.dart';
 import 'package:whitenoise/ui/settings/network/network_screen.dart';
@@ -178,7 +178,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           GoRoute(
             path: 'developer',
-            builder: (context, state) => const DeveloperScreen(),
+            builder: (context, state) => const DeveloperSettingsScreen(),
           ),
           GoRoute(
             path: 'app_settings',

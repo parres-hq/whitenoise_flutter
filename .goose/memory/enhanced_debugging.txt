@@ -1,9 +1,0 @@
-# debug metadata validation null_check
-**ENHANCED METADATA DEBUGGING ADDED**:
-- Added critical validation in _fetchMetadataForKey() that checks if NULL metadata is properly handled
-- Added 🔥 CRITICAL BUG detection when null metadata results in wrong contact name
-- Enhanced logging to clearly distinguish between NULL and NON-NULL fetchMetadata results  
-- Added automatic correction for metadata contamination
-- Added 🚨 NULL METADATA logging for npubs with no kind:0 events
-- This will help pinpoint if the issue is in Rust layer (returning wrong data) vs Dart layer (processing error)
-

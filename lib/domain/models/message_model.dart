@@ -298,12 +298,12 @@ enum MessageStatus {
   Color bubbleStatusColor(BuildContext context) {
     switch (this) {
       case MessageStatus.read:
-        return context.colors.input;
+        return context.colors.mutedForeground;
       case MessageStatus.delivered:
       case MessageStatus.sent:
       case MessageStatus.sending:
       case MessageStatus.failed:
-        return context.colors.input;
+        return context.colors.mutedForeground;
     }
   }
 }
