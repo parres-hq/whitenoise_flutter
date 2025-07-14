@@ -36,17 +36,17 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
 
     // Wait for account data to be loaded and petname to be available
     final accountNotifier = ref.read(accountProvider.notifier);
-    
+
     // Keep loading until we have a displayName (petname)
     while (true) {
       await accountNotifier.loadAccountData();
       final accountState = ref.read(accountProvider);
-      
+
       if (accountState.metadata?.displayName != null &&
           accountState.metadata!.displayName!.isNotEmpty) {
         break;
       }
-      
+
       await Future.delayed(const Duration(milliseconds: 500));
       if (!mounted) return;
     }
@@ -116,7 +116,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
             builder: (context, ref, child) {
               final accountState = ref.watch(accountProvider);
               final isButtonDisabled = _isLoading || accountState.isLoading;
-              
+
               return AppFilledButton.child(
                 loading: isButtonDisabled,
                 onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
