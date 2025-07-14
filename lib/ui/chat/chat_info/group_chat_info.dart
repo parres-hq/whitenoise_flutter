@@ -153,7 +153,6 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             //   ],
             // ),
             // Gap(32.h),
-
             if (isLoadingMembers)
               const CircularProgressIndicator()
             else if (groupMembers.isNotEmpty) ...[

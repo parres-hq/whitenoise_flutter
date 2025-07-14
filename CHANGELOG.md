@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 ### Removed
+- Remove (for now) the mute and search chat controls from group info screens.
+- Remove incorrect group npub from the group info screen.
 
 ### Fixed
 - Fixed profile picture upload issue.
