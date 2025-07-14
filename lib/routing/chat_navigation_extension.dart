@@ -12,11 +12,11 @@ extension ChatNavigationExtension on BuildContext {
   void navigateToGroupChatAndPopToHome(GroupData groupData) {
     // First navigate to home to clear the navigation stack
     go(Routes.home);
-    
+
     // Then immediately navigate to the specific group chat
     Routes.goToChat(this, groupData.mlsGroupId);
   }
-  
+
   /// Creates a callback function that can be used with onChatCreated callbacks
   /// This is useful for passing to bottom sheets and other components
   ValueChanged<GroupData?> createChatNavigationCallback() {
