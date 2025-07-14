@@ -222,26 +222,20 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
               final accountState = ref.watch(accountProvider);
               final isButtonDisabled = accountState.isLoading || _isLoadingUsername;
 
-              return isButtonDisabled
-                  ? SizedBox(
-                    height: 56.h,
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        color: context.colors.primary,
-                      ),
-                    ),
-                  )
-                  : AppFilledButton(
-                    onPressed:
-                        () => ref
+              return AppFilledButton(
+                title: 'Finish',
+                loading: isButtonDisabled,
+                onPressed:
+                    isButtonDisabled
+                        ? null
+                        : () => ref
                             .read(accountProvider.notifier)
                             .updateAccountMetadata(
                               ref,
                               _usernameController.text.trim(),
                               _bioController.text.trim(),
                             ),
-                    title: 'Finish',
-                  );
+              );
             },
           ),
         ),
