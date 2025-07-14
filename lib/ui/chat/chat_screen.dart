@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/domain/models/dm_chat_data.dart';
+import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/invite/chat_invite_screen.dart';
 import 'package:whitenoise/ui/chat/services/chat_dialog_service.dart';
@@ -34,10 +36,12 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   double _lastScrollOffset = 0.0;
+  Future<DMChatData?>? _dmChatDataFuture;
 
   @override
   void initState() {
     super.initState();
+    _initializeDMChatData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
@@ -57,9 +61,25 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   }
 
   @override
+  void didUpdateWidget(ChatScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.groupId != widget.groupId) {
+      _initializeDMChatData();
+    }
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  void _initializeDMChatData() {
+    final groupsNotifier = ref.read(groupsProvider.notifier);
+    final groupData = groupsNotifier.findGroupById(widget.groupId);
+    if (groupData != null) {
+      _dmChatDataFuture = ref.getDMChatData(groupData.mlsGroupId);
+    }
   }
 
   void _handleScrollToBottom() {
@@ -126,8 +146,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
     // Normal chat mode - get group info from groups provider
     final groupData = groupsNotifier.findGroupById(widget.groupId);
-    final displayName =
-        groupsNotifier.getGroupDisplayName(widget.groupId) ?? groupData?.name ?? 'Unknown Group';
 
     if (groupData == null) {
       return Scaffold(
@@ -173,13 +191,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   CustomAppBar.sliver(
                     floating: true,
                     pinned: true,
-                    title: ContactInfo(
-                      title: displayName,
-                      imageUrl: '',
-                      onTap:
-                          () => context.push(
-                            '/chats/${widget.groupId}/info',
-                          ),
+                    title: FutureBuilder(
+                      future: _dmChatDataFuture,
+                      builder: (context, asyncSnapshot) {
+                        if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                          return const ContactInfo.loading();
+                        }
+
+                        final otherUser = asyncSnapshot.data;
+                        return ContactInfo(
+                          title: otherUser?.displayName ?? '',
+                          imageUrl: otherUser?.displayImage ?? '',
+                          onTap: () => context.push('/chats/${widget.groupId}/info'),
+                        );
+                      },
                     ),
                   ),
                   SliverPadding(

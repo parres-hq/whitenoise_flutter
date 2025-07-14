@@ -343,6 +343,12 @@ class DMAppBarTitle extends ConsumerWidget {
     return FutureBuilder(
       future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
       builder: (context, snapshot) {
+        final isLoading = snapshot.connectionState == ConnectionState.waiting;
+
+        if (isLoading) {
+          return const ContactInfo.loading();
+        }
+
         final welcomerContact = snapshot.data;
         final welcomerName = welcomerContact?.displayNameOrName ?? 'Unknown User';
         final welcomerImageUrl = welcomerContact?.imagePath ?? '';
