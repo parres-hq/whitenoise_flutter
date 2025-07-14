@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -59,6 +58,7 @@ class SwitchProfileBottomSheet extends ConsumerStatefulWidget {
 
 class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSheet> {
   String? _activeAccountHex;
+  bool _isConnectProfileSheetOpen = false;
 
   @override
   void initState() {
@@ -97,6 +97,26 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
     }
   }
 
+  /// Returns true if the ConnectProfileBottomSheet is currently open
+  bool get isConnectProfileSheetOpen => _isConnectProfileSheetOpen;
+
+  /// Handles opening the ConnectProfileBottomSheet and managing visibility state
+  Future<void> _handleConnectAnotherProfile() async {
+    setState(() {
+      _isConnectProfileSheetOpen = true;
+    });
+
+    try {
+      await ConnectProfileBottomSheet.show(context: context);
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isConnectProfileSheetOpen = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final activeAccountPubkey = ref.watch(activeAccountProvider);
@@ -123,70 +143,65 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
 
     return PopScope(
       canPop: widget.isDismissible,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: ListView.builder(
-              shrinkWrap: true,
-              padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
-              itemCount: sortedProfiles.length,
-              itemBuilder: (context, index) {
-                final profile = sortedProfiles[index];
+      child: Visibility(
+        visible: !_isConnectProfileSheetOpen,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
+                itemCount: sortedProfiles.length,
+                itemBuilder: (context, index) {
+                  final profile = sortedProfiles[index];
 
-                return Container(
-                  margin: EdgeInsets.only(bottom: 8.h),
-                  padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
-                  child: FutureBuilder<bool>(
-                    future: _isActiveAccount(profile),
-                    builder: (context, snapshot) {
-                      final isActiveAccount = snapshot.data ?? false;
+                  return Container(
+                    margin: EdgeInsets.only(bottom: 8.h),
+                    padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
+                    child: FutureBuilder<bool>(
+                      future: _isActiveAccount(profile),
+                      builder: (context, snapshot) {
+                        final isActiveAccount = snapshot.data ?? false;
 
-                      return Container(
-                        decoration:
-                            isActiveAccount
-                                ? BoxDecoration(
-                                  color: context.colors.primary.withValues(alpha: 0.1),
-                                )
-                                : null,
-                        padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                        child: ContactListTile(
-                          contact: profile,
-                          onTap: () {
-                            if (isActiveAccount && !widget.showSuccessToast) {
-                              // Just close the sheet if selecting the currently active profile
-                              Navigator.pop(context);
-                            } else {
-                              widget.onProfileSelected(profile);
-                              Navigator.pop(context);
-                            }
-                          },
-                        ),
-                      );
-                    },
-                  ),
-                );
-              },
+                        return Container(
+                          decoration:
+                              isActiveAccount
+                                  ? BoxDecoration(
+                                    color: context.colors.primary.withValues(alpha: 0.1),
+                                  )
+                                  : null,
+                          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                          child: ContactListTile(
+                            contact: profile,
+                            onTap: () {
+                              if (isActiveAccount && !widget.showSuccessToast) {
+                                // Just close the sheet if selecting the currently active profile
+                                Navigator.pop(context);
+                              } else {
+                                widget.onProfileSelected(profile);
+                                Navigator.pop(context);
+                              }
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-          Gap(4.h),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: AppFilledButton(
-              title: 'Connect Another Profile',
-              onPressed: () {
-                if (widget.isDismissible) {
-                  context.pop();
-                  ConnectProfileBottomSheet.show(context: context);
-                } else {
-                  // For non-dismissible mode, show connect profile without popping
-                  ConnectProfileBottomSheet.show(context: context);
-                }
-              },
+            Gap(4.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: AppFilledButton(
+                title: 'Connect Another Profile',
+                onPressed: _handleConnectAnotherProfile,
+              ),
             ),
-          ),
-          Gap(16.h),
-        ],
+            Gap(16.h),
+          ],
+        ),
       ),
     );
   }
