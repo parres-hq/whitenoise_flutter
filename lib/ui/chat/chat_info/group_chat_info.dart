@@ -120,47 +120,39 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
                 fontSize: 14.sp,
               ),
             ),
-            Gap(16.h),
-            Text(
-              '${groupNpub ?? groupDetails?.nostrGroupId}'.formatPublicKey(),
-              textAlign: TextAlign.center,
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: context.colors.mutedForeground,
-                fontSize: 14.sp,
-              ),
-            ),
             Gap(32.h),
 
-            Row(
-              spacing: 12.w,
-              children: [
-                Expanded(
-                  child: AppFilledButton.icon(
-                    visualState: AppButtonVisualState.secondary,
-                    icon: SvgPicture.asset(
-                      AssetsPaths.icSearch,
-                      width: 14.w,
-                      colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-                    ),
-                    label: const Text('Search Chat'),
-                    onPressed: () {},
-                  ),
-                ),
-                Expanded(
-                  child: AppFilledButton.icon(
-                    visualState: AppButtonVisualState.secondary,
-                    icon: SvgPicture.asset(
-                      AssetsPaths.icMutedNotification,
-                      width: 14.w,
-                      colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-                    ),
-                    label: const Text('Mute Chat'),
-                    onPressed: () {},
-                  ),
-                ),
-              ],
-            ),
-            Gap(32.h),
+            // TODO: Reenable when we have a search and mute features
+            // Row(
+            //   spacing: 12.w,
+            //   children: [
+            //     Expanded(
+            //       child: AppFilledButton.icon(
+            //         visualState: AppButtonVisualState.secondary,
+            //         icon: SvgPicture.asset(
+            //           AssetsPaths.icSearch,
+            //           width: 14.w,
+            //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
+            //         ),
+            //         label: const Text('Search Chat'),
+            //         onPressed: () {},
+            //       ),
+            //     ),
+            //     Expanded(
+            //       child: AppFilledButton.icon(
+            //         visualState: AppButtonVisualState.secondary,
+            //         icon: SvgPicture.asset(
+            //           AssetsPaths.icMutedNotification,
+            //           width: 14.w,
+            //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
+            //         ),
+            //         label: const Text('Mute Chat'),
+            //         onPressed: () {},
+            //       ),
+            //     ),
+            //   ],
+            // ),
+            // Gap(32.h),
 
             if (isLoadingMembers)
               const CircularProgressIndicator()
