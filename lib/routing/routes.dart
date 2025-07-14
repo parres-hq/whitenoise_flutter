@@ -27,6 +27,7 @@ abstract final class Routes {
   static const settingsAppSettings = '/settings/app_settings';
   static const settingsDonate = '/settings/donate';
   static const settingsShareProfile = '/settings/share_profile';
+  static const settingsShareProfileQrScan = '/settings/share_profile/qr_scan';
 
   static void goToChat(BuildContext context, String chatId, {String? inviteId}) {
     GoRouter.of(context).go('/chats/$chatId', extra: inviteId);

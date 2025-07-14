@@ -63,6 +63,7 @@ dependencies:
     uuid: ^4.5.1
     qr_flutter: ^4.1.0
     share_plus: ^10.1.2
+    mobile_scanner: ^7.0.1
 
 dev_dependencies:
     flutter_test:

@@ -38,6 +38,7 @@ class AssetsPaths {
   static const String icAddUser = '$_svgsDir/ic_add_user.svg';
   static const String icRemoveUser = '$_svgsDir/ic_remove_user.svg';
   static const String icChatInvite = '$_svgsDir/ic_add_chat.svg';
+  static const String icQrCode = '$_svgsDir/ic_qr_code.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';
