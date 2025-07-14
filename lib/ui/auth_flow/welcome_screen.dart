@@ -16,7 +16,13 @@ class WelcomeScreen extends ConsumerStatefulWidget {
 }
 
 class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
+  bool _isCreatingAccount = false;
+
   Future<void> _handleCreateAccount(BuildContext context) async {
+    setState(() {
+      _isCreatingAccount = true;
+    });
+
     final authNotifier = ref.read(authProvider.notifier);
 
     // Start account creation in background without loading state
@@ -91,13 +97,22 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                   AppFilledButton(
                     title: 'Login',
                     visualState: AppButtonVisualState.secondary,
-                    onPressed: () => context.go('/login'),
+                    onPressed: _isCreatingAccount ? null : () => context.go('/login'),
                   ),
                   Gap(12.h),
-                  AppFilledButton(
-                    title: 'Sign Up',
-                    onPressed: () => _handleCreateAccount(context),
-                  ),
+                  _isCreatingAccount
+                      ? SizedBox(
+                        height: 56.h,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            color: context.colors.primary,
+                          ),
+                        ),
+                      )
+                      : AppFilledButton(
+                        title: 'Sign Up',
+                        onPressed: () => _handleCreateAccount(context),
+                      ),
                 ],
               ),
             ),
