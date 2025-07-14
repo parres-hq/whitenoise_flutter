@@ -81,9 +81,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
 
     // Use the regular login method that shows loading state
     await authNotifier.loginWithKey(key);
-    
+
     final authState = ref.read(authProvider);
-    
+
     if (authState.isAuthenticated && authState.error == null) {
       if (!mounted) return;
       context.go(Routes.chats);

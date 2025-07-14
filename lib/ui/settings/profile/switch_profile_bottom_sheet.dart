@@ -155,33 +155,34 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
                           children: [
                             ContactListTile(
                               contact: profile,
-                              onTap: _loadingProfileKey != null
-                                  ? null // Disable all taps when any profile is loading
-                                  : () async {
-                                if (isActiveAccount && !widget.showSuccessToast) {
-                                  // Just close the sheet if selecting the currently active profile
-                                  Navigator.pop(context);
-                                } else {
-                                  // Show loading state for this profile
-                                  setState(() {
-                                    _loadingProfileKey = profile.publicKey;
-                                  });
-                                  
-                                  // Call the profile selection handler and wait for completion
-                                  try {
-                                    widget.onProfileSelected(profile);
-                                    // Don't close the sheet here - let the parent handle navigation
-                                    // after the account switch is complete
-                                  } catch (e) {
-                                    // Reset loading state on error
-                                    if (mounted) {
-                                      setState(() {
-                                        _loadingProfileKey = null;
-                                      });
-                                    }
-                                  }
-                                }
-                              },
+                              onTap:
+                                  _loadingProfileKey != null
+                                      ? null // Disable all taps when any profile is loading
+                                      : () async {
+                                        if (isActiveAccount && !widget.showSuccessToast) {
+                                          // Just close the sheet if selecting the currently active profile
+                                          Navigator.pop(context);
+                                        } else {
+                                          // Show loading state for this profile
+                                          setState(() {
+                                            _loadingProfileKey = profile.publicKey;
+                                          });
+
+                                          // Call the profile selection handler and wait for completion
+                                          try {
+                                            widget.onProfileSelected(profile);
+                                            // Don't close the sheet here - let the parent handle navigation
+                                            // after the account switch is complete
+                                          } catch (e) {
+                                            // Reset loading state on error
+                                            if (mounted) {
+                                              setState(() {
+                                                _loadingProfileKey = null;
+                                              });
+                                            }
+                                          }
+                                        }
+                                      },
                             ),
                             if (_loadingProfileKey == profile.publicKey)
                               Positioned(
@@ -213,17 +214,18 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: AppFilledButton(
               title: 'Connect Another Profile',
-              onPressed: _loadingProfileKey != null
-                  ? null // Disable button when any profile is loading
-                  : () {
-                if (widget.isDismissible) {
-                  context.pop();
-                  ConnectProfileBottomSheet.show(context: context);
-                } else {
-                  // For non-dismissible mode, show connect profile without popping
-                  ConnectProfileBottomSheet.show(context: context);
-                }
-              },
+              onPressed:
+                  _loadingProfileKey != null
+                      ? null // Disable button when any profile is loading
+                      : () {
+                        if (widget.isDismissible) {
+                          context.pop();
+                          ConnectProfileBottomSheet.show(context: context);
+                        } else {
+                          // For non-dismissible mode, show connect profile without popping
+                          ConnectProfileBottomSheet.show(context: context);
+                        }
+                      },
             ),
           ),
           Gap(16.h),

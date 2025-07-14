@@ -221,7 +221,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
             builder: (context, ref, child) {
               final accountState = ref.watch(accountProvider);
               final isButtonDisabled = accountState.isLoading || _isLoadingUsername;
-              
+
               return isButtonDisabled
                   ? SizedBox(
                     height: 56.h,

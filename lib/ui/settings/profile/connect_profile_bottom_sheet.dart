@@ -56,23 +56,23 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
                 visualState: AppButtonVisualState.secondary,
                 onPressed:
                     authState.isLoading
-                    ? null
-                    : () async {
+                        ? null
+                        : () async {
                           setState(() {
                             _isLoginLoading = true;
                           });
 
-                      Navigator.pop(context);
+                          Navigator.pop(context);
 
-                      // Go directly to login screen without logging out current account
-                      // This preserves the current account and prevents previous accounts
-                      // from being deleted when a new account is added
-                      ref.read(authProvider.notifier).setUnAuthenticated();
+                          // Go directly to login screen without logging out current account
+                          // This preserves the current account and prevents previous accounts
+                          // from being deleted when a new account is added
+                          ref.read(authProvider.notifier).setUnAuthenticated();
 
-                      if (context.mounted) {
-                        context.go(Routes.login);
-                      }
-                    },
+                          if (context.mounted) {
+                            context.go(Routes.login);
+                          }
+                        },
               ),
           Gap(4.h),
           authState.isLoading
