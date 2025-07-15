@@ -31,7 +31,6 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
     return CustomBottomSheet.show<String>(
       context: context,
       title: welcomeData.memberCount > 2 ? 'Group Invitation' : 'Chat Invitation',
-      heightFactor: 0.7,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:

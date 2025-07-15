@@ -170,9 +170,10 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
       if (mounted) {
         await StartSecureChatBottomSheet.show(
           context: context,
-          name: contact.name,
+          name: contact.displayNameOrName,
           nip05: contact.nip05 ?? '',
           pubkey: npub,
+          imagePath: contact.imagePath,
           onChatCreated: (groupData) {
             if (groupData != null && mounted) {
               // Navigate to home first, then to the group chat

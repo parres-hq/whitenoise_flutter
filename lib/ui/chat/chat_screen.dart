@@ -200,8 +200,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
                         final otherUser = asyncSnapshot.data;
                         return ContactInfo(
-                          title: otherUser?.displayName ?? '',
-                          imageUrl: otherUser?.displayImage ?? '',
+                          title:
+                              groupData.groupType == GroupType.directMessage
+                                  ? otherUser?.displayName ?? ''
+                                  : groupData.name,
+                          image:
+                              groupData.groupType == GroupType.directMessage
+                                  ? otherUser?.displayImage ?? ''
+                                  // TODO : use group image when avaialabe
+                                  : '',
                           onTap: () => context.push('/chats/${widget.groupId}/info'),
                         );
                       },

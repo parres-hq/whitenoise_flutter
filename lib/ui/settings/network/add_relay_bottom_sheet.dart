@@ -32,9 +32,7 @@ class AddRelayBottomSheet extends ConsumerStatefulWidget {
     await CustomBottomSheet.show(
       context: context,
       title: title,
-      heightFactor: 0.35,
       keyboardAware: true,
-      wrapContent: true,
       builder: (context) => AddRelayBottomSheet(onRelayAdded: onRelayAdded, title: title),
     );
   }

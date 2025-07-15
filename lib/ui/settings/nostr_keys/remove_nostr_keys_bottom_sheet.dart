@@ -16,7 +16,6 @@ class RemoveNostrKeysBottomSheet extends StatelessWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'Remove Nostr Keys',
-      heightFactor: 0.42,
       builder: (context) => RemoveNostrKeysBottomSheet(onRemove: onRemove),
     );
   }

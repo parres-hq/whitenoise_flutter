@@ -18,8 +18,6 @@ class AddProfileBottomSheet extends StatefulWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'Add new profile',
-      wrapContent: true,
-      maxHeight: 0.42.sh,
       builder: (context) => AddProfileBottomSheet(onSignIn: onSignIn),
     );
   }

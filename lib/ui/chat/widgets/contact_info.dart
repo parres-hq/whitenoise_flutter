@@ -4,7 +4,7 @@ import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 
 class ContactInfo extends StatelessWidget {
-  final String? imageUrl;
+  final String? image;
   final String? title;
   final VoidCallback? onTap;
   final bool isLoading;
@@ -12,12 +12,12 @@ class ContactInfo extends StatelessWidget {
   const ContactInfo({
     super.key,
     required this.title,
-    required this.imageUrl,
+    required this.image,
     this.onTap,
   }) : isLoading = false;
 
   const ContactInfo.loading({super.key})
-    : imageUrl = null,
+    : image = null,
       title = null,
       onTap = null,
       isLoading = true;
@@ -54,7 +54,7 @@ class ContactInfo extends StatelessWidget {
       child: Row(
         children: [
           ContactAvatar(
-            imageUrl: imageUrl!,
+            imageUrl: image!,
             displayName: title!,
             size: 36.r,
             showBorder: true,

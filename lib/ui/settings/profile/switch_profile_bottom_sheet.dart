@@ -38,8 +38,6 @@ class SwitchProfileBottomSheet extends ConsumerStatefulWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'Profiles',
-      wrapContent: true,
-      maxHeight: 0.65.sh,
       barrierDismissible: isDismissible,
       showCloseButton: isDismissible,
       builder:

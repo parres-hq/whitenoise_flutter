@@ -20,7 +20,6 @@ class ConnectProfileBottomSheet extends ConsumerStatefulWidget {
       title: 'Connect Another Profile',
       showCloseButton: false,
       showBackButton: true,
-      wrapContent: true,
       builder: (context) => const ConnectProfileBottomSheet(),
     );
   }

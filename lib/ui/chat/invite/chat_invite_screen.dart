@@ -56,7 +56,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
                 ? DMAppBarTitle(welcomeData: welcomeData)
                 : ContactInfo(
                   title: welcomeData.groupName,
-                  imageUrl: '',
+                  image: '',
                 ),
       ),
       body: Column(
@@ -355,7 +355,7 @@ class DMAppBarTitle extends ConsumerWidget {
 
         return ContactInfo(
           title: welcomerName,
-          imageUrl: welcomerImageUrl,
+          image: welcomerImageUrl,
         );
       },
     );
