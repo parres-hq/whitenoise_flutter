@@ -3,9 +3,11 @@ import 'dart:ui';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class ReactionsDialogWidget extends StatefulWidget {
@@ -171,38 +173,24 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
   }
 
   Widget buildReactions(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isSmallScreen = screenWidth < 380.w;
-
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
       decoration: BoxDecoration(
         color: context.colors.primaryForeground,
       ),
-      child: isSmallScreen ? _buildWrappedReactions() : _buildRowReactions(),
+      child: _buildRowReactions(),
     );
   }
 
   Widget _buildRowReactions() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      spacing: 6.w,
       children: [
+        Gap(24.w),
         for (var reaction in widget.reactions) _buildReactionItem(reaction),
         _buildAddReactionButton(),
-      ],
-    );
-  }
-
-  Widget _buildWrappedReactions() {
-    return Wrap(
-      alignment: WrapAlignment.spaceEvenly,
-      runAlignment: WrapAlignment.center,
-      spacing: 4.w,
-      runSpacing: 8.h,
-      children: [
-        for (var reaction in widget.reactions) _buildReactionItem(reaction),
-        _buildAddReactionButton(),
+        Gap(24.w),
       ],
     );
   }
@@ -224,10 +212,14 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
           duration: const Duration(milliseconds: 50),
           animate: reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+            padding: EdgeInsets.symmetric(vertical: 16.h),
             child: Text(
               reaction,
-              style: TextStyle(fontSize: 24.sp),
+              style: TextStyle(
+                fontSize: 24.sp,
+                fontWeight: FontWeight.w600,
+                fontFamily: 'Manrope',
+              ),
             ),
           ),
         ),
@@ -236,16 +228,20 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
   }
 
   Widget _buildAddReactionButton() {
-    return IconButton(
-      onPressed: () {
+    return GestureDetector(
+      onTap: () {
         Navigator.of(context).pop();
         // Trigger the emoji picker by calling onReactionTap with a special value
         widget.onReactionTap('⋯');
       },
-      icon: Icon(
-        Icons.add_reaction_outlined,
-        size: 24.sp,
-        color: context.colors.primary,
+      child: SvgPicture.asset(
+        AssetsPaths.icFaceAdd,
+        width: 22.w,
+        height: 22.w,
+        colorFilter: ColorFilter.mode(
+          context.colors.primary,
+          BlendMode.srcIn,
+        ),
       ),
     );
   }

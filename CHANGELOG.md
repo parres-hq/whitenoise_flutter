@@ -25,9 +25,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Show the npub of each user on the contacts list
 - Add developer settings screen with some basic cache management functions
+- Add relay management settings screen to view and manage your relays
 - Confirmation dialog when signing out
 - Fixed back navigation when connecting another account
 - QR code scanner for connecting with other users
+
 
 ### Changed
 
