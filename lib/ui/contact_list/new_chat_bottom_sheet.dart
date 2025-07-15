@@ -399,24 +399,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           iconPath: AssetsPaths.icGroupChat,
           onTap: () {
             Navigator.pop(context);
-            NewGroupChatSheet.show(
-              context,
-              onGroupCreated: (groupData) {
-                if (groupData != null && mounted) {
-                  // Navigate to home first, then to the group chat
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) {
-                      context.go(Routes.home);
-                      WidgetsBinding.instance.addPostFrameCallback((_) {
-                        if (mounted) {
-                          Routes.goToChat(context, groupData.mlsGroupId);
-                        }
-                      });
-                    }
-                  });
-                }
-              },
-            );
+            NewGroupChatSheet.show(context);
           },
         ),
         Gap(18.h),

@@ -151,14 +151,16 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
             Flexible(
               child: ListView.builder(
                 shrinkWrap: true,
-                padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h),
+                padding: EdgeInsets.only(bottom: 16.h),
                 itemCount: sortedProfiles.length,
                 itemBuilder: (context, index) {
                   final profile = sortedProfiles[index];
-
                   return Container(
                     margin: EdgeInsets.only(bottom: 8.h),
-                    padding: EdgeInsets.symmetric(horizontal: 2.w, vertical: 2.h),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 2.w,
+                      vertical: 2.h,
+                    ),
                     child: FutureBuilder<bool>(
                       future: _isActiveAccount(profile),
                       builder: (context, snapshot) {

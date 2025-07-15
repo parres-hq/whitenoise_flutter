@@ -6,7 +6,6 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 
@@ -37,72 +36,53 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
   Widget build(BuildContext context) {
     final authState = ref.watch(authProvider);
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.w),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _isLoginLoading
-              ? SizedBox(
-                height: 56.h, // Match the button height
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: context.colorScheme.onSurface,
-                  ),
-                ),
-              )
-              : AppFilledButton(
-                title: 'Login With Existing Profile',
-                visualState: AppButtonVisualState.secondary,
-                onPressed:
-                    authState.isLoading
-                        ? null
-                        : () async {
-                          setState(() {
-                            _isLoginLoading = true;
-                          });
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        AppFilledButton(
+          title: 'Login With Existing Profile',
+          loading: _isLoginLoading,
+          visualState: AppButtonVisualState.secondary,
+          onPressed:
+              authState.isLoading
+                  ? null
+                  : () async {
+                    setState(() {
+                      _isLoginLoading = true;
+                    });
 
-                          Navigator.pop(context);
+                    Navigator.pop(context);
 
-                          // Go directly to login screen without logging out current account
-                          // This preserves the current account and prevents previous accounts
-                          // from being deleted when a new account is added
-                          ref.read(authProvider.notifier).setUnAuthenticated();
+                    // Go directly to login screen without logging out current account
+                    // This preserves the current account and prevents previous accounts
+                    // from being deleted when a new account is added
+                    ref.read(authProvider.notifier).setUnAuthenticated();
 
-                          if (context.mounted) {
-                            context.go(Routes.login);
-                          }
-                        },
-              ),
-          Gap(4.h),
-          authState.isLoading
-              ? SizedBox(
-                height: 56.h, // Match the button height
-                child: Center(
-                  child: CircularProgressIndicator(
-                    color: context.colorScheme.onSurface,
-                  ),
-                ),
-              )
-              : AppFilledButton(
-                title: 'Create New Profile',
-                onPressed: () async {
-                  // Wait for account creation and metadata generation
-                  await ref.read(authProvider.notifier).createAccount();
-                  final authState = ref.read(authProvider);
+                    if (context.mounted) {
+                      context.go(Routes.login);
+                    }
+                  },
+        ),
+        Gap(4.h),
+        AppFilledButton(
+          title: 'Create New Profile',
+          loading: authState.isLoading,
+          onPressed: () async {
+            // Wait for account creation and metadata generation
+            await ref.read(authProvider.notifier).createAccount();
+            final authState = ref.read(authProvider);
 
-                  if (authState.isAuthenticated && authState.error == null) {
-                    if (!context.mounted) return;
-                    context.go(Routes.createProfile);
-                  } else {
-                    if (!context.mounted) return;
-                    ref.showErrorToast(authState.error ?? 'Unknown error');
-                  }
-                },
-              ),
-          Gap(16.h),
-        ],
-      ),
+            if (authState.isAuthenticated && authState.error == null) {
+              if (!context.mounted) return;
+              context.go(Routes.createProfile);
+            } else {
+              if (!context.mounted) return;
+              ref.showErrorToast(authState.error ?? 'Unknown error');
+            }
+          },
+        ),
+        Gap(16.h),
+      ],
     );
   }
 }

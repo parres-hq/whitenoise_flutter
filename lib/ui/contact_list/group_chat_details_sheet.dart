@@ -3,13 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/ui/contact_list/safe_toast_mixin.dart';
 import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -50,7 +52,7 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   ConsumerState<GroupChatDetailsSheet> createState() => _GroupChatDetailsSheetState();
 }
 
-class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
+class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> with SafeToastMixin {
   final TextEditingController _groupNameController = TextEditingController();
   bool _hasGroupImage = false;
   bool _isGroupNameValid = false;
@@ -77,7 +79,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
     try {
       final filteredContacts = await _filterContactsByKeyPackage(widget.selectedContacts);
       if (!mounted) return;
-      
+
       final contactsWithKeyPackage = filteredContacts['withKeyPackage']!;
 
       if (mounted) {
@@ -111,14 +113,12 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
       // Filter contacts based on keypackage availability
       final filteredContacts = await _filterContactsByKeyPackage(widget.selectedContacts);
       if (!mounted) return;
-      
+
       final contactsWithKeyPackage = filteredContacts['withKeyPackage']!;
       final contactsWithoutKeyPackage = filteredContacts['withoutKeyPackage']!;
 
       if (contactsWithKeyPackage.isEmpty) {
-        if (mounted) {
-          ref.showErrorToast('No contacts have keypackages available for group creation');
-        }
+        safeShowErrorToast('No contacts have keypackages available for group creation');
         return;
       }
 
@@ -131,10 +131,10 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
       );
 
       if (!mounted) return;
-      
+
       GroupData? successGroupData;
       String? errorMessage;
-      
+
       if (groupData != null) {
         successGroupData = groupData;
         // Show share invite bottom sheet for members without keypackages
@@ -147,33 +147,43 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
       } else {
         errorMessage = 'Failed to create group chat. Please try again.';
       }
-      
+
       // Complete all local operations first
       if (mounted) {
         setState(() {
           _isCreatingGroup = false;
         });
       }
-      
+
       // Show error if needed
-      if (errorMessage != null && mounted) {
-        ref.showErrorToast(errorMessage);
+      if (errorMessage != null) {
+        safeShowErrorToast(errorMessage);
       }
-      
-      // Call success callback last (this might trigger navigation)
+
       if (successGroupData != null && mounted) {
-        widget.onGroupCreated?.call(successGroupData);
+        // Navigate to home first, then to the group chat
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            context.pop();
+            context.go(Routes.home);
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (mounted) {
+                Routes.goToChat(context, groupData!.mlsGroupId);
+              }
+            });
+          }
+        });
       }
-      
-      return; // Early return to avoid finally block
+
+      return;
     } catch (e) {
       if (mounted) {
         setState(() {
           _isCreatingGroup = false;
         });
-        ref.showErrorToast('Error creating group: ${e.toString()}');
       }
-      return; // Early return to avoid finally block
+      safeShowErrorToast('Error creating group: ${e.toString()}');
+      return;
     }
   }
 
