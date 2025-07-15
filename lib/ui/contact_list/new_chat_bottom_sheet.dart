@@ -14,25 +14,15 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-<<<<<<< HEAD
-import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api/relays.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
-=======
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/ui/contact_list/contact_loading_bottom_sheet.dart';
->>>>>>> master
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-<<<<<<< HEAD
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
-=======
-import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
->>>>>>> master
 
 class NewChatBottomSheet extends ConsumerStatefulWidget {
   const NewChatBottomSheet({super.key});
@@ -125,10 +115,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   }
 
   bool _isValidPublicKey(String input) {
-    final trimmed = input.trim();
-    // Check if it's a hex key (64 characters) or npub format
-    return (trimmed.length == 64 && RegExp(r'^[0-9a-fA-F]+$').hasMatch(trimmed)) ||
-        (trimmed.startsWith('npub1') && trimmed.length > 10);
+    return input.trim().isValidPublicKey;
   }
 
   Future<void> _fetchMetadataForPublicKey(String publicKey) async {
@@ -221,12 +208,17 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         ContactLoadingBottomSheet.show(
           context: context,
           contact: contact,
-          onChatCreated: () {
-            // Close the parent new chat bottom sheet when chat is created
-            Navigator.pop(context);
+          onChatCreated: (groupData) {
+            if (groupData != null && mounted) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  context.pop();
+                  context.navigateToGroupChatAndPopToHome(groupData);
+                }
+              });
+            }
           },
           onInviteSent: () {
-            // Close the parent new chat bottom sheet when invite is sent
             Navigator.pop(context);
           },
         );

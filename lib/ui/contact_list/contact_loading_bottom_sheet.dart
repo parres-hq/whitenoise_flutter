@@ -4,9 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/routing/chat_navigation_extension.dart';
+import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -15,7 +16,7 @@ import 'package:whitenoise/utils/string_extensions.dart';
 
 class ContactLoadingBottomSheet extends ConsumerStatefulWidget {
   final ContactModel contact;
-  final VoidCallback? onChatCreated;
+  final ValueChanged<GroupData?>? onChatCreated;
   final VoidCallback? onInviteSent;
 
   const ContactLoadingBottomSheet({
@@ -28,16 +29,15 @@ class ContactLoadingBottomSheet extends ConsumerStatefulWidget {
   static Future<void> show({
     required BuildContext context,
     required ContactModel contact,
-    VoidCallback? onChatCreated,
+    ValueChanged<GroupData?>? onChatCreated,
     VoidCallback? onInviteSent,
   }) {
     return CustomBottomSheet.show(
       context: context,
       title: 'Connecting...',
-      heightFactor: 0.5,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
-      barrierDismissible: false, // Prevent manual dismissal during loading
+      barrierDismissible: false,
       builder:
           (context) => ContactLoadingBottomSheet(
             contact: contact,
@@ -164,7 +164,7 @@ class _ContactLoadingBottomSheetState extends ConsumerState<ContactLoadingBottom
               pubkey: widget.contact.publicKey,
               bio: widget.contact.about,
               imagePath: widget.contact.imagePath,
-              onChatCreated: context.createChatNavigationCallback(),
+              onChatCreated: widget.onChatCreated,
             );
           } else {
             _logger.info('Showing ShareInviteBottomSheet for sharing invite');
@@ -203,115 +203,72 @@ class _ContactLoadingBottomSheetState extends ConsumerState<ContactLoadingBottom
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Contact avatar
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(40.r),
-                  child: Container(
-                    width: 80.w,
-                    height: 80.w,
-                    decoration: BoxDecoration(
-                      color: context.colors.warning,
-                      borderRadius: BorderRadius.circular(40.r),
-                    ),
-                    child:
-                        widget.contact.imagePath != null && widget.contact.imagePath!.isNotEmpty
-                            ? Image.network(
-                              widget.contact.imagePath!,
-                              width: 80.w,
-                              height: 80.w,
-                              fit: BoxFit.cover,
-                              errorBuilder:
-                                  (context, error, stackTrace) => Center(
-                                    child: Text(
-                                      widget.contact.name.isNotEmpty
-                                          ? widget.contact.name[0].toUpperCase()
-                                          : '?',
-                                      style: TextStyle(
-                                        color: context.colors.neutral,
-                                        fontSize: 32.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                            )
-                            : Center(
-                              child: Text(
-                                widget.contact.name.isNotEmpty
-                                    ? widget.contact.name[0].toUpperCase()
-                                    : '?',
-                                style: TextStyle(
-                                  color: context.colors.neutral,
-                                  fontSize: 32.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                  ),
-                ),
-                Gap(16.h),
-
-                // Contact name
-                Text(
-                  widget.contact.displayNameOrName,
-                  style: TextStyle(
-                    fontSize: 20.sp,
-                    fontWeight: FontWeight.w500,
-                    color: context.colors.primary,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                Gap(8.h),
-
-                // Contact public key (formatted)
-                Text(
-                  widget.contact.publicKey.formatPublicKey(),
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    color: context.colors.mutedForeground,
-                    fontFamily: 'monospace',
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                Gap(32.h),
-
-                // Loading indicator and message
-                if (!_isCompleted) ...[
-                  SizedBox(
-                    width: 32.w,
-                    height: 32.w,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 3.0,
-                      valueColor: AlwaysStoppedAnimation<Color>(context.colors.primary),
-                    ),
-                  ),
-                  Gap(16.h),
-                ] else ...[
-                  Icon(
-                    Icons.check_circle,
-                    color: context.colors.primary,
-                    size: 32.w,
-                  ),
-                  Gap(16.h),
-                ],
-
-                Text(
-                  _loadingMessage,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: context.colors.mutedForeground,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Contact avatar
+            ContactAvatar(
+              imageUrl: widget.contact.imagePath ?? '',
+              displayName: widget.contact.displayNameOrName,
+              size: 80.r,
             ),
-          ),
+            Gap(16.h),
+
+            // Contact name
+            Text(
+              widget.contact.displayNameOrName,
+              style: TextStyle(
+                fontSize: 20.sp,
+                fontWeight: FontWeight.w500,
+                color: context.colors.primary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Gap(8.h),
+
+            // Contact public key (formatted)
+            Text(
+              widget.contact.publicKey.formatPublicKey(),
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: context.colors.mutedForeground,
+                fontFamily: 'monospace',
+              ),
+              textAlign: TextAlign.center,
+            ),
+            Gap(32.h),
+
+            // Loading indicator and message
+            if (!_isCompleted) ...[
+              SizedBox(
+                width: 32.w,
+                height: 32.w,
+                child: CircularProgressIndicator(
+                  strokeWidth: 3.0,
+                  valueColor: AlwaysStoppedAnimation<Color>(context.colors.primary),
+                ),
+              ),
+              Gap(16.h),
+            ] else ...[
+              Icon(
+                Icons.check_circle,
+                color: context.colors.primary,
+                size: 32.w,
+              ),
+              Gap(16.h),
+            ],
+
+            Text(
+              _loadingMessage,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: context.colors.mutedForeground,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ),
       ],
     );

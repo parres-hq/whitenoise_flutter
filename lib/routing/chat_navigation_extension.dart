@@ -19,7 +19,7 @@ extension ChatNavigationExtension on BuildContext {
 
   /// Creates a callback function that can be used with onChatCreated callbacks
   /// This is useful for passing to bottom sheets and other components
-  ValueChanged<GroupData?> createChatNavigationCallback() {
+  ValueChanged<GroupData?>? createChatNavigationCallback() {
     return (GroupData? groupData) {
       if (groupData != null) {
         navigateToGroupChatAndPopToHome(groupData);
