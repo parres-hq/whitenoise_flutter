@@ -29,7 +29,7 @@ class CustomBottomSheet {
       barrierLabel: barrierLabel ?? 'BottomSheet',
       isScrollControlled: true,
       showDragHandle: false,
-      backgroundColor: Colors.transparent,
+      backgroundColor: context.colors.bottomSheetBarrier,
       builder:
           (BuildContext context) => Stack(
             children: [
@@ -50,7 +50,7 @@ class CustomBottomSheet {
                   color: Colors.transparent,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: context.colors.primary,
+                      color: context.colors.primaryForeground,
                     ),
                     child: ConstrainedBox(
                       constraints: BoxConstraints(
