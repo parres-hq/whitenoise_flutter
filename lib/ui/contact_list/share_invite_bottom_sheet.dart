@@ -8,6 +8,7 @@ import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -31,7 +32,6 @@ class ShareInviteBottomSheet extends ConsumerStatefulWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'Invite to Chat',
-      heightFactor: 0.75,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
@@ -86,129 +86,95 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
   Widget build(BuildContext context) {
     final isSingleContact = widget.contacts.length == 1;
     final contact = isSingleContact ? widget.contacts.first : null;
+    if (contact == null) return const SizedBox.shrink();
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (isSingleContact) ...[
           // Single contact view
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w),
-            child: Column(
-              children: [
-                Gap(48.h),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(40.r),
-                  child: Container(
-                    width: 80.w,
-                    height: 80.w,
-                    decoration: BoxDecoration(
-                      color: context.colors.warning,
-                      borderRadius: BorderRadius.circular(40.r),
-                    ),
-                    child:
-                        contact!.imagePath != null && contact.imagePath!.isNotEmpty
-                            ? Image.network(
-                              contact.imagePath!,
-                              width: 80.w,
-                              height: 80.w,
-                              fit: BoxFit.cover,
-                              errorBuilder:
-                                  (context, error, stackTrace) => Center(
-                                    child: Text(
-                                      contact.name.isNotEmpty ? contact.name[0].toUpperCase() : '?',
-                                      style: TextStyle(
-                                        color: context.colors.neutral,
-                                        fontSize: 32.sp,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                            )
-                            : Center(
-                              child: Text(
-                                contact.name.isNotEmpty ? contact.name[0].toUpperCase() : '?',
-                                style: TextStyle(
-                                  color: context.colors.neutral,
-                                  fontSize: 32.sp,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                  ),
+          Column(
+            children: [
+              Gap(12.h),
+              ContactAvatar(
+                imageUrl: contact.imagePath ?? '',
+                displayName: contact.name,
+                size: 96.r,
+              ),
+              Gap(8.h),
+              Text(
+                contact.name,
+                style: TextStyle(
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.primary,
                 ),
-                Gap(12.h),
+              ),
+              if (contact.nip05 != null && contact.nip05!.isNotEmpty) ...[
+                Gap(2.h),
                 Text(
-                  contact.name,
-                  style: TextStyle(
-                    fontSize: 24.sp,
-                    fontWeight: FontWeight.w500,
-                    color: context.colors.primary,
-                  ),
-                ),
-                Gap(12.h),
-                Text(
-                  contact.nip05 ?? '',
+                  contact.nip05!,
                   style: TextStyle(
                     fontSize: 14.sp,
                     color: context.colors.mutedForeground,
                   ),
                 ),
-                Gap(12.h),
-                Text(
-                  contact.publicKey.formatPublicKey(),
-                  textAlign: TextAlign.center,
-                ),
-                Gap(32.h),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 12.h,
-                  ),
-                  width: 1.sw,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: context.colors.primary),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            CarbonIcons.information_filled,
-                            color: context.colors.primary,
-                            size: 18.w,
-                          ),
-                          Gap(8.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Invite to White Noise',
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: context.colors.primary,
-                                  ),
-                                ),
-                                Gap(8.h),
-                                Text(
-                                  "${contact.name.isNotEmpty && contact.name != 'Unknown User' ? contact.name : 'This user'} isn't on White Noise yet. Share the download link to start a secure chat.",
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: context.colors.mutedForeground,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
               ],
-            ),
+              Gap(16.h),
+              Text(
+                contact.publicKey.formatPublicKey(),
+                textAlign: TextAlign.center,
+              ),
+              Gap(40.h),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 16.w,
+                  vertical: 12.h,
+                ),
+                width: 1.sw,
+                decoration: BoxDecoration(
+                  border: Border.all(color: context.colors.primary),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          CarbonIcons.information_filled,
+                          color: context.colors.primary,
+                          size: 18.w,
+                        ),
+                        Gap(8.w),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Invite to White Noise',
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: context.colors.primary,
+                                ),
+                              ),
+                              Gap(8.h),
+                              Text(
+                                "${contact.name.isNotEmpty && contact.name != 'Unknown User' ? contact.name : 'This user'} isn't on White Noise yet. Share the download link to start a secure chat.",
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: context.colors.mutedForeground,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ] else ...[
           // Multiple contacts view
@@ -281,15 +247,13 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
             ),
           ),
         ],
-        SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24.w).copyWith(bottom: 4.h),
-            child: AppFilledButton(
-              onPressed: _isSendingInvite ? null : _shareInvite,
-              title: _isSendingInvite ? 'Sharing...' : 'Share',
-            ),
-          ),
+        Gap(40.h),
+        AppFilledButton(
+          onPressed: _isSendingInvite ? null : _shareInvite,
+          loading: _isSendingInvite,
+          title: _isSendingInvite ? 'Sharing...' : 'Share',
         ),
+        Gap(40.h),
       ],
     );
   }

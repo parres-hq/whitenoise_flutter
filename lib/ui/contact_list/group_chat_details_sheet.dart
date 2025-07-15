@@ -104,7 +104,9 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
       final contactsWithoutKeyPackage = filteredContacts['withoutKeyPackage']!;
 
       if (contactsWithKeyPackage.isEmpty) {
-        ref.showErrorToast('No contacts have keypackages available for group creation');
+        if (mounted) {
+          ref.showErrorToast('No contacts have keypackages available for group creation');
+        }
         return;
       }
 
@@ -129,7 +131,9 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
           }
           widget.onGroupCreated?.call(groupData);
         } else {
-          ref.showErrorToast('Failed to create group chat. Please try again.');
+          if (mounted) {
+            ref.showErrorToast('Failed to create group chat. Please try again.');
+          }
         }
       }
     } catch (e) {
@@ -184,6 +188,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Center(
@@ -276,6 +281,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> {
                   _isCreatingGroup || !_isGroupNameValid || !_hasContactsWithKeyPackage
                       ? null
                       : () => _createGroupChat(),
+              loading: _isCreatingGroup,
               title: _isCreatingGroup ? 'Creating Group...' : 'Create Group',
             ),
           ),

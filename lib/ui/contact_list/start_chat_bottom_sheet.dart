@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
@@ -43,7 +44,6 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
     return CustomBottomSheet.show(
       context: context,
       title: 'Start Secure Chat',
-      heightFactor: 0.65,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
@@ -117,101 +117,54 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
             children: [
-              Gap(48.h),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(40.r),
-                child: Container(
-                  width: 80.w,
-                  height: 80.w,
-                  decoration: BoxDecoration(
-                    color: context.colors.warning,
-                    borderRadius: BorderRadius.circular(40.r),
-                  ),
-                  child:
-                      widget.imagePath != null && widget.imagePath!.isNotEmpty
-                          ? Image.network(
-                            widget.imagePath!,
-                            width: 80.w,
-                            height: 80.w,
-                            fit: BoxFit.cover,
-                            errorBuilder:
-                                (context, error, stackTrace) => Center(
-                                  child: Text(
-                                    widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?',
-                                    style: TextStyle(
-                                      color: context.colors.neutral,
-                                      fontSize: 32.sp,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                          )
-                          : Center(
-                            child: Text(
-                              widget.name.isNotEmpty ? widget.name[0].toUpperCase() : '?',
-                              style: TextStyle(
-                                color: context.colors.neutral,
-                                fontSize: 32.sp,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                ),
-              ),
               Gap(12.h),
+              ContactAvatar(
+                imageUrl: widget.imagePath ?? '',
+                displayName: widget.name,
+                size: 96.r,
+              ),
+              Gap(8.h),
               Text(
                 widget.name,
                 style: TextStyle(
-                  fontSize: 24.sp,
-                  fontWeight: FontWeight.w500,
+                  fontSize: 18.sp,
+                  fontWeight: FontWeight.w600,
                   color: context.colors.primary,
                 ),
               ),
-              Gap(12.h),
+              if (widget.nip05.isNotEmpty) ...[
+                Gap(2.h),
 
-              Text(
-                widget.nip05,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: context.colors.mutedForeground,
+                Text(
+                  widget.nip05,
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: context.colors.mutedForeground,
+                  ),
                 ),
-              ),
-              Gap(12.h),
+              ],
+              Gap(16.h),
+
               Text(
                 widget.pubkey.formatPublicKey(),
                 textAlign: TextAlign.center,
               ),
-              Gap(12.h),
-
-              if (widget.bio != null && widget.bio!.isNotEmpty) ...[
-                Gap(8.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Text(
-                    widget.bio!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14.sp,
-                      color: context.colors.mutedForeground,
-                    ),
-                    maxLines: 3,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
               Gap(48.h),
             ],
           ),
         ),
         AppFilledButton(
           onPressed: _isCreatingGroup ? null : _createDirectMessageGroup,
+          loading: _isCreatingGroup,
           title: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
         ),
+        Gap(48.h),
       ],
     );
   }
