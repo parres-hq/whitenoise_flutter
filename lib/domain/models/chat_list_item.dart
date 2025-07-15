@@ -1,6 +1,7 @@
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
+import 'package:whitenoise/utils/big_int_extension.dart';
 
 enum ChatListItemType { chat, welcome }
 
@@ -37,7 +38,7 @@ class ChatListItem {
     return ChatListItem(
       type: ChatListItemType.welcome,
       welcomeData: welcomeData,
-      dateCreated: DateTime.now(), // We'll need to get actual creation date from backend
+      dateCreated: welcomeData.createdAt.toDateTime(),
     );
   }
 

@@ -87,6 +87,7 @@ class PollingNotifier extends Notifier<bool> {
               'PollingProvider: Loading messages for ${groupIds.length} groups for chat previews',
             );
             await ref.read(chatProvider.notifier).loadMessagesForGroups(groupIds);
+            
             _logger.info('PollingProvider: Message loading completed for chat previews');
           }
         } catch (e) {
