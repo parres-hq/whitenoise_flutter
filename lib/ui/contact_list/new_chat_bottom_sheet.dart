@@ -14,18 +14,25 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+<<<<<<< HEAD
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+=======
+import 'package:whitenoise/routing/chat_navigation_extension.dart';
+import 'package:whitenoise/ui/contact_list/contact_loading_bottom_sheet.dart';
+>>>>>>> master
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
-import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
-import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+<<<<<<< HEAD
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
+=======
+import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
+>>>>>>> master
 
 class NewChatBottomSheet extends ConsumerStatefulWidget {
   const NewChatBottomSheet({super.key});
@@ -118,51 +125,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   }
 
   bool _isValidPublicKey(String input) {
-    return input.isValidPublicKey;
-  }
-
-  Future<Event?> _fetchKeyPackageWithRetry(String publicKeyString) async {
-    const maxAttempts = 3;
-    Event? lastSuccessfulResult;
-
-    for (int attempt = 1; attempt <= maxAttempts; attempt++) {
-      try {
-        _logger.info('Key package fetch attempt $attempt for $publicKeyString');
-
-        // Create fresh PublicKey object for each attempt to avoid disposal issues
-        final freshPubkey = await publicKeyFromString(publicKeyString: publicKeyString);
-        final keyPackage = await fetchKeyPackage(pubkey: freshPubkey);
-
-        _logger.info(
-          'Key package fetch successful on attempt $attempt - result: ${keyPackage != null ? "found" : "null"}',
-        );
-        lastSuccessfulResult = keyPackage;
-        return keyPackage; // Return immediately on success (whether null or not)
-      } catch (e) {
-        _logger.warning('Key package fetch attempt $attempt failed: $e');
-
-        if (e.toString().contains('DroppableDisposedException')) {
-          _logger.warning('Detected disposal exception, will retry with fresh objects');
-        } else if (e.toString().contains('RustArc')) {
-          _logger.warning('Detected RustArc error, will retry with fresh objects');
-        } else {
-          // For non-disposal errors, don't retry
-          _logger.severe('Non-disposal error encountered, not retrying: $e');
-          rethrow;
-        }
-
-        if (attempt == maxAttempts) {
-          _logger.severe('Failed to fetch key package after $maxAttempts attempts: $e');
-          throw Exception('Failed to fetch key package after $maxAttempts attempts: $e');
-        }
-
-        // Wait a bit before retry
-        await Future.delayed(const Duration(milliseconds: 200));
-      }
-    }
-
-    // This should never be reached due to the logic above, but just in case
-    return lastSuccessfulResult;
+    final trimmed = input.trim();
+    // Check if it's a hex key (64 characters) or npub format
+    return (trimmed.length == 64 && RegExp(r'^[0-9a-fA-F]+$').hasMatch(trimmed)) ||
+        (trimmed.startsWith('npub1') && trimmed.length > 10);
   }
 
   Future<void> _fetchMetadataForPublicKey(String publicKey) async {
@@ -247,66 +213,23 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   }
 
   Future<void> _handleContactTap(ContactModel contact) async {
-    _logger.info('Starting chat with contact: ${contact.publicKey}');
+    _logger.info('Starting chat flow with contact: ${contact.publicKey}');
 
     try {
-      Event? keyPackage;
-
-      try {
-        // Use retry mechanism for key package fetching
-        keyPackage = await _fetchKeyPackageWithRetry(contact.publicKey);
-        _logger.info('Raw key package fetch result for ${contact.publicKey}: $keyPackage');
-        _logger.info('Key package is null: ${keyPackage == null}');
-        _logger.info('Key package type: ${keyPackage.runtimeType}');
-      } catch (e) {
-        _logger.warning(
-          'Failed to fetch key package for ${contact.publicKey} after all retries: $e',
-        );
-        keyPackage = null;
-      }
-
+      // Show the loading bottom sheet immediately
       if (mounted) {
-        _logger.info('=== UI Decision Logic ===');
-        _logger.info('keyPackage != null: ${keyPackage != null}');
-        _logger.info(
-          'Final decision: ${keyPackage != null ? "StartSecureChatBottomSheet" : "ShareInviteBottomSheet"}',
+        ContactLoadingBottomSheet.show(
+          context: context,
+          contact: contact,
+          onChatCreated: () {
+            // Close the parent new chat bottom sheet when chat is created
+            Navigator.pop(context);
+          },
+          onInviteSent: () {
+            // Close the parent new chat bottom sheet when invite is sent
+            Navigator.pop(context);
+          },
         );
-
-        if (keyPackage != null) {
-          _logger.info('Showing StartSecureChatBottomSheet for secure chat');
-          StartSecureChatBottomSheet.show(
-            context: context,
-            name: contact.displayNameOrName,
-            nip05: contact.nip05 ?? '',
-            pubkey: contact.publicKey,
-            bio: contact.about,
-            imagePath: contact.imagePath,
-            onChatCreated: (groupData) {
-              if (groupData != null && mounted) {
-                // Navigate to home first, then to the group chat
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    context.go(Routes.home);
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      if (mounted) {
-                        Routes.goToChat(context, groupData.mlsGroupId);
-                      }
-                    });
-                  }
-                });
-              }
-            },
-          );
-        } else {
-          _logger.info('Showing ShareInviteBottomSheet for sharing invite');
-          ShareInviteBottomSheet.show(
-            context: context,
-            contacts: [contact],
-            onInviteSent: () {
-              Navigator.pop(context);
-            },
-          );
-        }
       }
     } catch (e) {
       _logger.severe('Error handling contact tap: $e');

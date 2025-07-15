@@ -5,13 +5,29 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
 ## [Unreleased]
+
+### Added
+
+### Changed
+
+### Removed
+
+### Removed
+
+### Fixed
+
+### Security
+
+## [0.1.2] - 2025-07-15
 
 ### Added
 - Show the npub of each user on the contacts list
 - Add developer settings screen with some basic cache management functions
 - Confirmation dialog when signing out
-- Fixed back navigation when connecting another account 
+- Fixed back navigation when connecting another account
+- QR code scanner for connecting with other users
 
 ### Changed
 
@@ -24,6 +40,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Fixed profile picture upload issue.
 - Ensure that group creator cannot be included as member
+- Prevent duplicate chats on clicking contact
+- Bug fixes related to starting new groups on iOS
+- Ensure contacts show correct metadata on iOS
 
 ### Security
 

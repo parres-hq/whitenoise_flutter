@@ -3177,7 +3177,7 @@ dependencies = [
 
 [[package]]
 name = "rust_lib_whitenoise"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "flutter_rust_bridge",
  "hex",
