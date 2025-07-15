@@ -164,7 +164,6 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
           loading: _isCreatingGroup,
           title: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
         ),
-        Gap(48.h),
       ],
     );
   }

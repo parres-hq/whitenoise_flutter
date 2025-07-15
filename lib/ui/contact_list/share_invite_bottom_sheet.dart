@@ -253,7 +253,6 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
           loading: _isSendingInvite,
           title: _isSendingInvite ? 'Sharing...' : 'Share',
         ),
-        Gap(40.h),
       ],
     );
   }
