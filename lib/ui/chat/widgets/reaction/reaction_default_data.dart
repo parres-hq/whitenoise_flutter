@@ -6,8 +6,8 @@ class DefaultData {
   // the plus icon will be used to add more reactions
   static const List<String> reactions = ['👍', '❤️', '😂', '😮', '😢', '😠', '🔥'];
 
-  // The default list of menuItems
-  static const List<MenuItem> menuItems = [reply, copy, delete];
+  // The default list of menuItems (for other users' messages - no delete option)
+  static const List<MenuItem> menuItems = [reply, copy];
 
   static const List<MenuItem> myMessageMenuItems = [edit, copy, delete];
 

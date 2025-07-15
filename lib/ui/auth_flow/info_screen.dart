@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 
 import '../core/themes/assets.dart';
@@ -19,13 +20,36 @@ class InfoScreen extends ConsumerStatefulWidget {
 class _InfoScreenState extends ConsumerState<InfoScreen> {
   bool _isLoading = false;
 
+  @override
+  void initState() {
+    super.initState();
+    // Start loading account data when the screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(accountProvider.notifier).loadAccountData();
+    });
+  }
+
   Future<void> _onContinuePressed(BuildContext context) async {
     setState(() {
       _isLoading = true;
     });
 
-    // Wait a bit for any background processes to complete
-    await Future.delayed(const Duration(milliseconds: 500));
+    // Wait for account data to be loaded and petname to be available
+    final accountNotifier = ref.read(accountProvider.notifier);
+
+    // Keep loading until we have a displayName (petname)
+    while (true) {
+      await accountNotifier.loadAccountData();
+      final accountState = ref.read(accountProvider);
+
+      if (accountState.metadata?.displayName != null &&
+          accountState.metadata!.displayName!.isNotEmpty) {
+        break;
+      }
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (!mounted) return;
+    }
 
     if (!context.mounted) return;
 
@@ -88,30 +112,37 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
           padding: EdgeInsets.symmetric(
             horizontal: 24.w,
           ).copyWith(bottom: 32.h),
-          child: AppFilledButton.child(
-            loading: _isLoading,
-            onPressed: _isLoading ? null : () => _onContinuePressed(context),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Setup Profile',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.primaryForeground,
-                  ),
+          child: Consumer(
+            builder: (context, ref, child) {
+              final accountState = ref.watch(accountProvider);
+              final isButtonDisabled = _isLoading || accountState.isLoading;
+
+              return AppFilledButton.child(
+                loading: isButtonDisabled,
+                onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Setup Profile',
+                      style: TextStyle(
+                        fontSize: 16.sp,
+                        fontWeight: FontWeight.w600,
+                        color: context.colors.primaryForeground,
+                      ),
+                    ),
+                    Gap(14.w),
+                    SvgPicture.asset(
+                      AssetsPaths.icArrowRight,
+                      colorFilter: ColorFilter.mode(
+                        context.colors.primaryForeground,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ],
                 ),
-                Gap(14.w),
-                SvgPicture.asset(
-                  AssetsPaths.icArrowRight,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.primaryForeground,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ],
-            ),
+              );
+            },
           ),
         ),
       ),
