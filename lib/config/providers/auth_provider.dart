@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
+import 'package:whitenoise/config/utils/error_handler_extension.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
@@ -13,7 +14,7 @@ import 'package:whitenoise/src/rust/api/utils.dart';
 /// Auth Provider
 ///
 /// This provider manages authentication using the new PublicKey-based API.
-class AuthNotifier extends Notifier<AuthState> {
+class AuthNotifier extends Notifier<AuthState> with ErrorHandlerMixin {
   final _logger = Logger('AuthNotifier');
 
   @override
@@ -139,45 +140,40 @@ class AuthNotifier extends Notifier<AuthState> {
 
   /// Login with a private key (nsec or hex)
   Future<void> loginWithKey(String nsecOrPrivkey) async {
-    if (!state.isAuthenticated) {
-      await initialize();
-    }
+    await safeExecute(
+      operation: () async {
+        // Save existing accounts (before login)
+        List<AccountData> existingAccounts = [];
+        try {
+          existingAccounts = await fetchAccounts();
+          _logger.info('Existing accounts before login: ${existingAccounts.length}');
+        } catch (e) {
+          _logger.info('No existing accounts or error fetching: $e');
+        }
 
-    state = state.copyWith(isLoading: true, error: null);
+        /// 1. Perform login using Rust API
+        final account = await login(nsecOrHexPrivkey: nsecOrPrivkey);
+        _logger.info('Login successful, account created');
 
-    try {
-      // Save existing accounts (before login)
-      List<AccountData> existingAccounts = [];
-      try {
-        existingAccounts = await fetchAccounts();
-        _logger.info('Existing accounts before login: ${existingAccounts.length}');
-      } catch (e) {
-        _logger.info('No existing accounts or error fetching: $e');
-      }
+        // Account logged in successfully
 
-      /// 1. Perform login using Rust API
-      final account = await login(nsecOrHexPrivkey: nsecOrPrivkey);
-      _logger.info('Login successful, account created');
+        // Get the logged in account data and set it as active
+        final accountData = await convertAccountToData(account: account);
+        _logger.info('Converting account to data: ${accountData.pubkey}');
 
-      // Account logged in successfully
+        // Set authenticated state first
+        state = state.copyWith(isAuthenticated: true);
 
-      // Get the logged in account data and set it as active
-      final accountData = await convertAccountToData(account: account);
-      _logger.info('Converting account to data: ${accountData.pubkey}');
+        // Then set the active account
+        await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
+        _logger.info('Set active account: ${accountData.pubkey}');
 
-      // Set authenticated state first
-      state = state.copyWith(isAuthenticated: true);
+        // Load account data after login
+        await ref.read(accountProvider.notifier).loadAccountData();
+        _logger.info('Account data loaded');
 
-      // Then set the active account
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
-      _logger.info('Set active account: ${accountData.pubkey}');
+        // Check account count after login
 
-      // Load account data after login
-      await ref.read(accountProvider.notifier).loadAccountData();
-      _logger.info('Account data loaded');
-
-      // Check account count after login
-      try {
         final accountsAfterLogin = await fetchAccounts();
         _logger.info('Accounts after login: ${accountsAfterLogin.length}');
 
@@ -190,35 +186,15 @@ class AuthNotifier extends Notifier<AuthState> {
             accountsAfterLogin.length < existingAccounts.length + 1) {
           _logger.warning('Some existing accounts may have been lost during login');
         }
-      } catch (e) {
-        _logger.warning('Error checking accounts after login: $e');
-      }
-    } catch (e, st) {
-      String errorMessage;
-
-      // Check if it's a WhitenoiseError and convert it to a readable message
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-          if (errorMessage.contains('InvalidSecretKey')) {
-            errorMessage = 'Invalid nsec or private key';
-          }
-        } catch (conversionError) {
-          // Fallback if conversion fails
-          errorMessage = 'Invalid nsec or private key';
-        }
-        // Log the user-friendly error message for WhitenoiseError instead of the raw exception
-        _logger.warning('loginWithKey failed: $errorMessage');
-      } else {
-        errorMessage = e.toString();
-        // Log unexpected errors as severe with full stack trace
-        _logger.severe('loginWithKey unexpected error', e, st);
-      }
-
-      state = state.copyWith(error: errorMessage);
-    } finally {
-      state = state.copyWith(isLoading: false);
-    }
+      },
+      updateState:
+          (state, {String? error, bool? isLoading}) => state.copyWith(
+            error: error,
+            isLoading: isLoading ?? state.isLoading,
+          ),
+      logger: _logger,
+      operationName: 'loginWithKey',
+    );
   }
 
   /// Login with a private key in background without showing loading state

@@ -111,6 +111,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
   Widget build(BuildContext context) {
     ref.watch(authProvider);
 
+    ref.listen(authProvider.select((value) => value.error), (previous, next) {
+      if (next != null) {
+        ref.showErrorToast(next);
+      }
+    });
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: context.colors.neutral,
