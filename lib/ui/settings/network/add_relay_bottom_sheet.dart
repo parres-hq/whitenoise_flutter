@@ -6,7 +6,6 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
@@ -110,7 +109,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
           style: TextStyle(
             fontSize: 14.sp,
             fontWeight: FontWeight.w500,
-            color: AppColors.glitch900,
+            color: context.colors.primaryForeground,
           ),
         ),
         Gap(8.h),
@@ -136,7 +135,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
             'Invalid format: must start with wss://',
             style: TextStyle(
               fontSize: 14.sp,
-              color:context.colors.destructive,
+              color: context.colors.destructive,
             ),
           ),
           Gap(8.h),
