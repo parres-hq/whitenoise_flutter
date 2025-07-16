@@ -83,7 +83,7 @@ class ChatListItemTile extends ConsumerWidget {
     return InkWell(
       onTap: () => Routes.goToChat(context, group.mlsGroupId),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        padding: EdgeInsets.only(left: 8.w, right: 16.w, top: 8.h, bottom: 8.h),
         child: Row(
           children: [
             ContactAvatar(
