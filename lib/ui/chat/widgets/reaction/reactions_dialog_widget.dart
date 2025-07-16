@@ -187,10 +187,10 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       spacing: 6.w,
       children: [
-        Gap(24.w),
+        Gap(12.w),
         for (var reaction in widget.reactions) _buildReactionItem(reaction),
         _buildAddReactionButton(),
-        Gap(24.w),
+        Gap(12.w),
       ],
     );
   }
