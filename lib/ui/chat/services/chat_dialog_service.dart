@@ -31,8 +31,47 @@ class ChatDialogService {
             ),
           ),
           child: EmojiPicker(
-            config: const Config(
-              bottomActionBarConfig: BottomActionBarConfig(enabled: false),
+            config: Config(
+              bottomActionBarConfig: const BottomActionBarConfig(enabled: false),
+              emojiViewConfig: EmojiViewConfig(
+                backgroundColor: context.colors.primaryForeground,
+                columns: 7,
+                emojiSizeMax: 32.0,
+                verticalSpacing: 0,
+                horizontalSpacing: 0,
+                gridPadding: EdgeInsets.zero,
+                recentsLimit: 28,
+                noRecents: Text(
+                  'No Recents',
+                  style: TextStyle(
+                    fontSize: 20,
+                    color: context.colors.mutedForeground,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                loadingIndicator: SizedBox.square(
+                  dimension: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: context.colors.primary,
+                  ),
+                ),
+              ),
+              categoryViewConfig: CategoryViewConfig(
+                backgroundColor: context.colors.primaryForeground,
+                iconColor: context.colors.mutedForeground,
+                iconColorSelected: context.colors.primary,
+                indicatorColor: context.colors.primary,
+                backspaceColor: context.colors.mutedForeground,
+                categoryIcons: const CategoryIcons(),
+              ),
+              searchViewConfig: SearchViewConfig(
+                backgroundColor: context.colors.primaryForeground,
+                hintText: 'Search emoji',
+                hintTextStyle: TextStyle(
+                  color: context.colors.mutedForeground,
+                ),
+              ),
             ),
             onEmojiSelected: ((category, emoji) {
               Navigator.pop(context);
