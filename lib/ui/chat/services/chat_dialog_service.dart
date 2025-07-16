@@ -37,10 +37,6 @@ class ChatDialogService {
                 backgroundColor: context.colors.primaryForeground,
                 columns: 7,
                 emojiSizeMax: 32.0,
-                verticalSpacing: 0,
-                horizontalSpacing: 0,
-                gridPadding: EdgeInsets.zero,
-                recentsLimit: 28,
                 noRecents: Text(
                   'No Recents',
                   style: TextStyle(
@@ -63,7 +59,6 @@ class ChatDialogService {
                 iconColorSelected: context.colors.primary,
                 indicatorColor: context.colors.primary,
                 backspaceColor: context.colors.mutedForeground,
-                categoryIcons: const CategoryIcons(),
               ),
               searchViewConfig: SearchViewConfig(
                 backgroundColor: context.colors.primaryForeground,
