@@ -376,22 +376,60 @@ class ChatNotifier extends Notifier<ChatState> {
       );
 
       final currentMessages = state.groupMessages[groupId] ?? [];
-      if (newMessages.length > currentMessages.length) {
-        final newMessagesOnly = newMessages.skip(currentMessages.length).toList();
 
-        state = state.copyWith(
-          groupMessages: {
-            ...state.groupMessages,
-            groupId: [...currentMessages, ...newMessagesOnly],
-          },
-        );
+      // Check for changes beyond just message count (reactions, edits, etc.)
+      bool hasChanges = false;
 
-        // Update group order when new messages are received
+      if (newMessages.length != currentMessages.length) {
+        // New or deleted messages
+        hasChanges = true;
+      } else if (newMessages.isNotEmpty && currentMessages.isNotEmpty) {
+        // Check if any message content or reactions have changed
+        for (int i = 0; i < newMessages.length; i++) {
+          final newMsg = newMessages[i];
+          final currentMsg = currentMessages[i];
+
+          // Compare message content and reactions
+          if (newMsg.content != currentMsg.content ||
+              newMsg.reactions.length != currentMsg.reactions.length ||
+              !_areReactionsEqual(newMsg.reactions, currentMsg.reactions)) {
+            hasChanges = true;
+            break;
+          }
+        }
+      }
+
+      if (hasChanges) {
+        if (newMessages.length > currentMessages.length) {
+          // Add only new messages to preserve performance
+          final newMessagesOnly = newMessages.skip(currentMessages.length).toList();
+
+          state = state.copyWith(
+            groupMessages: {
+              ...state.groupMessages,
+              groupId: [...currentMessages, ...newMessagesOnly],
+            },
+          );
+
+          _logger.info(
+            'ChatProvider: Added ${newMessagesOnly.length} new messages for group $groupId',
+          );
+        } else {
+          // Replace all messages when there are content changes (reactions, edits, etc.)
+          state = state.copyWith(
+            groupMessages: {
+              ...state.groupMessages,
+              groupId: newMessages,
+            },
+          );
+
+          _logger.info(
+            'ChatProvider: Updated messages with content changes for group $groupId',
+          );
+        }
+
+        // Update group order when messages are updated
         _updateGroupOrderForNewMessage(groupId);
-
-        _logger.info(
-          'ChatProvider: Added ${newMessagesOnly.length} new messages for group $groupId',
-        );
       }
     } catch (e, st) {
       _logger.severe('ChatProvider.checkForNewMessages', e, st);
@@ -836,6 +874,51 @@ class ChatNotifier extends Notifier<ChatState> {
     final now = DateTime.now();
 
     ref.read(groupsProvider.notifier).updateGroupActivityTime(groupId, now);
+  }
+
+  /// Helper method to compare if two reaction lists are equal
+  bool _areReactionsEqual(List<Reaction> reactions1, List<Reaction> reactions2) {
+    if (reactions1.length != reactions2.length) {
+      return false;
+    }
+
+    // Create maps of emoji -> list of user public keys for comparison
+    final map1 = <String, List<String>>{};
+    final map2 = <String, List<String>>{};
+
+    for (final reaction in reactions1) {
+      map1.putIfAbsent(reaction.emoji, () => []).add(reaction.user.publicKey);
+    }
+
+    for (final reaction in reactions2) {
+      map2.putIfAbsent(reaction.emoji, () => []).add(reaction.user.publicKey);
+    }
+
+    // Compare the maps
+    if (map1.keys.length != map2.keys.length) {
+      return false;
+    }
+
+    for (final emoji in map1.keys) {
+      if (!map2.containsKey(emoji)) {
+        return false;
+      }
+
+      final users1 = map1[emoji]!..sort();
+      final users2 = map2[emoji]!..sort();
+
+      if (users1.length != users2.length) {
+        return false;
+      }
+
+      for (int i = 0; i < users1.length; i++) {
+        if (users1[i] != users2[i]) {
+          return false;
+        }
+      }
+    }
+
+    return true;
   }
 }
 
