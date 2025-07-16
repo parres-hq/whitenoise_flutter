@@ -67,7 +67,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
   final _logger = Logger('StartSecureChatBottomSheet');
   bool _isCreatingGroup = false;
 
-  Future<void> _createDirectMessageGroup() async {
+  Future<void> _createOrOpenDirectMessageGroup() async {
     setState(() {
       _isCreatingGroup = true;
     });
@@ -160,7 +160,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
           ),
         ),
         AppFilledButton(
-          onPressed: _isCreatingGroup ? null : _createDirectMessageGroup,
+          onPressed: _isCreatingGroup ? null : _createOrOpenDirectMessageGroup,
           loading: _isCreatingGroup,
           title: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
         ),

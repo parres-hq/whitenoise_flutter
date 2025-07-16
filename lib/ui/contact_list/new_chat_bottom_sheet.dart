@@ -21,6 +21,7 @@ import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
+import 'package:whitenoise/ui/core/ui/bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
@@ -395,59 +396,18 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     }
 
     // PERFORMANCE: For large contact lists, use virtualized ListView to fill available space
-    if (filteredContacts.length > 15) {
-      return SizedBox(
-        height: availableHeight, // Fill all available space
-        child: ListView.separated(
-          padding: EdgeInsets.only(bottom: 20.h),
-          itemCount: filteredContacts.length,
-          separatorBuilder: (context, index) => SizedBox(height: 4.h),
-          itemBuilder: (context, index) {
-            final contact = filteredContacts[index];
-            return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: ContactListTile(
-                contact: contact,
-                enableSwipeToDelete: true,
-                onTap: () => _handleContactTap(contact),
-                onDelete: () async {
-                  try {
-                    final realPublicKey = ref
-                        .read(contactsProvider.notifier)
-                        .getPublicKeyForContact(contact.publicKey);
-                    if (realPublicKey != null) {
-                      await ref
-                          .read(contactsProvider.notifier)
-                          .removeContactByPublicKey(realPublicKey);
-                      if (context.mounted) {
-                        ref.showSuccessToast('Contact removed successfully');
-                      }
-                    }
-                  } catch (e) {
-                    if (context.mounted) {
-                      ref.showErrorToast('Failed to remove contact: $e');
-                    }
-                  }
-                },
-              ),
-            );
-          },
-        ),
-      );
-    }
-
-    // For smaller lists, use Column for simplicity but still fill available space
     return SizedBox(
-      height: availableHeight,
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Build contacts list for smaller lists
-            ...filteredContacts.map(
-              (contact) => Padding(
-                padding: EdgeInsets.symmetric(vertical: 2.h),
-                child: ContactListTile(
+      height: availableHeight, // Use available space
+      child: Column(
+        children: [
+          Expanded(
+            child: ListView.separated(
+              padding: EdgeInsets.only(bottom: 20.h),
+              itemCount: filteredContacts.length,
+              separatorBuilder: (context, index) => SizedBox(height: 4.h),
+              itemBuilder: (context, index) {
+                final contact = filteredContacts[index];
+                return ContactListTile(
                   contact: contact,
                   enableSwipeToDelete: true,
                   onTap: () => _handleContactTap(contact),
@@ -470,13 +430,11 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                       }
                     }
                   },
-                ),
-              ),
+                );
+              },
             ),
-            // Add bottom padding
-            Gap(20.h),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -654,6 +612,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                     },
                   ),
         ),
+        const BottomFade(),
       ],
     );
   }

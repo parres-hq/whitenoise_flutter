@@ -6,6 +6,7 @@ import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
@@ -68,45 +69,10 @@ class ContactListTile extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 8.h),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadius.circular(30.r),
-              child: Container(
-                width: 56.w,
-                height: 56.w,
-                decoration: BoxDecoration(
-                  color: context.colors.warning,
-                  borderRadius: BorderRadius.circular(30.r),
-                ),
-                child:
-                    contact.imagePath != null && contact.imagePath!.isNotEmpty
-                        ? Image.network(
-                          contact.imagePath!,
-                          width: 56.w,
-                          height: 56.w,
-                          fit: BoxFit.cover,
-                          errorBuilder:
-                              (context, error, stackTrace) => Center(
-                                child: Text(
-                                  contact.avatarLetter,
-                                  style: TextStyle(
-                                    color: context.colors.neutral,
-                                    fontSize: 20.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                        )
-                        : Center(
-                          child: Text(
-                            contact.avatarLetter,
-                            style: TextStyle(
-                              color: context.colors.neutral,
-                              fontSize: 20.sp,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-              ),
+            ContactAvatar(
+              imageUrl: contact.imagePath ?? '',
+              displayName: contact.displayNameOrName,
+              size: 56.w,
             ),
             Gap(12.w),
             Expanded(
