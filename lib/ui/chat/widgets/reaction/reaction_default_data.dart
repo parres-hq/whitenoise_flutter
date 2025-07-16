@@ -17,7 +17,7 @@ class DefaultData {
   // The default list of menuItems (for other users' messages - no delete option)
   static const List<MenuItem> menuItems = [reply, copy];
 
-  static const List<MenuItem> myMessageMenuItems = [edit, copy, delete];
+  static const List<MenuItem> myMessageMenuItems = [reply, edit, copy, delete];
 
   static const MenuItem reply = MenuItem(
     label: 'Reply',
