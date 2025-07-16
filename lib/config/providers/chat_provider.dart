@@ -582,8 +582,6 @@ class ChatNotifier extends Notifier<ChatState> {
       _logger.info('ChatProvider: Adding reaction "$reaction" to message ${message.id}');
 
       // Create reaction content (emoji) - NIP-25 compliant
-      // Content MUST include user-generated-content indicating the value of the reaction
-      // (conventionally +, -, or an emoji)
       final reactionContent = reaction; // This should be an emoji like 👍, ❤️, etc.
 
       // Use the message's actual kind (now stored in MessageModel)
@@ -620,7 +618,7 @@ class ChatNotifier extends Notifier<ChatState> {
     } catch (e, st) {
       _logger.severe('ChatProvider.updateMessageReaction', e, st);
 
-      String errorMessage = 'Failed to add reaction';
+      String errorMessage = 'Failed to update reaction';
       if (e is WhitenoiseError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
