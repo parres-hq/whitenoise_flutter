@@ -53,7 +53,7 @@ class AppSettingsScreen extends ConsumerWidget {
                     child: Text(
                       'Delete',
                       style: AppButtonSize.small.textStyle().copyWith(
-                        color: Colors.white,
+                        color: context.colors.solidNeutralWhite,
                       ),
                     ),
                   ),
@@ -266,14 +266,14 @@ class AppSettingsScreen extends ConsumerWidget {
                                 Text(
                                   'Delete All Data',
                                   style: AppButtonSize.large.textStyle().copyWith(
-                                    color: Colors.white,
+                                    color: context.colors.solidNeutralWhite,
                                   ),
                                 ),
                                 Gap(8.w),
                                 Icon(
                                   CarbonIcons.trash_can,
                                   size: 20.w,
-                                  color: Colors.white,
+                                  color: context.colors.solidNeutralWhite,
                                 ),
                               ],
                             ),

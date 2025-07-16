@@ -192,12 +192,9 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
               ),
             ),
             Gap(4.h),
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: AppFilledButton(
-                title: 'Connect Another Profile',
-                onPressed: _handleConnectAnotherProfile,
-              ),
+            AppFilledButton(
+              title: 'Connect Another Profile',
+              onPressed: _handleConnectAnotherProfile,
             ),
             Gap(16.h),
           ],

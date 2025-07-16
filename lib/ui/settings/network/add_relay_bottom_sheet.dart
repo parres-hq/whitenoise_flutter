@@ -7,6 +7,7 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
@@ -135,7 +136,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
             'Invalid format: must start with wss://',
             style: TextStyle(
               fontSize: 14.sp,
-              color: AppColors.colorDC2626,
+              color:context.colors.destructive,
             ),
           ),
           Gap(8.h),
