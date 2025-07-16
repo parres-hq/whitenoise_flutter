@@ -47,7 +47,9 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
 
     try {
       final authState = ref.read(authProvider);
-      _logger.info('RelayStatusNotifier: Auth state - isAuthenticated: ${authState.isAuthenticated}');
+      _logger.info(
+        'RelayStatusNotifier: Auth state - isAuthenticated: ${authState.isAuthenticated}',
+      );
       if (!authState.isAuthenticated) {
         _logger.warning('RelayStatusNotifier: Not authenticated');
         state = state.copyWith(
@@ -70,7 +72,9 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
       // Convert pubkey string to PublicKey object
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
 
-      _logger.info('RelayStatusNotifier: Fetching relay statuses for pubkey: ${activeAccountData.pubkey}');
+      _logger.info(
+        'RelayStatusNotifier: Fetching relay statuses for pubkey: ${activeAccountData.pubkey}',
+      );
       // Fetch relay statuses using the Rust function
       final relayStatuses = await fetchRelayStatus(pubkey: publicKey);
       _logger.info('RelayStatusNotifier: Fetched ${relayStatuses.length} relay statuses');

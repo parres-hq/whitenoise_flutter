@@ -35,7 +35,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
   Future<void> _refreshData() async {
     try {
       print('NetworkScreen: Starting to refresh relay data');
-      
+
       // First refresh the relay status provider
       print('NetworkScreen: Loading relay statuses');
       await ref.read(relayStatusProvider.notifier).loadRelayStatuses();
@@ -47,7 +47,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
         ref.read(inboxRelaysProvider.notifier).loadRelays(),
         ref.read(keyPackageRelaysProvider.notifier).loadRelays(),
       ]);
-      
+
       print('NetworkScreen: Successfully refreshed all relay data');
     } catch (e, stackTrace) {
       print('NetworkScreen: Error refreshing relay data: $e');

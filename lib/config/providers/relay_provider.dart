@@ -49,7 +49,9 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
     try {
       final authState = ref.read(authProvider);
-      _logger.info('NormalRelaysNotifier: Auth state - isAuthenticated: ${authState.isAuthenticated}');
+      _logger.info(
+        'NormalRelaysNotifier: Auth state - isAuthenticated: ${authState.isAuthenticated}',
+      );
       if (!authState.isAuthenticated) {
         _logger.warning('NormalRelaysNotifier: Not authenticated');
         state = state.copyWith(
@@ -219,7 +221,9 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
     try {
       final authState = ref.read(authProvider);
-      _logger.info('InboxRelaysNotifier: Auth state - isAuthenticated: ${authState.isAuthenticated}');
+      _logger.info(
+        'InboxRelaysNotifier: Auth state - isAuthenticated: ${authState.isAuthenticated}',
+      );
       if (!authState.isAuthenticated) {
         _logger.warning('InboxRelaysNotifier: Not authenticated');
         state = state.copyWith(
@@ -389,7 +393,9 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
     try {
       final authState = ref.read(authProvider);
-      _logger.info('KeyPackageRelaysNotifier: Auth state - isAuthenticated: ${authState.isAuthenticated}');
+      _logger.info(
+        'KeyPackageRelaysNotifier: Auth state - isAuthenticated: ${authState.isAuthenticated}',
+      );
       if (!authState.isAuthenticated) {
         _logger.warning('KeyPackageRelaysNotifier: Not authenticated');
         state = state.copyWith(
@@ -413,7 +419,9 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeKeyPackage();
 
-      _logger.info('KeyPackageRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}');
+      _logger.info(
+        'KeyPackageRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}',
+      );
       final relayUrls = await fetchRelays(
         pubkey: publicKey,
         relayType: relayType,
@@ -438,7 +446,9 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
           final statusNotifier = ref.read(relayStatusProvider.notifier);
           final status = statusNotifier.getRelayStatus(url);
           final connected = statusNotifier.isRelayConnected(url);
-          _logger.info('KeyPackageRelaysNotifier: Relay $url - status: $status, connected: $connected');
+          _logger.info(
+            'KeyPackageRelaysNotifier: Relay $url - status: $status, connected: $connected',
+          );
           return RelayInfo(url: url, connected: connected, status: status);
         }),
       );
