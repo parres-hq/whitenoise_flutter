@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
+import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 
 class RelayInfoDialog {
   static void show(BuildContext context, String title, String content) {
@@ -16,7 +15,7 @@ class RelayInfoDialog {
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
-                color: AppColors.black,
+                color: context.colors.solidNeutralBlack,
               ),
             ),
             content: Column(
@@ -25,7 +24,10 @@ class RelayInfoDialog {
               children: [
                 Text(
                   content,
-                  style: TextStyle(fontSize: 16.sp, color: AppColors.glitch600),
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    color: context.colors.primaryForeground,
+                  ),
                 ),
               ],
             ),
@@ -36,7 +38,7 @@ class RelayInfoDialog {
                   'OK',
                   style: TextStyle(
                     fontSize: 16.sp,
-                    color: AppColors.glitch950,
+                    color: context.colors.primary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),

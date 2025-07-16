@@ -158,6 +158,36 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
+  /// Find an existing direct message group between the current user and another user
+  Future<GroupData?> _findExistingDirectMessage(String otherUserPubkeyHex) async {
+    try {
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) return null;
+
+      final currentUserNpub = await npubFromHexPubkey(hexPubkey: activeAccountData.pubkey);
+      final otherUserNpub = await npubFromHexPubkey(hexPubkey: otherUserPubkeyHex);
+
+      final directMessageGroups = getDirectMessageGroups();
+
+      for (final group in directMessageGroups) {
+        final members = getGroupMembers(group.mlsGroupId);
+        if (members != null && members.length == 2) {
+          final memberPubkeys = members.map((m) => m.publicKey).toSet();
+          if (memberPubkeys.contains(currentUserNpub) && memberPubkeys.contains(otherUserNpub)) {
+            _logger.info('Found existing DM group: ${group.mlsGroupId}');
+            return group;
+          }
+        }
+      }
+
+      return null;
+    } catch (e) {
+      _logger.warning('Error finding existing DM: $e');
+      return null;
+    }
+  }
+
   Future<GroupData?> createNewGroup({
     required String groupName,
     required String groupDescription,
@@ -178,6 +208,18 @@ class GroupsNotifier extends Notifier<GroupsState> {
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return null;
+      }
+
+      // Check if this is a direct message (2 members only: current user + 1 other)
+      if (memberPublicKeyHexs.length == 1) {
+        final otherUserPubkeyHex = memberPublicKeyHexs.first.trim();
+        final existingDM = await _findExistingDirectMessage(otherUserPubkeyHex);
+
+        if (existingDM != null) {
+          _logger.info('Returning existing DM group: ${existingDM.mlsGroupId}');
+          state = state.copyWith(isLoading: false);
+          return existingDM;
+        }
       }
 
       final creatorPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);

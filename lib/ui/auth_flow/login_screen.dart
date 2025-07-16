@@ -198,19 +198,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                       Consumer(
                         builder: (context, ref, child) {
                           final authState = ref.watch(authProvider);
-                          return authState.isLoading
-                              ? SizedBox(
-                                height: 56.h,
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    color: context.colors.primary,
-                                  ),
-                                ),
-                              )
-                              : AppFilledButton(
-                                onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
-                                title: 'Login',
-                              );
+                          return AppFilledButton(
+                            loading: authState.isLoading,
+                            onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
+                            title: 'Login',
+                          );
                         },
                       ),
                       Gap(16.h),

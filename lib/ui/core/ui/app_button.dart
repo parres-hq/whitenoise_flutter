@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 part 'app_filled_button.dart';
@@ -88,7 +87,6 @@ enum AppButtonVisualState {
 
   Color disabledForegroundColor(BuildContext context) {
     final colors = context.colors;
-    AppColors.glitch50;
     return switch (this) {
       AppButtonVisualState.error => colors.primaryForeground,
       AppButtonVisualState.success => colors.primaryForeground,
