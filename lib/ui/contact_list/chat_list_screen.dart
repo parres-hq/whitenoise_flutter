@@ -210,6 +210,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
             : chatItems.where((item) {
               final searchLower = _searchQuery.toLowerCase();
               return item.displayName.toLowerCase().contains(searchLower) ||
+                  item.subtitle.toLowerCase().contains(searchLower) ||
                   (item.lastMessage?.content?.toLowerCase().contains(searchLower) ?? false);
             }).toList();
 
