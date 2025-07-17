@@ -38,16 +38,22 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   @override
   RelayState build() {
+    // Initialize with loading state and trigger load
     Future.microtask(() => loadRelays());
-    return const RelayState();
+    return const RelayState(isLoading: true);
   }
 
   Future<void> loadRelays() async {
+    _logger.info('NormalRelaysNotifier: Starting to load relays');
     state = state.copyWith(isLoading: true);
 
     try {
       final authState = ref.read(authProvider);
+      _logger.info(
+        'NormalRelaysNotifier: Auth state - isAuthenticated: ${authState.isAuthenticated}',
+      );
       if (!authState.isAuthenticated) {
+        _logger.warning('NormalRelaysNotifier: Not authenticated');
         state = state.copyWith(
           isLoading: false,
           error: 'Not authenticated',
@@ -58,7 +64,9 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       // Get the active account data directly
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      _logger.info('NormalRelaysNotifier: Active account data: ${activeAccountData?.pubkey}');
       if (activeAccountData == null) {
+        _logger.warning('NormalRelaysNotifier: No active account found');
         state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
@@ -67,14 +75,28 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeNostr();
 
+      _logger.info('NormalRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}');
       final relayUrls = await fetchRelays(
         pubkey: publicKey,
         relayType: relayType,
       );
+      _logger.info('NormalRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
+
+      // If no relays found, log this information
+      if (relayUrls.isEmpty) {
+        _logger.warning('NormalRelaysNotifier: No relays found for user.');
+        state = state.copyWith(
+          relays: [],
+          isLoading: false,
+          error: null, // Clear any previous errors
+        );
+        return;
+      }
 
       // Ensure relay status provider is loaded first
       final statusState = ref.read(relayStatusProvider);
       if (statusState.relayStatuses.isEmpty && !statusState.isLoading) {
+        _logger.info('NormalRelaysNotifier: Loading relay statuses first');
         await ref.read(relayStatusProvider.notifier).loadRelayStatuses();
       }
 
@@ -85,12 +107,15 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
           final statusNotifier = ref.read(relayStatusProvider.notifier);
           final status = statusNotifier.getRelayStatus(url);
           final connected = statusNotifier.isRelayConnected(url);
+          _logger.info('NormalRelaysNotifier: Relay $url - status: $status, connected: $connected');
           return RelayInfo(url: url, connected: connected, status: status);
         }),
       );
 
-      state = state.copyWith(relays: relayInfos, isLoading: false);
-    } catch (e) {
+      _logger.info('NormalRelaysNotifier: Successfully loaded ${relayInfos.length} relays');
+      state = state.copyWith(relays: relayInfos, isLoading: false, error: null);
+    } catch (e, stackTrace) {
+      _logger.severe('NormalRelaysNotifier: Error loading relays: $e', e, stackTrace);
       state = state.copyWith(
         isLoading: false,
         error: 'Error loading relays: $e',
@@ -185,16 +210,22 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   @override
   RelayState build() {
+    // Initialize with loading state and trigger load
     Future.microtask(() => loadRelays());
-    return const RelayState();
+    return const RelayState(isLoading: true);
   }
 
   Future<void> loadRelays() async {
+    _logger.info('InboxRelaysNotifier: Starting to load relays');
     state = state.copyWith(isLoading: true);
 
     try {
       final authState = ref.read(authProvider);
+      _logger.info(
+        'InboxRelaysNotifier: Auth state - isAuthenticated: ${authState.isAuthenticated}',
+      );
       if (!authState.isAuthenticated) {
+        _logger.warning('InboxRelaysNotifier: Not authenticated');
         state = state.copyWith(
           isLoading: false,
           error: 'Not authenticated',
@@ -205,7 +236,9 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       // Get the active account data directly
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      _logger.info('InboxRelaysNotifier: Active account data: ${activeAccountData?.pubkey}');
       if (activeAccountData == null) {
+        _logger.warning('InboxRelaysNotifier: No active account found');
         state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
@@ -214,14 +247,28 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeInbox();
 
+      _logger.info('InboxRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}');
       final relayUrls = await fetchRelays(
         pubkey: publicKey,
         relayType: relayType,
       );
+      _logger.info('InboxRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
+
+      // If no relays found, log this information
+      if (relayUrls.isEmpty) {
+        _logger.warning('InboxRelaysNotifier: No inbox relays found for user.');
+        state = state.copyWith(
+          relays: [],
+          isLoading: false,
+          error: null, // Clear any previous errors
+        );
+        return;
+      }
 
       // Ensure relay status provider is loaded first
       final statusState = ref.read(relayStatusProvider);
       if (statusState.relayStatuses.isEmpty && !statusState.isLoading) {
+        _logger.info('InboxRelaysNotifier: Loading relay statuses first');
         await ref.read(relayStatusProvider.notifier).loadRelayStatuses();
       }
 
@@ -232,12 +279,15 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
           final statusNotifier = ref.read(relayStatusProvider.notifier);
           final status = statusNotifier.getRelayStatus(url);
           final connected = statusNotifier.isRelayConnected(url);
+          _logger.info('InboxRelaysNotifier: Relay $url - status: $status, connected: $connected');
           return RelayInfo(url: url, connected: connected, status: status);
         }),
       );
 
-      state = state.copyWith(relays: relayInfos, isLoading: false);
-    } catch (e) {
+      _logger.info('InboxRelaysNotifier: Successfully loaded ${relayInfos.length} relays');
+      state = state.copyWith(relays: relayInfos, isLoading: false, error: null);
+    } catch (e, stackTrace) {
+      _logger.severe('InboxRelaysNotifier: Error loading relays: $e', e, stackTrace);
       state = state.copyWith(
         isLoading: false,
         error: 'Error loading relays: $e',
@@ -332,16 +382,22 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   @override
   RelayState build() {
+    // Initialize with loading state and trigger load
     Future.microtask(() => loadRelays());
-    return const RelayState();
+    return const RelayState(isLoading: true);
   }
 
   Future<void> loadRelays() async {
+    _logger.info('KeyPackageRelaysNotifier: Starting to load relays');
     state = state.copyWith(isLoading: true);
 
     try {
       final authState = ref.read(authProvider);
+      _logger.info(
+        'KeyPackageRelaysNotifier: Auth state - isAuthenticated: ${authState.isAuthenticated}',
+      );
       if (!authState.isAuthenticated) {
+        _logger.warning('KeyPackageRelaysNotifier: Not authenticated');
         state = state.copyWith(
           isLoading: false,
           error: 'Not authenticated',
@@ -352,7 +408,9 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       // Get the active account data directly
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      _logger.info('KeyPackageRelaysNotifier: Active account data: ${activeAccountData?.pubkey}');
       if (activeAccountData == null) {
+        _logger.warning('KeyPackageRelaysNotifier: No active account found');
         state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
@@ -361,10 +419,25 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeKeyPackage();
 
+      _logger.info(
+        'KeyPackageRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}',
+      );
       final relayUrls = await fetchRelays(
         pubkey: publicKey,
         relayType: relayType,
       );
+      _logger.info('KeyPackageRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
+
+      // If no relays found, log this information
+      if (relayUrls.isEmpty) {
+        _logger.warning('KeyPackageRelaysNotifier: No key package relays found for user.');
+        state = state.copyWith(
+          relays: [],
+          isLoading: false,
+          error: null, // Clear any previous errors
+        );
+        return;
+      }
 
       final relayInfos = await Future.wait(
         relayUrls.map((relayUrl) async {
@@ -373,12 +446,17 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
           final statusNotifier = ref.read(relayStatusProvider.notifier);
           final status = statusNotifier.getRelayStatus(url);
           final connected = statusNotifier.isRelayConnected(url);
+          _logger.info(
+            'KeyPackageRelaysNotifier: Relay $url - status: $status, connected: $connected',
+          );
           return RelayInfo(url: url, connected: connected, status: status);
         }),
       );
 
-      state = state.copyWith(relays: relayInfos, isLoading: false);
-    } catch (e) {
+      _logger.info('KeyPackageRelaysNotifier: Successfully loaded ${relayInfos.length} relays');
+      state = state.copyWith(relays: relayInfos, isLoading: false, error: null);
+    } catch (e, stackTrace) {
+      _logger.severe('KeyPackageRelaysNotifier: Error loading relays: $e', e, stackTrace);
       state = state.copyWith(
         isLoading: false,
         error: 'Error loading relays: $e',
