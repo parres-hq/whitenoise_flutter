@@ -21,10 +21,11 @@ class ChatListItemTile extends ConsumerWidget {
   const ChatListItemTile({
     super.key,
     required this.item,
+    this.onTap,
   });
 
   final ChatListItem item;
-
+  final VoidCallback? onTap;
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     switch (item.type) {
@@ -81,7 +82,12 @@ class ChatListItemTile extends ConsumerWidget {
     GroupData group,
   ) {
     return InkWell(
-      onTap: () => Routes.goToChat(context, group.mlsGroupId),
+      onTap: () {
+        if (onTap != null) {
+          onTap!();
+        }
+        Routes.goToChat(context, group.mlsGroupId);
+      },
       child: Padding(
         padding: EdgeInsets.only(left: 8.w, right: 16.w, top: 8.h, bottom: 8.h),
         child: Row(
