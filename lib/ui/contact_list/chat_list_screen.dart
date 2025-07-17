@@ -37,7 +37,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
   late final PollingNotifier _pollingNotifier;
   bool _isSearchVisible = false;
   final TextEditingController _searchController = TextEditingController();
-  FocusNode _searchFocusNode = FocusNode();
+  final FocusNode _searchFocusNode = FocusNode();
   String _searchQuery = '';
   final ScrollController _scrollController = ScrollController();
   bool _isLoadingData = false;
