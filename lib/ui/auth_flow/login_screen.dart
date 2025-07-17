@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
+import 'package:whitenoise/ui/auth_flow/qr_scanner_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -107,6 +109,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     }
   }
 
+  Future<void> _scanQRCode() async {
+    final scannedCode = await QRScannerBottomSheet.show(context);
+    if (scannedCode != null && scannedCode.isNotEmpty) {
+      _keyController.text = scannedCode;
+      setState(() {});
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.watch(authProvider);
@@ -173,6 +183,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                               type: FieldType.password,
                               controller: _keyController,
                               focusNode: _focusNode,
+                              decoration: InputDecoration(
+                                suffixIcon: GestureDetector(
+                                  onTap: _scanQRCode,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(12.w),
+                                    child: SvgPicture.asset(
+                                      AssetsPaths.icScan,
+                                      width: 16.w,
+                                      height: 16.w,
+                                      colorFilter: ColorFilter.mode(
+                                        context.colors.primary,
+                                        BlendMode.srcIn,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                           Gap(4.w),
