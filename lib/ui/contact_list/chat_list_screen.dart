@@ -37,6 +37,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
   late final PollingNotifier _pollingNotifier;
   bool _isSearchVisible = false;
   final TextEditingController _searchController = TextEditingController();
+  FocusNode _searchFocusNode = FocusNode();
   String _searchQuery = '';
   final ScrollController _scrollController = ScrollController();
   bool _isLoadingData = false;
@@ -212,149 +213,174 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                   (item.lastMessage?.content?.toLowerCase().contains(searchLower) ?? false);
             }).toList();
 
-    return Scaffold(
-      body: Stack(
-        children: [
-          CustomScrollView(
-            controller: _scrollController,
-            physics: const AlwaysScrollableScrollPhysics(),
-            slivers: [
-              CustomAppBar.sliver(
-                title: Padding(
-                  padding: EdgeInsets.only(left: 16.w),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(16.r),
-                    onTap: () => context.push(Routes.settings),
-                    child: ProfileAvatar(
-                      profileImageUrl: profileImagePath,
-                      userFirstLetter: userFirstLetter,
+    return GestureDetector(
+      onTap: () {
+        if (_searchFocusNode.hasFocus) {
+          _searchFocusNode.unfocus();
+        }
+      },
+      child: Scaffold(
+        body: Stack(
+          children: [
+            CustomScrollView(
+              controller: _scrollController,
+              physics: const AlwaysScrollableScrollPhysics(),
+              slivers: [
+                CustomAppBar.sliver(
+                  title: Padding(
+                    padding: EdgeInsets.only(left: 16.w),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16.r),
+                      onTap: () {
+                        if (_searchFocusNode.hasFocus) {
+                          _searchFocusNode.unfocus();
+                        }
+                        context.push(Routes.settings);
+                      },
+                      child: ProfileAvatar(
+                        profileImageUrl: profileImagePath,
+                        userFirstLetter: userFirstLetter,
+                      ),
                     ),
                   ),
+                  actions: [
+                    IconButton(
+                      onPressed: () {
+                        if (_searchFocusNode.hasFocus) {
+                          _searchFocusNode.unfocus();
+                        }
+                        NewChatBottomSheet.show(context);
+                      },
+                      icon: Image.asset(
+                        AssetsPaths.icAddNewChat,
+                        width: 32.w,
+                        height: 32.w,
+                      ),
+                    ),
+                    Gap(8.w),
+                  ],
+                  pinned: true,
                 ),
-                actions: [
-                  IconButton(
-                    onPressed: () => NewChatBottomSheet.show(context),
-                    icon: Image.asset(
-                      AssetsPaths.icAddNewChat,
-                      width: 32.w,
-                      height: 32.w,
-                    ),
-                  ),
-                  Gap(8.w),
-                ],
-                pinned: true,
-              ),
-              if (chatItems.isEmpty)
-                const SliverFillRemaining(
-                  hasScrollBody: false,
-                  child: _EmptyGroupList(),
-                )
-              else ...[
-                if (_isRefreshing)
-                  SliverToBoxAdapter(
-                    child: AnimatedBuilder(
-                      animation: _loadingAnimation,
-                      builder: (context, child) {
-                        return Opacity(
-                          opacity: _loadingAnimation.value,
-                          child: Container(
-                            margin: EdgeInsets.all(
-                              32.w,
-                            ).copyWith(
-                              bottom: _loadingAnimation.value * 30.h,
-                            ),
-                            child: Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SizedBox(
-                                    width: 16.w,
-                                    height: 16.w,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 3.sp,
-                                      backgroundColor: context.colors.border,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        context.colors.primary,
+                if (chatItems.isEmpty)
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _EmptyGroupList(),
+                  )
+                else ...[
+                  if (_isRefreshing)
+                    SliverToBoxAdapter(
+                      child: AnimatedBuilder(
+                        animation: _loadingAnimation,
+                        builder: (context, child) {
+                          return Opacity(
+                            opacity: _loadingAnimation.value,
+                            child: Container(
+                              margin: EdgeInsets.all(
+                                32.w,
+                              ).copyWith(
+                                bottom: _loadingAnimation.value * 30.h,
+                              ),
+                              child: Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SizedBox(
+                                      width: 16.w,
+                                      height: 16.w,
+                                      child: CircularProgressIndicator(
+                                        strokeWidth: 3.sp,
+                                        backgroundColor: context.colors.border,
+                                        valueColor: AlwaysStoppedAnimation<Color>(
+                                          context.colors.primary,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                  Gap(12.w),
-                                  Text(
-                                    'Checking for new messages…',
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w500,
-                                      color: context.colors.mutedForeground,
+                                    Gap(12.w),
+                                    Text(
+                                      'Checking for new messages…',
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w500,
+                                        color: context.colors.mutedForeground,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-
-                if (_isSearchVisible)
-                  SliverPadding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
-                    sliver: SliverToBoxAdapter(
-                      child:
-                          AppTextFormField(
-                            controller: _searchController,
-                            hintText: 'Search Chats',
-                            onChanged: (value) {
-                              setState(() {
-                                _searchQuery = value;
-                              });
-                            },
-                            decoration: InputDecoration(
-                              prefixIcon: Icon(
-                                CarbonIcons.search,
-                                size: 24.w,
-                              ),
-                              suffixIcon: GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _searchController.clear();
-                                    _searchQuery = '';
-                                    _isSearchVisible = false;
-                                  });
-                                },
-                                child: Icon(
-                                  CarbonIcons.close,
-                                  size: 24.w,
+                                  ],
                                 ),
                               ),
                             ),
-                          ).animate().fade(),
+                          );
+                        },
+                      ),
+                    ),
+
+                  if (_isSearchVisible)
+                    SliverPadding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
+                      sliver: SliverToBoxAdapter(
+                        child:
+                            AppTextFormField(
+                              controller: _searchController,
+                              focusNode: _searchFocusNode,
+                              hintText: 'Search Chats',
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchQuery = value;
+                                });
+                              },
+                              decoration: InputDecoration(
+                                prefixIcon: Icon(
+                                  CarbonIcons.search,
+                                  size: 24.w,
+                                ),
+                                suffixIcon: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _searchController.clear();
+                                      _searchQuery = '';
+                                      _isSearchVisible = false;
+                                    });
+                                  },
+                                  child: Icon(
+                                    CarbonIcons.close,
+                                    size: 24.w,
+                                  ),
+                                ),
+                              ),
+                            ).animate().fade(),
+                      ),
+                    ),
+                  SliverPadding(
+                    padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
+                    sliver: SliverList.separated(
+                      itemBuilder: (context, index) {
+                        final item = filteredChatItems[index];
+                        return ChatListItemTile(
+                          item: item,
+                          onTap: () {
+                            if (_searchFocusNode.hasFocus) {
+                              _searchFocusNode.unfocus();
+                            }
+                          },
+                        );
+                      },
+                      itemCount: filteredChatItems.length,
+                      separatorBuilder: (context, index) => Gap(8.w),
                     ),
                   ),
-                SliverPadding(
-                  padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
-                  sliver: SliverList.separated(
-                    itemBuilder: (context, index) {
-                      final item = filteredChatItems[index];
-                      return ChatListItemTile(item: item);
-                    },
-                    itemCount: filteredChatItems.length,
-                    separatorBuilder: (context, index) => Gap(8.w),
-                  ),
-                ),
+                ],
               ],
-            ],
-          ),
+            ),
 
-          if (chatItems.isNotEmpty)
-            Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const BottomFade()),
-        ],
-      ),
-      bottomNavigationBar: SafeArea(
-        child: visibilityAsync.when(
-          data: (showCard) => showCard ? const ProfileReadyCard() : const SizedBox.shrink(),
-          loading: () => const SizedBox.shrink(),
-          error: (error, stack) => const SizedBox.shrink(),
+            if (chatItems.isNotEmpty)
+              Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const BottomFade()),
+          ],
+        ),
+        bottomNavigationBar: SafeArea(
+          child: visibilityAsync.when(
+            data: (showCard) => showCard ? const ProfileReadyCard() : const SizedBox.shrink(),
+            loading: () => const SizedBox.shrink(),
+            error: (error, stack) => const SizedBox.shrink(),
+          ),
         ),
       ),
     );
