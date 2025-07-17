@@ -21,6 +21,7 @@ We now use a theme extension (`AppColorsThemeExt`) and a `context.colors` extens
 #### **How to Use**
 
 **Old:**
+
 ```dart
 Container(
   color: AppColors.glitch950,
@@ -32,6 +33,7 @@ Text(
 ```
 
 **New:**
+
 ```dart
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
@@ -87,9 +89,10 @@ All primary, secondary, and tertiary buttons should use `AppFilledButton` (or it
 - **Centralized logic** for theming, loading, and states
 - **Easier future updates**
 
-#### **How to Use**
+### **How to Use**
 
 **Old:**
+
 ```dart
 CustomFilledButton(
   title: 'Continue',
@@ -98,6 +101,7 @@ CustomFilledButton(
 ```
 
 **New:**
+
 ```dart
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 
@@ -110,13 +114,16 @@ AppFilledButton(
 #### **Button Variants**
 
 - **Primary (default):**
+
   ```dart
   AppFilledButton(
     title: 'Send',
     onPressed: _send,
   )
   ```
+
 - **Secondary:**
+
   ```dart
   AppFilledButton(
     title: 'Cancel',
@@ -124,7 +131,9 @@ AppFilledButton(
     visualState: AppButtonVisualState.secondary,
   )
   ```
+
 - **Tertiary:**
+
   ```dart
   AppFilledButton(
     title: 'Remove',
@@ -132,7 +141,9 @@ AppFilledButton(
     visualState: AppButtonVisualState.tertiary,
   )
   ```
+
 - **With Icon:**
+
   ```dart
   AppFilledButton.icon(
     icon: Icon(Icons.copy),
@@ -141,7 +152,9 @@ AppFilledButton(
     visualState: AppButtonVisualState.secondary,
   )
   ```
+
 - **Custom Child:**
+
   ```dart
   AppFilledButton.child(
     child: Row(
@@ -155,6 +168,7 @@ AppFilledButton(
 
 - `AppFilledButton` does **not** add extra padding by default.
 - If you need spacing (e.g., bottom navigation, dialog actions), wrap the button in a `Padding` widget:
+
   ```dart
   Padding(
     padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(bottom: 32.h),
@@ -188,6 +202,7 @@ AppFilledButton(
 ## 4. Example Diff
 
 **Before:**
+
 ```dart
 import 'package:whitenoise/ui/core/themes/colors.dart';
 import 'package:whitenoise/ui/core/ui/custom_filled_button.dart';
@@ -202,6 +217,7 @@ Container(
 ```
 
 **After:**
+
 ```dart
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -236,4 +252,4 @@ A: No. All usages should be migrated for consistency and maintainability.
 
 ---
 
-**For questions or help with migration, contact the maintainers or open an issue.** 
+**For questions or help with migration, contact the maintainers or open an issue.**

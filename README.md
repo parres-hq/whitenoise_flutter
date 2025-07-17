@@ -11,6 +11,15 @@ A secure, private, and decentralized chat app built on Nostr, using the MLS prot
 - **Media Support**: Send encrypted images, audio messages, and more
 - **Modern UI**: Beautiful, responsive interface built with Flutter
 
+## 📱 Supported Platforms
+
+- ✅ **Android** - Fully supported
+- ✅ **iOS** - Fully supported
+- ⏳ **macOS** - Coming soon
+- ⏳ **Windows** - Coming soon
+- ⏳ **Linux** - Coming soon
+- ⏳ **Web** - Coming soon
+
 ## 🏗️ Architecture
 
 - **Frontend**: Flutter (Dart) for cross-platform UI
@@ -263,6 +272,10 @@ whitenoise_flutter/
 ## 📜 License
 
 This project is licensed under the [GNU AGPL 3.0](LICENSE) license.
+
+## 📚 Documentation
+
+For more detailed documentation about the project, please visit the [docs/](docs/) folder.
 
 ## 🔗 Links
 
