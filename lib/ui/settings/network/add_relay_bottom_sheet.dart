@@ -99,7 +99,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
     try {
       final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
       if (clipboardData?.text != null) {
-        String pastedText = clipboardData!.text!.trim();
+        final String pastedText = clipboardData!.text!.trim();
 
         // If pasted text already starts with wss:// or ws://, use it as is
         // Otherwise, append it to wss://
