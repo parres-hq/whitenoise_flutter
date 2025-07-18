@@ -94,7 +94,7 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
       }
 
       _logger.info('RelayStatusNotifier: Successfully loaded ${statusMap.length} relay statuses');
-      state = state.copyWith(relayStatuses: statusMap, isLoading: false, error: null);
+      state = state.copyWith(relayStatuses: statusMap, isLoading: false);
     } catch (e, stackTrace) {
       _logger.severe('RelayStatusNotifier: Error loading relay statuses: $e', e, stackTrace);
       state = state.copyWith(
