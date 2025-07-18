@@ -40,13 +40,13 @@ class AddRelayBottomSheet extends ConsumerStatefulWidget {
 
 class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
   final TextEditingController _relayUrlController = TextEditingController();
-  bool _isUrlValid = false;
   bool _isAdding = false;
+  String? _validationError;
 
   @override
   void initState() {
     super.initState();
-    _relayUrlController.addListener(_validateUrl);
+    _relayUrlController.text = 'wss://';
   }
 
   @override
@@ -55,22 +55,35 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
     super.dispose();
   }
 
-  void _validateUrl() {
-    final url = _relayUrlController.text.trim();
-    setState(() {
-      _isUrlValid = url.startsWith('wss://') && url.length > 6;
-    });
+  bool _validateUrl(String url) {
+    // Valid if it starts with wss:// or ws:// and has content after the connection protocol prefix
+    return (url.startsWith('wss://') && url.length > 5) ||
+        (url.startsWith('ws://') && url.length > 5);
   }
 
   Future<void> _addRelay() async {
-    if (!_isUrlValid || _isAdding) return;
+    if (_isAdding) return;
+
+    final url = _relayUrlController.text.trim();
+
+    // Validate URL when button is pressed
+    if (!_validateUrl(url)) {
+      setState(() {
+        _validationError = 'Invalid format: must start with wss:// or ws://';
+      });
+      return;
+    }
+
+    setState(() {
+      _validationError = null;
+    });
 
     setState(() {
       _isAdding = true;
     });
 
     try {
-      widget.onRelayAdded(_relayUrlController.text.trim());
+      widget.onRelayAdded(url);
       ref.showRawSuccessToast('Relay added successfully');
       Navigator.pop(context);
     } catch (e) {
@@ -86,9 +99,17 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
     try {
       final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
       if (clipboardData?.text != null) {
-        setState(() {
-          _relayUrlController.text = clipboardData!.text!;
-        });
+        String pastedText = clipboardData!.text!.trim();
+
+        // If pasted text already starts with wss:// or ws://, use it as is
+        // Otherwise, append it to wss://
+        if (pastedText.startsWith('wss://') || pastedText.startsWith('ws://')) {
+          _relayUrlController.text = pastedText;
+        } else {
+          // Add wss:// prefix to the pasted text
+          _relayUrlController.text = 'wss://$pastedText';
+        }
+
         ref.showRawSuccessToast('Pasted from clipboard');
       } else {
         ref.showRawErrorToast('No text found in clipboard');
@@ -118,7 +139,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
             Expanded(
               child: CustomTextField(
                 textController: _relayUrlController,
-                hintText: 'wss://',
+                hintText: 'wss://relay.example.com',
                 padding: EdgeInsets.zero,
               ),
             ),
@@ -130,9 +151,9 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
           ],
         ),
         Gap(16.h),
-        if (!_isUrlValid && _relayUrlController.text.isNotEmpty) ...[
+        if (_validationError != null) ...[
           Text(
-            'Invalid format: must start with wss://',
+            _validationError!,
             style: TextStyle(
               fontSize: 14.sp,
               color: context.colors.destructive,
@@ -141,7 +162,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
           Gap(8.h),
         ],
         AppFilledButton(
-          onPressed: _isUrlValid && !_isAdding ? _addRelay : null,
+          onPressed: !_isAdding ? _addRelay : null,
           loading: _isAdding,
           title: widget.title,
         ),
