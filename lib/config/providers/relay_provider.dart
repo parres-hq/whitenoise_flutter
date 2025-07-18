@@ -85,11 +85,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       // If no relays found, log this information
       if (relayUrls.isEmpty) {
         _logger.warning('NormalRelaysNotifier: No relays found for user.');
-        state = state.copyWith(
-          relays: [],
-          isLoading: false,
-          error: null, // Clear any previous errors
-        );
+        state = state.copyWith(relays: [], isLoading: false);
         return;
       }
 
@@ -113,7 +109,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       );
 
       _logger.info('NormalRelaysNotifier: Successfully loaded ${relayInfos.length} relays');
-      state = state.copyWith(relays: relayInfos, isLoading: false, error: null);
+      state = state.copyWith(relays: relayInfos, isLoading: false);
     } catch (e, stackTrace) {
       _logger.severe('NormalRelaysNotifier: Error loading relays: $e', e, stackTrace);
       state = state.copyWith(
@@ -257,11 +253,7 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       // If no relays found, log this information
       if (relayUrls.isEmpty) {
         _logger.warning('InboxRelaysNotifier: No inbox relays found for user.');
-        state = state.copyWith(
-          relays: [],
-          isLoading: false,
-          error: null, // Clear any previous errors
-        );
+        state = state.copyWith(relays: [], isLoading: false);
         return;
       }
 
@@ -285,7 +277,7 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       );
 
       _logger.info('InboxRelaysNotifier: Successfully loaded ${relayInfos.length} relays');
-      state = state.copyWith(relays: relayInfos, isLoading: false, error: null);
+      state = state.copyWith(relays: relayInfos, isLoading: false);
     } catch (e, stackTrace) {
       _logger.severe('InboxRelaysNotifier: Error loading relays: $e', e, stackTrace);
       state = state.copyWith(
@@ -434,7 +426,6 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
         state = state.copyWith(
           relays: [],
           isLoading: false,
-          error: null, // Clear any previous errors
         );
         return;
       }
@@ -454,7 +445,7 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       );
 
       _logger.info('KeyPackageRelaysNotifier: Successfully loaded ${relayInfos.length} relays');
-      state = state.copyWith(relays: relayInfos, isLoading: false, error: null);
+      state = state.copyWith(relays: relayInfos, isLoading: false);
     } catch (e, stackTrace) {
       _logger.severe('KeyPackageRelaysNotifier: Error loading relays: $e', e, stackTrace);
       state = state.copyWith(
