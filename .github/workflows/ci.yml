@@ -64,4 +64,4 @@ jobs:
       run: cd rust && cargo clippy --package rust_lib_whitenoise -- -D warnings
 
     - name: Flutter analyze (errors only)
-      run: flutter analyze --fatal-infos || true
+      run: flutter analyze --fatal-infos
