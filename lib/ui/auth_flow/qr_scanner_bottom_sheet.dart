@@ -55,7 +55,7 @@ class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
         // QR Code Scanner Area
         ClipRRect(
           borderRadius: BorderRadius.circular(8.r),
-          child: Container(
+          child: SizedBox(
             height: 300.h,
             width: double.infinity,
             child:
