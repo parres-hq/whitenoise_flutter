@@ -8,6 +8,21 @@ import '../themes/src/extensions.dart';
 
 /// A utility class for showing custom bottom sheets with a smooth slide-up animation.
 class CustomBottomSheet {
+  /// Helper method to check if keyboard is currently open
+  static bool isKeyboardOpen(BuildContext context) {
+    return MediaQuery.of(context).viewInsets.bottom > 0;
+  }
+
+  /// Calculate bottom padding to reach exactly 24h or 54h total (including SafeArea)
+  static double _calculateBottomPadding(BuildContext context) {
+    final safeAreaBottom = MediaQuery.paddingOf(context).bottom;
+    final targetPadding = isKeyboardOpen(context) ? 24.h : 54.h;
+    final additionalPadding = targetPadding - safeAreaBottom;
+
+    // Ensure we don't have negative padding
+    return additionalPadding > 0 ? additionalPadding : 0;
+  }
+
   static Future<T?> show<T>({
     required BuildContext context,
     required Widget Function(BuildContext) builder,
@@ -60,7 +75,9 @@ class CustomBottomSheet {
                       ),
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
-                          bottom: MediaQuery.viewInsetsOf(context).bottom.h,
+                          bottom:
+                              MediaQuery.viewInsetsOf(context).bottom.h +
+                              _calculateBottomPadding(context),
                           top: 21.h,
                         ),
                         child: SafeArea(
