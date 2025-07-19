@@ -12,11 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-### Removed
+### Deprecated
 
 ### Removed
 
 ### Fixed
+- Fixed blurry splash screen icon on both iOS and Android.
 
 ### Security
 
