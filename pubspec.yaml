@@ -137,11 +137,17 @@ flutter:
     # see https://flutter.dev/to/font-from-package
 
 flutter_native_splash:
-  color: "#FFFFFF"  # Background color
+  color: "#FFFFFF"
+  color_dark: "#000000"
   image: assets/pngs/wn-logo-light.png
-  color_dark: "#000000"  # Dark mode background
   image_dark: assets/pngs/wn-logo-dark.png
-
-  ios: true
   android: true
-  web: false
+  ios: true
+  android_12:
+    color: "#FFFFFF"
+    color_dark: "#000000"
+    image: assets/pngs/wn-logo-light.png
+    image_dark: assets/pngs/wn-logo-dark.png
+  android_gravity: center
+  ios_content_mode: center
+  web_image_mode: center
