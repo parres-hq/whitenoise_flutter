@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
+import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
@@ -43,7 +45,7 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
   }) {
     return CustomBottomSheet.show(
       context: context,
-      title: 'Start Secure Chat',
+      title: 'User Profile',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
@@ -66,6 +68,7 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
 class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBottomSheet> {
   final _logger = Logger('StartSecureChatBottomSheet');
   bool _isCreatingGroup = false;
+  bool _isAddingContact = false;
 
   Future<void> _createOrOpenDirectMessageGroup() async {
     setState(() {
@@ -109,6 +112,51 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
       if (mounted) {
         setState(() {
           _isCreatingGroup = false;
+        });
+      }
+    }
+  }
+
+  bool _isContact() {
+    final contactsState = ref.watch(contactsProvider);
+    final contacts = contactsState.contactModels ?? [];
+
+    // Check if the current user's pubkey exists in contacts
+    return contacts.any(
+      (contact) => contact.publicKey.toLowerCase() == widget.pubkey.toLowerCase(),
+    );
+  }
+
+  Future<void> _toggleContact() async {
+    setState(() {
+      _isAddingContact = true;
+    });
+
+    try {
+      final contactsNotifier = ref.read(contactsProvider.notifier);
+      final isCurrentlyContact = _isContact();
+
+      if (isCurrentlyContact) {
+        // Remove contact
+        await contactsNotifier.removeContactByHex(widget.pubkey);
+        if (mounted) {
+          ref.showSuccessToast('${widget.name} removed from contacts');
+        }
+      } else {
+        // Add contact
+        await contactsNotifier.addContactByHex(widget.pubkey);
+        if (mounted) {
+          ref.showSuccessToast('${widget.name} added to contacts');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ref.showErrorToast('Failed to update contact: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAddingContact = false;
         });
       }
     }
@@ -159,6 +207,46 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
             ],
           ),
         ),
+        AppFilledButton.child(
+          size: AppButtonSize.small,
+          visualState: AppButtonVisualState.secondary,
+          onPressed: _isAddingContact ? null : _toggleContact,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (_isAddingContact)
+                SizedBox(
+                  width: 16.w,
+                  height: 16.w,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.w,
+                    color: context.colors.primary,
+                  ),
+                )
+              else ...[
+                Text(
+                  _isContact() ? 'Remove Contact' : 'Add Contact',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.primary,
+                  ),
+                ),
+                Gap(9.w),
+                SvgPicture.asset(
+                  _isContact() ? 'assets/svgs/ic_remove_user.svg' : 'assets/svgs/ic_add_user.svg',
+                  width: 16.w,
+                  height: 16.w,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.primary,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        Gap(8.h),
         AppFilledButton(
           onPressed: _isCreatingGroup ? null : _createOrOpenDirectMessageGroup,
           loading: _isCreatingGroup,
