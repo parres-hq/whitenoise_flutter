@@ -45,7 +45,7 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
   }) {
     return CustomBottomSheet.show(
       context: context,
-      title: 'Start Chat',
+      title: 'User Profile',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
@@ -120,10 +120,11 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
   bool _isContact() {
     final contactsState = ref.watch(contactsProvider);
     final contacts = contactsState.contactModels ?? [];
-    
+
     // Check if the current user's pubkey exists in contacts
-    return contacts.any((contact) =>
-      contact.publicKey.toLowerCase() == widget.pubkey.toLowerCase());
+    return contacts.any(
+      (contact) => contact.publicKey.toLowerCase() == widget.pubkey.toLowerCase(),
+    );
   }
 
   Future<void> _toggleContact() async {
@@ -233,9 +234,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
                 ),
                 Gap(9.w),
                 SvgPicture.asset(
-                  _isContact()
-                    ? 'assets/svgs/ic_remove_user.svg'
-                    : 'assets/svgs/ic_add_user.svg',
+                  _isContact() ? 'assets/svgs/ic_remove_user.svg' : 'assets/svgs/ic_add_user.svg',
                   width: 16.w,
                   height: 16.w,
                   colorFilter: ColorFilter.mode(
@@ -251,7 +250,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
         AppFilledButton(
           onPressed: _isCreatingGroup ? null : _createOrOpenDirectMessageGroup,
           loading: _isCreatingGroup,
-          title: _isCreatingGroup ? 'Creating Chat...' : 'User Profile',
+          title: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
         ),
       ],
     );
