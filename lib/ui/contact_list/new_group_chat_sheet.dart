@@ -194,24 +194,19 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                     )
                     : _buildContactsList(filteredContacts),
           ),
-          Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 16.w,
-            ).copyWith(bottom: 32.h),
-            child: AppFilledButton(
-              onPressed:
-                  _selectedContacts.isNotEmpty
-                      ? () {
-                        Navigator.pop(context);
-                        GroupChatDetailsSheet.show(
-                          context: context,
-                          selectedContacts: _selectedContacts.toList(),
-                          onGroupCreated: widget.onGroupCreated,
-                        );
-                      }
-                      : null,
-              title: 'Continue',
-            ),
+          AppFilledButton(
+            onPressed:
+                _selectedContacts.isNotEmpty
+                    ? () {
+                      Navigator.pop(context);
+                      GroupChatDetailsSheet.show(
+                        context: context,
+                        selectedContacts: _selectedContacts.toList(),
+                        onGroupCreated: widget.onGroupCreated,
+                      );
+                    }
+                    : null,
+            title: 'Continue',
           ),
         ],
       ),

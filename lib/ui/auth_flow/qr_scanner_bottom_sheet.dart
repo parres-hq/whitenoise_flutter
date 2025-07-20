@@ -99,7 +99,6 @@ class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
           ),
           textAlign: TextAlign.center,
         ),
-        Gap(40.h),
       ],
     );
   }

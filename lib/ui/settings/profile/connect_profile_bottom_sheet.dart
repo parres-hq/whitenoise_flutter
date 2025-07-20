@@ -80,7 +80,6 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
             }
           },
         ),
-        Gap(16.h),
       ],
     );
   }
