@@ -163,6 +163,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                           child: Container(
                                             width: 96.w,
                                             height: 96.w,
+                                            alignment: Alignment.center,
                                             decoration: BoxDecoration(
                                               color: context.colors.primarySolid,
                                               image:
