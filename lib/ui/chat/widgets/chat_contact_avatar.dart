@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
+import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 
 class ContactAvatar extends StatelessWidget {
   const ContactAvatar({
@@ -88,10 +88,12 @@ class ContactAvatar extends StatelessWidget {
     // Final fallback: Default avatar asset with proper padding
     return Padding(
       padding: EdgeInsets.all(size * 0.25),
-      child: Image.asset(
-        AssetsPaths.icAvatar,
-        fit: BoxFit.contain,
-        color: context.colors.primary,
+      child: Center(
+        child: Icon(
+          CarbonIcons.user,
+          size: size * 0.4,
+          color: context.colors.primary,
+        ),
       ),
     );
   }
