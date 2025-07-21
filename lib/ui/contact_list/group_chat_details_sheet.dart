@@ -311,18 +311,13 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
             },
           ),
         ),
-        SafeArea(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(bottom: 16.h),
-            child: AppFilledButton(
-              onPressed:
-                  _isCreatingGroup || !_isGroupNameValid || !_hasContactsWithKeyPackage
-                      ? null
-                      : () => _createGroupChat(),
-              loading: _isCreatingGroup,
-              title: _isCreatingGroup ? 'Creating Group...' : 'Create Group',
-            ),
-          ),
+        AppFilledButton(
+          onPressed:
+              _isCreatingGroup || !_isGroupNameValid || !_hasContactsWithKeyPackage
+                  ? null
+                  : () => _createGroupChat(),
+          loading: _isCreatingGroup,
+          title: _isCreatingGroup ? 'Creating Group...' : 'Create Group',
         ),
       ],
     );

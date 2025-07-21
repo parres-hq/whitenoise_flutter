@@ -196,7 +196,6 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
               title: 'Connect Another Profile',
               onPressed: _handleConnectAnotherProfile,
             ),
-            Gap(16.h),
           ],
         ),
       ),

@@ -166,7 +166,6 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
           loading: _isAdding,
           title: widget.title,
         ),
-        Gap(16.h),
       ],
     );
   }

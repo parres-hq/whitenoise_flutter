@@ -89,7 +89,6 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
           },
           title: 'Accept',
         ),
-        Gap(16.h),
       ],
     );
   }
