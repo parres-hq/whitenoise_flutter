@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
+import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -15,7 +16,6 @@ import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
 import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
 import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
-import 'package:whitenoise/config/states/profile_state.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
