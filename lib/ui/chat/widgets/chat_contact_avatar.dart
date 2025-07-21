@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 
 class ContactAvatar extends StatelessWidget {
   const ContactAvatar({
