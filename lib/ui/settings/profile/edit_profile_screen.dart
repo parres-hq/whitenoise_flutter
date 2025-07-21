@@ -147,14 +147,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     ValueListenableBuilder<TextEditingValue>(
                                       valueListenable: _displayNameController,
                                       builder: (context, value, child) {
-                                        final displayText = value.text.trim();
                                         final selectedImagePath =
                                             ref.watch(profileProvider).value?.selectedImagePath;
                                         final profilePicture =
                                             ref.watch(profileProvider).value?.picture ?? '';
                                         return ContactAvatar(
                                           imageUrl: selectedImagePath ?? profilePicture,
-                                          displayName: displayText,
+                                          displayName: value.text.trim(),
                                           size: 96.w,
                                         );
                                       },
