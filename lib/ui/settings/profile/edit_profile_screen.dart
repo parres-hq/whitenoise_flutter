@@ -15,6 +15,7 @@ import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
 import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
 import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
+import 'package:whitenoise/config/states/profile_state.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -147,13 +148,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     ValueListenableBuilder<TextEditingValue>(
                                       valueListenable: _displayNameController,
                                       builder: (context, value, child) {
-                                        final selectedImagePath =
-                                            ref.watch(profileProvider).value?.selectedImagePath;
-                                        final profilePicture =
-                                            ref.watch(profileProvider).value?.picture ?? '';
+                                        final imageUrl = _getProfileImageUrl(profile);
+                                        final displayName = value.text.trim();
                                         return ContactAvatar(
-                                          imageUrl: selectedImagePath ?? profilePicture,
-                                          displayName: value.text.trim(),
+                                          imageUrl: imageUrl,
+                                          displayName: displayName,
                                           size: 96.w,
                                         );
                                       },
@@ -333,6 +332,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ),
     );
   }
+}
+
+String _getProfileImageUrl(ProfileState? profile) {
+  final selectedImagePath = profile?.selectedImagePath;
+  final profilePicture = profile?.picture ?? '';
+  if (selectedImagePath != null && selectedImagePath.isNotEmpty) {
+    return selectedImagePath;
+  }
+  if (profilePicture.isNotEmpty) {
+    return profilePicture;
+  }
+  return '';
 }
 
 class FallbackProfileImageWidget extends StatelessWidget {
