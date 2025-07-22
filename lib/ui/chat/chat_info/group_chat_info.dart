@@ -391,15 +391,16 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Text(
-                      'Remove Admin',
+                      'Make Admin',
                       style: context.textTheme.bodyMedium?.copyWith(
                         color: context.colors.primary,
                         fontWeight: FontWeight.w600,
                         fontSize: 14.sp,
                       ),
                     ),
+                    Gap(8.w),
                     SvgPicture.asset(
-                      AssetsPaths.icMessage,
+                      AssetsPaths.icMakeAdmin,
                       width: 14.w,
                       height: 13.h,
                       colorFilter: ColorFilter.mode(
@@ -430,8 +431,9 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                   fontSize: 14.sp,
                 ),
               ),
+              Gap(8.w),
               SvgPicture.asset(
-                AssetsPaths.icMessage,
+                AssetsPaths.icChatInvite,
                 width: 14.w,
                 height: 13.h,
                 colorFilter: ColorFilter.mode(
@@ -459,8 +461,9 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                     fontSize: 14.sp,
                   ),
                 ),
+                Gap(8.w),
                 SvgPicture.asset(
-                  AssetsPaths.icMessage,
+                  AssetsPaths.icRemoveOutlined,
                   width: 14.w,
                   height: 13.h,
                   colorFilter: ColorFilter.mode(
@@ -476,95 +479,6 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
           _AddToContactButton(widget.member),
         ],
       ],
-    );
-  }
-}
-
-class _AddToContactButton extends ConsumerStatefulWidget {
-  const _AddToContactButton(this.user);
-  final User user;
-  @override
-  ConsumerState<_AddToContactButton> createState() => __AddToContactButtonState();
-}
-
-class __AddToContactButtonState extends ConsumerState<_AddToContactButton> {
-  bool _isAddingContact = false;
-  bool get _isLoading => _isAddingContact;
-  bool _isContact() {
-    final contactsState = ref.watch(contactsProvider);
-    final contacts = contactsState.contactModels ?? [];
-
-    // Check if the current user's pubkey exists in contacts
-    return contacts.any(
-      (contact) => contact.publicKey.toLowerCase() == widget.user.publicKey.toLowerCase(),
-    );
-  }
-
-  Future<void> _toggleContact() async {
-    setState(() {
-      _isAddingContact = true;
-    });
-
-    try {
-      final contactsNotifier = ref.read(contactsProvider.notifier);
-      final isCurrentlyContact = _isContact();
-
-      if (isCurrentlyContact) {
-        // Remove contact
-        await contactsNotifier.removeContactByHex(widget.user.publicKey);
-        if (mounted) {
-          ref.showSuccessToast('${widget.user.name} removed from contacts');
-        }
-      } else {
-        // Add contact
-        await contactsNotifier.addContactByHex(widget.user.publicKey);
-        if (mounted) {
-          ref.showSuccessToast('${widget.user.name} added to contacts');
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ref.showErrorToast('Failed to update contact: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isAddingContact = false;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isContact = _isContact();
-    return AppFilledButton.child(
-      onPressed: _toggleContact,
-      size: AppButtonSize.small,
-      visualState: AppButtonVisualState.secondary,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            isContact ? 'Remove Contact' : 'Add Contact',
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colors.primary,
-              fontWeight: FontWeight.w600,
-              fontSize: 14.sp,
-            ),
-          ),
-          Gap(4.w),
-          SvgPicture.asset(
-            isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
-            width: 13.w,
-            height: 13.w,
-            colorFilter: ColorFilter.mode(
-              context.colors.primary,
-              BlendMode.srcIn,
-            ),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -650,10 +564,100 @@ class __SendMessageButtonState extends ConsumerState<_SendMessageButton> {
               fontSize: 14.sp,
             ),
           ),
+          Gap(4.w),
           SvgPicture.asset(
             AssetsPaths.icMessage,
             width: 14.w,
             height: 13.h,
+            colorFilter: ColorFilter.mode(
+              context.colors.primary,
+              BlendMode.srcIn,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// add contact
+class _AddToContactButton extends ConsumerStatefulWidget {
+  const _AddToContactButton(this.user);
+  final User user;
+  @override
+  ConsumerState<_AddToContactButton> createState() => __AddToContactButtonState();
+}
+
+class __AddToContactButtonState extends ConsumerState<_AddToContactButton> {
+  bool _isAddingContact = false;
+  bool get _isLoading => _isAddingContact;
+  bool _isContact() {
+    final contactsState = ref.watch(contactsProvider);
+    final contacts = contactsState.contactModels ?? [];
+
+    // Check if the current user's pubkey exists in contacts
+    return contacts.any(
+      (contact) => contact.publicKey.toLowerCase() == widget.user.publicKey.toLowerCase(),
+    );
+  }
+
+  Future<void> _toggleContact() async {
+    setState(() {
+      _isAddingContact = true;
+    });
+
+    try {
+      final contactsNotifier = ref.read(contactsProvider.notifier);
+      final isCurrentlyContact = _isContact();
+
+      if (isCurrentlyContact) {
+        await contactsNotifier.removeContactByHex(widget.user.publicKey);
+        if (mounted) {
+          ref.showSuccessToast('${widget.user.name} removed from contacts');
+        }
+      } else {
+        await contactsNotifier.addContactByHex(widget.user.publicKey);
+        if (mounted) {
+          ref.showSuccessToast('${widget.user.name} added to contacts');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ref.showErrorToast('Failed to update contact: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAddingContact = false;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isContact = _isContact();
+    return AppFilledButton.child(
+      onPressed: _toggleContact,
+      loading: _isLoading,
+      size: AppButtonSize.small,
+      visualState: AppButtonVisualState.secondary,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            isContact ? 'Remove Contact' : 'Add Contact',
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: context.colors.primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 14.sp,
+            ),
+          ),
+          Gap(4.w),
+          SvgPicture.asset(
+            isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+            width: 13.w,
+            height: 13.w,
             colorFilter: ColorFilter.mode(
               context.colors.primary,
               BlendMode.srcIn,
