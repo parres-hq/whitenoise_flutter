@@ -94,6 +94,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             Gap(64.h),
             ContactAvatar(
               imageUrl: '',
+              displayName: groupDetails?.name ?? 'Unknown Group',
               size: 96.w,
             ),
             SizedBox(height: 8.h),
