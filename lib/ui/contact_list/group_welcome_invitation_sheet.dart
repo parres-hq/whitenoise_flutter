@@ -6,8 +6,8 @@ import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class GroupWelcomeInvitationSheet extends StatelessWidget {
@@ -70,7 +70,7 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
         ),
         const Spacer(),
         AppFilledButton(
-          visualState: AppButtonVisualState.secondary,
+          visualState: WnButtonVisualState.secondary,
           onPressed: () {
             Navigator.of(context).pop();
             if (onDecline != null) {

@@ -10,8 +10,8 @@ import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class DonateScreen extends ConsumerWidget {
   const DonateScreen({super.key});
@@ -119,7 +119,7 @@ class DonateScreen extends ConsumerWidget {
                               children: [
                                 Text(
                                   'Donate',
-                                  style: AppButtonSize.large.textStyle().copyWith(
+                                  style: WnButtonSize.large.textStyle().copyWith(
                                     color: context.colors.primaryForeground,
                                   ),
                                 ),
@@ -173,7 +173,7 @@ class DonateScreen extends ConsumerWidget {
                               children: [
                                 Text(
                                   'Donate',
-                                  style: AppButtonSize.large.textStyle().copyWith(
+                                  style: WnButtonSize.large.textStyle().copyWith(
                                     color: context.colors.primaryForeground,
                                   ),
                                 ),

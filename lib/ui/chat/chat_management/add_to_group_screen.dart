@@ -7,8 +7,8 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/bottom_fade.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class AddToGroupScreen extends ConsumerStatefulWidget {
   const AddToGroupScreen({super.key, required this.contactNpub});

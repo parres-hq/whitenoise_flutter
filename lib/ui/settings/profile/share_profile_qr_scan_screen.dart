@@ -13,7 +13,7 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class ShareProfileQrScanScreen extends ConsumerStatefulWidget {

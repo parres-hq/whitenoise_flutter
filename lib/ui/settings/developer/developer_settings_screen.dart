@@ -10,7 +10,7 @@ import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class DeveloperSettingsScreen extends ConsumerStatefulWidget {
   const DeveloperSettingsScreen({super.key});
@@ -127,7 +127,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                           title: 'Clear Cache',
                           onPressed: _isLoading ? null : _clearMetadataCache,
                           loading: _isLoading,
-                          visualState: AppButtonVisualState.error,
+                          visualState: WnButtonVisualState.error,
                         ),
 
                         Gap(8.h),

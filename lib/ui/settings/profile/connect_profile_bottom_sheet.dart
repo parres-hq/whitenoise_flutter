@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class ConnectProfileBottomSheet extends ConsumerStatefulWidget {
   const ConnectProfileBottomSheet({super.key});
@@ -41,7 +41,7 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
         AppFilledButton(
           title: 'Login With Existing Profile',
           loading: _isLoginLoading,
-          visualState: AppButtonVisualState.secondary,
+          visualState: WnButtonVisualState.secondary,
           onPressed:
               authState.isLoading
                   ? null

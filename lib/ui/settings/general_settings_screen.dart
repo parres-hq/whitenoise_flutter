@@ -18,9 +18,9 @@ import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
@@ -217,20 +217,20 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 Expanded(
                   child: AppFilledButton(
                     title: 'Cancel',
-                    visualState: AppButtonVisualState.secondary,
-                    size: AppButtonSize.small,
+                    visualState: WnButtonVisualState.secondary,
+                    size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(false),
                   ),
                 ),
                 Gap(8.w),
                 Expanded(
                   child: AppFilledButton.child(
-                    visualState: AppButtonVisualState.error,
-                    size: AppButtonSize.small,
+                    visualState: WnButtonVisualState.error,
+                    size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
                     child: Text(
                       'Sign out',
-                      style: AppButtonSize.small.textStyle().copyWith(
+                      style: WnButtonSize.small.textStyle().copyWith(
                         color: Colors.white,
                       ),
                     ),
@@ -333,8 +333,8 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                       const Center(child: Text('No accounts found')),
                     Gap(12.h),
                     AppFilledButton.child(
-                      size: AppButtonSize.small,
-                      visualState: AppButtonVisualState.secondary,
+                      size: WnButtonSize.small,
+                      visualState: WnButtonVisualState.secondary,
                       onPressed: () => context.push('${Routes.settings}/share_profile'),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

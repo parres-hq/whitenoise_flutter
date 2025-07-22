@@ -14,7 +14,7 @@ import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
@@ -153,17 +153,17 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
             ),
             Gap(16.h),
             AppFilledButton(
-              size: AppButtonSize.small,
+              size: WnButtonSize.small,
               onPressed: () => Navigator.pop(context),
-              visualState: AppButtonVisualState.secondary,
+              visualState: WnButtonVisualState.secondary,
               title: 'Cancel',
             ),
             Gap(8.h),
             AppFilledButton(
-              size: AppButtonSize.small,
+              size: WnButtonSize.small,
               loading: _isRemoving,
               onPressed: _isRemoving ? null : _removeFromGroup,
-              visualState: AppButtonVisualState.error,
+              visualState: WnButtonVisualState.error,
               title: 'Remove From Group',
             ),
           ],
@@ -268,8 +268,8 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
         Gap(8.h),
         AppFilledButton.child(
           onPressed: _openAddToGroup,
-          size: AppButtonSize.small,
-          visualState: AppButtonVisualState.secondary,
+          size: WnButtonSize.small,
+          visualState: WnButtonVisualState.secondary,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -303,8 +303,8 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                 Navigator.pop(context);
               }
             },
-            size: AppButtonSize.small,
-            visualState: AppButtonVisualState.secondaryWarning,
+            size: WnButtonSize.small,
+            visualState: WnButtonVisualState.secondaryWarning,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

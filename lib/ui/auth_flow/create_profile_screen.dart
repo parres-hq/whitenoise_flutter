@@ -9,8 +9,8 @@ import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class CreateProfileScreen extends ConsumerStatefulWidget {
   const CreateProfileScreen({super.key});

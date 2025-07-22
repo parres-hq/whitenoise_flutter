@@ -81,9 +81,9 @@ Text(
 
 The app previously used multiple button components, including `AppFilledButton`, `CustomFilledButton`, and direct `ElevatedButton` usage. This led to inconsistent button styles and duplicated logic.
 
-### **New Approach: `AppFilledButton` (from `app_button.dart`)**
+### **New Approach: `AppFilledButton` (from `wn_button.dart`)**
 
-All primary, secondary, and tertiary buttons should use `AppFilledButton` (or its variants) from `app_button.dart`. This ensures:
+All primary, secondary, and tertiary buttons should use `AppFilledButton` (or its variants) from `wn_button.dart`. This ensures:
 
 - **Consistent button styles** across the app
 - **Centralized logic** for theming, loading, and states
@@ -103,7 +103,7 @@ CustomFilledButton(
 **New:**
 
 ```dart
-import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 AppFilledButton(
   title: 'Continue',
@@ -128,7 +128,7 @@ AppFilledButton(
   AppFilledButton(
     title: 'Cancel',
     onPressed: _cancel,
-    visualState: AppButtonVisualState.secondary,
+    visualState: WnButtonVisualState.secondary,
   )
   ```
 
@@ -138,7 +138,7 @@ AppFilledButton(
   AppFilledButton(
     title: 'Remove',
     onPressed: _remove,
-    visualState: AppButtonVisualState.tertiary,
+    visualState: WnButtonVisualState.tertiary,
   )
   ```
 
@@ -149,7 +149,7 @@ AppFilledButton(
     icon: Icon(Icons.copy),
     label: Text('Copy'),
     onPressed: _copy,
-    visualState: AppButtonVisualState.secondary,
+    visualState: WnButtonVisualState.secondary,
   )
   ```
 
@@ -182,7 +182,7 @@ AppFilledButton(
 #### **Best Practices**
 
 - Always import:  
-  `import 'package:whitenoise/ui/core/ui/app_button.dart';`
+  `import 'package:whitenoise/ui/core/ui/wn_button.dart';`
 - Do **not** import or use `custom_filled_button.dart` or `app_filled_button.dart` directly.
 - Use the correct `visualState` for secondary/tertiary/destructive actions.
 - For icon+label, use `AppFilledButton.icon` or `AppFilledButton.child` as appropriate.
@@ -194,7 +194,7 @@ AppFilledButton(
 1. **Replace all `AppColors` usages** with `context.colors` (see mapping above).
 2. **Replace all `CustomFilledButton` and direct `ElevatedButton` usages** with `AppFilledButton` or its variants.
 3. **Remove all imports** of `custom_filled_button.dart` and `app_filled_button.dart` from UI code.
-4. **Add imports** for `app_button.dart` and `themes/src/extensions.dart` as needed.
+4. **Add imports** for `wn_button.dart` and `themes/src/extensions.dart` as needed.
 5. **Wrap buttons in `Padding`** only where extra spacing is required by the design.
 
 ---
@@ -220,7 +220,7 @@ Container(
 
 ```dart
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 Container(
   color: context.colors.primary,

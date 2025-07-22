@@ -11,8 +11,8 @@ import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 
@@ -75,8 +75,8 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                 Expanded(
                   child: AppFilledButton(
                     title: 'Cancel',
-                    visualState: AppButtonVisualState.secondary,
-                    size: AppButtonSize.small,
+                    visualState: WnButtonVisualState.secondary,
+                    size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(false),
                   ),
                 ),
@@ -84,8 +84,8 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                 Expanded(
                   child: AppFilledButton(
                     title: 'Remove',
-                    visualState: AppButtonVisualState.error,
-                    size: AppButtonSize.small,
+                    visualState: WnButtonVisualState.error,
+                    size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
                   ),
                 ),

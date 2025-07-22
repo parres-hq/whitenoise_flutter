@@ -1,6 +1,6 @@
-part of 'app_button.dart';
+part of 'wn_button.dart';
 
-class AppFilledButton extends AppButton {
+class AppFilledButton extends WnButton {
   AppFilledButton({
     super.key,
     super.size,

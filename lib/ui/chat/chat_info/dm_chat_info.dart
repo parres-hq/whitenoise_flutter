@@ -199,9 +199,9 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               ),
               Gap(32.h),
               AppFilledButton.icon(
-                size: AppButtonSize.small,
+                size: WnButtonSize.small,
                 visualState:
-                    isContact ? AppButtonVisualState.secondary : AppButtonVisualState.primary,
+                    isContact ? WnButtonVisualState.secondary : WnButtonVisualState.primary,
                 icon: Text(isContact ? 'Remove Contact' : 'Add Contact'),
                 label:
                     isContactLoading
@@ -240,8 +240,8 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
 
               Gap(12.h),
               AppFilledButton.icon(
-                size: AppButtonSize.small,
-                visualState: AppButtonVisualState.secondary,
+                size: WnButtonSize.small,
+                visualState: WnButtonVisualState.secondary,
                 icon: const Text('Add to Group'),
                 label: SvgPicture.asset(
                   AssetsPaths.icAdd,
@@ -261,7 +261,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               //   children: [
               //     Expanded(
               //       child: AppFilledButton.icon(
-              //         visualState: AppButtonVisualState.secondary,
+              //         visualState: WnButtonVisualState.secondary,
               //         icon: SvgPicture.asset(
               //           AssetsPaths.icSearch,
               //           width: 14.w,
@@ -273,7 +273,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               //     ),
               //     Expanded(
               //       child: AppFilledButton.icon(
-              //         visualState: AppButtonVisualState.secondary,
+              //         visualState: WnButtonVisualState.secondary,
               //         icon: SvgPicture.asset(
               //           AssetsPaths.icMutedNotification,
               //           width: 14.w,

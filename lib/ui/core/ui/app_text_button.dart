@@ -1,6 +1,6 @@
-part of 'app_button.dart';
+part of 'wn_button.dart';
 
-class AppTextButton extends AppButton {
+class AppTextButton extends WnButton {
   AppTextButton(
     String title, {
     super.key,

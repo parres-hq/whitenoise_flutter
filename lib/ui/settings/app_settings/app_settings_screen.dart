@@ -18,8 +18,8 @@ import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class AppSettingsScreen extends ConsumerWidget {
   const AppSettingsScreen({super.key});
@@ -39,20 +39,20 @@ class AppSettingsScreen extends ConsumerWidget {
                 Expanded(
                   child: AppFilledButton(
                     title: 'Cancel',
-                    visualState: AppButtonVisualState.secondary,
-                    size: AppButtonSize.small,
+                    visualState: WnButtonVisualState.secondary,
+                    size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(false),
                   ),
                 ),
                 Gap(8.w),
                 Expanded(
                   child: AppFilledButton.child(
-                    visualState: AppButtonVisualState.error,
-                    size: AppButtonSize.small,
+                    visualState: WnButtonVisualState.error,
+                    size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
                     child: Text(
                       'Delete',
-                      style: AppButtonSize.small.textStyle().copyWith(
+                      style: WnButtonSize.small.textStyle().copyWith(
                         color: context.colors.solidNeutralWhite,
                       ),
                     ),
@@ -258,14 +258,14 @@ class AppSettingsScreen extends ConsumerWidget {
                           ),
                           Gap(10.h),
                           AppFilledButton.child(
-                            visualState: AppButtonVisualState.error,
+                            visualState: WnButtonVisualState.error,
                             onPressed: () => _deleteAllData(context, ref),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
                                   'Delete All Data',
-                                  style: AppButtonSize.large.textStyle().copyWith(
+                                  style: WnButtonSize.large.textStyle().copyWith(
                                     color: context.colors.solidNeutralWhite,
                                   ),
                                 ),

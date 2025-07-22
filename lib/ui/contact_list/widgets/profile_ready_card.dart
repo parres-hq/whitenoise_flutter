@@ -8,7 +8,7 @@ import 'package:whitenoise/config/providers/profile_ready_card_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class ProfileReadyCard extends ConsumerWidget {
   const ProfileReadyCard({super.key});
@@ -81,15 +81,15 @@ class ProfileReadyCard extends ConsumerWidget {
             onPressed: () {
               context.push('${Routes.settings}/share_profile');
             },
-            size: AppButtonSize.small,
-            visualState: AppButtonVisualState.secondary,
+            size: WnButtonSize.small,
+            visualState: WnButtonVisualState.secondary,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'Share Your Profile',
-                  style: AppButtonSize.small.textStyle().copyWith(
+                  style: WnButtonSize.small.textStyle().copyWith(
                     color: context.colors.primary,
                   ),
                   overflow: TextOverflow.ellipsis,
@@ -109,14 +109,14 @@ class ProfileReadyCard extends ConsumerWidget {
             onPressed: () {
               NewChatBottomSheet.show(context);
             },
-            size: AppButtonSize.small,
+            size: WnButtonSize.small,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
                   'Search For Friends',
-                  style: AppButtonSize.small.textStyle().copyWith(
+                  style: WnButtonSize.small.textStyle().copyWith(
                     color: context.colors.primaryForeground,
                   ),
                   overflow: TextOverflow.ellipsis,

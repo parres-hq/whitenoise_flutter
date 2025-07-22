@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -94,7 +94,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             children: [
               AppFilledButton(
                 title: 'Login',
-                visualState: AppButtonVisualState.secondary,
+                visualState: WnButtonVisualState.secondary,
                 onPressed: _isCreatingAccount ? null : () => context.go('/login'),
               ),
               Gap(12.h),

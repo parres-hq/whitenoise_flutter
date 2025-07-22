@@ -12,8 +12,8 @@ import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/auth_flow/qr_scanner_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});

@@ -5,16 +5,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
 import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -275,8 +274,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                             Navigator.of(dialogContext).pop();
                                                           },
                                                           visualState:
-                                                              AppButtonVisualState.secondaryWarning,
-                                                          size: AppButtonSize.small,
+                                                              WnButtonVisualState.secondaryWarning,
+                                                          size: WnButtonSize.small,
                                                           child: const FittedBox(
                                                             fit: BoxFit.scaleDown,
                                                             child: Text('Discard Changes'),
@@ -295,7 +294,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                             }
                                                           },
                                                           title: 'Save',
-                                                          size: AppButtonSize.small,
+                                                          size: WnButtonSize.small,
                                                         ),
                                                       ),
                                                     ],
@@ -303,7 +302,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                 ),
                                           ),
                                       title: 'Discard Changes',
-                                      visualState: AppButtonVisualState.secondary,
+                                      visualState: WnButtonVisualState.secondary,
                                     ),
                                     Gap(4.h),
                                   ],
