@@ -11,7 +11,7 @@ import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
@@ -186,7 +186,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ),
                                 ),
                                 Gap(10.h),
-                                AppTextFormField(
+                                WnTextFormField(
                                   controller: _displayNameController,
                                   hintText: 'Trent Reznor',
                                   onChanged: (value) {
@@ -205,7 +205,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ),
                                 ),
                                 Gap(10.h),
-                                AppTextFormField(
+                                WnTextFormField(
                                   controller: _nostrAddressController,
                                   hintText: 'example@whitenoise.chat',
                                   onChanged: (value) {
@@ -224,7 +224,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ),
                                 ),
                                 Gap(10.h),
-                                AppTextFormField(
+                                WnTextFormField(
                                   controller: _aboutController,
                                   hintText: 'Write something about yourself.',
                                   minLines: 3,

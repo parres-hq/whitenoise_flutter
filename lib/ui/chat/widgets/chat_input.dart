@@ -7,7 +7,7 @@ import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
-import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
 class ChatInput extends ConsumerStatefulWidget {
   const ChatInput({
@@ -129,7 +129,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                                   setState(() {});
                                 },
                               ),
-                              AppTextFormField(
+                              WnTextFormField(
                                 controller: _textController,
                                 focusNode: _focusNode,
                                 onChanged: (_) => setState(() {}),

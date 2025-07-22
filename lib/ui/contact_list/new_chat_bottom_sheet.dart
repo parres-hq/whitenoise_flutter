@@ -20,7 +20,7 @@ import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/ui/core/ui/bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
@@ -468,7 +468,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
         // Search field - not auto-focused
-        AppTextFormField(
+        WnTextFormField(
           controller: _searchController,
           focusNode: _searchFocusNode,
 

@@ -12,8 +12,8 @@ import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/auth_flow/qr_scanner_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -178,7 +178,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                       Row(
                         children: [
                           Expanded(
-                            child: AppTextFormField(
+                            child: WnTextFormField(
                               hintText: 'nsec...',
                               type: FieldType.password,
                               controller: _keyController,
@@ -204,7 +204,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                           ),
                           Gap(4.w),
                           // Used .h for bothe to make it square and also go along with the 56.h
-                          // calculation I made in AppTextFormField's vertical: 19.h.
+                          // calculation I made in WnTextFormField's vertical: 19.h.
                           // IntrinsicHeight avoided here since it's been used once in this page already.
                           // PS this has been tested on different screen sizes and it works fine.
                           Container(

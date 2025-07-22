@@ -9,8 +9,8 @@ enum FieldType {
   password,
 }
 
-class AppTextFormField extends StatefulWidget {
-  const AppTextFormField({
+class WnTextFormField extends StatefulWidget {
+  const WnTextFormField({
     super.key,
     this.formKey,
     this.hintText,
@@ -77,10 +77,10 @@ class AppTextFormField extends StatefulWidget {
   final InputDecoration? decoration;
 
   @override
-  State<AppTextFormField> createState() => _AppTextFormFieldState();
+  State<WnTextFormField> createState() => _WnTextFormFieldState();
 }
 
-class _AppTextFormFieldState extends State<AppTextFormField> {
+class _WnTextFormFieldState extends State<WnTextFormField> {
   final hasError = ValueNotifier(false);
 
   @override
