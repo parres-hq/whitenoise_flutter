@@ -161,9 +161,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               Gap(32.h),
               AppFilledButton.icon(
                 visualState:
-                    isContact
-                        ? AppButtonVisualState.secondaryWarning
-                        : AppButtonVisualState.primary,
+                    isContact ? AppButtonVisualState.secondary : AppButtonVisualState.primary,
                 icon:
                     isContactLoading
                         ? SizedBox(
@@ -178,9 +176,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                           isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
                           width: 14.w,
                           colorFilter: ColorFilter.mode(
-                            isContact
-                                ? context.colors.destructive
-                                : context.colors.primaryForeground,
+                            context.colors.secondaryForeground,
                             BlendMode.srcIn,
                           ),
                         ),
