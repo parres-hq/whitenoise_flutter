@@ -218,7 +218,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
   }
 }
 
-class GroupMemberBottomSheet extends StatelessWidget {
+class GroupMemberBottomSheet extends ConsumerStatefulWidget {
   const GroupMemberBottomSheet({
     super.key,
     required this.member,
@@ -236,10 +236,81 @@ class GroupMemberBottomSheet extends StatelessWidget {
   }
 
   @override
+  ConsumerState<GroupMemberBottomSheet> createState() => _GroupMemberBottomSheetState();
+}
+
+class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet> {
+  void _copyToClipboard() {
+    final npub = widget.member.publicKey;
+    if (npub.isEmpty) {
+      ref.showErrorToast('No public key to copy');
+      return;
+    }
+    Clipboard.setData(ClipboardData(text: npub));
+    ref.showSuccessToast(
+      'Public Key copied.',
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
-      children: [],
+      children: [
+        Gap(16.h),
+        ContactAvatar(
+          imageUrl: widget.member.imagePath ?? '',
+          displayName: widget.member.username,
+          size: 96.w,
+        ),
+        Gap(4.h),
+        Text(
+          widget.member.username ?? '',
+          style: TextStyle(
+            fontWeight: FontWeight.w600,
+            color: context.colors.primary,
+          ),
+          textAlign: TextAlign.center,
+        ),
+        if (widget.member.nip05.isNotEmpty)
+          Text(
+            widget.member.nip05,
+            style: TextStyle(
+              color: context.colors.mutedForeground,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        Gap(16.h),
+        Row(
+          children: [
+            Flexible(
+              child: Text(
+                widget.member.publicKey.formatPublicKey(),
+                textAlign: TextAlign.center,
+                style: context.textTheme.bodyMedium?.copyWith(
+                  color: context.colors.mutedForeground,
+                  fontSize: 14.sp,
+                ),
+              ),
+            ),
+            Gap(8.w),
+            InkWell(
+              onTap: _copyToClipboard,
+              child: SvgPicture.asset(
+                AssetsPaths.icCopy,
+                width: 24.w,
+                height: 24.w,
+                colorFilter: ColorFilter.mode(
+                  context.colors.primary,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ),
+          ],
+        ),
+        Gap(32.h),
+        // 
+      ],
     );
   }
 }
