@@ -6,7 +6,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/routing/router_provider.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
-import 'package:whitenoise/ui/core/ui/toast_widget.dart';
+import 'package:whitenoise/ui/core/ui/wn_toast.dart';
 
 import 'ui/core/themes/src/app_theme.dart';
 
@@ -67,7 +67,7 @@ class MyApp extends ConsumerWidget {
           themeMode: themeState.themeMode,
           routerConfig: router,
           builder: (context, child) {
-            return ToastWrapper(child: child ?? const SizedBox.shrink());
+            return WnToast(child: child ?? const SizedBox.shrink());
           },
         );
       },
