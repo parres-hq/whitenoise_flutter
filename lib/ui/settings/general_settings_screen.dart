@@ -184,10 +184,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
         if (selectedAccount != null) {
           await _switchAccount(selectedAccount);
-          // Close the sheet after successful account switch
-          if (mounted) {
-            Navigator.pop(context);
-          }
+          // Don't close the sheet - stay on settings screen after account switch
         } else {
           // Account not found, reload accounts and show error
           if (mounted) {
@@ -198,7 +195,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
               debugPrint('Toast error: $e');
             }
             _loadAccounts();
-            Navigator.pop(context);
+            // Don't close the sheet - stay on settings screen
           }
         }
       },
