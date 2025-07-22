@@ -1,5 +1,6 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 
 class ContactAvatar extends StatelessWidget {
@@ -42,7 +43,7 @@ class ContactAvatar extends StatelessWidget {
   }
 
   Widget _buildChild(BuildContext context) {
-    // First priority: image if URL is not empty (network or asset)
+    // First priority: image if URL is not empty (network, local file, or asset)
     if (imageUrl.isNotEmpty) {
       // Try network image first
       if (imageUrl.startsWith('http')) {
@@ -54,7 +55,16 @@ class ContactAvatar extends StatelessWidget {
           errorBuilder: (context, error, stackTrace) => _buildFallbackAvatar(context),
         );
       }
-
+      // Try local file image
+      if (File(imageUrl).existsSync()) {
+        return Image.file(
+          File(imageUrl),
+          width: size,
+          height: size,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => _buildFallbackAvatar(context),
+        );
+      }
       // Try asset image
       return Image.asset(
         imageUrl,
@@ -65,7 +75,6 @@ class ContactAvatar extends StatelessWidget {
         errorBuilder: (context, error, stackTrace) => _buildFallbackAvatar(context),
       );
     }
-
     // Second priority: fallback to displayName first letter or default avatar
     return _buildFallbackAvatar(context);
   }
@@ -88,10 +97,12 @@ class ContactAvatar extends StatelessWidget {
     // Final fallback: Default avatar asset with proper padding
     return Padding(
       padding: EdgeInsets.all(size * 0.25),
-      child: Image.asset(
-        AssetsPaths.icAvatar,
-        fit: BoxFit.contain,
-        color: context.colors.primary,
+      child: Center(
+        child: Icon(
+          CarbonIcons.user,
+          size: size * 0.4,
+          color: context.colors.primary,
+        ),
       ),
     );
   }

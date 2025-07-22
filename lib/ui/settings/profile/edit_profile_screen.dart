@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,10 +5,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
+import 'package:whitenoise/config/states/profile_state.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
@@ -149,56 +148,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     ValueListenableBuilder<TextEditingValue>(
                                       valueListenable: _displayNameController,
                                       builder: (context, value, child) {
-                                        final displayText = value.text.trim();
-                                        final firstLetter =
-                                            displayText.isNotEmpty
-                                                ? displayText[0].toUpperCase()
-                                                : '';
-                                        final selectedImagePath =
-                                            ref.watch(profileProvider).value?.selectedImagePath ??
-                                            '';
-                                        final profilePicture =
-                                            ref.watch(profileProvider).value?.picture ?? '';
-                                        return ClipOval(
-                                          child: Container(
-                                            width: 96.w,
-                                            height: 96.w,
-                                            alignment: Alignment.center,
-                                            decoration: BoxDecoration(
-                                              color: context.colors.primarySolid,
-                                              image:
-                                                  selectedImagePath.isNotEmpty
-                                                      ? DecorationImage(
-                                                        image: FileImage(File(selectedImagePath)),
-                                                        fit: BoxFit.cover,
-                                                      )
-                                                      : null,
-                                            ),
-                                            child:
-                                                profilePicture.isNotEmpty &&
-                                                        selectedImagePath.isEmpty
-                                                    ? Image.network(
-                                                      profilePicture,
-                                                      fit: BoxFit.cover,
-                                                    )
-                                                    : profilePicture.isEmpty &&
-                                                        selectedImagePath.isEmpty
-                                                    ? (firstLetter.isNotEmpty
-                                                        ? Text(
-                                                          firstLetter,
-                                                          style: TextStyle(
-                                                            fontSize: 32.sp,
-                                                            fontWeight: FontWeight.w700,
-                                                            color: context.colors.primaryForeground,
-                                                          ),
-                                                        )
-                                                        : Icon(
-                                                          CarbonIcons.user,
-                                                          size: 32.sp,
-                                                          color: context.colors.primaryForeground,
-                                                        ))
-                                                    : null,
-                                          ),
+                                        final imageUrl = _getProfileImageUrl(profile);
+                                        final displayName = value.text.trim();
+                                        return ContactAvatar(
+                                          imageUrl: imageUrl,
+                                          displayName: displayName,
+                                          size: 96.w,
                                         );
                                       },
                                     ),
@@ -377,6 +332,18 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       ),
     );
   }
+}
+
+String _getProfileImageUrl(ProfileState? profile) {
+  final selectedImagePath = profile?.selectedImagePath;
+  final profilePicture = profile?.picture ?? '';
+  if (selectedImagePath != null && selectedImagePath.isNotEmpty) {
+    return selectedImagePath;
+  }
+  if (profilePicture.isNotEmpty) {
+    return profilePicture;
+  }
+  return '';
 }
 
 class FallbackProfileImageWidget extends StatelessWidget {
