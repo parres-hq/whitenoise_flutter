@@ -349,11 +349,11 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
             children: [
               Row(
                 spacing: 6.w,
-                children: const [
+                children: [
                   Flexible(
-                    child: _SendMessageButton(),
+                    child: _SendMessageButton(widget.member),
                   ),
-                  Flexible(
+                  const Flexible(
                     child: _AddToContactButton(),
                   ),
                 ],
@@ -389,7 +389,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
             ],
           )
         else
-          const _SendMessageButton(),
+          _SendMessageButton(widget.member),
         Gap(8.h),
         AppFilledButton.child(
           onPressed: _openAddToGroup,
@@ -491,13 +491,74 @@ class _AddToContactButton extends StatelessWidget {
   }
 }
 
-class _SendMessageButton extends StatelessWidget {
-  const _SendMessageButton();
+class _SendMessageButton extends ConsumerStatefulWidget {
+  const _SendMessageButton(this.user);
+  final User? user;
+  @override
+  ConsumerState<_SendMessageButton> createState() => __SendMessageButtonState();
+}
+
+class __SendMessageButtonState extends ConsumerState<_SendMessageButton> {
+  final _logger = Logger('_SendMessageButtonState');
+  bool _isCreatingGroup = false;
+  bool get _isLoading => _isCreatingGroup;
+
+  Future<void> _createOrOpenDirectMessageGroup() async {
+    if (widget.user == null || widget.user!.publicKey.isEmpty) {
+      ref.showErrorToast('No user to start chat with');
+      return;
+    }
+    setState(() {
+      _isCreatingGroup = true;
+    });
+
+    try {
+      final groupData = await ref
+          .read(groupsProvider.notifier)
+          .createNewGroup(
+            groupName: 'DM',
+            groupDescription: 'Direct message',
+            memberPublicKeyHexs: [widget.user!.publicKey],
+            adminPublicKeyHexs: [widget.user!.publicKey],
+          );
+
+      if (groupData != null) {
+        _logger.info('Direct message group created successfully: ${groupData.mlsGroupId}');
+
+        if (mounted) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              Navigator.pop(context);
+              context.navigateToGroupChatAndPopToHome(groupData);
+            }
+          });
+
+          ref.showSuccessToast(
+            'Chat with ${widget.user!.username ?? widget.user!.name} started successfully',
+          );
+        }
+      } else {
+        // Group creation failed - check the provider state for the error message
+        if (mounted) {
+          final groupsState = ref.read(groupsProvider);
+          final errorMessage = groupsState.error ?? 'Failed to create direct message group';
+          ref.showErrorToast(errorMessage);
+        }
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isCreatingGroup = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return AppFilledButton.child(
-      onPressed: () {},
+      onPressed: _createOrOpenDirectMessageGroup,
+      loading: _isLoading,
       size: AppButtonSize.small,
       visualState: AppButtonVisualState.secondary,
       child: Row(
