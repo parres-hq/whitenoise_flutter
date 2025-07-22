@@ -488,27 +488,76 @@ class _AddToContactButton extends ConsumerStatefulWidget {
 }
 
 class __AddToContactButtonState extends ConsumerState<_AddToContactButton> {
+  bool _isAddingContact = false;
+  bool get _isLoading => _isAddingContact;
+  bool _isContact() {
+    final contactsState = ref.watch(contactsProvider);
+    final contacts = contactsState.contactModels ?? [];
+
+    // Check if the current user's pubkey exists in contacts
+    return contacts.any(
+      (contact) => contact.publicKey.toLowerCase() == widget.user.publicKey.toLowerCase(),
+    );
+  }
+
+  Future<void> _toggleContact() async {
+    setState(() {
+      _isAddingContact = true;
+    });
+
+    try {
+      final contactsNotifier = ref.read(contactsProvider.notifier);
+      final isCurrentlyContact = _isContact();
+
+      if (isCurrentlyContact) {
+        // Remove contact
+        await contactsNotifier.removeContactByHex(widget.user.publicKey);
+        if (mounted) {
+          ref.showSuccessToast('${widget.user.name} removed from contacts');
+        }
+      } else {
+        // Add contact
+        await contactsNotifier.addContactByHex(widget.user.publicKey);
+        if (mounted) {
+          ref.showSuccessToast('${widget.user.name} added to contacts');
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ref.showErrorToast('Failed to update contact: $e');
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isAddingContact = false;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isContact = _isContact();
     return AppFilledButton.child(
-      onPressed: () {},
+      onPressed: _toggleContact,
       size: AppButtonSize.small,
       visualState: AppButtonVisualState.secondary,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Add Contact',
+            isContact ? 'Remove Contact' : 'Add Contact',
             style: context.textTheme.bodyMedium?.copyWith(
               color: context.colors.primary,
               fontWeight: FontWeight.w600,
               fontSize: 14.sp,
             ),
           ),
+          Gap(4.w),
           SvgPicture.asset(
-            AssetsPaths.icMessage,
-            width: 14.w,
-            height: 13.h,
+            isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+            width: 13.w,
+            height: 13.w,
             colorFilter: ColorFilter.mode(
               context.colors.primary,
               BlendMode.srcIn,
