@@ -23,7 +23,7 @@ import 'package:whitenoise/ui/contact_list/widgets/profile_ready_card.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
-import 'package:whitenoise/ui/core/ui/bottom_fade.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
@@ -373,7 +373,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
             ),
 
             if (chatItems.isNotEmpty)
-              Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const BottomFade()),
+              Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const WnBottomFade()),
           ],
         ),
         bottomNavigationBar: SafeArea(

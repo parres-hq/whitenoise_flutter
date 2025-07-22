@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
-class BottomFade extends StatelessWidget {
-  const BottomFade({
+class WnBottomFade extends StatelessWidget {
+  const WnBottomFade({
     super.key,
   });
 

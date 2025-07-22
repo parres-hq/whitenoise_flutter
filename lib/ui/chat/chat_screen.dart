@@ -16,7 +16,7 @@ import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/chat/widgets/message_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/swipe_to_reply_widget.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/bottom_fade.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -288,7 +288,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                         left: 0,
                         right: 0,
                         height: 20.h,
-                        child: const BottomFade().animate().fadeIn(),
+                        child: const WnBottomFade().animate().fadeIn(),
                       ),
                   ],
                 ),
