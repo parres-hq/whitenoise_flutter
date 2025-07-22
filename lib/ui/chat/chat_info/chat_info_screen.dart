@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -68,7 +71,9 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Chat Information',
+                  groupDetails?.groupType == GroupType.directMessage
+                      ? 'Chat Information'
+                      : 'Group Information',
                   style: context.textTheme.bodyMedium?.copyWith(
                     color: context.colors.mutedForeground,
                     fontSize: 18.sp,

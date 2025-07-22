@@ -3,12 +3,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/app_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
@@ -162,6 +164,14 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
     }
   }
 
+  void _openAddToGroup() {
+    if (widget.pubkey.isEmpty) {
+      ref.showErrorToast('No user to add to group');
+      return;
+    }
+    context.push('/add_to_group/${widget.pubkey}');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -246,6 +256,36 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
             ],
           ),
         ),
+        Gap(8.h),
+        AppFilledButton.child(
+          size: AppButtonSize.small,
+          visualState: AppButtonVisualState.secondary,
+          onPressed: _openAddToGroup,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Add to Group',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.primary,
+                ),
+              ),
+              Gap(9.w),
+              SvgPicture.asset(
+                AssetsPaths.icChatInvite,
+                width: 15.w,
+                height: 15.w,
+                colorFilter: ColorFilter.mode(
+                  context.colors.primary,
+                  BlendMode.srcIn,
+                ),
+              ),
+            ],
+          ),
+        ),
+
         Gap(8.h),
         AppFilledButton(
           onPressed: _isCreatingGroup ? null : _createOrOpenDirectMessageGroup,

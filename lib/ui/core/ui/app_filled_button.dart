@@ -49,6 +49,7 @@ class AppFilledButton extends AppButton {
             fixedSize: Size(size.value.width.w, size.value.height.h),
             backgroundColor: visualState.backgroundColor(context),
             foregroundColor: visualState.foregroundColor(context),
+            iconColor: visualState.foregroundColor(context),
             disabledBackgroundColor: visualState.disabledBackgroundColor(
               context,
             ),

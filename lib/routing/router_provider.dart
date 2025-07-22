@@ -9,6 +9,7 @@ import 'package:whitenoise/ui/auth_flow/info_screen.dart';
 import 'package:whitenoise/ui/auth_flow/login_screen.dart';
 import 'package:whitenoise/ui/auth_flow/welcome_screen.dart';
 import 'package:whitenoise/ui/chat/chat_info/chat_info_screen.dart';
+import 'package:whitenoise/ui/chat/chat_management/add_to_group_screen.dart';
 import 'package:whitenoise/ui/chat/chat_screen.dart';
 import 'package:whitenoise/ui/contact_list/chat_list_screen.dart';
 import 'package:whitenoise/ui/settings/app_settings/app_settings_screen.dart';
@@ -200,6 +201,13 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: Routes.addContactToGroup,
+        builder: (context, state) {
+          final contactNpub = state.pathParameters['id']!;
+          return AddToGroupScreen(contactNpub: contactNpub);
+        },
       ),
     ],
   );

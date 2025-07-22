@@ -107,6 +107,26 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     }
   }
 
+  void _copyToClipboard() {
+    final npub = otherUserNpub ?? '';
+    if (npub.isEmpty) {
+      ref.showErrorToast('No public key to copy');
+      return;
+    }
+    Clipboard.setData(ClipboardData(text: npub));
+    ref.showSuccessToast(
+      'Public Key copied.',
+    );
+  }
+
+  void _openAddToGroup() {
+    if (otherUserNpub == null) {
+      ref.showErrorToast('No user to add to group');
+      return;
+    }
+    context.push('/add_to_group/$otherUserNpub');
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen(contactsProvider, (previous, next) {
@@ -129,6 +149,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               Gap(64.h),
               ContactAvatar(
                 imageUrl: dmChatData?.displayImage ?? '',
+                displayName: dmChatData?.displayName ?? 'Unknown',
                 size: 96.w,
               ),
               SizedBox(height: 16.h),
@@ -149,21 +170,39 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               ),
               Gap(16.h),
 
-              Text(
-                dmChatData?.publicKey?.formatPublicKey() ?? '',
-                textAlign: TextAlign.center,
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: context.colors.mutedForeground,
-                  fontSize: 14.sp,
-                ),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      dmChatData?.publicKey?.formatPublicKey() ?? '',
+                      textAlign: TextAlign.center,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colors.mutedForeground,
+                        fontSize: 14.sp,
+                      ),
+                    ),
+                  ),
+                  Gap(8.w),
+                  InkWell(
+                    onTap: _copyToClipboard,
+                    child: SvgPicture.asset(
+                      AssetsPaths.icCopy,
+                      width: 24.w,
+                      height: 24.w,
+                      colorFilter: ColorFilter.mode(
+                        context.colors.primary,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               Gap(32.h),
               AppFilledButton.icon(
                 visualState:
-                    isContact
-                        ? AppButtonVisualState.secondaryWarning
-                        : AppButtonVisualState.primary,
-                icon:
+                    isContact ? AppButtonVisualState.secondary : AppButtonVisualState.primary,
+                icon: Text(isContact ? 'Remove Contact' : 'Add Contact'),
+                label:
                     isContactLoading
                         ? SizedBox(
                           width: 14.w,
@@ -178,12 +217,11 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                           width: 14.w,
                           colorFilter: ColorFilter.mode(
                             isContact
-                                ? context.colors.destructive
+                                ? context.colors.secondaryForeground
                                 : context.colors.primaryForeground,
                             BlendMode.srcIn,
                           ),
                         ),
-                label: Text(isContact ? 'Remove Contact' : 'Add Contact'),
                 onPressed:
                     isContactLoading
                         ? null
@@ -195,6 +233,22 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                           }
                         },
               ),
+
+              Gap(12.h),
+              AppFilledButton.icon(
+                visualState: AppButtonVisualState.secondary,
+                icon: const Text('Add to Group'),
+                label: SvgPicture.asset(
+                  AssetsPaths.icAdd,
+                  width: 14.w,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.secondaryForeground,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                onPressed: _openAddToGroup,
+              ),
+
               Gap(12.h),
               // TODO: Reenable when we have a search and mute features
               // Row(
