@@ -29,8 +29,12 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
 
   // should store id of groups to add user to
   final List<String> _groupsToAddUserTo = [];
+  bool _isLoading = false;
 
   Future<void> _loadGroups() async {
+    setState(() {
+      _isLoading = true;
+    });
     await ref.read(groupsProvider.notifier).loadGroups();
 
     final groups = ref.read(groupsProvider).groups;
@@ -50,6 +54,9 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
     if (loadTasks.isNotEmpty) {
       await Future.wait(loadTasks);
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   Future<void> _addUserToGroups() async {
@@ -60,6 +67,9 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
 
     int successCount = 0;
     final int totalGroups = _groupsToAddUserTo.length;
+    setState(() {
+      _isLoading = true;
+    });
 
     for (final groupId in _groupsToAddUserTo) {
       try {
@@ -84,9 +94,14 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
 
       if (successCount == totalGroups) {
         // All successful, go back
-        Navigator.of(context).pop();
+        if (mounted) {
+          Navigator.of(context).pop();
+        }
       }
     }
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -196,6 +211,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
           ),
           child: AppFilledButton(
             title: 'Add to Group',
+            loading: _isLoading,
             onPressed: _groupsToAddUserTo.isEmpty ? null : _addUserToGroups,
           ),
         ),
