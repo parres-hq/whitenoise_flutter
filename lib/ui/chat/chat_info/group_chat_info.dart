@@ -382,7 +382,6 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                   ),
                 ],
               ),
-
               // Gap(8.h),
               // AppFilledButton.child(
               //   onPressed: () {},
