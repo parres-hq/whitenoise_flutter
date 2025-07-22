@@ -1,7 +1,7 @@
 part of 'wn_button.dart';
 
-class AppFilledButton extends WnButton {
-  AppFilledButton({
+class WnFilledButton extends WnButton {
+  WnFilledButton({
     super.key,
     super.size,
     super.visualState,
@@ -16,7 +16,7 @@ class AppFilledButton extends WnButton {
          ),
        );
 
-  const AppFilledButton.child({
+  const WnFilledButton.child({
     super.key,
     super.size,
     super.visualState,
@@ -25,7 +25,7 @@ class AppFilledButton extends WnButton {
     required super.onPressed,
   }) : super(ignorePointer: loading);
 
-  const AppFilledButton.icon({
+  const WnFilledButton.icon({
     super.key,
     super.size,
     super.icon,
@@ -42,9 +42,7 @@ class AppFilledButton extends WnButton {
   Widget buildButton(BuildContext context) {
     final theme = Theme.of(context).elevatedButtonTheme;
 
-    final loadingIndicator = ButtonLoadingIndicator(
-      color: visualState.foregroundColor(context),
-    );
+    const loadingIndicator = ButtonLoadingIndicator();
 
     final effectiveStyle = (style ?? FilledButton.styleFrom())
         .merge(

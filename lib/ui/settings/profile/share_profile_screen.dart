@@ -176,7 +176,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                               ),
                             ),
                             const Spacer(),
-                            AppFilledButton.icon(
+                            WnFilledButton.icon(
                               label: SvgPicture.asset(
                                 AssetsPaths.icScan,
                                 colorFilter: ColorFilter.mode(

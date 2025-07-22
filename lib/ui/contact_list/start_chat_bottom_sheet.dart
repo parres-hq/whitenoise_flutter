@@ -217,7 +217,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
             ],
           ),
         ),
-        AppFilledButton.child(
+        WnFilledButton.child(
           size: WnButtonSize.small,
           visualState: WnButtonVisualState.secondary,
           onPressed: _isAddingContact ? null : _toggleContact,
@@ -257,7 +257,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
           ),
         ),
         Gap(8.h),
-        AppFilledButton.child(
+        WnFilledButton.child(
           size: WnButtonSize.small,
           visualState: WnButtonVisualState.secondary,
           onPressed: _openAddToGroup,
@@ -287,7 +287,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
         ),
 
         Gap(8.h),
-        AppFilledButton(
+        WnFilledButton(
           onPressed: _isCreatingGroup ? null : _createOrOpenDirectMessageGroup,
           loading: _isCreatingGroup,
           title: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',

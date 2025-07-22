@@ -254,7 +254,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   if (profile.isDirty) ...[
-                                    AppFilledButton(
+                                    WnFilledButton(
                                       onPressed:
                                           () => showDialog(
                                             context: context,
@@ -266,7 +266,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                   actions: Row(
                                                     children: [
                                                       Expanded(
-                                                        child: AppFilledButton.child(
+                                                        child: WnFilledButton.child(
                                                           onPressed: () {
                                                             ref
                                                                 .read(profileProvider.notifier)
@@ -284,7 +284,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                       ),
                                                       Gap(10.w),
                                                       Expanded(
-                                                        child: AppFilledButton(
+                                                        child: WnFilledButton(
                                                           onPressed: () async {
                                                             await ref
                                                                 .read(profileProvider.notifier)
@@ -306,7 +306,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                     ),
                                     Gap(4.h),
                                   ],
-                                  AppFilledButton(
+                                  WnFilledButton(
                                     onPressed:
                                         profile.isDirty && !profile.isSaving
                                             ? () async =>

@@ -78,7 +78,7 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
 
   @override
   Widget build(BuildContext context) {
-    return AppFilledButton.child(
+    return WnFilledButton.child(
       onPressed: _createOrOpenDirectMessageGroup,
       loading: _isLoading,
       size: WnButtonSize.small,
@@ -167,7 +167,7 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
   @override
   Widget build(BuildContext context) {
     final isContact = _isContact();
-    return AppFilledButton.child(
+    return WnFilledButton.child(
       onPressed: _toggleContact,
       loading: _isLoading,
       size: WnButtonSize.small,

@@ -209,7 +209,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
           padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
             bottom: 16.h,
           ),
-          child: AppFilledButton(
+          child: WnFilledButton(
             title: 'Add to Group',
             loading: _isLoading,
             onPressed: _groupsToAddUserTo.isEmpty ? null : _addUserToGroups,

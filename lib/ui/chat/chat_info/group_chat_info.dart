@@ -159,7 +159,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
           //   spacing: 12.w,
           //   children: [
           //     Expanded(
-          //       child: AppFilledButton.icon(
+          //       child: WnFilledButton.icon(
           //         visualState: WnButtonVisualState.secondary,
           //         icon: SvgPicture.asset(
           //           AssetsPaths.icSearch,
@@ -171,7 +171,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
           //       ),
           //     ),
           //     Expanded(
-          //       child: AppFilledButton.icon(
+          //       child: WnFilledButton.icon(
           //         visualState: WnButtonVisualState.secondary,
           //         icon: SvgPicture.asset(
           //           AssetsPaths.icMutedNotification,

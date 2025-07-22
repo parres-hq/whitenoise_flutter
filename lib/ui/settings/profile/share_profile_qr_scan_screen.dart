@@ -108,7 +108,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
                           ),
                         ),
                         const Spacer(),
-                        AppFilledButton.icon(
+                        WnFilledButton.icon(
                           label: SvgPicture.asset(
                             AssetsPaths.icQrCode,
                             colorFilter: ColorFilter.mode(

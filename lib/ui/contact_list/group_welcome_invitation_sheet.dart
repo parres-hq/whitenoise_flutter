@@ -69,7 +69,7 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        AppFilledButton(
+        WnFilledButton(
           visualState: WnButtonVisualState.secondary,
           onPressed: () {
             Navigator.of(context).pop();
@@ -80,7 +80,7 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
           title: 'Decline',
         ),
         Gap(8.h),
-        AppFilledButton(
+        WnFilledButton(
           onPressed: () {
             Navigator.of(context).pop();
             if (onAccept != null) {

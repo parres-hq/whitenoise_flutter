@@ -198,7 +198,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 ],
               ),
               Gap(32.h),
-              AppFilledButton.icon(
+              WnFilledButton.icon(
                 size: WnButtonSize.small,
                 visualState:
                     isContact ? WnButtonVisualState.secondary : WnButtonVisualState.primary,
@@ -239,7 +239,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               ),
 
               Gap(12.h),
-              AppFilledButton.icon(
+              WnFilledButton.icon(
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,
                 icon: const Text('Add to Group'),
@@ -260,7 +260,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               //   spacing: 12.w,
               //   children: [
               //     Expanded(
-              //       child: AppFilledButton.icon(
+              //       child: WnFilledButton.icon(
               //         visualState: WnButtonVisualState.secondary,
               //         icon: SvgPicture.asset(
               //           AssetsPaths.icSearch,
@@ -272,7 +272,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               //       ),
               //     ),
               //     Expanded(
-              //       child: AppFilledButton.icon(
+              //       child: WnFilledButton.icon(
               //         visualState: WnButtonVisualState.secondary,
               //         icon: SvgPicture.asset(
               //           AssetsPaths.icMutedNotification,

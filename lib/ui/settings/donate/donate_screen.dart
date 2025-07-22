@@ -112,7 +112,7 @@ class DonateScreen extends ConsumerWidget {
                             ],
                           ),
                           Gap(12.h),
-                          AppFilledButton.child(
+                          WnFilledButton.child(
                             onPressed: () {},
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -166,7 +166,7 @@ class DonateScreen extends ConsumerWidget {
                             ],
                           ),
                           Gap(12.h),
-                          AppFilledButton.child(
+                          WnFilledButton.child(
                             onPressed: () {},
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,

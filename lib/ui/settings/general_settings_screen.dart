@@ -215,7 +215,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
             actions: Row(
               children: [
                 Expanded(
-                  child: AppFilledButton(
+                  child: WnFilledButton(
                     title: 'Cancel',
                     visualState: WnButtonVisualState.secondary,
                     size: WnButtonSize.small,
@@ -224,7 +224,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 ),
                 Gap(8.w),
                 Expanded(
-                  child: AppFilledButton.child(
+                  child: WnFilledButton.child(
                     visualState: WnButtonVisualState.error,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -332,7 +332,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     else
                       const Center(child: Text('No accounts found')),
                     Gap(12.h),
-                    AppFilledButton.child(
+                    WnFilledButton.child(
                       size: WnButtonSize.small,
                       visualState: WnButtonVisualState.secondary,
                       onPressed: () => context.push('${Routes.settings}/share_profile'),

@@ -248,7 +248,7 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
           ),
         ],
         Gap(40.h),
-        AppFilledButton(
+        WnFilledButton(
           onPressed: _isSendingInvite ? null : _shareInvite,
           loading: _isSendingInvite,
           title: _isSendingInvite ? 'Sharing...' : 'Share',

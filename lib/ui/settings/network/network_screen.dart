@@ -73,7 +73,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
             actions: Row(
               children: [
                 Expanded(
-                  child: AppFilledButton(
+                  child: WnFilledButton(
                     title: 'Cancel',
                     visualState: WnButtonVisualState.secondary,
                     size: WnButtonSize.small,
@@ -82,7 +82,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                 ),
                 Gap(12.w),
                 Expanded(
-                  child: AppFilledButton(
+                  child: WnFilledButton(
                     title: 'Remove',
                     visualState: WnButtonVisualState.error,
                     size: WnButtonSize.small,

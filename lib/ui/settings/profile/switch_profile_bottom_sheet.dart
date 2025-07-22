@@ -192,7 +192,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
               ),
             ),
             Gap(4.h),
-            AppFilledButton(
+            WnFilledButton(
               title: 'Connect Another Profile',
               onPressed: _handleConnectAnotherProfile,
             ),

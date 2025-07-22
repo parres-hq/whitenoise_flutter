@@ -161,7 +161,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
           ),
           Gap(8.h),
         ],
-        AppFilledButton(
+        WnFilledButton(
           onPressed: !_isAdding ? _addRelay : null,
           loading: _isAdding,
           title: widget.title,

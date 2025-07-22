@@ -194,7 +194,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                     )
                     : _buildContactsList(filteredContacts),
           ),
-          AppFilledButton(
+          WnFilledButton(
             onPressed:
                 _selectedContacts.isNotEmpty
                     ? () {

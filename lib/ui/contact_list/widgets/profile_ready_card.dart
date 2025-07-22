@@ -77,7 +77,7 @@ class ProfileReadyCard extends ConsumerWidget {
           ),
           Gap(24.h),
           // Share Your Profile button
-          AppFilledButton.child(
+          WnFilledButton.child(
             onPressed: () {
               context.push('${Routes.settings}/share_profile');
             },
@@ -105,7 +105,7 @@ class ProfileReadyCard extends ConsumerWidget {
           ),
           Gap(12.h),
           // Search For Friends button
-          AppFilledButton.child(
+          WnFilledButton.child(
             onPressed: () {
               NewChatBottomSheet.show(context);
             },

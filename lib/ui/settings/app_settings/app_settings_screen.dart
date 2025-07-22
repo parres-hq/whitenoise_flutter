@@ -37,7 +37,7 @@ class AppSettingsScreen extends ConsumerWidget {
             actions: Row(
               children: [
                 Expanded(
-                  child: AppFilledButton(
+                  child: WnFilledButton(
                     title: 'Cancel',
                     visualState: WnButtonVisualState.secondary,
                     size: WnButtonSize.small,
@@ -46,7 +46,7 @@ class AppSettingsScreen extends ConsumerWidget {
                 ),
                 Gap(8.w),
                 Expanded(
-                  child: AppFilledButton.child(
+                  child: WnFilledButton.child(
                     visualState: WnButtonVisualState.error,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -257,7 +257,7 @@ class AppSettingsScreen extends ConsumerWidget {
                             ),
                           ),
                           Gap(10.h),
-                          AppFilledButton.child(
+                          WnFilledButton.child(
                             visualState: WnButtonVisualState.error,
                             onPressed: () => _deleteAllData(context, ref),
                             child: Row(

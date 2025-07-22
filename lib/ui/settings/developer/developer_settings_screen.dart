@@ -123,7 +123,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                         ),
                         Gap(12.h),
 
-                        AppFilledButton(
+                        WnFilledButton(
                           title: 'Clear Cache',
                           onPressed: _isLoading ? null : _clearMetadataCache,
                           loading: _isLoading,
@@ -132,7 +132,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
 
                         Gap(8.h),
 
-                        AppFilledButton(
+                        WnFilledButton(
                           title: 'Reload Contacts',
                           onPressed: _isLoading ? null : _reloadContacts,
                           loading: _isLoading,

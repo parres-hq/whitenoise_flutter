@@ -117,7 +117,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
               final accountState = ref.watch(accountProvider);
               final isButtonDisabled = _isLoading || accountState.isLoading;
 
-              return AppFilledButton.child(
+              return WnFilledButton.child(
                 loading: isButtonDisabled,
                 onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
                 child: Row(

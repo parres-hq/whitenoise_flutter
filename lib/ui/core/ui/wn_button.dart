@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
-part 'app_filled_button.dart';
+part 'wn_filled_button.dart';
 part 'app_text_button.dart';
 
 const kMinimumButtonSize = Size(358, 56);

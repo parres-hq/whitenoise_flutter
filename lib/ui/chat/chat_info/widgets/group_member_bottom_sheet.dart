@@ -152,14 +152,14 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
               textAlign: TextAlign.left,
             ),
             Gap(16.h),
-            AppFilledButton(
+            WnFilledButton(
               size: WnButtonSize.small,
               onPressed: () => Navigator.pop(context),
               visualState: WnButtonVisualState.secondary,
               title: 'Cancel',
             ),
             Gap(8.h),
-            AppFilledButton(
+            WnFilledButton(
               size: WnButtonSize.small,
               loading: _isRemoving,
               onPressed: _isRemoving ? null : _removeFromGroup,
@@ -266,7 +266,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
         else
           SendMessageButton(widget.member),
         Gap(8.h),
-        AppFilledButton.child(
+        WnFilledButton.child(
           onPressed: _openAddToGroup,
           size: WnButtonSize.small,
           visualState: WnButtonVisualState.secondary,
@@ -296,7 +296,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
         ),
         if (currentUserIsAdmin) ...[
           Gap(8.h),
-          AppFilledButton.child(
+          WnFilledButton.child(
             onPressed: () async {
               final result = await _openRemoveFromGroupDialog();
               if (result == true && context.mounted) {

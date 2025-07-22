@@ -38,7 +38,7 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AppFilledButton(
+        WnFilledButton(
           title: 'Login With Existing Profile',
           loading: _isLoginLoading,
           visualState: WnButtonVisualState.secondary,
@@ -63,7 +63,7 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
                   },
         ),
         Gap(4.h),
-        AppFilledButton(
+        WnFilledButton(
           title: 'Create New Profile',
           loading: authState.isLoading,
           onPressed: () async {

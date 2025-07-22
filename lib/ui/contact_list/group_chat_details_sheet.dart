@@ -310,7 +310,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
             },
           ),
         ),
-        AppFilledButton(
+        WnFilledButton(
           onPressed:
               _isCreatingGroup || !_isGroupNameValid || !_hasContactsWithKeyPackage
                   ? null

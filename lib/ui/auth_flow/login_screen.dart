@@ -225,7 +225,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                       Consumer(
                         builder: (context, ref, child) {
                           final authState = ref.watch(authProvider);
-                          return AppFilledButton(
+                          return WnFilledButton(
                             loading: authState.isLoading,
                             onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
                             title: 'Login',

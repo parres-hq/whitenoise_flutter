@@ -70,7 +70,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
             child: SafeArea(
               child: Column(
                 children: [
-                  AppFilledButton(
+                  WnFilledButton(
                     title: 'Decline',
                     visualState: WnButtonVisualState.secondary,
                     onPressed: () async {
@@ -81,7 +81,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
                     },
                   ),
                   Gap(8.h),
-                  AppFilledButton(
+                  WnFilledButton(
                     title: 'Accept',
                     loading: _isAccepting,
                     onPressed:

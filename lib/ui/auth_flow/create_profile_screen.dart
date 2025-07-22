@@ -223,7 +223,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
               final accountState = ref.watch(accountProvider);
               final isButtonDisabled = accountState.isLoading || _isLoadingUsername;
 
-              return AppFilledButton(
+              return WnFilledButton(
                 title: 'Finish',
                 loading: isButtonDisabled,
                 onPressed:

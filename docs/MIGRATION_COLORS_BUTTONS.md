@@ -79,11 +79,11 @@ Text(
 
 ### **Background**
 
-The app previously used multiple button components, including `AppFilledButton`, `CustomFilledButton`, and direct `ElevatedButton` usage. This led to inconsistent button styles and duplicated logic.
+The app previously used multiple button components, including `WnFilledButton`, `CustomFilledButton`, and direct `ElevatedButton` usage. This led to inconsistent button styles and duplicated logic.
 
-### **New Approach: `AppFilledButton` (from `wn_button.dart`)**
+### **New Approach: `WnFilledButton` (from `wn_button.dart`)**
 
-All primary, secondary, and tertiary buttons should use `AppFilledButton` (or its variants) from `wn_button.dart`. This ensures:
+All primary, secondary, and tertiary buttons should use `WnFilledButton` (or its variants) from `wn_button.dart`. This ensures:
 
 - **Consistent button styles** across the app
 - **Centralized logic** for theming, loading, and states
@@ -105,7 +105,7 @@ CustomFilledButton(
 ```dart
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
-AppFilledButton(
+WnFilledButton(
   title: 'Continue',
   onPressed: _onContinue,
 )
@@ -116,7 +116,7 @@ AppFilledButton(
 - **Primary (default):**
 
   ```dart
-  AppFilledButton(
+  WnFilledButton(
     title: 'Send',
     onPressed: _send,
   )
@@ -125,7 +125,7 @@ AppFilledButton(
 - **Secondary:**
 
   ```dart
-  AppFilledButton(
+  WnFilledButton(
     title: 'Cancel',
     onPressed: _cancel,
     visualState: WnButtonVisualState.secondary,
@@ -135,7 +135,7 @@ AppFilledButton(
 - **Tertiary:**
 
   ```dart
-  AppFilledButton(
+  WnFilledButton(
     title: 'Remove',
     onPressed: _remove,
     visualState: WnButtonVisualState.tertiary,
@@ -145,7 +145,7 @@ AppFilledButton(
 - **With Icon:**
 
   ```dart
-  AppFilledButton.icon(
+  WnFilledButton.icon(
     icon: Icon(Icons.copy),
     label: Text('Copy'),
     onPressed: _copy,
@@ -156,7 +156,7 @@ AppFilledButton(
 - **Custom Child:**
 
   ```dart
-  AppFilledButton.child(
+  WnFilledButton.child(
     child: Row(
       children: [Icon(Icons.add), Text('Add')],
     ),
@@ -166,13 +166,13 @@ AppFilledButton(
 
 #### **Padding**
 
-- `AppFilledButton` does **not** add extra padding by default.
+- `WnFilledButton` does **not** add extra padding by default.
 - If you need spacing (e.g., bottom navigation, dialog actions), wrap the button in a `Padding` widget:
 
   ```dart
   Padding(
     padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(bottom: 32.h),
-    child: AppFilledButton(
+    child: WnFilledButton(
       title: 'Continue',
       onPressed: _onContinue,
     ),
@@ -183,18 +183,18 @@ AppFilledButton(
 
 - Always import:  
   `import 'package:whitenoise/ui/core/ui/wn_button.dart';`
-- Do **not** import or use `custom_filled_button.dart` or `app_filled_button.dart` directly.
+- Do **not** import or use `custom_filled_button.dart` or `wn_filled_button.dart` directly.
 - Use the correct `visualState` for secondary/tertiary/destructive actions.
-- For icon+label, use `AppFilledButton.icon` or `AppFilledButton.child` as appropriate.
+- For icon+label, use `WnFilledButton.icon` or `WnFilledButton.child` as appropriate.
 
 ---
 
 ## 3. Migration Steps
 
 1. **Replace all `AppColors` usages** with `context.colors` (see mapping above).
-2. **Replace all `CustomFilledButton` and direct `ElevatedButton` usages** with `AppFilledButton` or its variants.
-3. **Remove all imports** of `custom_filled_button.dart` and `app_filled_button.dart` from UI code.
-4. **Add imports** for `wn_button.dart` and `themes/src/extensions.dart` as needed.
+2. **Replace all `CustomFilledButton` and direct `ElevatedButton` usages** with `WnFilledButton` or its variants.
+3. **Remove all imports** of `custom_filled_button.dart` and `wn_filled_button.dart` from UI code.
+4. **Add imports** for `app_button.dart` and `themes/src/extensions.dart` as needed.
 5. **Wrap buttons in `Padding`** only where extra spacing is required by the design.
 
 ---
@@ -224,7 +224,7 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 Container(
   color: context.colors.primary,
-  child: AppFilledButton(
+  child: WnFilledButton(
     title: 'Continue',
     onPressed: _onContinue,
   ),
@@ -239,7 +239,7 @@ Container(
 A: Extend the theme or button system, do not use hardcoded colors or custom button widgets.
 
 **Q: How do I migrate a button with both an icon and a label?**  
-A: Use `AppFilledButton.icon` or `AppFilledButton.child`.
+A: Use `WnFilledButton.icon` or `WnFilledButton.child`.
 
 **Q: Can I still use `AppColors` or `CustomFilledButton`?**  
 A: No. All usages should be migrated for consistency and maintainability.
