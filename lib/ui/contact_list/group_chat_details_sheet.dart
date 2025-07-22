@@ -15,8 +15,8 @@ import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class GroupChatDetailsSheet extends ConsumerStatefulWidget {
@@ -34,7 +34,7 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
     required List<ContactModel> selectedContacts,
     ValueChanged<GroupData?>? onGroupCreated,
   }) {
-    return CustomBottomSheet.show(
+    return WnBottomSheet.show(
       context: context,
       title: 'Group chat details',
       blurSigma: 8.0,

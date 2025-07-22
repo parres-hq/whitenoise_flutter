@@ -11,8 +11,8 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ShareInviteBottomSheet extends ConsumerStatefulWidget {
@@ -29,7 +29,7 @@ class ShareInviteBottomSheet extends ConsumerStatefulWidget {
     required List<ContactModel> contacts,
     VoidCallback? onInviteSent,
   }) {
-    return CustomBottomSheet.show(
+    return WnBottomSheet.show(
       context: context,
       title: 'Invite to Chat',
       blurSigma: 8.0,

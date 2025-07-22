@@ -9,8 +9,8 @@ import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/contact_list/group_chat_details_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class NewGroupChatSheet extends ConsumerStatefulWidget {
@@ -22,7 +22,7 @@ class NewGroupChatSheet extends ConsumerStatefulWidget {
   ConsumerState<NewGroupChatSheet> createState() => _NewGroupChatSheetState();
 
   static Future<void> show(BuildContext context, {ValueChanged<GroupData?>? onGroupCreated}) {
-    return CustomBottomSheet.show(
+    return WnBottomSheet.show(
       context: context,
       title: 'New group chat',
       blurSigma: 8.0,

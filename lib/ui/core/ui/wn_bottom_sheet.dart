@@ -7,7 +7,7 @@ import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import '../themes/src/extensions.dart';
 
 /// A utility class for showing custom bottom sheets with a smooth slide-up animation.
-class CustomBottomSheet {
+class WnBottomSheet {
   /// Helper method to check if keyboard is currently open
   static bool isKeyboardOpen(BuildContext context) {
     return MediaQuery.of(context).viewInsets.bottom > 0;

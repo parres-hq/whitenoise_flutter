@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class ConnectProfileBottomSheet extends ConsumerStatefulWidget {
@@ -15,7 +15,7 @@ class ConnectProfileBottomSheet extends ConsumerStatefulWidget {
   static Future<void> show({
     required BuildContext context,
   }) {
-    return CustomBottomSheet.show(
+    return WnBottomSheet.show(
       context: context,
       title: 'Connect Another Profile',
       showCloseButton: false,

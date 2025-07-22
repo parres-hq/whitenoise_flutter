@@ -20,8 +20,8 @@ import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
@@ -32,7 +32,7 @@ class NewChatBottomSheet extends ConsumerStatefulWidget {
   ConsumerState<NewChatBottomSheet> createState() => _NewChatBottomSheetState();
 
   static Future<void> show(BuildContext context) {
-    return CustomBottomSheet.show(
+    return WnBottomSheet.show(
       context: context,
       title: 'New chat',
       blurSigma: 8.0,
