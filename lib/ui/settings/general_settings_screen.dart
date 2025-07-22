@@ -19,7 +19,7 @@ import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
-import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
@@ -208,7 +208,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       context: context,
       barrierColor: Colors.transparent,
       builder:
-          (dialogContext) => WhitenoiseDialog(
+          (dialogContext) => WnDialog(
             title: 'Sign out',
             content:
                 'Are you sure? If you haven\'t saved your private key, you won\'t be able to log back in.',

@@ -11,8 +11,8 @@ import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 
@@ -67,7 +67,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
       context: context,
       barrierColor: Colors.transparent,
       builder:
-          (dialogContext) => WhitenoiseDialog(
+          (dialogContext) => WnDialog(
             title: 'Delete Relay?',
             content: 'Removing this relay will stop all connections to it.',
             actions: Row(

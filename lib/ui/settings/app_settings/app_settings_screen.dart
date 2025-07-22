@@ -18,8 +18,8 @@ import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 
 class AppSettingsScreen extends ConsumerWidget {
   const AppSettingsScreen({super.key});
@@ -31,7 +31,7 @@ class AppSettingsScreen extends ConsumerWidget {
       context: context,
       barrierColor: Colors.transparent,
       builder:
-          (dialogContext) => WhitenoiseDialog(
+          (dialogContext) => WnDialog(
             title: 'Delete app app data',
             content: 'This will erase every profile, key, and local files. This can\'t be undone.',
             actions: Row(

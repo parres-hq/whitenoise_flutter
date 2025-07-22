@@ -16,7 +16,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 import 'member_action_buttons.dart';
@@ -104,7 +104,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
   Future<bool?> _openRemoveFromGroupDialog() => showDialog<bool>(
     context: context,
     builder: (context) {
-      return WhitenoiseDialog.custom(
+      return WnDialog.custom(
         customChild: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

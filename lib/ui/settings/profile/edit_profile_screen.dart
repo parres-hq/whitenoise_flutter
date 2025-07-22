@@ -11,9 +11,9 @@ import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
-import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -259,7 +259,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                           () => showDialog(
                                             context: context,
                                             builder:
-                                                (dialogContext) => WhitenoiseDialog(
+                                                (dialogContext) => WnDialog(
                                                   title: 'Unsaved changes',
                                                   content:
                                                       'You have unsaved changes. Are you sure you want to leave?',
