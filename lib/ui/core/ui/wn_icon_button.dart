@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
-class AppIconButton extends StatelessWidget {
-  const AppIconButton({
+class WnIconButton extends StatelessWidget {
+  const WnIconButton({
     super.key,
     this.onPressed,
     required this.icon,
