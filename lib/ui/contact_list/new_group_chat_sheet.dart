@@ -9,9 +9,9 @@ import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/contact_list/group_chat_details_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 
 class NewGroupChatSheet extends ConsumerStatefulWidget {
   final ValueChanged<GroupData?>? onGroupCreated;
@@ -157,7 +157,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
       padding: EdgeInsets.only(bottom: 16.h),
       child: Column(
         children: [
-          CustomTextField(
+          WnTextField(
             textController: _searchController,
             hintText: 'Search contact or public key...',
           ),
