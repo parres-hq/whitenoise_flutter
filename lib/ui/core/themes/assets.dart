@@ -40,6 +40,7 @@ class AssetsPaths {
   static const String icChatInvite = '$_svgsDir/ic_chat_invite.svg';
   static const String icQrCode = '$_svgsDir/ic_qr_code.svg';
   static const String icFaceAdd = '$_svgsDir/ic_face_add.svg';
+  static const String icMessage = '$_svgsDir/ic_message.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';

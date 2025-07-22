@@ -240,6 +240,8 @@ class GroupMemberBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet> {
+  String currentUserNpub = '';
+
   void _copyToClipboard() {
     final npub = widget.member.publicKey;
     if (npub.isEmpty) {
@@ -252,8 +254,38 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
     );
   }
 
+  void _openAddToGroup() {
+    if (widget.member.publicKey.isEmpty) {
+      ref.showErrorToast('No user to add to group');
+      return;
+    }
+    context.push('/add_to_group/${widget.member.publicKey}');
+  }
+
+  void _loadCurrentUserNpub() async {
+    final activeAccount = ref.read(activeAccountProvider);
+    if (activeAccount != null) {
+      currentUserNpub = await activeAccount.toNpub() ?? '';
+      setState(() {});
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUserNpub();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final currentUserIsAdmin =
+        ref
+            .watch(groupsProvider)
+            .groupAdmins?[widget.groupId]
+            ?.firstWhereOrNull(
+              (admin) => admin.publicKey == currentUserNpub,
+            ) !=
+        null;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -281,36 +313,215 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
             textAlign: TextAlign.center,
           ),
         Gap(16.h),
-        Row(
-          children: [
-            Flexible(
-              child: Text(
-                widget.member.publicKey.formatPublicKey(),
-                textAlign: TextAlign.center,
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.w),
+          child: Row(
+            children: [
+              Flexible(
+                child: Text(
+                  widget.member.publicKey.formatPublicKey(),
+                  textAlign: TextAlign.center,
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: context.colors.mutedForeground,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              ),
+              Gap(8.w),
+              InkWell(
+                onTap: _copyToClipboard,
+                child: SvgPicture.asset(
+                  AssetsPaths.icCopy,
+                  width: 24.w,
+                  height: 24.w,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.primary,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Gap(32.h),
+        if (currentUserIsAdmin)
+          Column(
+            children: [
+              Row(
+                spacing: 6.w,
+                children: const [
+                  Flexible(
+                    child: _SendMessageButton(),
+                  ),
+                  Flexible(
+                    child: _AddToContactButton(),
+                  ),
+                ],
+              ),
+              Gap(8.h),
+              AppFilledButton.child(
+                onPressed: () {},
+                size: AppButtonSize.small,
+                visualState: AppButtonVisualState.secondary,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Remove Admin',
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colors.primary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14.sp,
+                      ),
+                    ),
+                    SvgPicture.asset(
+                      AssetsPaths.icMessage,
+                      width: 14.w,
+                      height: 13.h,
+                      colorFilter: ColorFilter.mode(
+                        context.colors.primary,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          )
+        else
+          const _SendMessageButton(),
+        Gap(8.h),
+        AppFilledButton.child(
+          onPressed: _openAddToGroup,
+          size: AppButtonSize.small,
+          visualState: AppButtonVisualState.secondary,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'Add to Another Group',
                 style: context.textTheme.bodyMedium?.copyWith(
-                  color: context.colors.mutedForeground,
+                  color: context.colors.primary,
+                  fontWeight: FontWeight.w600,
                   fontSize: 14.sp,
                 ),
               ),
-            ),
-            Gap(8.w),
-            InkWell(
-              onTap: _copyToClipboard,
-              child: SvgPicture.asset(
-                AssetsPaths.icCopy,
-                width: 24.w,
-                height: 24.w,
+              SvgPicture.asset(
+                AssetsPaths.icMessage,
+                width: 14.w,
+                height: 13.h,
                 colorFilter: ColorFilter.mode(
                   context.colors.primary,
                   BlendMode.srcIn,
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-        Gap(32.h),
-        // 
+        if (currentUserIsAdmin) ...[
+          Gap(8.h),
+          AppFilledButton.child(
+            onPressed: () {},
+            size: AppButtonSize.small,
+            visualState: AppButtonVisualState.secondaryWarning,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Remove From Group',
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: context.colors.destructive,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
+                  ),
+                ),
+                SvgPicture.asset(
+                  AssetsPaths.icMessage,
+                  width: 14.w,
+                  height: 13.h,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.destructive,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ] else ...[
+          Gap(8.h),
+          const _AddToContactButton(),
+        ],
       ],
+    );
+  }
+}
+
+class _AddToContactButton extends StatelessWidget {
+  const _AddToContactButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFilledButton.child(
+      onPressed: () {},
+      size: AppButtonSize.small,
+      visualState: AppButtonVisualState.secondary,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Add Contact',
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: context.colors.primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 14.sp,
+            ),
+          ),
+          SvgPicture.asset(
+            AssetsPaths.icMessage,
+            width: 14.w,
+            height: 13.h,
+            colorFilter: ColorFilter.mode(
+              context.colors.primary,
+              BlendMode.srcIn,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SendMessageButton extends StatelessWidget {
+  const _SendMessageButton();
+
+  @override
+  Widget build(BuildContext context) {
+    return AppFilledButton.child(
+      onPressed: () {},
+      size: AppButtonSize.small,
+      visualState: AppButtonVisualState.secondary,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'Send Message',
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: context.colors.primary,
+              fontWeight: FontWeight.w600,
+              fontSize: 14.sp,
+            ),
+          ),
+          SvgPicture.asset(
+            AssetsPaths.icMessage,
+            width: 14.w,
+            height: 13.h,
+            colorFilter: ColorFilter.mode(
+              context.colors.primary,
+              BlendMode.srcIn,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
