@@ -86,80 +86,80 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
       _loadMembers();
     });
 
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 32.w),
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Gap(64.h),
-            ContactAvatar(
-              imageUrl: '',
-              displayName: groupDetails?.name ?? 'Unknown Group',
-              size: 96.w,
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Gap(64.h),
+          ContactAvatar(
+            imageUrl: '',
+            displayName: groupDetails?.name ?? 'Unknown Group',
+            size: 96.w,
+          ),
+          SizedBox(height: 8.h),
+          Text(
+            groupDetails?.name ?? 'Unknown Group',
+            style: context.textTheme.bodyLarge?.copyWith(
+              color: context.colors.primary,
+              fontSize: 18.sp,
             ),
-            SizedBox(height: 8.h),
-            Text(
-              groupDetails?.name ?? 'Unknown Group',
-              style: context.textTheme.bodyLarge?.copyWith(
-                color: context.colors.primary,
-                fontSize: 18.sp,
-              ),
+          ),
+          Gap(16.h),
+          Text(
+            'Group Description:',
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: context.colors.mutedForeground,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
             ),
-            Gap(16.h),
-            Text(
-              'Group Description:',
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: context.colors.mutedForeground,
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-              ),
+          ),
+          Text(
+            groupDetails?.description ?? '',
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: context.colors.primary,
+              fontSize: 14.sp,
             ),
-            Text(
-              groupDetails?.description ?? '',
-              style: context.textTheme.bodyMedium?.copyWith(
-                color: context.colors.primary,
-                fontSize: 14.sp,
-              ),
-            ),
-            Gap(32.h),
-            // TODO: Reenable when we have a search and mute features
-            // Row(
-            //   spacing: 12.w,
-            //   children: [
-            //     Expanded(
-            //       child: AppFilledButton.icon(
-            //         visualState: AppButtonVisualState.secondary,
-            //         icon: SvgPicture.asset(
-            //           AssetsPaths.icSearch,
-            //           width: 14.w,
-            //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-            //         ),
-            //         label: const Text('Search Chat'),
-            //         onPressed: () {},
-            //       ),
-            //     ),
-            //     Expanded(
-            //       child: AppFilledButton.icon(
-            //         visualState: AppButtonVisualState.secondary,
-            //         icon: SvgPicture.asset(
-            //           AssetsPaths.icMutedNotification,
-            //           width: 14.w,
-            //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-            //         ),
-            //         label: const Text('Mute Chat'),
-            //         onPressed: () {},
-            //       ),
-            //     ),
-            //   ],
-            // ),
-            // Gap(32.h),
-            if (isLoadingMembers)
-              const CircularProgressIndicator()
-            else if (groupMembers.isNotEmpty) ...[
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
+          ),
+          Gap(32.h),
+          // TODO: Reenable when we have a search and mute features
+          // Row(
+          //   spacing: 12.w,
+          //   children: [
+          //     Expanded(
+          //       child: AppFilledButton.icon(
+          //         visualState: AppButtonVisualState.secondary,
+          //         icon: SvgPicture.asset(
+          //           AssetsPaths.icSearch,
+          //           width: 14.w,
+          //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
+          //         ),
+          //         label: const Text('Search Chat'),
+          //         onPressed: () {},
+          //       ),
+          //     ),
+          //     Expanded(
+          //       child: AppFilledButton.icon(
+          //         visualState: AppButtonVisualState.secondary,
+          //         icon: SvgPicture.asset(
+          //           AssetsPaths.icMutedNotification,
+          //           width: 14.w,
+          //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
+          //         ),
+          //         label: const Text('Mute Chat'),
+          //         onPressed: () {},
+          //       ),
+          //     ),
+          //   ],
+          // ),
+          // Gap(32.h),
+          if (isLoadingMembers)
+            const CircularProgressIndicator()
+          else if (groupMembers.isNotEmpty) ...[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 32.w),
+                  child: Text(
                     'Members:',
                     style: context.textTheme.bodyLarge?.copyWith(
                       color: context.colors.mutedForeground,
@@ -167,13 +167,13 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  Gap(16.h),
-                  ...groupMembers.map((member) => _buildMemberListTile(member)),
-                ],
-              ),
-            ],
+                ),
+                Gap(16.h),
+                ...groupMembers.map((member) => _buildMemberListTile(member)),
+              ],
+            ),
           ],
-        ),
+        ],
       ),
     );
   }
@@ -182,7 +182,14 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     final isAdmin = groupAdmins.any((admin) => admin.publicKey == member.publicKey);
 
     return ListTile(
-      contentPadding: EdgeInsets.zero,
+      contentPadding: EdgeInsets.symmetric(horizontal: 32.w),
+
+      onTap:
+          () => GroupMemberBottomSheet.show(
+            context,
+            groupId: widget.groupId,
+            member: member,
+          ),
       leading: ContactAvatar(
         imageUrl: member.imagePath ?? '',
         displayName: member.name,
@@ -207,6 +214,32 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
                 ),
               )
               : null,
+    );
+  }
+}
+
+class GroupMemberBottomSheet extends StatelessWidget {
+  const GroupMemberBottomSheet({
+    super.key,
+    required this.member,
+    required this.groupId,
+  });
+  final User member;
+  final String groupId;
+  static void show(BuildContext context, {required String groupId, required User member}) {
+    CustomBottomSheet.show(
+      context: context,
+      title: 'Member',
+
+      builder: (context) => GroupMemberBottomSheet(groupId: groupId, member: member),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [],
     );
   }
 }
