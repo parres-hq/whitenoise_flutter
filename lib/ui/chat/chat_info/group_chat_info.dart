@@ -382,35 +382,36 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                   ),
                 ],
               ),
-              Gap(8.h),
-              AppFilledButton.child(
-                onPressed: () {},
-                size: AppButtonSize.small,
-                visualState: AppButtonVisualState.secondary,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Make Admin',
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: context.colors.primary,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14.sp,
-                      ),
-                    ),
-                    Gap(8.w),
-                    SvgPicture.asset(
-                      AssetsPaths.icMakeAdmin,
-                      width: 14.w,
-                      height: 13.h,
-                      colorFilter: ColorFilter.mode(
-                        context.colors.primary,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+
+              // Gap(8.h),
+              // AppFilledButton.child(
+              //   onPressed: () {},
+              //   size: AppButtonSize.small,
+              //   visualState: AppButtonVisualState.secondary,
+              //   child: Row(
+              //     mainAxisAlignment: MainAxisAlignment.center,
+              //     children: [
+              //       Text(
+              //         'Make Admin',
+              //         style: context.textTheme.bodyMedium?.copyWith(
+              //           color: context.colors.primary,
+              //           fontWeight: FontWeight.w600,
+              //           fontSize: 14.sp,
+              //         ),
+              //       ),
+              //       Gap(8.w),
+              //       SvgPicture.asset(
+              //         AssetsPaths.icMakeAdmin,
+              //         width: 14.w,
+              //         height: 13.h,
+              //         colorFilter: ColorFilter.mode(
+              //           context.colors.primary,
+              //           BlendMode.srcIn,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
             ],
           )
         else
@@ -445,35 +446,35 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
           ),
         ),
         if (currentUserIsAdmin) ...[
-          Gap(8.h),
-          AppFilledButton.child(
-            onPressed: () {},
-            size: AppButtonSize.small,
-            visualState: AppButtonVisualState.secondaryWarning,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Remove From Group',
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.colors.destructive,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14.sp,
-                  ),
-                ),
-                Gap(8.w),
-                SvgPicture.asset(
-                  AssetsPaths.icRemoveOutlined,
-                  width: 14.w,
-                  height: 13.h,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.destructive,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ],
-            ),
-          ),
+          // Gap(8.h),
+          // AppFilledButton.child(
+          //   onPressed: () {},
+          //   size: AppButtonSize.small,
+          //   visualState: AppButtonVisualState.secondaryWarning,
+          //   child: Row(
+          //     mainAxisAlignment: MainAxisAlignment.center,
+          //     children: [
+          //       Text(
+          //         'Remove From Group',
+          //         style: context.textTheme.bodyMedium?.copyWith(
+          //           color: context.colors.destructive,
+          //           fontWeight: FontWeight.w600,
+          //           fontSize: 14.sp,
+          //         ),
+          //       ),
+          //       Gap(8.w),
+          //       SvgPicture.asset(
+          //         AssetsPaths.icRemoveOutlined,
+          //         width: 14.w,
+          //         height: 13.h,
+          //         colorFilter: ColorFilter.mode(
+          //           context.colors.destructive,
+          //           BlendMode.srcIn,
+          //         ),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ] else ...[
           Gap(8.h),
           _AddToContactButton(widget.member),
