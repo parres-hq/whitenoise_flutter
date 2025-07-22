@@ -14,6 +14,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
   List<User> groupMembers = [];
   List<User> groupAdmins = [];
   bool isLoadingMembers = false;
+  String? currentUserNpub;
 
   @override
   void initState() {
@@ -21,6 +22,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadGroupData();
       _loadMembers();
+      _loadCurrentUserNpub();
     });
   }
 
@@ -78,10 +80,21 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     }
   }
 
+  Future<void> _loadCurrentUserNpub() async {
+    final activeAccountData = ref.read(activeAccountProvider);
+    if (activeAccountData != null) {
+      final currentUserNpub = await npubFromHexPubkey(hexPubkey: activeAccountData);
+      if (mounted) {
+        setState(() {
+          this.currentUserNpub = currentUserNpub;
+        });
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final groupDetails = ref.watch(groupsProvider).groupsMap?[widget.groupId];
-
     ref.listen(groupsProvider, (previous, next) {
       _loadMembers();
     });
@@ -169,7 +182,12 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
                   ),
                 ),
                 Gap(16.h),
-                ...groupMembers.map((member) => _buildMemberListTile(member)),
+                ...groupMembers.map(
+                  (member) => _buildMemberListTile(
+                    member,
+                    currentUserNpub: currentUserNpub,
+                  ),
+                ),
               ],
             ),
           ],
@@ -178,18 +196,20 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     );
   }
 
-  Widget _buildMemberListTile(User member) {
+  Widget _buildMemberListTile(User member, {String? currentUserNpub}) {
     final isAdmin = groupAdmins.any((admin) => admin.publicKey == member.publicKey);
-
+    final isCurrentUser = currentUserNpub != null && currentUserNpub == member.publicKey;
     return ListTile(
       contentPadding: EdgeInsets.symmetric(horizontal: 32.w),
 
       onTap:
-          () => GroupMemberBottomSheet.show(
-            context,
-            groupId: widget.groupId,
-            member: member,
-          ),
+          isCurrentUser
+              ? null
+              : () => GroupMemberBottomSheet.show(
+                context,
+                groupId: widget.groupId,
+                member: member,
+              ),
       leading: ContactAvatar(
         imageUrl: member.imagePath ?? '',
         displayName: member.name,
@@ -197,7 +217,11 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
         showBorder: true,
       ),
       title: Text(
-        member.name.isNotEmpty ? member.name : 'Unknown User',
+        isCurrentUser
+            ? 'You'
+            : member.name.isNotEmpty
+            ? member.name
+            : 'Unknown User',
         style: context.textTheme.bodyMedium?.copyWith(
           color: context.colors.primary,
           fontWeight: FontWeight.w600,
@@ -353,8 +377,8 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                   Flexible(
                     child: _SendMessageButton(widget.member),
                   ),
-                  const Flexible(
-                    child: _AddToContactButton(),
+                  Flexible(
+                    child: _AddToContactButton(widget.member),
                   ),
                 ],
               ),
@@ -449,16 +473,21 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
           ),
         ] else ...[
           Gap(8.h),
-          const _AddToContactButton(),
+          _AddToContactButton(widget.member),
         ],
       ],
     );
   }
 }
 
-class _AddToContactButton extends StatelessWidget {
-  const _AddToContactButton();
+class _AddToContactButton extends ConsumerStatefulWidget {
+  const _AddToContactButton(this.user);
+  final User user;
+  @override
+  ConsumerState<_AddToContactButton> createState() => __AddToContactButtonState();
+}
 
+class __AddToContactButtonState extends ConsumerState<_AddToContactButton> {
   @override
   Widget build(BuildContext context) {
     return AppFilledButton.child(
@@ -493,7 +522,7 @@ class _AddToContactButton extends StatelessWidget {
 
 class _SendMessageButton extends ConsumerStatefulWidget {
   const _SendMessageButton(this.user);
-  final User? user;
+  final User user;
   @override
   ConsumerState<_SendMessageButton> createState() => __SendMessageButtonState();
 }
@@ -504,7 +533,7 @@ class __SendMessageButtonState extends ConsumerState<_SendMessageButton> {
   bool get _isLoading => _isCreatingGroup;
 
   Future<void> _createOrOpenDirectMessageGroup() async {
-    if (widget.user == null || widget.user!.publicKey.isEmpty) {
+    if (widget.user.publicKey.isEmpty) {
       ref.showErrorToast('No user to start chat with');
       return;
     }
@@ -518,8 +547,8 @@ class __SendMessageButtonState extends ConsumerState<_SendMessageButton> {
           .createNewGroup(
             groupName: 'DM',
             groupDescription: 'Direct message',
-            memberPublicKeyHexs: [widget.user!.publicKey],
-            adminPublicKeyHexs: [widget.user!.publicKey],
+            memberPublicKeyHexs: [widget.user.publicKey],
+            adminPublicKeyHexs: [widget.user.publicKey],
           );
 
       if (groupData != null) {
@@ -534,7 +563,7 @@ class __SendMessageButtonState extends ConsumerState<_SendMessageButton> {
           });
 
           ref.showSuccessToast(
-            'Chat with ${widget.user!.username ?? widget.user!.name} started successfully',
+            'Chat with ${widget.user.username ?? widget.user.name} started successfully',
           );
         }
       } else {
