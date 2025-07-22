@@ -185,12 +185,12 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
       contentPadding: EdgeInsets.zero,
       leading: ContactAvatar(
         imageUrl: member.imagePath ?? '',
-        displayName: member.name,
+        displayName: member.displayName,
         size: 40.w,
         showBorder: true,
       ),
       title: Text(
-        member.name.isNotEmpty ? member.name : 'Unknown User',
+        member.displayName.isNotEmpty ? member.displayName : 'Unknown User',
         style: context.textTheme.bodyMedium?.copyWith(
           color: context.colors.primary,
           fontWeight: FontWeight.w600,

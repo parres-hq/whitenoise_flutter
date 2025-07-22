@@ -351,7 +351,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
               // Create fallback user if metadata is null
               final fallbackUser = User(
                 id: pubkeyString,
-                name: 'Unknown User',
+                displayName: 'Unknown User',
                 nip05: '',
                 publicKey: pubkeyString,
               );
@@ -375,7 +375,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
             // Create a fallback user with minimal info
             final fallbackUser = User(
               id: pubkeyString,
-              name: 'Unknown User',
+                displayName: 'Unknown User',
               nip05: '',
               publicKey: pubkeyString,
             );
@@ -463,7 +463,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
               // Create fallback user if metadata is null
               final fallbackUser = User(
                 id: pubkeyString,
-                name: 'Unknown User',
+                displayName: 'Unknown User',
                 nip05: '',
                 publicKey: pubkeyString,
               );
@@ -487,7 +487,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
             // Create a fallback user with minimal info
             final fallbackUser = User(
               id: pubkeyString,
-              name: 'Unknown User',
+              displayName: 'Unknown User',
               nip05: '',
               publicKey: pubkeyString,
             );
@@ -664,7 +664,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
           return 'Direct Message';
         }
 
-        return otherMember.name.isNotEmpty ? otherMember.name : 'Unknown User';
+        return otherMember.displayName.isNotEmpty ? otherMember.displayName : 'Unknown User';
       } catch (e) {
         String logMessage =
             'Failed to get other member name for DM group ${group.mlsGroupId} - Exception: ';
