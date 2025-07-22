@@ -71,7 +71,9 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Chat Information',
+                  groupDetails?.groupType == GroupType.directMessage
+                      ? 'Chat Information'
+                      : 'Group Information',
                   style: context.textTheme.bodyMedium?.copyWith(
                     color: context.colors.mutedForeground,
                     fontSize: 18.sp,
