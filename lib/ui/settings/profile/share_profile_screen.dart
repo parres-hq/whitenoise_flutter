@@ -9,7 +9,6 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/toast_message_provider.dart';
-import 'package:whitenoise/config/states/toast_state.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -50,9 +49,8 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
     Clipboard.setData(ClipboardData(text: text));
     ref
         .read(toastMessageProvider.notifier)
-        .showRawToast(
-          message: 'Public Key copied.',
-          type: ToastType.success,
+        .showSuccess(
+          'Public Key copied.',
         );
   }
 

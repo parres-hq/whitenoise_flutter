@@ -107,6 +107,18 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     }
   }
 
+  _copyToClipboard() {
+    final npub = otherUserNpub ?? '';
+    if (npub.isEmpty) {
+      ref.showErrorToast('No public key to copy');
+      return;
+    }
+    Clipboard.setData(ClipboardData(text: npub));
+    ref.showSuccessToast(
+      'Public Key copied.',
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen(contactsProvider, (previous, next) {
@@ -150,13 +162,32 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               ),
               Gap(16.h),
 
-              Text(
-                dmChatData?.publicKey?.formatPublicKey() ?? '',
-                textAlign: TextAlign.center,
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: context.colors.mutedForeground,
-                  fontSize: 14.sp,
-                ),
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      dmChatData?.publicKey?.formatPublicKey() ?? '',
+                      textAlign: TextAlign.center,
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colors.mutedForeground,
+                        fontSize: 14.sp,
+                      ),
+                    ),
+                  ),
+                  Gap(8.w),
+                  InkWell(
+                    onTap: _copyToClipboard,
+                    child: SvgPicture.asset(
+                      AssetsPaths.icCopy,
+                      width: 24.w,
+                      height: 24.w,
+                      colorFilter: ColorFilter.mode(
+                        context.colors.primary,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                ],
               ),
               Gap(32.h),
               AppFilledButton.icon(
@@ -194,40 +225,22 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                           }
                         },
               ),
+
               Gap(12.h),
               AppFilledButton.icon(
-                visualState:
-                    isContact ? AppButtonVisualState.secondary : AppButtonVisualState.primary,
-                icon:
-                    isContactLoading
-                        ? SizedBox(
-                          width: 14.w,
-                          height: 14.w,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: context.colors.primaryForeground,
-                          ),
-                        )
-                        : SvgPicture.asset(
-                          isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
-                          width: 14.w,
-                          colorFilter: ColorFilter.mode(
-                            context.colors.secondaryForeground,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                label: Text(isContact ? 'Remove Contact' : 'Add Contact'),
-                onPressed:
-                    isContactLoading
-                        ? null
-                        : () {
-                          if (isContact) {
-                            _removeContact();
-                          } else {
-                            _addContact();
-                          }
-                        },
+                visualState: AppButtonVisualState.secondary,
+                icon: const Text('Add to Group'),
+                label: SvgPicture.asset(
+                  AssetsPaths.icAdd,
+                  width: 14.w,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.secondaryForeground,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                onPressed: () {},
               ),
+
               Gap(12.h),
               // TODO: Reenable when we have a search and mute features
               // Row(
