@@ -589,7 +589,8 @@ class MessageConverter {
             entry.key,
             User(
               id: entry.key,
-              displayName: entry.key == currentUserPublicKey ? 'You' : entry.value.displayNameOrName,
+              displayName:
+                  entry.key == currentUserPublicKey ? 'You' : entry.value.displayNameOrName,
               nip05: entry.value.nip05 ?? '',
               publicKey: entry.key,
               imagePath: entry.value.imagePath,

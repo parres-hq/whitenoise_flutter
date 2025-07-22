@@ -236,7 +236,9 @@ class ReplyEditHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                replyingTo?.sender.displayName ?? editingMessage?.sender.displayName ?? 'Unknown User',
+                replyingTo?.sender.displayName ??
+                    editingMessage?.sender.displayName ??
+                    'Unknown User',
                 style: TextStyle(
                   color: context.colors.mutedForeground,
                   fontSize: 12.sp,

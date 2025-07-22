@@ -375,7 +375,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
             // Create a fallback user with minimal info
             final fallbackUser = User(
               id: pubkeyString,
-                displayName: 'Unknown User',
+              displayName: 'Unknown User',
               nip05: '',
               publicKey: pubkeyString,
             );
