@@ -41,6 +41,12 @@ Make sure you have the following installed:
 - **Rust** (latest stable) - [Install Rust](https://rustup.rs/)
 - **Just** (command runner) - `cargo install just`
 - **flutter_rust_bridge_codegen** - `cargo install flutter_rust_bridge_codegen`
+- **Local nostr relays and blossom server** (Optional): for local testing with nostr relays and blossom server:
+   ```bash
+   git clone https://github.com/parres-hq/whitenoise
+   cd whitenoise
+   docker-compose up -d
+   ```
 
 ### Setup
 
