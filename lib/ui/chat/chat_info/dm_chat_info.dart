@@ -129,6 +129,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               Gap(64.h),
               ContactAvatar(
                 imageUrl: dmChatData?.displayImage ?? '',
+                displayName: dmChatData?.displayName ?? 'Unknown',
                 size: 96.w,
               ),
               SizedBox(height: 16.h),
