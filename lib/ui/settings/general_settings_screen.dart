@@ -18,9 +18,9 @@ import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
-import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
@@ -289,7 +289,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: CustomAppBar(
+      appBar: WnAppBar(
         automaticallyImplyLeading: false,
         leading: IconButton(
           onPressed: () => context.pop(),

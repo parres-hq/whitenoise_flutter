@@ -12,7 +12,7 @@ import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -50,7 +50,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: CustomAppBar(
+      appBar: WnAppBar(
         title:
             isDMInvite
                 ? DMAppBarTitle(welcomeData: welcomeData)

@@ -8,8 +8,8 @@ import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/shared/info_box.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -31,7 +31,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: const CustomAppBar(title: Text('Wallet')),
+      appBar: const WnAppBar(title: Text('Wallet')),
       body: Column(
         children: [
           Expanded(
