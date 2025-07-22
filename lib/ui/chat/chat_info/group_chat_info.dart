@@ -639,7 +639,7 @@ class __AddToContactButtonState extends ConsumerState<_AddToContactButton> {
     final isContact = _isContact();
     return AppFilledButton.child(
       onPressed: _toggleContact,
-      loading: _isLoading,
+      loading: !_isLoading,
       size: AppButtonSize.small,
       visualState: AppButtonVisualState.secondary,
       child: Row(
