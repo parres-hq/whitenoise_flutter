@@ -913,6 +913,73 @@ class GroupsNotifier extends Notifier<GroupsState> {
     state = state.copyWith(groupDisplayNames: displayNames);
   }
 
+  Future<void> addUserToGroup({
+    required String groupId,
+    required List<String> membersNpubs,
+  }) async {
+    if (!_isAuthAvailable()) {
+      return;
+    }
+
+    try {
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        state = state.copyWith(error: 'No active account found');
+        return;
+      }
+
+      final currentUserPubkey = await publicKeyFromString(
+        publicKeyString: activeAccountData.pubkey,
+      );
+      final groupIdObj = await groupIdFromString(hexString: groupId);
+      final usersPubkey = await Future.wait(
+        membersNpubs.map((userNpub) async {
+          return await publicKeyFromString(
+            publicKeyString: await hexPubkeyFromNpub(npub: userNpub),
+          );
+        }),
+      );
+
+      await addMembersToGroup(
+        pubkey: currentUserPubkey,
+        groupId: groupIdObj,
+        memberPubkeys: usersPubkey,
+      );
+
+      _logger.info(
+        'GroupsProvider: Successfully added users ${membersNpubs.join(', ')} to group $groupId',
+      );
+
+      // Reload group members to reflect the change
+      await loadGroupMembers(groupId);
+    } catch (e, st) {
+      String logMessage = 'GroupsProvider.addUserToGroup - Exception: ';
+      if (e is WhitenoiseError) {
+        try {
+          final errorDetails = await whitenoiseErrorToString(error: e);
+          logMessage += '$errorDetails (Type: ${e.runtimeType})';
+        } catch (conversionError) {
+          logMessage +=
+              'WhitenoiseError conversion failed: $conversionError (Type: ${e.runtimeType})';
+        }
+      } else {
+        logMessage += '$e (Type: ${e.runtimeType})';
+      }
+      _logger.severe(logMessage, e, st);
+
+      final errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
+        error: e,
+        stackTrace: st,
+        fallbackMessage: 'Failed to add user to group. Please try again.',
+        context: 'addUserToGroup',
+      );
+
+      state = state.copyWith(error: errorMessage);
+      rethrow;
+    }
+  }
+
   void updateGroupActivityTime(String groupId, DateTime timestamp) {
     final groups = state.groups;
     if (groups == null) return;

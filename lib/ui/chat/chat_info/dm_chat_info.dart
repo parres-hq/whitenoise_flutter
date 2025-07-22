@@ -107,7 +107,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     }
   }
 
-  _copyToClipboard() {
+  void _copyToClipboard() {
     final npub = otherUserNpub ?? '';
     if (npub.isEmpty) {
       ref.showErrorToast('No public key to copy');
@@ -117,6 +117,14 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     ref.showSuccessToast(
       'Public Key copied.',
     );
+  }
+
+  void _openAddToGroup() {
+    if (otherUserNpub == null) {
+      ref.showErrorToast('No user to add to group');
+      return;
+    }
+    context.push('/add_to_group/$otherUserNpub');
   }
 
   @override
@@ -238,7 +246,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                     BlendMode.srcIn,
                   ),
                 ),
-                onPressed: () {},
+                onPressed: _openAddToGroup,
               ),
 
               Gap(12.h),
