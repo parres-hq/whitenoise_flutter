@@ -162,6 +162,42 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               AppFilledButton.icon(
                 visualState:
                     isContact ? AppButtonVisualState.secondary : AppButtonVisualState.primary,
+                icon: Text(isContact ? 'Remove Contact' : 'Add Contact'),
+                label:
+                    isContactLoading
+                        ? SizedBox(
+                          width: 14.w,
+                          height: 14.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: context.colors.primaryForeground,
+                          ),
+                        )
+                        : SvgPicture.asset(
+                          isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+                          width: 14.w,
+                          colorFilter: ColorFilter.mode(
+                            isContact
+                                ? context.colors.secondaryForeground
+                                : context.colors.primaryForeground,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                onPressed:
+                    isContactLoading
+                        ? null
+                        : () {
+                          if (isContact) {
+                            _removeContact();
+                          } else {
+                            _addContact();
+                          }
+                        },
+              ),
+              Gap(12.h),
+              AppFilledButton.icon(
+                visualState:
+                    isContact ? AppButtonVisualState.secondary : AppButtonVisualState.primary,
                 icon:
                     isContactLoading
                         ? SizedBox(
