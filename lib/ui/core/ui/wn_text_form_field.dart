@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/form.dart';
+import 'package:whitenoise/ui/core/ui/wn_validation_notification.dart';
 
 enum FieldType {
   standard,
@@ -89,7 +89,7 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
 
     final value = widget.initialValue ?? widget.controller?.text;
     final valid = widget.validator?.call(value) == null;
-    context.dispatchNotification(ValidationNotification(hashCode, valid));
+    context.dispatchNotification(WnValidationNotification(hashCode, valid));
     isObscuringText = widget.obscureText ?? widget.type == FieldType.password;
   }
 
@@ -120,7 +120,7 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
     final result = widget.validator?.call(value);
     hasError.value = result != null;
     context.dispatchNotification(
-      ValidationNotification(hashCode, !hasError.value),
+      WnValidationNotification(hashCode, !hasError.value),
     );
     return result;
   }
