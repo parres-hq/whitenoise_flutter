@@ -200,6 +200,24 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               Gap(32.h),
               AppFilledButton.icon(
                 size: AppButtonSize.small,
+                visualState: AppButtonVisualState.secondary,
+                icon: const Text('Search Chat'),
+                label: SvgPicture.asset(
+                  AssetsPaths.icSearch,
+                  width: 14.w,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.secondaryForeground,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                onPressed: () {
+                  // TODO: Implement search chat functionality
+                },
+              ),
+
+              Gap(12.h),
+              AppFilledButton.icon(
+                size: AppButtonSize.small,
                 visualState:
                     isContact ? AppButtonVisualState.secondary : AppButtonVisualState.primary,
                 icon: Text(isContact ? 'Remove Contact' : 'Add Contact'),
