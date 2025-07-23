@@ -18,7 +18,8 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$AuthState {
   bool get isAuthenticated => throw _privateConstructorUsedError;
-  bool get isLoading => throw _privateConstructorUsedError;
+  bool get isLoading =>
+      throw _privateConstructorUsedError; // Keep isLoading for foreground operations
   bool get isBackgroundProcessing => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
@@ -165,6 +166,7 @@ class _$AuthStateImpl extends _AuthState {
   @override
   @JsonKey()
   final bool isLoading;
+  // Keep isLoading for foreground operations
   @override
   @JsonKey()
   final bool isBackgroundProcessing;
@@ -219,7 +221,7 @@ abstract class _AuthState extends AuthState {
   @override
   bool get isAuthenticated;
   @override
-  bool get isLoading;
+  bool get isLoading; // Keep isLoading for foreground operations
   @override
   bool get isBackgroundProcessing;
   @override

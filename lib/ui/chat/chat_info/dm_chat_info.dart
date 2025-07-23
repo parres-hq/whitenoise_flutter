@@ -114,9 +114,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
       return;
     }
     Clipboard.setData(ClipboardData(text: npub));
-    ref.showSuccessToast(
-      'Public Key copied.',
-    );
+    ref.showSuccessToast('Public Key copied.');
   }
 
   void _openAddToGroup() {
@@ -169,7 +167,6 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 ),
               ),
               Gap(16.h),
-
               Row(
                 children: [
                   Flexible(
@@ -198,6 +195,24 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 ],
               ),
               Gap(32.h),
+              WnFilledButton.icon(
+                size: WnButtonSize.small,
+                visualState: WnButtonVisualState.secondary,
+                icon: const Text('Search Chat'),
+                label: SvgPicture.asset(
+                  AssetsPaths.icSearch,
+                  width: 14.w,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.secondaryForeground,
+                    BlendMode.srcIn,
+                  ),
+                ),
+                onPressed: () {
+                  ref.read(chatSearchProvider(widget.groupId).notifier).activateSearch();
+                  context.pop();
+                },
+              ),
+              Gap(12.h),
               WnFilledButton.icon(
                 size: WnButtonSize.small,
                 visualState:
@@ -237,7 +252,6 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                           }
                         },
               ),
-
               Gap(12.h),
               WnFilledButton.icon(
                 size: WnButtonSize.small,
@@ -253,38 +267,6 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 ),
                 onPressed: _openAddToGroup,
               ),
-
-              Gap(12.h),
-              // TODO: Reenable when we have a search and mute features
-              // Row(
-              //   spacing: 12.w,
-              //   children: [
-              //     Expanded(
-              //       child: WnFilledButton.icon(
-              //         visualState: WnButtonVisualState.secondary,
-              //         icon: SvgPicture.asset(
-              //           AssetsPaths.icSearch,
-              //           width: 14.w,
-              //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-              //         ),
-              //         label: const Text('Search Chat'),
-              //         onPressed: () {},
-              //       ),
-              //     ),
-              //     Expanded(
-              //       child: WnFilledButton.icon(
-              //         visualState: WnButtonVisualState.secondary,
-              //         icon: SvgPicture.asset(
-              //           AssetsPaths.icMutedNotification,
-              //           width: 14.w,
-              //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-              //         ),
-              //         label: const Text('Mute Chat'),
-              //         onPressed: () {},
-              //       ),
-              //     ),
-              //   ],
-              // ),
             ],
           ),
         );

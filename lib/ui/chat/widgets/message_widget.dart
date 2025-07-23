@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+
+import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_bubble/bubble.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -13,6 +15,9 @@ class MessageWidget extends StatelessWidget {
   final VoidCallback? onTap;
   final Function(String)? onReactionTap;
   final Function(String)? onReplyTap;
+  final SearchMatch? searchMatch;
+  final bool isActiveSearchMatch;
+  final SearchMatch? currentActiveMatch; // Add current active match
 
   const MessageWidget({
     super.key,
@@ -23,6 +28,9 @@ class MessageWidget extends StatelessWidget {
     this.onTap,
     this.onReactionTap,
     this.onReplyTap,
+    this.searchMatch,
+    this.isActiveSearchMatch = false,
+    this.currentActiveMatch,
   });
 
   @override
@@ -99,6 +107,9 @@ class MessageWidget extends StatelessWidget {
       final timestampWidth = _getTimestampWidth(context);
       final minPadding = 8.w;
 
+      // Build highlighted text widget
+      final textWidget = _buildHighlightedText(messageContent, textStyle, context);
+
       // Calculate if timestamp can fit on the last line
       final textPainter = TextPainter(
         text: TextSpan(text: messageContent, style: textStyle),
@@ -118,11 +129,7 @@ class MessageWidget extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Flexible(
-                child: Text(
-                  messageContent,
-                  style: textStyle,
-                  textAlign: TextAlign.left,
-                ),
+                child: textWidget,
               ),
               SizedBox(width: minPadding),
               TimeAndStatus(message: message, context: context),
@@ -137,11 +144,7 @@ class MessageWidget extends StatelessWidget {
         children: [
           SizedBox(
             width: maxWidth,
-            child: Text(
-              messageContent,
-              style: textStyle,
-              textAlign: TextAlign.start,
-            ),
+            child: textWidget,
           ),
           SizedBox(height: 4.h),
           Row(
@@ -159,16 +162,76 @@ class MessageWidget extends StatelessWidget {
         children: [
           SizedBox(
             width: maxWidth,
-            child: Text(
-              message.content ?? '',
-              style: textStyle,
-              textAlign: TextAlign.start,
-            ),
+            child: _buildHighlightedText(message.content ?? '', textStyle, context),
           ),
           SizedBox(height: 4.h),
         ],
       );
     }
+  }
+
+  Widget _buildHighlightedText(String text, TextStyle baseStyle, BuildContext context) {
+    if (searchMatch == null || searchMatch!.textMatches.isEmpty) {
+      // If no search is active, show normal text
+      return Text(
+        text,
+        style: baseStyle,
+        textAlign: TextAlign.start,
+      );
+    }
+
+    final spans = <TextSpan>[];
+    int currentIndex = 0;
+
+    // Sort matches by start position
+    final sortedMatches = List<TextMatch>.from(searchMatch!.textMatches)
+      ..sort((a, b) => a.start.compareTo(b.start));
+
+    for (final match in sortedMatches) {
+      // Add text before the match with reduced opacity (non-search words)
+      if (currentIndex < match.start) {
+        spans.add(
+          TextSpan(
+            text: text.substring(currentIndex, match.start),
+            style: baseStyle.copyWith(
+              color: baseStyle.color?.withValues(
+                alpha: 0.3,
+              ), // All non-search text gets reduced opacity
+            ),
+          ),
+        );
+      }
+
+      // Check if this specific match is the active one
+
+      // Add search match - ALL search matches keep normal opacity and color
+      spans.add(
+        TextSpan(
+          text: text.substring(match.start, match.end),
+          style: baseStyle, // Keep exactly the same style as normal text
+        ),
+      );
+
+      currentIndex = match.end;
+    }
+
+    // Add remaining text after the last match with reduced opacity (non-search words)
+    if (currentIndex < text.length) {
+      spans.add(
+        TextSpan(
+          text: text.substring(currentIndex),
+          style: baseStyle.copyWith(
+            color: baseStyle.color?.withValues(
+              alpha: 0.3,
+            ), // All non-search text gets reduced opacity
+          ),
+        ),
+      );
+    }
+
+    return RichText(
+      text: TextSpan(children: spans),
+    );
   }
 
   double _getTimestampWidth(BuildContext context) {
