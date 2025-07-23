@@ -371,30 +371,32 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                   ],
                 ),
               ),
-              ChatInput(
-                groupId: widget.groupId,
+              // Only show ChatInput when search is not active
+              if (!searchState.isSearchActive)
+                ChatInput(
+                  groupId: widget.groupId,
 
-                onSend: (message, isEditing) async {
-                  final chatState = ref.read(chatProvider);
-                  final replyingTo = chatState.replyingTo[widget.groupId];
+                  onSend: (message, isEditing) async {
+                    final chatState = ref.read(chatProvider);
+                    final replyingTo = chatState.replyingTo[widget.groupId];
 
-                  if (replyingTo != null) {
-                    await chatNotifier.sendReplyMessage(
-                      groupId: widget.groupId,
-                      replyToMessageId: replyingTo.id,
-                      message: message,
-                      onMessageSent: _handleScrollToBottom,
-                    );
-                  } else {
-                    await chatNotifier.sendMessage(
-                      groupId: widget.groupId,
-                      message: message,
-                      isEditing: isEditing,
-                      onMessageSent: _handleScrollToBottom,
-                    );
-                  }
-                },
-              ),
+                    if (replyingTo != null) {
+                      await chatNotifier.sendReplyMessage(
+                        groupId: widget.groupId,
+                        replyToMessageId: replyingTo.id,
+                        message: message,
+                        onMessageSent: _handleScrollToBottom,
+                      );
+                    } else {
+                      await chatNotifier.sendMessage(
+                        groupId: widget.groupId,
+                        message: message,
+                        isEditing: isEditing,
+                        onMessageSent: _handleScrollToBottom,
+                      );
+                    }
+                  },
+                ),
             ],
           ),
         ),
