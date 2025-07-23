@@ -94,7 +94,10 @@ class ChatSearchNotifier extends StateNotifier<ChatSearchState> {
                 TextMatch(
                   start: matchIndex,
                   end: matchIndex + queryLower.length,
-                  matchedText: message.content!.substring(matchIndex, matchIndex + queryLower.length),
+                  matchedText: message.content!.substring(
+                    matchIndex,
+                    matchIndex + queryLower.length,
+                  ),
                 ),
               ],
             ),
