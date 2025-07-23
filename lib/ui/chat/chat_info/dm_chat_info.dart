@@ -199,6 +199,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               ),
               Gap(32.h),
               AppFilledButton.icon(
+                size: AppButtonSize.small,
                 visualState:
                     isContact ? AppButtonVisualState.secondary : AppButtonVisualState.primary,
                 icon: Text(isContact ? 'Remove Contact' : 'Add Contact'),
@@ -209,7 +210,10 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                           height: 14.w,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            color: context.colors.primaryForeground,
+                            color:
+                                isContact
+                                    ? context.colors.secondaryForeground
+                                    : context.colors.primaryForeground,
                           ),
                         )
                         : SvgPicture.asset(
@@ -236,6 +240,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
 
               Gap(12.h),
               AppFilledButton.icon(
+                size: AppButtonSize.small,
                 visualState: AppButtonVisualState.secondary,
                 icon: const Text('Add to Group'),
                 label: SvgPicture.asset(
