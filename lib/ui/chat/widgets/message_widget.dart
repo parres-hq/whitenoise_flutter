@@ -57,7 +57,7 @@ class MessageWidget extends StatelessWidget {
             children: [
               if (isGroupMessage && !isSameSenderAsNext && !message.isMe) ...[
                 Text(
-                  message.sender.name,
+                  message.sender.displayName,
                   style: TextStyle(
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
@@ -354,7 +354,7 @@ class ReplyBox extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  replyingTo?.sender.name ?? '',
+                  replyingTo?.sender.displayName ?? '',
                   style: TextStyle(
                     color: context.colors.mutedForeground,
                     fontSize: 12.sp,

@@ -86,7 +86,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
           );
       if (mounted) {
         Navigator.pop(context, true);
-        ref.showSuccessToast('${widget.member.name} removed from group');
+        ref.showSuccessToast('${widget.member.displayName} removed from group');
       }
     } catch (e) {
       if (mounted) {
@@ -137,7 +137,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                 ),
                 children: [
                   TextSpan(
-                    text: widget.member.name,
+                    text: widget.member.displayName,
                     style: context.textTheme.bodyMedium?.copyWith(
                       color: context.colors.primary,
                       fontWeight: FontWeight.w600,
@@ -195,12 +195,12 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
         Gap(16.h),
         ContactAvatar(
           imageUrl: widget.member.imagePath ?? '',
-          displayName: widget.member.username,
+          displayName: widget.member.displayName,
           size: 96.w,
         ),
         Gap(4.h),
         Text(
-          widget.member.username ?? '',
+          widget.member.displayName,
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: context.colors.primary,

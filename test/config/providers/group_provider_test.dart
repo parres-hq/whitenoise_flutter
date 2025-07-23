@@ -112,7 +112,7 @@ void main() {
         final notifier = container.read(groupsProvider.notifier);
         final testUser = User(
           id: 'test_id',
-          name: 'Test User',
+          displayName: 'Test User',
           nip05: 'test@example.com',
           publicKey: 'test_pubkey',
         );
@@ -129,7 +129,7 @@ void main() {
         final notifier = container.read(groupsProvider.notifier);
         final testUser = User(
           id: 'admin_id',
-          name: 'Admin User',
+          displayName: 'Admin User',
           nip05: 'admin@example.com',
           publicKey: 'admin_pubkey',
         );
@@ -241,7 +241,7 @@ void main() {
         final notifier = container.read(groupsProvider.notifier);
         final testUser = User(
           id: 'member_id',
-          name: 'Member User',
+          displayName: 'Member User',
           nip05: 'member@example.com',
           publicKey: 'member_pubkey',
         );
@@ -262,7 +262,7 @@ void main() {
         final notifier = container.read(groupsProvider.notifier);
         final testUser = User(
           id: 'admin_id',
-          name: 'Admin User',
+          displayName: 'Admin User',
           nip05: 'admin@example.com',
           publicKey: 'admin_pubkey',
         );
@@ -285,7 +285,7 @@ void main() {
         // Set some data first
         final testUser = User(
           id: 'test_id',
-          name: 'Test User',
+          displayName: 'Test User',
           nip05: 'test@example.com',
           publicKey: 'test_pubkey',
         );

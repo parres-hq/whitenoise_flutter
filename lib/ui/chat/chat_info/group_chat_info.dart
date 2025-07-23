@@ -79,8 +79,8 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
         if (!aIsAdmin && bIsAdmin) return 1;
 
         // Within same category (both admins or both regular), sort alphabetically
-        final aName = a.name.isNotEmpty ? a.name : 'Unknown User';
-        final bName = b.name.isNotEmpty ? b.name : 'Unknown User';
+        final aName = a.displayName.isNotEmpty ? a.displayName : 'Unknown User';
+        final bName = b.displayName.isNotEmpty ? b.displayName : 'Unknown User';
         return aName.toLowerCase().compareTo(bName.toLowerCase());
       });
 
@@ -233,15 +233,15 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
               ),
       leading: ContactAvatar(
         imageUrl: member.imagePath ?? '',
-        displayName: member.name,
+        displayName: member.displayName,
         size: 40.w,
         showBorder: true,
       ),
       title: Text(
         isCurrentUser
             ? 'You'
-            : member.name.isNotEmpty
-            ? member.name
+            : member.displayName.isNotEmpty
+            ? member.displayName
             : 'Unknown User',
         style: context.textTheme.bodyMedium?.copyWith(
           color: context.colors.primary,

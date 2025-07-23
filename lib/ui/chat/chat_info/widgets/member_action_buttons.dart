@@ -57,7 +57,7 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
           });
 
           ref.showSuccessToast(
-            'Chat with ${widget.user.username ?? widget.user.name} started successfully',
+            'Chat with ${widget.user.username ?? widget.user.displayName} started successfully',
           );
         }
       } else {
@@ -143,12 +143,12 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
       if (isCurrentlyContact) {
         await contactsNotifier.removeContactByHex(widget.user.publicKey);
         if (mounted) {
-          ref.showSuccessToast('${widget.user.name} removed from contacts');
+          ref.showSuccessToast('${widget.user.displayName} removed from contacts');
         }
       } else {
         await contactsNotifier.addContactByHex(widget.user.publicKey);
         if (mounted) {
-          ref.showSuccessToast('${widget.user.name} added to contacts');
+          ref.showSuccessToast('${widget.user.displayName} added to contacts');
         }
       }
     } catch (e) {

@@ -98,12 +98,12 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
               Gap(12.h),
               ContactAvatar(
                 imageUrl: contact.imagePath ?? '',
-                displayName: contact.name,
+                displayName: contact.displayNameOrName,
                 size: 96.r,
               ),
               Gap(8.h),
               Text(
-                contact.name,
+                contact.displayNameOrName,
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
