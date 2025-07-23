@@ -207,11 +207,7 @@ class MessageWidget extends StatelessWidget {
       spans.add(
         TextSpan(
           text: text.substring(match.start, match.end),
-          style: baseStyle.copyWith(
-            // No background highlight needed
-            color: baseStyle.color, // ALL search matches keep normal color/opacity
-            fontWeight: FontWeight.w600, // ALL search matches are bold
-          ),
+          style: baseStyle, // Keep exactly the same style as normal text
         ),
       );
 
