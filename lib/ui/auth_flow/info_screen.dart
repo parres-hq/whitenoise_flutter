@@ -5,7 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 import '../core/themes/assets.dart';
 import '../core/themes/src/extensions.dart';
@@ -117,7 +117,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
               final accountState = ref.watch(accountProvider);
               final isButtonDisabled = _isLoading || accountState.isLoading;
 
-              return AppFilledButton.child(
+              return WnFilledButton.child(
                 loading: isButtonDisabled,
                 onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
                 child: Row(

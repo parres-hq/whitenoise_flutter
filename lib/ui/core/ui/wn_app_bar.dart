@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const CustomAppBar({
+class WnAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const WnAppBar({
     super.key,
     this.actions = const [],
     this.automaticallyImplyLeading = true,
@@ -17,7 +17,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
        expandedHeight = null,
        _isSliver = false;
 
-  const CustomAppBar.sliver({
+  const WnAppBar.sliver({
     super.key,
     this.actions = const [],
     this.automaticallyImplyLeading = true,

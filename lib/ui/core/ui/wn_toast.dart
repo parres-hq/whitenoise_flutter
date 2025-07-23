@@ -7,8 +7,8 @@ import 'package:whitenoise/config/states/toast_state.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 
-class ToastOverlay extends ConsumerWidget {
-  const ToastOverlay({super.key});
+class WnToastOverlay extends ConsumerWidget {
+  const WnToastOverlay({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -35,7 +35,7 @@ class ToastOverlay extends ConsumerWidget {
                   topToasts.map((message) {
                     return Padding(
                       padding: EdgeInsets.only(bottom: 8.h),
-                      child: ToastMessageWidget(
+                      child: WnToastMessageWidget(
                         key: ValueKey(message.id),
                         message: message,
                       ),
@@ -55,7 +55,7 @@ class ToastOverlay extends ConsumerWidget {
                   belowAppBarToasts.map((message) {
                     return Padding(
                       padding: EdgeInsets.only(bottom: 8.h),
-                      child: ToastMessageWidget(
+                      child: WnToastMessageWidget(
                         key: ValueKey(message.id),
                         message: message,
                       ),
@@ -68,19 +68,19 @@ class ToastOverlay extends ConsumerWidget {
   }
 }
 
-class ToastMessageWidget extends ConsumerStatefulWidget {
+class WnToastMessageWidget extends ConsumerStatefulWidget {
   final ToastMessage message;
 
-  const ToastMessageWidget({
+  const WnToastMessageWidget({
     super.key,
     required this.message,
   });
 
   @override
-  ConsumerState<ToastMessageWidget> createState() => _ToastMessageWidgetState();
+  ConsumerState<WnToastMessageWidget> createState() => _WnToastMessageWidgetState();
 }
 
-class _ToastMessageWidgetState extends ConsumerState<ToastMessageWidget>
+class _WnToastMessageWidgetState extends ConsumerState<WnToastMessageWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
@@ -215,10 +215,10 @@ class _ToastMessageWidgetState extends ConsumerState<ToastMessageWidget>
   }
 }
 
-class ToastWrapper extends ConsumerWidget {
+class WnToast extends ConsumerWidget {
   final Widget child;
 
-  const ToastWrapper({
+  const WnToast({
     super.key,
     required this.child,
   });
@@ -230,7 +230,7 @@ class ToastWrapper extends ConsumerWidget {
       child: Stack(
         children: [
           child,
-          const ToastOverlay(),
+          const WnToastOverlay(),
         ],
       ),
     );

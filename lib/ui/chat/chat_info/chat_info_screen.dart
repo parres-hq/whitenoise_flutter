@@ -20,7 +20,7 @@ import 'package:whitenoise/ui/chat/chat_info/widgets/group_member_bottom_sheet.d
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 part 'dm_chat_info.dart';

@@ -7,9 +7,9 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 
 class AddRelayBottomSheet extends ConsumerStatefulWidget {
   final Function(String) onRelayAdded;
@@ -29,7 +29,7 @@ class AddRelayBottomSheet extends ConsumerStatefulWidget {
     required Function(String) onRelayAdded,
     required String title,
   }) async {
-    await CustomBottomSheet.show(
+    await WnBottomSheet.show(
       context: context,
       title: title,
       keyboardAware: true,
@@ -137,7 +137,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
         Row(
           children: [
             Expanded(
-              child: CustomTextField(
+              child: WnTextField(
                 textController: _relayUrlController,
                 hintText: 'wss://relay.example.com',
                 padding: EdgeInsets.zero,
@@ -161,7 +161,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
           ),
           Gap(8.h),
         ],
-        AppFilledButton(
+        WnFilledButton(
           onPressed: !_isAdding ? _addRelay : null,
           loading: _isAdding,
           title: widget.title,

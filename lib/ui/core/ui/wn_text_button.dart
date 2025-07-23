@@ -1,7 +1,7 @@
-part of 'app_button.dart';
+part of 'wn_button.dart';
 
-class AppTextButton extends AppButton {
-  AppTextButton(
+class WnTextButton extends WnButton {
+  WnTextButton(
     String title, {
     super.key,
     super.size,
@@ -17,7 +17,7 @@ class AppTextButton extends AppButton {
          ),
        );
 
-  const AppTextButton.child({
+  const WnTextButton.child({
     super.key,
     super.size,
     super.style,
@@ -27,7 +27,7 @@ class AppTextButton extends AppButton {
     required super.onPressed,
   }) : super(ignorePointer: loading);
 
-  AppTextButton.span({
+  WnTextButton.span({
     List<InlineSpan> children = const [],
     super.key,
     super.size,
@@ -46,7 +46,7 @@ class AppTextButton extends AppButton {
          ),
        );
 
-  const AppTextButton.icon({
+  const WnTextButton.icon({
     super.key,
     super.size,
     super.icon,

@@ -4,8 +4,8 @@ import 'package:gap/gap.dart';
 
 import '../themes/src/extensions.dart';
 
-class CustomTextField extends StatelessWidget {
-  const CustomTextField({
+class WnTextField extends StatelessWidget {
+  const WnTextField({
     super.key,
     this.textController,
     this.focusNode,

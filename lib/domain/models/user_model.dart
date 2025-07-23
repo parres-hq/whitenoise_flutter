@@ -3,7 +3,7 @@ import 'package:whitenoise/src/rust/api/utils.dart';
 
 class User {
   final String id;
-  final String name;
+  final String displayName;
   final String nip05;
   final String publicKey;
   final String? imagePath;
@@ -11,7 +11,7 @@ class User {
 
   User({
     required this.id,
-    required this.name,
+    required this.displayName,
     required this.nip05,
     required this.publicKey,
     this.imagePath,
@@ -21,11 +21,11 @@ class User {
   factory User.fromMetadata(MetadataData metadata, String publicKey) {
     return User(
       id: publicKey,
-      name: metadata.name ?? 'Unknown',
+      displayName: metadata.displayName ?? 'Unknown',
       nip05: metadata.nip05 ?? '',
       publicKey: publicKey,
       imagePath: metadata.picture,
-      username: metadata.displayName,
+      username: metadata.name,
     );
   }
 
@@ -34,7 +34,7 @@ class User {
     if (identical(this, other)) return true;
 
     return other.id == id &&
-        other.name == name &&
+        other.displayName == displayName &&
         other.nip05 == nip05 &&
         other.publicKey == publicKey &&
         other.imagePath == imagePath &&
@@ -44,7 +44,7 @@ class User {
   @override
   int get hashCode {
     return id.hashCode ^
-        name.hashCode ^
+        displayName.hashCode ^
         nip05.hashCode ^
         publicKey.hashCode ^
         imagePath.hashCode ^

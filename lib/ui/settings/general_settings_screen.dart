@@ -18,9 +18,9 @@ import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
-import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
-import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
@@ -208,29 +208,29 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       context: context,
       barrierColor: Colors.transparent,
       builder:
-          (dialogContext) => WhitenoiseDialog(
+          (dialogContext) => WnDialog(
             title: 'Sign out',
             content:
                 'Are you sure? If you haven\'t saved your private key, you won\'t be able to log back in.',
             actions: Row(
               children: [
                 Expanded(
-                  child: AppFilledButton(
+                  child: WnFilledButton(
                     title: 'Cancel',
-                    visualState: AppButtonVisualState.secondary,
-                    size: AppButtonSize.small,
+                    visualState: WnButtonVisualState.secondary,
+                    size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(false),
                   ),
                 ),
                 Gap(8.w),
                 Expanded(
-                  child: AppFilledButton.child(
-                    visualState: AppButtonVisualState.error,
-                    size: AppButtonSize.small,
+                  child: WnFilledButton.child(
+                    visualState: WnButtonVisualState.error,
+                    size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
                     child: Text(
                       'Sign out',
-                      style: AppButtonSize.small.textStyle().copyWith(
+                      style: WnButtonSize.small.textStyle().copyWith(
                         color: Colors.white,
                       ),
                     ),
@@ -289,7 +289,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: CustomAppBar(
+      appBar: WnAppBar(
         automaticallyImplyLeading: false,
         leading: IconButton(
           onPressed: () => context.pop(),
@@ -332,9 +332,9 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     else
                       const Center(child: Text('No accounts found')),
                     Gap(12.h),
-                    AppFilledButton.child(
-                      size: AppButtonSize.small,
-                      visualState: AppButtonVisualState.secondary,
+                    WnFilledButton.child(
+                      size: WnButtonSize.small,
+                      visualState: WnButtonVisualState.secondary,
                       onPressed: () => context.push('${Routes.settings}/share_profile'),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

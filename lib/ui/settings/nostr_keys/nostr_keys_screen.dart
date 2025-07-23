@@ -11,7 +11,7 @@ import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
 class NostrKeysScreen extends ConsumerStatefulWidget {
   const NostrKeysScreen({super.key});
@@ -130,7 +130,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                           Row(
                             children: [
                               Expanded(
-                                child: AppTextFormField(
+                                child: WnTextFormField(
                                   controller: _publicKeyController,
                                   readOnly: true,
                                 ),
@@ -214,7 +214,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                             Row(
                               children: [
                                 Expanded(
-                                  child: AppTextFormField(
+                                  child: WnTextFormField(
                                     controller: _privateKeyController,
                                     readOnly: true,
                                     obscureText: _obscurePrivateKey,

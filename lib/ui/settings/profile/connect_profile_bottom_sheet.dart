@@ -6,8 +6,8 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class ConnectProfileBottomSheet extends ConsumerStatefulWidget {
   const ConnectProfileBottomSheet({super.key});
@@ -15,7 +15,7 @@ class ConnectProfileBottomSheet extends ConsumerStatefulWidget {
   static Future<void> show({
     required BuildContext context,
   }) {
-    return CustomBottomSheet.show(
+    return WnBottomSheet.show(
       context: context,
       title: 'Connect Another Profile',
       showCloseButton: false,
@@ -38,10 +38,10 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        AppFilledButton(
+        WnFilledButton(
           title: 'Login With Existing Profile',
           loading: _isLoginLoading,
-          visualState: AppButtonVisualState.secondary,
+          visualState: WnButtonVisualState.secondary,
           onPressed:
               authState.isLoading
                   ? null
@@ -63,7 +63,7 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
                   },
         ),
         Gap(4.h),
-        AppFilledButton(
+        WnFilledButton(
           title: 'Create New Profile',
           loading: authState.isLoading,
           onPressed: () async {

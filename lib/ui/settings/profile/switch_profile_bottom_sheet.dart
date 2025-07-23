@@ -8,8 +8,8 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/settings/profile/connect_profile_bottom_sheet.dart';
 
 class SwitchProfileBottomSheet extends ConsumerStatefulWidget {
@@ -35,7 +35,7 @@ class SwitchProfileBottomSheet extends ConsumerStatefulWidget {
     bool isDismissible = true,
     bool showSuccessToast = false,
   }) {
-    return CustomBottomSheet.show(
+    return WnBottomSheet.show(
       context: context,
       title: 'Profiles',
       barrierDismissible: isDismissible,
@@ -192,7 +192,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
               ),
             ),
             Gap(4.h),
-            AppFilledButton(
+            WnFilledButton(
               title: 'Connect Another Profile',
               onPressed: _handleConnectAnotherProfile,
             ),

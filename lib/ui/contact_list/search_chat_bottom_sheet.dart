@@ -12,8 +12,8 @@ import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/contact_loading_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 
 class SearchChatBottomSheet extends ConsumerStatefulWidget {
   const SearchChatBottomSheet({super.key});
@@ -22,7 +22,7 @@ class SearchChatBottomSheet extends ConsumerStatefulWidget {
   ConsumerState<SearchChatBottomSheet> createState() => _SearchChatBottomSheetState();
 
   static Future<void> show(BuildContext context) {
-    return CustomBottomSheet.show(
+    return WnBottomSheet.show(
       context: context,
       title: 'Search',
       blurSigma: 8.0,
@@ -172,7 +172,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
 
     return Column(
       children: [
-        CustomTextField(
+        WnTextField(
           textController: _searchController,
           focusNode: _searchFocusNode,
           hintText: 'Search contacts and chats...',

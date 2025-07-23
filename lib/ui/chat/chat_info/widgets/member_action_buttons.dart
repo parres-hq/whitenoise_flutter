@@ -11,7 +11,7 @@ import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class SendMessageButton extends ConsumerStatefulWidget {
   const SendMessageButton(this.user, {super.key});
@@ -57,7 +57,7 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
           });
 
           ref.showSuccessToast(
-            'Chat with ${widget.user.username ?? widget.user.name} started successfully',
+            'Chat with ${widget.user.username ?? widget.user.displayName} started successfully',
           );
         }
       } else {
@@ -78,11 +78,11 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
 
   @override
   Widget build(BuildContext context) {
-    return AppFilledButton.child(
+    return WnFilledButton.child(
       onPressed: _createOrOpenDirectMessageGroup,
       loading: _isLoading,
-      size: AppButtonSize.small,
-      visualState: AppButtonVisualState.secondary,
+      size: WnButtonSize.small,
+      visualState: WnButtonVisualState.secondary,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -143,12 +143,12 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
       if (isCurrentlyContact) {
         await contactsNotifier.removeContactByHex(widget.user.publicKey);
         if (mounted) {
-          ref.showSuccessToast('${widget.user.name} removed from contacts');
+          ref.showSuccessToast('${widget.user.displayName} removed from contacts');
         }
       } else {
         await contactsNotifier.addContactByHex(widget.user.publicKey);
         if (mounted) {
-          ref.showSuccessToast('${widget.user.name} added to contacts');
+          ref.showSuccessToast('${widget.user.displayName} added to contacts');
         }
       }
     } catch (e) {
@@ -167,11 +167,11 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
   @override
   Widget build(BuildContext context) {
     final isContact = _isContact();
-    return AppFilledButton.child(
+    return WnFilledButton.child(
       onPressed: _toggleContact,
       loading: _isLoading,
-      size: AppButtonSize.small,
-      visualState: AppButtonVisualState.secondary,
+      size: WnButtonSize.small,
+      visualState: WnButtonVisualState.secondary,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [

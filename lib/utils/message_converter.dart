@@ -68,7 +68,7 @@ class MessageConverter {
           createdAt: DateTime.now(),
           sender: User(
             id: 'unknown',
-            name: 'Unknown User',
+            displayName: 'Unknown User',
             nip05: '',
             publicKey: 'unknown',
           ),
@@ -162,7 +162,7 @@ class MessageConverter {
         userCache[messageData.pubkey] ??
         User(
           id: messageData.pubkey,
-          name: 'Unknown User',
+          displayName: 'Unknown User',
           nip05: '',
           publicKey: messageData.pubkey,
         );
@@ -191,7 +191,7 @@ class MessageConverter {
             userCache[originalMessage.pubkey] ??
             User(
               id: originalMessage.pubkey,
-              name: 'Unknown User',
+              displayName: 'Unknown User',
               nip05: '',
               publicKey: originalMessage.pubkey,
             );
@@ -216,7 +216,7 @@ class MessageConverter {
           createdAt: DateTime.now(),
           sender: User(
             id: 'unknown',
-            name: 'Unknown User',
+            displayName: 'Unknown User',
             nip05: '',
             publicKey: 'unknown',
           ),
@@ -304,7 +304,7 @@ class MessageConverter {
           createdAt: DateTime.now(),
           sender: User(
             id: 'unknown',
-            name: 'Unknown User',
+            displayName: 'Unknown User',
             nip05: '',
             publicKey: 'unknown',
           ),
@@ -419,7 +419,7 @@ class MessageConverter {
         userCache[messageData.pubkey] ??
         User(
           id: messageData.pubkey,
-          name: 'Unknown User',
+          displayName: 'Unknown User',
           nip05: '',
           publicKey: messageData.pubkey,
         );
@@ -449,7 +449,7 @@ class MessageConverter {
             userCache[originalMessage.pubkey] ??
             User(
               id: originalMessage.pubkey,
-              name: 'Unknown User',
+              displayName: 'Unknown User',
               nip05: '',
               publicKey: originalMessage.pubkey,
             );
@@ -474,7 +474,7 @@ class MessageConverter {
           createdAt: DateTime.now(),
           sender: User(
             id: 'unknown',
-            name: 'Unknown User',
+            displayName: 'Unknown User',
             nip05: '',
             publicKey: 'unknown',
           ),
@@ -516,7 +516,7 @@ class MessageConverter {
     if (currentUserPubkey != null && pubkey == currentUserPubkey) {
       return User(
         id: pubkey,
-        name: 'You',
+        displayName: 'You',
         nip05: '',
         publicKey: pubkey,
       );
@@ -533,7 +533,7 @@ class MessageConverter {
         final contactModel = contact.first;
         return User(
           id: pubkey,
-          name:
+          displayName:
               contactModel.displayName?.isNotEmpty == true
                   ? contactModel.displayName!
                   : contactModel.name,
@@ -551,7 +551,7 @@ class MessageConverter {
 
         return User(
           id: pubkey,
-          name: contactModel.displayNameOrName,
+          displayName: contactModel.displayNameOrName,
           nip05: contactModel.nip05 ?? '',
           publicKey: pubkey,
           imagePath: contactModel.imagePath,
@@ -562,7 +562,7 @@ class MessageConverter {
       // Return fallback user if both lookups fail
       return User(
         id: pubkey,
-        name: 'Unknown User',
+        displayName: 'Unknown User',
         nip05: '',
         publicKey: pubkey,
       );
@@ -589,7 +589,8 @@ class MessageConverter {
             entry.key,
             User(
               id: entry.key,
-              name: entry.key == currentUserPublicKey ? 'You' : entry.value.displayNameOrName,
+              displayName:
+                  entry.key == currentUserPublicKey ? 'You' : entry.value.displayNameOrName,
               nip05: entry.value.nip05 ?? '',
               publicKey: entry.key,
               imagePath: entry.value.imagePath,
@@ -609,7 +610,7 @@ class MessageConverter {
     for (final userReaction in reactions.userReactions) {
       final user = User(
         id: userReaction.user,
-        name: 'Unknown User', // Will be resolved by metadata cache later
+        displayName: 'Unknown User', // Will be resolved by metadata cache later
         nip05: '',
         publicKey: userReaction.user,
       );
@@ -641,7 +642,7 @@ class MessageConverter {
           userCache[userReaction.user] ??
           User(
             id: userReaction.user,
-            name: 'Unknown User',
+            displayName: 'Unknown User',
             nip05: '',
             publicKey: userReaction.user,
           );

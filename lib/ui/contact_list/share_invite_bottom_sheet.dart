@@ -11,8 +11,8 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ShareInviteBottomSheet extends ConsumerStatefulWidget {
@@ -29,7 +29,7 @@ class ShareInviteBottomSheet extends ConsumerStatefulWidget {
     required List<ContactModel> contacts,
     VoidCallback? onInviteSent,
   }) {
-    return CustomBottomSheet.show(
+    return WnBottomSheet.show(
       context: context,
       title: 'Invite to Chat',
       blurSigma: 8.0,
@@ -98,12 +98,12 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
               Gap(12.h),
               ContactAvatar(
                 imageUrl: contact.imagePath ?? '',
-                displayName: contact.name,
+                displayName: contact.displayNameOrName,
                 size: 96.r,
               ),
               Gap(8.h),
               Text(
-                contact.name,
+                contact.displayNameOrName,
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
@@ -248,7 +248,7 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
           ),
         ],
         Gap(40.h),
-        AppFilledButton(
+        WnFilledButton(
           onPressed: _isSendingInvite ? null : _shareInvite,
           loading: _isSendingInvite,
           title: _isSendingInvite ? 'Sharing...' : 'Share',
