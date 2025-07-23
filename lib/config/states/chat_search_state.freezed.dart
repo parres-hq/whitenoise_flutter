@@ -21,8 +21,6 @@ mixin _$ChatSearchState {
   bool get isSearchActive => throw _privateConstructorUsedError;
   List<SearchMatch> get matches => throw _privateConstructorUsedError;
   int get currentMatchIndex => throw _privateConstructorUsedError;
-  int get currentWordMatchIndex =>
-      throw _privateConstructorUsedError; // Track individual word matches
   bool get isLoading => throw _privateConstructorUsedError;
 
   /// Create a copy of ChatSearchState
@@ -43,7 +41,6 @@ abstract class $ChatSearchStateCopyWith<$Res> {
     bool isSearchActive,
     List<SearchMatch> matches,
     int currentMatchIndex,
-    int currentWordMatchIndex,
     bool isLoading,
   });
 }
@@ -67,7 +64,6 @@ class _$ChatSearchStateCopyWithImpl<$Res, $Val extends ChatSearchState>
     Object? isSearchActive = null,
     Object? matches = null,
     Object? currentMatchIndex = null,
-    Object? currentWordMatchIndex = null,
     Object? isLoading = null,
   }) {
     return _then(
@@ -91,11 +87,6 @@ class _$ChatSearchStateCopyWithImpl<$Res, $Val extends ChatSearchState>
                 null == currentMatchIndex
                     ? _value.currentMatchIndex
                     : currentMatchIndex // ignore: cast_nullable_to_non_nullable
-                        as int,
-            currentWordMatchIndex:
-                null == currentWordMatchIndex
-                    ? _value.currentWordMatchIndex
-                    : currentWordMatchIndex // ignore: cast_nullable_to_non_nullable
                         as int,
             isLoading:
                 null == isLoading
@@ -121,7 +112,6 @@ abstract class _$$ChatSearchStateImplCopyWith<$Res> implements $ChatSearchStateC
     bool isSearchActive,
     List<SearchMatch> matches,
     int currentMatchIndex,
-    int currentWordMatchIndex,
     bool isLoading,
   });
 }
@@ -144,7 +134,6 @@ class __$$ChatSearchStateImplCopyWithImpl<$Res>
     Object? isSearchActive = null,
     Object? matches = null,
     Object? currentMatchIndex = null,
-    Object? currentWordMatchIndex = null,
     Object? isLoading = null,
   }) {
     return _then(
@@ -169,11 +158,6 @@ class __$$ChatSearchStateImplCopyWithImpl<$Res>
                 ? _value.currentMatchIndex
                 : currentMatchIndex // ignore: cast_nullable_to_non_nullable
                     as int,
-        currentWordMatchIndex:
-            null == currentWordMatchIndex
-                ? _value.currentWordMatchIndex
-                : currentWordMatchIndex // ignore: cast_nullable_to_non_nullable
-                    as int,
         isLoading:
             null == isLoading
                 ? _value.isLoading
@@ -192,7 +176,6 @@ class _$ChatSearchStateImpl implements _ChatSearchState {
     this.isSearchActive = false,
     final List<SearchMatch> matches = const [],
     this.currentMatchIndex = 0,
-    this.currentWordMatchIndex = 0,
     this.isLoading = false,
   }) : _matches = matches;
 
@@ -216,15 +199,11 @@ class _$ChatSearchStateImpl implements _ChatSearchState {
   final int currentMatchIndex;
   @override
   @JsonKey()
-  final int currentWordMatchIndex;
-  // Track individual word matches
-  @override
-  @JsonKey()
   final bool isLoading;
 
   @override
   String toString() {
-    return 'ChatSearchState(query: $query, isSearchActive: $isSearchActive, matches: $matches, currentMatchIndex: $currentMatchIndex, currentWordMatchIndex: $currentWordMatchIndex, isLoading: $isLoading)';
+    return 'ChatSearchState(query: $query, isSearchActive: $isSearchActive, matches: $matches, currentMatchIndex: $currentMatchIndex, isLoading: $isLoading)';
   }
 
   @override
@@ -238,8 +217,6 @@ class _$ChatSearchStateImpl implements _ChatSearchState {
             const DeepCollectionEquality().equals(other._matches, _matches) &&
             (identical(other.currentMatchIndex, currentMatchIndex) ||
                 other.currentMatchIndex == currentMatchIndex) &&
-            (identical(other.currentWordMatchIndex, currentWordMatchIndex) ||
-                other.currentWordMatchIndex == currentWordMatchIndex) &&
             (identical(other.isLoading, isLoading) || other.isLoading == isLoading));
   }
 
@@ -250,7 +227,6 @@ class _$ChatSearchStateImpl implements _ChatSearchState {
     isSearchActive,
     const DeepCollectionEquality().hash(_matches),
     currentMatchIndex,
-    currentWordMatchIndex,
     isLoading,
   );
 
@@ -272,7 +248,6 @@ abstract class _ChatSearchState implements ChatSearchState {
     final bool isSearchActive,
     final List<SearchMatch> matches,
     final int currentMatchIndex,
-    final int currentWordMatchIndex,
     final bool isLoading,
   }) = _$ChatSearchStateImpl;
 
@@ -284,8 +259,6 @@ abstract class _ChatSearchState implements ChatSearchState {
   List<SearchMatch> get matches;
   @override
   int get currentMatchIndex;
-  @override
-  int get currentWordMatchIndex; // Track individual word matches
   @override
   bool get isLoading;
 

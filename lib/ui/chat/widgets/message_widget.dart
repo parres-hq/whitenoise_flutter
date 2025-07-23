@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+
+import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_bubble/bubble.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/config/states/chat_search_state.dart';
 
 class MessageWidget extends StatelessWidget {
   final MessageModel message;
@@ -230,7 +231,6 @@ class MessageWidget extends StatelessWidget {
 
     return RichText(
       text: TextSpan(children: spans),
-      textAlign: TextAlign.start,
     );
   }
 

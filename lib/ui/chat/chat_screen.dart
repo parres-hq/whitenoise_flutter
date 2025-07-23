@@ -5,9 +5,10 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+
 import 'package:whitenoise/config/providers/chat_provider.dart';
-import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
