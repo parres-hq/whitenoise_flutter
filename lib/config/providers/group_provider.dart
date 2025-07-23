@@ -913,7 +913,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     state = state.copyWith(groupDisplayNames: displayNames);
   }
 
-  Future<void> addUserToGroup({
+  Future<void> addToGroup({
     required String groupId,
     required List<String> membersNpubs,
   }) async {
@@ -973,6 +973,73 @@ class GroupsNotifier extends Notifier<GroupsState> {
         stackTrace: st,
         fallbackMessage: 'Failed to add user to group. Please try again.',
         context: 'addUserToGroup',
+      );
+
+      state = state.copyWith(error: errorMessage);
+      rethrow;
+    }
+  }
+
+  Future<void> removeFromGroup({
+    required String groupId,
+    required List<String> membersNpubs,
+  }) async {
+    if (!_isAuthAvailable()) {
+      return;
+    }
+
+    try {
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        state = state.copyWith(error: 'No active account found');
+        return;
+      }
+
+      final currentUserPubkey = await publicKeyFromString(
+        publicKeyString: activeAccountData.pubkey,
+      );
+      final groupIdObj = await groupIdFromString(hexString: groupId);
+
+      final usersPubkey = await Future.wait(
+        membersNpubs.map((userNpub) async {
+          return await publicKeyFromString(
+            publicKeyString: await hexPubkeyFromNpub(npub: userNpub),
+          );
+        }),
+      );
+      await removeMembersFromGroup(
+        pubkey: currentUserPubkey,
+        groupId: groupIdObj,
+        memberPubkeys: usersPubkey,
+      );
+
+      _logger.info(
+        'GroupsProvider: Successfully removed users ${membersNpubs.join(', ')} from group $groupId',
+      );
+
+      // Reload group members to reflect the change
+      await loadGroupMembers(groupId);
+    } catch (e, st) {
+      String logMessage = 'GroupsProvider.removeFromGroup - Exception: ';
+      if (e is WhitenoiseError) {
+        try {
+          final errorDetails = await whitenoiseErrorToString(error: e);
+          logMessage += '$errorDetails (Type: ${e.runtimeType})';
+        } catch (conversionError) {
+          logMessage +=
+              'WhitenoiseError conversion failed: $conversionError (Type: ${e.runtimeType})';
+        }
+      } else {
+        logMessage += '$e (Type: ${e.runtimeType})';
+      }
+      _logger.severe(logMessage, e, st);
+
+      final errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
+        error: e,
+        stackTrace: st,
+        fallbackMessage: 'Failed to remove user from group. Please try again.',
+        context: 'removeFromGroup',
       );
 
       state = state.copyWith(error: errorMessage);

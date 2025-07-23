@@ -75,7 +75,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
       try {
         await ref
             .read(groupsProvider.notifier)
-            .addUserToGroup(
+            .addToGroup(
               groupId: groupId,
               membersNpubs: [widget.contactNpub],
             );

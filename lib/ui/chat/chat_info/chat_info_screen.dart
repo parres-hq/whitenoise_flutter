@@ -14,6 +14,7 @@ import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/ui/chat/chat_info/widgets/group_member_bottom_sheet.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';

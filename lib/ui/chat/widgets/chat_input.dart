@@ -82,22 +82,19 @@ class _ChatInputState extends ConsumerState<ChatInput> {
       _textController.text = chatState.editingMessage[widget.groupId]!.content ?? '';
     }
 
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final isKeyboardOpen = keyboardHeight > 0;
-
     return AnimatedPadding(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOutCubic,
           padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
-            top: 4.h,
-            bottom: isKeyboardOpen ? 16.h : 54.h,
+            bottom: 24.h,
           ),
-          child: SafeArea(
-            child: Container(
-              width: 1.sw,
-              constraints: BoxConstraints(
-                minHeight: 44.h,
-              ),
+          child: Container(
+            width: 1.sw,
+            constraints: BoxConstraints(
+              minHeight: 44.h,
+            ),
+            child: SafeArea(
+              top: false,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
