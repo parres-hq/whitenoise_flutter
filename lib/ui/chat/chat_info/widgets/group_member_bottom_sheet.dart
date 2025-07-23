@@ -195,12 +195,12 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
         Gap(16.h),
         ContactAvatar(
           imageUrl: widget.member.imagePath ?? '',
-          displayName: widget.member.username,
+          displayName: widget.member.displayName,
           size: 96.w,
         ),
         Gap(4.h),
         Text(
-          widget.member.username ?? '',
+          widget.member.displayName,
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: context.colors.primary,
