@@ -5,16 +5,24 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class WhitenoiseDialog extends StatelessWidget {
-  final String title;
-  final String content;
-  final Widget actions;
+  final String? title;
+  final String? content;
+  final Widget? actions;
+  final Widget? customChild;
 
   const WhitenoiseDialog({
     super.key,
     required this.title,
     required this.content,
     required this.actions,
-  });
+  }) : customChild = null;
+
+  const WhitenoiseDialog.custom({
+    super.key,
+    required this.customChild,
+  }) : title = null,
+       content = null,
+       actions = null;
 
   @override
   Widget build(BuildContext context) {
@@ -31,31 +39,33 @@ class WhitenoiseDialog extends StatelessWidget {
         ),
         child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.h),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.primary,
-                ),
+          child:
+              customChild ??
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title!,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.primary,
+                    ),
+                  ),
+                  Gap(8.h),
+                  Text(
+                    content!,
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w500,
+                      color: context.colors.mutedForeground,
+                    ),
+                  ),
+                  Gap(24.h),
+                  actions!,
+                ],
               ),
-              Gap(8.h),
-              Text(
-                content,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: context.colors.mutedForeground,
-                ),
-              ),
-              Gap(24.h),
-              actions,
-            ],
-          ),
         ),
       ),
     );

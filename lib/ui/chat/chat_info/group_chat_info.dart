@@ -63,6 +63,27 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
         }
       }
 
+      // Sort members: admins first (A-Z), then regular members (A-Z), current user last
+      allMembers.sort((a, b) {
+        final aIsAdmin = admins.any((admin) => admin.publicKey == a.publicKey);
+        final bIsAdmin = admins.any((admin) => admin.publicKey == b.publicKey);
+        final aIsCurrentUser = currentUserNpub != null && currentUserNpub == a.publicKey;
+        final bIsCurrentUser = currentUserNpub != null && currentUserNpub == b.publicKey;
+
+        // Current user always goes last
+        if (aIsCurrentUser) return 1;
+        if (bIsCurrentUser) return -1;
+
+        // Admins come before regular members
+        if (aIsAdmin && !bIsAdmin) return -1;
+        if (!aIsAdmin && bIsAdmin) return 1;
+
+        // Within same category (both admins or both regular), sort alphabetically
+        final aName = a.name.isNotEmpty ? a.name : 'Unknown User';
+        final bName = b.name.isNotEmpty ? b.name : 'Unknown User';
+        return aName.toLowerCase().compareTo(bName.toLowerCase());
+      });
+
       if (mounted) {
         setState(() {
           groupMembers = allMembers;
@@ -294,6 +315,34 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
     }
   }
 
+  void _openRemoveFromGroupDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return WhitenoiseDialog.custom(
+          customChild: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Are you sure you want to remove ${widget.member.name} from the group?',
+                style: context.textTheme.bodyMedium?.copyWith(
+                  color: context.colors.primary,
+                  fontSize: 16.sp,
+                ),
+              ),
+              Gap(16.h),
+              AppFilledButton.child(
+                onPressed: () {},
+                visualState: AppButtonVisualState.secondaryWarning,
+                child: Text('Remove'),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -447,7 +496,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
         if (currentUserIsAdmin) ...[
           Gap(8.h),
           AppFilledButton.child(
-            onPressed: () {},
+            onPressed: _openRemoveFromGroupDialog,
             size: AppButtonSize.small,
             visualState: AppButtonVisualState.secondaryWarning,
             child: Row(
@@ -656,8 +705,8 @@ class __AddToContactButtonState extends ConsumerState<_AddToContactButton> {
           Gap(8.w),
           SvgPicture.asset(
             isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
-            width: 13.w,
-            height: 13.w,
+            width: 11.w,
+            height: 11.w,
             colorFilter: ColorFilter.mode(
               context.colors.primary,
               BlendMode.srcIn,
