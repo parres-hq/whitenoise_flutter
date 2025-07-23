@@ -42,7 +42,8 @@ Widget createTestWidget(
   List<Override>? additionalOverrides
 }) {
   final overrides = [
-    toastMessageProvider.overrideWith(() => MockToastNotifier())
+    toastMessageProvider.overrideWith(() => MockToastNotifier()),
+    if (additionalOverrides != null) ...additionalOverrides,
   ];
 
   return ProviderScope(

@@ -175,7 +175,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
       _controller.stop();
       final contact = await ref.read(metadataCacheProvider.notifier).getContactModel(npub);
       if (mounted) {
-        await StartSecureChatBottomSheet.show(
+        await StartChatBottomSheet.show(
           context: context,
           name: contact.displayNameOrName,
           nip05: contact.nip05 ?? '',
