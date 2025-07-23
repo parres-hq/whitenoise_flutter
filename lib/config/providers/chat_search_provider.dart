@@ -81,11 +81,9 @@ class ChatSearchNotifier extends StateNotifier<ChatSearchState> {
 
       if (content.contains(queryLower)) {
         int startIndex = 0;
+        var matchIndex = content.indexOf(queryLower, startIndex);
 
-        while (true) {
-          final index = content.indexOf(queryLower, startIndex);
-          if (index == -1) break;
-
+        while (matchIndex != -1) {
           // Create a separate SearchMatch for each individual word occurrence
           allMatches.add(
             SearchMatch(
@@ -94,15 +92,16 @@ class ChatSearchNotifier extends StateNotifier<ChatSearchState> {
               messageContent: message.content ?? '',
               textMatches: [
                 TextMatch(
-                  start: index,
-                  end: index + queryLower.length,
-                  matchedText: message.content!.substring(index, index + queryLower.length),
+                  start: matchIndex,
+                  end: matchIndex + queryLower.length,
+                  matchedText: message.content!.substring(matchIndex, matchIndex + queryLower.length),
                 ),
               ],
             ),
           );
 
-          startIndex = index + 1;
+          startIndex = matchIndex + queryLower.length;
+          matchIndex = content.indexOf(queryLower, startIndex);
         }
       }
     }
