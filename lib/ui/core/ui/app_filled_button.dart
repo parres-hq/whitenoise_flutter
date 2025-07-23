@@ -40,8 +40,11 @@ class AppFilledButton extends AppButton {
 
   @override
   Widget buildButton(BuildContext context) {
-    const loadingIndicator = ButtonLoadingIndicator();
     final theme = Theme.of(context).elevatedButtonTheme;
+
+    final loadingIndicator = ButtonLoadingIndicator(
+      color: visualState.foregroundColor(context),
+    );
 
     final effectiveStyle = (style ?? FilledButton.styleFrom())
         .merge(

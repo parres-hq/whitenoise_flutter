@@ -148,15 +148,20 @@ sealed class AppButton extends StatelessWidget {
 }
 
 class ButtonLoadingIndicator extends StatelessWidget {
-  const ButtonLoadingIndicator({super.key});
-
+  const ButtonLoadingIndicator({super.key, this.color});
+  final Color? color;
   @override
   Widget build(BuildContext context) {
+    final backgroundColor = color ?? context.colors.primaryForeground;
     return SizedBox.square(
       dimension: 18.w,
       child: CircularProgressIndicator(
         strokeCap: StrokeCap.round,
         strokeWidth: 2.w,
+        backgroundColor: backgroundColor.withValues(alpha: 0.3),
+        valueColor: AlwaysStoppedAnimation<Color>(
+          color ?? context.colors.primaryForeground,
+        ),
       ),
     );
   }
