@@ -445,35 +445,35 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
           ),
         ),
         if (currentUserIsAdmin) ...[
-          // Gap(8.h),
-          // AppFilledButton.child(
-          //   onPressed: () {},
-          //   size: AppButtonSize.small,
-          //   visualState: AppButtonVisualState.secondaryWarning,
-          //   child: Row(
-          //     mainAxisAlignment: MainAxisAlignment.center,
-          //     children: [
-          //       Text(
-          //         'Remove From Group',
-          //         style: context.textTheme.bodyMedium?.copyWith(
-          //           color: context.colors.destructive,
-          //           fontWeight: FontWeight.w600,
-          //           fontSize: 14.sp,
-          //         ),
-          //       ),
-          //       Gap(8.w),
-          //       SvgPicture.asset(
-          //         AssetsPaths.icRemoveOutlined,
-          //         width: 14.w,
-          //         height: 13.h,
-          //         colorFilter: ColorFilter.mode(
-          //           context.colors.destructive,
-          //           BlendMode.srcIn,
-          //         ),
-          //       ),
-          //     ],
-          //   ),
-          // ),
+          Gap(8.h),
+          AppFilledButton.child(
+            onPressed: () {},
+            size: AppButtonSize.small,
+            visualState: AppButtonVisualState.secondaryWarning,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Remove From Group',
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: context.colors.destructive,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
+                  ),
+                ),
+                Gap(8.w),
+                SvgPicture.asset(
+                  AssetsPaths.icRemoveOutlined,
+                  width: 14.w,
+                  height: 13.h,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.destructive,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ] else ...[
           Gap(8.h),
           _AddToContactButton(widget.member),
@@ -564,7 +564,7 @@ class __SendMessageButtonState extends ConsumerState<_SendMessageButton> {
               fontSize: 14.sp,
             ),
           ),
-          Gap(4.w),
+          Gap(8.w),
           SvgPicture.asset(
             AssetsPaths.icMessage,
             width: 14.w,
@@ -653,7 +653,7 @@ class __AddToContactButtonState extends ConsumerState<_AddToContactButton> {
               fontSize: 14.sp,
             ),
           ),
-          Gap(4.w),
+          Gap(8.w),
           SvgPicture.asset(
             isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
             width: 13.w,
