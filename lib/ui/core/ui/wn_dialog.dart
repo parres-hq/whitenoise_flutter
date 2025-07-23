@@ -4,20 +4,20 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
-class WhitenoiseDialog extends StatelessWidget {
+class WnDialog extends StatelessWidget {
   final String? title;
   final String? content;
   final Widget? actions;
   final Widget? customChild;
 
-  const WhitenoiseDialog({
+  const WnDialog({
     super.key,
     required this.title,
     required this.content,
     required this.actions,
   }) : customChild = null;
 
-  const WhitenoiseDialog.custom({
+  const WnDialog.custom({
     super.key,
     required this.customChild,
   }) : title = null,

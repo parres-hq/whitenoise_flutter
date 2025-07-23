@@ -12,8 +12,8 @@ import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
@@ -45,7 +45,7 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
     VoidCallback? onStartChat,
     ValueChanged<GroupData?>? onChatCreated,
   }) {
-    return CustomBottomSheet.show(
+    return WnBottomSheet.show(
       context: context,
       title: 'User Profile',
       blurSigma: 8.0,
@@ -217,9 +217,9 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
             ],
           ),
         ),
-        AppFilledButton.child(
-          size: AppButtonSize.small,
-          visualState: AppButtonVisualState.secondary,
+        WnFilledButton.child(
+          size: WnButtonSize.small,
+          visualState: WnButtonVisualState.secondary,
           onPressed: _isAddingContact ? null : _toggleContact,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -257,9 +257,9 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
           ),
         ),
         Gap(8.h),
-        AppFilledButton.child(
-          size: AppButtonSize.small,
-          visualState: AppButtonVisualState.secondary,
+        WnFilledButton.child(
+          size: WnButtonSize.small,
+          visualState: WnButtonVisualState.secondary,
           onPressed: _openAddToGroup,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -287,7 +287,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
         ),
 
         Gap(8.h),
-        AppFilledButton(
+        WnFilledButton(
           onPressed: _isCreatingGroup ? null : _createOrOpenDirectMessageGroup,
           loading: _isCreatingGroup,
           title: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',

@@ -22,9 +22,9 @@ import 'package:whitenoise/ui/contact_list/widgets/profile_avatar.dart';
 import 'package:whitenoise/ui/contact_list/widgets/profile_ready_card.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
-import 'package:whitenoise/ui/core/ui/bottom_fade.dart';
-import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
   const ChatListScreen({super.key});
@@ -227,7 +227,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
               controller: _scrollController,
               physics: const AlwaysScrollableScrollPhysics(),
               slivers: [
-                CustomAppBar.sliver(
+                WnAppBar.sliver(
                   title: Padding(
                     padding: EdgeInsets.only(left: 16.w),
                     child: InkWell(
@@ -319,7 +319,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
                       sliver: SliverToBoxAdapter(
                         child:
-                            AppTextFormField(
+                            WnTextFormField(
                               controller: _searchController,
                               focusNode: _searchFocusNode,
                               hintText: 'Search Chats',
@@ -373,7 +373,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
             ),
 
             if (chatItems.isNotEmpty)
-              Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const BottomFade()),
+              Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const WnBottomFade()),
           ],
         ),
         bottomNavigationBar: SafeArea(

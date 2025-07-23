@@ -11,7 +11,7 @@ import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ContactLoadingBottomSheet extends ConsumerStatefulWidget {
@@ -32,7 +32,7 @@ class ContactLoadingBottomSheet extends ConsumerStatefulWidget {
     ValueChanged<GroupData?>? onChatCreated,
     VoidCallback? onInviteSent,
   }) {
-    return CustomBottomSheet.show(
+    return WnBottomSheet.show(
       context: context,
       title: 'Connecting...',
       blurSigma: 8.0,

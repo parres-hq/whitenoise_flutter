@@ -13,7 +13,7 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ShareProfileScreen extends ConsumerStatefulWidget {
@@ -176,7 +176,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                               ),
                             ),
                             const Spacer(),
-                            AppFilledButton.icon(
+                            WnFilledButton.icon(
                               label: SvgPicture.asset(
                                 AssetsPaths.icScan,
                                 colorFilter: ColorFilter.mode(

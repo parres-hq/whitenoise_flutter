@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
@@ -16,9 +15,9 @@ import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/custom_textfield.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 
 class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   const GroupChatDetailsSheet({
@@ -35,7 +34,7 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
     required List<ContactModel> selectedContacts,
     ValueChanged<GroupData?>? onGroupCreated,
   }) {
-    return CustomBottomSheet.show(
+    return WnBottomSheet.show(
       context: context,
       title: 'Group chat details',
       blurSigma: 8.0,
@@ -280,7 +279,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                 ),
               ),
               Gap(8.h),
-              CustomTextField(
+              WnTextField(
                 textController: _groupNameController,
                 hintText: 'Enter group name',
                 padding: EdgeInsets.zero,
@@ -311,7 +310,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
             },
           ),
         ),
-        AppFilledButton(
+        WnFilledButton(
           onPressed:
               _isCreatingGroup || !_isGroupNameValid || !_hasContactsWithKeyPackage
                   ? null

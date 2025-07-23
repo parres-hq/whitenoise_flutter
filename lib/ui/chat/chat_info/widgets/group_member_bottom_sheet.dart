@@ -14,9 +14,9 @@ import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 import 'member_action_buttons.dart';
@@ -31,7 +31,7 @@ class GroupMemberBottomSheet extends ConsumerStatefulWidget {
   final String groupId;
 
   static void show(BuildContext context, {required String groupId, required User member}) {
-    CustomBottomSheet.show(
+    WnBottomSheet.show(
       context: context,
       title: 'Member',
       builder: (context) => GroupMemberBottomSheet(groupId: groupId, member: member),
@@ -104,7 +104,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
   Future<bool?> _openRemoveFromGroupDialog() => showDialog<bool>(
     context: context,
     builder: (context) {
-      return WhitenoiseDialog.custom(
+      return WnDialog.custom(
         customChild: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -152,18 +152,18 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
               textAlign: TextAlign.left,
             ),
             Gap(16.h),
-            AppFilledButton(
-              size: AppButtonSize.small,
+            WnFilledButton(
+              size: WnButtonSize.small,
               onPressed: () => Navigator.pop(context),
-              visualState: AppButtonVisualState.secondary,
+              visualState: WnButtonVisualState.secondary,
               title: 'Cancel',
             ),
             Gap(8.h),
-            AppFilledButton(
-              size: AppButtonSize.small,
+            WnFilledButton(
+              size: WnButtonSize.small,
               loading: _isRemoving,
               onPressed: _isRemoving ? null : _removeFromGroup,
-              visualState: AppButtonVisualState.error,
+              visualState: WnButtonVisualState.error,
               title: 'Remove From Group',
             ),
           ],
@@ -266,10 +266,10 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
         else
           SendMessageButton(widget.member),
         Gap(8.h),
-        AppFilledButton.child(
+        WnFilledButton.child(
           onPressed: _openAddToGroup,
-          size: AppButtonSize.small,
-          visualState: AppButtonVisualState.secondary,
+          size: WnButtonSize.small,
+          visualState: WnButtonVisualState.secondary,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -296,15 +296,15 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
         ),
         if (currentUserIsAdmin) ...[
           Gap(8.h),
-          AppFilledButton.child(
+          WnFilledButton.child(
             onPressed: () async {
               final result = await _openRemoveFromGroupDialog();
               if (result == true && context.mounted) {
                 Navigator.pop(context);
               }
             },
-            size: AppButtonSize.small,
-            visualState: AppButtonVisualState.secondaryWarning,
+            size: WnButtonSize.small,
+            visualState: WnButtonVisualState.secondaryWarning,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

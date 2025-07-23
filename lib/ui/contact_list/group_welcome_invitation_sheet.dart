@@ -6,8 +6,8 @@ import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class GroupWelcomeInvitationSheet extends StatelessWidget {
@@ -28,7 +28,7 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
     VoidCallback? onAccept,
     VoidCallback? onDecline,
   }) {
-    return CustomBottomSheet.show<String>(
+    return WnBottomSheet.show<String>(
       context: context,
       title: welcomeData.memberCount > 2 ? 'Group Invitation' : 'Chat Invitation',
       blurSigma: 8.0,
@@ -69,8 +69,8 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
           ),
         ),
         const Spacer(),
-        AppFilledButton(
-          visualState: AppButtonVisualState.secondary,
+        WnFilledButton(
+          visualState: WnButtonVisualState.secondary,
           onPressed: () {
             Navigator.of(context).pop();
             if (onDecline != null) {
@@ -80,7 +80,7 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
           title: 'Decline',
         ),
         Gap(8.h),
-        AppFilledButton(
+        WnFilledButton(
           onPressed: () {
             Navigator.of(context).pop();
             if (onAccept != null) {

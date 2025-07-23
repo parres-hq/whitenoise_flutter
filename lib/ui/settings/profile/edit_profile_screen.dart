@@ -5,16 +5,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
-import 'package:whitenoise/ui/core/ui/app_text_form_field.dart';
-import 'package:whitenoise/ui/core/ui/whitenoise_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
@@ -187,7 +186,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ),
                                 ),
                                 Gap(10.h),
-                                AppTextFormField(
+                                WnTextFormField(
                                   controller: _displayNameController,
                                   hintText: 'Trent Reznor',
                                   onChanged: (value) {
@@ -206,7 +205,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ),
                                 ),
                                 Gap(10.h),
-                                AppTextFormField(
+                                WnTextFormField(
                                   controller: _nostrAddressController,
                                   hintText: 'example@whitenoise.chat',
                                   onChanged: (value) {
@@ -225,7 +224,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   ),
                                 ),
                                 Gap(10.h),
-                                AppTextFormField(
+                                WnTextFormField(
                                   controller: _aboutController,
                                   hintText: 'Write something about yourself.',
                                   minLines: 3,
@@ -255,19 +254,19 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   if (profile.isDirty) ...[
-                                    AppFilledButton(
+                                    WnFilledButton(
                                       onPressed:
                                           () => showDialog(
                                             context: context,
                                             builder:
-                                                (dialogContext) => WhitenoiseDialog(
+                                                (dialogContext) => WnDialog(
                                                   title: 'Unsaved changes',
                                                   content:
                                                       'You have unsaved changes. Are you sure you want to leave?',
                                                   actions: Row(
                                                     children: [
                                                       Expanded(
-                                                        child: AppFilledButton.child(
+                                                        child: WnFilledButton.child(
                                                           onPressed: () {
                                                             ref
                                                                 .read(profileProvider.notifier)
@@ -275,8 +274,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                             Navigator.of(dialogContext).pop();
                                                           },
                                                           visualState:
-                                                              AppButtonVisualState.secondaryWarning,
-                                                          size: AppButtonSize.small,
+                                                              WnButtonVisualState.secondaryWarning,
+                                                          size: WnButtonSize.small,
                                                           child: const FittedBox(
                                                             fit: BoxFit.scaleDown,
                                                             child: Text('Discard Changes'),
@@ -285,7 +284,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                       ),
                                                       Gap(10.w),
                                                       Expanded(
-                                                        child: AppFilledButton(
+                                                        child: WnFilledButton(
                                                           onPressed: () async {
                                                             await ref
                                                                 .read(profileProvider.notifier)
@@ -295,7 +294,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                             }
                                                           },
                                                           title: 'Save',
-                                                          size: AppButtonSize.small,
+                                                          size: WnButtonSize.small,
                                                         ),
                                                       ),
                                                     ],
@@ -303,11 +302,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                 ),
                                           ),
                                       title: 'Discard Changes',
-                                      visualState: AppButtonVisualState.secondary,
+                                      visualState: WnButtonVisualState.secondary,
                                     ),
                                     Gap(4.h),
                                   ],
-                                  AppFilledButton(
+                                  WnFilledButton(
                                     onPressed:
                                         profile.isDirty && !profile.isSaving
                                             ? () async =>

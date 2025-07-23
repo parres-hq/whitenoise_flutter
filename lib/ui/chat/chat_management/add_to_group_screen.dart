@@ -7,8 +7,8 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
-import 'package:whitenoise/ui/core/ui/bottom_fade.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class AddToGroupScreen extends ConsumerStatefulWidget {
   const AddToGroupScreen({super.key, required this.contactNpub});
@@ -201,7 +201,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
               },
             ),
           ),
-          const BottomFade(),
+          const WnBottomFade(),
         ],
       ),
       bottomNavigationBar: SafeArea(
@@ -209,7 +209,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
           padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
             bottom: 16.h,
           ),
-          child: AppFilledButton(
+          child: WnFilledButton(
             title: 'Add to Group',
             loading: _isLoading,
             onPressed: _groupsToAddUserTo.isEmpty ? null : _addUserToGroups,

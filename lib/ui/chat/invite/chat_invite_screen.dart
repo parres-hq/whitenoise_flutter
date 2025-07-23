@@ -12,8 +12,8 @@ import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/app_button.dart';
-import 'package:whitenoise/ui/core/ui/custom_app_bar.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
+import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ChatInviteScreen extends ConsumerStatefulWidget {
@@ -50,7 +50,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
 
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: CustomAppBar(
+      appBar: WnAppBar(
         title:
             isDMInvite
                 ? DMAppBarTitle(welcomeData: welcomeData)
@@ -70,9 +70,9 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
             child: SafeArea(
               child: Column(
                 children: [
-                  AppFilledButton(
+                  WnFilledButton(
                     title: 'Decline',
-                    visualState: AppButtonVisualState.secondary,
+                    visualState: WnButtonVisualState.secondary,
                     onPressed: () async {
                       await welcomesNotifier.declineWelcomeInvitation(widget.inviteId);
                       if (context.mounted) {
@@ -81,7 +81,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
                     },
                   ),
                   Gap(8.h),
-                  AppFilledButton(
+                  WnFilledButton(
                     title: 'Accept',
                     loading: _isAccepting,
                     onPressed:

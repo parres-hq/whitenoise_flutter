@@ -3,13 +3,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/custom_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 
 class QRScannerBottomSheet extends StatefulWidget {
   const QRScannerBottomSheet({super.key});
 
   static Future<String?> show(BuildContext context) {
-    return CustomBottomSheet.show<String>(
+    return WnBottomSheet.show<String>(
       context: context,
       title: 'Scan QR Code',
       showBackButton: true,
