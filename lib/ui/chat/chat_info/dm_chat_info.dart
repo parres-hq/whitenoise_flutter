@@ -211,7 +211,9 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                   ),
                 ),
                 onPressed: () {
-                  // TODO: Implement search chat functionality
+                  // Activate search using the provider
+                  ref.read(chatSearchProvider(widget.groupId).notifier).activateSearch();
+                  context.pop(); // Close the chat info screen
                 },
               ),
 

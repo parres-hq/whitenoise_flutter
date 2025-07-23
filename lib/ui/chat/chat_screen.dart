@@ -5,6 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/chat_search_provider.dart';
+import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -12,6 +14,7 @@ import 'package:whitenoise/ui/chat/invite/chat_invite_screen.dart';
 import 'package:whitenoise/ui/chat/services/chat_dialog_service.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_search_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/chat/widgets/message_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/swipe_to_reply_widget.dart';
@@ -70,6 +73,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   void dispose() {
+    // Clear search state when leaving chat
+    final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
+    searchNotifier.deactivateSearch();
+
     _scrollController.dispose();
     super.dispose();
   }
@@ -113,24 +120,54 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
       final totalItems = messages.length + 1;
       final maxScrollExtent = _scrollController.position.maxScrollExtent;
+      final viewportHeight = _scrollController.position.viewportDimension;
 
       final approximateItemHeight = maxScrollExtent / totalItems;
       final targetPosition = targetIndex * approximateItemHeight;
 
-      final clampedPosition = targetPosition.clamp(0.0, maxScrollExtent);
+      // Center the message in the viewport, accounting for search widget height
+      final searchWidgetHeight = 120.h; // Approximate height of search widget
+      final centeredPosition = targetPosition - (viewportHeight / 2) + searchWidgetHeight;
+
+      final clampedPosition = centeredPosition.clamp(0.0, maxScrollExtent);
 
       _scrollController.animateTo(
         clampedPosition,
-        duration: const Duration(milliseconds: 600),
+        duration: const Duration(milliseconds: 400),
         curve: Curves.easeInOut,
       );
     }
+  }
+
+  SearchMatch? _getMessageSearchMatch(List<SearchMatch> matches, String messageId) {
+    final messageMatches = matches.where((match) => match.messageId == messageId).toList();
+    if (messageMatches.isEmpty) return null;
+
+    // Combine all text matches for this message
+    final allTextMatches = <TextMatch>[];
+    for (final match in messageMatches) {
+      allTextMatches.addAll(match.textMatches);
+    }
+
+    return SearchMatch(
+      messageId: messageId,
+      messageIndex: messageMatches.first.messageIndex,
+      messageContent: messageMatches.first.messageContent,
+      textMatches: allTextMatches,
+    );
+  }
+
+  void activateSearch() {
+    final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
+    searchNotifier.activateSearch();
   }
 
   @override
   Widget build(BuildContext context) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
     final chatNotifier = ref.watch(chatProvider.notifier);
+    final searchState = ref.watch(chatSearchProvider(widget.groupId));
+    final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
 
     final isInviteMode = widget.inviteId != null;
 
@@ -157,6 +194,26 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
     );
 
+    // Listen to search query changes and perform search
+    ref.listen(chatSearchProvider(widget.groupId), (previous, next) {
+      if (next.query.isNotEmpty && next.query != previous?.query) {
+        searchNotifier.performSearchWithMessages(next.query, messages);
+      }
+    });
+
+    // Auto-scroll to current match when it changes
+    ref.listen(chatSearchProvider(widget.groupId).select((state) => state.currentMatchIndex), (
+      previous,
+      next,
+    ) {
+      final currentMatch = searchNotifier.currentMatch;
+      if (currentMatch != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollToMessage(currentMatch.messageId);
+        });
+      }
+    });
+
     return Scaffold(
       resizeToAvoidBottomInset: true,
       body: NotificationListener<ScrollNotification>(
@@ -182,6 +239,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           behavior: HitTestBehavior.translucent,
           child: Column(
             children: [
+              // Search Widget
+              if (searchState.isSearchActive)
+                ChatSearchWidget(
+                  groupId: widget.groupId,
+                  onClose: () {
+                    searchNotifier.deactivateSearch();
+                  },
+                ),
+
               Expanded(
                 flex: 100,
                 child: Stack(
@@ -189,32 +255,34 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     CustomScrollView(
                       controller: _scrollController,
                       slivers: [
-                        CustomAppBar.sliver(
-                          floating: true,
-                          pinned: true,
-                          title: FutureBuilder(
-                            future: _dmChatDataFuture,
-                            builder: (context, asyncSnapshot) {
-                              if (asyncSnapshot.connectionState == ConnectionState.waiting) {
-                                return const ContactInfo.loading();
-                              }
+                        // Only show AppBar when search is not active
+                        if (!searchState.isSearchActive)
+                          CustomAppBar.sliver(
+                            floating: true,
+                            pinned: true,
+                            title: FutureBuilder(
+                              future: _dmChatDataFuture,
+                              builder: (context, asyncSnapshot) {
+                                if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+                                  return const ContactInfo.loading();
+                                }
 
-                              final otherUser = asyncSnapshot.data;
-                              return ContactInfo(
-                                title:
-                                    groupData.groupType == GroupType.directMessage
-                                        ? otherUser?.displayName ?? ''
-                                        : groupData.name,
-                                image:
-                                    groupData.groupType == GroupType.directMessage
-                                        ? otherUser?.displayImage ?? ''
-                                        // TODO : use group image when avaialabe
-                                        : '',
-                                onTap: () => context.push('/chats/${widget.groupId}/info'),
-                              );
-                            },
+                                final otherUser = asyncSnapshot.data;
+                                return ContactInfo(
+                                  title:
+                                      groupData.groupType == GroupType.directMessage
+                                          ? otherUser?.displayName ?? ''
+                                          : groupData.name,
+                                  image:
+                                      groupData.groupType == GroupType.directMessage
+                                          ? otherUser?.displayImage ?? ''
+                                          // TODO : use group image when avaialabe
+                                          : '',
+                                  onTap: () => context.push('/chats/${widget.groupId}/info'),
+                                );
+                              },
+                            ),
                           ),
-                        ),
                         SliverPadding(
                           padding: EdgeInsets.symmetric(
                             horizontal: 8.w,
@@ -256,6 +324,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                           index - 1,
                                           groupId: widget.groupId,
                                         ),
+                                        searchMatch:
+                                            searchState.matches.isNotEmpty
+                                                ? _getMessageSearchMatch(
+                                                  searchState.matches,
+                                                  message.id,
+                                                )
+                                                : null,
+                                        isActiveSearchMatch:
+                                            searchNotifier.currentMatch?.messageId == message.id,
+                                        currentActiveMatch: searchNotifier.currentMatch,
                                         onReactionTap: (reaction) {
                                           chatNotifier.updateMessageReaction(
                                             message: message,

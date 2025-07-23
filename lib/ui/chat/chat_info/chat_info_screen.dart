@@ -9,6 +9,7 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/chat_search_provider.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
