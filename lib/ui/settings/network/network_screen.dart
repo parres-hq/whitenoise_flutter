@@ -6,16 +6,13 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
+import 'package:whitenoise/models/relay_status.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
-import 'package:whitenoise/ui/core/ui/wn_button.dart';
-import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
-import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
+import 'package:whitenoise/utils/string_extensions.dart';
 
 class NetworkScreen extends ConsumerStatefulWidget {
   const NetworkScreen({super.key});
@@ -58,65 +55,18 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
     }
   }
 
-  Future<void> _deleteRelay(
-    BuildContext context,
-    WidgetRef ref,
-    RelayInfo relay,
-    NotifierProvider<dynamic, RelayState> provider,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      barrierColor: Colors.transparent,
-      builder:
-          (dialogContext) => WnDialog(
-            title: 'Delete Relay?',
-            content: 'Removing this relay will stop all connections to it.',
-            actions: Row(
-              children: [
-                Expanded(
-                  child: WnFilledButton(
-                    title: 'Cancel',
-                    visualState: WnButtonVisualState.secondary,
-                    size: WnButtonSize.small,
-                    onPressed: () => Navigator.of(dialogContext).pop(false),
-                  ),
-                ),
-                Gap(12.w),
-                Expanded(
-                  child: WnFilledButton(
-                    title: 'Remove',
-                    visualState: WnButtonVisualState.error,
-                    size: WnButtonSize.small,
-                    onPressed: () => Navigator.of(dialogContext).pop(true),
-                  ),
-                ),
-              ],
-            ),
-          ),
-    );
-
-    if (confirmed == true) {
-      try {
-        await ref.read(provider.notifier).deleteRelay(relay.url);
-        ref.showRawSuccessToast('Relay removed successfully');
-      } catch (e) {
-        ref.showRawErrorToast('Failed to remove relay');
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final normalRelaysState = ref.watch(normalRelaysProvider);
     final inboxRelaysState = ref.watch(inboxRelaysProvider);
     final keyPackageRelaysState = ref.watch(keyPackageRelaysProvider);
+
     final allRelays =
         <RelayInfo>{
           ...normalRelaysState.relays,
           ...inboxRelaysState.relays,
           ...keyPackageRelaysState.relays,
         }.toList();
-
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -241,9 +191,12 @@ class RelayTile extends StatelessWidget {
           horizontal: 16.w,
           vertical: 4.h,
         ),
-        leading: const Icon(CarbonIcons.incomplete),
+        leading: Icon(
+          relayInfo.status.getIcon(),
+          color: relayInfo.status.getColor(context),
+        ),
         title: Text(
-          relayInfo.url,
+          relayInfo.url.sanitizedUrl,
           style: TextStyle(
             color: context.colors.primary,
             fontWeight: FontWeight.w600,
@@ -258,187 +211,6 @@ class RelayTile extends StatelessWidget {
             size: 23.sp,
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _CollapsibleRelaySection extends StatefulWidget {
-  final String title;
-  final List<RelayInfo> relays;
-  final bool isLoading;
-  final String? error;
-  final VoidCallback onAddPressed;
-  final Function(RelayInfo) onDeleteRelay;
-
-  const _CollapsibleRelaySection({
-    required this.title,
-    required this.relays,
-    required this.isLoading,
-    required this.error,
-    required this.onAddPressed,
-    required this.onDeleteRelay,
-  });
-
-  @override
-  State<_CollapsibleRelaySection> createState() => _CollapsibleRelaySectionState();
-}
-
-class _CollapsibleRelaySectionState extends State<_CollapsibleRelaySection> {
-  bool isExpanded = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        InkWell(
-          onTap: () {
-            setState(() {
-              isExpanded = !isExpanded;
-            });
-          },
-          borderRadius: BorderRadius.circular(0.r),
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w),
-                  child: Text(
-                    widget.title,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.mutedForeground,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: widget.onAddPressed,
-                  icon: Icon(
-                    Icons.add,
-                    size: 24.w,
-                    color: context.colors.primary,
-                  ),
-                  padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(
-                    minWidth: 24.w,
-                    minHeight: 24.w,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (isExpanded) ...[
-          if (widget.isLoading)
-            Padding(
-              padding: EdgeInsets.all(16.w),
-              child: Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.w,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    context.colors.mutedForeground,
-                  ),
-                ),
-              ),
-            )
-          else if (widget.error != null)
-            Padding(
-              padding: EdgeInsets.all(16.w),
-              child: Text(
-                widget.error!,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: context.colors.destructive,
-                ),
-              ),
-            )
-          else if (widget.relays.isEmpty)
-            Padding(
-              padding: EdgeInsets.all(16.w),
-              child: Text(
-                'No relays configured',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: context.colors.mutedForeground,
-                ),
-              ),
-            )
-          else
-            ...widget.relays.map(
-              (relay) => _RelayItem(
-                relay: relay,
-                onDelete: () => widget.onDeleteRelay(relay),
-              ),
-            ),
-        ],
-      ],
-    );
-  }
-}
-
-class _RelayItem extends StatelessWidget {
-  final RelayInfo relay;
-  final VoidCallback onDelete;
-
-  const _RelayItem({
-    required this.relay,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 8.h),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(0.r),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 13.h),
-              child: Row(
-                children: [
-                  Icon(
-                    relay.connected ? CarbonIcons.checkmark_filled : CarbonIcons.error_filled,
-                    size: 16.w,
-                    color: relay.connected ? context.colors.success : context.colors.destructive,
-                  ),
-                  Gap(9.w),
-                  Flexible(
-                    child: Text(
-                      relay.url,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.primary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          IconButton(
-            onPressed: onDelete,
-            icon: Icon(
-              CarbonIcons.trash_can,
-              size: 20.w,
-              color: context.colors.destructive,
-            ),
-            padding: EdgeInsets.zero,
-            constraints: BoxConstraints(
-              minWidth: 44.w,
-              minHeight: 44.w,
-            ),
-          ),
-        ],
       ),
     );
   }
