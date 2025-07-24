@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -20,7 +18,6 @@ import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
@@ -352,94 +349,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     );
   }
 
-  Widget _buildContactsList(
-    bool showTempContact,
-    List<ContactModel> filteredContacts,
-    double availableHeight,
-  ) {
-    // Handle temp contact display first
-    if (showTempContact) {
-      return Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _isLoadingMetadata
-              ? _buildLoadingContactTile()
-              : ContactListTile(
-                contact: _tempContact!,
-                onTap: () => _handleContactTap(_tempContact!),
-              ),
-          Gap(16.h),
-        ],
-      );
-    }
-
-    // Handle empty contacts case
-    if (filteredContacts.isEmpty) {
-      return SizedBox(
-        height: availableHeight, // Use available space
-        child: Center(
-          child:
-              _isLoadingMetadata
-                  ? const CircularProgressIndicator()
-                  : Text(
-                    _searchQuery.isEmpty
-                        ? 'No contacts found'
-                        : _isValidPublicKey(_searchQuery)
-                        ? 'Loading metadata...'
-                        : 'No contacts match your search',
-                    style: TextStyle(
-                      color: context.colors.mutedForeground,
-                      fontSize: 16.sp,
-                    ),
-                  ),
-        ),
-      );
-    }
-
-    // PERFORMANCE: For large contact lists, use virtualized ListView to fill available space
-    return SizedBox(
-      height: availableHeight, // Use available space
-      child: Column(
-        children: [
-          Expanded(
-            child: ListView.separated(
-              padding: EdgeInsets.only(bottom: 20.h),
-              itemCount: filteredContacts.length,
-              separatorBuilder: (context, index) => SizedBox(height: 4.h),
-              itemBuilder: (context, index) {
-                final contact = filteredContacts[index];
-                return ContactListTile(
-                  contact: contact,
-                  enableSwipeToDelete: true,
-                  onTap: () => _handleContactTap(contact),
-                  onDelete: () async {
-                    try {
-                      final realPublicKey = ref
-                          .read(contactsProvider.notifier)
-                          .getPublicKeyForContact(contact.publicKey);
-                      if (realPublicKey != null) {
-                        await ref
-                            .read(contactsProvider.notifier)
-                            .removeContactByPublicKey(realPublicKey);
-                        if (context.mounted) {
-                          ref.showSuccessToast('Contact removed successfully');
-                        }
-                      }
-                    } catch (e) {
-                      if (context.mounted) {
-                        ref.showErrorToast('Failed to remove contact: $e');
-                      }
-                    }
-                  },
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildContactsLoadingWidget() {
     return Center(
       child: SizedBox(
@@ -492,7 +401,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                     controller: _scrollController,
                     child: Column(
                       children: [
-                        // Main options (New Group Chat, Help & Feedback) - now scrollable
+                        // Main options (New Group Chat, Help & Feedback) - scrollable with content
                         Gap(26.h),
                         _buildMainOptions(),
                         Gap(26.h),
@@ -591,7 +500,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                           ),
                           Gap(16.h),
                         ],
-                        // Contacts list - simplified to work with SingleChildScrollView
+                        // Contacts list - inline with scrollable content
                         if (showTempContact) ...[
                           _isLoadingMetadata
                               ? _buildLoadingContactTile()
@@ -621,7 +530,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                             ),
                           ),
                         ] else ...[
-                          // Contacts list
+                          // Contacts list - all contacts as individual widgets in the scroll view
                           ...filteredContacts.map(
                             (contact) => Padding(
                               padding: EdgeInsets.only(bottom: 4.h),
@@ -651,9 +560,9 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                               ),
                             ),
                           ),
-                          // Add bottom padding to ensure content can scroll past the bottom
-                          Gap(40.h),
                         ],
+                        // Add bottom padding to ensure content can scroll past the bottom
+                        Gap(60.h),
                       ],
                     ),
                   ),
