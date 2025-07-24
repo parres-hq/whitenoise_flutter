@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
@@ -23,17 +24,32 @@ class NetworkScreen extends ConsumerStatefulWidget {
 
 class _NetworkScreenState extends ConsumerState<NetworkScreen> {
   final logger = Logger('NetworkScreen');
+
+  bool _isLoading = false;
+  bool _isRefreshing = false;
+
   @override
   void initState() {
     super.initState();
     // Refresh data every time the page is entered
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshData();
+      _refreshData(initialLoad: true);
     });
   }
 
-  Future<void> _refreshData() async {
+  Future<void> _refreshData({bool initialLoad = false}) async {
     try {
+      if (_isRefreshing || _isLoading) return;
+
+      if (initialLoad) {
+        setState(() {
+          _isLoading = true;
+        });
+      } else {
+        setState(() {
+          _isRefreshing = true;
+        });
+      }
       logger.info('NetworkScreen: Starting to refresh relay data');
 
       // First refresh the relay status provider
@@ -47,8 +63,11 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
         ref.read(inboxRelaysProvider.notifier).loadRelays(),
         ref.read(keyPackageRelaysProvider.notifier).loadRelays(),
       ]);
-
       logger.info('NetworkScreen: Successfully refreshed all relay data');
+      setState(() {
+        _isLoading = false;
+        _isRefreshing = false;
+      });
     } catch (e, stackTrace) {
       logger.severe('NetworkScreen: Error refreshing relay data: $e');
       logger.severe('NetworkScreen: Stack trace: $stackTrace');
@@ -104,7 +123,46 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                     ),
                   ],
                 ),
-                Gap(16.h),
+                if (_isRefreshing)
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 38.h),
+                    child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          spacing: 16.w,
+                          children: [
+                            SizedBox(
+                              width: 16.w,
+                              height: 16.w,
+                              child: CircularProgressIndicator(
+                                color: context.colors.primary,
+                                backgroundColor: context.colors.border,
+                                strokeWidth: 3.w,
+                              ),
+                            ),
+                            Text(
+                              'Reconnecting Relays...',
+                              style: TextStyle(
+                                color: context.colors.mutedForeground,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                              ),
+                            ),
+                          ],
+                        )
+                        .animate()
+                        .fadeIn(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        )
+                        .slideY(
+                          begin: -0.1,
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        ),
+                  )
+                else
+                  Gap(16.h),
+
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -131,7 +189,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                             ),
                             const Spacer(),
                             InkWell(
-                              onTap: () {},
+                              onTap: _refreshData,
                               child: Icon(
                                 CarbonIcons.rotate,
                                 color: context.colors.primary,
