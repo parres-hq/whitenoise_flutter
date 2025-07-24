@@ -99,7 +99,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       }
 
       final relayInfos = await Future.wait(
-        relayUrls.map((relayUrl) async {
+        relayUrls.map((relayUrl) async {          
           final url = await stringFromRelayUrl(relayUrl: relayUrl);
           // Get status from relay status provider
           final statusNotifier = ref.read(relayStatusProvider.notifier);

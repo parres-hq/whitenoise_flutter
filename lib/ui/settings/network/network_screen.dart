@@ -11,6 +11,7 @@ import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
@@ -109,6 +110,12 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
     final normalRelaysState = ref.watch(normalRelaysProvider);
     final inboxRelaysState = ref.watch(inboxRelaysProvider);
     final keyPackageRelaysState = ref.watch(keyPackageRelaysProvider);
+    final allRelays =
+        <RelayInfo>{
+          ...normalRelaysState.relays,
+          ...inboxRelaysState.relays,
+          ...keyPackageRelaysState.relays,
+        }.toList();
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -147,69 +154,108 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                     ),
                   ],
                 ),
+                Gap(16.h),
                 Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-                    children: [
-                      _CollapsibleRelaySection(
-                        title: 'Relays',
-                        relays: normalRelaysState.relays,
-                        isLoading: normalRelaysState.isLoading,
-                        error: normalRelaysState.error,
-                        onAddPressed: () {
-                          AddRelayBottomSheet.show(
-                            context: context,
-                            title: 'Add Relay',
-                            onRelayAdded: (url) {
-                              ref.read(normalRelaysProvider.notifier).addRelay(url);
-                            },
-                          );
-                        },
-                        onDeleteRelay:
-                            (relay) => _deleteRelay(context, ref, relay, normalRelaysProvider),
-                      ),
-                      Gap(16.h),
-                      _CollapsibleRelaySection(
-                        title: 'Inbox Relays',
-                        relays: inboxRelaysState.relays,
-                        isLoading: inboxRelaysState.isLoading,
-                        error: inboxRelaysState.error,
-                        onAddPressed: () {
-                          AddRelayBottomSheet.show(
-                            context: context,
-                            title: 'Add Inbox Relay',
-                            onRelayAdded: (url) {
-                              ref.read(inboxRelaysProvider.notifier).addRelay(url);
-                            },
-                          );
-                        },
-                        onDeleteRelay:
-                            (relay) => _deleteRelay(context, ref, relay, inboxRelaysProvider),
-                      ),
-                      Gap(16.h),
-                      _CollapsibleRelaySection(
-                        title: 'Key Package Relays',
-                        relays: keyPackageRelaysState.relays,
-                        isLoading: keyPackageRelaysState.isLoading,
-                        error: keyPackageRelaysState.error,
-                        onAddPressed: () {
-                          AddRelayBottomSheet.show(
-                            context: context,
-                            title: 'Add Key Package Relay',
-                            onRelayAdded: (url) {
-                              ref.read(keyPackageRelaysProvider.notifier).addRelay(url);
-                            },
-                          );
-                        },
-                        onDeleteRelay:
-                            (relay) => _deleteRelay(context, ref, relay, keyPackageRelaysProvider),
-                      ),
-                      Gap(MediaQuery.of(context).padding.bottom),
-                    ],
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              'Set Relays',
+                              style: TextStyle(
+                                color: context.colors.mutedForeground,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16.w,
+                              ),
+                            ),
+                            Gap(8.w),
+                            InkWell(
+                              onTap: () {},
+                              child: Icon(
+                                CarbonIcons.help,
+                                color: context.colors.mutedForeground,
+                                size: 18.sp,
+                              ),
+                            ),
+                            const Spacer(),
+                            InkWell(
+                              onTap: () {},
+                              child: Icon(
+                                CarbonIcons.rotate,
+                                color: context.colors.primary,
+                                size: 20.sp,
+                              ),
+                            ),
+                            Gap(16.w),
+                            InkWell(
+                              onTap: () {},
+                              child: Icon(
+                                CarbonIcons.add,
+                                color: context.colors.primary,
+                                size: 23.sp,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Gap(16.h),
+                        Expanded(
+                          child: ListView.separated(
+                            itemBuilder:
+                                (context, index) => RelayTile(
+                                  relayInfo: allRelays[index],
+                                ),
+                            separatorBuilder: (context, index) => Gap(12.h),
+                            padding: EdgeInsets.zero,
+                            itemCount: allRelays.length,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class RelayTile extends StatelessWidget {
+  const RelayTile({
+    super.key,
+    required this.relayInfo,
+  });
+  final RelayInfo relayInfo;
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+      ),
+      child: ListTile(
+        contentPadding: EdgeInsets.symmetric(
+          horizontal: 16.w,
+          vertical: 4.h,
+        ),
+        leading: const Icon(CarbonIcons.incomplete),
+        title: Text(
+          relayInfo.url,
+          style: TextStyle(
+            color: context.colors.primary,
+            fontWeight: FontWeight.w600,
+            fontSize: 12.sp,
+          ),
+        ),
+        trailing: InkWell(
+          onTap: () {},
+          child: Icon(
+            CarbonIcons.overflow_menu_horizontal,
+            color: context.colors.primary,
+            size: 23.sp,
           ),
         ),
       ),

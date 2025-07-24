@@ -1,7 +1,9 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
@@ -215,4 +217,14 @@ class RelayInfo {
       status: status ?? this.status,
     );
   }
+
+  @override
+  bool operator ==(covariant RelayInfo other) {
+    if (identical(this, other)) return true;
+
+    return other.url == url && other.connected == connected && other.status == status;
+  }
+
+  @override
+  int get hashCode => url.hashCode ^ connected.hashCode ^ status.hashCode;
 }
