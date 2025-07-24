@@ -37,6 +37,7 @@ class WnBottomSheet {
     Curve curve = Curves.easeOutCubic,
     bool keyboardAware = false,
     bool isScrollControlled = true,
+    bool useSafeArea = true,
   }) {
     return showModalBottomSheet<T>(
       context: context,
@@ -76,27 +77,46 @@ class WnBottomSheet {
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
                           bottom:
-                              MediaQuery.viewInsetsOf(context).bottom.h +
-                              _calculateBottomPadding(context),
+                              useSafeArea
+                                  ? MediaQuery.viewInsetsOf(context).bottom.h +
+                                      _calculateBottomPadding(context)
+                                  : MediaQuery.viewInsetsOf(context).bottom.h,
                           top: 21.h,
                         ),
-                        child: SafeArea(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              if (title != null || showCloseButton || showBackButton)
-                                _buildBottomSheetHeader(
-                                  showBackButton,
-                                  context,
-                                  title,
-                                  showCloseButton,
+                        child:
+                            useSafeArea
+                                ? SafeArea(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                                    children: [
+                                      if (title != null || showCloseButton || showBackButton)
+                                        _buildBottomSheetHeader(
+                                          showBackButton,
+                                          context,
+                                          title,
+                                          showCloseButton,
+                                        ),
+                                      Gap(25.h),
+                                      Flexible(child: builder(context)),
+                                    ],
+                                  ),
+                                )
+                                : Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    if (title != null || showCloseButton || showBackButton)
+                                      _buildBottomSheetHeader(
+                                        showBackButton,
+                                        context,
+                                        title,
+                                        showCloseButton,
+                                      ),
+                                    Gap(25.h),
+                                    Flexible(child: builder(context)),
+                                  ],
                                 ),
-                              Gap(25.h),
-                              Flexible(child: builder(context)),
-                            ],
-                          ),
-                        ),
                       ),
                     ),
                   ),
