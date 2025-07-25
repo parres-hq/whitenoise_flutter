@@ -54,40 +54,43 @@ class MessageWidget extends StatelessWidget {
   Widget _buildMessageContent(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Container(
-          constraints: BoxConstraints(
-            maxWidth: constraints.maxWidth,
-          ),
-          padding: EdgeInsets.only(right: message.isMe ? 8.w : 0, left: message.isMe ? 0 : 8.w),
-          child: Column(
-            crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (isGroupMessage && !isSameSenderAsNext && !message.isMe) ...[
-                Text(
-                  message.sender.displayName,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.mutedForeground,
+        return IntrinsicWidth(
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: constraints.maxWidth,
+            ),
+            padding: EdgeInsets.only(right: message.isMe ? 8.w : 0, left: message.isMe ? 0 : 8.w),
+            child: Column(
+              crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (isGroupMessage && !isSameSenderAsNext && !message.isMe) ...[
+                  Text(
+                    message.sender.displayName,
+                    style: TextStyle(
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.mutedForeground,
+                    ),
                   ),
+                  Gap(4.h),
+                ],
+                ReplyBox(
+                  replyingTo: message.replyTo,
+                  onTap:
+                      message.replyTo != null ? () => onReplyTap?.call(message.replyTo!.id) : null,
                 ),
-                Gap(4.h),
-              ],
-              ReplyBox(
-                replyingTo: message.replyTo,
-                onTap: message.replyTo != null ? () => onReplyTap?.call(message.replyTo!.id) : null,
-              ),
-              _buildMessageWithTimestamp(
-                context,
-                constraints.maxWidth - 16.w,
-              ),
+                _buildMessageWithTimestamp(
+                  context,
+                  constraints.maxWidth - 16.w,
+                ),
 
-              if (message.reactions.isNotEmpty) ...[
-                SizedBox(height: 4.h),
-                ReactionsRow(message: message, onReactionTap: onReactionTap, context: context),
+                if (message.reactions.isNotEmpty) ...[
+                  SizedBox(height: 4.h),
+                  ReactionsRow(message: message, onReactionTap: onReactionTap, context: context),
+                ],
               ],
-            ],
+            ),
           ),
         );
       },
