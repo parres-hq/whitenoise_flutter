@@ -54,15 +54,16 @@ class MessageWidget extends StatelessWidget {
   Widget _buildMessageContent(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Container(
-          constraints: BoxConstraints(
-            maxWidth: constraints.maxWidth,
-          ),
-          padding: EdgeInsets.only(right: message.isMe ? 8.w : 0, left: message.isMe ? 0 : 8.w),
-          child: Column(
-            crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
+        return IntrinsicWidth(
+          child: Container(
+            constraints: BoxConstraints(
+              maxWidth: constraints.maxWidth,
+            ),
+            padding: EdgeInsets.only(right: message.isMe ? 8.w : 0, left: message.isMe ? 0 : 8.w),
+            child: Column(
+              crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
               if (isGroupMessage && !isSameSenderAsNext && !message.isMe) ...[
                 Text(
                   message.sender.displayName,
@@ -87,7 +88,8 @@ class MessageWidget extends StatelessWidget {
                 SizedBox(height: 4.h),
                 ReactionsRow(message: message, onReactionTap: onReactionTap, context: context),
               ],
-            ],
+              ],
+            ),
           ),
         );
       },
