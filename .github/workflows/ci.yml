@@ -65,3 +65,6 @@ jobs:
 
     - name: Flutter analyze (errors only)
       run: flutter analyze --fatal-infos
+    
+    - name: Run Flutter tests
+      run: flutter test

@@ -20,7 +20,7 @@ class ToastMessage with _$ToastMessage {
     required String id,
     required String message,
     required ToastType type,
-    @Default(8000) int durationMs,
+    @Default(3000) int durationMs,
     @Default(true) bool autoDismiss,
     @Default(false) bool showBelowAppBar,
   }) = _ToastMessage;
@@ -30,7 +30,7 @@ class ToastMessage with _$ToastMessage {
 class ToastConfig with _$ToastConfig {
   const factory ToastConfig({
     @Default(ToastStackMode.replace) ToastStackMode stackMode,
-    @Default(8000) int defaultDurationMs,
+    @Default(3000) int defaultDurationMs,
     @Default(true) bool autoDismiss,
     @Default(false) bool defaultShowBelowAppBar,
   }) = _ToastConfig;

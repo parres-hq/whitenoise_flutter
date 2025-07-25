@@ -148,7 +148,7 @@ class _ContactLoadingBottomSheetState extends ConsumerState<ContactLoadingBottom
           _logger.info('=== Navigation Decision ===');
           _logger.info('keyPackage != null: ${keyPackage != null}');
           _logger.info(
-            'Final decision: ${keyPackage != null ? "StartSecureChatBottomSheet" : "ShareInviteBottomSheet"}',
+            'Final decision: ${keyPackage != null ? "StartChatBottomSheet" : "ShareInviteBottomSheet"}',
           );
 
           // Close this loading sheet first
@@ -156,13 +156,12 @@ class _ContactLoadingBottomSheetState extends ConsumerState<ContactLoadingBottom
 
           // Navigate to the appropriate sheet
           if (keyPackage != null) {
-            _logger.info('Showing StartSecureChatBottomSheet for secure chat');
-            await StartSecureChatBottomSheet.show(
+            _logger.info('Showing StartChatBottomSheet for secure chat');
+            await StartChatBottomSheet.show(
               context: context,
               name: widget.contact.displayNameOrName,
               nip05: widget.contact.nip05 ?? '',
               pubkey: widget.contact.publicKey,
-              bio: widget.contact.about,
               imagePath: widget.contact.imagePath,
               onChatCreated: widget.onChatCreated,
             );

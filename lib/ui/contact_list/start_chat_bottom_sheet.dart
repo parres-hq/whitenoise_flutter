@@ -9,26 +9,23 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
+import 'package:whitenoise/ui/contact_list/widgets/user_profile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
-import 'package:whitenoise/utils/string_extensions.dart';
 
-class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
+class StartChatBottomSheet extends ConsumerStatefulWidget {
   final String name;
   final String nip05;
-  final String? bio;
   final String? imagePath;
   final String pubkey;
   final VoidCallback? onStartChat;
   final ValueChanged<GroupData?>? onChatCreated;
-  const StartSecureChatBottomSheet({
+  const StartChatBottomSheet({
     super.key,
     required this.name,
     required this.nip05,
-    this.bio,
     this.imagePath,
     this.onStartChat,
     this.onChatCreated,
@@ -40,7 +37,6 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
     required String name,
     required String nip05,
     required String pubkey,
-    String? bio,
     String? imagePath,
     VoidCallback? onStartChat,
     ValueChanged<GroupData?>? onChatCreated,
@@ -51,10 +47,9 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
-          (context) => StartSecureChatBottomSheet(
+          (context) => StartChatBottomSheet(
             name: name,
             nip05: nip05,
-            bio: bio,
             imagePath: imagePath,
             onStartChat: onStartChat,
             onChatCreated: onChatCreated,
@@ -64,11 +59,11 @@ class StartSecureChatBottomSheet extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<StartSecureChatBottomSheet> createState() => _StartSecureChatBottomSheetState();
+  ConsumerState<StartChatBottomSheet> createState() => _StartChatBottomSheetState();
 }
 
-class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBottomSheet> {
-  final _logger = Logger('StartSecureChatBottomSheet');
+class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
+  final _logger = Logger('StartChatBottomSheet');
   bool _isCreatingGroup = false;
   bool _isAddingContact = false;
 
@@ -178,42 +173,18 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Column(
             children: [
               Gap(12.h),
-              ContactAvatar(
+              UserProfile(
                 imageUrl: widget.imagePath ?? '',
-                displayName: widget.name,
-                size: 96.r,
+                name: widget.name,
+                nip05: widget.nip05,
+                pubkey: widget.pubkey,
+                ref: ref,
               ),
-              Gap(8.h),
-              Text(
-                widget.name,
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.primary,
-                ),
-              ),
-              if (widget.nip05.isNotEmpty) ...[
-                Gap(2.h),
-
-                Text(
-                  widget.nip05,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: context.colors.mutedForeground,
-                  ),
-                ),
-              ],
-              Gap(16.h),
-
-              Text(
-                widget.pubkey.formatPublicKey(),
-                textAlign: TextAlign.center,
-              ),
-              Gap(48.h),
+              Gap(36.h),
             ],
           ),
         ),
@@ -237,7 +208,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
                 Text(
                   _isContact() ? 'Remove Contact' : 'Add Contact',
                   style: TextStyle(
-                    fontSize: 14.sp,
+                    fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
                     color: context.colors.primary,
                   ),
@@ -245,8 +216,8 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
                 Gap(9.w),
                 SvgPicture.asset(
                   _isContact() ? 'assets/svgs/ic_remove_user.svg' : 'assets/svgs/ic_add_user.svg',
-                  width: 16.w,
-                  height: 16.w,
+                  width: 18.w,
+                  height: 18.w,
                   colorFilter: ColorFilter.mode(
                     context.colors.primary,
                     BlendMode.srcIn,
@@ -267,7 +238,7 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
               Text(
                 'Add to Group',
                 style: TextStyle(
-                  fontSize: 14.sp,
+                  fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
                   color: context.colors.primary,
                 ),
@@ -275,8 +246,8 @@ class _StartSecureChatBottomSheetState extends ConsumerState<StartSecureChatBott
               Gap(9.w),
               SvgPicture.asset(
                 AssetsPaths.icChatInvite,
-                width: 15.w,
-                height: 15.w,
+                width: 18.w,
+                height: 18.w,
                 colorFilter: ColorFilter.mode(
                   context.colors.primary,
                   BlendMode.srcIn,
