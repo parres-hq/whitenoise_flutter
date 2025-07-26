@@ -13,6 +13,7 @@ import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/contact_list/contact_loading_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -230,6 +231,11 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     }
   }
 
+  Future<void> _scanQRCode() async {
+    // Navigate to the contact QR scan screen
+    context.push(Routes.contactQrScan);
+  }
+
   Widget _buildErrorWidget(String error) {
     return Center(
       child: Column(
@@ -386,6 +392,21 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
               CarbonIcons.search,
               color: context.colors.primary,
               size: 20.sp,
+            ),
+            suffixIcon: GestureDetector(
+              onTap: _scanQRCode,
+              child: Padding(
+                padding: EdgeInsets.all(12.w),
+                child: SvgPicture.asset(
+                  AssetsPaths.icScan,
+                  width: 16.w,
+                  height: 16.w,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.primary,
+                    BlendMode.srcIn,
+                  ),
+                ),
+              ),
             ),
           ),
         ),

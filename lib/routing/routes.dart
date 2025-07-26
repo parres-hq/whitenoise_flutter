@@ -28,6 +28,7 @@ abstract final class Routes {
   static const settingsDonate = '/settings/donate';
   static const settingsShareProfile = '/settings/share_profile';
   static const settingsShareProfileQrScan = '/settings/share_profile/qr_scan';
+  static const contactQrScan = '/contact/qr_scan';
 
   // misc
   static const addContactToGroup = '/add_to_group/:id';
