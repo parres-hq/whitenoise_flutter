@@ -28,7 +28,7 @@ class UserProfile extends StatelessWidget {
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: pubkey,
-      message: 'Public Key copied.',
+      successMessage: 'Public Key copied.',
     );
   }
 
