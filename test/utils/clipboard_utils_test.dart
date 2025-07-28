@@ -5,7 +5,6 @@ import 'package:whitenoise/config/providers/toast_message_provider.dart';
 import 'package:whitenoise/config/states/toast_state.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 
-/// Mock implementation of WidgetRef for testing
 class _MockWidgetRef implements WidgetRef {
   final ProviderContainer _container;
   _MockWidgetRef(this._container);
@@ -18,66 +17,200 @@ class _MockWidgetRef implements WidgetRef {
 }
 
 void main() {
-  group('ClipboardUtils Tests', () {
+  group('ClipboardUtils', () {
     late ProviderContainer container;
     late _MockWidgetRef mockRef;
-    late List<MethodCall> clipboardCalls;
 
     setUp(() {
       container = ProviderContainer();
       mockRef = _MockWidgetRef(container);
-      clipboardCalls = [];
-      
       TestWidgetsFlutterBinding.ensureInitialized();
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(SystemChannels.platform, (MethodCall methodCall) async {
-        clipboardCalls.add(methodCall);
-        return null;
-      });
     });
 
     tearDown(() {
       container.dispose();
-      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-          .setMockMethodCallHandler(SystemChannels.platform, null);
     });
 
-    void verifyClipboardCall(String expectedText) {
-      expect(clipboardCalls.length, 1);
-      expect(clipboardCalls.first.method, 'Clipboard.setData');
-      expect(clipboardCalls.first.arguments['text'], expectedText);
-    }
-
-    void verifyToastMessage(String expectedMessage) {
-      final toastState = container.read(toastMessageProvider);
-      expect(toastState.messages.length, 1);
-      expect(toastState.messages.first.message, expectedMessage);
-      expect(toastState.messages.first.type, ToastType.success);
-      expect(toastState.messages.first.autoDismiss, true);
-    }
-
     group('copyWithToast', () {
-      test('copies text to clipboard and shows default toast', () {
-        const testText = 'Hello, World!';
-
-        ClipboardUtils.copyWithToast(ref: mockRef, textToCopy: testText);
-
-        verifyClipboardCall(testText);
-        verifyToastMessage('Copied to clipboard');
+      test('shows toast message', () async {
+        await ClipboardUtils.copyWithToast(ref: mockRef, textToCopy: 'Hello, World!');
+        final toastState = container.read(toastMessageProvider);
+        expect(toastState.messages.length, 1);
       });
 
-      test('copies text to clipboard and shows custom toast message', () {
-        const testText = 'Custom text to copy';
-        const customMessage = 'Custom copied message';
+      test('shows success toast message', () async {
+        await ClipboardUtils.copyWithToast(ref: mockRef, textToCopy: 'Hello, World!');
+        final toastState = container.read(toastMessageProvider);
+        final toastMessage = toastState.messages.first;
+        expect(toastMessage.type, ToastType.success);
+      });
 
-        ClipboardUtils.copyWithToast(
-          ref: mockRef,
-          textToCopy: testText,
-          message: customMessage,
-        );
+      test('shows auto dismissable toast message', () async {
+        await ClipboardUtils.copyWithToast(ref: mockRef, textToCopy: 'Hello, World!');
+        final toastState = container.read(toastMessageProvider);
+        final toastMessage = toastState.messages.first;
+        expect(toastMessage.autoDismiss, true);
+      });
 
-        verifyClipboardCall(testText);
-        verifyToastMessage(customMessage);
+      test('shows default success message', () async {
+        await ClipboardUtils.copyWithToast(ref: mockRef, textToCopy: 'Hello, World!');
+        final toastState = container.read(toastMessageProvider);
+        final toastMessage = toastState.messages.first;
+        expect(toastMessage.message, 'Copied to clipboard');
+      });
+
+      group('with custom success message', () {
+        test('shows default success message', () async {
+          await ClipboardUtils.copyWithToast(
+            ref: mockRef,
+            textToCopy: 'Hello, World!',
+            successMessage: 'woop woop!',
+          );
+
+          final toastState = container.read(toastMessageProvider);
+          final toastMessage = toastState.messages.first;
+          expect(toastMessage.message, 'woop woop!');
+        });
+      });
+
+      group('with empty text to copy', () {
+        test('shows toast message', () async {
+          await ClipboardUtils.copyWithToast(ref: mockRef, textToCopy: '');
+          final toastState = container.read(toastMessageProvider);
+          expect(toastState.messages.length, 1);
+        });
+
+        test('shows error toast message', () async {
+          await ClipboardUtils.copyWithToast(ref: mockRef, textToCopy: '');
+          final toastState = container.read(toastMessageProvider);
+          final toastMessage = toastState.messages.first;
+          expect(toastMessage.type, ToastType.error);
+        });
+
+        test('shows auto dismissable toast message', () async {
+          await ClipboardUtils.copyWithToast(ref: mockRef, textToCopy: '');
+          final toastState = container.read(toastMessageProvider);
+          final toastMessage = toastState.messages.first;
+          expect(toastMessage.autoDismiss, true);
+        });
+
+        test('shows default no text message', () async {
+          await ClipboardUtils.copyWithToast(ref: mockRef, textToCopy: '');
+          final toastState = container.read(toastMessageProvider);
+          final toastMessage = toastState.messages.first;
+          expect(toastMessage.message, 'Nothing to copy');
+        });
+
+        group('with custom no text message', () {
+          test('shows custom no text message', () async {
+            await ClipboardUtils.copyWithToast(
+              ref: mockRef,
+              textToCopy: '',
+              noTextMessage: 'Oops! This looks empty',
+            );
+            final toastState = container.read(toastMessageProvider);
+            final toastMessage = toastState.messages.first;
+            expect(
+              toastMessage.message,
+              'Oops! This looks empty',
+            );
+          });
+        });
+      });
+
+      group('with null text to copy', () {
+        test('shows toast message', () async {
+          await ClipboardUtils.copyWithToast(ref: mockRef);
+          final toastState = container.read(toastMessageProvider);
+          expect(toastState.messages.length, 1);
+        });
+
+        test('shows error toast message', () async {
+          await ClipboardUtils.copyWithToast(ref: mockRef);
+          final toastState = container.read(toastMessageProvider);
+          final toastMessage = toastState.messages.first;
+          expect(toastMessage.type, ToastType.error);
+        });
+
+        test('shows auto dismissable toast message', () async {
+          await ClipboardUtils.copyWithToast(ref: mockRef);
+          final toastState = container.read(toastMessageProvider);
+          final toastMessage = toastState.messages.first;
+          expect(toastMessage.autoDismiss, true);
+        });
+
+        test('shows default no text message', () async {
+          await ClipboardUtils.copyWithToast(ref: mockRef);
+          final toastState = container.read(toastMessageProvider);
+          final toastMessage = toastState.messages.first;
+          expect(toastMessage.message, 'Nothing to copy');
+        });
+
+        group('with custom no text message', () {
+          test('shows custom no text message', () async {
+            await ClipboardUtils.copyWithToast(
+              ref: mockRef,
+              noTextMessage: 'Oops! This looks null',
+            );
+            final toastState = container.read(toastMessageProvider);
+            final toastMessage = toastState.messages.first;
+            expect(
+              toastMessage.message,
+              'Oops! This looks null',
+            );
+          });
+        });
+      });
+
+      group('when a clipboard error occurs', () {
+        setUp(() {
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+                if (call.method == 'Clipboard.setData') {
+                  throw PlatformException(code: 'clipboard_error', message: 'Failed to copy');
+                }
+                return null;
+              });
+        });
+
+        tearDown(() {
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+              .setMockMethodCallHandler(SystemChannels.platform, null);
+        });
+
+        test('shows error toast message', () async {
+          await ClipboardUtils.copyWithToast(ref: mockRef, textToCopy: 'Hello, World!');
+          final toastState = container.read(toastMessageProvider);
+          final toastMessage = toastState.messages.first;
+          expect(toastMessage.type, ToastType.error);
+        });
+
+        test('shows auto dismissable error toast message', () async {
+          await ClipboardUtils.copyWithToast(ref: mockRef, textToCopy: 'Hello, World!');
+          final toastState = container.read(toastMessageProvider);
+          final toastMessage = toastState.messages.first;
+          expect(toastMessage.autoDismiss, true);
+        });
+
+        test('shows default error message', () async {
+          await ClipboardUtils.copyWithToast(ref: mockRef, textToCopy: 'Hello, World!');
+          final toastState = container.read(toastMessageProvider);
+          final toastMessage = toastState.messages.first;
+          expect(toastMessage.message, 'Failed to copy to clipboard');
+        });
+
+        group('with custom error message', () {
+          test('shows custom error message', () async {
+            await ClipboardUtils.copyWithToast(
+              ref: mockRef,
+              textToCopy: 'Hello, World!',
+              errorMessage: 'Oops! Clipboard is broken',
+            );
+            final toastState = container.read(toastMessageProvider);
+            final toastMessage = toastState.messages.first;
+            expect(toastMessage.message, 'Oops! Clipboard is broken');
+          });
+        });
       });
     });
   });
