@@ -155,8 +155,11 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                                 searchNotifier.currentMatchNumber < searchNotifier.totalMatches
                             ? () => searchNotifier.goToNextMatch()
                             : null,
-                    icon: Icon(Icons.keyboard_arrow_down,
-                        color: context.colors.secondary, size: 20.w),
+                    icon: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: context.colors.secondary,
+                      size: 20.w,
+                    ),
                     padding: EdgeInsets.all(4.w), // Reduce button padding
                     constraints: BoxConstraints(
                       minWidth: 32.w,
