@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class ChatSearchWidget extends ConsumerStatefulWidget {
   final String groupId;
@@ -124,10 +125,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                             : null,
                     icon: Icon(
                       Icons.keyboard_arrow_up,
-                      color:
-                          searchNotifier.totalMatches > 1 && searchNotifier.currentMatchNumber > 1
-                              ? Colors.white
-                              : Colors.grey[600],
+                      color: context.colors.secondary,
                       size: 20.w,
                     ),
                     padding: EdgeInsets.all(4.w), // Reduce button padding
@@ -143,7 +141,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                     child: Text(
                       '${searchNotifier.currentMatchNumber} of ${searchNotifier.totalMatches} matches',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.colors.mutedForeground,
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w400,
                       ),
@@ -157,15 +155,8 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                                 searchNotifier.currentMatchNumber < searchNotifier.totalMatches
                             ? () => searchNotifier.goToNextMatch()
                             : null,
-                    icon: Icon(
-                      Icons.keyboard_arrow_down,
-                      color:
-                          searchNotifier.totalMatches > 1 &&
-                                  searchNotifier.currentMatchNumber < searchNotifier.totalMatches
-                              ? Colors.white
-                              : Colors.grey[600],
-                      size: 20.w,
-                    ),
+                    icon: Icon(Icons.keyboard_arrow_down,
+                        color: context.colors.secondary, size: 20.w),
                     padding: EdgeInsets.all(4.w), // Reduce button padding
                     constraints: BoxConstraints(
                       minWidth: 32.w,
@@ -186,7 +177,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                 'No results found',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Colors.white,
+                  color: context.colors.mutedForeground,
                   fontSize: 14.sp,
                 ),
               ),
