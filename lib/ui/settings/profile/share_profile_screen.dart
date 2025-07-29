@@ -8,12 +8,12 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
-import 'package:whitenoise/config/providers/toast_message_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ShareProfileScreen extends ConsumerStatefulWidget {
@@ -46,12 +46,11 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
   }
 
   void _copyToClipboard(BuildContext context, String text) {
-    Clipboard.setData(ClipboardData(text: text));
-    ref
-        .read(toastMessageProvider.notifier)
-        .showSuccess(
-          'Public Key copied.',
-        );
+    ClipboardUtils.copyWithToast(
+      ref: ref,
+      textToCopy: text,
+      successMessage: 'Public Key copied.',
+    );
   }
 
   @override

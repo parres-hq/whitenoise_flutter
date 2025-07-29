@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -17,6 +16,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 import 'member_action_buttons.dart';
@@ -48,12 +48,12 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
 
   void _copyToClipboard() {
     final npub = widget.member.publicKey;
-    if (npub.isEmpty) {
-      ref.showErrorToast('No public key to copy');
-      return;
-    }
-    Clipboard.setData(ClipboardData(text: npub));
-    ref.showSuccessToast('Public Key copied.');
+    ClipboardUtils.copyWithToast(
+      ref: ref,
+      textToCopy: npub,
+      successMessage: 'Public Key copied.',
+      noTextMessage: 'No public key to copy',
+    );
   }
 
   void _openAddToGroup() {

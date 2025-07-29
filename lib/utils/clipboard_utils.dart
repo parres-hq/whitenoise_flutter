@@ -1,7 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whitenoise/config/providers/toast_message_provider.dart';
-import 'package:whitenoise/config/states/toast_state.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 
 /// Utility class for clipboard operations with toast notifications
 class ClipboardUtils {
@@ -12,19 +11,32 @@ class ClipboardUtils {
   ///
   /// [ref] - WidgetRef for accessing providers
   /// [textToCopy] - The text to copy to clipboard
-  /// [message] - Optional custom message to show (defaults to "Copied to clipboard")
-  static void copyWithToast({
+  /// [successMessage] - Optional custom message to show (defaults to "Copied to clipboard")
+  /// [noTextMessage] - Optional custom error message to show when there is no text to copy (defaults to "Nothing to copy")
+  /// [errorMessage] - Optional custom error message to show when clipboard operation fails (defaults to "Failed to copy to clipboard")
+  static Future<void> copyWithToast({
     required WidgetRef ref,
-    required String textToCopy,
-    String? message,
-  }) {
-    Clipboard.setData(ClipboardData(text: textToCopy));
-    ref
-        .read(toastMessageProvider.notifier)
-        .showRawToast(
-          message: message ?? 'Copied to clipboard',
-          type: ToastType.success,
-          autoDismiss: true,
-        );
+    String? textToCopy,
+    String? successMessage,
+    String? noTextMessage,
+    String? errorMessage,
+  }) async {
+    if (textToCopy == null || textToCopy.isEmpty) {
+      ref.showErrorToast(noTextMessage ?? 'Nothing to copy');
+      return;
+    }
+
+    try {
+      await Clipboard.setData(ClipboardData(text: textToCopy));
+      ref.showSuccessToast(
+        successMessage ?? 'Copied to clipboard',
+        autoDismiss: true,
+      );
+    } catch (e) {
+      ref.showErrorToast(
+        errorMessage ?? 'Failed to copy to clipboard',
+        autoDismiss: true,
+      );
+    }
   }
 }

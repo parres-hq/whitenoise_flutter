@@ -6,12 +6,12 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/clipboard_utils.dart';
 
 class NostrKeysScreen extends ConsumerStatefulWidget {
   const NostrKeysScreen({super.key});
@@ -37,17 +37,21 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
 
   void _copyPublicKey() {
     final npub = ref.read(nostrKeysProvider).npub;
-    if (npub != null) {
-      Clipboard.setData(ClipboardData(text: npub));
-      ref.showSuccessToast('Public key copied to clipboard');
-    }
+    ClipboardUtils.copyWithToast(
+      ref: ref,
+      textToCopy: npub,
+      successMessage: 'Public key copied to clipboard',
+    );
   }
 
   void _copyPrivateKey() {
     final nsec = ref.read(nostrKeysProvider).nsec;
     if (nsec != null) {
-      Clipboard.setData(ClipboardData(text: nsec));
-      ref.showSuccessToast('Private key copied to clipboard');
+      ClipboardUtils.copyWithToast(
+        ref: ref,
+        textToCopy: nsec,
+        successMessage: 'Private key copied to clipboard',
+      );
     }
   }
 
