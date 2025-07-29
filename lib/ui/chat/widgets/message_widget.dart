@@ -181,7 +181,6 @@ class MessageWidget extends StatelessWidget {
       return Text(
         text,
         style: baseStyle,
-        textAlign: TextAlign.start,
       );
     }
 
@@ -192,7 +191,6 @@ class MessageWidget extends StatelessWidget {
         style: baseStyle.copyWith(
           color: context.colors.mutedForeground,
         ),
-        textAlign: TextAlign.start,
       );
     }
 
@@ -238,7 +236,6 @@ class MessageWidget extends StatelessWidget {
 
     return RichText(
       text: TextSpan(children: spans),
-      textAlign: TextAlign.start,
     );
   }
 
