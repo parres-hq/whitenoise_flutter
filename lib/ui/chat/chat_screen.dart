@@ -309,8 +309,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                                 )
                                                 : null,
                                         isActiveSearchMatch:
-                                            searchNotifier.currentMatch?.messageId == message.id,
-                                        currentActiveMatch: searchNotifier.currentMatch,
+                                            searchNotifier.currentMatch?.messageId ==
+                                                message.id,
+                                        currentActiveMatch: searchNotifier.currentMatch?.messageId == message.id ? searchNotifier.currentMatch : null,
+                                        isSearchActive: searchState.isSearchActive,
                                         onReactionTap: (reaction) {
                                           chatNotifier.updateMessageReaction(
                                             message: message,

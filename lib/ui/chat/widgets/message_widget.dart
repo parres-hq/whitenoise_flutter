@@ -18,6 +18,7 @@ class MessageWidget extends StatelessWidget {
   final SearchMatch? searchMatch;
   final bool isActiveSearchMatch;
   final SearchMatch? currentActiveMatch; // Add current active match
+  final bool isSearchActive;
 
   const MessageWidget({
     super.key,
@@ -31,6 +32,7 @@ class MessageWidget extends StatelessWidget {
     this.searchMatch,
     this.isActiveSearchMatch = false,
     this.currentActiveMatch,
+    this.isSearchActive = false,
   });
 
   @override
@@ -174,8 +176,8 @@ class MessageWidget extends StatelessWidget {
   }
 
   Widget _buildHighlightedText(String text, TextStyle baseStyle, BuildContext context) {
-    if (searchMatch == null || searchMatch!.textMatches.isEmpty) {
-      // If no search is active, show normal text
+    // No search is active, show normal text.
+    if (!isSearchActive) {
       return Text(
         text,
         style: baseStyle,
@@ -183,50 +185,52 @@ class MessageWidget extends StatelessWidget {
       );
     }
 
+    // Search is active, but this message has no matches. Dim the whole text.
+    if (searchMatch == null || searchMatch!.textMatches.isEmpty) {
+      return Text(
+        text,
+        style: baseStyle.copyWith(
+          color: context.colors.mutedForeground,
+        ),
+        textAlign: TextAlign.start,
+      );
+    }
+
+    // Search is active and this message has matches. Highlight them.
     final spans = <TextSpan>[];
     int currentIndex = 0;
 
-    // Sort matches by start position
     final sortedMatches = List<TextMatch>.from(searchMatch!.textMatches)
       ..sort((a, b) => a.start.compareTo(b.start));
 
     for (final match in sortedMatches) {
-      // Add text before the match with reduced opacity (non-search words)
       if (currentIndex < match.start) {
         spans.add(
           TextSpan(
             text: text.substring(currentIndex, match.start),
             style: baseStyle.copyWith(
-              color: baseStyle.color?.withValues(
-                alpha: 0.3,
-              ), // All non-search text gets reduced opacity
+              color: context.colors.mutedForeground,
             ),
           ),
         );
       }
 
-      // Check if this specific match is the active one
-
-      // Add search match - ALL search matches keep normal opacity and color
       spans.add(
         TextSpan(
           text: text.substring(match.start, match.end),
-          style: baseStyle, // Keep exactly the same style as normal text
+          style: baseStyle,
         ),
       );
 
       currentIndex = match.end;
     }
 
-    // Add remaining text after the last match with reduced opacity (non-search words)
     if (currentIndex < text.length) {
       spans.add(
         TextSpan(
           text: text.substring(currentIndex),
           style: baseStyle.copyWith(
-            color: baseStyle.color?.withValues(
-              alpha: 0.3,
-            ), // All non-search text gets reduced opacity
+            color: context.colors.mutedForeground,
           ),
         ),
       );
@@ -234,6 +238,7 @@ class MessageWidget extends StatelessWidget {
 
     return RichText(
       text: TextSpan(children: spans),
+      textAlign: TextAlign.start,
     );
   }
 
