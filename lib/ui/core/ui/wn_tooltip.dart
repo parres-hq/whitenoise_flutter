@@ -81,9 +81,11 @@ class WnTooltip extends StatelessWidget {
 
     // Calculate tooltip width and position
     final tooltipWidth = maxWidth ?? 280.w;
-    final tooltipLeft = (position.dx + size.width / 2 - tooltipWidth / 2)
-        .clamp(16.w, screenWidth - tooltipWidth - 16.w);
-    
+    final tooltipLeft = (position.dx + size.width / 2 - tooltipWidth / 2).clamp(
+      16.w,
+      screenWidth - tooltipWidth - 16.w,
+    );
+
     // Calculate arrow position relative to tooltip
     final targetCenter = position.dx + size.width / 2;
     final arrowLeft = (targetCenter - tooltipLeft - 6.w).clamp(12.w, tooltipWidth - 12.w);

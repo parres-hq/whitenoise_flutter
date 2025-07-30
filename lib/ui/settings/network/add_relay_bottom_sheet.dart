@@ -122,7 +122,6 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
     }
   }
 
-
   Future<void> _checkRelay() async {
     //TODO : Before user adds relay app checks what kinds relay accepts and returns kinds(functions).
     setState(() {
@@ -333,7 +332,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
                 },
                 separatorBuilder: (context, index) => Gap(8.h),
               ),
-              
+
               Gap(12.h),
               WnFilledButton(
                 visualState: WnButtonVisualState.secondary,

@@ -11,8 +11,8 @@ import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_refreshing_indicator.dart';
-import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
 import 'package:whitenoise/ui/core/ui/wn_status_legend_item.dart';
+import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_tile.dart';
 
