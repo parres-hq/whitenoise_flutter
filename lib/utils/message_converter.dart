@@ -540,7 +540,6 @@ class MessageConverter {
           nip05: contactModel.nip05 ?? '',
           publicKey: pubkey,
           imagePath: contactModel.imagePath,
-          username: contactModel.displayName,
         );
       }
 
@@ -555,7 +554,6 @@ class MessageConverter {
           nip05: contactModel.nip05 ?? '',
           publicKey: pubkey,
           imagePath: contactModel.imagePath,
-          username: contactModel.displayName,
         );
       });
     } catch (e) {
@@ -594,7 +592,6 @@ class MessageConverter {
               nip05: entry.value.nip05 ?? '',
               publicKey: entry.key,
               imagePath: entry.value.imagePath,
-              username: entry.value.displayName,
             ),
           ),
         ),

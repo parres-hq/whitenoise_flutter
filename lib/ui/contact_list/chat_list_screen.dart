@@ -173,9 +173,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
 
     // Cache profile data to avoid unnecessary rebuilds
     final profileData = ref.watch(profileProvider);
-    final currentUserName = profileData.valueOrNull?.displayName ?? '';
+    final currentDisplayName = profileData.valueOrNull?.displayName ?? '';
     final userFirstLetter =
-        currentUserName.isNotEmpty == true ? currentUserName[0].toUpperCase() : '';
+        currentDisplayName.isNotEmpty == true ? currentDisplayName[0].toUpperCase() : '';
     final profileImagePath = profileData.valueOrNull?.picture ?? '';
 
     final chatItems = <ChatListItem>[];

@@ -174,7 +174,7 @@ class _GroupMessageInviteState extends State<GroupMessageInvite> {
             FutureBuilder<MetadataData?>(
               future: _fetchInviterMetadata(),
               builder: (context, snapshot) {
-                final userName =
+                final displayName =
                     snapshot.data?.displayName ?? snapshot.data?.name ?? 'Unknown User';
                 return Row(
                   children: [
@@ -183,7 +183,7 @@ class _GroupMessageInviteState extends State<GroupMessageInvite> {
                       size: 18.w,
                     ),
                     Text(
-                      userName,
+                      displayName,
                       style: TextStyle(
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600,

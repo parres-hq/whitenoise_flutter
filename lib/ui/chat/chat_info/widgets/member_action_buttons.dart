@@ -57,7 +57,7 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
           });
 
           ref.showSuccessToast(
-            'Chat with ${widget.user.username ?? widget.user.displayName} started successfully',
+            'Chat with ${widget.user.displayName} started successfully',
           );
         }
       } else {

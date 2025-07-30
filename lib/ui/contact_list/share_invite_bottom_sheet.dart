@@ -104,7 +104,7 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
               WnCallout(
                 title: 'Invite to White Noise',
                 description:
-                    "${contact.name.isNotEmpty && contact.name != 'Unknown User' ? contact.name : 'This user'} isn't on White Noise yet. Share the download link to start a secure chat.",
+                    "${(contact.displayName?.isNotEmpty ?? false) && contact.displayName != 'Unknown User' ? contact.displayName : 'This user'} isn't on White Noise yet. Share the download link to start a secure chat.",
               ),
             ],
           ),
