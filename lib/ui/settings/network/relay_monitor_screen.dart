@@ -11,6 +11,8 @@ import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_refreshing_indicator.dart';
+import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
+import 'package:whitenoise/ui/core/ui/wn_status_legend_item.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_tile.dart';
 
@@ -23,6 +25,7 @@ class RelayMonitorScreen extends ConsumerStatefulWidget {
 
 class _RelayMonitorScreenState extends ConsumerState<RelayMonitorScreen> {
   final logger = Logger('RelayMonitorScreen');
+  final GlobalKey _helpIconKey = GlobalKey();
 
   bool _isLoading = false;
   bool _isRefreshing = false;
@@ -161,7 +164,35 @@ class _RelayMonitorScreenState extends ConsumerState<RelayMonitorScreen> {
                               ),
                               Gap(8.w),
                               InkWell(
-                                onTap: () {},
+                                key: _helpIconKey,
+                                onTap:
+                                    () => WnTooltip.show(
+                                      context: context,
+                                      targetKey: _helpIconKey,
+                                      message:
+                                          'This page lists every relay your app is currently connected to, including your own relays and any additional group relays used by the people you\'re chatting with.',
+                                      maxWidth: 300.w,
+                                      footer: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          WnStatusLegendItem(
+                                            color: context.colors.success,
+                                            label: 'Connected',
+                                          ),
+                                          Gap(8.h),
+                                          WnStatusLegendItem(
+                                            color: context.colors.warning,
+                                            label: 'Connecting',
+                                          ),
+                                          Gap(8.h),
+                                          WnStatusLegendItem(
+                                            color: context.colors.destructive,
+                                            label: 'Failed to connect',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
                                 child: Icon(
                                   CarbonIcons.help,
                                   color: context.colors.mutedForeground,
