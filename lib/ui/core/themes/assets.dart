@@ -44,6 +44,7 @@ class AssetsPaths {
   static const String icMakeAdmin = '$_svgsDir/ic_make_admin.svg';
   static const String icRemoveAdmin = '$_svgsDir/ic_remove_admin.svg';
   static const String icRemoveOutlined = '$_svgsDir/ic_remove_outlined.svg';
+  static const String icMonitor = '$_svgsDir/ic_monitor.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';

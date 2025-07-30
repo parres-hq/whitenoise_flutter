@@ -10,23 +10,19 @@ import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_refreshing_indicator.dart';
-import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_tile.dart';
-import 'package:go_router/go_router.dart';
-import 'package:whitenoise/routing/routes.dart';
 
-class NetworkScreen extends ConsumerStatefulWidget {
-  const NetworkScreen({super.key});
+class RelayMonitorScreen extends ConsumerStatefulWidget {
+  const RelayMonitorScreen({super.key});
 
   @override
-  ConsumerState<NetworkScreen> createState() => _NetworkScreenState();
+  ConsumerState<RelayMonitorScreen> createState() => _RelayMonitorScreenState();
 }
 
-class _NetworkScreenState extends ConsumerState<NetworkScreen> {
-  final logger = Logger('NetworkScreen');
+class _RelayMonitorScreenState extends ConsumerState<RelayMonitorScreen> {
+  final logger = Logger('RelayMonitorScreen');
 
   bool _isLoading = false;
   bool _isRefreshing = false;
@@ -53,20 +49,21 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
           _isRefreshing = true;
         });
       }
-      logger.info('NetworkScreen: Starting to refresh relay data');
+      logger.info('RelayMonitorScreen: Starting to refresh relay data');
 
       // First refresh the relay status provider
-      logger.info('NetworkScreen: Loading relay statuses');
+      logger.info('RelayMonitorScreen: Loading relay statuses');
       await ref.read(relayStatusProvider.notifier).loadRelayStatuses();
 
       // Then refresh all relay providers
-      logger.info('NetworkScreen: Loading all relay providers');
+      logger.info('RelayMonitorScreen: Loading all relay providers');
+      // TODO change to load all relays including chats (use one provider for all relays)
       await Future.wait([
         ref.read(normalRelaysProvider.notifier).loadRelays(),
         ref.read(inboxRelaysProvider.notifier).loadRelays(),
         ref.read(keyPackageRelaysProvider.notifier).loadRelays(),
       ]);
-      logger.info('NetworkScreen: Successfully refreshed all relay data');
+      logger.info('RelayMonitorScreen: Successfully refreshed all relay data');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -74,8 +71,8 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
         });
       }
     } catch (e, stackTrace) {
-      logger.severe('NetworkScreen: Error refreshing relay data: $e');
-      logger.severe('NetworkScreen: Stack trace: $stackTrace');
+      logger.severe('RelayMonitorScreen: Error refreshing relay data: $e');
+      logger.severe('RelayMonitorScreen: Stack trace: $stackTrace');
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -87,6 +84,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // TODO : unify relay providers to avoid multiple calls and include chat relays
     final normalRelaysState = ref.watch(normalRelaysProvider);
     final inboxRelaysState = ref.watch(inboxRelaysProvider);
     final keyPackageRelaysState = ref.watch(keyPackageRelaysProvider);
@@ -131,7 +129,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                         ),
                       ),
                       Text(
-                        'Network Relays',
+                        'Relay Monitor',
                         style: TextStyle(
                           fontSize: 18.sp,
                           fontWeight: FontWeight.w600,
@@ -154,7 +152,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                           Row(
                             children: [
                               Text(
-                                'Set Relays',
+                                'Connected Relays',
                                 style: TextStyle(
                                   color: context.colors.mutedForeground,
                                   fontWeight: FontWeight.w600,
@@ -170,58 +168,20 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                                   size: 18.sp,
                                 ),
                               ),
-                              const Spacer(),
-                              InkWell(
-                                onTap: _refreshData,
-                                child: Icon(
-                                  CarbonIcons.rotate,
-                                  color: context.colors.primary,
-                                  size: 20.sp,
-                                ),
-                              ),
-                              Gap(16.w),
-                              InkWell(
-                                onTap:
-                                    () => AddRelayBottomSheet.show(
-                                      context: context,
-                                      onRelayAdded: (_) {},
-                                    ),
-                                child: Icon(
-                                  CarbonIcons.add,
-                                  color: context.colors.primary,
-                                  size: 23.sp,
-                                ),
-                              ),
                             ],
                           ),
                           Gap(16.h),
                           Expanded(
-                            flex: 0,
                             child: ListView.separated(
-                              shrinkWrap: true,
                               itemBuilder:
                                   (context, index) => RelayTile(
                                     relayInfo: allRelays[index],
-                                    showOptions: true,
                                   ),
                               separatorBuilder: (context, index) => Gap(12.h),
                               padding: EdgeInsets.zero,
                               itemCount: allRelays.length,
                             ),
                           ),
-                          Gap(16.h),
-                          WnFilledButton.icon(
-                            onPressed: () => context.go(Routes.settingsNetworkMonitor),
-                            icon: const Text('Relay Monitor'),
-                            label: SvgPicture.asset(
-                              AssetsPaths.icMonitor,
-                              colorFilter: ColorFilter.mode(
-                                context.colors.primaryForeground,
-                                BlendMode.srcIn,
-                              ),
-                            ),
-                          ),
-                          const Spacer(),
                         ],
                       ),
                     ),

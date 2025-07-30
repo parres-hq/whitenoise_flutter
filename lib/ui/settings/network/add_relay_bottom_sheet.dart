@@ -1,24 +1,27 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
-import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/relay_validation.dart';
 
 class AddRelayBottomSheet extends ConsumerStatefulWidget {
   final Function(String) onRelayAdded;
-  final String title;
 
   const AddRelayBottomSheet({
     super.key,
     required this.onRelayAdded,
-    required this.title,
   });
 
   @override
@@ -27,72 +30,123 @@ class AddRelayBottomSheet extends ConsumerStatefulWidget {
   static Future<void> show({
     required BuildContext context,
     required Function(String) onRelayAdded,
-    required String title,
   }) async {
     await WnBottomSheet.show(
       context: context,
-      title: title,
-      keyboardAware: true,
-      builder: (context) => AddRelayBottomSheet(onRelayAdded: onRelayAdded, title: title),
+      title: 'Add Relay',
+
+      builder:
+          (context) => AddRelayBottomSheet(
+            onRelayAdded: onRelayAdded,
+          ),
     );
   }
 }
 
 class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
   final TextEditingController _relayUrlController = TextEditingController();
-  bool _isAdding = false;
-  String? _validationError;
+  bool _isValidatingUrl = false;
+  bool _validUrl = false;
+  bool _acceptedRelay = false;
+  String? _relayValidationError;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
     super.initState();
     _relayUrlController.text = 'wss://';
+    _relayUrlController.addListener(_onUrlChanged);
   }
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
+    _relayUrlController.removeListener(_onUrlChanged);
     _relayUrlController.dispose();
     super.dispose();
   }
 
-  bool _validateUrl(String url) {
-    // Valid if it starts with wss:// or ws:// and has content after the connection protocol prefix
-    return (url.startsWith('wss://') && url.length > 5) ||
-        (url.startsWith('ws://') && url.length > 5);
+  void _onUrlChanged() {
+    // Cancel previous timer
+    _debounceTimer?.cancel();
+
+    // Start new timer
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      _validateRelayUrl();
+    });
   }
 
-  Future<void> _addRelay() async {
-    if (_isAdding) return;
-
-    final url = _relayUrlController.text.trim();
-
-    // Validate URL when button is pressed
-    if (!_validateUrl(url)) {
-      setState(() {
-        _validationError = 'Invalid format: must start with wss:// or ws://';
-      });
-      return;
-    }
-
-    setState(() {
-      _validationError = null;
-    });
-
-    setState(() {
-      _isAdding = true;
-    });
+  Future<void> _validateRelayUrl() async {
+    if (_isValidatingUrl) return;
 
     try {
-      widget.onRelayAdded(url);
-      ref.showRawSuccessToast('Relay added successfully');
-      Navigator.pop(context);
-    } catch (e) {
-      ref.showRawErrorToast('Failed to add relay');
-    } finally {
+      final url = _relayUrlController.text.trim();
+
+      // If URL is empty or just the prefix, don't validate
+      if (RelayValidation.shouldSkipValidation(url)) {
+        setState(() {
+          _isValidatingUrl = false;
+          _validUrl = false;
+          _relayValidationError = null;
+        });
+        return;
+      }
+
       setState(() {
-        _isAdding = false;
+        _isValidatingUrl = true;
+        _validUrl = false;
+        _relayValidationError = null;
+      });
+
+      final String? validationError = RelayValidation.validateRelayUrl(url);
+
+      if (validationError == null) {
+        setState(() {
+          _validUrl = true;
+          _relayValidationError = null;
+          _isValidatingUrl = false;
+        });
+      } else {
+        setState(() {
+          _validUrl = false;
+          _relayValidationError = validationError;
+          _isValidatingUrl = false;
+        });
+      }
+    } catch (e) {
+      ref.showErrorToast('Failed validating relay URL');
+      setState(() {
+        _isValidatingUrl = false;
+        _validUrl = false;
       });
     }
+  }
+
+
+  Future<void> _checkRelay() async {
+    //TODO : Before user adds relay app checks what kinds relay accepts and returns kinds(functions).
+    setState(() {
+      _acceptedRelay = true;
+    });
+  }
+
+  Future<void> _addRelays() async {
+    // TODO : implement add relay logic
+    final relayUrl = _relayUrlController.text.trim();
+    if (relayUrl.isEmpty || !_validUrl) {
+      ref.showErrorToast('Please enter a valid relay URL');
+      return;
+    }
+    Navigator.of(context).pop();
+    widget.onRelayAdded(relayUrl);
+    ref.showSuccessToast('Relay added successfully');
+  }
+
+  Future<void> _cancelAddRelay() async {
+    // TODO : implement cancel add relay
+    setState(() {
+      _acceptedRelay = false;
+    });
   }
 
   Future<void> _pasteFromClipboard() async {
@@ -110,6 +164,10 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
           _relayUrlController.text = 'wss://$pastedText';
         }
 
+        // Trigger immediate validation after paste
+        _debounceTimer?.cancel();
+        Future.delayed(const Duration(milliseconds: 100), _validateRelayUrl);
+
         ref.showRawSuccessToast('Pasted from clipboard');
       } else {
         ref.showRawErrorToast('No text found in clipboard');
@@ -119,6 +177,12 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
     }
   }
 
+  final List<RelayFunction> _functionsToAdd = [];
+  final List<RelayFunction> _foundFunctions = [
+    RelayFunction.messaging,
+    RelayFunction.inviteToChat,
+    RelayFunction.keyInvite,
+  ];
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -126,47 +190,199 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Enter your relay address',
+          _acceptedRelay ? 'Relay Address' : 'Enter Relay Address',
           style: TextStyle(
             fontSize: 14.sp,
-            fontWeight: FontWeight.w500,
-            color: context.colors.primaryForeground,
+            fontWeight: FontWeight.w600,
+            color: context.colors.primary,
           ),
         ),
         Gap(8.h),
         Row(
           children: [
             Expanded(
-              child: WnTextField(
-                textController: _relayUrlController,
-                hintText: 'wss://relay.example.com',
-                padding: EdgeInsets.zero,
+              child: Stack(
+                alignment: Alignment.centerRight,
+                children: [
+                  WnTextFormField(
+                    controller: _relayUrlController,
+                    hintText: 'wss://relay.example.com',
+                  ),
+                ],
               ),
             ),
             Gap(8.w),
             CustomIconButton(
               onTap: _pasteFromClipboard,
               iconPath: AssetsPaths.icPaste,
+              size: 50.w,
+              padding: 15.w,
             ),
           ],
         ),
         Gap(16.h),
-        if (_validationError != null) ...[
-          Text(
-            _validationError!,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: context.colors.destructive,
+        if (_relayValidationError != null) ...[
+          Container(
+            padding: EdgeInsets.all(12.w),
+            decoration: BoxDecoration(
+              color: context.colors.destructive.withValues(alpha: 0.1),
+
+              border: Border.all(color: context.colors.destructive),
             ),
-          ),
-          Gap(8.h),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      CarbonIcons.warning_filled,
+                      color: context.colors.destructive,
+                      size: 16.w,
+                    ),
+                    Gap(8.w),
+                    Text(
+                      'Relay Not Supported',
+                      style: TextStyle(
+                        color: context.colors.primary,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                  ],
+                ),
+                Gap(8.h),
+                Text(
+                  _relayValidationError!,
+                  style: TextStyle(
+                    color: context.colors.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14.sp,
+                  ),
+                ),
+              ],
+            ),
+          ).animate().fadeIn(),
+          Gap(12.h),
         ],
-        WnFilledButton(
-          onPressed: !_isAdding ? _addRelay : null,
-          loading: _isAdding,
-          title: widget.title,
-        ),
+        if (!_acceptedRelay)
+          WnFilledButton(
+            onPressed: _validUrl ? _checkRelay : null,
+            loading: _isValidatingUrl,
+            title: 'Check Relay',
+          )
+        else
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Relay Functions',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  fontWeight: FontWeight.w600,
+                  color: context.colors.primary,
+                ),
+              ),
+              Gap(12.h),
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: RelayFunction.values.length,
+                itemBuilder: (context, index) {
+                  final function = RelayFunction.values[index];
+                  final isSelected = _functionsToAdd.contains(function);
+                  final isDisabled =
+                      _foundFunctions.isNotEmpty && !_foundFunctions.contains(function);
+                  return DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: !isDisabled ? context.colors.surface : Colors.transparent,
+                    ),
+                    child: Opacity(
+                      opacity: isDisabled ? 0.5 : 1.0,
+                      child: CheckboxListTile(
+                        value: isSelected,
+                        enabled: !isDisabled,
+
+                        controlAffinity: ListTileControlAffinity.leading,
+
+                        title: Text(
+                          function.displayName,
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: context.colors.primary,
+                          ),
+                        ),
+                        subtitle: Text(
+                          function.description,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: context.colors.mutedForeground,
+                          ),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            if (value == true) {
+                              _functionsToAdd.add(function);
+                            } else {
+                              _functionsToAdd.remove(function);
+                            }
+                          });
+                        },
+                      ),
+                    ),
+                  );
+                },
+                separatorBuilder: (context, index) => Gap(8.h),
+              ),
+              
+              Gap(12.h),
+              WnFilledButton(
+                visualState: WnButtonVisualState.secondary,
+                onPressed: _cancelAddRelay,
+                title: 'Cancel',
+              ),
+              Gap(8.h),
+              WnFilledButton(
+                onPressed: _functionsToAdd.isNotEmpty ? _addRelays : null,
+                title: 'Add Relay',
+              ),
+            ],
+          ).animate().fadeIn(),
       ],
     );
+  }
+}
+
+// TEMPORARY ENUM FOR RELAY FUNCTIONS
+// This should be replaced with actual logic to determine relay functions
+enum RelayFunction {
+  messaging,
+  discovery,
+  inviteToChat,
+  keyInvite;
+
+  String get displayName {
+    switch (this) {
+      case RelayFunction.messaging:
+        return 'Messaging';
+      case RelayFunction.discovery:
+        return 'Discovery';
+      case RelayFunction.inviteToChat:
+        return 'Invite to Chat';
+      case RelayFunction.keyInvite:
+        return 'Key Invite';
+    }
+  }
+
+  String get description {
+    switch (this) {
+      case RelayFunction.messaging:
+        return 'Delivers and stores your chat messages.';
+      case RelayFunction.discovery:
+        return 'Helps you find others and others find you.';
+      case RelayFunction.inviteToChat:
+        return 'Lets others invite you to new conversations.';
+      case RelayFunction.keyInvite:
+        return 'Shares your secure invite keys.';
+    }
   }
 }

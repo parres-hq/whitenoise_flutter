@@ -36,13 +36,13 @@ enum WnButtonVisualState {
   tertiary,
   success,
   warning,
-  error;
+  destructive;
 
   Color backgroundColor(BuildContext context) {
     final colors = context.colors;
 
     return switch (this) {
-      WnButtonVisualState.error => colors.destructive,
+      WnButtonVisualState.destructive => colors.destructive,
       WnButtonVisualState.success => colors.success,
       WnButtonVisualState.warning => colors.warning,
       WnButtonVisualState.primary => colors.primary,
@@ -56,7 +56,7 @@ enum WnButtonVisualState {
     final colors = context.colors;
 
     return switch (this) {
-      WnButtonVisualState.error => colors.primaryForeground,
+      WnButtonVisualState.destructive => colors.primaryForeground,
       WnButtonVisualState.success => colors.primaryForeground,
       WnButtonVisualState.warning => colors.primaryForeground,
       WnButtonVisualState.primary => colors.primaryForeground,
@@ -69,7 +69,7 @@ enum WnButtonVisualState {
   Color disabledBackgroundColor(BuildContext context) {
     final colors = context.colors;
     return switch (this) {
-      WnButtonVisualState.error => colors.destructive.withValues(alpha: 0.5),
+      WnButtonVisualState.destructive => colors.destructive.withValues(alpha: 0.5),
       WnButtonVisualState.success => colors.success.withValues(alpha: 0.5),
       WnButtonVisualState.warning => colors.warning.withValues(alpha: 0.5),
       WnButtonVisualState.primary => colors.primary.withValues(alpha: 0.5),
@@ -88,7 +88,7 @@ enum WnButtonVisualState {
   Color disabledForegroundColor(BuildContext context) {
     final colors = context.colors;
     return switch (this) {
-      WnButtonVisualState.error => colors.primaryForeground,
+      WnButtonVisualState.destructive => colors.primaryForeground,
       WnButtonVisualState.success => colors.primaryForeground,
       WnButtonVisualState.warning => colors.primaryForeground,
       WnButtonVisualState.primary => colors.primaryForeground,
@@ -107,7 +107,7 @@ enum WnButtonVisualState {
       WnButtonVisualState.success => Colors.transparent,
       WnButtonVisualState.warning => Colors.transparent,
       WnButtonVisualState.secondaryWarning => colors.destructive,
-      WnButtonVisualState.error => Colors.transparent,
+      WnButtonVisualState.destructive => Colors.transparent,
     };
   }
 }
