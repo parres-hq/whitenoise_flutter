@@ -17,6 +17,7 @@ void main() {
       publicKey: testPubkey,
       nip05: testNip05,
       imagePath: testImagePath,
+      displayName: testName,
     );
 
     testWidgets('displays user name', (WidgetTester tester) async {
