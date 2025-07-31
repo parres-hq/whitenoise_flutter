@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/shared/info_box.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
+import 'package:whitenoise/utils/clipboard_utils.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -78,13 +77,10 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                             CustomIconButton(
                               iconPath: AssetsPaths.icCopy,
                               onTap: () {
-                                Clipboard.setData(
-                                  ClipboardData(
-                                    text: _connectionSecretController.text,
-                                  ),
-                                );
-                                ref.showSuccessToast(
-                                  'Connection secret copied to clipboard',
+                                ClipboardUtils.copyWithToast(
+                                  ref: ref,
+                                  textToCopy: _connectionSecretController.text,
+                                  successMessage: 'Connection secret copied to clipboard',
                                 );
                               },
                             ),

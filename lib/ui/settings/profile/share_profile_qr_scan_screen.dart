@@ -17,7 +17,9 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class ShareProfileQrScanScreen extends ConsumerStatefulWidget {
-  const ShareProfileQrScanScreen({super.key});
+  const ShareProfileQrScanScreen({super.key, this.hideViewQrButton = false});
+
+  final bool hideViewQrButton;
 
   @override
   ConsumerState<ShareProfileQrScanScreen> createState() => _ShareProfileQrScanScreenState();
@@ -108,25 +110,29 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
                           ),
                         ),
                         const Spacer(),
-                        WnFilledButton.icon(
-                          label: SvgPicture.asset(
-                            AssetsPaths.icQrCode,
-                            colorFilter: ColorFilter.mode(
-                              context.colors.primaryForeground,
-                              BlendMode.srcIn,
+                        if (!widget.hideViewQrButton) ...[
+                          WnFilledButton.icon(
+                            label: SvgPicture.asset(
+                              AssetsPaths.icQrCode,
+                              colorFilter: ColorFilter.mode(
+                                context.colors.primaryForeground,
+                                BlendMode.srcIn,
+                              ),
                             ),
-                          ),
-                          icon: Text(
-                            'View QR Code',
-                            style: TextStyle(
-                              color: context.colors.primaryForeground,
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
+                            icon: Text(
+                              'View QR Code',
+                              style: TextStyle(
+                                color: context.colors.primaryForeground,
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
+                            onPressed: () => context.pop(),
                           ),
-                          onPressed: () => context.pop(),
-                        ),
-                        Gap(64.h),
+                          Gap(64.h),
+                        ] else ...[
+                          Gap(64.h),
+                        ],
                       ],
                     ),
                   ),
@@ -175,7 +181,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
       _controller.stop();
       final contact = await ref.read(metadataCacheProvider.notifier).getContactModel(npub);
       if (mounted) {
-        await StartSecureChatBottomSheet.show(
+        await StartChatBottomSheet.show(
           context: context,
           name: contact.displayNameOrName,
           nip05: contact.nip05 ?? '',

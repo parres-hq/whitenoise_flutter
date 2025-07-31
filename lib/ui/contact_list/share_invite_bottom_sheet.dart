@@ -4,20 +4,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
-import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/contact_list/widgets/user_profile.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
-import 'package:whitenoise/utils/string_extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_callout.dart';
 
 class ShareInviteBottomSheet extends ConsumerStatefulWidget {
   final List<ContactModel> contacts;
   final VoidCallback? onInviteSent;
+
   const ShareInviteBottomSheet({
     super.key,
     required this.contacts,
@@ -29,16 +28,14 @@ class ShareInviteBottomSheet extends ConsumerStatefulWidget {
     required List<ContactModel> contacts,
     VoidCallback? onInviteSent,
   }) {
+    final title = contacts.length == 1 ? 'User Profile' : 'Invite to Chat';
+
     return WnBottomSheet.show(
       context: context,
-      title: 'Invite to Chat',
+      title: title,
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
-      builder:
-          (context) => ShareInviteBottomSheet(
-            contacts: contacts,
-            onInviteSent: onInviteSent,
-          ),
+      builder: (context) => ShareInviteBottomSheet(contacts: contacts, onInviteSent: onInviteSent),
     );
   }
 
@@ -96,83 +93,18 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
           Column(
             children: [
               Gap(12.h),
-              ContactAvatar(
+              UserProfile(
                 imageUrl: contact.imagePath ?? '',
-                displayName: contact.displayNameOrName,
-                size: 96.r,
+                name: contact.displayNameOrName,
+                nip05: contact.nip05 ?? '',
+                pubkey: contact.publicKey,
+                ref: ref,
               ),
-              Gap(8.h),
-              Text(
-                contact.displayNameOrName,
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.primary,
-                ),
-              ),
-              if (contact.nip05 != null && contact.nip05!.isNotEmpty) ...[
-                Gap(2.h),
-                Text(
-                  contact.nip05!,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: context.colors.mutedForeground,
-                  ),
-                ),
-              ],
-              Gap(16.h),
-              Text(
-                contact.publicKey.formatPublicKey(),
-                textAlign: TextAlign.center,
-              ),
-              Gap(40.h),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 16.w,
-                  vertical: 12.h,
-                ),
-                width: 1.sw,
-                decoration: BoxDecoration(
-                  border: Border.all(color: context.colors.primary),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Icon(
-                          CarbonIcons.information_filled,
-                          color: context.colors.primary,
-                          size: 18.w,
-                        ),
-                        Gap(8.w),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Invite to White Noise',
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: context.colors.primary,
-                                ),
-                              ),
-                              Gap(8.h),
-                              Text(
-                                "${contact.name.isNotEmpty && contact.name != 'Unknown User' ? contact.name : 'This user'} isn't on White Noise yet. Share the download link to start a secure chat.",
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  color: context.colors.mutedForeground,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+              Gap(36.h),
+              WnCallout(
+                title: 'Invite to White Noise',
+                description:
+                    "${contact.name.isNotEmpty && contact.name != 'Unknown User' ? contact.name : 'This user'} isn't on White Noise yet. Share the download link to start a secure chat.",
               ),
             ],
           ),
@@ -183,53 +115,10 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
             child: Column(
               children: [
                 Gap(24.h),
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 12.h,
-                  ),
-                  width: 1.sw,
-                  decoration: BoxDecoration(
-                    border: Border.all(color: context.colors.primary),
-                  ),
-                  child: Column(
-                    children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(
-                            CarbonIcons.information_filled,
-                            color: context.colors.primary,
-                            size: 18.w,
-                          ),
-                          Gap(8.w),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Invite to White Noise',
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: context.colors.primary,
-                                  ),
-                                ),
-                                Gap(8.h),
-                                Text(
-                                  'These contacts aren\'t ready for secure messaging yet. Share White Noise with them to get started!',
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: context.colors.mutedForeground,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+                const WnCallout(
+                  title: 'Invite to White Noise',
+                  description:
+                      "These contacts aren't ready for secure messaging yet. Share White Noise with them to get started!",
                 ),
                 Gap(16.h),
               ],
@@ -247,7 +136,7 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
             ),
           ),
         ],
-        Gap(40.h),
+        Gap(10.h),
         WnFilledButton(
           onPressed: _isSendingInvite ? null : _shareInvite,
           loading: _isSendingInvite,

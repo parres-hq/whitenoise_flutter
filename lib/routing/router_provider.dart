@@ -210,6 +210,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
+        path: Routes.contactQrScan,
+        builder: (context, state) => const ShareProfileQrScanScreen(hideViewQrButton: true),
+      ),
+      GoRoute(
         path: Routes.addContactToGroup,
         builder: (context, state) {
           final contactNpub = state.pathParameters['id']!;

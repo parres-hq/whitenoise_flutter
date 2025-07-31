@@ -109,12 +109,12 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
 
   void _copyToClipboard() {
     final npub = otherUserNpub ?? '';
-    if (npub.isEmpty) {
-      ref.showErrorToast('No public key to copy');
-      return;
-    }
-    Clipboard.setData(ClipboardData(text: npub));
-    ref.showSuccessToast('Public Key copied.');
+    ClipboardUtils.copyWithToast(
+      ref: ref,
+      textToCopy: npub,
+      successMessage: 'Public Key copied.',
+      noTextMessage: 'No public key to copy',
+    );
   }
 
   void _openAddToGroup() {

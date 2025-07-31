@@ -190,7 +190,7 @@ class _$ToastMessageImpl implements _ToastMessage {
     required this.id,
     required this.message,
     required this.type,
-    this.durationMs = 8000,
+    this.durationMs = 3000,
     this.autoDismiss = true,
     this.showBelowAppBar = false,
   });
@@ -424,7 +424,7 @@ class __$$ToastConfigImplCopyWithImpl<$Res>
 class _$ToastConfigImpl implements _ToastConfig {
   const _$ToastConfigImpl({
     this.stackMode = ToastStackMode.replace,
-    this.defaultDurationMs = 8000,
+    this.defaultDurationMs = 3000,
     this.autoDismiss = true,
     this.defaultShowBelowAppBar = false,
   });
