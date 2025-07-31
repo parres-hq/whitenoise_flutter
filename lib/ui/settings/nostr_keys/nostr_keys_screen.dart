@@ -143,7 +143,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                               CustomIconButton(
                                 onTap: _copyPublicKey,
                                 iconPath: AssetsPaths.icCopy,
-                                size: 56.h,
+                                size: 56.w,
                                 padding: 20.w,
                               ),
                             ],
@@ -239,7 +239,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                                 CustomIconButton(
                                   onTap: _copyPrivateKey,
                                   iconPath: AssetsPaths.icCopy,
-                                  size: 56.h,
+                                  size: 56.w,
                                   padding: 20.w,
                                 ),
                               ],
