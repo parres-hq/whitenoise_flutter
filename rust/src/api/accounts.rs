@@ -3,15 +3,18 @@ use crate::api::utils::{
 };
 use flutter_rust_bridge::frb;
 use url::Url;
+use whitenoise::RelayUrl;
 pub use whitenoise::{
-    Account, AccountSettings, ImageType, OnboardingState, PublicKey, Whitenoise, WhitenoiseError,
+    Account, AccountSettings, ImageType, PublicKey, Whitenoise, WhitenoiseError,
 };
 
 #[derive(Debug, Clone)]
 pub struct AccountData {
     pub pubkey: String,
     pub settings: AccountSettings,
-    pub onboarding: OnboardingState,
+    pub nip65_relays: Vec<RelayUrl>,
+    pub inbox_relays: Vec<RelayUrl>,
+    pub key_package_relays: Vec<RelayUrl>,
     pub last_synced: u64,
 }
 
@@ -22,14 +25,6 @@ pub struct _AccountSettings {
     pub dark_theme: bool,
     pub dev_mode: bool,
     pub lockdown_mode: bool,
-}
-
-#[frb(mirror(OnboardingState))]
-#[derive(Debug, Clone)]
-pub struct _OnboardingState {
-    pub inbox_relays: bool,
-    pub key_package_relays: bool,
-    pub key_package_published: bool,
 }
 
 /// Converts a core `Account` object to a Flutter-compatible `AccountData` structure.
@@ -48,7 +43,9 @@ pub fn convert_account_to_data(account: &Account) -> AccountData {
     AccountData {
         pubkey: account.pubkey.to_hex(),
         settings: account.settings.clone(),
-        onboarding: account.onboarding.clone(),
+        nip65_relays: account.nip65_relays.clone(),
+        inbox_relays: account.inbox_relays.clone(),
+        key_package_relays: account.key_package_relays.clone(),
         last_synced: account.last_synced.as_u64(),
     }
 }
@@ -67,7 +64,7 @@ pub fn convert_account_to_data(account: &Account) -> AccountData {
 /// * Returns `WhitenoiseError` if the Whitenoise instance cannot be accessed or if
 ///   there's an issue fetching the accounts
 #[frb]
-pub async fn fetch_accounts() -> Result<Vec<AccountData>, WhitenoiseError> {
+pub async fn get_accounts() -> Result<Vec<AccountData>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let accounts = whitenoise.fetch_accounts().await?;
     Ok(accounts.values().map(convert_account_to_data).collect())
@@ -89,9 +86,9 @@ pub async fn fetch_accounts() -> Result<Vec<AccountData>, WhitenoiseError> {
 /// * Returns `WhitenoiseError` if the account doesn't exist, the Whitenoise instance
 ///   cannot be accessed, or if there's an issue fetching the account
 #[frb]
-pub async fn fetch_account(pubkey: &PublicKey) -> Result<AccountData, WhitenoiseError> {
+pub async fn get_account(pubkey: &PublicKey) -> Result<AccountData, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let account = whitenoise.fetch_account(pubkey).await?;
+    let account = whitenoise.get_account(pubkey).await?;
     Ok(convert_account_to_data(&account))
 }
 
@@ -179,7 +176,7 @@ pub async fn logout(pubkey: &PublicKey) -> Result<(), WhitenoiseError> {
 #[frb]
 pub async fn export_account_nsec(pubkey: &PublicKey) -> Result<String, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let account = whitenoise.fetch_account(pubkey).await?;
+    let account = whitenoise.get_account(pubkey).await?;
     whitenoise.export_account_nsec(&account).await
 }
 
@@ -202,7 +199,7 @@ pub async fn export_account_nsec(pubkey: &PublicKey) -> Result<String, Whitenois
 #[frb]
 pub async fn export_account_npub(pubkey: &PublicKey) -> Result<String, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let account = whitenoise.fetch_account(pubkey).await?;
+    let account = whitenoise.get_account(pubkey).await?;
     whitenoise.export_account_npub(&account).await
 }
 
@@ -223,9 +220,9 @@ pub async fn export_account_npub(pubkey: &PublicKey) -> Result<String, Whitenois
 /// * Returns `WhitenoiseError` if there's an issue accessing the Whitenoise instance
 ///   or fetching the metadata from the network
 #[frb]
-pub async fn fetch_metadata(pubkey: PublicKey) -> Result<Option<MetadataData>, WhitenoiseError> {
+pub async fn fetch_metadata_from(nip65_relays: Vec<RelayUrl>, pubkey: PublicKey) -> Result<Option<MetadataData>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let metadata = whitenoise.fetch_metadata(pubkey).await?;
+    let metadata = whitenoise.fetch_metadata_from(nip65_relays, pubkey).await?;
     Ok(metadata.map(|m| convert_metadata_to_data(&m)))
 }
 
@@ -251,31 +248,10 @@ pub async fn update_metadata(
     pubkey: &PublicKey,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
+    let account = whitenoise.get_account(pubkey).await?;
     // Convert MetadataData back to Metadata for the whitenoise API
     let metadata_to_save = convert_metadata_data_to_metadata(metadata);
-    whitenoise.update_metadata(&metadata_to_save, pubkey).await
-}
-
-/// Retrieves the onboarding state for a specific account.
-///
-/// This function fetches the current onboarding progress for an account, indicating
-/// which setup steps have been completed (such as inbox relay configuration,
-/// key package relay setup, and key package publication status).
-///
-/// # Parameters
-/// * `pubkey` - The public key of the account whose onboarding state should be fetched
-///
-/// # Returns
-/// * `Result<OnboardingState, WhitenoiseError>` - The current onboarding state,
-///   or an error if the operation fails
-///
-/// # Errors
-/// * Returns `WhitenoiseError` if the account doesn't exist or there's an issue
-///   accessing the account's onboarding information
-#[frb]
-pub async fn fetch_onboarding_state(pubkey: PublicKey) -> Result<OnboardingState, WhitenoiseError> {
-    let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.fetch_onboarding_state(pubkey).await
+    whitenoise.update_metadata(&metadata_to_save, &account).await
 }
 
 /// Uploads a profile picture for a specific account to a media server.

@@ -226,10 +226,10 @@ pub async fn send_message_to_group(
     tags: Option<Vec<Tag>>,
 ) -> Result<MessageWithTokensData, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let pubkey_clone = *pubkey;
+    let account = whitenoise.get_account(pubkey).await?;
     let message_with_tokens = tokio::task::spawn_blocking(move || {
         tokio::runtime::Handle::current().block_on(whitenoise.send_message_to_group(
-            &pubkey_clone,
+            &account,
             &group_id,
             message,
             kind,
@@ -289,8 +289,9 @@ pub async fn fetch_messages_for_group(
     group_id: whitenoise::GroupId,
 ) -> Result<Vec<MessageWithTokensData>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
+    let account = whitenoise.get_account(pubkey).await?;
     let messages = whitenoise
-        .fetch_messages_for_group(pubkey, &group_id)
+        .fetch_messages_for_group(&account, &group_id)
         .await?;
     Ok(messages
         .iter()
@@ -427,7 +428,8 @@ pub async fn send_direct_message_nip04(
     tags: Vec<Tag>,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
+    let account = whitenoise.get_account(sender).await?;
     whitenoise
-        .send_direct_message_nip04(sender, receiver, content, tags)
+        .send_direct_message_nip04(&account, receiver, content, tags)
         .await
 }

@@ -53,40 +53,13 @@ pub fn relay_type_key_package() -> RelayType {
 /// * `Ok(Vec<RelayUrl>)` - Vector of relay URLs for the specified type
 /// * `Err(WhitenoiseError)` - If there was an error fetching relays or account not found
 #[frb]
-pub async fn fetch_relays(
+pub async fn fetch_relays_from(
+    nip65_relays: Vec<RelayUrl>,
     pubkey: PublicKey,
     relay_type: RelayType,
 ) -> Result<Vec<RelayUrl>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.fetch_relays(pubkey, relay_type).await
-}
-
-/// Updates an account's relay list for a specific relay type.
-///
-/// This function replaces the entire relay list for the specified type with
-/// the provided URLs. The changes will be persisted and synchronized.
-///
-/// # Parameters
-/// * `pubkey` - The public key of the account whose relays to update
-/// * `relay_type` - The type of relays to update (Nostr, Inbox, or KeyPackage)
-/// * `relays` - Vector of relay URLs to set for this type
-///
-/// # Returns
-/// * `Ok(())` - If the relays were successfully updated
-/// * `Err(WhitenoiseError)` - If there was an error updating relays
-///
-/// # Notes
-/// * This operation completely replaces the existing relay list for the specified type
-/// * At least one relay of each type is typically required for proper functionality
-#[frb]
-pub async fn update_relays(
-    pubkey: &PublicKey,
-    relay_type: RelayType,
-    relays: Vec<RelayUrl>,
-) -> Result<(), WhitenoiseError> {
-    let whitenoise = Whitenoise::get_instance()?;
-    let account = whitenoise.fetch_account(pubkey).await?;
-    whitenoise.update_relays(&account, relay_type, relays).await
+    whitenoise.fetch_relays_from(nip65_relays, pubkey, relay_type).await
 }
 
 /// Fetches an account's MLS key package from its configured key package relays.
@@ -107,15 +80,15 @@ pub async fn update_relays(
 /// * This function automatically uses the account's configured key package relays
 /// * Key packages have expiration times and may need to be refreshed periodically
 #[frb]
-pub async fn fetch_key_package(pubkey: PublicKey) -> Result<Option<Event>, WhitenoiseError> {
+pub async fn fetch_key_package(pubkey: PublicKey, nip65_relays: Vec<RelayUrl>) -> Result<Option<Event>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let relays = whitenoise
-        .fetch_relays(pubkey, RelayType::KeyPackage)
+    let key_package_relays = whitenoise
+        .fetch_relays_from(nip65_relays.clone(), pubkey, RelayType::KeyPackage)
         .await?;
-    if relays.is_empty() {
+    if key_package_relays.is_empty() {
         return Ok(None);
     }
-    whitenoise.fetch_key_package_event(pubkey, relays).await
+    whitenoise.fetch_key_package_event_from(key_package_relays, pubkey).await
 }
 
 /// Fetches the connection status of all relays associated with an account.
@@ -151,7 +124,8 @@ pub async fn fetch_relay_status(
     pubkey: PublicKey,
 ) -> Result<Vec<(String, String)>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let statuses = whitenoise.fetch_relay_status(pubkey).await?;
+    let account = whitenoise.get_account(&pubkey).await?;
+    let statuses = whitenoise.fetch_relay_status(&account).await?;
     let converted_statuses = statuses
         .into_iter()
         .map(|(url, status)| (url.to_string(), status.to_string()))
