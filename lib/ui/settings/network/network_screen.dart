@@ -32,6 +32,8 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
   final GlobalKey _helpIconKey = GlobalKey();
   bool _isLoading = false;
   bool _isRefreshing = false;
+  bool _isPulling = false;
+  double _pullDistance = 0.0;
 
   @override
   void initState() {
@@ -106,9 +108,31 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
         statusBarBrightness: Brightness.dark,
       ),
       child: GestureDetector(
+        onPanStart: (details) {
+          if (details.globalPosition.dy < 300) {
+            setState(() {
+              _isPulling = true;
+              _pullDistance = 0.0;
+            });
+          }
+        },
         onPanUpdate: (details) {
-          if (details.delta.dy > 0 && details.globalPosition.dy > 200) {
-            _refreshData();
+          if (_isPulling) {
+            setState(() {
+              _pullDistance += details.delta.dy;
+              _pullDistance = _pullDistance.clamp(0.0, 100.0);
+            });
+          }
+        },
+        onPanEnd: (details) {
+          if (_isPulling) {
+            if (_pullDistance >= 60.0) {
+              _refreshData();
+            }
+            setState(() {
+              _isPulling = false;
+              _pullDistance = 0.0;
+            });
           }
         },
         child: PopScope(
@@ -150,9 +174,23 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                           ),
                         ],
                       ),
-                      if (_isRefreshing)
-                        const WnRefreshingIndicator(
-                          message: 'Reconnecting Relays...',
+                      if (_isPulling || _isRefreshing)
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          height:
+                              _isPulling
+                                  ? _pullDistance.clamp(
+                                    0.0,
+                                    60.h,
+                                  )
+                                  : 50.h,
+                          child: Opacity(
+                            opacity: _isPulling ? (_pullDistance / 60.h).clamp(0.0, 1.0) : 1.0,
+                            child: const WnRefreshingIndicator(
+                              message: 'Reconnecting Relays...',
+                              padding: EdgeInsets.zero,
+                            ),
+                          ),
                         )
                       else
                         Gap(16.h),
