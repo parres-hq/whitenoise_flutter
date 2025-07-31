@@ -12,6 +12,9 @@ class WnTooltip extends StatelessWidget {
     this.footer,
   });
 
+  static bool _isTooltipVisible = false;
+  static OverlayEntry? _currentTooltipEntry;
+
   final String message;
   final Widget child;
   final bool preferBelow;
@@ -65,6 +68,9 @@ class WnTooltip extends StatelessWidget {
     Widget? footer,
     double? maxWidth,
   }) {
+    // Prevent multiple tooltips
+    if (_isTooltipVisible) return;
+
     final overlay = Overlay.of(context);
     final renderBox = targetKey.currentContext?.findRenderObject() as RenderBox?;
     if (renderBox == null) return;
@@ -95,110 +101,244 @@ class WnTooltip extends StatelessWidget {
     final primaryColor = theme.colorScheme.primary;
     final primaryForegroundColor = theme.colorScheme.onPrimary;
 
-    OverlayEntry? overlayEntry;
-
-    overlayEntry = OverlayEntry(
+    _currentTooltipEntry = OverlayEntry(
       builder:
-          (context) => GestureDetector(
-            onTap: () {
+          (context) => _AnimatedTooltipOverlay(
+            onDismiss: () {
               try {
-                overlayEntry?.remove();
-                overlayEntry = null;
+                _currentTooltipEntry?.remove();
+                _currentTooltipEntry = null;
+                _isTooltipVisible = false;
               } catch (e) {
                 // Overlay already removed
               }
             },
-            behavior: HitTestBehavior.translucent,
-            child: Material(
-              color: Colors.transparent,
+            onNavigateBack: () {
+              try {
+                _currentTooltipEntry?.remove();
+                _currentTooltipEntry = null;
+                _isTooltipVisible = false;
+              } catch (e) {
+                // Overlay already removed
+              }
+              Navigator.of(context).pop();
+            },
+            tooltipLeft: tooltipLeft,
+            showBelow: showBelow,
+            position: position,
+            size: size,
+            screenHeight: screenHeight,
+            tooltipWidth: tooltipWidth,
+            arrowLeft: arrowLeft,
+            primaryColor: primaryColor,
+            primaryForegroundColor: primaryForegroundColor,
+            message: message,
+            footer: footer,
+          ),
+    );
+
+    _isTooltipVisible = true;
+    overlay.insert(_currentTooltipEntry!);
+  }
+
+  static void hide() {
+    if (_isTooltipVisible && _currentTooltipEntry != null) {
+      try {
+        _currentTooltipEntry?.remove();
+        _currentTooltipEntry = null;
+        _isTooltipVisible = false;
+      } catch (e) {
+        // Overlay already removed
+      }
+    }
+  }
+}
+
+class _AnimatedTooltipOverlay extends StatefulWidget {
+  const _AnimatedTooltipOverlay({
+    required this.onDismiss,
+    required this.onNavigateBack,
+    required this.tooltipLeft,
+    required this.showBelow,
+    required this.position,
+    required this.size,
+    required this.screenHeight,
+    required this.tooltipWidth,
+    required this.arrowLeft,
+    required this.primaryColor,
+    required this.primaryForegroundColor,
+    required this.message,
+    this.footer,
+  });
+
+  final VoidCallback onDismiss;
+  final VoidCallback onNavigateBack;
+  final double tooltipLeft;
+  final bool showBelow;
+  final Offset position;
+  final Size size;
+  final double screenHeight;
+  final double tooltipWidth;
+  final double arrowLeft;
+  final Color primaryColor;
+  final Color primaryForegroundColor;
+  final String message;
+  final Widget? footer;
+
+  @override
+  State<_AnimatedTooltipOverlay> createState() => _AnimatedTooltipOverlayState();
+}
+
+class _AnimatedTooltipOverlayState extends State<_AnimatedTooltipOverlay>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, -0.2),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeOut,
+      ),
+    );
+
+    _animationController.forward();
+
+    // Auto-dismiss with fade out animation after 3 seconds
+    Future.delayed(const Duration(seconds: 3), () {
+      if (mounted) {
+        _dismissWithAnimation();
+      }
+    });
+  }
+
+  void _dismissWithAnimation() {
+    _animationController.reverse().then((_) {
+      if (mounted) {
+        widget.onDismiss();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Material(
+        color: Colors.transparent,
+        child: AnimatedBuilder(
+          animation: _animationController,
+          builder: (context, child) {
+            return Opacity(
+              opacity: _fadeAnimation.value,
               child: Stack(
                 children: [
                   Positioned(
-                    left: tooltipLeft,
-                    top: showBelow ? position.dy + size.height + 4.h : null,
-                    bottom: showBelow ? null : screenHeight - position.dy + 4.h,
-                    child: Stack(
-                      children: [
-                        Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // Spacer for arrow when tooltip is below
-                            if (showBelow) SizedBox(height: 6.h),
-                            Container(
-                              width: tooltipWidth,
-                              padding: EdgeInsets.all(16.w),
-                              decoration: BoxDecoration(
-                                color: primaryColor,
-                              ),
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    message,
-                                    style: TextStyle(
-                                      color: primaryForegroundColor,
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.4,
+                    left: widget.tooltipLeft,
+                    top: widget.showBelow ? widget.position.dy + widget.size.height + 4.h : null,
+                    bottom:
+                        widget.showBelow ? null : widget.screenHeight - widget.position.dy + 4.h,
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: Stack(
+                        children: [
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Spacer for arrow when tooltip is below
+                              if (widget.showBelow) SizedBox(height: 6.h),
+                              Container(
+                                width: widget.tooltipWidth,
+                                padding: EdgeInsets.all(16.w),
+                                decoration: BoxDecoration(
+                                  color: widget.primaryColor,
+                                ),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      widget.message,
+                                      style: TextStyle(
+                                        color: widget.primaryForegroundColor,
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w600,
+                                        height: 1.4,
+                                      ),
                                     ),
-                                  ),
-                                  if (footer != null) ...[
-                                    Gap(16.h),
-                                    footer,
+                                    if (widget.footer != null) ...[
+                                      Gap(16.h),
+                                      widget.footer!,
+                                    ],
                                   ],
-                                ],
+                                ),
                               ),
-                            ),
-                            // Spacer for arrow when tooltip is above
-                            if (!showBelow) SizedBox(height: 6.h),
-                          ],
-                        ),
-                        // Arrow at top when tooltip is below target (pointing up to target)
-                        if (showBelow)
-                          Positioned(
-                            left: arrowLeft,
-                            top: 0,
-                            child: CustomPaint(
-                              size: Size(12.w, 6.h),
-                              painter: _TooltipArrowPainter(
-                                pointingUp: true,
-                                arrowColor: primaryColor,
-                              ),
-                            ),
+                              // Spacer for arrow when tooltip is above
+                              if (!widget.showBelow) SizedBox(height: 6.h),
+                            ],
                           ),
-                        // Arrow at bottom when tooltip is above target (pointing down to target)
-                        if (!showBelow)
-                          Positioned(
-                            left: arrowLeft,
-                            bottom: 0,
-                            child: CustomPaint(
-                              size: Size(12.w, 6.h),
-                              painter: _TooltipArrowPainter(
-                                arrowColor: primaryColor,
+                          // Arrow at top when tooltip is below target (pointing up to target)
+                          if (widget.showBelow)
+                            Positioned(
+                              left: widget.arrowLeft,
+                              top: 0,
+                              child: CustomPaint(
+                                size: Size(12.w, 6.h),
+                                painter: _TooltipArrowPainter(
+                                  pointingUp: true,
+                                  arrowColor: widget.primaryColor,
+                                ),
                               ),
                             ),
-                          ),
-                      ],
+                          // Arrow at bottom when tooltip is above target (pointing down to target)
+                          if (!widget.showBelow)
+                            Positioned(
+                              left: widget.arrowLeft,
+                              bottom: 0,
+                              child: CustomPaint(
+                                size: Size(12.w, 6.h),
+                                painter: _TooltipArrowPainter(
+                                  arrowColor: widget.primaryColor,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-          ),
+            );
+          },
+        ),
+      ),
     );
-
-    overlay.insert(overlayEntry!);
-
-    // Auto-dismiss after 5 seconds
-    Future.delayed(const Duration(seconds: 5), () {
-      try {
-        overlayEntry?.remove();
-        overlayEntry = null;
-      } catch (e) {
-        // Overlay already removed
-      }
-    });
   }
 }
 

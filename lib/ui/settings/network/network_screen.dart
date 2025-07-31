@@ -111,157 +111,167 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
             _refreshData();
           }
         },
-        child: Scaffold(
-          backgroundColor: context.colors.appBarBackground,
-          body: SafeArea(
-            bottom: false,
-            child: ColoredBox(
-              color: context.colors.neutral,
-              child: Column(
-                children: [
-                  Gap(20.h),
-                  Row(
+        child: PopScope(
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) {
+              WnTooltip.hide();
+            }
+          },
+          child: GestureDetector(
+            onTap: () => WnTooltip.hide(),
+            child: Scaffold(
+              backgroundColor: context.colors.appBarBackground,
+              body: SafeArea(
+                bottom: false,
+                child: ColoredBox(
+                  color: context.colors.neutral,
+                  child: Column(
                     children: [
-                      IconButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        icon: SvgPicture.asset(
-                          AssetsPaths.icChevronLeft,
-                          colorFilter: ColorFilter.mode(
-                            context.colors.primary,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
-                      Text(
-                        'Network Relays',
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.mutedForeground,
-                        ),
-                      ),
-                    ],
-                  ),
-                  if (_isRefreshing)
-                    const WnRefreshingIndicator(
-                      message: 'Reconnecting Relays...',
-                    )
-                  else
-                    Gap(16.h),
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: Column(
+                      Gap(20.h),
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              Text(
-                                'Set Relays',
-                                style: TextStyle(
-                                  color: context.colors.mutedForeground,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16.w,
-                                ),
-                              ),
-                              Gap(8.w),
-                              InkWell(
-                                key: _helpIconKey,
-                                onTap:
-                                    () => WnTooltip.show(
-                                      context: context,
-                                      targetKey: _helpIconKey,
-                                      message:
-                                          'These relays store your chat history, deliver your messages, receive new ones, and help others find or invite you to chats.',
-                                      maxWidth: 300.w,
-                                      footer: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          WnStatusLegendItem(
-                                            color: context.colors.success,
-                                            label: 'Connected',
-                                          ),
-                                          Gap(8.h),
-                                          WnStatusLegendItem(
-                                            color: context.colors.info,
-                                            label: 'Connects when needed',
-                                          ),
-                                          Gap(8.h),
-                                          WnStatusLegendItem(
-                                            color: context.colors.warning,
-                                            label: 'Connecting',
-                                          ),
-                                          Gap(8.h),
-                                          WnStatusLegendItem(
-                                            color: context.colors.destructive,
-                                            label: 'Failed to connect',
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-
-                                child: Icon(
-                                  CarbonIcons.help,
-                                  color: context.colors.mutedForeground,
-                                  size: 18.sp,
-                                ),
-                              ),
-                              const Spacer(),
-                              InkWell(
-                                onTap: _refreshData,
-                                child: Icon(
-                                  CarbonIcons.rotate,
-                                  color: context.colors.primary,
-                                  size: 20.sp,
-                                ),
-                              ),
-                              Gap(16.w),
-                              InkWell(
-                                onTap:
-                                    () => AddRelayBottomSheet.show(
-                                      context: context,
-                                      onRelayAdded: (_) {},
-                                    ),
-                                child: Icon(
-                                  CarbonIcons.add,
-                                  color: context.colors.primary,
-                                  size: 23.sp,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Gap(16.h),
-                          Expanded(
-                            flex: 0,
-                            child: ListView.separated(
-                              shrinkWrap: true,
-                              itemBuilder:
-                                  (context, index) => RelayTile(
-                                    relayInfo: allRelays[index],
-                                    showOptions: true,
-                                  ),
-                              separatorBuilder: (context, index) => Gap(12.h),
-                              padding: EdgeInsets.zero,
-                              itemCount: allRelays.length,
-                            ),
-                          ),
-                          Gap(16.h),
-                          WnFilledButton.icon(
-                            onPressed: () => context.go(Routes.settingsNetworkMonitor),
-                            icon: const Text('Relay Monitor'),
-                            label: SvgPicture.asset(
-                              AssetsPaths.icMonitor,
+                          IconButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            icon: SvgPicture.asset(
+                              AssetsPaths.icChevronLeft,
                               colorFilter: ColorFilter.mode(
-                                context.colors.primaryForeground,
+                                context.colors.primary,
                                 BlendMode.srcIn,
                               ),
                             ),
                           ),
-                          const Spacer(),
+                          Text(
+                            'Network Relays',
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                              color: context.colors.mutedForeground,
+                            ),
+                          ),
                         ],
                       ),
-                    ),
+                      if (_isRefreshing)
+                        const WnRefreshingIndicator(
+                          message: 'Reconnecting Relays...',
+                        )
+                      else
+                        Gap(16.h),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    'Set Relays',
+                                    style: TextStyle(
+                                      color: context.colors.mutedForeground,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16.w,
+                                    ),
+                                  ),
+                                  Gap(8.w),
+                                  InkWell(
+                                    key: _helpIconKey,
+                                    onTap:
+                                        () => WnTooltip.show(
+                                          context: context,
+                                          targetKey: _helpIconKey,
+                                          message:
+                                              'These relays store your chat history, deliver your messages, receive new ones, and help others find or invite you to chats.',
+                                          maxWidth: 300.w,
+                                          footer: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              WnStatusLegendItem(
+                                                color: context.colors.success,
+                                                label: 'Connected',
+                                              ),
+                                              Gap(8.h),
+                                              WnStatusLegendItem(
+                                                color: context.colors.info,
+                                                label: 'Connects when needed',
+                                              ),
+                                              Gap(8.h),
+                                              WnStatusLegendItem(
+                                                color: context.colors.warning,
+                                                label: 'Connecting',
+                                              ),
+                                              Gap(8.h),
+                                              WnStatusLegendItem(
+                                                color: context.colors.destructive,
+                                                label: 'Failed to connect',
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+
+                                    child: Icon(
+                                      CarbonIcons.help,
+                                      color: context.colors.mutedForeground,
+                                      size: 18.sp,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  InkWell(
+                                    onTap: _refreshData,
+                                    child: Icon(
+                                      CarbonIcons.rotate,
+                                      color: context.colors.primary,
+                                      size: 20.sp,
+                                    ),
+                                  ),
+                                  Gap(16.w),
+                                  InkWell(
+                                    onTap:
+                                        () => AddRelayBottomSheet.show(
+                                          context: context,
+                                          onRelayAdded: (_) {},
+                                        ),
+                                    child: Icon(
+                                      CarbonIcons.add,
+                                      color: context.colors.primary,
+                                      size: 23.sp,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Gap(16.h),
+                              Expanded(
+                                flex: 0,
+                                child: ListView.separated(
+                                  shrinkWrap: true,
+                                  itemBuilder:
+                                      (context, index) => RelayTile(
+                                        relayInfo: allRelays[index],
+                                        showOptions: true,
+                                      ),
+                                  separatorBuilder: (context, index) => Gap(12.h),
+                                  padding: EdgeInsets.zero,
+                                  itemCount: allRelays.length,
+                                ),
+                              ),
+                              Gap(16.h),
+                              WnFilledButton.icon(
+                                onPressed: () => context.go(Routes.settingsNetworkMonitor),
+                                icon: const Text('Relay Monitor'),
+                                label: SvgPicture.asset(
+                                  AssetsPaths.icMonitor,
+                                  colorFilter: ColorFilter.mode(
+                                    context.colors.primaryForeground,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                              ),
+                              const Spacer(),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           ),
