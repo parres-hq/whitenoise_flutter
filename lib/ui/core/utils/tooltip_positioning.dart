@@ -15,8 +15,10 @@ class TooltipPositioning {
 
     // Calculate tooltip position with screen constraints
     final maxRight = screenWidth - tooltipWidth - 16.0;
-    final tooltipLeft = (targetPosition.dx + targetSize.width / 2 - tooltipWidth / 2)
-        .clamp(16.0, maxRight > 16.0 ? maxRight : 16.0);
+    final tooltipLeft = (targetPosition.dx + targetSize.width / 2 - tooltipWidth / 2).clamp(
+      16.0,
+      maxRight > 16.0 ? maxRight : 16.0,
+    );
 
     // Calculate arrow position relative to tooltip
     final targetCenter = targetPosition.dx + targetSize.width / 2;
