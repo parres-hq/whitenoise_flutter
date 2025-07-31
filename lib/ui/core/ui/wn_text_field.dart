@@ -51,22 +51,29 @@ class WnTextField extends StatelessWidget {
           autofocus: autofocus,
           obscureText: obscureText,
           readOnly: readOnly,
+          style: TextStyle(
+            color: context.colors.primary,
+            fontSize: 14.sp,
+            fontWeight: FontWeight.w600,
+          ),
           decoration: InputDecoration(
             hintText: hintText,
             hintStyle: TextStyle(
               color: context.colors.mutedForeground,
               fontSize: 14.sp,
             ),
+            fillColor: context.colors.avatarSurface,
+            filled: true,
             border: OutlineInputBorder(
-              borderSide: BorderSide(color: context.colors.baseMuted),
+              borderSide: BorderSide(color: context.colors.input),
               borderRadius: BorderRadius.zero,
             ),
             enabledBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: context.colors.baseMuted),
+              borderSide: BorderSide(color: context.colors.input),
               borderRadius: BorderRadius.zero,
             ),
             focusedBorder: OutlineInputBorder(
-              borderSide: BorderSide(color: context.colors.baseMuted),
+              borderSide: BorderSide(color: context.colors.input),
               borderRadius: BorderRadius.zero,
             ),
             contentPadding:
