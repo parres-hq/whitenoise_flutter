@@ -1,12 +1,10 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
@@ -98,30 +96,11 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                       final displayText = value.text.trim();
                       final firstLetter =
                           displayText.isNotEmpty ? displayText[0].toUpperCase() : '';
-                      return CircleAvatar(
-                        radius: 48.r,
-                        backgroundColor: context.colors.primarySolid,
-                        backgroundImage:
-                            ref.watch(accountProvider).selectedImagePath != null
-                                ? FileImage(File(ref.watch(accountProvider).selectedImagePath!))
-                                : null,
-                        child:
-                            ref.watch(accountProvider).selectedImagePath == null
-                                ? (firstLetter.isNotEmpty
-                                    ? Text(
-                                      firstLetter,
-                                      style: TextStyle(
-                                        fontSize: 32.sp,
-                                        fontWeight: FontWeight.w700,
-                                        color: context.colors.primaryForeground,
-                                      ),
-                                    )
-                                    : Icon(
-                                      CarbonIcons.user,
-                                      size: 32.sp,
-                                      color: context.colors.primaryForeground,
-                                    ))
-                                : null,
+                      return ContactAvatar(
+                        imageUrl: ref.watch(accountProvider).selectedImagePath ?? '',
+                        displayName: firstLetter,
+                        size: 96.w,
+                        showBorder: ref.watch(accountProvider).selectedImagePath == null,
                       );
                     },
                   ),

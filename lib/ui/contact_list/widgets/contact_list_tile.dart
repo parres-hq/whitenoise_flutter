@@ -63,6 +63,7 @@ class ContactListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final contactImagePath = contact.imagePath ?? '';
     final contactTile = GestureDetector(
       onTap: onTap,
       child: Padding(
@@ -70,9 +71,10 @@ class ContactListTile extends StatelessWidget {
         child: Row(
           children: [
             ContactAvatar(
-              imageUrl: contact.imagePath ?? '',
+              imageUrl: contactImagePath,
               displayName: contact.displayNameOrName,
               size: 56.w,
+              showBorder: contactImagePath.isEmpty,
             ),
             Gap(12.w),
             Expanded(
