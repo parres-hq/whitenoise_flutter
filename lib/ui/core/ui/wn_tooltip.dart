@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
+import 'package:whitenoise/ui/core/utils/tooltip_positioning.dart';
 
 class WnTooltip extends StatelessWidget {
   const WnTooltip({
@@ -81,20 +82,19 @@ class WnTooltip extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final tooltipMaxHeight = 200.h;
 
-    // Check if there's enough space below the target
-    final spaceBelow = screenHeight - (position.dy + size.height);
-    final showBelow = spaceBelow >= tooltipMaxHeight;
-
-    // Calculate tooltip width and position
     final tooltipWidth = maxWidth ?? 280.w;
-    final tooltipLeft = (position.dx + size.width / 2 - tooltipWidth / 2).clamp(
-      16.w,
-      screenWidth - tooltipWidth - 16.w,
+    final tooltipPosition = TooltipPositioning.calculatePosition(
+      targetPosition: position,
+      targetSize: size,
+      screenWidth: screenWidth,
+      screenHeight: screenHeight,
+      tooltipWidth: tooltipWidth,
+      tooltipMaxHeight: tooltipMaxHeight,
     );
 
-    // Calculate arrow position relative to tooltip
-    final targetCenter = position.dx + size.width / 2;
-    final arrowLeft = (targetCenter - tooltipLeft - 6.w).clamp(12.w, tooltipWidth - 12.w);
+    final showBelow = tooltipPosition.showBelow;
+    final tooltipLeft = tooltipPosition.tooltipLeft;
+    final arrowLeft = tooltipPosition.arrowLeft;
 
     // Capture theme colors before creating overlay
     final theme = Theme.of(context);

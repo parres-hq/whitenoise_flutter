@@ -292,7 +292,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                               ),
                               Gap(16.h),
                               WnFilledButton.icon(
-                                onPressed: () => context.go(Routes.settingsNetworkMonitor),
+                                onPressed: () => context.push(Routes.settingsNetworkMonitor),
                                 icon: const Text('Relay Monitor'),
                                 label: SvgPicture.asset(
                                   AssetsPaths.icMonitor,
