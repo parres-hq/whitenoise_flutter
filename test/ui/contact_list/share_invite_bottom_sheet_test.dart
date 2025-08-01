@@ -7,19 +7,15 @@ import '../../test_helpers.dart';
 
 void main() {
   group('ShareInviteBottomSheet Tests', () {
-    const testName = 'Satoshi Nakamoto';
-    const testNip05 = 'satoshi@nakamoto.com';
-    const testImagePath = 'https://example.com/satoshi.png';
-    const testPubkey = 'abc123def456789012345678901234567890123456789012345678901234567890';
-
     final testContact = ContactModel(
-      name: testName,
-      publicKey: testPubkey,
-      nip05: testNip05,
-      imagePath: testImagePath,
+      name: 'Satoshi Nakamoto',
+      displayName: 'SN',
+      publicKey: 'abc123def456789012345678901234567890123456789012345678901234567890',
+      nip05: 'satoshi@nakamoto.com',
+      imagePath: 'https://example.com/satoshi.png',
     );
 
-    testWidgets('displays user name', (WidgetTester tester) async {
+    testWidgets('displays contact display name', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
           SingleChildScrollView(
@@ -28,7 +24,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Satoshi Nakamoto'), findsOneWidget);
+      expect(find.text('SN'), findsOneWidget);
     });
 
     testWidgets('displays nip05', (WidgetTester tester) async {
@@ -85,7 +81,7 @@ void main() {
       expect(find.text('Invite to White Noise'), findsOneWidget);
       expect(
         find.textContaining(
-          "Satoshi Nakamoto isn't on White Noise yet. Share the download link to start a secure chat.",
+          "SN isn't on White Noise yet. Share the download link to start a secure chat.",
         ),
         findsOneWidget,
       );
