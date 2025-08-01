@@ -8,10 +8,6 @@ import 'package:whitenoise/src/rust/api/utils.dart';
 
 final _logger = Logger('NostrKeysNotifier');
 
-final nostrKeysProvider = NotifierProvider<NostrKeysNotifier, NostrKeysState>(
-  NostrKeysNotifier.new,
-);
-
 class NostrKeysNotifier extends Notifier<NostrKeysState> {
   @override
   NostrKeysState build() {
@@ -105,3 +101,7 @@ class NostrKeysNotifier extends Notifier<NostrKeysState> {
     );
   }
 }
+
+final nostrKeysProvider = NotifierProvider<NostrKeysNotifier, NostrKeysState>(
+  NostrKeysNotifier.new,
+);
