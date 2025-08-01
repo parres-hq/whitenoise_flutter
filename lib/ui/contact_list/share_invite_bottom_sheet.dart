@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:logging/logging.dart';
-import 'package:share_plus/share_plus.dart';
-import 'package:whitenoise/config/constants.dart';
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/contact_list/widgets/share_invite_button.dart';
+import 'package:whitenoise/ui/contact_list/widgets/share_invite_callout.dart';
 import 'package:whitenoise/ui/contact_list/widgets/user_profile.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
-import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_callout.dart';
 
 class ShareInviteBottomSheet extends ConsumerStatefulWidget {
@@ -28,11 +25,9 @@ class ShareInviteBottomSheet extends ConsumerStatefulWidget {
     required List<ContactModel> contacts,
     VoidCallback? onInviteSent,
   }) {
-    final title = contacts.length == 1 ? 'User Profile' : 'Invite to Chat';
-
     return WnBottomSheet.show(
       context: context,
-      title: title,
+      title: 'Invite to Chat',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder: (context) => ShareInviteBottomSheet(contacts: contacts, onInviteSent: onInviteSent),
@@ -44,41 +39,6 @@ class ShareInviteBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet> {
-  final _logger = Logger('ShareInviteBottomSheet');
-  bool _isSendingInvite = false;
-
-  Future<void> _shareInvite() async {
-    setState(() {
-      _isSendingInvite = true;
-    });
-
-    try {
-      await Share.share(kInviteMessage);
-
-      if (mounted) {
-        Navigator.pop(context);
-
-        if (widget.onInviteSent != null) {
-          widget.onInviteSent!();
-        }
-
-        // Show success toast
-        ref.showSuccessToast('Invite shared successfully!');
-      }
-    } catch (e) {
-      _logger.severe('Failed to share invite: $e');
-      if (mounted) {
-        ref.showErrorToast('Failed to share invite');
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isSendingInvite = false;
-        });
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final isSingleContact = widget.contacts.length == 1;
@@ -101,11 +61,7 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
                 ref: ref,
               ),
               Gap(36.h),
-              WnCallout(
-                title: 'Invite to White Noise',
-                description:
-                    "${contact.displayName.isNotEmpty && contact.displayName != 'Unknown User' ? contact.displayName : 'This user'} isn't on White Noise yet. Share the download link to start a secure chat.",
-              ),
+              ShareInviteCallout(contact: contact),
             ],
           ),
         ] else ...[
@@ -137,11 +93,7 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
           ),
         ],
         Gap(10.h),
-        WnFilledButton(
-          onPressed: _isSendingInvite ? null : _shareInvite,
-          loading: _isSendingInvite,
-          title: _isSendingInvite ? 'Sharing...' : 'Share',
-        ),
+        const ShareInviteButton(),
       ],
     );
   }
