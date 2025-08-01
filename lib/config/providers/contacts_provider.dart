@@ -169,7 +169,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
           // Validate that the cached name matches what we'd expect from raw data
           final expectedName = queryMetadata?.name ?? queryMetadata?.displayName ?? 'Unknown User';
-          final actualName = cached.displayNameOrName;
+          final actualName = cached.displayName;
 
           // Only flag as error if we expected a real name but got Unknown User, or vice versa
           if (queryMetadata != null &&
@@ -210,7 +210,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
           final contactModel = await metadataCache.getContactModel(stringKey);
 
           _logger.info(
-            'ContactsProvider: Got contact: ${contactModel.displayNameOrName} (${contactModel.publicKey})',
+            'ContactsProvider: Got contact: ${contactModel.displayName} (${contactModel.publicKey})',
           );
 
           // Validate that the contact model has the correct public key
@@ -221,7 +221,6 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
             // Create a corrected contact model with the right key
             final correctedContact = ContactModel(
-              name: contactModel.name,
               displayName: contactModel.displayName,
               publicKey: stringKey, // Use the CORRECT key
               imagePath: contactModel.imagePath,
@@ -233,12 +232,12 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
             contactModels.add(correctedContact);
             _logger.info(
-              'ContactsProvider: ✅ Added CORRECTED contact: ${correctedContact.displayNameOrName} (${correctedContact.publicKey})',
+              'ContactsProvider: ✅ Added CORRECTED contact: ${correctedContact.displayName} (${correctedContact.publicKey})',
             );
           } else {
             contactModels.add(contactModel);
             _logger.info(
-              'ContactsProvider: ✅ Added contact: ${contactModel.displayNameOrName} (${contactModel.publicKey})',
+              'ContactsProvider: ✅ Added contact: ${contactModel.displayName} (${contactModel.publicKey})',
             );
           }
 
@@ -249,7 +248,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
           // Add fallback contact
           final fallbackContact = ContactModel(
-            name: 'Unknown User',
+            displayName: 'Unknown User',
             publicKey: stringKey,
           );
 
@@ -263,10 +262,11 @@ class ContactsNotifier extends Notifier<ContactsState> {
       // Final validation - check for duplicate display names
       final nameToKeys = <String, List<String>>{};
       for (final contact in contactModels) {
-        final name = contact.displayNameOrName;
-        nameToKeys.putIfAbsent(name, () => []).add(contact.publicKey);
+        final name = contact.displayName;
+        if (name != null) {
+          nameToKeys.putIfAbsent(name, () => []).add(contact.publicKey);
+        }
       }
-
       for (final entry in nameToKeys.entries) {
         if (entry.value.length > 1 && entry.key != 'Unknown User') {
           _logger.warning(
@@ -277,9 +277,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
       // PERFORMANCE: Sort contacts alphabetically by display name (putting Unknown Users at bottom)
       contactModels.sort((a, b) {
-        final aName = a.displayNameOrName;
-        final bName = b.displayNameOrName;
-
+        final aName = a.displayName ?? 'Unknown User';
+        final bName = b.displayName ?? 'Unknown User';
+        
         // Put "Unknown User" entries at the bottom
         if (aName == 'Unknown User' && bName != 'Unknown User') return 1;
         if (bName == 'Unknown User' && aName != 'Unknown User') return -1;
@@ -297,7 +297,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
       for (int i = 0; i < contactModels.length; i++) {
         final contact = contactModels[i];
         _logger.info(
-          'ContactsProvider: Final contact #$i: ${contact.displayNameOrName} -> ${contact.publicKey}',
+          'ContactsProvider: Final contact #$i: ${contact.displayName} -> ${contact.publicKey}',
         );
       }
 
@@ -556,10 +556,10 @@ class ContactsNotifier extends Notifier<ContactsState> {
     return contacts
         .where(
           (contact) =>
-              contact.name.toLowerCase().contains(searchQuery.toLowerCase()) ||
-              contact.displayNameOrName.toLowerCase().contains(
+              
+              (contact.displayName?.toLowerCase().contains(
                 searchQuery.toLowerCase(),
-              ) ||
+              )?? false) ||
               (contact.nip05?.toLowerCase().contains(
                     searchQuery.toLowerCase(),
                   ) ??

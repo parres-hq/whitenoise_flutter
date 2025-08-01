@@ -253,7 +253,7 @@ class DMInviteHeader extends ConsumerWidget {
       future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
       builder: (context, snapshot) {
         final welcomerContact = snapshot.data;
-        final welcomerName = welcomerContact?.displayNameOrName ?? 'Unknown User';
+        final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
         final welcomerImageUrl = welcomerContact?.imagePath ?? '';
 
         return Container(
@@ -350,7 +350,7 @@ class DMAppBarTitle extends ConsumerWidget {
         }
 
         final welcomerContact = snapshot.data;
-        final welcomerName = welcomerContact?.displayNameOrName ?? 'Unknown User';
+        final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
         final welcomerImageUrl = welcomerContact?.imagePath ?? '';
 
         return ContactInfo(

@@ -122,7 +122,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
         metadata: metadata,
       );
 
-      _logger.info('Fetched metadata for $standardNpub: ${contactModel.displayNameOrName}');
+      _logger.info('Fetched metadata for $standardNpub: ${contactModel.displayName}');
       return contactModel;
     } catch (e, st) {
       _logger.warning('Failed to fetch metadata for $publicKey: $e\n$st');
@@ -131,13 +131,13 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
       try {
         final standardNpub = await _getStandardizedNpub(publicKey);
         return ContactModel(
-          name: 'Unknown User',
+          displayName: 'Unknown User',
           publicKey: standardNpub,
         );
       } catch (fallbackError) {
         _logger.severe('Fallback failed for $publicKey: $fallbackError');
         return ContactModel(
-          name: 'Unknown User',
+          displayName: 'Unknown User',
           publicKey: _normalizePublicKey(publicKey),
         );
       }
@@ -269,7 +269,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
         // Add fallback model to maintain list integrity
         results.add(
           ContactModel(
-            name: 'Unknown User',
+            displayName: 'Unknown User',
             publicKey: _normalizePublicKey(publicKey),
           ),
         );

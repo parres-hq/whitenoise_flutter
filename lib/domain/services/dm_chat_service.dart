@@ -28,7 +28,7 @@ class DMChatService {
       if (otherMember != null) {
         final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
         final contactModel = await metadataCacheNotifier.getContactModel(otherMember.publicKey);
-        final displayName = contactModel.displayNameOrName;
+        final displayName = contactModel.displayName;
         final displayImage = contactModel.imagePath ?? (otherMember.imagePath ?? '');
         final nip05 = contactModel.nip05 ?? '';
         final npup = contactModel.publicKey;

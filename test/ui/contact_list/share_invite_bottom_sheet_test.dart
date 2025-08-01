@@ -13,7 +13,6 @@ void main() {
     const testPubkey = 'abc123def456789012345678901234567890123456789012345678901234567890';
 
     final testContact = ContactModel(
-      name: testName,
       publicKey: testPubkey,
       nip05: testNip05,
       imagePath: testImagePath,

@@ -73,13 +73,12 @@ class MetadataCacheUtils {
         final cachedContact = await cache.getContactModel(publicKey);
 
         results[publicKey] = {
-          'cached_name': cachedContact.name,
           'cached_display_name': cachedContact.displayName,
           'cached_public_key': cachedContact.publicKey,
           'cached_at': DateTime.now().toIso8601String(),
         };
 
-        _logger.info('Contact $publicKey: ${cachedContact.displayNameOrName}');
+        _logger.info('Contact $publicKey: ${cachedContact.displayName}');
       } catch (e) {
         results[publicKey] = {'error': e.toString()};
       }
@@ -125,7 +124,6 @@ class MetadataCacheUtils {
 
     for (final entry in cacheState.cache.entries) {
       exported[entry.key] = {
-        'name': entry.value.contactModel.name,
         'display_name': entry.value.contactModel.displayName,
         'public_key': entry.value.contactModel.publicKey,
         'cached_at': entry.value.cachedAt.toIso8601String(),
@@ -159,9 +157,9 @@ class MetadataCacheUtils {
 
     // Group by name to find duplicates
     for (final entry in cacheState.cache.entries) {
-      final name = entry.value.contactModel.displayNameOrName;
-      if (name != 'Unknown User') {
-        nameToKeys.putIfAbsent(name, () => []).add(entry.key);
+      final displayName = entry.value.contactModel.displayName;
+      if (displayName != null && displayName != 'Unknown User') {
+        nameToKeys.putIfAbsent(displayName, () => []).add(entry.key);
       }
     }
 

@@ -2,7 +2,6 @@
 import 'package:whitenoise/src/rust/api/utils.dart';
 
 class ContactModel {
-  final String name;
   final String publicKey;
   final String? imagePath;
   final String? displayName;
@@ -12,7 +11,6 @@ class ContactModel {
   final String? lud16;
 
   ContactModel({
-    required this.name,
     required this.publicKey,
     this.imagePath,
     this.displayName,
@@ -28,7 +26,6 @@ class ContactModel {
     MetadataData? metadata,
   }) {
     // Sanitize and clean data
-    final name = _sanitizeString(metadata?.name);
     final displayName = _sanitizeString(metadata?.displayName);
     final about = _sanitizeString(metadata?.about);
     final website = _sanitizeUrl(metadata?.website);
@@ -36,23 +33,14 @@ class ContactModel {
     final lud16 = _sanitizeString(metadata?.lud16);
     final picture = _sanitizeUrl(metadata?.picture);
 
-    // Determine the best name to use
-    final effectiveName =
-        name.isNotEmpty
-            ? name
-            : displayName.isNotEmpty
-            ? displayName
-            : 'Unknown User';
-
     return ContactModel(
-      name: effectiveName,
-      displayName: displayName.isNotEmpty ? displayName : null,
+      displayName: displayName,
       publicKey: publicKey,
       imagePath: picture,
-      about: about.isNotEmpty ? about : null,
+      about: about,
       website: website,
-      nip05: nip05.isNotEmpty ? nip05 : null,
-      lud16: lud16.isNotEmpty ? lud16 : null,
+      nip05: nip05,
+      lud16: lud16,
     );
   }
 
@@ -75,18 +63,14 @@ class ContactModel {
     return null;
   }
 
-  // Get display name with fallback
-  String get displayNameOrName => displayName ?? name;
-
   // Get first letter for avatar
-  String get avatarLetter => name.isNotEmpty ? name[0].toUpperCase() : '?';
+  String get avatarLetter => (displayName?.isNotEmpty ?? false) ? displayName![0].toUpperCase() : '?';
 
   @override
   bool operator ==(covariant ContactModel other) {
     if (identical(this, other)) return true;
 
-    return other.name == name &&
-        other.publicKey == publicKey &&
+    return other.publicKey == publicKey &&
         other.imagePath == imagePath &&
         other.displayName == displayName &&
         other.about == about &&
@@ -97,8 +81,7 @@ class ContactModel {
 
   @override
   int get hashCode {
-    return name.hashCode ^
-        publicKey.hashCode ^
+    return publicKey.hashCode ^
         imagePath.hashCode ^
         displayName.hashCode ^
         about.hashCode ^

@@ -536,7 +536,7 @@ class MessageConverter {
           displayName:
               contactModel.displayName?.isNotEmpty == true
                   ? contactModel.displayName!
-                  : contactModel.name,
+                  : 'Unknown User',
           nip05: contactModel.nip05 ?? '',
           publicKey: pubkey,
           imagePath: contactModel.imagePath,
@@ -550,7 +550,7 @@ class MessageConverter {
 
         return User(
           id: pubkey,
-          displayName: contactModel.displayNameOrName,
+          displayName: contactModel.displayName ?? 'Unknown User',
           nip05: contactModel.nip05 ?? '',
           publicKey: pubkey,
           imagePath: contactModel.imagePath,
@@ -588,7 +588,7 @@ class MessageConverter {
             User(
               id: entry.key,
               displayName:
-                  entry.key == currentUserPublicKey ? 'You' : entry.value.displayNameOrName,
+                  entry.key == currentUserPublicKey ? 'You' : entry.value.displayName ?? 'Unknown User',
               nip05: entry.value.nip05 ?? '',
               publicKey: entry.key,
               imagePath: entry.value.imagePath,

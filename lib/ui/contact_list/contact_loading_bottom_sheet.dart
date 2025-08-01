@@ -159,7 +159,7 @@ class _ContactLoadingBottomSheetState extends ConsumerState<ContactLoadingBottom
             _logger.info('Showing StartChatBottomSheet for secure chat');
             await StartChatBottomSheet.show(
               context: context,
-              name: widget.contact.displayNameOrName,
+              name: widget.contact.displayName ?? 'Unknown User',
               nip05: widget.contact.nip05 ?? '',
               pubkey: widget.contact.publicKey,
               imagePath: widget.contact.imagePath,
@@ -210,14 +210,14 @@ class _ContactLoadingBottomSheetState extends ConsumerState<ContactLoadingBottom
             // Contact avatar
             ContactAvatar(
               imageUrl: widget.contact.imagePath ?? '',
-              displayName: widget.contact.displayNameOrName,
+              displayName: widget.contact.displayName,
               size: 80.r,
             ),
             Gap(16.h),
 
             // Contact name
             Text(
-              widget.contact.displayNameOrName,
+              widget.contact.displayName ?? 'Unknown User',
               style: TextStyle(
                 fontSize: 20.sp,
                 fontWeight: FontWeight.w500,

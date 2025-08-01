@@ -183,7 +183,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
       if (mounted) {
         await StartChatBottomSheet.show(
           context: context,
-          name: contact.displayNameOrName,
+          name: contact.displayName ?? 'Unknown User',
           nip05: contact.nip05 ?? '',
           pubkey: npub,
           imagePath: contact.imagePath,
