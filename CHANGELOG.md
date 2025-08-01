@@ -5,10 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-
 ## [Unreleased]
 
 ### Added
+
 - Add copy npub button in user profile sheet
 
 ### Changed
@@ -18,13 +18,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Fixed
+
 - Fixed blurry splash screen icon on both iOS and Android.
+- Fixed absence of border on some contact avatars
 
 ### Security
 
 ## [0.1.2] - 2025-07-15
 
 ### Added
+
 - Show the npub of each user on the contacts list
 - Add developer settings screen with some basic cache management functions
 - Add relay management settings screen to view and manage your relays

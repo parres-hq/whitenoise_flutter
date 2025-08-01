@@ -153,6 +153,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                           imageUrl: imageUrl,
                                           displayName: displayName,
                                           size: 96.w,
+                                          showBorder: imageUrl.isEmpty,
                                         );
                                       },
                                     ),

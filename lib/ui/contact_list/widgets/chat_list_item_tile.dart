@@ -81,6 +81,7 @@ class ChatListItemTile extends ConsumerWidget {
     String? displayImage,
     GroupData group,
   ) {
+    final displayImageUrl = displayImage ?? '';
     return InkWell(
       onTap: () {
         if (onTap != null) {
@@ -93,9 +94,10 @@ class ChatListItemTile extends ConsumerWidget {
         child: Row(
           children: [
             ContactAvatar(
-              imageUrl: displayImage ?? '',
+              imageUrl: displayImageUrl,
               displayName: displayName,
               size: 56.r,
+              showBorder: displayImageUrl.isEmpty,
             ),
             Gap(8.w),
             Expanded(
