@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 
 void main() {
-  group('ThemeNotifier Tests', () {
+  group('ThemeProvider Tests', () {
     late ProviderContainer container;
     late ThemeNotifier notifier;
 
@@ -24,78 +24,137 @@ void main() {
       expect(state.themeMode, ThemeMode.system);
     });
 
-    test('setThemeMode should update theme mode', () async {
-      await notifier.setThemeMode(ThemeMode.dark);
-      expect(container.read(themeProvider).themeMode, ThemeMode.dark);
+    group('when theme mode is set in shared preferences', () {
+      setUp(() async {
+        SharedPreferences.setMockInitialValues({
+          'theme_mode': ThemeMode.dark.index,
+        });
+        notifier.build();
+        await Future.delayed(Duration.zero); // Wait for the load theme mode to complete
+      });
 
-      await notifier.setThemeMode(ThemeMode.light);
-      expect(container.read(themeProvider).themeMode, ThemeMode.light);
+      test('Initial theme mode is loaded from shared preferences', () async {
+        expect(container.read(themeProvider).themeMode, ThemeMode.dark);
+      });
     });
 
-    test('toggleThemeMode should toggle between light and dark', () async {
-      // Start with light mode
-      await notifier.setThemeMode(ThemeMode.light);
-      expect(container.read(themeProvider).themeMode, ThemeMode.light);
+    group('setThemeMode', () {
+      test('updates theme mode', () async {
+        await notifier.setThemeMode(ThemeMode.dark);
+        expect(container.read(themeProvider).themeMode, ThemeMode.dark);
 
-      // Toggle to dark mode
-      await notifier.toggleThemeMode();
-      expect(container.read(themeProvider).themeMode, ThemeMode.dark);
+        await notifier.setThemeMode(ThemeMode.light);
+        expect(container.read(themeProvider).themeMode, ThemeMode.light);
+      });
+      test('saves changes to SharedPreferences', () async {
+        await notifier.setThemeMode(ThemeMode.light);
+        final prefs = await SharedPreferences.getInstance();
+        expect(prefs.getInt('theme_mode'), ThemeMode.light.index);
+      });
 
-      // Toggle back to light mode
-      await notifier.toggleThemeMode();
-      expect(container.read(themeProvider).themeMode, ThemeMode.light);
+      test('notifies listeners when theme changes', () async {
+        addTearDown(container.dispose);
+
+        var notificationCount = 0;
+        final listener = container.listen(
+          themeProvider,
+          (previous, next) {
+            notificationCount++;
+          },
+        );
+        await notifier.setThemeMode(ThemeMode.dark);
+        expect(notificationCount, equals(1));
+        listener.close();
+      });
     });
-  });
 
-  testWidgets('Theme toggle button changes theme', (WidgetTester tester) async {
-    // Mock SharedPreferences
-    SharedPreferences.setMockInitialValues({});
+    group('toggleThemeMode', () {
+      setUp(() async {
+        SharedPreferences.setMockInitialValues({
+          'theme_mode': ThemeMode.light.index,
+        });
+        notifier.build();
+        await Future.delayed(Duration.zero); // Wait for the load theme mode to complete
+      });
+      test('toggles between light and dark', () async {
+        // Toggle to dark mode
+        await notifier.toggleThemeMode();
+        expect(container.read(themeProvider).themeMode, ThemeMode.dark);
 
-    // Create a test app with theme provider
-    await tester.pumpWidget(
-      ProviderScope(
-        child: MaterialApp(
-          home: Consumer(
-            builder: (context, ref, _) {
-              final themeState = ref.watch(themeProvider);
-              final themeNotifier = ref.read(themeProvider.notifier);
+        // Toggle back to light mode
+        await notifier.toggleThemeMode();
+        expect(container.read(themeProvider).themeMode, ThemeMode.light);
+      });
 
-              return Scaffold(
-                body: Column(
-                  children: [
-                    Text(
-                      'Current theme: ${themeState.themeMode.toString()}',
-                      key: const Key('themeText'),
-                    ),
-                    ElevatedButton(
-                      key: const Key('themeButton'),
-                      onPressed: () => themeNotifier.toggleThemeMode(),
-                      child: const Text('Toggle Theme'),
-                    ),
-                  ],
+      test('notifies listeners when theme is toggled', () async {
+        addTearDown(container.dispose);
+
+        var notificationCount = 0;
+        final listener = container.listen(
+          themeProvider,
+          (previous, next) {
+            notificationCount++;
+          },
+        );
+        await notifier.toggleThemeMode();
+        expect(notificationCount, equals(1));
+        listener.close();
+      });
+
+      group('inside a widget', () {
+        Future<void> mountWidget(WidgetTester tester) async {
+          await tester.pumpWidget(
+            ProviderScope(
+              child: MaterialApp(
+                home: Consumer(
+                  builder: (context, ref, _) {
+                    final themeState = ref.watch(themeProvider);
+                    final themeNotifier = ref.read(themeProvider.notifier);
+
+                    return Scaffold(
+                      body: Column(
+                        children: [
+                          Text(
+                            'Current theme: ${themeState.themeMode.toString()}',
+                            key: const Key('themeText'),
+                          ),
+                          ElevatedButton(
+                            key: const Key('themeButton'),
+                            onPressed: () => themeNotifier.toggleThemeMode(),
+                            child: const Text('Toggle Theme'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
+              ),
+            ),
+          );
+        }
 
-    // Verify initial theme is system
-    expect(find.text('Current theme: ThemeMode.system'), findsOneWidget);
+        testWidgets('changes theme', (WidgetTester tester) async {
+          SharedPreferences.setMockInitialValues({});
+          await mountWidget(tester);
 
-    // Tap the button to change theme
-    await tester.tap(find.byKey(const Key('themeButton')));
-    await tester.pump();
+          // Verify initial theme is system
+          expect(find.text('Current theme: ThemeMode.system'), findsOneWidget);
 
-    // Verify theme changed to light
-    expect(find.text('Current theme: ThemeMode.light'), findsOneWidget);
+          // Tap the button to change theme
+          await tester.tap(find.byKey(const Key('themeButton')));
+          await tester.pump();
 
-    // Tap again to change to dark
-    await tester.tap(find.byKey(const Key('themeButton')));
-    await tester.pump();
+          // Verify theme changed to light
+          expect(find.text('Current theme: ThemeMode.light'), findsOneWidget);
 
-    // Verify theme changed to dark
-    expect(find.text('Current theme: ThemeMode.dark'), findsOneWidget);
+          // Tap again to change to dark
+          await tester.tap(find.byKey(const Key('themeButton')));
+          await tester.pump();
+
+          // Verify theme changed to dark
+          expect(find.text('Current theme: ThemeMode.dark'), findsOneWidget);
+        });
+      });
+    });
   });
 }
