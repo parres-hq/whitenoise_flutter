@@ -174,8 +174,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
               final about = contact.about?.toLowerCase() ?? '';
               final publicKey = contact.publicKey.toLowerCase();
 
-              return
-                 displayName.contains(query) ||
+              return displayName.contains(query) ||
                   nip05.contains(query) ||
                   about.contains(query) ||
                   publicKey.contains(query);
@@ -185,7 +184,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     filteredContacts.sort((a, b) {
       final aName = a.displayName;
       final bName = b.displayName;
-
 
       // Put "Unknown User" entries at the bottom
       if (aName == 'Unknown User' && bName != 'Unknown User') return 1;

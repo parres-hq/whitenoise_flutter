@@ -134,7 +134,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
           (contact) =>
               contact.displayName.toLowerCase().contains(
                 _searchQuery.toLowerCase(),
-            ) ||
+              ) ||
               (contact.nip05?.toLowerCase().contains(
                     _searchQuery.toLowerCase(),
                   ) ??
