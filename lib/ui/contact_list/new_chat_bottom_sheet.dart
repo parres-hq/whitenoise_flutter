@@ -14,8 +14,8 @@ import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/ui/contact_list/contact_loading_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
+import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -205,7 +205,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     try {
       // Show the loading bottom sheet immediately
       if (mounted) {
-        ContactLoadingBottomSheet.show(
+        StartChatBottomSheet.show(
           context: context,
           contact: contact,
           onChatCreated: (groupData) {
@@ -217,9 +217,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                 }
               });
             }
-          },
-          onInviteSent: () {
-            Navigator.pop(context);
           },
         );
       }
