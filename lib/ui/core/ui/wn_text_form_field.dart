@@ -148,7 +148,7 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
       fillColor: context.colors.avatarSurface,
       contentPadding: EdgeInsets.symmetric(
         horizontal: 12.w,
-        vertical: 12.h,
+        vertical: 16.h,
       ),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.zero,

@@ -214,8 +214,8 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
             CustomIconButton(
               onTap: _pasteFromClipboard,
               iconPath: AssetsPaths.icPaste,
-              size: 50.w,
-              padding: 15.w,
+              size: 42.h,
+              padding: 12.w,
             ),
           ],
         ),
