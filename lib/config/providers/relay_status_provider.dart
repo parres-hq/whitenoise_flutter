@@ -2,14 +2,16 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
+
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/models/relay_status.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 
 // State for relay status management
 class RelayStatusState {
-  final Map<String, String> relayStatuses;
+  final Map<String, RelayStatus> relayStatuses;
   final bool isLoading;
   final String? error;
 
@@ -20,7 +22,7 @@ class RelayStatusState {
   });
 
   RelayStatusState copyWith({
-    Map<String, String>? relayStatuses,
+    Map<String, RelayStatus>? relayStatuses,
     bool? isLoading,
     String? error,
   }) {
@@ -82,9 +84,9 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
       _logger.info('RelayStatusNotifier: Fetched ${relayStatuses.length} relay statuses');
 
       // Convert list of tuples to map
-      final statusMap = <String, String>{};
+      final statusMap = <String, RelayStatus>{};
       for (final (url, status) in relayStatuses) {
-        statusMap[url] = status;
+        statusMap[url] = RelayStatus.fromString(status);
         _logger.info('RelayStatusNotifier: Relay $url has status: $status');
       }
 
@@ -108,13 +110,13 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
     await loadRelayStatuses();
   }
 
-  String getRelayStatus(String url) {
-    return state.relayStatuses[url] ?? 'Unknown';
+  RelayStatus getRelayStatus(String url) {
+    return state.relayStatuses[url] ?? RelayStatus.disconnected;
   }
 
   bool isRelayConnected(String url) {
     final status = getRelayStatus(url);
-    return status.toLowerCase() == 'connected';
+    return status.isConnected;
   }
 }
 

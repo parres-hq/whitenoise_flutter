@@ -163,7 +163,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
               size: WnButtonSize.small,
               loading: _isRemoving,
               onPressed: _isRemoving ? null : _removeFromGroup,
-              visualState: WnButtonVisualState.error,
+              visualState: WnButtonVisualState.destructive,
               title: 'Remove From Group',
             ),
           ],

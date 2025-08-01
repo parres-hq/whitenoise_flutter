@@ -4,17 +4,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
-import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_refreshing_indicator.dart';
+import 'package:whitenoise/ui/core/ui/wn_status_legend_item.dart';
+import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
 import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
+import 'package:whitenoise/ui/settings/network/widgets/relay_tile.dart';
 
 class NetworkScreen extends ConsumerStatefulWidget {
   const NetworkScreen({super.key});
@@ -25,17 +29,34 @@ class NetworkScreen extends ConsumerStatefulWidget {
 
 class _NetworkScreenState extends ConsumerState<NetworkScreen> {
   final logger = Logger('NetworkScreen');
+  final GlobalKey _helpIconKey = GlobalKey();
+  bool _isLoading = false;
+  bool _isRefreshing = false;
+  bool _isPulling = false;
+  double _pullDistance = 0.0;
+
   @override
   void initState() {
     super.initState();
     // Refresh data every time the page is entered
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _refreshData();
+      _refreshData(initialLoad: true);
     });
   }
 
-  Future<void> _refreshData() async {
+  Future<void> _refreshData({bool initialLoad = false}) async {
     try {
+      if (_isRefreshing || _isLoading) return;
+
+      if (initialLoad) {
+        setState(() {
+          _isLoading = true;
+        });
+      } else {
+        setState(() {
+          _isRefreshing = true;
+        });
+      }
       logger.info('NetworkScreen: Starting to refresh relay data');
 
       // First refresh the relay status provider
@@ -49,57 +70,21 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
         ref.read(inboxRelaysProvider.notifier).loadRelays(),
         ref.read(keyPackageRelaysProvider.notifier).loadRelays(),
       ]);
-
       logger.info('NetworkScreen: Successfully refreshed all relay data');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isRefreshing = false;
+        });
+      }
     } catch (e, stackTrace) {
       logger.severe('NetworkScreen: Error refreshing relay data: $e');
       logger.severe('NetworkScreen: Stack trace: $stackTrace');
-    }
-  }
-
-  Future<void> _deleteRelay(
-    BuildContext context,
-    WidgetRef ref,
-    RelayInfo relay,
-    NotifierProvider<dynamic, RelayState> provider,
-  ) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      barrierColor: Colors.transparent,
-      builder:
-          (dialogContext) => WnDialog(
-            title: 'Delete Relay?',
-            content: 'Removing this relay will stop all connections to it.',
-            actions: Row(
-              children: [
-                Expanded(
-                  child: WnFilledButton(
-                    title: 'Cancel',
-                    visualState: WnButtonVisualState.secondary,
-                    size: WnButtonSize.small,
-                    onPressed: () => Navigator.of(dialogContext).pop(false),
-                  ),
-                ),
-                Gap(12.w),
-                Expanded(
-                  child: WnFilledButton(
-                    title: 'Remove',
-                    visualState: WnButtonVisualState.error,
-                    size: WnButtonSize.small,
-                    onPressed: () => Navigator.of(dialogContext).pop(true),
-                  ),
-                ),
-              ],
-            ),
-          ),
-    );
-
-    if (confirmed == true) {
-      try {
-        await ref.read(provider.notifier).deleteRelay(relay.url);
-        ref.showRawSuccessToast('Relay removed successfully');
-      } catch (e) {
-        ref.showRawErrorToast('Failed to remove relay');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _isRefreshing = false;
+        });
       }
     }
   }
@@ -110,289 +95,225 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
     final inboxRelaysState = ref.watch(inboxRelaysProvider);
     final keyPackageRelaysState = ref.watch(keyPackageRelaysProvider);
 
+    final allRelays =
+        <RelayInfo>{
+          ...normalRelaysState.relays,
+          ...inboxRelaysState.relays,
+          ...keyPackageRelaysState.relays,
+        }.toList();
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
       ),
-      child: Scaffold(
-        backgroundColor: context.colors.appBarBackground,
-        body: SafeArea(
-          bottom: false,
-          child: ColoredBox(
-            color: context.colors.neutral,
-            child: Column(
-              children: [
-                Gap(20.h),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      icon: SvgPicture.asset(
-                        AssetsPaths.icChevronLeft,
-                        colorFilter: ColorFilter.mode(
-                          context.colors.primary,
-                          BlendMode.srcIn,
+      child: GestureDetector(
+        onPanStart: (details) {
+          if (details.globalPosition.dy < 300) {
+            setState(() {
+              _isPulling = true;
+              _pullDistance = 0.0;
+            });
+          }
+        },
+        onPanUpdate: (details) {
+          if (_isPulling) {
+            setState(() {
+              _pullDistance += details.delta.dy;
+              _pullDistance = _pullDistance.clamp(0.0, 100.0);
+            });
+          }
+        },
+        onPanEnd: (details) {
+          if (_isPulling) {
+            if (_pullDistance >= 60.0) {
+              _refreshData();
+            }
+            setState(() {
+              _isPulling = false;
+              _pullDistance = 0.0;
+            });
+          }
+        },
+        child: PopScope(
+          onPopInvokedWithResult: (didPop, result) {
+            if (didPop) {
+              WnTooltip.hide();
+            }
+          },
+          child: GestureDetector(
+            onTap: () => WnTooltip.hide(),
+            child: Scaffold(
+              backgroundColor: context.colors.appBarBackground,
+              body: SafeArea(
+                bottom: false,
+                child: ColoredBox(
+                  color: context.colors.neutral,
+                  child: Column(
+                    children: [
+                      Gap(20.h),
+                      Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            icon: SvgPicture.asset(
+                              AssetsPaths.icChevronLeft,
+                              colorFilter: ColorFilter.mode(
+                                context.colors.primary,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'Network Relays',
+                            style: TextStyle(
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                              color: context.colors.mutedForeground,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (_isPulling || _isRefreshing)
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          height:
+                              _isPulling
+                                  ? _pullDistance.clamp(
+                                    0.0,
+                                    60.h,
+                                  )
+                                  : 50.h,
+                          child: Opacity(
+                            opacity: _isPulling ? (_pullDistance / 60.h).clamp(0.0, 1.0) : 1.0,
+                            child: const WnRefreshingIndicator(
+                              message: 'Reconnecting Relays...',
+                              padding: EdgeInsets.zero,
+                            ),
+                          ),
+                        )
+                      else
+                        Gap(16.h),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w),
+                          child: Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    'Set Relays',
+                                    style: TextStyle(
+                                      color: context.colors.mutedForeground,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 16.w,
+                                    ),
+                                  ),
+                                  Gap(8.w),
+                                  InkWell(
+                                    key: _helpIconKey,
+                                    onTap:
+                                        () => WnTooltip.show(
+                                          context: context,
+                                          targetKey: _helpIconKey,
+                                          message:
+                                              'These relays store your chat history, deliver your messages, receive new ones, and help others find or invite you to chats.',
+                                          maxWidth: 300.w,
+                                          footer: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              WnStatusLegendItem(
+                                                color: context.colors.success,
+                                                label: 'Connected',
+                                              ),
+                                              Gap(8.h),
+                                              WnStatusLegendItem(
+                                                color: context.colors.info,
+                                                label: 'Connects when needed',
+                                              ),
+                                              Gap(8.h),
+                                              WnStatusLegendItem(
+                                                color: context.colors.warning,
+                                                label: 'Connecting',
+                                              ),
+                                              Gap(8.h),
+                                              WnStatusLegendItem(
+                                                color: context.colors.destructive,
+                                                label: 'Failed to connect',
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+
+                                    child: Icon(
+                                      CarbonIcons.help,
+                                      color: context.colors.mutedForeground,
+                                      size: 18.sp,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  InkWell(
+                                    onTap: _refreshData,
+                                    child: Icon(
+                                      CarbonIcons.rotate,
+                                      color: context.colors.primary,
+                                      size: 20.sp,
+                                    ),
+                                  ),
+                                  Gap(16.w),
+                                  InkWell(
+                                    onTap:
+                                        () => AddRelayBottomSheet.show(
+                                          context: context,
+                                          onRelayAdded: (_) {},
+                                        ),
+                                    child: Icon(
+                                      CarbonIcons.add,
+                                      color: context.colors.primary,
+                                      size: 23.sp,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Gap(16.h),
+                              Expanded(
+                                flex: 0,
+                                child: ListView.separated(
+                                  shrinkWrap: true,
+                                  itemBuilder:
+                                      (context, index) => RelayTile(
+                                        relayInfo: allRelays[index],
+                                        showOptions: true,
+                                      ),
+                                  separatorBuilder: (context, index) => Gap(12.h),
+                                  padding: EdgeInsets.zero,
+                                  itemCount: allRelays.length,
+                                ),
+                              ),
+                              Gap(16.h),
+                              WnFilledButton.icon(
+                                onPressed: () => context.push(Routes.settingsNetworkMonitor),
+                                icon: const Text('Relay Monitor'),
+                                label: SvgPicture.asset(
+                                  AssetsPaths.icMonitor,
+                                  colorFilter: ColorFilter.mode(
+                                    context.colors.primaryForeground,
+                                    BlendMode.srcIn,
+                                  ),
+                                ),
+                              ),
+                              const Spacer(),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                    Text(
-                      'Network Relays',
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.mutedForeground,
-                      ),
-                    ),
-                  ],
-                ),
-                Expanded(
-                  child: ListView(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-                    children: [
-                      _CollapsibleRelaySection(
-                        title: 'Relays',
-                        relays: normalRelaysState.relays,
-                        isLoading: normalRelaysState.isLoading,
-                        error: normalRelaysState.error,
-                        onAddPressed: () {
-                          AddRelayBottomSheet.show(
-                            context: context,
-                            title: 'Add Relay',
-                            onRelayAdded: (url) {
-                              ref.read(normalRelaysProvider.notifier).addRelay(url);
-                            },
-                          );
-                        },
-                        onDeleteRelay:
-                            (relay) => _deleteRelay(context, ref, relay, normalRelaysProvider),
-                      ),
-                      Gap(16.h),
-                      _CollapsibleRelaySection(
-                        title: 'Inbox Relays',
-                        relays: inboxRelaysState.relays,
-                        isLoading: inboxRelaysState.isLoading,
-                        error: inboxRelaysState.error,
-                        onAddPressed: () {
-                          AddRelayBottomSheet.show(
-                            context: context,
-                            title: 'Add Inbox Relay',
-                            onRelayAdded: (url) {
-                              ref.read(inboxRelaysProvider.notifier).addRelay(url);
-                            },
-                          );
-                        },
-                        onDeleteRelay:
-                            (relay) => _deleteRelay(context, ref, relay, inboxRelaysProvider),
-                      ),
-                      Gap(16.h),
-                      _CollapsibleRelaySection(
-                        title: 'Key Package Relays',
-                        relays: keyPackageRelaysState.relays,
-                        isLoading: keyPackageRelaysState.isLoading,
-                        error: keyPackageRelaysState.error,
-                        onAddPressed: () {
-                          AddRelayBottomSheet.show(
-                            context: context,
-                            title: 'Add Key Package Relay',
-                            onRelayAdded: (url) {
-                              ref.read(keyPackageRelaysProvider.notifier).addRelay(url);
-                            },
-                          );
-                        },
-                        onDeleteRelay:
-                            (relay) => _deleteRelay(context, ref, relay, keyPackageRelaysProvider),
-                      ),
-                      Gap(MediaQuery.of(context).padding.bottom),
                     ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _CollapsibleRelaySection extends StatefulWidget {
-  final String title;
-  final List<RelayInfo> relays;
-  final bool isLoading;
-  final String? error;
-  final VoidCallback onAddPressed;
-  final Function(RelayInfo) onDeleteRelay;
-
-  const _CollapsibleRelaySection({
-    required this.title,
-    required this.relays,
-    required this.isLoading,
-    required this.error,
-    required this.onAddPressed,
-    required this.onDeleteRelay,
-  });
-
-  @override
-  State<_CollapsibleRelaySection> createState() => _CollapsibleRelaySectionState();
-}
-
-class _CollapsibleRelaySectionState extends State<_CollapsibleRelaySection> {
-  bool isExpanded = true;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        InkWell(
-          onTap: () {
-            setState(() {
-              isExpanded = !isExpanded;
-            });
-          },
-          borderRadius: BorderRadius.circular(0.r),
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.h),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 4.w),
-                  child: Text(
-                    widget.title,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.mutedForeground,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  onPressed: widget.onAddPressed,
-                  icon: Icon(
-                    Icons.add,
-                    size: 24.w,
-                    color: context.colors.primary,
-                  ),
-                  padding: EdgeInsets.zero,
-                  constraints: BoxConstraints(
-                    minWidth: 24.w,
-                    minHeight: 24.w,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (isExpanded) ...[
-          if (widget.isLoading)
-            Padding(
-              padding: EdgeInsets.all(16.w),
-              child: Center(
-                child: CircularProgressIndicator(
-                  strokeWidth: 2.w,
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    context.colors.mutedForeground,
-                  ),
-                ),
-              ),
-            )
-          else if (widget.error != null)
-            Padding(
-              padding: EdgeInsets.all(16.w),
-              child: Text(
-                widget.error!,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: context.colors.destructive,
-                ),
-              ),
-            )
-          else if (widget.relays.isEmpty)
-            Padding(
-              padding: EdgeInsets.all(16.w),
-              child: Text(
-                'No relays configured',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: context.colors.mutedForeground,
-                ),
-              ),
-            )
-          else
-            ...widget.relays.map(
-              (relay) => _RelayItem(
-                relay: relay,
-                onDelete: () => widget.onDeleteRelay(relay),
-              ),
-            ),
-        ],
-      ],
-    );
-  }
-}
-
-class _RelayItem extends StatelessWidget {
-  final RelayInfo relay;
-  final VoidCallback onDelete;
-
-  const _RelayItem({
-    required this.relay,
-    required this.onDelete,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 8.h),
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-        borderRadius: BorderRadius.circular(0.r),
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 13.h),
-              child: Row(
-                children: [
-                  Icon(
-                    relay.connected ? CarbonIcons.checkmark_filled : CarbonIcons.error_filled,
-                    size: 16.w,
-                    color: relay.connected ? context.colors.success : context.colors.destructive,
-                  ),
-                  Gap(9.w),
-                  Flexible(
-                    child: Text(
-                      relay.url,
-                      style: TextStyle(
-                        fontSize: 12.sp,
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.primary,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          IconButton(
-            onPressed: onDelete,
-            icon: Icon(
-              CarbonIcons.trash_can,
-              size: 20.w,
-              color: context.colors.destructive,
-            ),
-            padding: EdgeInsets.zero,
-            constraints: BoxConstraints(
-              minWidth: 44.w,
-              minHeight: 44.w,
-            ),
-          ),
-        ],
       ),
     );
   }

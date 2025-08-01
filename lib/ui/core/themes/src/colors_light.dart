@@ -39,6 +39,8 @@ class LightAppColors {
   static const teal200 = Color(0xff99F6E4);
   static const teal600 = Color(0xFF0D9488);
 
+  static const info = Color(0xff0E7490);
+
   /// tailwind colors/rose/500
   static const rose = Color(0xFFF43F5E);
 

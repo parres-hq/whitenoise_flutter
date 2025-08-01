@@ -1,9 +1,13 @@
+// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+
+import 'package:whitenoise/models/relay_status.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/utils/string_extensions.dart';
 
 class NetworkSection extends StatelessWidget {
   const NetworkSection({
@@ -164,7 +168,7 @@ class RelayItem extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            relay.url,
+            relay.url.sanitizedUrl,
             style: TextStyle(
               fontSize: 18.sp,
               color: context.colors.secondaryForeground,
@@ -172,17 +176,17 @@ class RelayItem extends StatelessWidget {
           ),
           Row(
             children: [
-              SvgPicture.asset(
-                relay.connected ? AssetsPaths.icConnected : AssetsPaths.icDisconnected,
-                width: 8.w,
-                height: 8.w,
+              Icon(
+                relay.status.getIcon(),
+                size: 8.w,
+                color: relay.status.getColor(context),
               ),
               Gap(8.w),
               Text(
-                relay.connected ? 'Connected' : 'Disconnected',
+                relay.status.value,
                 style: TextStyle(
                   fontSize: 12.sp,
-                  color: context.colors.mutedForeground,
+                  color: relay.status.getColor(context),
                 ),
               ),
             ],
@@ -196,18 +200,18 @@ class RelayItem extends StatelessWidget {
 class RelayInfo {
   final String url;
   final bool connected;
-  final String? status;
+  final RelayStatus status;
 
   const RelayInfo({
     required this.url,
     required this.connected,
-    this.status,
+    this.status = RelayStatus.disconnected,
   });
 
   RelayInfo copyWith({
     String? url,
     bool? connected,
-    String? status,
+    RelayStatus? status,
   }) {
     return RelayInfo(
       url: url ?? this.url,
@@ -215,4 +219,14 @@ class RelayInfo {
       status: status ?? this.status,
     );
   }
+
+  @override
+  bool operator ==(covariant RelayInfo other) {
+    if (identical(this, other)) return true;
+
+    return other.url == url && other.connected == connected && other.status == status;
+  }
+
+  @override
+  int get hashCode => url.hashCode ^ connected.hashCode ^ status.hashCode;
 }
