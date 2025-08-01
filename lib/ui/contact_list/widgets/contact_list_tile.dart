@@ -83,7 +83,7 @@ class ContactListTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          contact.displayName ?? 'Unknown User',
+                          contact.displayName,
                           style: TextStyle(
                             color: context.colors.secondaryForeground,
                             fontSize: 18.sp,

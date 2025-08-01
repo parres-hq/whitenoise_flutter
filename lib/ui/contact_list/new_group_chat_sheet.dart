@@ -132,9 +132,9 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     return contactsWithoutCreator
         .where(
           (contact) =>
-              (contact.displayName?.toLowerCase().contains(
+              contact.displayName.toLowerCase().contains(
                 _searchQuery.toLowerCase(),
-              ) ?? false) ||
+            ) ||
               (contact.nip05?.toLowerCase().contains(
                     _searchQuery.toLowerCase(),
                   ) ??

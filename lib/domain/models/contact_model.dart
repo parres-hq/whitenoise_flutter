@@ -3,8 +3,8 @@ import 'package:whitenoise/src/rust/api/utils.dart';
 
 class ContactModel {
   final String publicKey;
+  final String displayName;
   final String? imagePath;
-  final String? displayName;
   final String? about;
   final String? website;
   final String? nip05;
@@ -12,8 +12,8 @@ class ContactModel {
 
   ContactModel({
     required this.publicKey,
+    required this.displayName,
     this.imagePath,
-    this.displayName,
     this.about,
     this.website,
     this.nip05,
@@ -34,7 +34,7 @@ class ContactModel {
     final picture = _sanitizeUrl(metadata?.picture);
 
     return ContactModel(
-      displayName: displayName,
+      displayName: displayName.isNotEmpty ? displayName : 'Unknown User',
       publicKey: publicKey,
       imagePath: picture,
       about: about,
@@ -64,7 +64,7 @@ class ContactModel {
   }
 
   // Get first letter for avatar
-  String get avatarLetter => (displayName?.isNotEmpty ?? false) ? displayName![0].toUpperCase() : '?';
+  String get avatarLetter => displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
 
   @override
   bool operator ==(covariant ContactModel other) {

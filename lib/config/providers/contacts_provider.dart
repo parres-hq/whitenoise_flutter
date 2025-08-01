@@ -263,9 +263,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
       final nameToKeys = <String, List<String>>{};
       for (final contact in contactModels) {
         final name = contact.displayName;
-        if (name != null) {
           nameToKeys.putIfAbsent(name, () => []).add(contact.publicKey);
-        }
       }
       for (final entry in nameToKeys.entries) {
         if (entry.value.length > 1 && entry.key != 'Unknown User') {
@@ -277,8 +275,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
       // PERFORMANCE: Sort contacts alphabetically by display name (putting Unknown Users at bottom)
       contactModels.sort((a, b) {
-        final aName = a.displayName ?? 'Unknown User';
-        final bName = b.displayName ?? 'Unknown User';
+        final aName = a.displayName;
+        final bName = b.displayName;
         
         // Put "Unknown User" entries at the bottom
         if (aName == 'Unknown User' && bName != 'Unknown User') return 1;
@@ -556,10 +554,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
     return contacts
         .where(
           (contact) =>
-              
-              (contact.displayName?.toLowerCase().contains(
+              contact.displayName.toLowerCase().contains(
                 searchQuery.toLowerCase(),
-              )?? false) ||
+              ) ||
               (contact.nip05?.toLowerCase().contains(
                     searchQuery.toLowerCase(),
                   ) ??

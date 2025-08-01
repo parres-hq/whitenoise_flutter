@@ -169,13 +169,13 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         query.isEmpty
             ? deduplicatedContacts
             : deduplicatedContacts.where((contact) {
-              final displayName = contact.displayName?.toLowerCase();
+              final displayName = contact.displayName.toLowerCase();
               final nip05 = contact.nip05?.toLowerCase() ?? '';
               final about = contact.about?.toLowerCase() ?? '';
               final publicKey = contact.publicKey.toLowerCase();
 
               return
-                 (displayName?.contains(query) ?? false) ||
+                 displayName.contains(query) ||
                   nip05.contains(query) ||
                   about.contains(query) ||
                   publicKey.contains(query);
@@ -183,8 +183,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
     // 3. Sort the filtered contacts alphabetically (Unknown User at bottom) for consistent ordering
     filteredContacts.sort((a, b) {
-      final aName = a.displayName?? 'Unknown User';
-      final bName = b.displayName?? 'Unknown User';
+      final aName = a.displayName;
+      final bName = b.displayName;
 
 
       // Put "Unknown User" entries at the bottom

@@ -117,10 +117,9 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
     return contactModels
         .where(
           (contact) =>
-              
-              (contact.displayName?.toLowerCase().contains(
+              contact.displayName.toLowerCase().contains(
                 _searchQuery.toLowerCase(),
-              )?? false) ||
+              ) ||
               (contact.nip05?.toLowerCase().contains(
                     _searchQuery.toLowerCase(),
                   ) ??

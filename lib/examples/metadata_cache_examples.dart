@@ -40,7 +40,7 @@ class SafeContactDisplay extends ConsumerWidget {
 
         return Column(
           children: [
-            Text(contact.displayName ?? 'Unknown User'),
+            Text(contact.displayName),
             Text(contact.publicKey),
             if (contact.nip05 != null) Text(contact.nip05!),
           ],
@@ -151,7 +151,7 @@ class _ContactListExampleState extends ConsumerState<ContactListExample> {
       itemBuilder: (context, index) {
         final contact = contacts![index];
         return ListTile(
-          title: Text(contact.displayName ?? 'Unknown User'),
+          title: Text(contact.displayName),
           subtitle: Text(contact.publicKey),
           leading: CircleAvatar(
             backgroundImage: contact.imagePath != null ? NetworkImage(contact.imagePath!) : null,

@@ -158,7 +158,7 @@ class MetadataCacheUtils {
     // Group by name to find duplicates
     for (final entry in cacheState.cache.entries) {
       final displayName = entry.value.contactModel.displayName;
-      if (displayName != null && displayName != 'Unknown User') {
+      if (displayName != 'Unknown User') {
         nameToKeys.putIfAbsent(displayName, () => []).add(entry.key);
       }
     }
