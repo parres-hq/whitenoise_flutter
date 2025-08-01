@@ -10,7 +10,7 @@ import 'package:whitenoise/domain/models/chat_model.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/ui/contact_list/contact_loading_bottom_sheet.dart';
+import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
@@ -142,15 +142,11 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
     try {
       // Show the loading bottom sheet immediately
       if (mounted) {
-        ContactLoadingBottomSheet.show(
+        StartChatBottomSheet.show(
           context: context,
           contact: contact,
           onChatCreated: (groupData) {
             // Close the parent search bottom sheet when chat is created
-            Navigator.pop(context);
-          },
-          onInviteSent: () {
-            // Close the parent search bottom sheet when invite is sent
             Navigator.pop(context);
           },
         );
