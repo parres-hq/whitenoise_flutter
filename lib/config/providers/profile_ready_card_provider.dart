@@ -4,11 +4,6 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 
 const String _profileReadyCardDismissedKey = 'profile_ready_card_dismissed';
 
-final profileReadyCardVisibilityProvider =
-    AsyncNotifierProvider<ProfileReadyCardVisibilityNotifier, bool>(
-      ProfileReadyCardVisibilityNotifier.new,
-    );
-
 class ProfileReadyCardVisibilityNotifier extends AsyncNotifier<bool> {
   late final SharedPreferences _prefs;
   String? _currentPubKey;
@@ -63,3 +58,8 @@ class ProfileReadyCardVisibilityNotifier extends AsyncNotifier<bool> {
     }
   }
 }
+
+final profileReadyCardVisibilityProvider =
+    AsyncNotifierProvider<ProfileReadyCardVisibilityNotifier, bool>(
+      ProfileReadyCardVisibilityNotifier.new,
+    );

@@ -4,8 +4,6 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/config/states/theme_state.dart';
 
-final themeProvider = NotifierProvider<ThemeNotifier, ThemeState>(ThemeNotifier.new);
-
 class ThemeNotifier extends Notifier<ThemeState> {
   @override
   ThemeState build() {
@@ -50,3 +48,5 @@ class ThemeNotifier extends Notifier<ThemeState> {
     await setThemeMode(newMode);
   }
 }
+
+final themeProvider = NotifierProvider<ThemeNotifier, ThemeState>(ThemeNotifier.new);
