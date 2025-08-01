@@ -42,4 +42,5 @@ const fallbackColorsExt = AppColorsThemeExt(
   toastError: LightAppColors.toastError,
   toastWarning: LightAppColors.toastWarning,
   toastIcon: LightAppColors.toastIcon,
+  info: LightAppColors.info,
 );

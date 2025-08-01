@@ -26,4 +26,21 @@ extension StringExtensions on String {
     if (isEmpty) return '';
     return '${this[0].toUpperCase()}${substring(1)}';
   }
+
+  /// Sanitizes a URL for display by removing protocol prefix but preserving port
+  /// Example: "wss://relay.example.com:443" -> "relay.example.com:443"
+  String get sanitizedUrl {
+    String url = this;
+
+    // Remove protocol prefixes
+    final prefixes = ['wss://', 'ws://', 'https://', 'http://'];
+    for (final prefix in prefixes) {
+      if (url.startsWith(prefix)) {
+        url = url.substring(prefix.length);
+        break;
+      }
+    }
+
+    return url;
+  }
 }

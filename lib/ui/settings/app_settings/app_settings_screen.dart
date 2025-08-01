@@ -47,7 +47,7 @@ class AppSettingsScreen extends ConsumerWidget {
                 Gap(8.w),
                 Expanded(
                   child: WnFilledButton.child(
-                    visualState: WnButtonVisualState.error,
+                    visualState: WnButtonVisualState.destructive,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
                     child: Text(
@@ -258,7 +258,7 @@ class AppSettingsScreen extends ConsumerWidget {
                           ),
                           Gap(10.h),
                           WnFilledButton.child(
-                            visualState: WnButtonVisualState.error,
+                            visualState: WnButtonVisualState.destructive,
                             onPressed: () => _deleteAllData(context, ref),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,

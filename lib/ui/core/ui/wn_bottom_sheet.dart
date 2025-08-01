@@ -83,40 +83,21 @@ class WnBottomSheet {
                                   : MediaQuery.viewInsetsOf(context).bottom.h,
                           top: 21.h,
                         ),
-                        child:
-                            useSafeArea
-                                ? SafeArea(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                                    children: [
-                                      if (title != null || showCloseButton || showBackButton)
-                                        _buildBottomSheetHeader(
-                                          showBackButton,
-                                          context,
-                                          title,
-                                          showCloseButton,
-                                        ),
-                                      Gap(25.h),
-                                      Flexible(child: builder(context)),
-                                    ],
-                                  ),
-                                )
-                                : Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                                  children: [
-                                    if (title != null || showCloseButton || showBackButton)
-                                      _buildBottomSheetHeader(
-                                        showBackButton,
-                                        context,
-                                        title,
-                                        showCloseButton,
-                                      ),
-                                    Gap(25.h),
-                                    Flexible(child: builder(context)),
-                                  ],
-                                ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            if (title != null || showCloseButton || showBackButton)
+                              _buildBottomSheetHeader(
+                                showBackButton,
+                                context,
+                                title,
+                                showCloseButton,
+                              ),
+                            Gap(25.h),
+                            Flexible(child: builder(context)),
+                          ],
+                        ),
                       ),
                     ),
                   ),

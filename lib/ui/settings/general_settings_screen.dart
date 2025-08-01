@@ -224,7 +224,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 Gap(8.w),
                 Expanded(
                   child: WnFilledButton.child(
-                    visualState: WnButtonVisualState.error,
+                    visualState: WnButtonVisualState.destructive,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
                     child: Text(

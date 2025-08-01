@@ -46,6 +46,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.toastError,
     required this.toastWarning,
     required this.toastIcon,
+    required this.info,
   });
 
   final Color primary;
@@ -89,6 +90,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color toastError;
   final Color toastWarning;
   final Color toastIcon;
+  final Color info;
 
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
@@ -133,6 +135,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     toastError: LightAppColors.toastError,
     toastWarning: LightAppColors.toastWarning,
     toastIcon: LightAppColors.toastIcon,
+    info: LightAppColors.info,
   );
 
   /// Dark theme colors
@@ -178,6 +181,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     toastError: DarkAppColors.toastError,
     toastWarning: DarkAppColors.toastWarning,
     toastIcon: DarkAppColors.toastIcon,
+    info: DarkAppColors.info,
   );
 
   @override
@@ -223,6 +227,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? toastError,
     Color? toastWarning,
     Color? toastIcon,
+    Color? info,
   }) {
     return AppColorsThemeExt(
       primary: primary ?? this.primary,
@@ -266,6 +271,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       toastError: toastError ?? this.toastError,
       toastWarning: toastWarning ?? this.toastWarning,
       toastIcon: toastIcon ?? this.toastIcon,
+      info: info ?? this.info,
     );
   }
 
@@ -324,6 +330,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       toastError: Color.lerp(toastError, other.toastError, t)!,
       toastWarning: Color.lerp(toastWarning, other.toastWarning, t)!,
       toastIcon: Color.lerp(toastIcon, other.toastIcon, t)!,
+      info: Color.lerp(info, other.info, t)!,
     );
   }
 }

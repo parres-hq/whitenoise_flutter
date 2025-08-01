@@ -127,7 +127,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                           title: 'Clear Cache',
                           onPressed: _isLoading ? null : _clearMetadataCache,
                           loading: _isLoading,
-                          visualState: WnButtonVisualState.error,
+                          visualState: WnButtonVisualState.destructive,
                         ),
 
                         Gap(8.h),
