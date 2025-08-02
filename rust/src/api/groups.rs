@@ -114,7 +114,7 @@ pub fn convert_group_to_data(group: &Group) -> GroupData {
 #[frb]
 pub async fn fetch_groups(pubkey: &PublicKey) -> Result<Vec<GroupData>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let account = whitenoise.fetch_account(pubkey).await?;
+    let account = whitenoise.get_account(pubkey).await?;
     let groups = whitenoise.fetch_groups(&account, true).await?;
     Ok(groups.iter().map(convert_group_to_data).collect())
 }
@@ -137,7 +137,7 @@ pub async fn fetch_group_members(
     group_id: whitenoise::GroupId,
 ) -> Result<Vec<PublicKey>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let account = whitenoise.fetch_account(pubkey).await?;
+    let account = whitenoise.get_account(pubkey).await?;
     whitenoise.fetch_group_members(&account, &group_id).await
 }
 
@@ -159,7 +159,7 @@ pub async fn fetch_group_admins(
     group_id: whitenoise::GroupId,
 ) -> Result<Vec<PublicKey>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let account = whitenoise.fetch_account(pubkey).await?;
+    let account = whitenoise.get_account(pubkey).await?;
     whitenoise.fetch_group_admins(&account, &group_id).await
 }
 
@@ -193,11 +193,11 @@ pub async fn create_group(
     group_description: String,
 ) -> Result<GroupData, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let creator_account = whitenoise.fetch_account(creator_pubkey).await?;
+    let creator_account = whitenoise.get_account(creator_pubkey).await?;
 
     // Fetch the creator's Nostr relays to include in the group configuration
     let nostr_relays = whitenoise
-        .fetch_relays(*creator_pubkey, whitenoise::RelayType::Nostr)
+        .fetch_relays_from(creator_account.nip65_relays.clone(), *creator_pubkey, whitenoise::RelayType::Nostr)
         .await?;
 
     let nostr_group_config = NostrGroupConfigData {
@@ -246,7 +246,7 @@ pub async fn add_members_to_group(
     member_pubkeys: Vec<PublicKey>,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let account = whitenoise.fetch_account(pubkey).await?;
+    let account = whitenoise.get_account(pubkey).await?;
     tokio::task::spawn_blocking(move || {
         tokio::runtime::Handle::current().block_on(whitenoise.add_members_to_group(
             &account,
@@ -285,7 +285,7 @@ pub async fn remove_members_from_group(
     member_pubkeys: Vec<PublicKey>,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let account = whitenoise.fetch_account(pubkey).await?;
+    let account = whitenoise.get_account(pubkey).await?;
     tokio::task::spawn_blocking(move || {
         tokio::runtime::Handle::current().block_on(whitenoise.remove_members_from_group(
             &account,

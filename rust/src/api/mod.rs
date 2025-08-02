@@ -2,7 +2,7 @@
 use flutter_rust_bridge::frb;
 pub use whitenoise::{
     Account, AccountSettings, Event, Group, GroupId, GroupState, GroupType, Kind,
-    MessageWithTokens, Metadata, OnboardingState, PublicKey, RelayType, RelayUrl, Tag, Whitenoise,
+    MessageWithTokens, Metadata, PublicKey, RelayType, RelayUrl, Tag, Whitenoise,
     WhitenoiseConfig, WhitenoiseError,
 };
 

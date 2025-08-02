@@ -11,7 +11,6 @@ import 'package:whitenoise/config/states/group_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/error_handling.dart';
