@@ -18,9 +18,9 @@ class CreateProfileScreen extends ConsumerStatefulWidget {
 }
 
 class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _displayNameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
-  bool _isLoadingUsername = true;
+  bool _isLoadingDisplayName = true;
 
   @override
   void initState() {
@@ -29,18 +29,18 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
       // Try to load existing metadata first
       final currentMetadata = ref.read(accountProvider).metadata;
       if (currentMetadata?.displayName != null && currentMetadata!.displayName!.isNotEmpty) {
-        _usernameController.text = currentMetadata.displayName!;
+        _displayNameController.text = currentMetadata.displayName!;
         setState(() {
-          _isLoadingUsername = false;
+          _isLoadingDisplayName = false;
         });
       } else {
         // If no metadata, try to load it
         await ref.read(accountProvider.notifier).loadAccountData();
         final newMetadata = ref.read(accountProvider).metadata;
         if (newMetadata?.displayName != null && newMetadata!.displayName!.isNotEmpty) {
-          _usernameController.text = newMetadata.displayName!;
+          _displayNameController.text = newMetadata.displayName!;
           setState(() {
-            _isLoadingUsername = false;
+            _isLoadingDisplayName = false;
           });
         }
         // Keep loading if no displayName is found - don't stop loading
@@ -50,21 +50,21 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _displayNameController.dispose();
     _bioController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Listen to account provider changes and update username when metadata is loaded
+    // Listen to account provider changes and update displayName when metadata is loaded
     ref.listen<AccountState>(accountProvider, (previous, next) {
       if (next.metadata?.displayName != null &&
           next.metadata!.displayName!.isNotEmpty &&
-          _usernameController.text.isEmpty) {
-        _usernameController.text = next.metadata!.displayName!;
+          _displayNameController.text.isEmpty) {
+        _displayNameController.text = next.metadata!.displayName!;
         setState(() {
-          _isLoadingUsername = false;
+          _isLoadingDisplayName = false;
         });
       }
     });
@@ -91,7 +91,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                 alignment: Alignment.bottomRight,
                 children: [
                   ValueListenableBuilder<TextEditingValue>(
-                    valueListenable: _usernameController,
+                    valueListenable: _displayNameController,
                     builder: (context, value, child) {
                       final displayText = value.text.trim();
                       final firstLetter =
@@ -142,7 +142,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                 ),
               ),
               Gap(10.h),
-              _isLoadingUsername
+              _isLoadingDisplayName
                   ? Container(
                     height: 56.h,
                     decoration: BoxDecoration(
@@ -163,7 +163,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                   : WnTextFormField(
                     hintText: 'Your name',
                     obscureText: false,
-                    controller: _usernameController,
+                    controller: _displayNameController,
                   ),
               Gap(36.h),
               Align(
@@ -200,7 +200,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
           child: Consumer(
             builder: (context, ref, child) {
               final accountState = ref.watch(accountProvider);
-              final isButtonDisabled = accountState.isLoading || _isLoadingUsername;
+              final isButtonDisabled = accountState.isLoading || _isLoadingDisplayName;
 
               return WnFilledButton(
                 title: 'Finish',
@@ -212,7 +212,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                             .read(accountProvider.notifier)
                             .updateAccountMetadata(
                               ref,
-                              _usernameController.text.trim(),
+                              _displayNameController.text.trim(),
                               _bioController.text.trim(),
                             ),
               );

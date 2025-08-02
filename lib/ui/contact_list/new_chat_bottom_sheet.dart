@@ -141,7 +141,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       if (mounted) {
         setState(() {
           _tempContact = ContactModel(
-            name: 'Unknown User',
+            displayName: 'Unknown User',
             publicKey: publicKey.trim(),
           );
           _isLoadingMetadata = false;
@@ -169,14 +169,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         query.isEmpty
             ? deduplicatedContacts
             : deduplicatedContacts.where((contact) {
-              final name = contact.name.toLowerCase();
-              final displayNameOrName = contact.displayNameOrName.toLowerCase();
+              final displayName = contact.displayName.toLowerCase();
               final nip05 = contact.nip05?.toLowerCase() ?? '';
               final about = contact.about?.toLowerCase() ?? '';
               final publicKey = contact.publicKey.toLowerCase();
 
-              return name.contains(query) ||
-                  displayNameOrName.contains(query) ||
+              return displayName.contains(query) ||
                   nip05.contains(query) ||
                   about.contains(query) ||
                   publicKey.contains(query);
@@ -184,8 +182,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
     // 3. Sort the filtered contacts alphabetically (Unknown User at bottom) for consistent ordering
     filteredContacts.sort((a, b) {
-      final aName = a.displayNameOrName;
-      final bName = b.displayNameOrName;
+      final aName = a.displayName;
+      final bName = b.displayName;
 
       // Put "Unknown User" entries at the bottom
       if (aName == 'Unknown User' && bName != 'Unknown User') return 1;
@@ -341,7 +339,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
               _logger.warning('Failed to fetch metadata for support contact: $e');
 
               final basicContact = ContactModel(
-                name: 'Support',
+                displayName: 'Support',
                 publicKey: kSupportNpub,
               );
 
@@ -478,14 +476,14 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                           ),
                                         ),
                                         Text(
-                                          'name: ${contact.name}',
+                                          'name: ${contact.displayName}',
                                           style: TextStyle(
                                             color: context.colors.mutedForeground,
                                             fontSize: 10.sp,
                                           ),
                                         ),
                                         Text(
-                                          'displayNameOrName: ${contact.displayNameOrName}',
+                                          'displayName: ${contact.displayName}',
                                           style: TextStyle(
                                             color: context.colors.mutedForeground,
                                             fontSize: 10.sp,

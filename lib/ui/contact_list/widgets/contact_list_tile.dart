@@ -72,7 +72,7 @@ class ContactListTile extends StatelessWidget {
           children: [
             ContactAvatar(
               imageUrl: contactImagePath,
-              displayName: contact.displayNameOrName,
+              displayName: contact.displayName,
               size: 56.w,
               showBorder: contactImagePath.isEmpty,
             ),
@@ -85,7 +85,7 @@ class ContactListTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          contact.displayNameOrName,
+                          contact.displayName,
                           style: TextStyle(
                             color: context.colors.secondaryForeground,
                             fontSize: 18.sp,
@@ -163,7 +163,7 @@ class ContactListTile extends StatelessWidget {
                 (context) => AlertDialog(
                   title: const Text('Remove Contact'),
                   content: Text(
-                    'Are you sure you want to remove ${contact.displayNameOrName} from your contacts?',
+                    'Are you sure you want to remove ${contact.displayName} from your contacts?',
                   ),
                   actions: [
                     TextButton(

@@ -40,7 +40,7 @@ class SafeContactDisplay extends ConsumerWidget {
 
         return Column(
           children: [
-            Text(contact.displayNameOrName),
+            Text(contact.displayName),
             Text(contact.publicKey),
             if (contact.nip05 != null) Text(contact.nip05!),
           ],
@@ -151,7 +151,7 @@ class _ContactListExampleState extends ConsumerState<ContactListExample> {
       itemBuilder: (context, index) {
         final contact = contacts![index];
         return ListTile(
-          title: Text(contact.displayNameOrName),
+          title: Text(contact.displayName),
           subtitle: Text(contact.publicKey),
           leading: CircleAvatar(
             backgroundImage: contact.imagePath != null ? NetworkImage(contact.imagePath!) : null,
@@ -240,7 +240,7 @@ class MetadataBestPractices {
 
     // Then update local cache
     final newContact = ContactModel(
-      name: 'Updated Name',
+      displayName: 'Updated Name',
       publicKey: publicKey,
     );
 
@@ -252,7 +252,7 @@ class MetadataBestPractices {
   static ContactModel createContactBadly(String publicKey) {
     // This bypasses cache and can lead to inconsistencies
     return ContactModel(
-      name: 'Unknown User',
+      displayName: 'Unknown User',
       publicKey: publicKey,
     );
   }

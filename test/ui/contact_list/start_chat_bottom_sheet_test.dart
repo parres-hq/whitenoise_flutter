@@ -134,7 +134,7 @@ void main() {
     group('when user is already a contact', () {
       testWidgets('displays remove contact button', (WidgetTester tester) async {
         final existingContact = ContactModel(
-          name: testName,
+          displayName: testName,
           publicKey: testPubkey,
           nip05: testNip05,
           imagePath: testImagePath,

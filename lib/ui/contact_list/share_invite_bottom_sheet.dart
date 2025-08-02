@@ -95,7 +95,7 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
               Gap(12.h),
               UserProfile(
                 imageUrl: contact.imagePath ?? '',
-                name: contact.displayNameOrName,
+                name: contact.displayName,
                 nip05: contact.nip05 ?? '',
                 pubkey: contact.publicKey,
                 ref: ref,
@@ -104,7 +104,7 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
               WnCallout(
                 title: 'Invite to White Noise',
                 description:
-                    "${contact.name.isNotEmpty && contact.name != 'Unknown User' ? contact.name : 'This user'} isn't on White Noise yet. Share the download link to start a secure chat.",
+                    "${contact.displayName.isNotEmpty && contact.displayName != 'Unknown User' ? contact.displayName : 'This user'} isn't on White Noise yet. Share the download link to start a secure chat.",
               ),
             ],
           ),

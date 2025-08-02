@@ -7,7 +7,6 @@ class User {
   final String nip05;
   final String publicKey;
   final String? imagePath;
-  final String? username;
 
   User({
     required this.id,
@@ -15,7 +14,6 @@ class User {
     required this.nip05,
     required this.publicKey,
     this.imagePath,
-    this.username,
   });
 
   factory User.fromMetadata(MetadataData metadata, String publicKey) {
@@ -25,7 +23,6 @@ class User {
       nip05: metadata.nip05 ?? '',
       publicKey: publicKey,
       imagePath: metadata.picture,
-      username: metadata.name,
     );
   }
 
@@ -37,8 +34,7 @@ class User {
         other.displayName == displayName &&
         other.nip05 == nip05 &&
         other.publicKey == publicKey &&
-        other.imagePath == imagePath &&
-        other.username == username;
+        other.imagePath == imagePath;
   }
 
   @override
@@ -47,7 +43,6 @@ class User {
         displayName.hashCode ^
         nip05.hashCode ^
         publicKey.hashCode ^
-        imagePath.hashCode ^
-        username.hashCode;
+        imagePath.hashCode;
   }
 }

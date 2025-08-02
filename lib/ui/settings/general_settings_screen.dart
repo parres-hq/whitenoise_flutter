@@ -79,7 +79,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         } catch (e) {
           // Create fallback contact model
           contactModels[account.pubkey] = ContactModel(
-            name: 'Unknown User',
+            displayName: 'Unknown User',
             publicKey: account.pubkey,
           );
         }
@@ -147,7 +147,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     // Fallback contact model
     return ContactModel(
       publicKey: account.pubkey,
-      name: account.pubkey.substring(0, 8),
       displayName: 'Account ${account.pubkey.substring(0, 8)}',
     );
   }
