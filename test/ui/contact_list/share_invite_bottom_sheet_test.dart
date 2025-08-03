@@ -7,19 +7,14 @@ import '../../test_helpers.dart';
 
 void main() {
   group('ShareInviteBottomSheet Tests', () {
-    const testName = 'Satoshi Nakamoto';
-    const testNip05 = 'satoshi@nakamoto.com';
-    const testImagePath = 'https://example.com/satoshi.png';
-    const testPubkey = 'abc123def456789012345678901234567890123456789012345678901234567890';
-
     final testContact = ContactModel(
-      publicKey: testPubkey,
-      nip05: testNip05,
-      imagePath: testImagePath,
-      displayName: testName,
+      displayName: 'Satoshi Nakamoto',
+      publicKey: 'abc123def456789012345678901234567890123456789012345678901234567890',
+      nip05: 'satoshi@nakamoto.com',
+      imagePath: 'https://example.com/satoshi.png',
     );
 
-    testWidgets('displays user name', (WidgetTester tester) async {
+    testWidgets('displays contact display name', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
           SingleChildScrollView(
