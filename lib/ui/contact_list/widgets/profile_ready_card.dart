@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
-import 'package:whitenoise/config/providers/profile_ready_card_provider.dart';
+import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
