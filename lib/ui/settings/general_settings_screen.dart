@@ -325,8 +325,12 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     else if (_currentAccount != null)
                       ContactListTile(
                         contact: _accountToContactModel(_currentAccount!),
-                        showExpansionArrow: true,
-                        onTap: () => _showAccountSwitcher(),
+                        trailingIcon: Icon(
+                          CarbonIcons.qr_code,
+                          size: 20.w,
+                          color: context.colors.primary,
+                        ),
+                        onTap: () => context.push('${Routes.settings}/share_profile'),
                       )
                     else
                       const Center(child: Text('No accounts found')),
@@ -334,12 +338,12 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     WnFilledButton.child(
                       size: WnButtonSize.small,
                       visualState: WnButtonVisualState.secondary,
-                      onPressed: () => context.push('${Routes.settings}/share_profile'),
+                      onPressed: () => _showAccountSwitcher(),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Share Profile',
+                            'Switch Account',
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
@@ -348,7 +352,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                           ),
                           Gap(9.w),
                           Icon(
-                            CarbonIcons.qr_code,
+                            CarbonIcons.arrows_vertical,
                             size: 16.w,
                             color: context.colors.primary,
                           ),
