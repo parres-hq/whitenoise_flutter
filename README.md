@@ -275,6 +275,15 @@ whitenoise_flutter/
 5. Push to the branch: `git push origin feature/amazing-feature`
 6. Open a Pull Request
 
+**Contribution guidelines**
+
+We want to keep our codebase clean, consistent, and easy to contribute to. Here are some guidelines to follow:
+
+- ✅ Unit tests: Add unit tests for all new providers.
+- ♻️ Widget design: Try to keep widgets small and simple. Extract complex logic to notifiers. 
+- 🏷️ Naming: Shared custom widgets should use the `Wn` prefix for consistency.
+
+
 ## 📜 License
 
 This project is licensed under the [GNU AGPL 3.0](LICENSE) license.

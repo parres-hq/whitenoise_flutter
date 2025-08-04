@@ -3,11 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 
-final chatSearchProvider =
-    StateNotifierProvider.family<ChatSearchNotifier, ChatSearchState, String>(
-      (ref, groupId) => ChatSearchNotifier(groupId),
-    );
-
 class ChatSearchNotifier extends StateNotifier<ChatSearchState> {
   final String groupId;
   Timer? _debounceTimer;
@@ -146,3 +141,8 @@ class ChatSearchNotifier extends StateNotifier<ChatSearchState> {
   int get totalMatches => state.matches.length; // Now each match is a single word occurrence
   int get currentMatchNumber => state.matches.isEmpty ? 0 : state.currentMatchIndex + 1;
 }
+
+final chatSearchProvider =
+    StateNotifierProvider.family<ChatSearchNotifier, ChatSearchState, String>(
+      (ref, groupId) => ChatSearchNotifier(groupId),
+    );
