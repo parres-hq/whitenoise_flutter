@@ -112,26 +112,26 @@ class DonateScreen extends ConsumerWidget {
                             ],
                           ),
                           Gap(12.h),
-                          WnFilledButton.child(
-                            onPressed: () {},
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Donate',
-                                  style: WnButtonSize.large.textStyle().copyWith(
-                                    color: context.colors.primaryForeground,
-                                  ),
-                                ),
-                                Gap(8.w),
-                                Icon(
-                                  CarbonIcons.flash,
-                                  size: 20.w,
-                                  color: context.colors.primaryForeground,
-                                ),
-                              ],
-                            ),
-                          ),
+                          // WnFilledButton.child(
+                          //   onPressed: () {},
+                          //   child: Row(
+                          //     mainAxisAlignment: MainAxisAlignment.center,
+                          //     children: [
+                          //       Text(
+                          //         'Donate',
+                          //         style: WnButtonSize.large.textStyle().copyWith(
+                          //           color: context.colors.primaryForeground,
+                          //         ),
+                          //       ),
+                          //       Gap(8.w),
+                          //       Icon(
+                          //         CarbonIcons.flash,
+                          //         size: 20.w,
+                          //         color: context.colors.primaryForeground,
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
                           Gap(32.h),
                           Text(
                             'Bitcoin Silent Payment Address',
@@ -166,30 +166,30 @@ class DonateScreen extends ConsumerWidget {
                             ],
                           ),
                           Gap(12.h),
-                          WnFilledButton.child(
-                            onPressed: () {},
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Donate',
-                                  style: WnButtonSize.large.textStyle().copyWith(
-                                    color: context.colors.primaryForeground,
-                                  ),
-                                ),
-                                Gap(8.w),
-                                SvgPicture.asset(
-                                  AssetsPaths.icBitcoin,
-                                  height: 20.w,
-                                  width: 20.w,
-                                  colorFilter: ColorFilter.mode(
-                                    context.colors.primaryForeground,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                          // WnFilledButton.child(
+                          //   onPressed: () {},
+                          //   child: Row(
+                          //     mainAxisAlignment: MainAxisAlignment.center,
+                          //     children: [
+                          //       Text(
+                          //         'Donate',
+                          //         style: WnButtonSize.large.textStyle().copyWith(
+                          //           color: context.colors.primaryForeground,
+                          //         ),
+                          //       ),
+                          //       Gap(8.w),
+                          //       SvgPicture.asset(
+                          //         AssetsPaths.icBitcoin,
+                          //         height: 20.w,
+                          //         width: 20.w,
+                          //         colorFilter: ColorFilter.mode(
+                          //           context.colors.primaryForeground,
+                          //           BlendMode.srcIn,
+                          //         ),
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
