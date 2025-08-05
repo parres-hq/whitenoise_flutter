@@ -120,12 +120,10 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
       ),
       child: GestureDetector(
         onPanStart: (details) {
-          if (details.globalPosition.dy < 300) {
-            setState(() {
-              _isPulling = true;
-              _pullDistance = 0.0;
-            });
-          }
+          setState(() {
+            _isPulling = true;
+            _pullDistance = 0.0;
+          });
         },
         onPanUpdate: (details) {
           if (_isPulling) {
