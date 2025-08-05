@@ -47,7 +47,6 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
   final TextEditingController _relayUrlController = TextEditingController();
   bool _isValidatingUrl = false;
   bool _validUrl = false;
-  bool _acceptedRelay = false;
   String? _relayValidationError;
   Timer? _debounceTimer;
 
@@ -122,15 +121,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
     }
   }
 
-  Future<void> _checkRelay() async {
-    //TODO : Before user adds relay app checks what kinds relay accepts and returns kinds(functions).
-    setState(() {
-      _acceptedRelay = true;
-    });
-  }
-
   Future<void> _addRelays() async {
-    // TODO : implement add relay logic
     final relayUrl = _relayUrlController.text.trim();
     if (relayUrl.isEmpty || !_validUrl) {
       ref.showErrorToast('Please enter a valid relay URL');
@@ -139,13 +130,6 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
     Navigator.of(context).pop();
     widget.onRelayAdded(relayUrl);
     ref.showSuccessToast('Relay added successfully');
-  }
-
-  Future<void> _cancelAddRelay() async {
-    // TODO : implement cancel add relay
-    setState(() {
-      _acceptedRelay = false;
-    });
   }
 
   Future<void> _pasteFromClipboard() async {
@@ -176,12 +160,6 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
     }
   }
 
-  final List<RelayFunction> _functionsToAdd = [];
-  final List<RelayFunction> _foundFunctions = [
-    RelayFunction.messaging,
-    RelayFunction.inviteToChat,
-    RelayFunction.keyInvite,
-  ];
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -189,7 +167,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _acceptedRelay ? 'Relay Address' : 'Enter Relay Address',
+          'Enter Relay Address',
           style: TextStyle(
             fontSize: 14.sp,
             fontWeight: FontWeight.w600,
@@ -263,125 +241,12 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
           ).animate().fadeIn(),
           Gap(12.h),
         ],
-        if (!_acceptedRelay)
-          WnFilledButton(
-            onPressed: _validUrl ? _checkRelay : null,
-            loading: _isValidatingUrl,
-            title: 'Check Relay',
-          )
-        else
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'Relay Functions',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.primary,
-                ),
-              ),
-              Gap(12.h),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: RelayFunction.values.length,
-                itemBuilder: (context, index) {
-                  final function = RelayFunction.values[index];
-                  final isSelected = _functionsToAdd.contains(function);
-                  final isDisabled =
-                      _foundFunctions.isNotEmpty && !_foundFunctions.contains(function);
-                  return DecoratedBox(
-                    decoration: BoxDecoration(
-                      color: !isDisabled ? context.colors.surface : Colors.transparent,
-                    ),
-                    child: Opacity(
-                      opacity: isDisabled ? 0.5 : 1.0,
-                      child: CheckboxListTile(
-                        value: isSelected,
-                        enabled: !isDisabled,
-
-                        controlAffinity: ListTileControlAffinity.leading,
-
-                        title: Text(
-                          function.displayName,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: context.colors.primary,
-                          ),
-                        ),
-                        subtitle: Text(
-                          function.description,
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            color: context.colors.mutedForeground,
-                          ),
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            if (value == true) {
-                              _functionsToAdd.add(function);
-                            } else {
-                              _functionsToAdd.remove(function);
-                            }
-                          });
-                        },
-                      ),
-                    ),
-                  );
-                },
-                separatorBuilder: (context, index) => Gap(8.h),
-              ),
-
-              Gap(12.h),
-              WnFilledButton(
-                visualState: WnButtonVisualState.secondary,
-                onPressed: _cancelAddRelay,
-                title: 'Cancel',
-              ),
-              Gap(8.h),
-              WnFilledButton(
-                onPressed: _functionsToAdd.isNotEmpty ? _addRelays : null,
-                title: 'Add Relay',
-              ),
-            ],
-          ).animate().fadeIn(),
+        WnFilledButton(
+          onPressed: _validUrl ? _addRelays : null,
+          loading: _isValidatingUrl,
+          title: 'Add Relay',
+        ),
       ],
     );
-  }
-}
-
-// TEMPORARY ENUM FOR RELAY FUNCTIONS
-// This should be replaced with actual logic to determine relay functions
-enum RelayFunction {
-  messaging,
-  discovery,
-  inviteToChat,
-  keyInvite;
-
-  String get displayName {
-    switch (this) {
-      case RelayFunction.messaging:
-        return 'Messaging';
-      case RelayFunction.discovery:
-        return 'Discovery';
-      case RelayFunction.inviteToChat:
-        return 'Invite to Chat';
-      case RelayFunction.keyInvite:
-        return 'Key Invite';
-    }
-  }
-
-  String get description {
-    switch (this) {
-      case RelayFunction.messaging:
-        return 'Delivers and stores your chat messages.';
-      case RelayFunction.discovery:
-        return 'Helps you find others and others find you.';
-      case RelayFunction.inviteToChat:
-        return 'Lets others invite you to new conversations.';
-      case RelayFunction.keyInvite:
-        return 'Shares your secure invite keys.';
-    }
   }
 }

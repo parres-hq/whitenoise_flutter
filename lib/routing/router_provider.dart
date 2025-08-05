@@ -17,7 +17,6 @@ import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart'
 import 'package:whitenoise/ui/settings/donate/donate_screen.dart';
 import 'package:whitenoise/ui/settings/general_settings_screen.dart';
 import 'package:whitenoise/ui/settings/network/network_screen.dart';
-import 'package:whitenoise/ui/settings/network/relay_monitor_screen.dart';
 import 'package:whitenoise/ui/settings/nostr_keys/nostr_keys_screen.dart';
 import 'package:whitenoise/ui/settings/profile/edit_profile_screen.dart';
 import 'package:whitenoise/ui/settings/profile/share_profile_qr_scan_screen.dart';
@@ -170,12 +169,6 @@ final routerProvider = Provider<GoRouter>((ref) {
           GoRoute(
             path: 'network',
             builder: (context, state) => const NetworkScreen(),
-            routes: [
-              GoRoute(
-                path: 'monitor',
-                builder: (context, state) => const RelayMonitorScreen(),
-              ),
-            ],
           ),
           GoRoute(
             path: 'keys',

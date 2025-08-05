@@ -14,11 +14,9 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_refreshing_indicator.dart';
-import 'package:whitenoise/ui/core/ui/wn_status_legend_item.dart';
 import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
 import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
-import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
-import 'package:whitenoise/ui/settings/network/widgets/relay_tile.dart';
+import 'package:whitenoise/ui/settings/network/widgets/relay_expansion_tile.dart';
 
 class NetworkScreen extends ConsumerStatefulWidget {
   const NetworkScreen({super.key});
@@ -29,7 +27,9 @@ class NetworkScreen extends ConsumerStatefulWidget {
 
 class _NetworkScreenState extends ConsumerState<NetworkScreen> {
   final logger = Logger('NetworkScreen');
-  final GlobalKey _helpIconKey = GlobalKey();
+  final GlobalKey _myRelayHelpIconKey = GlobalKey();
+  final GlobalKey _inboxRelayHelpIconKey = GlobalKey();
+  final GlobalKey _keyPackageRelayHelpIconKey = GlobalKey();
   bool _isLoading = false;
   bool _isRefreshing = false;
   bool _isPulling = false;
@@ -89,18 +89,29 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
     }
   }
 
+  void _showHelpTooltip(GlobalKey key, String message) {
+    WnTooltip.hide();
+    WnTooltip.show(
+      context: context,
+      targetKey: key,
+      message: message,
+      maxWidth: 300.w,
+    );
+  }
+
+  void _showAddRelayBottomSheet() {
+    AddRelayBottomSheet.show(
+      context: context,
+      onRelayAdded: (_) {},
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final normalRelaysState = ref.watch(normalRelaysProvider);
     final inboxRelaysState = ref.watch(inboxRelaysProvider);
     final keyPackageRelaysState = ref.watch(keyPackageRelaysProvider);
 
-    final allRelays =
-        <RelayInfo>{
-          ...normalRelaysState.relays,
-          ...inboxRelaysState.relays,
-          ...keyPackageRelaysState.relays,
-        }.toList();
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -146,7 +157,6 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
             child: Scaffold(
               backgroundColor: context.colors.appBarBackground,
               body: SafeArea(
-                bottom: false,
                 child: ColoredBox(
                   color: context.colors.neutral,
                   child: Column(
@@ -199,115 +209,72 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                           padding: EdgeInsets.symmetric(horizontal: 16.w),
                           child: Column(
                             children: [
-                              Row(
-                                children: [
-                                  Text(
-                                    'Set Relays',
-                                    style: TextStyle(
-                                      color: context.colors.mutedForeground,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 16.w,
-                                    ),
-                                  ),
-                                  Gap(8.w),
-                                  InkWell(
-                                    key: _helpIconKey,
-                                    onTap:
-                                        () => WnTooltip.show(
-                                          context: context,
-                                          targetKey: _helpIconKey,
-                                          message:
-                                              'These relays store your chat history, deliver your messages, receive new ones, and help others find or invite you to chats.',
-                                          maxWidth: 300.w,
-                                          footer: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              WnStatusLegendItem(
-                                                color: context.colors.success,
-                                                label: 'Connected',
-                                              ),
-                                              Gap(8.h),
-                                              WnStatusLegendItem(
-                                                color: context.colors.info,
-                                                label: 'Connects when needed',
-                                              ),
-                                              Gap(8.h),
-                                              WnStatusLegendItem(
-                                                color: context.colors.warning,
-                                                label: 'Connecting',
-                                              ),
-                                              Gap(8.h),
-                                              WnStatusLegendItem(
-                                                color: context.colors.destructive,
-                                                label: 'Failed to connect',
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-
-                                    child: Icon(
-                                      CarbonIcons.help,
-                                      color: context.colors.mutedForeground,
-                                      size: 18.sp,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  InkWell(
-                                    onTap: _refreshData,
-                                    child: Icon(
-                                      CarbonIcons.rotate,
-                                      color: context.colors.primary,
-                                      size: 20.sp,
-                                    ),
-                                  ),
-                                  Gap(16.w),
-                                  InkWell(
-                                    onTap:
-                                        () => AddRelayBottomSheet.show(
-                                          context: context,
-                                          onRelayAdded: (_) {},
-                                        ),
-                                    child: Icon(
-                                      CarbonIcons.add,
-                                      color: context.colors.primary,
-                                      size: 23.sp,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Gap(16.h),
                               Expanded(
-                                flex: 0,
-                                child: ListView.separated(
-                                  shrinkWrap: true,
-                                  itemBuilder:
-                                      (context, index) => RelayTile(
-                                        relayInfo: allRelays[index],
-                                        showOptions: true,
-                                      ),
-                                  separatorBuilder: (context, index) => Gap(12.h),
+                                child: ListView(
                                   padding: EdgeInsets.zero,
-                                  itemCount: allRelays.length,
+                                  children: [
+                                    RelayExpansionTile(
+                                      title: 'My Relays',
+                                      helpIconKey: _myRelayHelpIconKey,
+                                      relayState: normalRelaysState,
+                                      onInfoTap:
+                                          () => _showHelpTooltip(
+                                            _myRelayHelpIconKey,
+                                            'Relays you’ve defined for use across all your Nostr applications.',
+                                          ),
+                                      onAddTap: _showAddRelayBottomSheet,
+                                    ),
+                                    Gap(16.h),
+                                    RelayExpansionTile(
+                                      title: 'Inbox Relays',
+                                      helpIconKey: _inboxRelayHelpIconKey,
+                                      relayState: inboxRelaysState,
+                                      onInfoTap:
+                                          () => _showHelpTooltip(
+                                            _inboxRelayHelpIconKey,
+                                            'Relays used to receive invitations and start secure conversations with new contacts.',
+                                          ),
+                                      onAddTap: _showAddRelayBottomSheet,
+                                    ),
+                                    Gap(16.h),
+                                    RelayExpansionTile(
+                                      title: 'Key Package Relays',
+                                      helpIconKey: _keyPackageRelayHelpIconKey,
+                                      onInfoTap:
+                                          () => _showHelpTooltip(
+                                            _keyPackageRelayHelpIconKey,
+                                            'Relays that store your secure key so others can invite you to encrypted conversations.',
+                                          ),
+                                      relayState: keyPackageRelaysState,
+                                      onAddTap: _showAddRelayBottomSheet,
+                                    ),
+                                  ],
                                 ),
                               ),
-                              Gap(16.h),
-                              WnFilledButton.icon(
-                                onPressed: () => context.push(Routes.settingsNetworkMonitor),
-                                icon: const Text('Relay Monitor'),
-                                label: SvgPicture.asset(
-                                  AssetsPaths.icMonitor,
-                                  colorFilter: ColorFilter.mode(
-                                    context.colors.primaryForeground,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                              ),
-                              const Spacer(),
                             ],
                           ),
                         ),
                       ),
+                      Gap(100.h),
                     ],
+                  ),
+                ),
+              ),
+              bottomSheet: SafeArea(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 16.w,
+                    vertical: 8.0,
+                  ).copyWith(bottom: 64.h),
+                  child: WnFilledButton.icon(
+                    visualState: WnButtonVisualState.secondary,
+                    onPressed: () => context.push(Routes.settingsNetworkMonitor),
+                    icon: const Text('Restore Default Relays'),
+                    label: Icon(
+                      CarbonIcons.rotate,
+                      color: context.colors.primary,
+                      size: 20.sp,
+                    ),
                   ),
                 ),
               ),
