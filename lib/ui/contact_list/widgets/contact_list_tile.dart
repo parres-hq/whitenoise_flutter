@@ -18,6 +18,7 @@ class ContactListTile extends StatelessWidget {
   final VoidCallback? onDelete;
   final bool showCheck;
   final bool showExpansionArrow;
+  final Widget? trailingIcon;
   final bool enableSwipeToDelete;
 
   const ContactListTile({
@@ -27,6 +28,7 @@ class ContactListTile extends StatelessWidget {
     this.isSelected = false,
     this.showCheck = false,
     this.showExpansionArrow = false,
+    this.trailingIcon,
     this.enableSwipeToDelete = false,
     super.key,
   });
@@ -141,6 +143,9 @@ class ContactListTile extends StatelessWidget {
                 ),
                 child: isSelected ? Icon(Icons.check, size: 12.w, color: Colors.white) : null,
               ),
+            ] else if (trailingIcon != null) ...[
+              Gap(16.w),
+              trailingIcon!,
             ] else if (showExpansionArrow) ...[
               Gap(16.w),
               SvgPicture.asset(AssetsPaths.icExpand, width: 11.w, height: 18.w),
