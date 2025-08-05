@@ -154,6 +154,28 @@ just test-flutter      # Flutter unit tests (when test/ exists)
 just test-integration  # Integration tests
 ```
 
+### Coverage
+
+You need to install lcov to generate report
+```bash
+# Mac OS
+brew install lcov
+
+# Linux
+apt-get install lcov
+```
+
+```bash
+# Run tests with coverage and check diff coverage for changed files
+just check-flutter-coverage
+
+# Or run tests with coverage output manually
+flutter test --coverage
+# Generate coverage html report
+genhtml coverage/lcov.info -o coverage/html 
+# Open coverage/html/index.html in your browser
+```
+
 ### Cleaning
 
 ```bash

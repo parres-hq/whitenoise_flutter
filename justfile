@@ -95,6 +95,12 @@ test-flutter:
     @echo "🧪 Testing Flutter code..."
     @if [ -d "test" ]; then flutter test; else echo "No test directory found. Create tests in test/ directory."; fi
 
+# Test Flutter code with coverage and check diff coverage
+check-flutter-coverage:
+    @echo "🧪 Testing Flutter code with coverage..."
+    flutter test --coverage
+    @echo "📊 Checking coverage for changed files..."
+    ./scripts/check_diff_coverage.sh
 
 # ==============================================================================
 # CLEANING

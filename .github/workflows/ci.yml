@@ -67,4 +67,12 @@ jobs:
       run: flutter analyze --fatal-infos
     
     - name: Run Flutter tests
-      run: flutter test
+      run: flutter test --coverage
+
+    - name: Install lcov
+      run: sudo apt-get update && sudo apt-get install -y lcov
+
+    - name: Check diff coverage
+      run: ./scripts/check_diff_coverage.sh
+
+    
