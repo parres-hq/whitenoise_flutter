@@ -169,7 +169,7 @@ class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
               ),
               Gap(12.h),
               Text(
-                otherUser.displayName.capitalizeFirst,
+                otherUser.displayName,
                 style: TextStyle(
                   fontSize: 18.sp,
                   fontWeight: FontWeight.w600,
