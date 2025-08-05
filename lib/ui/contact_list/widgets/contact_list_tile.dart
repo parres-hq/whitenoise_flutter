@@ -44,25 +44,6 @@ class ContactListTile extends StatelessWidget {
     }
   }
 
-  Widget _buildSkeletonLoader(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _SkeletonLine(
-          width: 300.w,
-          height: 12.h,
-          color: context.colors.mutedForeground.withValues(alpha: 0.05),
-        ),
-        Gap(4.h),
-        _SkeletonLine(
-          width: 140.w,
-          height: 12.h,
-          color: context.colors.mutedForeground.withValues(alpha: 0.05),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final contactImagePath = contact.imagePath ?? '';
@@ -102,9 +83,7 @@ class ContactListTile extends StatelessWidget {
                   FutureBuilder<String>(
                     future: _getNpub(contact.publicKey),
                     builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return _buildSkeletonLoader(context);
-                      } else if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                         return Text(
                           snapshot.data!,
                           style: TextStyle(
@@ -123,7 +102,15 @@ class ContactListTile extends StatelessWidget {
                           ),
                         );
                       }
-                      return const SizedBox.shrink();
+                      // Show npub while loading immediately
+                      return Text(
+                        contact.publicKey.formatPublicKey(),
+                        style: TextStyle(
+                          color: context.colors.mutedForeground,
+                          fontSize: 12.sp,
+                          fontFamily: 'monospace',
+                        ),
+                      );
                     },
                   ),
                 ],
