@@ -3,6 +3,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
@@ -62,22 +63,20 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       }
 
       // Get the active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final pubKeyString = ref.read(activeAccountProvider);
 
-      _logger.info('NormalRelaysNotifier: Active account data: ${activeAccountData?.pubkey}');
-      if (activeAccountData == null) {
+      if (pubKeyString == null) {
         _logger.warning('NormalRelaysNotifier: No active account found');
         state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
+      _logger.info('NormalRelaysNotifier: Active account data: $pubKeyString');
 
       // Convert pubkey string to PublicKey object
+      final pubKey = await publicKeyFromString(publicKeyString: pubKeyString);
+      final account = await loadAccount(pubkey: pubKey);
 
-      final relayUrls = activeAccountData.nip65Relays;
-      _logger.info('NormalRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}');
-
-      _logger.info('NormalRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
+      final relayUrls = account.nip65Relays;
 
       // If no relays found, log this information
       if (relayUrls.isEmpty) {
@@ -189,17 +188,19 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       }
 
       // Get the active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      _logger.info('InboxRelaysNotifier: Active account data: ${activeAccountData?.pubkey}');
-      if (activeAccountData == null) {
+      final pubKeyString = ref.read(activeAccountProvider);
+
+      if (pubKeyString == null) {
         _logger.warning('InboxRelaysNotifier: No active account found');
         state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
+      _logger.info('InboxRelaysNotifier: Active account data: $pubKeyString');
+      // Convert pubkey string to PublicKey object
+      final pubKey = await publicKeyFromString(publicKeyString: pubKeyString);
+      final account = await loadAccount(pubkey: pubKey);
 
-      _logger.info('InboxRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}');
-      final relayUrls = activeAccountData.inboxRelays;
+      final relayUrls = account.inboxRelays;
 
       _logger.info('InboxRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
 
@@ -312,21 +313,19 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       }
 
       // Get the active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      _logger.info('KeyPackageRelaysNotifier: Active account data: ${activeAccountData?.pubkey}');
-      if (activeAccountData == null) {
+      final pubKeyString = ref.read(activeAccountProvider);
+
+      if (pubKeyString == null) {
         _logger.warning('KeyPackageRelaysNotifier: No active account found');
         state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
-
+      _logger.info('KeyPackageRelaysNotifier: Active account data: $pubKeyString');
       // Convert pubkey string to PublicKey object
+      final pubKey = await publicKeyFromString(publicKeyString: pubKeyString);
+      final account = await loadAccount(pubkey: pubKey);
 
-      _logger.info(
-        'KeyPackageRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}',
-      );
-      final relayUrls = activeAccountData.keyPackageRelays;
+      final relayUrls = account.keyPackageRelays;
 
       _logger.info('KeyPackageRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
 

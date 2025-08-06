@@ -59,6 +59,9 @@ Future<List<AccountData>> getAccounts() => RustLib.instance.api.crateApiAccounts
 Future<AccountData> getAccount({required PublicKey pubkey}) =>
     RustLib.instance.api.crateApiAccountsGetAccount(pubkey: pubkey);
 
+Future<AccountData> loadAccount({required PublicKey pubkey}) =>
+    RustLib.instance.api.crateApiAccountsLoadAccount(pubkey: pubkey);
+
 /// Creates a new account identity and prepares it for MLS (Messaging Layer Security) messaging.
 ///
 /// This function generates a new cryptographic identity, creates an account, and sets up

@@ -90,6 +90,13 @@ pub async fn get_account(pubkey: &PublicKey) -> Result<AccountData, WhitenoiseEr
     Ok(convert_account_to_data(&account))
 }
 
+#[frb]
+pub async fn load_account(pubkey: &PublicKey) -> Result<AccountData, WhitenoiseError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let account = whitenoise.load_account(pubkey).await?;
+    Ok(convert_account_to_data(&account))
+}
+
 /// Creates a new account identity and prepares it for MLS (Messaging Layer Security) messaging.
 ///
 /// This function generates a new cryptographic identity, creates an account, and sets up
