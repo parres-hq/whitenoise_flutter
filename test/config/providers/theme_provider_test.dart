@@ -4,6 +4,19 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 
+class _MockFailingSharedPreferences implements SharedPreferences {
+  @override
+  Future<bool> setInt(String key, int value) async {
+    throw Exception('Mock SharedPreferences error');
+  }
+
+  @override
+  int? getInt(String key) => ThemeMode.dark.index;
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
 void main() {
   group('ThemeProvider Tests', () {
     late ProviderContainer container;
@@ -65,6 +78,31 @@ void main() {
         await notifier.setThemeMode(ThemeMode.dark);
         expect(notificationCount, equals(1));
         listener.close();
+      });
+
+      group('when an error occurs', () {
+        late SharedPreferences mockFailingPrefs;
+
+        setUp(() async {
+          mockFailingPrefs = _MockFailingSharedPreferences();
+          container = ProviderContainer(
+            overrides: [
+              themeProvider.overrideWith(() => ThemeNotifier(prefs: mockFailingPrefs)),
+            ],
+          );
+          notifier = container.read(themeProvider.notifier);
+          notifier.build();
+          await Future.delayed(Duration.zero);
+        });
+
+        tearDown(() {
+          container.dispose();
+        });
+
+        test('handles error gracefully', () async {
+          await notifier.setThemeMode(ThemeMode.light);
+          expect(container.read(themeProvider).themeMode, equals(ThemeMode.dark));
+        });
       });
     });
 
