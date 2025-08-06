@@ -41,7 +41,6 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     while (true) {
       await accountNotifier.loadAccountData();
       final accountState = ref.read(accountProvider);
-
       if (accountState.metadata?.displayName != null &&
           accountState.metadata!.displayName!.isNotEmpty) {
         break;
@@ -114,12 +113,13 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
           ).copyWith(bottom: 32.h),
           child: Consumer(
             builder: (context, ref, child) {
-              final accountState = ref.watch(accountProvider);
-              final isButtonDisabled = _isLoading || accountState.isLoading;
+              // final accountState = ref.watch(accountProvider);
+              // final isButtonDisabled = _isLoading || accountState.isLoading;
 
               return WnFilledButton.child(
-                loading: isButtonDisabled,
-                onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
+                onPressed: () => _onContinuePressed(context),
+                // loading: isButtonDisabled,
+                // onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

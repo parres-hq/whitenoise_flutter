@@ -91,7 +91,6 @@ class _RelayTileState extends ConsumerState<RelayTile> {
       if (widget.onDelete != null) {
         widget.onDelete!();
       } else {
-        // Fallback for backward compatibility
         ref.showSuccessToast('Relay removed successfully');
       }
     }

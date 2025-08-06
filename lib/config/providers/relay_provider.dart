@@ -5,7 +5,6 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/src/rust/lib.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 
 // State for relay management
@@ -123,16 +122,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      // Get the active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        _logger.severe('RelayProvider: No active account found for adding relay');
-        return;
-      }
-
       await addRelay(url);
-
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to add relay: $e');
@@ -141,35 +131,8 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      // Get the active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        _logger.severe('RelayProvider: No active account found for deleting relay');
-        return;
-      }
-
-      // Convert pubkey string to PublicKey object
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final relayType = await relayTypeNostr();
-
-      final currentRelayUrls = await fetchRelaysFrom(
-        pubkey: publicKey,
-        relayType: relayType,
-        nip65Relays: activeAccountData.nip65Relays,
-      );
-
-      // Filter out the relay to delete
-      final List<RelayUrl> updatedRelayUrls = [];
-      for (final relayUrl in currentRelayUrls) {
-        final urlString = await stringFromRelayUrl(relayUrl: relayUrl);
-        if (urlString != url) {
-          updatedRelayUrls.add(relayUrl);
-        }
-      }
-
-      await deleteRelay(url);
-
+      // await deleteRelay(url);
+      
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to delete relay: $e');
@@ -267,16 +230,6 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      // Get the active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        _logger.severe('RelayProvider: No active account found for adding relay');
-        return;
-      }
-
-      // Convert pubkey string to PublicKey object
-
       await addRelay(url);
       await loadRelays();
     } catch (e) {
@@ -286,35 +239,7 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      // Get the active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        _logger.severe('RelayProvider: No active account found for deleting relay');
-        return;
-      }
-
-      // Convert pubkey string to PublicKey object
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final relayType = await relayTypeInbox();
-
-      final currentRelayUrls = await fetchRelaysFrom(
-        pubkey: publicKey,
-        relayType: relayType,
-        nip65Relays: activeAccountData.nip65Relays,
-      );
-
-      // Filter out the relay to delete
-      final List<RelayUrl> updatedRelayUrls = [];
-      for (final relayUrl in currentRelayUrls) {
-        final urlString = await stringFromRelayUrl(relayUrl: relayUrl);
-        if (urlString != url) {
-          updatedRelayUrls.add(relayUrl);
-        }
-      }
-
       await deleteRelay(url);
-
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to delete relay: $e');
@@ -412,14 +337,6 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      // Get the active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        _logger.severe('RelayProvider: No active account found for adding relay');
-        return;
-      }
-
       await addRelay(url);
       await loadRelays();
     } catch (e) {
@@ -429,35 +346,7 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      // Get the active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        _logger.severe('RelayProvider: No active account found for deleting relay');
-        return;
-      }
-
-      // Convert pubkey string to PublicKey object
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final relayType = await relayTypeKeyPackage();
-
-      final currentRelayUrls = await fetchRelaysFrom(
-        pubkey: publicKey,
-        relayType: relayType,
-        nip65Relays: activeAccountData.nip65Relays,
-      );
-
-      // Filter out the relay to delete
-      final List<RelayUrl> updatedRelayUrls = [];
-      for (final relayUrl in currentRelayUrls) {
-        final urlString = await stringFromRelayUrl(relayUrl: relayUrl);
-        if (urlString != url) {
-          updatedRelayUrls.add(relayUrl);
-        }
-      }
-
       await deleteRelay(url);
-
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to delete relay: $e');
