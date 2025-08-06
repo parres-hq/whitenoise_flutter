@@ -5,12 +5,15 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 const String _profileReadyCardDismissedKey = 'profile_ready_card_dismissed';
 
 class ProfileReadyCardVisibilityNotifier extends AsyncNotifier<bool> {
-  late final SharedPreferences _prefs;
+  ProfileReadyCardVisibilityNotifier({SharedPreferences? prefs}) : _prefs = prefs;
+
+  SharedPreferences? prefs;
+  final SharedPreferences? _prefs;
   String? _currentPubKey;
 
   @override
   Future<bool> build() async {
-    _prefs = await SharedPreferences.getInstance();
+    prefs ??= _prefs ?? await SharedPreferences.getInstance();
     final activeAccountPubkey = ref.watch(activeAccountProvider);
     _currentPubKey = activeAccountPubkey;
     return await _loadVisibilityState();
@@ -21,9 +24,8 @@ class ProfileReadyCardVisibilityNotifier extends AsyncNotifier<bool> {
       if (_currentPubKey == null || _currentPubKey!.isEmpty) {
         return true;
       }
-
       final isDismissed =
-          _prefs.getBool('${_profileReadyCardDismissedKey}_$_currentPubKey') ?? false;
+          prefs?.getBool('${_profileReadyCardDismissedKey}_$_currentPubKey') ?? false;
       return !isDismissed;
     } catch (e) {
       return true;
@@ -37,7 +39,7 @@ class ProfileReadyCardVisibilityNotifier extends AsyncNotifier<bool> {
         return;
       }
 
-      await _prefs.setBool('${_profileReadyCardDismissedKey}_$_currentPubKey', true);
+      await prefs?.setBool('${_profileReadyCardDismissedKey}_$_currentPubKey', true);
       state = const AsyncValue.data(false);
     } catch (e) {
       state = const AsyncValue.data(false);
@@ -51,7 +53,7 @@ class ProfileReadyCardVisibilityNotifier extends AsyncNotifier<bool> {
         return;
       }
 
-      await _prefs.remove('${_profileReadyCardDismissedKey}_$_currentPubKey');
+      await prefs?.remove('${_profileReadyCardDismissedKey}_$_currentPubKey');
       state = const AsyncValue.data(true);
     } catch (e) {
       state = const AsyncValue.data(true);
