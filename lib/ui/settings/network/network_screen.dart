@@ -6,8 +6,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
-import 'package:whitenoise/config/providers/account_provider.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -112,11 +110,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
     });
   }
 
-  void _restoreDefaultRelays() {
-    final normalRelaysState = ref.read(normalRelaysProvider);
-    final inboxRelaysState = ref.read(inboxRelaysProvider);
-    final keyPackageRelaysState = ref.read(keyPackageRelaysProvider);
-  }
+  // void _restoreDefaultRelays() {}
 
   @override
   Widget build(BuildContext context) {
@@ -284,7 +278,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                   ).copyWith(bottom: 64.h),
                   child: WnFilledButton.icon(
                     visualState: WnButtonVisualState.secondary,
-                    onPressed: null,
+                    onPressed: null, // _restoreDefaultRelays,
                     icon: const Text('Restore Default Relays'),
                     label: Icon(
                       CarbonIcons.rotate,

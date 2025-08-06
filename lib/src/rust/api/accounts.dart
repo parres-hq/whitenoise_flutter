@@ -39,8 +39,7 @@ Future<AccountData> convertAccountToData({required Account account}) =>
 /// # Errors
 /// * Returns `WhitenoiseError` if the Whitenoise instance cannot be accessed or if
 ///   there's an issue fetching the accounts
-Future<List<AccountData>> getAccounts() =>
-    RustLib.instance.api.crateApiAccountsGetAccounts();
+Future<List<AccountData>> getAccounts() => RustLib.instance.api.crateApiAccountsGetAccounts();
 
 /// Fetches a specific account by its public key.
 ///
@@ -73,8 +72,7 @@ Future<AccountData> getAccount({required PublicKey pubkey}) =>
 /// # Errors
 /// * Returns `WhitenoiseError` if there's an issue with key generation, MLS setup,
 ///   or if the Whitenoise instance cannot be accessed
-Future<Account> createIdentity() =>
-    RustLib.instance.api.crateApiAccountsCreateIdentity();
+Future<Account> createIdentity() => RustLib.instance.api.crateApiAccountsCreateIdentity();
 
 /// Authenticates and logs in a user account using their private key.
 ///
@@ -92,10 +90,8 @@ Future<Account> createIdentity() =>
 /// # Errors
 /// * Returns `WhitenoiseError` if the private key is invalid, malformed, or if there's
 ///   an issue with the login process
-Future<Account> login({required String nsecOrHexPrivkey}) => RustLib
-    .instance
-    .api
-    .crateApiAccountsLogin(nsecOrHexPrivkey: nsecOrHexPrivkey);
+Future<Account> login({required String nsecOrHexPrivkey}) =>
+    RustLib.instance.api.crateApiAccountsLogin(nsecOrHexPrivkey: nsecOrHexPrivkey);
 
 /// Logs out an account identified by its public key.
 ///
@@ -295,8 +291,7 @@ class AccountSettings {
   });
 
   @override
-  int get hashCode =>
-      darkTheme.hashCode ^ devMode.hashCode ^ lockdownMode.hashCode;
+  int get hashCode => darkTheme.hashCode ^ devMode.hashCode ^ lockdownMode.hashCode;
 
   @override
   bool operator ==(Object other) =>

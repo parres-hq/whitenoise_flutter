@@ -157,10 +157,8 @@ Future<String> hexPubkeyFromNpub({required String npub}) =>
 /// let pubkey = PublicKey::parse("npub1...")?;
 /// let hex = hex_pubkey_from_public_key(&pubkey)?;
 /// ```
-Future<String> hexPubkeyFromPublicKey({required PublicKey publicKey}) => RustLib
-    .instance
-    .api
-    .crateApiUtilsHexPubkeyFromPublicKey(publicKey: publicKey);
+Future<String> hexPubkeyFromPublicKey({required PublicKey publicKey}) =>
+    RustLib.instance.api.crateApiUtilsHexPubkeyFromPublicKey(publicKey: publicKey);
 
 /// Parses a relay URL from a string.
 ///
@@ -302,8 +300,7 @@ Future<String> whitenoiseErrorToString({required WhitenoiseError error}) =>
 /// final pngType = imageTypePng();
 /// await uploadProfilePicture(pubkey, serverUrl, filePath, pngType);
 /// ```
-Future<ImageType> imageTypePng() =>
-    RustLib.instance.api.crateApiUtilsImageTypePng();
+Future<ImageType> imageTypePng() => RustLib.instance.api.crateApiUtilsImageTypePng();
 
 /// Creates an ImageType::Jpeg variant.
 ///
@@ -318,8 +315,7 @@ Future<ImageType> imageTypePng() =>
 /// final jpegType = imageTypeJpeg();
 /// await uploadProfilePicture(pubkey, serverUrl, filePath, jpegType);
 /// ```
-Future<ImageType> imageTypeJpeg() =>
-    RustLib.instance.api.crateApiUtilsImageTypeJpeg();
+Future<ImageType> imageTypeJpeg() => RustLib.instance.api.crateApiUtilsImageTypeJpeg();
 
 /// Creates an ImageType::Jpg variant.
 ///
@@ -334,8 +330,7 @@ Future<ImageType> imageTypeJpeg() =>
 /// final jpgType = imageTypeJpg();
 /// await uploadProfilePicture(pubkey, serverUrl, filePath, jpgType);
 /// ```
-Future<ImageType> imageTypeJpg() =>
-    RustLib.instance.api.crateApiUtilsImageTypeJpg();
+Future<ImageType> imageTypeJpg() => RustLib.instance.api.crateApiUtilsImageTypeJpg();
 
 /// Creates an ImageType::Gif variant.
 ///
@@ -350,8 +345,7 @@ Future<ImageType> imageTypeJpg() =>
 /// final gifType = imageTypeGif();
 /// await uploadProfilePicture(pubkey, serverUrl, filePath, gifType);
 /// ```
-Future<ImageType> imageTypeGif() =>
-    RustLib.instance.api.crateApiUtilsImageTypeGif();
+Future<ImageType> imageTypeGif() => RustLib.instance.api.crateApiUtilsImageTypeGif();
 
 /// Creates an ImageType::Webp variant.
 ///
@@ -366,8 +360,7 @@ Future<ImageType> imageTypeGif() =>
 /// final webpType = imageTypeWebp();
 /// await uploadProfilePicture(pubkey, serverUrl, filePath, webpType);
 /// ```
-Future<ImageType> imageTypeWebp() =>
-    RustLib.instance.api.crateApiUtilsImageTypeWebp();
+Future<ImageType> imageTypeWebp() => RustLib.instance.api.crateApiUtilsImageTypeWebp();
 
 /// Determines the appropriate ImageType based on a file extension.
 ///

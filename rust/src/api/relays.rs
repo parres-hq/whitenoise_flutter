@@ -61,7 +61,8 @@ pub async fn fetch_relays_from(
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise
         .fetch_relays_from(nip65_relays.into_iter().collect(), pubkey, relay_type)
-        .await.map(|set| set.into_iter().collect())
+        .await
+        .map(|set| set.into_iter().collect())
 }
 
 /// Fetches an account's MLS key package from its configured key package relays.
@@ -88,7 +89,11 @@ pub async fn fetch_key_package(
 ) -> Result<Option<Event>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let key_package_relays = whitenoise
-        .fetch_relays_from(nip65_relays.clone().into_iter().collect(), pubkey, RelayType::KeyPackage)
+        .fetch_relays_from(
+            nip65_relays.clone().into_iter().collect(),
+            pubkey,
+            RelayType::KeyPackage,
+        )
         .await?;
     if key_package_relays.is_empty() {
         return Ok(None);
