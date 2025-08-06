@@ -5,12 +5,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_refreshing_indicator.dart';
 import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_expansion_tile.dart';
@@ -110,8 +108,6 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
     });
   }
 
-  // void _restoreDefaultRelays() {}
-
   @override
   Widget build(BuildContext context) {
     final normalRelaysState = ref.watch(normalRelaysProvider);
@@ -167,6 +163,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
             child: Scaffold(
               backgroundColor: context.colors.appBarBackground,
               body: SafeArea(
+                bottom: false,
                 child: ColoredBox(
                   color: context.colors.neutral,
                   child: Column(
@@ -265,26 +262,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                           ),
                         ),
                       ),
-                      Gap(100.h),
                     ],
-                  ),
-                ),
-              ),
-              bottomSheet: SafeArea(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 16.w,
-                    vertical: 8.0,
-                  ).copyWith(bottom: 64.h),
-                  child: WnFilledButton.icon(
-                    visualState: WnButtonVisualState.secondary,
-                    onPressed: null, // _restoreDefaultRelays,
-                    icon: const Text('Restore Default Relays'),
-                    label: Icon(
-                      CarbonIcons.rotate,
-                      color: context.colors.primary,
-                      size: 20.sp,
-                    ),
                   ),
                 ),
               ),

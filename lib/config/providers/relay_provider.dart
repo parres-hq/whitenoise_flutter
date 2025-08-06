@@ -64,6 +64,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       // Get the active account data directly
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+
       _logger.info('NormalRelaysNotifier: Active account data: ${activeAccountData?.pubkey}');
       if (activeAccountData == null) {
         _logger.warning('NormalRelaysNotifier: No active account found');
@@ -72,15 +73,10 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       }
 
       // Convert pubkey string to PublicKey object
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final relayType = await relayTypeNostr();
 
+      final relayUrls = activeAccountData.nip65Relays;
       _logger.info('NormalRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}');
-      final relayUrls = await fetchRelaysFrom(
-        pubkey: publicKey,
-        relayType: relayType,
-        nip65Relays: activeAccountData.nip65Relays,
-      );
+
       _logger.info('NormalRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
 
       // If no relays found, log this information
@@ -122,13 +118,13 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
+      final accountPubKeyString = ref.read(activeAccountProvider);
+
+      if (accountPubKeyString == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final publicKey = await publicKeyFromString(publicKeyString: accountPubKeyString);
       final relay = await relayUrlFromString(url: url);
 
       await addNip65Relay(
@@ -143,13 +139,12 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
+      final accountPubKeyString = ref.read(activeAccountProvider);
+      if (accountPubKeyString == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final publicKey = await publicKeyFromString(publicKeyString: accountPubKeyString);
       final relay = await relayUrlFromString(url: url);
 
       await removeNip65Relay(
@@ -203,16 +198,9 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
         return;
       }
 
-      // Convert pubkey string to PublicKey object
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final relayType = await relayTypeInbox();
-
       _logger.info('InboxRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}');
-      final relayUrls = await fetchRelaysFrom(
-        pubkey: publicKey,
-        relayType: relayType,
-        nip65Relays: activeAccountData.nip65Relays,
-      );
+      final relayUrls = activeAccountData.inboxRelays;
+
       _logger.info('InboxRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
 
       // If no relays found, log this information
@@ -254,13 +242,12 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
+      final accountPubKeyString = ref.read(activeAccountProvider);
+      if (accountPubKeyString == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final publicKey = await publicKeyFromString(publicKeyString: accountPubKeyString);
       final relay = await relayUrlFromString(url: url);
 
       await addInboxRelay(
@@ -275,13 +262,13 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
+      final accountPubKeyString = ref.read(activeAccountProvider);
+
+      if (accountPubKeyString == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final publicKey = await publicKeyFromString(publicKeyString: accountPubKeyString);
       final relay = await relayUrlFromString(url: url);
 
       await removeInboxRelay(
@@ -335,17 +322,12 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       }
 
       // Convert pubkey string to PublicKey object
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final relayType = await relayTypeKeyPackage();
 
       _logger.info(
         'KeyPackageRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}',
       );
-      final relayUrls = await fetchRelaysFrom(
-        pubkey: publicKey,
-        relayType: relayType,
-        nip65Relays: [],
-      );
+      final relayUrls = activeAccountData.keyPackageRelays;
+
       _logger.info('KeyPackageRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
 
       // If no relays found, log this information
@@ -385,13 +367,12 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
+      final accountPubKeyString = ref.read(activeAccountProvider);
+      if (accountPubKeyString == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final publicKey = await publicKeyFromString(publicKeyString: accountPubKeyString);
       final relay = await relayUrlFromString(url: url);
 
       await addKeyPackageRelay(
@@ -406,13 +387,13 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
+      final accountPubKeyString = ref.read(activeAccountProvider);
+
+      if (accountPubKeyString == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final publicKey = await publicKeyFromString(publicKeyString: accountPubKeyString);
       final relay = await relayUrlFromString(url: url);
 
       await removeKeyPackageRelay(

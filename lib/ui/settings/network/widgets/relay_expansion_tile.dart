@@ -41,11 +41,13 @@ class _RelayExpansionTileState extends ConsumerState<RelayExpansionTile> {
     try {
       // Call the appropriate notifier's addRelay method
       if (widget.relayNotifier is NormalRelaysNotifier) {
-        await (widget.relayNotifier as NormalRelaysNotifier).addRelay(url);
-      } else if (widget.relayNotifier is InboxRelaysNotifier) {
-        await (widget.relayNotifier as InboxRelaysNotifier).addRelay(url);
-      } else if (widget.relayNotifier is KeyPackageRelaysNotifier) {
-        await (widget.relayNotifier as KeyPackageRelaysNotifier).addRelay(url);
+        return await (widget.relayNotifier as NormalRelaysNotifier).addRelay(url);
+      }
+      if (widget.relayNotifier is InboxRelaysNotifier) {
+        return await (widget.relayNotifier as InboxRelaysNotifier).addRelay(url);
+      }
+      if (widget.relayNotifier is KeyPackageRelaysNotifier) {
+        return await (widget.relayNotifier as KeyPackageRelaysNotifier).addRelay(url);
       }
     } catch (e) {
       ref.showErrorToast('Failed to add relay: $e');
@@ -56,11 +58,13 @@ class _RelayExpansionTileState extends ConsumerState<RelayExpansionTile> {
     try {
       // Call the appropriate notifier's deleteRelay method
       if (widget.relayNotifier is NormalRelaysNotifier) {
-        await (widget.relayNotifier as NormalRelaysNotifier).deleteRelay(url);
-      } else if (widget.relayNotifier is InboxRelaysNotifier) {
-        await (widget.relayNotifier as InboxRelaysNotifier).deleteRelay(url);
-      } else if (widget.relayNotifier is KeyPackageRelaysNotifier) {
-        await (widget.relayNotifier as KeyPackageRelaysNotifier).deleteRelay(url);
+        return await (widget.relayNotifier as NormalRelaysNotifier).deleteRelay(url);
+      }
+      if (widget.relayNotifier is InboxRelaysNotifier) {
+        return await (widget.relayNotifier as InboxRelaysNotifier).deleteRelay(url);
+      }
+      if (widget.relayNotifier is KeyPackageRelaysNotifier) {
+        return await (widget.relayNotifier as KeyPackageRelaysNotifier).deleteRelay(url);
       }
     } catch (e) {
       ref.showErrorToast('Failed to delete relay: $e');
@@ -113,7 +117,7 @@ class _RelayExpansionTileState extends ConsumerState<RelayExpansionTile> {
         if (widget.relayState.isLoading)
           const Center(child: CircularProgressIndicator())
         else if (widget.relayState.error != null)
-          Center(child: Text('Error: ${widget.relayState.error}'))
+          const Center(child: Text('Error Loading Relays'))
         else
           Column(
             children:
