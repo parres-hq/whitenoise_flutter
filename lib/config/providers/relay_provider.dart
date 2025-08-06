@@ -122,7 +122,19 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      await addRelay(url);
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        _logger.severe('RelayProvider: No active account found for adding relay');
+        return;
+      }
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final relay = await relayUrlFromString(url: url);
+
+      await addNip65Relay(
+        pubkey: publicKey,
+        relay: relay,
+      );
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to add relay: $e');
@@ -131,8 +143,20 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      // await deleteRelay(url);
-      
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        _logger.severe('RelayProvider: No active account found for adding relay');
+        return;
+      }
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final relay = await relayUrlFromString(url: url);
+
+      await removeNip65Relay(
+        pubkey: publicKey,
+        relay: relay,
+      );
+
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to delete relay: $e');
@@ -230,7 +254,19 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      await addRelay(url);
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        _logger.severe('RelayProvider: No active account found for adding relay');
+        return;
+      }
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final relay = await relayUrlFromString(url: url);
+
+      await addInboxRelay(
+        pubkey: publicKey,
+        relay: relay,
+      );
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to add relay: $e');
@@ -239,7 +275,19 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      await deleteRelay(url);
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        _logger.severe('RelayProvider: No active account found for adding relay');
+        return;
+      }
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final relay = await relayUrlFromString(url: url);
+
+      await removeInboxRelay(
+        pubkey: publicKey,
+        relay: relay,
+      );
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to delete relay: $e');
@@ -337,7 +385,19 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      await addRelay(url);
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        _logger.severe('RelayProvider: No active account found for adding relay');
+        return;
+      }
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final relay = await relayUrlFromString(url: url);
+
+      await addKeyPackageRelay(
+        pubkey: publicKey,
+        relay: relay,
+      );
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to add relay: $e');
@@ -346,7 +406,19 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      await deleteRelay(url);
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        _logger.severe('RelayProvider: No active account found for adding relay');
+        return;
+      }
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final relay = await relayUrlFromString(url: url);
+
+      await removeKeyPackageRelay(
+        pubkey: publicKey,
+        relay: relay,
+      );
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to delete relay: $e');

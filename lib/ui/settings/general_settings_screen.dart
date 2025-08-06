@@ -37,7 +37,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   AccountData? _currentAccount;
   Map<String, ContactModel> _accountContactModels = {}; // Cache for contact models
   ProviderSubscription<AsyncValue<ProfileState>>? _profileSubscription;
-  bool _isLoading = false;
   @override
   void initState() {
     super.initState();
@@ -64,7 +63,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   Future<void> _loadAccounts() async {
     try {
-      setState(() => _isLoading = true);
       final accounts = await getAccounts();
       final activeAccountPubkey = ref.read(activeAccountProvider);
 
@@ -113,9 +111,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       if (mounted) {
         ref.showErrorToast('Failed to load accounts: $e');
       }
-    } finally {
-      setState(() => _isLoading = false);
-    }
+    } finally {}
   }
 
   Future<void> _switchAccount(AccountData account) async {
@@ -320,9 +316,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Column(
                   children: [
-                    if (_isLoading)
-                      const Center(child: CircularProgressIndicator())
-                    else if (_currentAccount != null)
+                    if (_currentAccount != null)
                       ContactListTile(
                         contact: _accountToContactModel(_currentAccount!),
                         trailingIcon: Icon(

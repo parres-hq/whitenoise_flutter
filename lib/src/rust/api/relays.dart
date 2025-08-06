@@ -17,7 +17,8 @@ import 'accounts.dart';
 ///
 /// # Returns
 /// RelayType::Nostr variant
-Future<RelayType> relayTypeNostr() => RustLib.instance.api.crateApiRelaysRelayTypeNostr();
+Future<RelayType> relayTypeNostr() =>
+    RustLib.instance.api.crateApiRelaysRelayTypeNostr();
 
 /// Creates a RelayType::Inbox variant.
 ///
@@ -26,7 +27,8 @@ Future<RelayType> relayTypeNostr() => RustLib.instance.api.crateApiRelaysRelayTy
 ///
 /// # Returns
 /// RelayType::Inbox variant
-Future<RelayType> relayTypeInbox() => RustLib.instance.api.crateApiRelaysRelayTypeInbox();
+Future<RelayType> relayTypeInbox() =>
+    RustLib.instance.api.crateApiRelaysRelayTypeInbox();
 
 /// Creates a RelayType::KeyPackage variant.
 ///
@@ -35,7 +37,8 @@ Future<RelayType> relayTypeInbox() => RustLib.instance.api.crateApiRelaysRelayTy
 ///
 /// # Returns
 /// RelayType::KeyPackage variant
-Future<RelayType> relayTypeKeyPackage() => RustLib.instance.api.crateApiRelaysRelayTypeKeyPackage();
+Future<RelayType> relayTypeKeyPackage() =>
+    RustLib.instance.api.crateApiRelaysRelayTypeKeyPackage();
 
 /// Fetches all relays of a specific type associated with an account.
 ///
@@ -115,6 +118,54 @@ Future<Event?> fetchKeyPackage({
 /// ```
 Future<List<(String, String)>> fetchRelayStatus({required PublicKey pubkey}) =>
     RustLib.instance.api.crateApiRelaysFetchRelayStatus(pubkey: pubkey);
+
+Future<void> addNip65Relay({
+  required PublicKey pubkey,
+  required RelayUrl relay,
+}) => RustLib.instance.api.crateApiRelaysAddNip65Relay(
+  pubkey: pubkey,
+  relay: relay,
+);
+
+Future<void> addInboxRelay({
+  required PublicKey pubkey,
+  required RelayUrl relay,
+}) => RustLib.instance.api.crateApiRelaysAddInboxRelay(
+  pubkey: pubkey,
+  relay: relay,
+);
+
+Future<void> addKeyPackageRelay({
+  required PublicKey pubkey,
+  required RelayUrl relay,
+}) => RustLib.instance.api.crateApiRelaysAddKeyPackageRelay(
+  pubkey: pubkey,
+  relay: relay,
+);
+
+Future<void> removeNip65Relay({
+  required PublicKey pubkey,
+  required RelayUrl relay,
+}) => RustLib.instance.api.crateApiRelaysRemoveNip65Relay(
+  pubkey: pubkey,
+  relay: relay,
+);
+
+Future<void> removeInboxRelay({
+  required PublicKey pubkey,
+  required RelayUrl relay,
+}) => RustLib.instance.api.crateApiRelaysRemoveInboxRelay(
+  pubkey: pubkey,
+  relay: relay,
+);
+
+Future<void> removeKeyPackageRelay({
+  required PublicKey pubkey,
+  required RelayUrl relay,
+}) => RustLib.instance.api.crateApiRelaysRemoveKeyPackageRelay(
+  pubkey: pubkey,
+  relay: relay,
+);
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
 abstract class Event implements RustOpaqueInterface {}

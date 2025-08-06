@@ -144,3 +144,45 @@ pub async fn fetch_relay_status(
         .collect();
     Ok(converted_statuses)
 }
+
+#[frb]
+pub async fn add_nip65_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let account = whitenoise.get_account(&pubkey).await?;
+    whitenoise.add_nip65_relay(&account, relay).await
+}
+
+#[frb]
+pub async fn add_inbox_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let account = whitenoise.get_account(&pubkey).await?;
+    whitenoise.add_inbox_relay(&account, relay).await
+}
+
+#[frb]
+pub async fn add_key_package_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let account = whitenoise.get_account(&pubkey).await?;
+    whitenoise.add_key_package_relay(&account, relay).await
+}
+
+#[frb]
+pub async fn remove_nip65_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let account = whitenoise.get_account(&pubkey).await?;
+    whitenoise.remove_nip65_relay(&account, relay).await
+}
+
+#[frb]
+pub async fn remove_inbox_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let account = whitenoise.get_account(&pubkey).await?;
+    whitenoise.remove_inbox_relay(&account, relay).await
+}
+
+#[frb]
+pub async fn remove_key_package_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let account = whitenoise.get_account(&pubkey).await?;
+    whitenoise.remove_key_package_relay(&account, relay).await
+}
