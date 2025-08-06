@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
@@ -197,13 +198,20 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
   Future<Map<String, List<ContactModel>>> _filterContactsByKeyPackage(
     List<ContactModel> contacts,
   ) async {
+    final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+    if (activeAccountData == null) {
+      throw Exception('No active account found');
+    }
     final contactsWithKeyPackage = <ContactModel>[];
     final contactsWithoutKeyPackage = <ContactModel>[];
 
     for (final contact in contacts) {
       try {
         final pubkey = await publicKeyFromString(publicKeyString: contact.publicKey);
-        final keyPackage = await fetchKeyPackage(pubkey: pubkey);
+        final keyPackage = await fetchKeyPackage(
+          pubkey: pubkey,
+          nip65Relays: activeAccountData.nip65Relays,
+        );
 
         if (keyPackage != null) {
           contactsWithKeyPackage.add(contact);

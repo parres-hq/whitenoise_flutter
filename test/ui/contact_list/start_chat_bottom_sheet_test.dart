@@ -5,6 +5,7 @@ import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/services/key_package_service.dart';
 import 'package:whitenoise/src/rust/api/relays.dart' as relays;
+import 'package:whitenoise/src/rust/lib.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import '../../test_helpers.dart';
 
@@ -30,9 +31,22 @@ class MockEvent implements relays.Event {
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
+class MockRelayUrl implements RelayUrl {
+  final String url;
+
+  MockRelayUrl({required this.url});
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+}
+
 // Mock KeyPackageService that returns a key package (user is on White Noise)
 class MockKeyPackageServiceWithPackage extends KeyPackageService {
-  MockKeyPackageServiceWithPackage() : super(publicKeyString: 'test');
+  MockKeyPackageServiceWithPackage()
+    : super(
+        publicKeyString: 'test',
+        nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
+      );
 
   @override
   Future<relays.Event?> fetchWithRetry() async {
@@ -42,7 +56,11 @@ class MockKeyPackageServiceWithPackage extends KeyPackageService {
 
 // Mock KeyPackageService that returns null (user needs invite)
 class MockKeyPackageServiceWithoutPackage extends KeyPackageService {
-  MockKeyPackageServiceWithoutPackage() : super(publicKeyString: 'test');
+  MockKeyPackageServiceWithoutPackage()
+    : super(
+        publicKeyString: 'test',
+        nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
+      );
 
   @override
   Future<relays.Event?> fetchWithRetry() async {
@@ -52,7 +70,11 @@ class MockKeyPackageServiceWithoutPackage extends KeyPackageService {
 
 // Mock KeyPackageService that throws an error
 class MockKeyPackageServiceWithError extends KeyPackageService {
-  MockKeyPackageServiceWithError() : super(publicKeyString: 'test');
+  MockKeyPackageServiceWithError()
+    : super(
+        publicKeyString: 'test',
+        nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
+      );
 
   @override
   Future<relays.Event?> fetchWithRetry() async {

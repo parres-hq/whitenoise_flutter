@@ -4,18 +4,17 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:whitenoise/config/providers/account_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
-import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_refreshing_indicator.dart';
 import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
-import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_expansion_tile.dart';
 
 class NetworkScreen extends ConsumerStatefulWidget {
@@ -30,6 +29,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
   final GlobalKey _myRelayHelpIconKey = GlobalKey();
   final GlobalKey _inboxRelayHelpIconKey = GlobalKey();
   final GlobalKey _keyPackageRelayHelpIconKey = GlobalKey();
+  GlobalKey? _currentOpenTooltipKey;
   bool _isLoading = false;
   bool _isRefreshing = false;
   bool _isPulling = false;
@@ -90,6 +90,16 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
   }
 
   void _showHelpTooltip(GlobalKey key, String message) {
+    // If the same tooltip is already open, close it
+    if (_currentOpenTooltipKey == key) {
+      WnTooltip.hide();
+      setState(() {
+        _currentOpenTooltipKey = null;
+      });
+      return;
+    }
+
+    // Close any existing tooltip and open the new one
     WnTooltip.hide();
     WnTooltip.show(
       context: context,
@@ -97,13 +107,15 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
       message: message,
       maxWidth: 300.w,
     );
+    setState(() {
+      _currentOpenTooltipKey = key;
+    });
   }
 
-  void _showAddRelayBottomSheet() {
-    AddRelayBottomSheet.show(
-      context: context,
-      onRelayAdded: (_) {},
-    );
+  void _restoreDefaultRelays() {
+    final normalRelaysState = ref.read(normalRelaysProvider);
+    final inboxRelaysState = ref.read(inboxRelaysProvider);
+    final keyPackageRelaysState = ref.read(keyPackageRelaysProvider);
   }
 
   @override
@@ -148,10 +160,16 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
           onPopInvokedWithResult: (didPop, result) {
             if (didPop) {
               WnTooltip.hide();
+              _currentOpenTooltipKey = null;
             }
           },
           child: GestureDetector(
-            onTap: () => WnTooltip.hide(),
+            onTap: () {
+              WnTooltip.hide();
+              setState(() {
+                _currentOpenTooltipKey = null;
+              });
+            },
             child: Scaffold(
               backgroundColor: context.colors.appBarBackground,
               body: SafeArea(
@@ -215,36 +233,36 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                                       title: 'My Relays',
                                       helpIconKey: _myRelayHelpIconKey,
                                       relayState: normalRelaysState,
+                                      relayNotifier: ref.read(normalRelaysProvider.notifier),
                                       onInfoTap:
                                           () => _showHelpTooltip(
                                             _myRelayHelpIconKey,
-                                            'Relays you’ve defined for use across all your Nostr applications.',
+                                            'Relays you have defined for use across all your Nostr applications.',
                                           ),
-                                      onAddTap: _showAddRelayBottomSheet,
                                     ),
                                     Gap(16.h),
                                     RelayExpansionTile(
                                       title: 'Inbox Relays',
                                       helpIconKey: _inboxRelayHelpIconKey,
                                       relayState: inboxRelaysState,
+                                      relayNotifier: ref.read(inboxRelaysProvider.notifier),
                                       onInfoTap:
                                           () => _showHelpTooltip(
                                             _inboxRelayHelpIconKey,
                                             'Relays used to receive invitations and start secure conversations with new contacts.',
                                           ),
-                                      onAddTap: _showAddRelayBottomSheet,
                                     ),
                                     Gap(16.h),
                                     RelayExpansionTile(
                                       title: 'Key Package Relays',
                                       helpIconKey: _keyPackageRelayHelpIconKey,
+                                      relayState: keyPackageRelaysState,
+                                      relayNotifier: ref.read(keyPackageRelaysProvider.notifier),
                                       onInfoTap:
                                           () => _showHelpTooltip(
                                             _keyPackageRelayHelpIconKey,
                                             'Relays that store your secure key so others can invite you to encrypted conversations.',
                                           ),
-                                      relayState: keyPackageRelaysState,
-                                      onAddTap: _showAddRelayBottomSheet,
                                     ),
                                   ],
                                 ),
@@ -266,7 +284,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                   ).copyWith(bottom: 64.h),
                   child: WnFilledButton.icon(
                     visualState: WnButtonVisualState.secondary,
-                    onPressed: () => context.push(Routes.settingsNetworkMonitor),
+                    onPressed: null,
                     icon: const Text('Restore Default Relays'),
                     label: Icon(
                       CarbonIcons.rotate,

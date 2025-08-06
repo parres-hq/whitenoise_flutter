@@ -1,31 +1,72 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_tile.dart';
 
-class RelayExpansionTile extends StatefulWidget {
+class RelayExpansionTile extends ConsumerStatefulWidget {
   final String title;
   final RelayState relayState;
   final VoidCallback? onInfoTap;
-  final VoidCallback? onAddTap;
+  final Notifier<RelayState> relayNotifier;
   final GlobalKey helpIconKey;
+
   const RelayExpansionTile({
     super.key,
     required this.title,
     required this.relayState,
     this.onInfoTap,
-    this.onAddTap,
+    required this.relayNotifier,
     required this.helpIconKey,
   });
 
   @override
-  State<RelayExpansionTile> createState() => _RelayExpansionTileState();
+  ConsumerState<RelayExpansionTile> createState() => _RelayExpansionTileState();
 }
 
-class _RelayExpansionTileState extends State<RelayExpansionTile> {
+class _RelayExpansionTileState extends ConsumerState<RelayExpansionTile> {
+  Future<void> _showAddRelayBottomSheet() async {
+    await AddRelayBottomSheet.show(
+      context: context,
+      onRelayAdded: _addRelay,
+    );
+  }
+
+  Future<void> _addRelay(String url) async {
+    try {
+      // Call the appropriate notifier's addRelay method
+      if (widget.relayNotifier is NormalRelaysNotifier) {
+        await (widget.relayNotifier as NormalRelaysNotifier).addRelay(url);
+      } else if (widget.relayNotifier is InboxRelaysNotifier) {
+        await (widget.relayNotifier as InboxRelaysNotifier).addRelay(url);
+      } else if (widget.relayNotifier is KeyPackageRelaysNotifier) {
+        await (widget.relayNotifier as KeyPackageRelaysNotifier).addRelay(url);
+      }
+    } catch (e) {
+      ref.showErrorToast('Failed to add relay: $e');
+    }
+  }
+
+  Future<void> _deleteRelay(String url) async {
+    try {
+      // Call the appropriate notifier's deleteRelay method
+      if (widget.relayNotifier is NormalRelaysNotifier) {
+        await (widget.relayNotifier as NormalRelaysNotifier).deleteRelay(url);
+      } else if (widget.relayNotifier is InboxRelaysNotifier) {
+        await (widget.relayNotifier as InboxRelaysNotifier).deleteRelay(url);
+      } else if (widget.relayNotifier is KeyPackageRelaysNotifier) {
+        await (widget.relayNotifier as KeyPackageRelaysNotifier).deleteRelay(url);
+      }
+    } catch (e) {
+      ref.showErrorToast('Failed to delete relay: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
@@ -57,15 +98,14 @@ class _RelayExpansionTileState extends State<RelayExpansionTile> {
               ),
             ),
           const Spacer(),
-          if (widget.onAddTap != null)
-            InkWell(
-              onTap: widget.onAddTap,
-              child: Icon(
-                CarbonIcons.add,
-                color: context.colors.primary,
-                size: 23.sp,
-              ),
+          InkWell(
+            onTap: _showAddRelayBottomSheet,
+            child: Icon(
+              CarbonIcons.add,
+              color: context.colors.primary,
+              size: 23.sp,
             ),
+          ),
         ],
       ),
 
@@ -84,6 +124,7 @@ class _RelayExpansionTileState extends State<RelayExpansionTile> {
                         child: RelayTile(
                           relayInfo: relay,
                           showOptions: true,
+                          onDelete: () => _deleteRelay(relay.url),
                         ),
                       ),
                     )

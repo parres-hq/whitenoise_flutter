@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_redundant_argument_values
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
@@ -7,6 +5,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/lib.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 
 // State for relay management
@@ -78,9 +77,10 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       final relayType = await relayTypeNostr();
 
       _logger.info('NormalRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}');
-      final relayUrls = await fetchRelays(
+      final relayUrls = await fetchRelaysFrom(
         pubkey: publicKey,
         relayType: relayType,
+        nip65Relays: activeAccountData.nip65Relays,
       );
       _logger.info('NormalRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
 
@@ -98,7 +98,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
         await ref.read(relayStatusProvider.notifier).loadRelayStatuses();
       }
 
-      final relayInfos = await Future.wait(
+      final relayInfos = await Future.wait<RelayInfo>(
         relayUrls.map((relayUrl) async {
           final url = await stringFromRelayUrl(relayUrl: relayUrl);
           // Get status from relay status provider
@@ -131,26 +131,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
         return;
       }
 
-      // Convert pubkey string to PublicKey object
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final relayUrl = await relayUrlFromString(url: url);
-      final relayType = await relayTypeNostr();
-
-      final currentRelayUrls = await fetchRelays(
-        pubkey: publicKey,
-        relayType: relayType,
-      );
-
-      final refreshedPublicKey = await publicKeyFromString(
-        publicKeyString: activeAccountData.pubkey,
-      );
-      final refreshedRelayType = await relayTypeNostr();
-
-      await updateRelays(
-        pubkey: refreshedPublicKey,
-        relayType: refreshedRelayType,
-        relays: [...currentRelayUrls, relayUrl],
-      );
+      await addRelay(url);
 
       await loadRelays();
     } catch (e) {
@@ -172,9 +153,10 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeNostr();
 
-      final currentRelayUrls = await fetchRelays(
+      final currentRelayUrls = await fetchRelaysFrom(
         pubkey: publicKey,
         relayType: relayType,
+        nip65Relays: activeAccountData.nip65Relays,
       );
 
       // Filter out the relay to delete
@@ -185,15 +167,8 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
           updatedRelayUrls.add(relayUrl);
         }
       }
-      final refreshedPublicKey = await publicKeyFromString(
-        publicKeyString: activeAccountData.pubkey,
-      );
-      final refreshedRelayType = await relayTypeNostr();
-      await updateRelays(
-        pubkey: refreshedPublicKey,
-        relayType: refreshedRelayType,
-        relays: updatedRelayUrls,
-      );
+
+      await deleteRelay(url);
 
       await loadRelays();
     } catch (e) {
@@ -246,9 +221,10 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       final relayType = await relayTypeInbox();
 
       _logger.info('InboxRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}');
-      final relayUrls = await fetchRelays(
+      final relayUrls = await fetchRelaysFrom(
         pubkey: publicKey,
         relayType: relayType,
+        nip65Relays: activeAccountData.nip65Relays,
       );
       _logger.info('InboxRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
 
@@ -266,7 +242,7 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
         await ref.read(relayStatusProvider.notifier).loadRelayStatuses();
       }
 
-      final relayInfos = await Future.wait(
+      final relayInfos = await Future.wait<RelayInfo>(
         relayUrls.map((relayUrl) async {
           final url = await stringFromRelayUrl(relayUrl: relayUrl);
           // Get status from relay status provider
@@ -300,26 +276,8 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       }
 
       // Convert pubkey string to PublicKey object
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final relayUrl = await relayUrlFromString(url: url);
-      final relayType = await relayTypeInbox();
 
-      final currentRelayUrls = await fetchRelays(
-        pubkey: publicKey,
-        relayType: relayType,
-      );
-
-      final refreshedPublicKey = await publicKeyFromString(
-        publicKeyString: activeAccountData.pubkey,
-      );
-      final refreshedRelayType = await relayTypeInbox();
-
-      await updateRelays(
-        pubkey: refreshedPublicKey,
-        relayType: refreshedRelayType,
-        relays: [...currentRelayUrls, relayUrl],
-      );
-
+      await addRelay(url);
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to add relay: $e');
@@ -340,9 +298,10 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeInbox();
 
-      final currentRelayUrls = await fetchRelays(
+      final currentRelayUrls = await fetchRelaysFrom(
         pubkey: publicKey,
         relayType: relayType,
+        nip65Relays: activeAccountData.nip65Relays,
       );
 
       // Filter out the relay to delete
@@ -353,15 +312,8 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
           updatedRelayUrls.add(relayUrl);
         }
       }
-      final refreshedPublicKey = await publicKeyFromString(
-        publicKeyString: activeAccountData.pubkey,
-      );
-      final refreshedRelayType = await relayTypeInbox();
-      await updateRelays(
-        pubkey: refreshedPublicKey,
-        relayType: refreshedRelayType,
-        relays: updatedRelayUrls,
-      );
+
+      await deleteRelay(url);
 
       await loadRelays();
     } catch (e) {
@@ -416,9 +368,10 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       _logger.info(
         'KeyPackageRelaysNotifier: Fetching relays for pubkey: ${activeAccountData.pubkey}',
       );
-      final relayUrls = await fetchRelays(
+      final relayUrls = await fetchRelaysFrom(
         pubkey: publicKey,
         relayType: relayType,
+        nip65Relays: [],
       );
       _logger.info('KeyPackageRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
 
@@ -432,7 +385,7 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
         return;
       }
 
-      final relayInfos = await Future.wait(
+      final relayInfos = await Future.wait<RelayInfo>(
         relayUrls.map((relayUrl) async {
           final url = await stringFromRelayUrl(relayUrl: relayUrl);
           // Get status from relay status provider
@@ -467,27 +420,7 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
         return;
       }
 
-      // Convert pubkey string to PublicKey object
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final relayUrl = await relayUrlFromString(url: url);
-      final relayType = await relayTypeKeyPackage();
-
-      final currentRelayUrls = await fetchRelays(
-        pubkey: publicKey,
-        relayType: relayType,
-      );
-
-      final refreshedPublicKey = await publicKeyFromString(
-        publicKeyString: activeAccountData.pubkey,
-      );
-      final refreshedRelayType = await relayTypeKeyPackage();
-
-      await updateRelays(
-        pubkey: refreshedPublicKey,
-        relayType: refreshedRelayType,
-        relays: [...currentRelayUrls, relayUrl],
-      );
-
+      await addRelay(url);
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to add relay: $e');
@@ -508,9 +441,10 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final relayType = await relayTypeKeyPackage();
 
-      final currentRelayUrls = await fetchRelays(
+      final currentRelayUrls = await fetchRelaysFrom(
         pubkey: publicKey,
         relayType: relayType,
+        nip65Relays: activeAccountData.nip65Relays,
       );
 
       // Filter out the relay to delete
@@ -522,16 +456,7 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
         }
       }
 
-      final refreshedPublicKey = await publicKeyFromString(
-        publicKeyString: activeAccountData.pubkey,
-      );
-      final refreshedRelayType = await relayTypeKeyPackage();
-
-      await updateRelays(
-        pubkey: refreshedPublicKey,
-        relayType: refreshedRelayType,
-        relays: updatedRelayUrls,
-      );
+      await deleteRelay(url);
 
       await loadRelays();
     } catch (e) {

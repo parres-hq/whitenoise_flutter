@@ -65,7 +65,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Future<void> _loadAccounts() async {
     try {
       setState(() => _isLoading = true);
-      final accounts = await fetchAccounts();
+      final accounts = await getAccounts();
       final activeAccountPubkey = ref.read(activeAccountProvider);
 
       // Load metadata for all accounts using metadata cache
@@ -162,7 +162,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       onProfileSelected: (selectedProfile) async {
         // Find the corresponding AccountData
         // Note: selectedProfile.publicKey is in npub format (from metadata cache)
-        // but account.pubkey is in hex format (from fetchAccounts)
+        // but account.pubkey is in hex format (from getAccounts)
         // So we need to convert npub back to hex for matching
 
         AccountData? selectedAccount;
@@ -248,7 +248,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     final authNotifier = ref.read(authProvider.notifier);
 
     // Check if there are multiple accounts before logout
-    final accounts = await fetchAccounts();
+    final accounts = await getAccounts();
     final hasMultipleAccounts = accounts.length > 2;
 
     if (!mounted) return;

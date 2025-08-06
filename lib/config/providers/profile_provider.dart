@@ -41,8 +41,9 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       }
 
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final metadata = await fetchMetadata(
+      final metadata = await fetchMetadataFrom(
         pubkey: publicKey,
+        nip65Relays: activeAccountData.nip65Relays,
       );
 
       final profileState = ProfileState(
@@ -163,8 +164,9 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       }
 
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final metadata = await fetchMetadata(
+      final metadata = await fetchMetadataFrom(
         pubkey: publicKey,
+        nip65Relays: activeAccountData.nip65Relays,
       );
 
       if (metadata == null) {

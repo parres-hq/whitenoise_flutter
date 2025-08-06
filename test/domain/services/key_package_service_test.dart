@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/domain/services/key_package_service.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/relays.dart' as relays;
+import 'package:whitenoise/src/rust/lib.dart';
 
 class MockEvent implements relays.Event {
   final String eventId;
@@ -21,12 +22,25 @@ class MockPublicKey implements PublicKey {
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
+class MockRelayUrl implements RelayUrl {
+  final String url;
+
+  MockRelayUrl({required this.url});
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+}
+
 void main() {
   group('KeyPackageService', () {
     const testPublicKey = 'test-public-key';
+    final testNip65Relays = [MockRelayUrl(url: 'wss://test-relay.com')];
 
     group('when key package is found at first attempt', () {
-      Future<relays.Event?> fetchKeyPackageSuccess({required PublicKey pubkey}) async {
+      Future<relays.Event?> fetchKeyPackageSuccess({
+        required PublicKey pubkey,
+        required List<RelayUrl> nip65Relays,
+      }) async {
         return MockEvent(eventId: 'test-key-package-event-123');
       }
 
@@ -37,6 +51,7 @@ void main() {
       test('returns key package', () async {
         final service = KeyPackageService(
           publicKeyString: testPublicKey,
+          nip65Relays: testNip65Relays,
           fetchKeyPackage: fetchKeyPackageSuccess,
           publicKeyFromString: mockPublicKeyFromString,
         );
@@ -49,7 +64,10 @@ void main() {
       test('returns key package', () async {
         int attemptCount = 0;
 
-        Future<relays.Event?> fakeFailThenSuccess({required PublicKey pubkey}) async {
+        Future<relays.Event?> fakeFailThenSuccess({
+          required PublicKey pubkey,
+          required List<RelayUrl> nip65Relays,
+        }) async {
           attemptCount++;
           if (attemptCount == 1) {
             throw Exception('DroppableDisposedException');
@@ -63,6 +81,7 @@ void main() {
 
         final service = KeyPackageService(
           publicKeyString: testPublicKey,
+          nip65Relays: testNip65Relays,
           fetchKeyPackage: fakeFailThenSuccess,
           publicKeyFromString: mockPublicKeyFromString,
         );
@@ -76,7 +95,10 @@ void main() {
       test('returns key package', () async {
         int attemptCount = 0;
 
-        Future<relays.Event?> fakeFailTwiceThenSuccess({required PublicKey pubkey}) async {
+        Future<relays.Event?> fakeFailTwiceThenSuccess({
+          required PublicKey pubkey,
+          required List<RelayUrl> nip65Relays,
+        }) async {
           attemptCount++;
           if (attemptCount <= 2) {
             throw Exception('DroppableDisposedException');
@@ -90,6 +112,7 @@ void main() {
 
         final service = KeyPackageService(
           publicKeyString: testPublicKey,
+          nip65Relays: testNip65Relays,
           fetchKeyPackage: fakeFailTwiceThenSuccess,
           publicKeyFromString: mockPublicKeyFromString,
         );
@@ -101,7 +124,10 @@ void main() {
 
     group('when key package fails after all attempts', () {
       test('throws exception', () async {
-        Future<relays.Event?> fakeAlwaysFails({required PublicKey pubkey}) async {
+        Future<relays.Event?> fakeAlwaysFails({
+          required PublicKey pubkey,
+          required List<RelayUrl> nip65Relays,
+        }) async {
           throw Exception('DroppableDisposedException');
         }
 
@@ -111,6 +137,7 @@ void main() {
 
         final service = KeyPackageService(
           publicKeyString: testPublicKey,
+          nip65Relays: testNip65Relays,
           fetchKeyPackage: fakeAlwaysFails,
           publicKeyFromString: mockPublicKeyFromString,
         );

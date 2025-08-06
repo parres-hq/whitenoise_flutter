@@ -1,6 +1,10 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
@@ -93,7 +97,7 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
   }
 }
 
-class GroupMessageInvite extends StatefulWidget {
+class GroupMessageInvite extends ConsumerStatefulWidget {
   const GroupMessageInvite({
     super.key,
     required this.welcomeData,
@@ -102,14 +106,23 @@ class GroupMessageInvite extends StatefulWidget {
   final WelcomeData welcomeData;
 
   @override
-  State<GroupMessageInvite> createState() => _GroupMessageInviteState();
+  ConsumerState<GroupMessageInvite> createState() => _GroupMessageInviteState();
 }
 
-class _GroupMessageInviteState extends State<GroupMessageInvite> {
+class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
   Future<MetadataData?> _fetchInviterMetadata() async {
     try {
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        ref.showErrorToast('No active account found');
+        return null;
+      }
       final publicKey = await publicKeyFromString(publicKeyString: widget.welcomeData.welcomer);
-      return await fetchMetadata(pubkey: publicKey);
+      return await fetchMetadataFrom(
+        pubkey: publicKey,
+        nip65Relays: activeAccountData.nip65Relays,
+      );
     } catch (e) {
       return null;
     }
@@ -216,7 +229,7 @@ class _GroupMessageInviteState extends State<GroupMessageInvite> {
   }
 }
 
-class DirectMessageAvatar extends StatelessWidget {
+class DirectMessageAvatar extends ConsumerStatefulWidget {
   const DirectMessageAvatar({
     super.key,
     required this.welcomeData,
@@ -224,10 +237,24 @@ class DirectMessageAvatar extends StatelessWidget {
 
   final WelcomeData welcomeData;
 
+  @override
+  ConsumerState<DirectMessageAvatar> createState() => _DirectMessageAvatarState();
+}
+
+class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
   Future<MetadataData?> _fetchInviterMetadata() async {
     try {
-      final publicKey = await publicKeyFromString(publicKeyString: welcomeData.welcomer);
-      return await fetchMetadata(pubkey: publicKey);
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        ref.showErrorToast('No active account found');
+        return null;
+      }
+      final publicKey = await publicKeyFromString(publicKeyString: widget.welcomeData.welcomer);
+      return await fetchMetadataFrom(
+        pubkey: publicKey,
+        nip65Relays: activeAccountData.nip65Relays,
+      );
     } catch (e) {
       return null;
     }
@@ -250,7 +277,7 @@ class DirectMessageAvatar extends StatelessWidget {
   }
 }
 
-class DirectMessageInviteCard extends StatelessWidget {
+class DirectMessageInviteCard extends ConsumerStatefulWidget {
   const DirectMessageInviteCard({
     super.key,
     required this.welcomeData,
@@ -258,10 +285,24 @@ class DirectMessageInviteCard extends StatelessWidget {
 
   final WelcomeData welcomeData;
 
+  @override
+  ConsumerState<DirectMessageInviteCard> createState() => _DirectMessageInviteCardState();
+}
+
+class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCard> {
   Future<MetadataData?> _fetchInviterMetadata() async {
     try {
-      final publicKey = await publicKeyFromString(publicKeyString: welcomeData.welcomer);
-      return await fetchMetadata(pubkey: publicKey);
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        ref.showErrorToast('No active account found');
+        return null;
+      }
+      final publicKey = await publicKeyFromString(publicKeyString: widget.welcomeData.welcomer);
+      return fetchMetadataFrom(
+        pubkey: publicKey,
+        nip65Relays: activeAccountData.nip65Relays,
+      );
     } catch (e) {
       return null;
     }
@@ -269,10 +310,10 @@ class DirectMessageInviteCard extends StatelessWidget {
 
   Future<String> _getDisplayablePublicKey() async {
     try {
-      final npub = await npubFromHexPubkey(hexPubkey: welcomeData.welcomer);
+      final npub = await npubFromHexPubkey(hexPubkey: widget.welcomeData.welcomer);
       return npub;
     } catch (e) {
-      return welcomeData.welcomer.formatPublicKey();
+      return widget.welcomeData.welcomer.formatPublicKey();
     }
   }
 
@@ -338,7 +379,7 @@ class DirectMessageInviteCard extends StatelessWidget {
             FutureBuilder<String>(
               future: _getDisplayablePublicKey(),
               builder: (context, npubSnapshot) {
-                final displayKey = npubSnapshot.data ?? welcomeData.welcomer;
+                final displayKey = npubSnapshot.data ?? widget.welcomeData.welcomer;
                 return Text(
                   displayKey.formatPublicKey(),
                   textAlign: TextAlign.center,

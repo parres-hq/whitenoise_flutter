@@ -76,7 +76,10 @@ class AccountNotifier extends Notifier<AccountState> {
         final publicKey = await publicKeyFromString(
           publicKeyString: activeAccountData.pubkey,
         );
-        final metadata = await fetchMetadata(pubkey: publicKey);
+        final metadata = await fetchMetadataFrom(
+          pubkey: publicKey,
+          nip65Relays: activeAccountData.nip65Relays,
+        );
 
         // We need to create a dummy Account object since we only have AccountData
         // This is a limitation of the current API design
@@ -103,7 +106,7 @@ class AccountNotifier extends Notifier<AccountState> {
   // Fetch and store all accounts
   Future<List<AccountData>?> listAccounts() async {
     try {
-      final accountsList = await fetchAccounts();
+      final accountsList = await getAccounts();
       final accountsMap = <String, AccountData>{};
       for (final account in accountsList) {
         accountsMap[account.pubkey] = account;

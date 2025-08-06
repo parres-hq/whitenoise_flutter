@@ -16,10 +16,12 @@ class RelayTile extends ConsumerStatefulWidget {
     super.key,
     required this.relayInfo,
     this.showOptions = false,
+    this.onDelete,
   });
 
   final RelayInfo relayInfo;
   final bool showOptions;
+  final VoidCallback? onDelete;
 
   @override
   ConsumerState<RelayTile> createState() => _RelayTileState();
@@ -86,8 +88,12 @@ class _RelayTileState extends ConsumerState<RelayTile> {
     );
 
     if (confirmed == true && mounted) {
-      // TODO: Implement relay removal
-      ref.showSuccessToast('Relay removed successfully');
+      if (widget.onDelete != null) {
+        widget.onDelete!();
+      } else {
+        // Fallback for backward compatibility
+        ref.showSuccessToast('Relay removed successfully');
+      }
     }
   }
 
