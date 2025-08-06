@@ -160,7 +160,10 @@ pub async fn add_inbox_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), W
 }
 
 #[frb]
-pub async fn add_key_package_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
+pub async fn add_key_package_relay(
+    pubkey: PublicKey,
+    relay: RelayUrl,
+) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let account = whitenoise.get_account(&pubkey).await?;
     whitenoise.add_key_package_relay(&account, relay).await
@@ -181,7 +184,10 @@ pub async fn remove_inbox_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<()
 }
 
 #[frb]
-pub async fn remove_key_package_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
+pub async fn remove_key_package_relay(
+    pubkey: PublicKey,
+    relay: RelayUrl,
+) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let account = whitenoise.get_account(&pubkey).await?;
     whitenoise.remove_key_package_relay(&account, relay).await
