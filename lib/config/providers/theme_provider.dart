@@ -5,18 +5,21 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/config/states/theme_state.dart';
 
 class ThemeNotifier extends Notifier<ThemeState> {
+  ThemeNotifier({SharedPreferences? prefs}) : _prefs = prefs;
+
+  final SharedPreferences? _prefs;
+  final _logger = Logger('ThemeNotifier');
+  static const String _themePreferenceKey = 'theme_mode';
+
   @override
   ThemeState build() {
     Future.microtask(() => _loadThemeMode());
     return const ThemeState();
   }
 
-  final _logger = Logger('ThemeNotifier');
-  static const String _themePreferenceKey = 'theme_mode';
-
   Future<void> _loadThemeMode() async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = _prefs ?? await SharedPreferences.getInstance();
       final themeModeIndex = prefs.getInt(_themePreferenceKey);
 
       if (themeModeIndex != null) {
@@ -33,7 +36,7 @@ class ThemeNotifier extends Notifier<ThemeState> {
 
   Future<void> setThemeMode(ThemeMode themeMode) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
+      final prefs = _prefs ?? await SharedPreferences.getInstance();
       await prefs.setInt(_themePreferenceKey, themeMode.index);
       state = state.copyWith(themeMode: themeMode);
       _logger.info('Theme mode set to: ${themeMode.name}');
