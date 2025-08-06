@@ -28,7 +28,7 @@ pub async fn fetch_contacts(
     pubkey: PublicKey,
 ) -> Result<HashMap<PublicKey, Option<MetadataData>>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let contacts = whitenoise.fetch_contacts(pubkey).await?;
+    let contacts = whitenoise.fetch_contacts(&pubkey).await?;
     let converted_contacts = contacts
         .into_iter()
         .map(|(pk, metadata_opt)| {
@@ -98,7 +98,7 @@ pub async fn add_contact(
     contact_pubkey: PublicKey,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let account = whitenoise.fetch_account(pubkey).await?;
+    let account = whitenoise.get_account(pubkey).await?;
     whitenoise.add_contact(&account, contact_pubkey).await
 }
 
@@ -126,7 +126,7 @@ pub async fn remove_contact(
     contact_pubkey: PublicKey,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let account = whitenoise.fetch_account(pubkey).await?;
+    let account = whitenoise.get_account(pubkey).await?;
     whitenoise.remove_contact(&account, contact_pubkey).await
 }
 
@@ -159,6 +159,6 @@ pub async fn update_contacts(
     contact_pubkeys: Vec<PublicKey>,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let account = whitenoise.fetch_account(pubkey).await?;
+    let account = whitenoise.get_account(pubkey).await?;
     whitenoise.update_contacts(&account, contact_pubkeys).await
 }
