@@ -90,7 +90,6 @@ class _RelayTileState extends ConsumerState<RelayTile> {
     if (confirmed == true && mounted) {
       if (widget.onDelete != null) {
         widget.onDelete!();
-      } else {
         ref.showSuccessToast('Relay removed successfully');
       }
     }
