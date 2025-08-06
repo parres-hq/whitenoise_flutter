@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
@@ -10,16 +9,17 @@ import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/clipboard_utils.dart';
 
 class DonateScreen extends ConsumerWidget {
   const DonateScreen({super.key});
 
-  void _copyToClipboard(BuildContext context, String text) {
-    Clipboard.setData(ClipboardData(text: text));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Copied to clipboard')),
+  void _copyToClipboard(WidgetRef ref, String text) {
+    ClipboardUtils.copyWithToast(
+      ref: ref,
+      textToCopy: text,
+      successMessage: 'Copied address to clipboard',
     );
   }
 
@@ -104,33 +104,12 @@ class DonateScreen extends ConsumerWidget {
                               ),
                               Gap(8.w),
                               CustomIconButton(
-                                onTap: () => _copyToClipboard(context, kLightningAddress),
+                                onTap: () => _copyToClipboard(ref, kLightningAddress),
                                 iconPath: AssetsPaths.icCopy,
                                 size: 56.w,
                                 padding: 20.w,
                               ),
                             ],
-                          ),
-                          Gap(12.h),
-                          WnFilledButton.child(
-                            onPressed: () {},
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Donate',
-                                  style: WnButtonSize.large.textStyle().copyWith(
-                                    color: context.colors.primaryForeground,
-                                  ),
-                                ),
-                                Gap(8.w),
-                                Icon(
-                                  CarbonIcons.flash,
-                                  size: 20.w,
-                                  color: context.colors.primaryForeground,
-                                ),
-                              ],
-                            ),
                           ),
                           Gap(32.h),
                           Text(
@@ -156,7 +135,7 @@ class DonateScreen extends ConsumerWidget {
                               CustomIconButton(
                                 onTap:
                                     () => _copyToClipboard(
-                                      context,
+                                      ref,
                                       kBitcoinAddress,
                                     ),
                                 iconPath: AssetsPaths.icCopy,
@@ -164,31 +143,6 @@ class DonateScreen extends ConsumerWidget {
                                 padding: 20.w,
                               ),
                             ],
-                          ),
-                          Gap(12.h),
-                          WnFilledButton.child(
-                            onPressed: () {},
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Donate',
-                                  style: WnButtonSize.large.textStyle().copyWith(
-                                    color: context.colors.primaryForeground,
-                                  ),
-                                ),
-                                Gap(8.w),
-                                SvgPicture.asset(
-                                  AssetsPaths.icBitcoin,
-                                  height: 20.w,
-                                  width: 20.w,
-                                  colorFilter: ColorFilter.mode(
-                                    context.colors.primaryForeground,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                              ],
-                            ),
                           ),
                         ],
                       ),
