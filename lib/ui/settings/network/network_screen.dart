@@ -120,105 +120,115 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
         statusBarIconBrightness: Brightness.light,
         statusBarBrightness: Brightness.dark,
       ),
-      child: GestureDetector(
-        onPanStart: (details) {
-          setState(() {
-            _isPulling = true;
-            _pullDistance = 0.0;
-          });
-        },
-        onPanUpdate: (details) {
-          if (_isPulling) {
-            setState(() {
-              _pullDistance += details.delta.dy;
-              _pullDistance = _pullDistance.clamp(0.0, 100.0);
-            });
+      child: PopScope(
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) {
+            WnTooltip.hide();
+            _currentOpenTooltipKey = null;
           }
         },
-        onPanEnd: (details) {
-          if (_isPulling) {
-            if (_pullDistance >= 60.0) {
-              _refreshData();
-            }
+        child: GestureDetector(
+          onTap: () {
+            WnTooltip.hide();
             setState(() {
-              _isPulling = false;
-              _pullDistance = 0.0;
-            });
-          }
-        },
-        child: PopScope(
-          onPopInvokedWithResult: (didPop, result) {
-            if (didPop) {
-              WnTooltip.hide();
               _currentOpenTooltipKey = null;
-            }
+            });
           },
-          child: GestureDetector(
-            onTap: () {
-              WnTooltip.hide();
-              setState(() {
-                _currentOpenTooltipKey = null;
-              });
-            },
-            child: Scaffold(
-              backgroundColor: context.colors.appBarBackground,
-              body: SafeArea(
-                bottom: false,
-                child: ColoredBox(
-                  color: context.colors.neutral,
-                  child: Column(
-                    children: [
-                      Gap(20.h),
-                      Row(
-                        children: [
-                          IconButton(
-                            onPressed: () => Navigator.of(context).pop(),
-                            icon: SvgPicture.asset(
-                              AssetsPaths.icChevronLeft,
-                              colorFilter: ColorFilter.mode(
-                                context.colors.primary,
-                                BlendMode.srcIn,
-                              ),
+          child: Scaffold(
+            backgroundColor: context.colors.appBarBackground,
+            body: SafeArea(
+              bottom: false,
+              child: ColoredBox(
+                color: context.colors.neutral,
+                child: Column(
+                  children: [
+                    Gap(20.h),
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => Navigator.of(context).pop(),
+                          icon: SvgPicture.asset(
+                            AssetsPaths.icChevronLeft,
+                            colorFilter: ColorFilter.mode(
+                              context.colors.primary,
+                              BlendMode.srcIn,
                             ),
                           ),
-                          Text(
-                            'Network Relays',
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.mutedForeground,
-                            ),
+                        ),
+                        Text(
+                          'Network Relays',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: context.colors.mutedForeground,
                           ),
-                        ],
-                      ),
-                      if (_isPulling || _isRefreshing)
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          height:
-                              _isPulling
-                                  ? _pullDistance.clamp(
-                                    0.0,
-                                    60.h,
-                                  )
-                                  : 50.h,
-                          child: Opacity(
-                            opacity: _isPulling ? (_pullDistance / 60.h).clamp(0.0, 1.0) : 1.0,
-                            child: const WnRefreshingIndicator(
-                              message: 'Reconnecting Relays...',
-                              padding: EdgeInsets.zero,
-                            ),
+                        ),
+                      ],
+                    ),
+                    if (_isPulling || _isRefreshing)
+                      AnimatedContainer(
+                        margin: EdgeInsets.only(
+                          top: _isPulling ? 32.h : 0.0,
+                        ),
+                        duration: const Duration(milliseconds: 200),
+                        height:
+                            _isPulling
+                                ? _pullDistance.clamp(
+                                  0.0,
+                                  60.h,
+                                )
+                                : 50.h,
+                        child: Opacity(
+                          opacity: _isPulling ? (_pullDistance / 60.h).clamp(0.0, 1.0) : 1.0,
+                          child: const WnRefreshingIndicator(
+                            message: 'Reconnecting Relays...',
+                            padding: EdgeInsets.zero,
                           ),
-                        )
-                      else
-                        Gap(16.h),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w),
-                          child: Column(
-                            children: [
-                              Expanded(
+                        ),
+                      )
+                    else
+                      Gap(16.h),
+                    Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              child: NotificationListener<ScrollNotification>(
+                                onNotification: (ScrollNotification notification) {
+                                  if (notification is ScrollUpdateNotification) {
+                                    if (notification.metrics.pixels < 0) {
+                                      final overscroll = notification.metrics.pixels.abs();
+                                      if (!_isPulling) {
+                                        setState(() {
+                                          _isPulling = true;
+                                          _pullDistance = 0.0;
+                                        });
+                                      }
+                                      setState(() {
+                                        _pullDistance = (overscroll * 0.5).clamp(0.0, 100.0);
+                                      });
+                                    }
+                                  }
+
+                                  if (notification is ScrollEndNotification) {
+                                    if (_isPulling && _pullDistance >= 60.0) {
+                                      _refreshData();
+                                    }
+                                    if (_isPulling) {
+                                      setState(() {
+                                        _isPulling = false;
+                                        _pullDistance = 0.0;
+                                      });
+                                    }
+                                  }
+                                  return false;
+                                },
                                 child: ListView(
                                   padding: EdgeInsets.zero,
+                                  physics: const BouncingScrollPhysics(
+                                    parent: AlwaysScrollableScrollPhysics(),
+                                  ),
                                   children: [
                                     RelayExpansionTile(
                                       title: 'My Relays',
@@ -258,12 +268,12 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                                   ],
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
