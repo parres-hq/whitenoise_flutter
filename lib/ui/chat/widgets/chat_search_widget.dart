@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
 class ChatSearchWidget extends ConsumerStatefulWidget {
   final String groupId;
@@ -43,7 +44,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
     final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
 
     return Container(
-      color: Colors.black, // Black background like in the image
+      color: context.colors.solidNeutralBlack, // Black background like in the image
       child: Column(
         children: [
           // Status bar space - so status bar is visible
@@ -53,10 +54,10 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
           Container(
             margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: context.colors.solidNeutralWhite, // White background
               borderRadius: BorderRadius.circular(0), // Sharp corners
             ),
-            child: TextField(
+            child: WnTextFormField(
               controller: _searchController,
               focusNode: _focusNode,
               onChanged: (value) {
@@ -66,31 +67,28 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
               decoration: InputDecoration(
                 hintText: 'Search chat',
                 hintStyle: TextStyle(
-                  color: Colors.grey[600],
+                  color: context.colors.mutedForeground,
                   fontSize: 16.sp,
                 ),
                 prefixIcon: Icon(
                   Icons.search,
-                  color: Colors.grey[600],
+                  color: context.colors.mutedForeground,
                   size: 20.w,
                 ),
-                suffixIcon:
-                    _searchController.text.isNotEmpty
-                        ? IconButton(
-                          icon: Icon(
-                            Icons.clear,
-                            color: Colors.grey[600],
-                            size: 20.w,
-                          ),
-                          onPressed: () {
-                            _searchController.clear();
-                            searchNotifier.updateQuery('');
-                            searchNotifier.deactivateSearch();
-                            widget.onClose?.call();
-                            setState(() {});
-                          },
-                        )
-                        : null,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    Icons.clear,
+                    color: context.colors.mutedForeground,
+                    size: 20.w,
+                  ),
+                  onPressed: () {
+                    _searchController.clear();
+                    searchNotifier.updateQuery('');
+                    searchNotifier.deactivateSearch();
+                    widget.onClose?.call();
+                    setState(() {});
+                  },
+                ),
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
                 focusedBorder: InputBorder.none,
@@ -113,7 +111,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
             Container(
               width: double.infinity,
               padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h), // Minimal padding
-              color: Colors.black, // Black background like in the image
+              color: context.colors.solidNeutralBlack,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -175,7 +173,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
             Container(
               width: double.infinity,
               padding: EdgeInsets.all(12.w), // Minimal padding
-              color: Colors.black,
+              color: context.colors.solidNeutralBlack,
               child: Text(
                 'No results found',
                 textAlign: TextAlign.center,
