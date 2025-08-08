@@ -45,7 +45,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1375175406;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -2114313052;
 
 // Section: executor
 
@@ -3952,87 +3952,6 @@ fn wire__crate__api__relays__remove_nip65_relay_impl(
         },
     )
 }
-fn wire__crate__api__messages__send_direct_message_nip04_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "send_direct_message_nip04",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_sender = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>,
-            >>::sse_decode(&mut deserializer);
-            let api_receiver = <RustOpaqueMoi<
-                flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>,
-            >>::sse_decode(&mut deserializer);
-            let api_content = <String>::sse_decode(&mut deserializer);
-            let api_tags = <Vec<Tag>>::sse_decode(&mut deserializer);
-            deserializer.end();
-            move |context| async move {
-                transform_result_sse::<_, WhitenoiseError>(
-                    (move || async move {
-                        let mut api_sender_guard = None;
-                        let mut api_receiver_guard = None;
-                        let decode_indices_ =
-                            flutter_rust_bridge::for_generated::lockable_compute_decode_order(
-                                vec![
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_sender,
-                                        0,
-                                        false,
-                                    ),
-                                    flutter_rust_bridge::for_generated::LockableOrderInfo::new(
-                                        &api_receiver,
-                                        1,
-                                        false,
-                                    ),
-                                ],
-                            );
-                        for i in decode_indices_ {
-                            match i {
-                                0 => {
-                                    api_sender_guard =
-                                        Some(api_sender.lockable_decode_async_ref().await)
-                                }
-                                1 => {
-                                    api_receiver_guard =
-                                        Some(api_receiver.lockable_decode_async_ref().await)
-                                }
-                                _ => unreachable!(),
-                            }
-                        }
-                        let api_sender_guard = api_sender_guard.unwrap();
-                        let api_receiver_guard = api_receiver_guard.unwrap();
-                        let output_ok = crate::api::messages::send_direct_message_nip04(
-                            &*api_sender_guard,
-                            &*api_receiver_guard,
-                            api_content,
-                            api_tags,
-                        )
-                        .await?;
-                        Ok(output_ok)
-                    })()
-                    .await,
-                )
-            }
-        },
-    )
-}
 fn wire__crate__api__messages__send_message_to_group_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -5520,31 +5439,25 @@ fn pde_ffi_dispatcher_primary_impl(
             data_len,
         ),
         83 => wire__crate__api__relays__remove_nip65_relay_impl(port, ptr, rust_vec_len, data_len),
-        84 => wire__crate__api__messages__send_direct_message_nip04_impl(
+        84 => wire__crate__api__messages__send_message_to_group_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        85 => wire__crate__api__messages__send_message_to_group_impl(
-            port,
-            ptr,
-            rust_vec_len,
-            data_len,
-        ),
-        86 => {
+        85 => {
             wire__crate__api__utils__string_from_relay_url_impl(port, ptr, rust_vec_len, data_len)
         }
-        87 => wire__crate__api__utils__tag_from_vec_impl(port, ptr, rust_vec_len, data_len),
-        88 => wire__crate__api__contacts__update_contacts_impl(port, ptr, rust_vec_len, data_len),
-        89 => wire__crate__api__accounts__update_metadata_impl(port, ptr, rust_vec_len, data_len),
-        90 => wire__crate__api__accounts__upload_profile_picture_impl(
+        86 => wire__crate__api__utils__tag_from_vec_impl(port, ptr, rust_vec_len, data_len),
+        87 => wire__crate__api__contacts__update_contacts_impl(port, ptr, rust_vec_len, data_len),
+        88 => wire__crate__api__accounts__update_metadata_impl(port, ptr, rust_vec_len, data_len),
+        89 => wire__crate__api__accounts__upload_profile_picture_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        91 => wire__crate__api__utils__whitenoise_error_to_string_impl(
+        90 => wire__crate__api__utils__whitenoise_error_to_string_impl(
             port,
             ptr,
             rust_vec_len,
