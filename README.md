@@ -103,6 +103,11 @@ flutter devices
 # Regenerate flutter_rust_bridge code
 just regenerate
 
+# Install dependencies
+just deps              # Install both Flutter and Rust deps
+just deps-flutter      # Flutter dependencies only
+just deps-rust         # Rust dependencies only
+
 ```
 
 ### Building
