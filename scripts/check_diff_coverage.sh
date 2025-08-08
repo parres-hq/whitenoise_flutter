@@ -40,9 +40,15 @@ check_coverage_file_presence() {
   fi
 }
 
+fetch_base_branch() {
+    local base_branch=$1
+    printf "Fetching latest ${base_branch}...\n"
+    git fetch --no-tags --prune --depth=1 origin +refs/heads/${base_branch}:refs/remotes/origin/${base_branch}
+}
+
 get_merge_base() {
     local base_branch=$1
-    merge_base=$(git merge-base HEAD "origin/${base_branch}" 2>/dev/null || git merge-base HEAD "${base_branch}" 2>/dev/null)
+    merge_base=$(git merge-base HEAD "origin/${base_branch}" 2>/dev/null || git merge-base HEAD "${base_branch}" 2>/dev/null || echo "")
     echo "$merge_base"
 }
 
@@ -50,14 +56,14 @@ check_merge_base() {
     local base_branch=$1
     local merge_base=$2
     if [ -z "$merge_base" ]; then
-        raise_error "Could not find common ancestor with ${base_branch}"
+        raise_error "Could not find common ancestor with ${base_branch}. Ensure the branch exists and has shared history."
     fi
 }
 
 get_changed_files() {
     local merge_base=$1
     local file_pattern=$2
-    changed_files=$(git diff --name-only "${merge_base}..HEAD" | grep '^lib/.*\.dart$' | grep "${file_pattern}" || true)
+    changed_files=$(git diff --name-only origin/${BASE_BRANCH} HEAD | grep '^lib/.*\.dart$' | grep "${file_pattern}" || true)
 
     if [ -z "$changed_files" ]; then
         print_success "No lib/ Dart files matching '${file_pattern}' changed. Skipping coverage check."
@@ -154,6 +160,7 @@ check_diff_coverage() {
     local min_coverage=$3
     check_prerequisites
     check_coverage_file_presence
+    fetch_base_branch "$base_branch"
     merge_base=$(get_merge_base "$base_branch")
     check_merge_base "$base_branch" "$merge_base"
     changed_files=$(get_changed_files "$merge_base" "$file_pattern")
