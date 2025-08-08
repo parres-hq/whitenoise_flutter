@@ -69,7 +69,7 @@ Make sure you have the following installed:
 
 3. **Run the app**
    ```bash
-   just run
+   flutter run
    ```
 
 ## 🛠️ Development Workflow
@@ -81,7 +81,7 @@ Make sure you have the following installed:
 just setup
 
 # Run the app in debug mode
-just run
+flutter run
 
 # Run pre-commit checks (formatting, linting, analysis, tests)
 just precommit
@@ -93,15 +93,9 @@ just reset
 ### Platform-Specific Running
 
 ```bash
-# Run on specific platforms
-just run-ios          # iOS Simulator
-just run-android       # Android Emulator
-just run-macos         # macOS Desktop
-just run-linux         # Linux Desktop
-just run-windows       # Windows Desktop
 
 # List available devices
-just devices
+flutter devices
 ```
 
 ### Code Generation & Dependencies
