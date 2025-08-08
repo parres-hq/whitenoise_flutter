@@ -357,4 +357,3 @@ pub async fn fetch_aggregated_messages_for_group(
         .await?;
     Ok(messages.iter().map(convert_chat_message_to_data).collect())
 }
-
