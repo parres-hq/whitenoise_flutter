@@ -42,6 +42,7 @@ Make sure you have the following installed:
 - **Just** (command runner) - `cargo install just`
 - **flutter_rust_bridge_codegen** - `cargo install flutter_rust_bridge_codegen`
 - **Local nostr relays and blossom server** (Optional): for local testing with nostr relays and blossom server:
+
    ```bash
    git clone https://github.com/parres-hq/whitenoise
    cd whitenoise
@@ -51,15 +52,18 @@ Make sure you have the following installed:
 ### Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/parres-hq/whitenoise_flutter.git
    cd whitenoise_flutter
    ```
 
 2. **Setup the project**
+
    ```bash
    just setup
    ```
+
    This command will:
    - Check your development environment
    - Clean any existing builds
@@ -68,7 +72,9 @@ Make sure you have the following installed:
    - Build the Rust library
 
 3. **Run the app**
-   ```bash
+
+```bash
+
    flutter run
    ```
 
@@ -86,13 +92,6 @@ flutter run
 # Run pre-commit checks (formatting, linting, analysis, tests)
 just precommit
 
-# Clean everything and regenerate
-just reset
-```
-
-### Platform-Specific Running
-
-```bash
 
 # List available devices
 flutter devices
@@ -104,10 +103,6 @@ flutter devices
 # Regenerate flutter_rust_bridge code
 just regenerate
 
-# Install dependencies
-just deps              # Install both Flutter and Rust deps
-just deps-flutter      # Flutter dependencies only
-just deps-rust         # Rust dependencies only
 ```
 
 ### Building
@@ -237,12 +232,14 @@ whitenoise_flutter/
 ### Common Issues
 
 1. **Bridge generation fails**
+
    ```bash
    just clean-bridge
    just regenerate
    ```
 
 2. **Build errors after dependency changes**
+
    ```bash
    just clean-all
    just deps
@@ -250,6 +247,7 @@ whitenoise_flutter/
    ```
 
 3. **Platform-specific build issues**
+
    ```bash
    just doctor  # Check your development environment
    ```
@@ -274,9 +272,8 @@ whitenoise_flutter/
 We want to keep our codebase clean, consistent, and easy to contribute to. Here are some guidelines to follow:
 
 - ✅ Unit tests: Add unit tests for all new providers.
-- ♻️ Widget design: Try to keep widgets small and simple. Extract complex logic to notifiers. 
+- ♻️ Widget design: Try to keep widgets small and simple. Extract complex logic to notifiers.
 - 🏷️ Naming: Shared custom widgets should use the `Wn` prefix for consistency.
-
 
 ## 📜 License
 
