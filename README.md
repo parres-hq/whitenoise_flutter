@@ -110,11 +110,6 @@ just regenerate
 ```bash
 # Build for development
 just build-rust-debug  # Rust library (debug)
-just build-flutter     # Flutter app for multiple platforms
-
-# Build for production
-just build-release     # Complete production build
-just build-rust-release # Rust library (release)
 ```
 
 ### Code Quality
@@ -140,7 +135,6 @@ just fix
 # Run tests
 just test-rust         # Rust unit tests
 just test-flutter      # Flutter unit tests (when test/ exists)
-just test-integration  # Integration tests
 ```
 
 ### Cleaning
@@ -151,9 +145,6 @@ just clean-flutter     # Flutter build cache
 just clean-rust        # Rust build cache
 just clean-bridge      # Generated bridge files
 just clean-all         # Everything
-
-# Reset to clean state
-just reset
 ```
 
 ### Utilities
