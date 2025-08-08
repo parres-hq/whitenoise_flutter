@@ -3,6 +3,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
@@ -108,10 +109,19 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
       if (publicKey.startsWith('npub1')) {
         fetchKey = await _safeNpubToHex(publicKey);
       }
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        throw 'No active account found';
+      }
 
       // Create PublicKey object and fetch metadata
       final contactPk = await publicKeyFromString(publicKeyString: fetchKey);
-      final metadata = await fetchMetadata(pubkey: contactPk);
+
+      final metadata = await fetchMetadataFrom(
+        pubkey: contactPk,
+        nip65Relays: activeAccountData.nip65Relays,
+      );
 
       // Get standardized npub for consistent identification
       final standardNpub = await _getStandardizedNpub(publicKey);

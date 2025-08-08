@@ -68,6 +68,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
       CurvedAnimation(parent: _loadingAnimationController, curve: Curves.easeInOut),
     );
 
+    _searchAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+
     _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       WelcomeNotificationService.initialize(context);

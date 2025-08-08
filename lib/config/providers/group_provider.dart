@@ -11,6 +11,7 @@ import 'package:whitenoise/config/states/group_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/error_handling.dart';
@@ -342,7 +343,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
           final pubkeyString = await npubFromPublicKey(publicKey: memberPubkey);
 
           try {
-            final metadata = await fetchMetadata(pubkey: memberPubkey);
+            final metadata = await fetchMetadataFrom(
+              pubkey: memberPubkey,
+              nip65Relays: activeAccountData.nip65Relays,
+            );
             if (metadata != null) {
               final user = User.fromMetadata(metadata, pubkeyString);
               members.add(user);
@@ -454,7 +458,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
           final pubkeyString = await npubFromPublicKey(publicKey: adminPubkey);
 
           try {
-            final metadata = await fetchMetadata(pubkey: adminPubkey);
+            final metadata = await fetchMetadataFrom(
+              pubkey: adminPubkey,
+              nip65Relays: activeAccountData.nip65Relays,
+            );
             if (metadata != null) {
               final user = User.fromMetadata(metadata, pubkeyString);
               admins.add(user);

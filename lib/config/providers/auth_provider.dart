@@ -43,7 +43,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
       /// 3. Auto-login if an account is already active
       try {
-        final accounts = await fetchAccounts();
+        final accounts = await getAccounts();
         if (accounts.isNotEmpty) {
           // Wait for active account provider to load from storage first
           final activeAccountNotifier = ref.read(activeAccountProvider.notifier);
@@ -149,7 +149,7 @@ class AuthNotifier extends Notifier<AuthState> {
       // Save existing accounts (before login)
       List<AccountData> existingAccounts = [];
       try {
-        existingAccounts = await fetchAccounts();
+        existingAccounts = await getAccounts();
         _logger.info('Existing accounts before login: ${existingAccounts.length}');
       } catch (e) {
         _logger.info('No existing accounts or error fetching: $e');
@@ -178,7 +178,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
       // Check account count after login
       try {
-        final accountsAfterLogin = await fetchAccounts();
+        final accountsAfterLogin = await getAccounts();
         _logger.info('Accounts after login: ${accountsAfterLogin.length}');
 
         // Check that the active account is set correctly
@@ -276,7 +276,7 @@ class AuthNotifier extends Notifier<AuthState> {
     }
     try {
       // Try to get accounts and find the first one (active account)
-      final accounts = await fetchAccounts();
+      final accounts = await getAccounts();
       if (accounts.isNotEmpty) {
         // Return the first account as the active one
         // In a real implementation, you might want to store which account is active
@@ -309,7 +309,7 @@ class AuthNotifier extends Notifier<AuthState> {
         await ref.read(activeAccountProvider.notifier).clearActiveAccount();
 
         // Check if there are other accounts available
-        final remainingAccounts = await fetchAccounts();
+        final remainingAccounts = await getAccounts();
         final otherAccounts =
             remainingAccounts
                 .where(
@@ -336,7 +336,7 @@ class AuthNotifier extends Notifier<AuthState> {
         }
       } else {
         // No active account to logout, but check if any accounts exist
-        final accounts = await fetchAccounts();
+        final accounts = await getAccounts();
         if (accounts.isNotEmpty) {
           // Set the first account as active
           await ref.read(activeAccountProvider.notifier).setActiveAccount(accounts.first.pubkey);

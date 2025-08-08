@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/services/key_package_service.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/relays.dart' as relays;
+import 'package:whitenoise/src/rust/lib.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import '../../test_helpers.dart';
 
@@ -21,6 +24,30 @@ class MockContactsNotifier extends ContactsNotifier {
   }
 }
 
+class MockAccountSettings implements AccountSettings {
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+}
+
+class MockActiveAccountNotifier extends ActiveAccountNotifier {
+  @override
+  String? build() {
+    return 'test-pubkey';
+  }
+
+  @override
+  Future<AccountData?> getActiveAccountData() async {
+    return AccountData(
+      pubkey: 'test-pubkey',
+      settings: MockAccountSettings(),
+      nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
+      inboxRelays: [MockRelayUrl(url: 'wss://inbox-relay.com')],
+      keyPackageRelays: [MockRelayUrl(url: 'wss://keypackage-relay.com')],
+      lastSynced: BigInt.from(DateTime.now().millisecondsSinceEpoch),
+    );
+  }
+}
+
 class MockEvent implements relays.Event {
   final String eventId;
 
@@ -30,9 +57,22 @@ class MockEvent implements relays.Event {
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
+class MockRelayUrl implements RelayUrl {
+  final String url;
+
+  MockRelayUrl({required this.url});
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+}
+
 // Mock KeyPackageService that returns a key package (user is on White Noise)
 class MockKeyPackageServiceWithPackage extends KeyPackageService {
-  MockKeyPackageServiceWithPackage() : super(publicKeyString: 'test');
+  MockKeyPackageServiceWithPackage()
+    : super(
+        publicKeyString: 'test',
+        nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
+      );
 
   @override
   Future<relays.Event?> fetchWithRetry() async {
@@ -42,7 +82,11 @@ class MockKeyPackageServiceWithPackage extends KeyPackageService {
 
 // Mock KeyPackageService that returns null (user needs invite)
 class MockKeyPackageServiceWithoutPackage extends KeyPackageService {
-  MockKeyPackageServiceWithoutPackage() : super(publicKeyString: 'test');
+  MockKeyPackageServiceWithoutPackage()
+    : super(
+        publicKeyString: 'test',
+        nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
+      );
 
   @override
   Future<relays.Event?> fetchWithRetry() async {
@@ -52,7 +96,11 @@ class MockKeyPackageServiceWithoutPackage extends KeyPackageService {
 
 // Mock KeyPackageService that throws an error
 class MockKeyPackageServiceWithError extends KeyPackageService {
-  MockKeyPackageServiceWithError() : super(publicKeyString: 'test');
+  MockKeyPackageServiceWithError()
+    : super(
+        publicKeyString: 'test',
+        nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
+      );
 
   @override
   Future<relays.Event?> fetchWithRetry() async {
@@ -69,9 +117,17 @@ void main() {
       imagePath: 'https://example.com/satoshi.png',
     );
 
+    // Common provider overrides for all tests
+    final commonOverrides = [
+      activeAccountProvider.overrideWith(() => MockActiveAccountNotifier()),
+    ];
+
     testWidgets('displays user name', (WidgetTester tester) async {
       await tester.pumpWidget(
-        createTestWidget(StartChatBottomSheet(contact: contact)),
+        createTestWidget(
+          StartChatBottomSheet(contact: contact),
+          overrides: commonOverrides,
+        ),
       );
 
       expect(find.text('Satoshi Nakamoto'), findsOneWidget);
@@ -79,7 +135,10 @@ void main() {
 
     testWidgets('displays nip05', (WidgetTester tester) async {
       await tester.pumpWidget(
-        createTestWidget(StartChatBottomSheet(contact: contact)),
+        createTestWidget(
+          StartChatBottomSheet(contact: contact),
+          overrides: commonOverrides,
+        ),
       );
 
       expect(find.text('satoshi@nakamoto.com'), findsOneWidget);
@@ -87,7 +146,10 @@ void main() {
 
     testWidgets('displays formatted pubkey', (WidgetTester tester) async {
       await tester.pumpWidget(
-        createTestWidget(StartChatBottomSheet(contact: contact)),
+        createTestWidget(
+          StartChatBottomSheet(contact: contact),
+          overrides: commonOverrides,
+        ),
       );
 
       expect(
@@ -100,7 +162,10 @@ void main() {
 
     testWidgets('shows copy option', (WidgetTester tester) async {
       await tester.pumpWidget(
-        createTestWidget(StartChatBottomSheet(contact: contact)),
+        createTestWidget(
+          StartChatBottomSheet(contact: contact),
+          overrides: commonOverrides,
+        ),
       );
 
       final copyButton = find.byIcon(CarbonIcons.copy);
@@ -111,7 +176,10 @@ void main() {
 
     testWidgets('initially shows loading indicator', (WidgetTester tester) async {
       await tester.pumpWidget(
-        createTestWidget(StartChatBottomSheet(contact: contact)),
+        createTestWidget(
+          StartChatBottomSheet(contact: contact),
+          overrides: commonOverrides,
+        ),
       );
 
       expect(find.byType(CircularProgressIndicator), findsOneWidget);
@@ -127,6 +195,7 @@ void main() {
                 keyPackageService: MockKeyPackageServiceWithoutPackage(),
               ),
             ),
+            overrides: commonOverrides,
           ),
         );
         await tester.pumpAndSettle();
@@ -169,6 +238,7 @@ void main() {
                 keyPackageService: MockKeyPackageServiceWithPackage(),
               ),
             ),
+            overrides: commonOverrides,
           ),
         );
         await tester.pumpAndSettle();
@@ -208,6 +278,7 @@ void main() {
                 keyPackageService: MockKeyPackageServiceWithPackage(),
               ),
               overrides: [
+                ...commonOverrides,
                 contactsProvider.overrideWith(() => MockContactsNotifier([contact])),
               ],
             ),
@@ -240,6 +311,7 @@ void main() {
               contact: contact,
               keyPackageService: MockKeyPackageServiceWithError(),
             ),
+            overrides: commonOverrides,
           ),
         );
         await tester.pumpAndSettle();

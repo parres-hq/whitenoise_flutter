@@ -61,7 +61,8 @@ pub async fn fetch_relays_from(
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise
         .fetch_relays_from(nip65_relays.into_iter().collect(), pubkey, relay_type)
-        .await.map(|set| set.into_iter().collect())
+        .await
+        .map(|set| set.into_iter().collect())
 }
 
 /// Fetches an account's MLS key package from its configured key package relays.
@@ -88,7 +89,11 @@ pub async fn fetch_key_package(
 ) -> Result<Option<Event>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let key_package_relays = whitenoise
-        .fetch_relays_from(nip65_relays.clone().into_iter().collect(), pubkey, RelayType::KeyPackage)
+        .fetch_relays_from(
+            nip65_relays.clone().into_iter().collect(),
+            pubkey,
+            RelayType::KeyPackage,
+        )
         .await?;
     if key_package_relays.is_empty() {
         return Ok(None);
@@ -144,40 +149,58 @@ pub async fn fetch_relay_status(
 pub async fn add_nip65_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let account = whitenoise.get_account(&pubkey).await?;
-    whitenoise.add_nip65_relay(&account, relay).await
+    whitenoise
+        .add_relay_to_account(account.pubkey, relay, RelayType::Nostr)
+        .await
 }
 
 #[frb]
 pub async fn add_inbox_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let account = whitenoise.get_account(&pubkey).await?;
-    whitenoise.add_inbox_relay(&account, relay).await
+    whitenoise
+        .add_relay_to_account(account.pubkey, relay, RelayType::Inbox)
+        .await
 }
 
 #[frb]
-pub async fn add_key_package_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
+pub async fn add_key_package_relay(
+    pubkey: PublicKey,
+    relay: RelayUrl,
+) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let account = whitenoise.get_account(&pubkey).await?;
-    whitenoise.add_key_package_relay(&account, relay).await
+    whitenoise
+        .add_relay_to_account(account.pubkey, relay, RelayType::KeyPackage)
+        .await
 }
 
 #[frb]
 pub async fn remove_nip65_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let account = whitenoise.get_account(&pubkey).await?;
-    whitenoise.remove_nip65_relay(&account, relay).await
+    whitenoise
+        .remove_relay_from_account(account.pubkey, relay, RelayType::Nostr)
+        .await
 }
 
 #[frb]
 pub async fn remove_inbox_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let account = whitenoise.get_account(&pubkey).await?;
-    whitenoise.remove_inbox_relay(&account, relay).await
+    whitenoise
+        .remove_relay_from_account(account.pubkey, relay, RelayType::Inbox)
+        .await
 }
 
 #[frb]
-pub async fn remove_key_package_relay(pubkey: PublicKey, relay: RelayUrl) -> Result<(), WhitenoiseError> {
+pub async fn remove_key_package_relay(
+    pubkey: PublicKey,
+    relay: RelayUrl,
+) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let account = whitenoise.get_account(&pubkey).await?;
-    whitenoise.remove_key_package_relay(&account, relay).await
+    whitenoise
+        .remove_relay_from_account(account.pubkey, relay, RelayType::KeyPackage)
+        .await
 }

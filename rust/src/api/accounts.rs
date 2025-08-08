@@ -230,7 +230,9 @@ pub async fn fetch_metadata_from(
     pubkey: PublicKey,
 ) -> Result<Option<MetadataData>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let metadata = whitenoise.fetch_metadata_from(nip65_relays.into_iter().collect(), pubkey).await?;
+    let metadata = whitenoise
+        .fetch_metadata_from(nip65_relays.into_iter().collect(), pubkey)
+        .await?;
     Ok(metadata.map(|m| convert_metadata_to_data(&m)))
 }
 

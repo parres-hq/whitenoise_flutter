@@ -7,8 +7,8 @@ edition = "2021"
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
-flutter_rust_bridge = "=2.10.0"
-whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "e9f4b08ff0fa1c584830b1a665089c583f68b69b" }
+flutter_rust_bridge = "=2.11.1"
+whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "7a240c1b53a63eb83a64c5c3230492b681f0af8b" }
 # whitenoise = { version = "0.1.0", path = "../../whitenoise" }
 tokio = { version = "1.44", features = ["rt", "rt-multi-thread"] }
 serde_json = "1.0.140"

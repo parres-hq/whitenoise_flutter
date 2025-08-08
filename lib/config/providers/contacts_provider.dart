@@ -353,7 +353,10 @@ class ContactsNotifier extends Notifier<ContactsState> {
       try {
         // Create a fresh PublicKey object to avoid disposal issues
         final contactPkForMetadata = await publicKeyFromString(publicKeyString: contactKey.trim());
-        final metadata = await fetchMetadata(pubkey: contactPkForMetadata);
+        final metadata = await fetchMetadataFrom(
+          pubkey: contactPkForMetadata,
+          nip65Relays: activeAccountData.nip65Relays,
+        );
         if (metadata != null) {
           _logger.info(
             'ContactsProvider: Metadata found for new contact - name: ${metadata.name}, displayName: ${metadata.displayName}',

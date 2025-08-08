@@ -6,6 +6,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -70,11 +71,17 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
   }
 
   Future<void> _loadKeyPackage() async {
+    final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+    if (activeAccountData == null) {
+      ref.showErrorToast('No active account found');
+      return;
+    }
     try {
       final keyPackageService =
           widget.keyPackageService ??
           KeyPackageService(
             publicKeyString: widget.contact.publicKey,
+            nip65Relays: activeAccountData.nip65Relays,
           );
       final keyPackage = await keyPackageService.fetchWithRetry();
 

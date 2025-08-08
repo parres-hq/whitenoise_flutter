@@ -7,7 +7,7 @@ import 'package:whitenoise/src/rust/api/utils.dart';
 /// Active Account Provider
 ///
 /// Manages the currently active account using Flutter Secure Storage for persistence.
-/// Uses the new fetchAccount() API for better performance when getting account data.
+/// Uses the new getAccount() API for better performance when getting account data.
 
 class ActiveAccountNotifier extends Notifier<String?> {
   static const String _activeAccountKey = 'active_account_pubkey';
@@ -66,16 +66,16 @@ class ActiveAccountNotifier extends Notifier<String?> {
     }
 
     try {
-      // Use the new fetchAccount API function for better performance
+      // Use the new getAccount API function for better performance
       final publicKey = await publicKeyFromString(publicKeyString: state!);
-      final activeAccount = await fetchAccount(pubkey: publicKey);
+      final activeAccount = await getAccount(pubkey: publicKey);
       _logger.fine('Found active account: ${activeAccount.pubkey}');
       return activeAccount;
     } catch (e) {
-      _logger.warning('Error with new fetchAccount API: $e');
+      _logger.warning('Error with new getAccount API: $e');
       // Fallback to the old method if the new one fails
       try {
-        final accounts = await fetchAccounts();
+        final accounts = await getAccounts();
         _logger.info('Fallback - Found ${accounts.length} accounts');
         final activeAccount = accounts.firstWhere(
           (account) => account.pubkey == state,

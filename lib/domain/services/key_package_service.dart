@@ -2,8 +2,13 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/relays.dart' as relays;
 import 'package:whitenoise/src/rust/api/utils.dart' as utils;
+import 'package:whitenoise/src/rust/lib.dart';
 
-typedef FetchKeyPackageFunction = Future<relays.Event?> Function({required PublicKey pubkey});
+typedef FetchKeyPackageFunction =
+    Future<relays.Event?> Function({
+      required PublicKey pubkey,
+      required List<RelayUrl> nip65Relays,
+    });
 typedef PublicKeyFromStringFunction = Future<PublicKey> Function({required String publicKeyString});
 
 class KeyPackageService {
@@ -11,12 +16,15 @@ class KeyPackageService {
   final FetchKeyPackageFunction _fetchKeyPackage;
   final PublicKeyFromStringFunction _publicKeyFromString;
   final String _publicKeyString;
+  final List<RelayUrl> _nip65Relays;
 
   KeyPackageService({
     required String publicKeyString,
+    required List<RelayUrl> nip65Relays,
     FetchKeyPackageFunction? fetchKeyPackage,
     PublicKeyFromStringFunction? publicKeyFromString,
   }) : _publicKeyString = publicKeyString,
+       _nip65Relays = nip65Relays,
        _fetchKeyPackage = fetchKeyPackage ?? relays.fetchKeyPackage,
        _publicKeyFromString = publicKeyFromString ?? utils.publicKeyFromString;
 
@@ -40,7 +48,7 @@ class KeyPackageService {
     _logger.info('Key package fetch attempt $attempt for $_publicKeyString');
 
     final freshPubkey = await _publicKeyFromString(publicKeyString: _publicKeyString);
-    final keyPackage = await _fetchKeyPackage(pubkey: freshPubkey);
+    final keyPackage = await _fetchKeyPackage(pubkey: freshPubkey, nip65Relays: _nip65Relays);
 
     _logger.info(
       'Key package fetch successful on attempt $attempt - result: ${keyPackage != null ? "found" : "null"}',
