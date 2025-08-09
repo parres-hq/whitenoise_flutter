@@ -43,27 +43,22 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
   Widget build(BuildContext context) {
     final isSingleContact = widget.contacts.length == 1;
     final contact = isSingleContact ? widget.contacts.first : null;
-    if (contact == null) return const SizedBox.shrink();
+    if (contact == null && isSingleContact) return const SizedBox.shrink();
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (isSingleContact) ...[
-          // Single contact view
-          Column(
-            children: [
-              Gap(12.h),
-              UserProfile(
-                imageUrl: contact.imagePath ?? '',
-                name: contact.displayName,
-                nip05: contact.nip05 ?? '',
-                pubkey: contact.publicKey,
-                ref: ref,
-              ),
-              Gap(36.h),
-              ShareInviteCallout(contact: contact),
-            ],
+          Gap(12.h),
+          UserProfile(
+            imageUrl: contact?.imagePath ?? '',
+            name: contact?.displayName ?? '',
+            nip05: contact?.nip05 ?? '',
+            pubkey: contact?.publicKey ?? '',
+            ref: ref,
           ),
+          Gap(36.h),
+          ShareInviteCallout(contact: contact!),
         ] else ...[
           // Multiple contacts view
           Padding(
@@ -80,19 +75,18 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
               ],
             ),
           ),
-          // Contacts list
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              itemCount: widget.contacts.length,
-              itemBuilder: (context, index) {
-                final contact = widget.contacts[index];
-                return ContactListTile(contact: contact);
-              },
-            ),
+
+          ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            shrinkWrap: true,
+            itemCount: widget.contacts.length,
+            itemBuilder: (context, index) {
+              final contact = widget.contacts[index];
+              return ContactListTile(contact: contact);
+            },
           ),
         ],
-        Gap(10.h),
+        Gap(14.h),
         const ShareInviteButton(),
       ],
     );
