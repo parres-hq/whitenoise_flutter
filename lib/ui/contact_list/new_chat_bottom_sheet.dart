@@ -383,15 +383,18 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           focusNode: _searchFocusNode,
           hintText: 'Search contact or public key...',
           decoration: InputDecoration(
-            prefixIcon: Icon(
-              CarbonIcons.search,
-              color: context.colors.primary,
-              size: 20.sp,
+            prefixIcon: Padding(
+              padding: EdgeInsets.only(left: 14.w, right: 4.w),
+              child: Icon(
+                CarbonIcons.search,
+                color: context.colors.primary,
+                size: 20.w,
+              ),
             ),
             suffixIcon: GestureDetector(
               onTap: _scanQRCode,
               child: Padding(
-                padding: EdgeInsets.all(12.w),
+                padding: EdgeInsets.only(right: 14.w),
                 child: SvgPicture.asset(
                   AssetsPaths.icScan,
                   width: 16.w,

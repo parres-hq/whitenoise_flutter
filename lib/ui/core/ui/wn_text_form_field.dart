@@ -9,6 +9,11 @@ enum FieldType {
   password,
 }
 
+enum FieldSize {
+  regular, // 56.h
+  small,   // 44.h
+}
+
 class WnTextFormField extends StatefulWidget {
   const WnTextFormField({
     super.key,
@@ -42,6 +47,7 @@ class WnTextFormField extends StatefulWidget {
     this.textCapitalization = TextCapitalization.none,
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
     this.inputFormatters,
+    this.size = FieldSize.regular,
   });
 
   final Key? formKey;
@@ -75,6 +81,7 @@ class WnTextFormField extends StatefulWidget {
   final TextEditingController? controller;
   final FormFieldValidator<String?>? validator;
   final InputDecoration? decoration;
+  final FieldSize size;
 
   @override
   State<WnTextFormField> createState() => _WnTextFormFieldState();
@@ -100,21 +107,8 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
     });
   }
 
-  Widget? get suffixIcon {
-    final resolvedIcon = ValueListenableBuilder(
-      valueListenable: hasError,
-      builder: (context, hasError, _) {
-        final errorIcon = !hasError ? const SizedBox() : const Icon(Icons.error);
-
-        return switch (widget.type) {
-          FieldType.password => errorIcon,
-          FieldType.standard || null => errorIcon,
-        };
-      },
-    );
-
-    return widget.decoration?.suffixIcon ?? resolvedIcon;
-  }
+  Widget? get suffixIcon =>
+      hasError.value ? const Icon(Icons.error) : widget.decoration?.suffixIcon;
 
   String? validator(dynamic value) {
     final result = widget.validator?.call(value);
@@ -135,7 +129,11 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
           fontWeight: FontWeight.w600,
         );
 
+    final isSmall = widget.size == FieldSize.small;
+    final targetHeight = isSmall ? 44.h : 56.h;
+
     final decoration = (widget.decoration ?? const InputDecoration()).copyWith(
+      constraints: widget.maxLines != null || widget.minLines != null ? null : BoxConstraints.tightFor(height: targetHeight),
       suffixIcon: suffixIcon,
       labelText: widget.labelText,
       hintText: widget.hintText,
@@ -146,10 +144,9 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
       ),
       suffixIconColor: context.colors.primary,
       fillColor: context.colors.avatarSurface,
-      contentPadding: EdgeInsets.symmetric(
-        horizontal: 12.w,
-        vertical: 16.h,
-      ),
+      contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: isSmall ? 13.5.h : 19.5.h),
+      prefixIconConstraints: BoxConstraints.tightFor(height: targetHeight),
+      suffixIconConstraints: BoxConstraints.tightFor(height: targetHeight),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.zero,
         borderSide: BorderSide(
@@ -165,7 +162,7 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
       filled: true,
     );
 
-    return TextFormField(
+    final field = TextFormField(
       key: widget.formKey,
       validator: validator,
       enabled: widget.enabled,
@@ -194,6 +191,20 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
       obscuringCharacter: widget.obscuringCharacter,
       keyboardType: widget.keyboardType,
       inputFormatters: widget.inputFormatters,
+    );
+
+    // If maxLines or minLines is specified, return the field as is
+    // Without using ConstainedBox to enforce the target height. 
+    // Same rule applied in InputDecoration above.
+    if (widget.maxLines != null || widget.minLines != null){
+      return field;
+    }
+    // Also enforce the target height at the parent layout level so surrounding
+    // widgets measure consistently. The decoration.constraints above ensures
+    // the border matches this height (no extra whitespace around it).
+    return ConstrainedBox(
+      constraints: BoxConstraints.tightFor(height: targetHeight),
+      child: field,
     );
   }
 }
