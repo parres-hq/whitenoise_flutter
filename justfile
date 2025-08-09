@@ -5,7 +5,14 @@ default:
     @just --list
 
 # Pre-commit checks: run the same checks as CI locally
-precommit: check-rust-format check-dart-format lint-rust analyze test-flutter test-rust
+precommit:
+    just deps-flutter
+    just deps-rust
+    just fix
+    just format
+    just lint
+    just test-flutter
+    just test-rust
     @echo "✅ All pre-commit checks passed!"
 
 # ==============================================================================
@@ -78,7 +85,7 @@ docs-rust:
 # Run Flutter analyzer
 analyze:
     @echo "🔍 Running Flutter analyzer..."
-    flutter analyze
+    flutter analyze --fatal-infos
 
 # Format Dart code
 format-dart:
@@ -175,7 +182,8 @@ setup: doctor clean-all deps regenerate build-rust-debug
     @echo "🎉 Setup complete! Run 'just run' to start the app."
 
 # Build APK (for Max)
-# build-apk:
-#     just regenerate
-#     scripts/build-android.sh
-#     flutter build apk --split-per-abi --release
+build-apk:
+    just regenerate
+    scripts/build_android.sh
+    just precommit
+    flutter build apk --split-per-abi --release
