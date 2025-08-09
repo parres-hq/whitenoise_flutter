@@ -11,7 +11,7 @@ enum FieldType {
 
 enum FieldSize {
   regular, // 56.h
-  small,   // 44.h
+  small, // 44.h
 }
 
 class WnTextFormField extends StatefulWidget {
@@ -133,7 +133,10 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
     final targetHeight = isSmall ? 44.h : 56.h;
 
     final decoration = (widget.decoration ?? const InputDecoration()).copyWith(
-      constraints: widget.maxLines != null || widget.minLines != null ? null : BoxConstraints.tightFor(height: targetHeight),
+      constraints:
+          widget.maxLines != null || widget.minLines != null
+              ? null
+              : BoxConstraints.tightFor(height: targetHeight),
       suffixIcon: suffixIcon,
       labelText: widget.labelText,
       hintText: widget.hintText,
@@ -194,9 +197,9 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
     );
 
     // If maxLines or minLines is specified, return the field as is
-    // Without using ConstainedBox to enforce the target height. 
+    // Without using ConstainedBox to enforce the target height.
     // Same rule applied in InputDecoration above.
-    if (widget.maxLines != null || widget.minLines != null){
+    if (widget.maxLines != null || widget.minLines != null) {
       return field;
     }
     // Also enforce the target height at the parent layout level so surrounding
