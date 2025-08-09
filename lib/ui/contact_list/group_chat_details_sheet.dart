@@ -1,3 +1,5 @@
+// ignore_for_file: unused_field
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -119,6 +121,31 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
       if (contactsWithKeyPackage.isEmpty) {
         safeShowErrorToast('No contacts have keypackages available for group creation');
+        return;
+      }
+
+      // Only create group if there are multiple contacts with keypackages
+      // If only one contact has keypackage, just show invite sheet for all contacts without keypackages
+      if (contactsWithKeyPackage.length == 1) {
+        // Complete local operations first
+        if (mounted) {
+          setState(() {
+            _isCreatingGroup = false;
+          });
+        }
+
+        // Just show invite sheet for all contacts without keypackages
+        if (contactsWithoutKeyPackage.isNotEmpty && mounted) {
+          await ShareInviteBottomSheet.show(
+            context: context,
+            contacts: contactsWithoutKeyPackage,
+          );
+        }
+
+        // Close the group details sheet since we're not creating a group
+        if (mounted) {
+          context.pop();
+        }
         return;
       }
 
@@ -319,10 +346,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
           ),
         ),
         WnFilledButton(
-          onPressed:
-              _isCreatingGroup || !_isGroupNameValid || !_hasContactsWithKeyPackage
-                  ? null
-                  : () => _createGroupChat(),
+          onPressed: _isCreatingGroup || !_isGroupNameValid ? null : _createGroupChat,
           loading: _isCreatingGroup,
           title: _isCreatingGroup ? 'Creating Group...' : 'Create Group',
         ),
