@@ -57,6 +57,28 @@ class SwitchProfileBottomSheet extends ConsumerStatefulWidget {
 class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSheet> {
   String? _activeAccountHex;
   bool _isConnectProfileSheetOpen = false;
+  // Cache for converting any npub profile key to hex for quick sync comparisons
+  final Map<String, String> _pubkeyToHex = {};
+
+  /// Precompute and cache hex versions of all provided profile keys
+  Future<void> _precomputeProfileHexes() async {
+    for (final p in widget.profiles) {
+      final original = p.publicKey;
+      if (_pubkeyToHex.containsKey(original)) continue;
+      try {
+        if (original.startsWith('npub1')) {
+          final hex = await hexPubkeyFromNpub(npub: original);
+          _pubkeyToHex[original] = hex;
+        } else {
+          _pubkeyToHex[original] = original;
+        }
+      } catch (_) {
+        // Fallback to original if conversion fails
+        _pubkeyToHex[original] = original;
+      }
+    }
+    if (mounted) setState(() {});
+  }
 
   @override
   void initState() {
@@ -66,6 +88,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
         ref.showRawSuccessToast('Signed out. Choose different profile.');
       }
       _loadActiveAccountHex();
+      _precomputeProfileHexes();
     });
   }
 
@@ -121,18 +144,12 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
 
     // Sort profiles: active account first, then others
     final sortedProfiles = [...widget.profiles];
-    if (activeAccountPubkey != null) {
+    if (activeAccountPubkey != null && _activeAccountHex != null) {
       sortedProfiles.sort((a, b) {
-        // Use cached _activeAccountHex for sorting if available
-        final aIsActive =
-            _activeAccountHex != null &&
-            (a.publicKey == _activeAccountHex ||
-                a.publicKey.startsWith('npub1')); // Will be resolved async
-        final bIsActive =
-            _activeAccountHex != null &&
-            (b.publicKey == _activeAccountHex ||
-                b.publicKey.startsWith('npub1')); // Will be resolved async
-
+        final aHex = _pubkeyToHex[a.publicKey] ?? a.publicKey;
+        final bHex = _pubkeyToHex[b.publicKey] ?? b.publicKey;
+        final aIsActive = aHex == _activeAccountHex;
+        final bIsActive = bHex == _activeAccountHex;
         if (aIsActive && !bIsActive) return -1;
         if (!aIsActive && bIsActive) return 1;
         return 0;
