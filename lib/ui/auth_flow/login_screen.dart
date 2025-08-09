@@ -208,15 +208,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                           // IntrinsicHeight avoided here since it's been used once in this page already.
                           // PS this has been tested on different screen sizes and it works fine.
                           Container(
-                            height: 42.h,
-                            width: 42.h,
+                            height: 56.h,
+                            width: 56.h,
                             decoration: BoxDecoration(
                               color: context.colors.avatarSurface,
                             ),
                             child: CustomIconButton(
                               iconPath: AssetsPaths.icPaste,
                               onTap: _pasteFromClipboard,
-                              padding: 12.w,
+                              padding: 20.w,
+                              size: 56.h,
                             ),
                           ),
                         ],

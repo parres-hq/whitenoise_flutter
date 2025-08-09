@@ -156,13 +156,13 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                                 ? Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Gap(8.w),
+                                    Gap(4.w),
                                     WnIconButton(
                                           onPressed: _sendMessage,
                                           icon: Icons.arrow_upward,
                                           backgroundColor: context.colors.primary,
                                           iconColor: context.colors.primaryForeground,
-                                          size: 52.w,
+                                          size: 56.h,
                                         )
                                         .animate()
                                         .fadeIn(

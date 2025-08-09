@@ -102,11 +102,11 @@ class DonateScreen extends ConsumerWidget {
                                   readOnly: true,
                                 ),
                               ),
-                              Gap(8.w),
+                              Gap(4.w),
                               CustomIconButton(
                                 onTap: () => _copyToClipboard(ref, kLightningAddress),
                                 iconPath: AssetsPaths.icCopy,
-                                size: 56.w,
+                                size: 56.h,
                                 padding: 20.w,
                               ),
                             ],
@@ -131,7 +131,7 @@ class DonateScreen extends ConsumerWidget {
                                   readOnly: true,
                                 ),
                               ),
-                              Gap(8.w),
+                              Gap(4.w),
                               CustomIconButton(
                                 onTap:
                                     () => _copyToClipboard(
@@ -139,7 +139,7 @@ class DonateScreen extends ConsumerWidget {
                                       kBitcoinAddress,
                                     ),
                                 iconPath: AssetsPaths.icCopy,
-                                size: 56.w,
+                                size: 56.h,
                                 padding: 20.w,
                               ),
                             ],
