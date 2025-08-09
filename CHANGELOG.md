@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed blurry splash screen icon on both iOS and Android.
 - Fixed absence of border on some contact avatars
+- Fixed irregular textfield and button sizes
 
 ### Security
 
