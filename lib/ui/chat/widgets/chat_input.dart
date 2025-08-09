@@ -162,7 +162,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                                           icon: Icons.arrow_upward,
                                           backgroundColor: context.colors.primary,
                                           iconColor: context.colors.primaryForeground,
-                                          size: 52.w,
+                                          size: 56.h,
                                         )
                                         .animate()
                                         .fadeIn(
