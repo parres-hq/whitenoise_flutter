@@ -83,12 +83,12 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
   @override
   void initState() {
     super.initState();
+    _loadActiveAccountHex();
+    _precomputeProfileHexes();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.showSuccessToast) {
         ref.showRawSuccessToast('Signed out. Choose different profile.');
       }
-      _loadActiveAccountHex();
-      _precomputeProfileHexes();
     });
   }
 
