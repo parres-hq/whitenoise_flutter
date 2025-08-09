@@ -42,6 +42,7 @@ Make sure you have the following installed:
 - **Just** (command runner) - `cargo install just`
 - **flutter_rust_bridge_codegen** - `cargo install flutter_rust_bridge_codegen`
 - **Local nostr relays and blossom server** (Optional): for local testing with nostr relays and blossom server:
+
    ```bash
    git clone https://github.com/parres-hq/whitenoise
    cd whitenoise
@@ -51,15 +52,18 @@ Make sure you have the following installed:
 ### Setup
 
 1. **Clone the repository**
+
    ```bash
    git clone https://github.com/parres-hq/whitenoise_flutter.git
    cd whitenoise_flutter
    ```
 
 2. **Setup the project**
+
    ```bash
    just setup
    ```
+
    This command will:
    - Check your development environment
    - Clean any existing builds
@@ -68,8 +72,10 @@ Make sure you have the following installed:
    - Build the Rust library
 
 3. **Run the app**
-   ```bash
-   just run
+
+```bash
+
+   flutter run
    ```
 
 ## 🛠️ Development Workflow
@@ -81,27 +87,14 @@ Make sure you have the following installed:
 just setup
 
 # Run the app in debug mode
-just run
+flutter run
 
 # Run pre-commit checks (formatting, linting, analysis, tests)
 just precommit
 
-# Clean everything and regenerate
-just reset
-```
-
-### Platform-Specific Running
-
-```bash
-# Run on specific platforms
-just run-ios          # iOS Simulator
-just run-android       # Android Emulator
-just run-macos         # macOS Desktop
-just run-linux         # Linux Desktop
-just run-windows       # Windows Desktop
 
 # List available devices
-just devices
+flutter devices
 ```
 
 ### Code Generation & Dependencies
@@ -114,6 +107,7 @@ just regenerate
 just deps              # Install both Flutter and Rust deps
 just deps-flutter      # Flutter dependencies only
 just deps-rust         # Rust dependencies only
+
 ```
 
 ### Building
@@ -121,11 +115,6 @@ just deps-rust         # Rust dependencies only
 ```bash
 # Build for development
 just build-rust-debug  # Rust library (debug)
-just build-flutter     # Flutter app for multiple platforms
-
-# Build for production
-just build-release     # Complete production build
-just build-rust-release # Rust library (release)
 ```
 
 ### Code Quality
@@ -151,7 +140,6 @@ just fix
 # Run tests
 just test-rust         # Rust unit tests
 just test-flutter      # Flutter unit tests (when test/ exists)
-just test-integration  # Integration tests
 ```
 
 ### Cleaning
@@ -162,9 +150,6 @@ just clean-flutter     # Flutter build cache
 just clean-rust        # Rust build cache
 just clean-bridge      # Generated bridge files
 just clean-all         # Everything
-
-# Reset to clean state
-just reset
 ```
 
 ### Utilities
@@ -243,12 +228,14 @@ whitenoise_flutter/
 ### Common Issues
 
 1. **Bridge generation fails**
+
    ```bash
    just clean-bridge
    just regenerate
    ```
 
 2. **Build errors after dependency changes**
+
    ```bash
    just clean-all
    just deps
@@ -256,6 +243,7 @@ whitenoise_flutter/
    ```
 
 3. **Platform-specific build issues**
+
    ```bash
    just doctor  # Check your development environment
    ```
@@ -280,9 +268,8 @@ whitenoise_flutter/
 We want to keep our codebase clean, consistent, and easy to contribute to. Here are some guidelines to follow:
 
 - ✅ Unit tests: Add unit tests for all new providers.
-- ♻️ Widget design: Try to keep widgets small and simple. Extract complex logic to notifiers. 
+- ♻️ Widget design: Try to keep widgets small and simple. Extract complex logic to notifiers.
 - 🏷️ Naming: Shared custom widgets should use the `Wn` prefix for consistency.
-
 
 ## 📜 License
 
