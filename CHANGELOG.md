@@ -9,9 +9,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Add copy npub button in user profile sheet
-- Fixes double sheet loading in contact bottom sheet
-
 ### Changed
 
 ### Deprecated
@@ -20,26 +17,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+### Security
+
+
+## [0.1.3] - 2025-08-09
+
+### Added
+- Add copy npub button in user profile sheet
+- Fixes double sheet loading in contact bottom sheet
+
+### Fixed
+- Improved relay selection and connection logic
+- Improved metadata fetching
+- Fixed failing DM group creation in nearly all cases. Note: We're still seeing issues with creating multi-person groups (fix coming soon)
 - Fixed blurry splash screen icon on both iOS and Android.
 - Fixed absence of border on some contact avatars
-
-### Security
 
 ## [0.1.2] - 2025-07-15
 
 ### Added
-
 - Show the npub of each user on the contacts list
 - Add developer settings screen with some basic cache management functions
 - Add relay management settings screen to view and manage your relays
 - Confirmation dialog when signing out
 - Fixed back navigation when connecting another account
 - QR code scanner for connecting with other users
-
-
-### Changed
-
-### Deprecated
 
 ### Removed
 - Remove (for now) the mute and search chat controls from group info screens.
@@ -51,8 +53,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Prevent duplicate chats on clicking contact
 - Bug fixes related to starting new groups on iOS
 - Ensure contacts show correct metadata on iOS
-
-### Security
 
 ## [0.1.1] - 2025-07-10
 
