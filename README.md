@@ -172,9 +172,9 @@ just docs-rust         # Generate and open Rust docs
 To run and test the app on physical iOS devices, you'll need special access and setup:
 
 - **Apple Development Team Access**: Request access to the Parres Apple development team by contacting @erskingardner
-- **Device Profile Setup**: Send your device UUID securely to @erskingardner and request a development profile
-- **Xcode Setup**: Once your profile is configured, reopen Xcode
-- **Running**: Use the run/play button in Xcode to build and deploy to your device
+- **Device Profile Setup**: Send your device UDID (not UUID) securely (e.g., DM or a private share). Do not post UDIDs in public GitHub issues.
+- **Xcode Setup**: Once your profile is configured, reopen Xcode by running `open ios/Runner.xcworkspace`. Go to Signing & Capabilities, select the Parres team, and ensure “Automatically manage signing” is enabled.
+- **Running**: Run `flutter run -d <deviceId>`. You can also replace device id by device name. To know your device name or id, you can run run `flutter devices`. It can take some time. After that, in Xcode, select your device and press Run.
 - **Troubleshooting**: If you encounter issues, please open a GitHub issue and the team will help
 
 > **Note**: iOS development requires membership in our Apple Developer Team. Is not strictly necessary to contribute to the project, you can still try it in ios emulator.
