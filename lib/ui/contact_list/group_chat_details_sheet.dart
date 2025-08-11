@@ -1,5 +1,3 @@
-// ignore_for_file: unused_field
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -59,13 +57,11 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
   bool _hasGroupImage = false;
   bool _isGroupNameValid = false;
   bool _isCreatingGroup = false;
-  bool _hasContactsWithKeyPackage = true;
 
   @override
   void initState() {
     super.initState();
     _groupNameController.addListener(_onGroupNameChanged);
-    _checkContactsKeyPackages();
   }
 
   void _onGroupNameChanged() {
@@ -74,28 +70,6 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
       setState(() {
         _isGroupNameValid = isValid;
       });
-    }
-  }
-
-  Future<void> _checkContactsKeyPackages() async {
-    try {
-      final filteredContacts = await _filterContactsByKeyPackage(widget.selectedContacts);
-      if (!mounted) return;
-
-      final contactsWithKeyPackage = filteredContacts['withKeyPackage']!;
-
-      if (mounted) {
-        setState(() {
-          _hasContactsWithKeyPackage = contactsWithKeyPackage.isNotEmpty;
-        });
-      }
-    } catch (e) {
-      // If there's an error checking keypackages, assume no contacts have keypackages
-      if (mounted) {
-        setState(() {
-          _hasContactsWithKeyPackage = false;
-        });
-      }
     }
   }
 
@@ -119,14 +93,8 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
       final contactsWithKeyPackage = filteredContacts['withKeyPackage']!;
       final contactsWithoutKeyPackage = filteredContacts['withoutKeyPackage']!;
 
-      if (contactsWithKeyPackage.isEmpty) {
-        safeShowErrorToast('No contacts have keypackages available for group creation');
-        return;
-      }
-
-      // Only create group if there are multiple contacts with keypackages
-      // If only one contact has keypackage, just show invite sheet for all contacts without keypackages
-      if (contactsWithKeyPackage.length == 1) {
+      // Only create group if there contacts with keypackages are greater than 2
+      if (contactsWithKeyPackage.length > 2) {
         // Complete local operations first
         if (mounted) {
           setState(() {
