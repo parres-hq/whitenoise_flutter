@@ -115,7 +115,9 @@ just deps-rust         # Rust dependencies only
 ```bash
 # Build for development
 just build-rust-debug  # Rust library (debug)
+just build-apk # Builds apk
 ```
+
 
 ### Code Quality
 
@@ -162,6 +164,25 @@ just doctor            # Check development environment
 # Documentation
 just docs-rust         # Generate and open Rust docs
 ```
+
+## 📱 Platform Setup
+
+### iOS Development
+
+To run and test the app on physical iOS devices, you'll need special access and setup:
+
+- **Apple Development Team Access**: Request access to the Parres Apple development team by contacting @erskingardner
+- **Device Profile Setup**: Send your device UUID securely to @erskingardner and request a development profile
+- **Xcode Setup**: Once your profile is configured, reopen Xcode
+- **Running**: Use the run/play button in Xcode to build and deploy to your device
+- **Troubleshooting**: If you encounter issues, please open a GitHub issue and the team will help
+
+> **Note**: iOS development requires membership in our Apple Developer Team. Is not strictly necessary to contribute to the project, you can still try it in ios emulator.
+
+
+### Desktop Platforms
+
+Desktop support (macOS, Windows, Linux) is not available yet. 
 
 ## 🔄 CI/CD
 
@@ -270,6 +291,7 @@ We want to keep our codebase clean, consistent, and easy to contribute to. Here 
 - ✅ Unit tests: Add unit tests for all new providers.
 - ♻️ Widget design: Try to keep widgets small and simple. Extract complex logic to notifiers.
 - 🏷️ Naming: Shared custom widgets should use the `Wn` prefix for consistency.
+
 
 ## 📜 License
 
