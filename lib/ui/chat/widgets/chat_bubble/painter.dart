@@ -30,7 +30,6 @@ class CustomChatBubbleNoBorderPainter extends CustomPainter {
           size.width - _x,
           size.height,
           topLeft: Radius.circular(_borderRadius),
-          topRight: const Radius.circular(1.0), // Less rounded where tail connects
           bottomLeft: Radius.circular(_borderRadius),
           bottomRight: Radius.circular(_borderRadius),
         );
