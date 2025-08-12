@@ -43,11 +43,36 @@ class MessageWidget extends StatelessWidget {
         margin: EdgeInsets.only(
           bottom: isSameSenderAsPrevious ? 4.w : 12.w,
         ),
-        child: ChatMessageBubble(
-          isSender: message.isMe,
-          color: message.isMe ? context.colors.meChatBubble : context.colors.contactChatBubble,
-          tail: !isSameSenderAsNext,
-          child: _buildMessageContent(context),
+        child: Column(
+          crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            ChatMessageBubble(
+              isSender: message.isMe,
+              color: message.isMe ? context.colors.meChatBubble : context.colors.contactChatBubble,
+              tail: !isSameSenderAsNext,
+              child: _buildMessageContent(context),
+            ),
+            if (message.reactions.isNotEmpty) ...[
+              Transform.translate(
+                offset: Offset(0, -4.h), // Move reactions up to overlap slightly with bubble
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: message.isMe ? 0 : 16.w, // Adjust padding to align with bubble edge
+                    right: message.isMe ? 16.w : 0,
+                  ),
+                  child: ReactionsRow(
+                    message: message,
+                    onReactionTap: onReactionTap,
+                    context: context,
+                    bubbleColor:
+                        message.isMe
+                            ? context.colors.meChatBubble
+                            : context.colors.contactChatBubble,
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
     );
@@ -86,11 +111,6 @@ class MessageWidget extends StatelessWidget {
                   context,
                   constraints.maxWidth - 16.w,
                 ),
-
-                if (message.reactions.isNotEmpty) ...[
-                  SizedBox(height: 4.h),
-                  ReactionsRow(message: message, onReactionTap: onReactionTap, context: context),
-                ],
               ],
             ),
           ),
@@ -107,7 +127,8 @@ class MessageWidget extends StatelessWidget {
       color: message.isMe ? context.colors.meChatBubbleText : context.colors.contactChatBubbleText,
     );
 
-    if (message.reactions.isEmpty) {
+    // Always handle timestamp positioning the same way since reactions are now outside
+    {
       final messageContent = message.content ?? '';
       final timestampWidth = _getTimestampWidth(context);
       final minPadding = 8.w;
@@ -158,18 +179,6 @@ class MessageWidget extends StatelessWidget {
               TimeAndStatus(message: message, context: context),
             ],
           ),
-        ],
-      );
-    } else {
-      // Messages with reactions: Display text separately and timestamp in ReactionsRow
-      return Column(
-        crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: maxWidth,
-            child: _buildHighlightedText(message.content ?? '', textStyle, context),
-          ),
-          SizedBox(height: 4.h),
         ],
       );
     }
@@ -265,89 +274,81 @@ class ReactionsRow extends StatelessWidget {
     required this.message,
     required this.onReactionTap,
     required this.context,
+    required this.bubbleColor,
   });
 
   final MessageModel message;
   final Function(String p1)? onReactionTap;
   final BuildContext context;
+  final Color bubbleColor;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Wrap(
+      spacing: 8.w,
       children: [
-        Expanded(
-          child: Wrap(
-            spacing: 8.w,
-            children: [
-              ...(() {
-                final reactionGroups = <String, List<Reaction>>{};
-                for (final reaction in message.reactions) {
-                  reactionGroups.putIfAbsent(reaction.emoji, () => []).add(reaction);
-                }
-                return reactionGroups.entries.take(3).map((entry) {
-                  final emoji = entry.key;
-                  final count = entry.value.length;
-                  return GestureDetector(
-                    onTap: () {
-                      // Call the reaction tap handler to add/remove reaction
-                      onReactionTap?.call(emoji);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color:
-                            message.isMe
-                                ? context.colors.primary.withValues(alpha: 0.1)
-                                : context.colors.secondary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: emoji,
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                color:
-                                    message.isMe
-                                        ? context.colors.primaryForeground
-                                        : context.colors.mutedForeground,
-                              ),
-                            ),
-                            TextSpan(
-                              text: ' ${count > 99 ? '99+' : count}',
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w600,
-                                color:
-                                    message.isMe
-                                        ? context.colors.primaryForeground
-                                        : context.colors.mutedForeground,
-                              ),
-                            ),
-                          ],
+        ...(() {
+          final reactionGroups = <String, List<Reaction>>{};
+          for (final reaction in message.reactions) {
+            reactionGroups.putIfAbsent(reaction.emoji, () => []).add(reaction);
+          }
+          return reactionGroups.entries.take(3).map((entry) {
+            final emoji = entry.key;
+            final count = entry.value.length;
+            return GestureDetector(
+              onTap: () {
+                // Call the reaction tap handler to add/remove reaction
+                onReactionTap?.call(emoji);
+              },
+              child: Container(
+                padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
+                decoration: BoxDecoration(
+                  color: bubbleColor,
+                  borderRadius: BorderRadius.circular(6.r),
+                ),
+                child: RichText(
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: emoji,
+                        style: TextStyle(
+                          fontSize: 13.sp,
+                          color:
+                              message.isMe
+                                  ? context.colors.meChatBubbleText
+                                  : context.colors.contactChatBubbleText,
                         ),
                       ),
-                    ),
-                  );
-                }).toList();
-              })(),
-              if (message.reactions.length > 3)
-                Text(
-                  '...',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color:
-                        message.isMe
-                            ? context.colors.primaryForeground
-                            : context.colors.mutedForeground,
+                      if (count > 1)
+                        TextSpan(
+                          text: ' ${count > 99 ? '99+' : count}',
+                          style: TextStyle(
+                            fontSize: 11.sp,
+                            fontWeight: FontWeight.w600,
+                            color:
+                                message.isMe
+                                    ? context.colors.meChatBubbleText
+                                    : context.colors.contactChatBubbleText,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-            ],
+              ),
+            );
+          }).toList();
+        })(),
+        if (message.reactions.length > 3)
+          Text(
+            '...',
+            style: TextStyle(
+              fontSize: 13.sp,
+              color:
+                  message.isMe
+                      ? context.colors.meChatBubbleText
+                      : context.colors.contactChatBubbleText,
+            ),
           ),
-        ),
-        TimeAndStatus(message: message, context: context),
       ],
     );
   }
