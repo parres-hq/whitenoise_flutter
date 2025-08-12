@@ -89,7 +89,6 @@ class MessageWidget extends StatelessWidget {
                   SizedBox(height: 2.h),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Reactions positioned at bottom left
                       ReactionsWidget(
@@ -309,22 +308,25 @@ class ReactionsWidget extends StatelessWidget {
                             : context.colors.secondary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12.r),
                   ),
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: emoji,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color:
-                                message.isMe
-                                    ? context.colors.primaryForeground
-                                    : context.colors.mutedForeground,
-                          ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        emoji,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color:
+                              message.isMe
+                                  ? context.colors.primaryForeground
+                                  : context.colors.mutedForeground,
                         ),
-                        if (count > 1)
-                          TextSpan(
-                            text: ' ${count > 99 ? '99+' : count}',
+                      ),
+                      if (count > 1)
+                        Padding(
+                          padding: EdgeInsets.only(top: 6.h),
+                          child: Text(
+                            ' ${count > 99 ? '99+' : count}',
                             style: TextStyle(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w600,
@@ -334,8 +336,8 @@ class ReactionsWidget extends StatelessWidget {
                                       : context.colors.mutedForeground,
                             ),
                           ),
-                      ],
-                    ),
+                        ),
+                    ],
                   ),
                 ),
               );
