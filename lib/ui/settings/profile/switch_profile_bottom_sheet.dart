@@ -62,19 +62,19 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
 
   /// Precompute and cache hex versions of all provided profile keys
   Future<void> _precomputeProfileHexes() async {
-    for (final p in widget.profiles) {
-      final original = p.publicKey;
-      if (_pubkeyToHex.containsKey(original)) continue;
+    for (final profile in widget.profiles) {
+      final originalPubKey = profile.publicKey;
+      if (_pubkeyToHex.containsKey(originalPubKey)) continue;
       try {
-        if (original.startsWith('npub1')) {
-          final hex = await hexPubkeyFromNpub(npub: original);
-          _pubkeyToHex[original] = hex;
+        if (originalPubKey.startsWith('npub1')) {
+          final hex = await hexPubkeyFromNpub(npub: originalPubKey);
+          _pubkeyToHex[originalPubKey] = hex;
         } else {
-          _pubkeyToHex[original] = original;
+          _pubkeyToHex[originalPubKey] = originalPubKey;
         }
       } catch (_) {
         // Fallback to original if conversion fails
-        _pubkeyToHex[original] = original;
+        _pubkeyToHex[originalPubKey] = originalPubKey;
       }
     }
     if (mounted) setState(() {});
