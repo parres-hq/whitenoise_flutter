@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -74,13 +75,11 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
   }
 
   void _createGroupChat() async {
-    if (!_isGroupNameValid) return;
-    final groupName = _groupNameController.text.trim();
+    if (!_isGroupNameValid || !mounted) return;
 
-    // Store the ref early to avoid accessing it after disposal
+    final groupName = _groupNameController.text.trim();
     final notifier = ref.read(groupsProvider.notifier);
 
-    if (!mounted) return;
     setState(() {
       _isCreatingGroup = true;
     });
@@ -93,16 +92,8 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
       final contactsWithKeyPackage = filteredContacts['withKeyPackage']!;
       final contactsWithoutKeyPackage = filteredContacts['withoutKeyPackage']!;
 
-      // Only create group if there contacts with keypackages are greater than 2
-      if (contactsWithKeyPackage.length > 2) {
-        // Complete local operations first
-        if (mounted) {
-          setState(() {
-            _isCreatingGroup = false;
-          });
-        }
-
-        // Just show invite sheet for all contacts without keypackages
+      // If less than 2 contacts have keypackages, only show invite sheet (no group creation)
+      if (contactsWithKeyPackage.length < 2) {
         if (contactsWithoutKeyPackage.isNotEmpty && mounted) {
           await ShareInviteBottomSheet.show(
             context: context,
@@ -110,15 +101,16 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
           );
         }
 
-        // Close the group details sheet since we're not creating a group
         if (mounted) {
           context.pop();
         }
         return;
       }
 
-      // Create group with contacts that have keypackages - use stored notifier
-      final groupData = await notifier.createNewGroup(
+      // Create group with contacts that have keypackages
+      if (!mounted) return;
+
+      final createdGroupData = await notifier.createNewGroup(
         groupName: groupName,
         groupDescription: '',
         memberPublicKeyHexs: contactsWithKeyPackage.map((c) => c.publicKey).toList(),
@@ -127,58 +119,50 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
       if (!mounted) return;
 
-      GroupData? successGroupData;
-      String? errorMessage;
-
-      if (groupData != null) {
-        successGroupData = groupData;
+      if (createdGroupData != null) {
         // Show share invite bottom sheet for members without keypackages
         if (contactsWithoutKeyPackage.isNotEmpty && mounted) {
-          await ShareInviteBottomSheet.show(
-            context: context,
-            contacts: contactsWithoutKeyPackage,
-          );
+          try {
+            await ShareInviteBottomSheet.show(
+              context: context,
+              contacts: contactsWithoutKeyPackage,
+            );
+          } catch (e) {
+            Logger(
+              'GroupChatDetailsSheet',
+            ).severe('Error showing share invite bottom sheet: $e');
+          }
+        }
+
+        // Navigate to the created group
+        if (mounted) {
+          context.pop();
+
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            if (mounted) {
+              context.go(Routes.home);
+              // Small delay to ensure navigation completes
+              await Future.delayed(const Duration(milliseconds: 150));
+              if (mounted) {
+                Routes.goToChat(context, createdGroupData.mlsGroupId);
+              }
+            }
+          });
         }
       } else {
-        errorMessage = 'Failed to create group chat. Please try again.';
+        safeShowErrorToast('Failed to create group chat. Please try again.');
       }
-
-      // Complete all local operations first
-      if (mounted) {
-        setState(() {
-          _isCreatingGroup = false;
-        });
-      }
-
-      // Show error if needed
-      if (errorMessage != null) {
-        safeShowErrorToast(errorMessage);
-      }
-
-      if (successGroupData != null && mounted) {
-        // Navigate to home first, then to the group chat
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            context.pop();
-            context.go(Routes.home);
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (mounted) {
-                Routes.goToChat(context, groupData!.mlsGroupId);
-              }
-            });
-          }
-        });
-      }
-
-      return;
     } catch (e) {
       if (mounted) {
+        safeShowErrorToast('Error creating group: ${e.toString()}');
+      }
+    } finally {
+      // Always reset loading state
+      if (mounted) {
         setState(() {
           _isCreatingGroup = false;
         });
       }
-      safeShowErrorToast('Error creating group: ${e.toString()}');
-      return;
     }
   }
 
