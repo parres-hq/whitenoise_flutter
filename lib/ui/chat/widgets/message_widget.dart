@@ -88,13 +88,14 @@ class MessageWidget extends StatelessWidget {
                 if (message.reactions.isNotEmpty) ...[
                   SizedBox(height: 2.h),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Reactions positioned at bottom left
                       ReactionsWidget(
                         message: message,
                         onReactionTap: onReactionTap,
                       ),
+                      SizedBox(width: 12.w),
+                      const Spacer(),
                       // Timestamp positioned at bottom right
                       Padding(
                         padding: EdgeInsets.only(top: 6.h),
@@ -326,7 +327,7 @@ class ReactionsWidget extends StatelessWidget {
                         Padding(
                           padding: EdgeInsets.only(top: 6.h),
                           child: Text(
-                            ' ${count > 99 ? '99+' : count}',
+                            '${count > 99 ? '99+' : count}',
                             style: TextStyle(
                               fontSize: 12.sp,
                               fontWeight: FontWeight.w600,
