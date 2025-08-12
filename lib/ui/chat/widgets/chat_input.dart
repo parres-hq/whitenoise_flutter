@@ -82,7 +82,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
         _textController.text != chatState.editingMessage[widget.groupId]!.content) {
       _textController.text = chatState.editingMessage[widget.groupId]!.content ?? '';
     }
-
+    final isReplying = chatState.replyingTo[widget.groupId] != null;
     return AnimatedPadding(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOutCubic,
@@ -106,13 +106,16 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: context.colors.avatarSurface,
-                            border: Border.all(
-                              color:
-                                  _focusNode.hasFocus
-                                      ? context.colors.primary
-                                      : context.colors.input,
-                              width: 1.w,
-                            ),
+                            border:
+                                isReplying
+                                    ? Border.all(
+                                      color:
+                                          _focusNode.hasFocus
+                                              ? context.colors.primary
+                                              : context.colors.input,
+                                      width: 1.w,
+                                    )
+                                    : null,
                           ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -139,11 +142,14 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                                 textInputAction: TextInputAction.newline,
                                 keyboardType: TextInputType.multiline,
                                 textCapitalization: TextCapitalization.sentences,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
+                                decoration:
+                                    isReplying
+                                        ? const InputDecoration(
+                                          border: InputBorder.none,
+                                          enabledBorder: InputBorder.none,
+                                          focusedBorder: InputBorder.none,
+                                        )
+                                        : null,
                               ),
                             ],
                           ),
