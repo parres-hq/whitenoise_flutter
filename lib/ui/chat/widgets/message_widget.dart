@@ -301,7 +301,7 @@ class ReactionsWidget extends StatelessWidget {
                   onReactionTap?.call(emoji);
                 },
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 2.h),
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
                   decoration: BoxDecoration(
                     color:
                         message.isMe
@@ -350,7 +350,7 @@ class ReactionsWidget extends StatelessWidget {
           for (int i = 0; i < reactionWidgets.length; i++) {
             spacedWidgets.add(reactionWidgets[i]);
             if (i < reactionWidgets.length - 1) {
-              spacedWidgets.add(SizedBox(width: 8.w));
+              spacedWidgets.add(SizedBox(width: 2.w));
             }
           }
 
