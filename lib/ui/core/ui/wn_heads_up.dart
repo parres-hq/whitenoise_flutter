@@ -24,6 +24,7 @@ class WnStickyHeadsUp extends StatelessWidget {
     return Container(
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
+        color: context.colors.surface,
         border: Border(
           bottom: BorderSide(
             color: color,

@@ -174,7 +174,7 @@ final relayStatusProvider = NotifierProvider<RelayStatusNotifier, RelayStatusSta
 final allRelayTypesConnectionProvider = FutureProvider<bool>((ref) async {
   // Watch the relay status provider to trigger rebuilds when statuses change
   ref.watch(relayStatusProvider);
-  
+
   final notifier = ref.read(relayStatusProvider.notifier);
   return await notifier.areAllRelayTypesConnected();
 });
