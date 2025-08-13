@@ -87,7 +87,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
   }
 
   Future<void> _loadData() async {
-    // Load initial data for groups, welcomes, and profile
+    // Load initial data for groups, welcomes, profile, and relay status
     if (_isLoadingData) return;
     setState(() {
       _isSearchVisible = false;
@@ -97,6 +97,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
       ref.read(welcomesProvider.notifier).loadWelcomes(),
       ref.read(groupsProvider.notifier).loadGroups(),
       ref.read(profileProvider.notifier).fetchProfileData(),
+      ref.read(relayStatusProvider.notifier).refreshStatuses(),
     ]);
 
     setState(() {
