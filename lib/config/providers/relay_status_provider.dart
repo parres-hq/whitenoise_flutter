@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/models/relay_status.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 
@@ -118,9 +119,50 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
     final status = getRelayStatus(url);
     return status.isConnected;
   }
+
+  Future<bool> isAnyInboxRelayConnected() async {
+    try {
+      final authState = ref.read(authProvider);
+      if (!authState.isAuthenticated) {
+        return false;
+      }
+
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        return false;
+      }
+
+      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      final account = await loadAccount(pubkey: publicKey);
+
+      final inboxRelayUrls = account.inboxRelays;
+      if (inboxRelayUrls.isEmpty) {
+        return false;
+      }
+
+      for (final relayUrl in inboxRelayUrls) {
+        final url = await stringFromRelayUrl(relayUrl: relayUrl);
+        if (isRelayConnected(url)) {
+          return true;
+        }
+      }
+
+      return false;
+    } catch (e) {
+      _logger.warning('Error checking inbox relay connection: $e');
+      return false;
+    }
+  }
 }
 
 // Provider
 final relayStatusProvider = NotifierProvider<RelayStatusNotifier, RelayStatusState>(
   RelayStatusNotifier.new,
 );
+
+final inboxRelayConnectionProvider = FutureProvider<bool>((ref) async {
+  ref.watch(relayStatusProvider);
+  final notifier = ref.read(relayStatusProvider.notifier);
+  return await notifier.isAnyInboxRelayConnected();
+});
