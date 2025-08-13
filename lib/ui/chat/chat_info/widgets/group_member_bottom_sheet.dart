@@ -329,6 +329,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
               ],
             ),
           ),
+          Gap(16.h),
         ] else ...[
           Gap(8.h),
           AddToContactButton(widget.member),

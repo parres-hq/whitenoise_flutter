@@ -113,6 +113,48 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     }
   }
 
+  Future<void> _handleLeaveGroup() async {
+    if (currentUserNpub == null) return;
+    final groupAdmins = ref.read(groupsProvider).groupAdmins?[widget.groupId] ?? [];
+    final isAdmin =
+        groupAdmins.firstWhereOrNull((admin) => admin.publicKey == currentUserNpub) != null;
+    final isOnlyAdmin = isAdmin && groupAdmins.length == 1;
+
+    if (isOnlyAdmin) {
+      // TODO: for now, we will not allow leaving the group if the user is the only admin
+      ref.showErrorToast('You cannot leave the group as you are the only admin.');
+      return;
+      // final npubsToAddAsAdmin =
+      //     await ChooseNewAdminDialog.show(
+      //       context,
+      //       groupId: widget.groupId,
+      //       memberNpub: currentUserNpub!,
+      //     ) ??
+      //     [];
+      // if (mounted && npubsToAddAsAdmin.isNotEmpty) {
+      //   await _leaveGroup(newAdmins: npubsToAddAsAdmin);
+      // }
+    } else {
+      await _leaveGroup();
+    }
+  }
+
+  Future<void> _leaveGroup({
+    List<String>? newAdmins,
+  }) async {
+    final leftGroup =
+        await LeaveGroupDialog.show(
+          context,
+          groupId: widget.groupId,
+          memberNpub: currentUserNpub!,
+          newAdmins: newAdmins,
+        ) ??
+        false;
+    if (leftGroup && mounted) {
+      context.pop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final groupDetails = ref.watch(groupsProvider).groupsMap?[widget.groupId];
@@ -138,53 +180,87 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             ),
           ),
           Gap(16.h),
-          Text(
-            'Group Description:',
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colors.mutedForeground,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
+          if (groupDetails?.description.nullOrEmpty != true) ...[
+            Text(
+              'Group Description:',
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: context.colors.mutedForeground,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Text(
+              groupDetails?.description ?? '',
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: context.colors.primary,
+                fontSize: 14.sp,
+              ),
+            ),
+          ],
+          Gap(24.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Row(
+              spacing: 8.w,
+              children: [
+                Expanded(
+                  child: WnFilledButton.child(
+                    visualState: WnButtonVisualState.secondary,
+                    size: WnButtonSize.small,
+                    child: SvgPicture.asset(
+                      AssetsPaths.icSearch,
+                      width: 14.w,
+                      colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
+                    ),
+
+                    onPressed: () {
+                      ref.read(chatSearchProvider(widget.groupId).notifier).activateSearch();
+                      context.pop();
+                    },
+                  ),
+                ),
+
+                Expanded(
+                  child: WnFilledButton.child(
+                    visualState: WnButtonVisualState.secondary,
+                    size: WnButtonSize.small,
+                    onPressed: null,
+                    child: SvgPicture.asset(
+                      AssetsPaths.icMutedNotification,
+                      width: 14.w,
+                      colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-          Text(
-            groupDetails?.description ?? '',
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colors.primary,
-              fontSize: 14.sp,
+          Gap(8.h),
+          WnFilledButton.child(
+            size: WnButtonSize.small,
+            visualState: WnButtonVisualState.secondaryWarning,
+            onPressed: _handleLeaveGroup,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+
+              children: [
+                Text(
+                  'Leave Group',
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: context.colors.destructive,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16.sp,
+                  ),
+                ),
+                Gap(8.w),
+                Icon(
+                  CarbonIcons.logout,
+                  size: 16.w,
+                ),
+              ],
             ),
           ),
           Gap(32.h),
-          // TODO: Reenable when we have a search and mute features
-          // Row(
-          //   spacing: 12.w,
-          //   children: [
-          //     Expanded(
-          //       child: WnFilledButton.icon(
-          //         visualState: WnButtonVisualState.secondary,
-          //         icon: SvgPicture.asset(
-          //           AssetsPaths.icSearch,
-          //           width: 14.w,
-          //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-          //         ),
-          //         label: const Text('Search Chat'),
-          //         onPressed: () {},
-          //       ),
-          //     ),
-          //     Expanded(
-          //       child: WnFilledButton.icon(
-          //         visualState: WnButtonVisualState.secondary,
-          //         icon: SvgPicture.asset(
-          //           AssetsPaths.icMutedNotification,
-          //           width: 14.w,
-          //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-          //         ),
-          //         label: const Text('Mute Chat'),
-          //         onPressed: () {},
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          // Gap(32.h),
           if (isLoadingMembers)
             const CircularProgressIndicator()
           else if (groupMembers.isNotEmpty) ...[

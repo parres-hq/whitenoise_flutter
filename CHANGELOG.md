@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Group members can now leave groups with automatic admin handover when the current admin leaves
 
 ### Changed
 
