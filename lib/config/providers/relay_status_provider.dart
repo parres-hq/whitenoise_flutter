@@ -137,7 +137,9 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
       // Check each relay type separately using the cached account data
       final hasConnectedNostr = await _hasConnectedRelayOfType(activeAccountData.nip65Relays);
       final hasConnectedInbox = await _hasConnectedRelayOfType(activeAccountData.inboxRelays);
-      final hasConnectedKeyPackage = await _hasConnectedRelayOfType(activeAccountData.keyPackageRelays);
+      final hasConnectedKeyPackage = await _hasConnectedRelayOfType(
+        activeAccountData.keyPackageRelays,
+      );
 
       return hasConnectedNostr && hasConnectedInbox && hasConnectedKeyPackage;
     } catch (e) {
