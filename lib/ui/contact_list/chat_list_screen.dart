@@ -11,8 +11,10 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
+import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
+import 'package:whitenoise/models/relay_status.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
@@ -24,6 +26,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
+import 'package:whitenoise/ui/core/ui/wn_heads_up.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
@@ -219,6 +222,13 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                   (item.lastMessage?.content?.toLowerCase().contains(searchLower) ?? false);
             }).toList();
 
+    final noRelayConnected = ref
+        .watch(relayStatusProvider)
+        .relayStatuses
+        .values
+        .every(
+          (status) => status != RelayStatus.connected,
+        );
     return GestureDetector(
       onTap: () {
         if (_searchFocusNode.hasFocus) {
@@ -251,16 +261,22 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                   ),
                   actions: [
                     IconButton(
-                      onPressed: () {
-                        if (_searchFocusNode.hasFocus) {
-                          _searchFocusNode.unfocus();
-                        }
-                        NewChatBottomSheet.show(context);
-                      },
+                      onPressed:
+                          noRelayConnected
+                              ? null
+                              : () {
+                                if (_searchFocusNode.hasFocus) {
+                                  _searchFocusNode.unfocus();
+                                }
+                                NewChatBottomSheet.show(context);
+                              },
                       icon: Image.asset(
-                        AssetsPaths.icAddNewChat,
-                        width: 32.w,
-                        height: 32.w,
+                        noRelayConnected ? AssetsPaths.icOffChat : AssetsPaths.icAddNewChat,
+                        width: 21.w,
+                        height: 21.w,
+                        color: context.colors.primaryForeground.withValues(
+                          alpha: noRelayConnected ? 0.5 : 1.0,
+                        ),
                       ),
                     ),
                     Gap(8.w),
@@ -318,7 +334,26 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                         },
                       ),
                     ),
-
+                  if (noRelayConnected)
+                    SliverToBoxAdapter(
+                      child:
+                          WnStickyHeadsUp(
+                            title: 'No Relays Connected',
+                            subtitle: 'The app won\'t work until you add at least one.',
+                            action: InkWell(
+                              child: Text(
+                                'Connect Relays',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: context.colors.primary,
+                                  fontWeight: FontWeight.w600,
+                                  decoration: TextDecoration.underline,
+                                ),
+                              ),
+                              onTap: () => context.push(Routes.settingsNetwork),
+                            ),
+                          ).animate().fadeIn(),
+                    ),
                   if (_isSearchVisible)
                     SliverPadding(
                       padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 16.h),
