@@ -6,7 +6,6 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/models/relay_status.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/lib.dart';
@@ -128,19 +127,17 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
         return false;
       }
 
+      // Use cached account data instead of calling loadAccount() every time
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) {
         return false;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final account = await loadAccount(pubkey: publicKey);
-
-      // Check each relay type separately
-      final hasConnectedNostr = await _hasConnectedRelayOfType(account.nip65Relays);
-      final hasConnectedInbox = await _hasConnectedRelayOfType(account.inboxRelays);
-      final hasConnectedKeyPackage = await _hasConnectedRelayOfType(account.keyPackageRelays);
+      // Check each relay type separately using the cached account data
+      final hasConnectedNostr = await _hasConnectedRelayOfType(activeAccountData.nip65Relays);
+      final hasConnectedInbox = await _hasConnectedRelayOfType(activeAccountData.inboxRelays);
+      final hasConnectedKeyPackage = await _hasConnectedRelayOfType(activeAccountData.keyPackageRelays);
 
       return hasConnectedNostr && hasConnectedInbox && hasConnectedKeyPackage;
     } catch (e) {
