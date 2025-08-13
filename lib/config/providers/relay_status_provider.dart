@@ -9,6 +9,7 @@ import 'package:whitenoise/models/relay_status.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/lib.dart';
 
 // State for relay status management
 class RelayStatusState {
@@ -120,7 +121,7 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
     return status.isConnected;
   }
 
-  Future<bool> isAnyInboxRelayConnected() async {
+  Future<bool> areAllRelayTypesConnected() async {
     try {
       final authState = ref.read(authProvider);
       if (!authState.isAuthenticated) {
@@ -136,23 +137,31 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       final account = await loadAccount(pubkey: publicKey);
 
-      final inboxRelayUrls = account.inboxRelays;
-      if (inboxRelayUrls.isEmpty) {
-        return false;
-      }
+      // Check each relay type separately
+      final hasConnectedNostr = await _hasConnectedRelayOfType(account.nip65Relays);
+      final hasConnectedInbox = await _hasConnectedRelayOfType(account.inboxRelays);
+      final hasConnectedKeyPackage = await _hasConnectedRelayOfType(account.keyPackageRelays);
 
-      for (final relayUrl in inboxRelayUrls) {
-        final url = await stringFromRelayUrl(relayUrl: relayUrl);
-        if (isRelayConnected(url)) {
-          return true;
-        }
-      }
-
-      return false;
+      return hasConnectedNostr && hasConnectedInbox && hasConnectedKeyPackage;
     } catch (e) {
-      _logger.warning('Error checking inbox relay connection: $e');
+      _logger.warning('Error checking relay type connections: $e');
       return false;
     }
+  }
+
+  Future<bool> _hasConnectedRelayOfType(List<RelayUrl> relayUrls) async {
+    if (relayUrls.isEmpty) {
+      return false;
+    }
+
+    for (final relayUrl in relayUrls) {
+      final url = await stringFromRelayUrl(relayUrl: relayUrl);
+      if (isRelayConnected(url)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 }
 
@@ -161,8 +170,11 @@ final relayStatusProvider = NotifierProvider<RelayStatusNotifier, RelayStatusSta
   RelayStatusNotifier.new,
 );
 
-final inboxRelayConnectionProvider = FutureProvider<bool>((ref) async {
+// Provider for checking if all relay types have at least one connected relay
+final allRelayTypesConnectionProvider = FutureProvider<bool>((ref) async {
+  // Watch the relay status provider to trigger rebuilds when statuses change
   ref.watch(relayStatusProvider);
+  
   final notifier = ref.read(relayStatusProvider.notifier);
-  return await notifier.isAnyInboxRelayConnected();
+  return await notifier.areAllRelayTypesConnected();
 });

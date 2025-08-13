@@ -221,9 +221,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                   (item.lastMessage?.content?.toLowerCase().contains(searchLower) ?? false);
             }).toList();
 
-    final inboxRelayConnectionAsync = ref.watch(inboxRelayConnectionProvider);
-    final noInboxRelayConnected = inboxRelayConnectionAsync.when(
-      data: (isConnected) => !isConnected,
+    final allRelayTypesConnectionAsync = ref.watch(allRelayTypesConnectionProvider);
+    final notAllRelayTypesConnected = allRelayTypesConnectionAsync.when(
+      data: (allConnected) => !allConnected,
       loading: () => true,
       error: (_, _) => true,
     );
@@ -261,7 +261,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                   actions: [
                     IconButton(
                       onPressed:
-                          noInboxRelayConnected
+                          notAllRelayTypesConnected
                               ? null
                               : () {
                                 if (_searchFocusNode.hasFocus) {
@@ -270,11 +270,13 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                 NewChatBottomSheet.show(context);
                               },
                       icon: Image.asset(
-                        noInboxRelayConnected ? AssetsPaths.icOffChat : AssetsPaths.icAddNewChat,
+                        notAllRelayTypesConnected
+                            ? AssetsPaths.icOffChat
+                            : AssetsPaths.icAddNewChat,
                         width: 21.w,
                         height: 21.w,
                         color: context.colors.primaryForeground.withValues(
-                          alpha: noInboxRelayConnected ? 0.5 : 1.0,
+                          alpha: notAllRelayTypesConnected ? 0.5 : 1.0,
                         ),
                       ),
                     ),
@@ -333,12 +335,12 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                         },
                       ),
                     ),
-                  if (noInboxRelayConnected)
+                  if (notAllRelayTypesConnected)
                     SliverToBoxAdapter(
                       child:
                           WnStickyHeadsUp(
-                            title: 'No Inbox Relays Connected',
-                            subtitle: 'The app won\'t work until you add at least one inbox relay.',
+                            title: 'No Relays Connected',
+                            subtitle: 'The app won\'t work until you add at least one.',
                             action: InkWell(
                               child: Text(
                                 'Connect Relays',
