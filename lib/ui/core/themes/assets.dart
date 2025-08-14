@@ -59,6 +59,7 @@ class AssetsPaths {
   static const String greenBird = '$_pngsDir/green_bird.png';
   static const String hands = '$_pngsDir/hands.png';
   static const String icAddNewChat = '$_pngsDir/ic_add_chat.png';
+  static const String icOffChat = '$_pngsDir/ic_off_chat.png';
   static const String icNotificationMuted = '$_pngsDir/ic_notification_muted.png';
   static const String icCheckmarkSolid = '$_pngsDir/ic_checkmark_solid.png';
   static const String icCheckmarkDashed = '$_pngsDir/ic_checkmark_dashed.png';
