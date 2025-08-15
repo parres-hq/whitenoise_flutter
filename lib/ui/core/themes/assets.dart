@@ -30,7 +30,7 @@ class AssetsPaths {
   static const String icBitcoin = '$_svgsDir/ic_bitcoin.svg';
   static const String icFeedback = '$_svgsDir/ic_feedback.svg';
   static const String icErrorFilled = '$_svgsDir/ic_error_filled.svg';
-  static const String icInfoFilled = '$_svgsDir/ic_info_filled.svg';
+  static const String icInfoFilled = '$_svgsDir/ic_information_filled.svg';
   static const String icWarningFilled = '$_svgsDir/ic_warning_filled.svg';
   static const String icSuccessFilled = '$_svgsDir/ic_success_filled.svg';
   static const String icNotification = '$_svgsDir/ic_notification.svg';
@@ -46,6 +46,29 @@ class AssetsPaths {
   static const String icRemoveOutlined = '$_svgsDir/ic_remove_outlined.svg';
   static const String icMonitor = '$_svgsDir/ic_monitor.svg';
   static const String icArrowsVertical = '$_svgsDir/ic_arrows_vertical.svg';
+  static const String icCheckmarkFilledSvg = '$_svgsDir/ic_checkmark_filled.svg';
+  static const String icChevronDown = '$_svgsDir/ic_chevron_down.svg';
+  static const String icChevronUp = '$_svgsDir/ic_chevron_up.svg';
+  static const String icClose = '$_svgsDir/ic_close.svg';
+  static const String icDataVis3 = '$_svgsDir/ic_data_vis3.svg';
+  static const String icDevelopment = '$_svgsDir/ic_development.svg';
+  static const String icFavorite = '$_svgsDir/ic_favorite.svg';
+  static const String icIconsTime = '$_svgsDir/ic_icons_time.svg';
+  static const String icInProgress = '$_svgsDir/ic_in_progress.svg';
+  static const String icInformation = '$_svgsDir/ic_information.svg';
+  static const String icLocked = '$_svgsDir/ic_locked.svg';
+  static const String icLogout = '$_svgsDir/ic_logout.svg';
+  static const String icMicrophone = '$_svgsDir/ic_microphone.svg';
+  static const String icMoon = '$_svgsDir/ic_moon.svg';
+  static const String icPassword = '$_svgsDir/ic_password.svg';
+  static const String icPauseFilled = '$_svgsDir/ic_pause_filled.svg';
+  static const String icPlayFilled = '$_svgsDir/ic_play_filled.svg';
+  static const String icRadioButton = '$_svgsDir/ic_radio_button.svg';
+  static const String icReply = '$_svgsDir/ic_reply.svg';
+  static const String icSettings = '$_svgsDir/ic_settings.svg';
+  static const String icTrashCan = '$_svgsDir/ic_trash_can.svg';
+  static const String icUser = '$_svgsDir/ic_user.svg';
+  static const String icUserFollow = '$_svgsDir/ic_user_follow.svg';
 
   //PNGS
   static const String icImage = '$_pngsDir/ic_image.png';
