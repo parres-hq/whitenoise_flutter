@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class SwipeToReplyWidget extends StatefulWidget {
@@ -85,10 +86,14 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
                     color: context.colors.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(
-                    CarbonIcons.reply,
-                    color: context.colors.primary,
-                    size: 16.w,
+                  child: SvgPicture.asset(
+                    AssetsPaths.icReply,
+                    colorFilter: ColorFilter.mode(
+                      context.colors.primary,
+                      BlendMode.srcIn,
+                    ),
+                    width: 16.w,
+                    height: 16.w,
                   ),
                 ),
               ),

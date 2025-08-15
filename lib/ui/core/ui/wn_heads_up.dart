@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 
 class WnStickyHeadsUp extends StatelessWidget {
@@ -9,12 +10,12 @@ class WnStickyHeadsUp extends StatelessWidget {
     required this.title,
     required this.subtitle,
     this.type = WnHeadingType.error,
-    this.icon,
+    this.iconAsset,
     this.action,
   });
   final String title;
   final String subtitle;
-  final IconData? icon;
+  final String? iconAsset;
   final Widget? action;
   final WnHeadingType type;
 
@@ -35,10 +36,14 @@ class WnStickyHeadsUp extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon ?? type.icon,
-            size: 24.w,
-            color: color,
+          SvgPicture.asset(
+            iconAsset ?? type.iconAsset,
+            width: 24.w,
+            height: 24.w,
+            colorFilter: ColorFilter.mode(
+              color,
+              BlendMode.srcIn,
+            ),
           ),
           Gap(8.w),
           Expanded(
@@ -90,14 +95,14 @@ enum WnHeadingType {
     }
   }
 
-  IconData get icon {
+  String get iconAsset {
     switch (this) {
       case WnHeadingType.error:
-        return CarbonIcons.error_filled;
+        return AssetsPaths.icErrorFilled;
       case WnHeadingType.warning:
-        return CarbonIcons.warning_filled;
+        return AssetsPaths.icWarningFilled;
       case WnHeadingType.info:
-        return CarbonIcons.information;
+        return AssetsPaths.icInformation;
     }
   }
 }

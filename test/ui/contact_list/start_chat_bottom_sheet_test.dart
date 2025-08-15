@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -168,7 +168,7 @@ void main() {
         ),
       );
 
-      final copyButton = find.byIcon(CarbonIcons.copy);
+      final copyButton = find.byType(SvgPicture);
       expect(copyButton, findsOneWidget);
 
       await tester.tap(copyButton);

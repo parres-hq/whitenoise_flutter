@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
 import '../../test_helpers.dart';
@@ -64,7 +64,7 @@ void main() {
         ),
       );
 
-      final copyButton = find.byIcon(CarbonIcons.copy);
+      final copyButton = find.byType(SvgPicture);
       expect(copyButton, findsOneWidget);
     });
 

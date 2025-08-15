@@ -1,5 +1,5 @@
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 
 class DefaultData {
   // default list of five reactions to be displayed from emojis and a plus icon at the end
@@ -21,16 +21,22 @@ class DefaultData {
 
   static const MenuItem reply = MenuItem(
     label: 'Reply',
-    icon: CarbonIcons.reply,
+    assetPath: AssetsPaths.icReply,
   );
 
-  static const MenuItem copy = MenuItem(label: 'Copy', icon: CarbonIcons.copy);
+  static const MenuItem copy = MenuItem(
+    label: 'Copy',
+    assetPath: AssetsPaths.icCopy,
+  );
 
-  static const MenuItem edit = MenuItem(label: 'Edit', icon: CarbonIcons.edit);
+  static const MenuItem edit = MenuItem(
+    label: 'Edit',
+    assetPath: AssetsPaths.icEdit,
+  );
 
   static const MenuItem delete = MenuItem(
     label: 'Delete',
-    icon: CarbonIcons.delete,
+    assetPath: AssetsPaths.icDelete,
     isDestructive: true,
   );
 }

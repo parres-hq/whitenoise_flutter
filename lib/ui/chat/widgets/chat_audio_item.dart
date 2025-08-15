@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 import '../notifiers/chat_audio_notifier.dart';
@@ -59,10 +60,14 @@ class ChatAudioItem extends ConsumerWidget {
               color: isMe ? context.colors.primaryForeground : context.colors.primary,
             ),
             child: IconButton(
-              icon: Icon(
-                isThisPlaying ? CarbonIcons.pause_filled : CarbonIcons.play_filled_alt,
-                color: isMe ? context.colors.primary : context.colors.primaryForeground,
-                size: 20.sp,
+              icon: SvgPicture.asset(
+                isThisPlaying ? AssetsPaths.icPauseFilled : AssetsPaths.icPlayFilled,
+                colorFilter: ColorFilter.mode(
+                  isMe ? context.colors.primary : context.colors.primaryForeground,
+                  BlendMode.srcIn,
+                ),
+                width: 20.sp,
+                height: 20.sp,
               ),
               onPressed: () => notifier.togglePlayback(),
             ),
@@ -112,12 +117,16 @@ class ChatAudioItem extends ConsumerWidget {
           ),
           SizedBox(width: 8.w),
           // Audio icon
-          Icon(
-            CarbonIcons.microphone,
-            size: 16.sp,
-            color: (isMe ? context.colors.primaryForeground : context.colors.primary).withValues(
-              alpha: 0.7,
+          SvgPicture.asset(
+            AssetsPaths.icMicrophone,
+            colorFilter: ColorFilter.mode(
+              (isMe ? context.colors.primaryForeground : context.colors.primary).withValues(
+                alpha: 0.7,
+              ),
+              BlendMode.srcIn,
             ),
+            width: 16.sp,
+            height: 16.sp,
           ),
         ],
       ),

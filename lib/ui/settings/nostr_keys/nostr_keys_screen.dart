@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
@@ -94,10 +94,14 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                         children: [
                           GestureDetector(
                             onTap: () => context.pop(),
-                            child: Icon(
-                              CarbonIcons.chevron_left,
-                              size: 24.w,
-                              color: context.colors.primary,
+                            child: SvgPicture.asset(
+                              AssetsPaths.icChevronLeft,
+                              colorFilter: ColorFilter.mode(
+                                context.colors.primary,
+                                BlendMode.srcIn,
+                              ),
+                              width: 24.w,
+                              height: 24.w,
                             ),
                           ),
                           Gap(16.w),
