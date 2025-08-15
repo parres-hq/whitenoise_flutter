@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 enum RelayStatus {
   initialized('Initialized'),
