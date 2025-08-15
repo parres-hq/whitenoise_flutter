@@ -357,10 +357,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                 });
                               },
                               decoration: InputDecoration(
-                                prefixIcon: SvgPicture.asset(
-                                  AssetsPaths.icSearch,
-                                  width: 24.w,
-                                  height: 24.w,
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.all(12.w),
+                                  child: SvgPicture.asset(
+                                    AssetsPaths.icSearch,
+                                    colorFilter: ColorFilter.mode(
+                                      context.colors.primary,
+                                      BlendMode.srcIn,
+                                    ),
+                                    width: 20.w,
+                                    height: 20.w,
+                                  ),
                                 ),
                                 suffixIcon: GestureDetector(
                                   onTap: () {
@@ -370,10 +377,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                       _isSearchVisible = false;
                                     });
                                   },
-                                  child: SvgPicture.asset(
-                                    AssetsPaths.icClose,
-                                    width: 24.w,
-                                    height: 24.w,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(12.w),
+                                    child: SvgPicture.asset(
+                                      AssetsPaths.icClose,
+                                      colorFilter: ColorFilter.mode(
+                                        context.colors.primary,
+                                        BlendMode.srcIn,
+                                      ),
+                                      width: 20.w,
+                                      height: 20.w,
+                                    ),
                                   ),
                                 ),
                               ),

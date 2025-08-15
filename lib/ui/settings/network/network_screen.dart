@@ -153,6 +153,8 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                               context.colors.primary,
                               BlendMode.srcIn,
                             ),
+                            width: 24.w,
+                            height: 24.w,
                           ),
                         ),
                         Text(
