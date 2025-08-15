@@ -65,7 +65,11 @@ void main() {
         ),
       );
 
-      final copyButton = find.byType(SvgPicture);
+      final copyButton = find.byWidgetPredicate(
+        (widget) =>
+            widget is SvgPicture &&
+            widget.bytesLoader.toString().contains('assets/svgs/ic_copy.svg'),
+      );
       expect(copyButton, findsOneWidget);
     });
 

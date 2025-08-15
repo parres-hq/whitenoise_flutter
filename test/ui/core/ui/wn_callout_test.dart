@@ -54,7 +54,7 @@ void main() {
         find.byWidgetPredicate(
           (widget) =>
               widget is SvgPicture &&
-              widget.bytesLoader.toString().contains('assets/svgs/ic_info_filled.svg'),
+              widget.bytesLoader.toString().contains('assets/svgs/ic_information.svg'),
         ),
         findsOneWidget,
       );
