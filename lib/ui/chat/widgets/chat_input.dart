@@ -3,7 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -166,7 +165,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                                     Gap(4.w),
                                     WnIconButton(
                                           onPressed: _sendMessage,
-                                          icon: CarbonIcons.arrow_up,
+                                          icon: Icons.arrow_upward,
                                           backgroundColor: context.colors.primary,
                                           iconColor: context.colors.primaryForeground,
                                           size: 56.h,

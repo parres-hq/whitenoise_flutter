@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_validation_notification.dart';
 
@@ -113,7 +112,7 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
     builder:
         (_, hasError, _) =>
             hasError
-                ? const Icon(CarbonIcons.error)
+                ? const Icon(Icons.error)
                 : (widget.decoration?.suffixIcon ?? const SizedBox.shrink()),
   );
 
