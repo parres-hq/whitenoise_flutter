@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
@@ -17,6 +17,7 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
@@ -288,10 +289,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         automaticallyImplyLeading: false,
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: Icon(
-            CarbonIcons.chevron_left,
-            size: 24.w,
-            color: context.colors.primarySolid,
+          icon: SvgPicture.asset(
+            AssetsPaths.icChevronLeft,
+            width: 24.w,
+            height: 24.w,
+            colorFilter: ColorFilter.mode(
+              context.colors.primarySolid,
+              BlendMode.srcIn,
+            ),
           ),
         ),
         title: Row(
@@ -319,10 +324,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     if (_currentAccount != null)
                       ContactListTile(
                         contact: _accountToContactModel(_currentAccount!),
-                        trailingIcon: Icon(
-                          CarbonIcons.qr_code,
-                          size: 20.w,
-                          color: context.colors.primary,
+                        trailingIcon: SvgPicture.asset(
+                          AssetsPaths.icQrCode,
+                          width: 20.w,
+                          height: 20.w,
+                          colorFilter: ColorFilter.mode(
+                            context.colors.primary,
+                            BlendMode.srcIn,
+                          ),
                         ),
                         onTap: () => context.push('${Routes.settings}/share_profile'),
                       )
@@ -345,10 +354,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                             ),
                           ),
                           Gap(9.w),
-                          Icon(
-                            CarbonIcons.arrows_vertical,
-                            size: 16.w,
-                            color: context.colors.primary,
+                          SvgPicture.asset(
+                            AssetsPaths.icArrowsVertical,
+                            width: 16.w,
+                            height: 16.w,
+                            colorFilter: ColorFilter.mode(
+                              context.colors.primary,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ],
                       ),
@@ -364,22 +377,22 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                   children: [
                     Gap(10.h),
                     SettingsListTile(
-                      icon: CarbonIcons.user,
+                      assetPath: AssetsPaths.icUser,
                       text: 'Edit Profile',
                       onTap: () => context.push('${Routes.settings}/profile'),
                     ),
                     SettingsListTile(
-                      icon: CarbonIcons.password,
+                      assetPath: AssetsPaths.icPassword,
                       text: 'Profile Keys',
                       onTap: () => context.push('${Routes.settings}/keys'),
                     ),
                     SettingsListTile(
-                      icon: CarbonIcons.data_vis_3,
+                      assetPath: AssetsPaths.icDataVis3,
                       text: 'Network Relays',
                       onTap: () => context.push('${Routes.settings}/network'),
                     ),
                     SettingsListTile(
-                      icon: CarbonIcons.logout,
+                      assetPath: AssetsPaths.icLogout,
                       text: 'Sign out',
                       onTap: _handleLogout,
                     ),
@@ -392,12 +405,12 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 child: Column(
                   children: [
                     SettingsListTile(
-                      icon: CarbonIcons.settings,
+                      assetPath: AssetsPaths.icSettings,
                       text: 'App Settings',
                       onTap: () => context.push('${Routes.settings}/app_settings'),
                     ),
                     SettingsListTile(
-                      icon: CarbonIcons.favorite,
+                      assetPath: AssetsPaths.icFavorite,
                       text: 'Donate to White Noise',
                       onTap: () => context.push(Routes.settingsDonate),
                     ),
@@ -410,7 +423,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 child: Column(
                   children: [
                     SettingsListTile(
-                      icon: CarbonIcons.development,
+                      assetPath: AssetsPaths.icDevelopment,
                       text: 'Developer Settings',
                       onTap: () => DeveloperSettingsScreen.show(context),
                       foregroundColor: context.colors.mutedForeground,
@@ -429,13 +442,13 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 class SettingsListTile extends StatelessWidget {
   const SettingsListTile({
     super.key,
-    required this.icon,
+    required this.assetPath,
     required this.text,
     required this.onTap,
     this.foregroundColor,
   });
 
-  final IconData icon;
+  final String assetPath;
   final String text;
   final VoidCallback onTap;
   final Color? foregroundColor;
@@ -448,7 +461,15 @@ class SettingsListTile extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 16.h),
         child: Row(
           children: [
-            Icon(icon, size: 24.w, color: foregroundColor ?? context.colors.primary),
+            SvgPicture.asset(
+              assetPath,
+              width: 24.w,
+              height: 24.w,
+              colorFilter: ColorFilter.mode(
+                foregroundColor ?? context.colors.primary,
+                BlendMode.srcIn,
+              ),
+            ),
             Gap(12.w),
             Expanded(
               child: Text(

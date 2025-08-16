@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class WnCallout extends StatelessWidget {
@@ -25,10 +26,14 @@ class WnCallout extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                CarbonIcons.information_filled,
-                color: context.colors.primary,
-                size: 18.w,
+              SvgPicture.asset(
+                AssetsPaths.icInformation,
+                colorFilter: ColorFilter.mode(
+                  context.colors.primary,
+                  BlendMode.srcIn,
+                ),
+                width: 18.w,
+                height: 18.w,
               ),
               Gap(8.w),
               Expanded(

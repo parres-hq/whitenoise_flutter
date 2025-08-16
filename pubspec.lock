@@ -1203,14 +1203,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.1"
-  supa_carbon_icons:
-    dependency: "direct main"
-    description:
-      name: supa_carbon_icons
-      sha256: ffc427738abd6d14493316ef821c4638a30b03f4905a8f4a7d67622fb5c73bb3
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.0.1+6"
   sync_http:
     dependency: transitive
     description:

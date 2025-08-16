@@ -5,7 +5,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
@@ -358,9 +357,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                 });
                               },
                               decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  CarbonIcons.search,
-                                  size: 24.w,
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.all(12.w),
+                                  child: SvgPicture.asset(
+                                    AssetsPaths.icSearch,
+                                    colorFilter: ColorFilter.mode(
+                                      context.colors.primary,
+                                      BlendMode.srcIn,
+                                    ),
+                                    width: 20.w,
+                                    height: 20.w,
+                                  ),
                                 ),
                                 suffixIcon: GestureDetector(
                                   onTap: () {
@@ -370,9 +377,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                       _isSearchVisible = false;
                                     });
                                   },
-                                  child: Icon(
-                                    CarbonIcons.close,
-                                    size: 24.w,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(12.w),
+                                    child: SvgPicture.asset(
+                                      AssetsPaths.icClose,
+                                      colorFilter: ColorFilter.mode(
+                                        context.colors.primary,
+                                        BlendMode.srcIn,
+                                      ),
+                                      width: 20.w,
+                                      height: 20.w,
+                                    ),
                                   ),
                                 ),
                               ),
