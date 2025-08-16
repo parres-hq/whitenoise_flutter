@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed failing DM group creation in nearly all cases. Note: We're still seeing issues with creating multi-person groups (fix coming soon)
 - Fixed blurry splash screen icon on both iOS and Android.
 - Fixed absence of border on some contact avatars
+- Fixed irregular textfield and button sizes
 - Fixed active profile sorting (active profile comes first in account switcher).
 
 ## [0.1.2] - 2025-07-15

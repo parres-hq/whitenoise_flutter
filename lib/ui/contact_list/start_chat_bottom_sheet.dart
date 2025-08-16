@@ -11,7 +11,9 @@ import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/services/key_package_service.dart';
+import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/share_invite_button.dart';
 import 'package:whitenoise/ui/contact_list/widgets/share_invite_callout.dart';
 import 'package:whitenoise/ui/contact_list/widgets/user_profile.dart';
@@ -84,7 +86,6 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
             nip65Relays: activeAccountData.nip65Relays,
           );
       final keyPackage = await keyPackageService.fetchWithRetry();
-
       if (mounted) {
         setState(() {
           _isLoadingKeyPackage = false;
@@ -92,7 +93,13 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
         });
       }
     } catch (e) {
-      _logger.warning('Failed to fetch key package: $e');
+      String error;
+      if (e is WhitenoiseError) {
+        error = await whitenoiseErrorToString(error: e);
+      } else {
+        error = e.toString();
+      }
+      _logger.warning('Failed to fetch key package: $error');
       if (mounted) {
         setState(() {
           _isLoadingKeyPackage = false;
