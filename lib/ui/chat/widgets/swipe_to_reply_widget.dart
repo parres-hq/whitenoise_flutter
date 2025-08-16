@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -29,11 +30,15 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
   final double _dragThreshold = 60.0;
   bool _showReplyIcon = false;
   bool _hapticTriggered = false;
+  Timer? _longPressTimer;
+  bool _isDragging = false;
 
   void _handleDragStart(DragStartDetails details) {
     setState(() {
       _showReplyIcon = true;
+      _isDragging = true;
     });
+    _cancelLongPressTimer();
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
@@ -62,7 +67,41 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
       _dragExtent = 0.0;
       _showReplyIcon = false;
       _hapticTriggered = false;
+      _isDragging = false;
     });
+  }
+
+  void _handleTapDown(TapDownDetails details) {
+    if (!_isDragging) {
+      _startLongPressTimer();
+    }
+  }
+
+  void _handleTapUp(TapUpDetails details) {
+    _cancelLongPressTimer();
+  }
+
+  void _handleTapCancel() {
+    _cancelLongPressTimer();
+  }
+
+  void _startLongPressTimer() {
+    _longPressTimer = Timer(const Duration(milliseconds: 200), () {
+      if (mounted && !_isDragging) {
+        widget.onTap();
+      }
+    });
+  }
+
+  void _cancelLongPressTimer() {
+    _longPressTimer?.cancel();
+    _longPressTimer = null;
+  }
+
+  @override
+  void dispose() {
+    _cancelLongPressTimer();
+    super.dispose();
   }
 
   @override
@@ -100,7 +139,9 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
             ),
           ),
         GestureDetector(
-          onTap: widget.onTap,
+          onTapDown: _handleTapDown,
+          onTapUp: _handleTapUp,
+          onTapCancel: _handleTapCancel,
           onHorizontalDragStart: _handleDragStart,
           onHorizontalDragUpdate: _handleDragUpdate,
           onHorizontalDragEnd: _handleDragEnd,

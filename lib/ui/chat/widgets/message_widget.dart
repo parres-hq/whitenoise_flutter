@@ -58,9 +58,7 @@ class MessageWidget extends StatelessWidget {
       builder: (context, constraints) {
         return IntrinsicWidth(
           child: Container(
-            constraints: BoxConstraints(
-              maxWidth: constraints.maxWidth,
-            ),
+            // Remove maxWidth constraint to allow bubble expansion
             padding: EdgeInsets.only(right: message.isMe ? 8.w : 0, left: message.isMe ? 0 : 8.w),
             child: Column(
               crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
@@ -88,8 +86,23 @@ class MessageWidget extends StatelessWidget {
                 ),
 
                 if (message.reactions.isNotEmpty) ...[
-                  SizedBox(height: 4.h),
-                  ReactionsRow(message: message, onReactionTap: onReactionTap, context: context),
+                  SizedBox(height: 2.h),
+                  Row(
+                    children: [
+                      // Reactions positioned at bottom left
+                      ReactionsWidget(
+                        message: message,
+                        onReactionTap: onReactionTap,
+                      ),
+                      SizedBox(width: 12.w),
+                      const Spacer(),
+                      // Timestamp positioned at bottom right
+                      Padding(
+                        padding: EdgeInsets.only(top: 6.h),
+                        child: TimeAndStatus(message: message, context: context),
+                      ),
+                    ],
+                  ),
                 ],
               ],
             ),
@@ -107,31 +120,33 @@ class MessageWidget extends StatelessWidget {
       color: message.isMe ? context.colors.meChatBubbleText : context.colors.contactChatBubbleText,
     );
 
+    final messageContent = message.content ?? '';
+    final timestampWidth = _getTimestampWidth(context);
+    final minPadding = 8.w;
+
+    // Build highlighted text widget
+    final textWidget = _buildHighlightedText(messageContent, textStyle, context);
+
+    // Calculate if it's a single line message
+    final textPainter = TextPainter(
+      text: TextSpan(text: messageContent, style: textStyle),
+      textDirection: TextDirection.ltr,
+    );
+
+    textPainter.layout(maxWidth: maxWidth);
+    final lines = textPainter.computeLineMetrics();
+    final isSingleLine = lines.length == 1;
+
     if (message.reactions.isEmpty) {
-      final messageContent = message.content ?? '';
-      final timestampWidth = _getTimestampWidth(context);
-      final minPadding = 8.w;
-
-      // Build highlighted text widget
-      final textWidget = _buildHighlightedText(messageContent, textStyle, context);
-
-      // Calculate if timestamp can fit on the last line
-      final textPainter = TextPainter(
-        text: TextSpan(text: messageContent, style: textStyle),
-        textDirection: TextDirection.ltr,
-      );
-
-      textPainter.layout(maxWidth: maxWidth);
-      final lines = textPainter.computeLineMetrics();
-
-      if (lines.isNotEmpty) {
+      if (isSingleLine) {
         final lastLineWidth = lines.last.width;
         final availableWidth = maxWidth - lastLineWidth;
-        final canFitInline = lines.length == 1 && availableWidth >= (timestampWidth + minPadding);
+        final canFitInline = availableWidth >= (timestampWidth + minPadding);
 
         if (canFitInline) {
           return Row(
             mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Flexible(
                 child: textWidget,
@@ -154,6 +169,7 @@ class MessageWidget extends StatelessWidget {
           SizedBox(height: 4.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               TimeAndStatus(message: message, context: context),
             ],
@@ -162,15 +178,8 @@ class MessageWidget extends StatelessWidget {
       );
     } else {
       // Messages with reactions: Display text separately and timestamp in ReactionsRow
-      return Column(
-        crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: maxWidth,
-            child: _buildHighlightedText(message.content ?? '', textStyle, context),
-          ),
-          SizedBox(height: 4.h),
-        ],
+      return IntrinsicWidth(
+        child: _buildHighlightedText(message.content ?? '', textStyle, context),
       );
     }
   }
@@ -259,95 +268,113 @@ class MessageWidget extends StatelessWidget {
   }
 }
 
-class ReactionsRow extends StatelessWidget {
-  const ReactionsRow({
+class ReactionsWidget extends StatelessWidget {
+  const ReactionsWidget({
     super.key,
     required this.message,
     required this.onReactionTap,
-    required this.context,
   });
 
   final MessageModel message;
-  final Function(String p1)? onReactionTap;
-  final BuildContext context;
+  final Function(String)? onReactionTap;
 
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Expanded(
-          child: Wrap(
-            spacing: 8.w,
-            children: [
-              ...(() {
-                final reactionGroups = <String, List<Reaction>>{};
-                for (final reaction in message.reactions) {
-                  reactionGroups.putIfAbsent(reaction.emoji, () => []).add(reaction);
-                }
-                return reactionGroups.entries.take(3).map((entry) {
-                  final emoji = entry.key;
-                  final count = entry.value.length;
-                  return GestureDetector(
-                    onTap: () {
-                      // Call the reaction tap handler to add/remove reaction
-                      onReactionTap?.call(emoji);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color:
-                            message.isMe
-                                ? context.colors.primary.withValues(alpha: 0.1)
-                                : context.colors.secondary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: emoji,
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                color:
-                                    message.isMe
-                                        ? context.colors.primaryForeground
-                                        : context.colors.mutedForeground,
-                              ),
-                            ),
-                            TextSpan(
-                              text: ' ${count > 99 ? '99+' : count}',
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w600,
-                                color:
-                                    message.isMe
-                                        ? context.colors.primaryForeground
-                                        : context.colors.mutedForeground,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList();
-              })(),
-              if (message.reactions.length > 3)
-                Text(
-                  '...',
-                  style: TextStyle(
-                    fontSize: 14.sp,
+        ...(() {
+          final reactionGroups = <String, List<Reaction>>{};
+          for (final reaction in message.reactions) {
+            reactionGroups.putIfAbsent(reaction.emoji, () => []).add(reaction);
+          }
+          final reactionWidgets = <Widget>[];
+
+          // Add reaction bubbles
+          reactionWidgets.addAll(
+            reactionGroups.entries.take(3).map((entry) {
+              final emoji = entry.key;
+              final count = entry.value.length;
+              return GestureDetector(
+                onTap: () {
+                  // Call the reaction tap handler to add/remove reaction
+                  onReactionTap?.call(emoji);
+                },
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: 1.h),
+                  decoration: BoxDecoration(
                     color:
                         message.isMe
-                            ? context.colors.primaryForeground
-                            : context.colors.mutedForeground,
+                            ? context.colors.primary.withValues(alpha: 0.1)
+                            : context.colors.secondary.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        emoji,
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          color:
+                              message.isMe
+                                  ? context.colors.primaryForeground
+                                  : context.colors.mutedForeground,
+                        ),
+                      ),
+                      if (count > 1)
+                        Padding(
+                          padding: EdgeInsets.only(top: 6.h),
+                          child: Text(
+                            '${count > 99 ? '99+' : count}',
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                              color:
+                                  message.isMe
+                                      ? context.colors.primaryForeground
+                                      : context.colors.mutedForeground,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
                 ),
-            ],
-          ),
-        ),
-        TimeAndStatus(message: message, context: context),
+              );
+            }).toList(),
+          );
+
+          // Add spacing between reactions
+          final spacedWidgets = <Widget>[];
+          for (int i = 0; i < reactionWidgets.length; i++) {
+            spacedWidgets.add(reactionWidgets[i]);
+            if (i < reactionWidgets.length - 1) {
+              spacedWidgets.add(SizedBox(width: 2.w));
+            }
+          }
+
+          // Add ellipsis if there are more reactions
+          if (message.reactions.length > 3) {
+            if (spacedWidgets.isNotEmpty) {
+              spacedWidgets.add(SizedBox(width: 8.w));
+            }
+            spacedWidgets.add(
+              Text(
+                '...',
+                style: TextStyle(
+                  fontSize: 14.sp,
+                  color:
+                      message.isMe
+                          ? context.colors.primaryForeground
+                          : context.colors.mutedForeground,
+                ),
+              ),
+            );
+          }
+
+          return spacedWidgets;
+        })(),
       ],
     );
   }
@@ -371,7 +398,7 @@ class TimeAndStatus extends StatelessWidget {
         Text(
           message.timeSent,
           style: TextStyle(
-            fontSize: 13.sp,
+            fontSize: 12.sp,
             fontWeight: FontWeight.w600,
             color: context.colors.mutedForeground,
           ),
