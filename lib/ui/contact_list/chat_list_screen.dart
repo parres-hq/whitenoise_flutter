@@ -5,12 +5,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
+import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/routing/routes.dart';
@@ -24,6 +24,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
+import 'package:whitenoise/ui/core/ui/wn_heads_up.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
@@ -85,7 +86,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
   }
 
   Future<void> _loadData() async {
-    // Load initial data for groups, welcomes, and profile
+    // Load initial data for groups, welcomes, profile, and relay status
     if (_isLoadingData) return;
     setState(() {
       _isSearchVisible = false;
@@ -95,6 +96,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
       ref.read(welcomesProvider.notifier).loadWelcomes(),
       ref.read(groupsProvider.notifier).loadGroups(),
       ref.read(profileProvider.notifier).fetchProfileData(),
+      ref.read(relayStatusProvider.notifier).refreshStatuses(),
     ]);
 
     setState(() {
@@ -219,6 +221,13 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                   (item.lastMessage?.content?.toLowerCase().contains(searchLower) ?? false);
             }).toList();
 
+    final allRelayTypesConnectionAsync = ref.watch(allRelayTypesConnectionProvider);
+    final notAllRelayTypesConnected = allRelayTypesConnectionAsync.when(
+      data: (allConnected) => !allConnected,
+      loading: () => true,
+      error: (_, _) => true,
+    );
+
     return GestureDetector(
       onTap: () {
         if (_searchFocusNode.hasFocus) {
@@ -251,22 +260,36 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                   ),
                   actions: [
                     IconButton(
-                      onPressed: () {
-                        if (_searchFocusNode.hasFocus) {
-                          _searchFocusNode.unfocus();
-                        }
-                        NewChatBottomSheet.show(context);
-                      },
+                      onPressed:
+                          notAllRelayTypesConnected
+                              ? null
+                              : () {
+                                if (_searchFocusNode.hasFocus) {
+                                  _searchFocusNode.unfocus();
+                                }
+                                NewChatBottomSheet.show(context);
+                              },
                       icon: Image.asset(
-                        AssetsPaths.icAddNewChat,
-                        width: 32.w,
-                        height: 32.w,
+                        notAllRelayTypesConnected
+                            ? AssetsPaths.icOffChat
+                            : AssetsPaths.icAddNewChat,
+                        width: 21.w,
+                        height: 21.w,
+                        color: context.colors.solidNeutralWhite.withValues(
+                          alpha: notAllRelayTypesConnected ? 0.5 : 1.0,
+                        ),
                       ),
                     ),
                     Gap(8.w),
                   ],
                   pinned: true,
                 ),
+
+                if (notAllRelayTypesConnected)
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: 100.h),
+                  ),
+
                 if (chatItems.isEmpty)
                   const SliverFillRemaining(
                     hasScrollBody: false,
@@ -334,9 +357,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                 });
                               },
                               decoration: InputDecoration(
-                                prefixIcon: Icon(
-                                  CarbonIcons.search,
-                                  size: 24.w,
+                                prefixIcon: Padding(
+                                  padding: EdgeInsets.all(12.w),
+                                  child: SvgPicture.asset(
+                                    AssetsPaths.icSearch,
+                                    colorFilter: ColorFilter.mode(
+                                      context.colors.primary,
+                                      BlendMode.srcIn,
+                                    ),
+                                    width: 20.w,
+                                    height: 20.w,
+                                  ),
                                 ),
                                 suffixIcon: GestureDetector(
                                   onTap: () {
@@ -346,15 +377,24 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                       _isSearchVisible = false;
                                     });
                                   },
-                                  child: Icon(
-                                    CarbonIcons.close,
-                                    size: 24.w,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(12.w),
+                                    child: SvgPicture.asset(
+                                      AssetsPaths.icClose,
+                                      colorFilter: ColorFilter.mode(
+                                        context.colors.primary,
+                                        BlendMode.srcIn,
+                                      ),
+                                      width: 20.w,
+                                      height: 20.w,
+                                    ),
                                   ),
                                 ),
                               ),
                             ).animate().fade(),
                       ),
                     ),
+
                   SliverPadding(
                     padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
                     sliver: SliverList.separated(
@@ -376,6 +416,30 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                 ],
               ],
             ),
+
+            if (notAllRelayTypesConnected)
+              Positioned(
+                top: 64.h + kToolbarHeight,
+                left: 0,
+                right: 0,
+                child:
+                    WnStickyHeadsUp(
+                      title: 'No Relays Connected',
+                      subtitle: 'The app won\'t work until you add at least one.',
+                      action: InkWell(
+                        child: Text(
+                          'Connect Relays',
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            color: context.colors.primary,
+                            fontWeight: FontWeight.w600,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                        onTap: () => context.push(Routes.settingsNetwork),
+                      ),
+                    ).animate().fadeIn(),
+              ),
 
             if (chatItems.isNotEmpty)
               Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const WnBottomFade()),

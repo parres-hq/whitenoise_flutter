@@ -133,13 +133,16 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                           Pulse(
                             duration: const Duration(milliseconds: 100),
                             animate: clickedContextMenuIndex == index,
-                            child: Icon(
-                              widget.menuItems[index].icon,
-                              size: 20.sp,
-                              color:
-                                  widget.menuItems[index].isDestructive
-                                      ? context.colors.destructive
-                                      : context.colors.primary,
+                            child: SvgPicture.asset(
+                              widget.menuItems[index].assetPath,
+                              width: 20.sp,
+                              height: 20.sp,
+                              colorFilter: ColorFilter.mode(
+                                widget.menuItems[index].isDestructive
+                                    ? context.colors.destructive
+                                    : context.colors.primary,
+                                BlendMode.srcIn,
+                              ),
                             ),
                           ),
                         ],

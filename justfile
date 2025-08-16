@@ -5,7 +5,14 @@ default:
     @just --list
 
 # Pre-commit checks: run the same checks as CI locally
-precommit: check-rust-format check-dart-format lint-rust analyze test-flutter test-rust
+precommit:
+    just deps-flutter
+    just deps-rust
+    just fix
+    just format
+    just lint
+    just test-flutter
+    just test-rust
     @echo "✅ All pre-commit checks passed!"
 
 # ==============================================================================
@@ -78,7 +85,7 @@ docs-rust:
 # Run Flutter analyzer
 analyze:
     @echo "🔍 Running Flutter analyzer..."
-    flutter analyze
+    flutter analyze --fatal-infos
 
 # Format Dart code
 format-dart:
@@ -175,7 +182,56 @@ setup: doctor clean-all deps regenerate build-rust-debug
     @echo "🎉 Setup complete! Run 'just run' to start the app."
 
 # Build APK (for Max)
-# build-apk:
-#     just regenerate
-#     scripts/build-android.sh
-#     flutter build apk --split-per-abi --release
+build-apk:
+    just regenerate
+    scripts/build_android.sh
+    just precommit
+    flutter build apk --split-per-abi --release
+
+# ==============================================================================
+# LOGS
+# ==============================================================================
+
+# Tail the latest Rust log file produced by the app.
+# Usage:
+#   just rust-logs                # follow in real time (tail -f)
+#   just rust-logs 500            # print last 500 lines and exit
+# Works on macOS simulator and macOS app (container). Falls back to ~/Documents.
+rust-logs lines='':
+    @set -euo pipefail; \
+    BUNDLE_ID=org.parres.whitenoise; \
+    LINES='{{lines}}'; \
+    if [ -z "$LINES" ]; then \
+      echo "🔎 Locating latest Rust log and following in real time..."; \
+    else \
+      echo "🔎 Locating latest Rust log (last ${LINES} lines)..."; \
+    fi; \
+    CANDIDATES=""; \
+    if command -v xcrun >/dev/null 2>&1; then \
+      APP_CONTAINER="$(xcrun simctl get_app_container booted "$BUNDLE_ID" data 2>/dev/null || true)"; \
+      if [ -n "$APP_CONTAINER" ] && [ -d "$APP_CONTAINER" ]; then \
+        CANDIDATES="$CANDIDATES $APP_CONTAINER/Documents/whitenoise/logs/dev"; \
+      fi; \
+    fi; \
+    CANDIDATES="$CANDIDATES $HOME/Library/Containers/$BUNDLE_ID/Data/Documents/whitenoise/logs/dev $HOME/Documents/whitenoise/logs/dev"; \
+    latest=""; latest_mtime=0; \
+    for d in $CANDIDATES; do \
+      if [ -d "$d" ]; then \
+        for f in "$d"/*; do \
+          [ -f "$f" ] || continue; \
+          m=$(stat -f "%m" "$f" 2>/dev/null || echo 0); \
+          if [ "$m" -gt "$latest_mtime" ]; then latest_mtime="$m"; latest="$f"; fi; \
+        done; \
+      fi; \
+    done; \
+    if [ -n "$latest" ]; then \
+      echo "Latest log file: $latest"; \
+      if [ -z "$LINES" ]; then \
+        tail -f "$latest"; \
+      else \
+        tail -n "$LINES" "$latest"; \
+      fi; \
+    else \
+      echo "❌ No log files found. Ensure the app has run and produced logs."; \
+      exit 1; \
+    fi

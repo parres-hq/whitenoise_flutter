@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
@@ -178,7 +177,15 @@ class ContactListTile extends StatelessWidget {
           alignment: Alignment.centerRight,
           padding: EdgeInsets.only(right: 24.w),
           color: Colors.red,
-          child: Icon(CarbonIcons.trash_can, color: Colors.white, size: 24.w),
+          child: SvgPicture.asset(
+            AssetsPaths.icTrashCan,
+            colorFilter: const ColorFilter.mode(
+              Colors.white,
+              BlendMode.srcIn,
+            ),
+            width: 24.w,
+            height: 24.w,
+          ),
         ),
         child: contactTile,
       );
