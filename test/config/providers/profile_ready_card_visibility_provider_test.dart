@@ -13,6 +13,21 @@ class MockActiveAccountNotifier extends ActiveAccountNotifier {
   String? build() => _mockValue;
 }
 
+class _MockFailingSharedPreferences implements SharedPreferences {
+  @override
+  Future<bool> setBool(String key, bool value) async {
+    throw Exception('Mock SharedPreferences error');
+  }
+
+  @override
+  Future<bool> remove(String key) async {
+    throw Exception('Mock SharedPreferences error');
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => null;
+}
+
 void main() {
   group('ProfileReadyCardVisibilityProvider Tests', () {
     late ProviderContainer container;
@@ -112,6 +127,38 @@ void main() {
             await notifier.dismissCard();
             expect(hasNotified, true);
           });
+
+          group('when an error occurs', () {
+            late SharedPreferences mockFailingPrefs;
+
+            setUp(() async {
+              mockFailingPrefs = _MockFailingSharedPreferences();
+              container = ProviderContainer(
+                overrides: [
+                  profileReadyCardVisibilityProvider.overrideWith(
+                    () => ProfileReadyCardVisibilityNotifier(sharedPreferences: mockFailingPrefs),
+                  ),
+                  activeAccountProvider.overrideWith(
+                    () => MockActiveAccountNotifier('test_pubkey_123'),
+                  ),
+                ],
+              );
+              notifier = container.read(profileReadyCardVisibilityProvider.notifier);
+              notifier.build();
+              await Future.delayed(Duration.zero);
+            });
+
+            tearDown(() {
+              container.dispose();
+            });
+
+            test('handles error gracefully, changing visibility', () async {
+              expect(await container.read(profileReadyCardVisibilityProvider.future), true);
+              await notifier.dismissCard();
+              final result = await container.read(profileReadyCardVisibilityProvider.future);
+              expect(result, false);
+            });
+          });
         });
 
         group('when it has been dismissed', () {
@@ -190,6 +237,38 @@ void main() {
 
             await notifier.resetVisibility();
             expect(hasNotified, true);
+          });
+
+          group('when an error occurs', () {
+            late SharedPreferences mockFailingPrefs;
+
+            setUp(() async {
+              mockFailingPrefs = _MockFailingSharedPreferences();
+              container = ProviderContainer(
+                overrides: [
+                  profileReadyCardVisibilityProvider.overrideWith(
+                    () => ProfileReadyCardVisibilityNotifier(sharedPreferences: mockFailingPrefs),
+                  ),
+                  activeAccountProvider.overrideWith(
+                    () => MockActiveAccountNotifier('test_pubkey_123'),
+                  ),
+                ],
+              );
+              notifier = container.read(profileReadyCardVisibilityProvider.notifier);
+              notifier.build();
+              await Future.delayed(Duration.zero);
+            });
+
+            tearDown(() {
+              container.dispose();
+            });
+
+            test('handles error gracefully, maintaining visibility as true', () async {
+              expect(await container.read(profileReadyCardVisibilityProvider.future), true);
+              await notifier.resetVisibility();
+              final result = await container.read(profileReadyCardVisibilityProvider.future);
+              expect(result, true);
+            });
           });
         });
 

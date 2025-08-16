@@ -21,10 +21,12 @@
 - [ ] ✅ Build configuration change
 - [ ] 📝 Documentation
 - [ ] 🗑️ Chore
+- [ ] 🧪 Tests
 
 ## Checklist
 
 <!-- Please make sure you've done the following before submitting your PR: -->
 
 - [ ] Run `just precommit` to ensure that formatting and linting are correct
-- [ ] Updated the `CHANGELOG.md` file with your changes
+- [ ] Run `just check-flutter-coverage` to ensure that flutter coverage rules are passing
+- [ ] Updated the `CHANGELOG.md` file with your changes (if they affect the user experience)
