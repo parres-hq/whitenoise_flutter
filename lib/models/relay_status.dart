@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 enum RelayStatus {
@@ -67,24 +67,24 @@ extension RelayStatusExt on RelayStatus {
     }
   }
 
-  IconData getIcon() {
+  String getIconAsset() {
     switch (this) {
       case RelayStatus.connected:
-        return CarbonIcons.checkmark_filled;
+        return AssetsPaths.icCheckmarkFilledSvg;
       case RelayStatus.connecting:
-        return CarbonIcons.in_progress;
+        return AssetsPaths.icInProgress;
       case RelayStatus.pending:
-        return CarbonIcons.time;
+        return AssetsPaths.icIconsTime;
       case RelayStatus.initialized:
-        return CarbonIcons.radio_button;
+        return AssetsPaths.icRadioButton;
       case RelayStatus.disconnected:
-        return CarbonIcons.error_filled;
+        return AssetsPaths.icErrorFilled;
       case RelayStatus.terminated:
-        return CarbonIcons.error_filled;
+        return AssetsPaths.icErrorFilled;
       case RelayStatus.banned:
-        return CarbonIcons.locked;
+        return AssetsPaths.icLocked;
       case RelayStatus.sleeping:
-        return CarbonIcons.moon;
+        return AssetsPaths.icMoon;
     }
   }
 }

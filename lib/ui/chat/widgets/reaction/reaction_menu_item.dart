@@ -1,14 +1,12 @@
-import 'package:flutter/widgets.dart';
-
 class MenuItem {
   final String label;
-  final IconData icon;
+  final String assetPath;
   final bool isDestructive;
 
   // contsructor
   const MenuItem({
     required this.label,
-    required this.icon,
+    required this.assetPath,
     this.isDestructive = false,
   });
 }

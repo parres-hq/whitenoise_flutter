@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
@@ -60,10 +59,14 @@ class ProfileReadyCard extends ConsumerWidget {
                 onTap: () {
                   ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
                 },
-                child: Icon(
-                  CarbonIcons.close,
-                  size: 20.w,
-                  color: context.colors.mutedForeground,
+                child: SvgPicture.asset(
+                  AssetsPaths.icClose,
+                  width: 20.w,
+                  height: 20.w,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.mutedForeground,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ),
             ],

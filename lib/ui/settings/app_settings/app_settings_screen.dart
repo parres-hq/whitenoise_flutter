@@ -6,7 +6,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
@@ -18,6 +17,7 @@ import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
@@ -214,10 +214,14 @@ class AppSettingsScreen extends ConsumerWidget {
                             children: [
                               GestureDetector(
                                 onTap: () => context.pop(),
-                                child: Icon(
-                                  CarbonIcons.chevron_left,
-                                  size: 24.w,
-                                  color: context.colors.primary,
+                                child: SvgPicture.asset(
+                                  AssetsPaths.icChevronLeft,
+                                  width: 24.w,
+                                  height: 24.w,
+                                  colorFilter: ColorFilter.mode(
+                                    context.colors.primary,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
                               ),
                               Gap(16.w),
@@ -347,10 +351,14 @@ class _ThemeDropdownState extends State<_ThemeDropdown> {
                     color: context.colors.primary,
                   ),
                 ),
-                Icon(
-                  isExpanded ? CarbonIcons.chevron_up : CarbonIcons.chevron_down,
-                  color: context.colors.primary,
-                  size: 20.w,
+                SvgPicture.asset(
+                  isExpanded ? AssetsPaths.icChevronUp : AssetsPaths.icChevronDown,
+                  width: 20.w,
+                  height: 20.w,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.primary,
+                    BlendMode.srcIn,
+                  ),
                 ),
               ],
             ),
