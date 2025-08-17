@@ -195,11 +195,11 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 ],
               ),
               Gap(32.h),
-              WnFilledButton.icon(
+              WnFilledButton(
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,
-                icon: const Text('Search Chat'),
-                label: SvgPicture.asset(
+                title: 'Search Chat',
+                suffixIcon: SvgPicture.asset(
                   AssetsPaths.icSearch,
                   width: 14.w,
                   colorFilter: ColorFilter.mode(
@@ -213,34 +213,22 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 },
               ),
               Gap(12.h),
-              WnFilledButton.icon(
+              WnFilledButton(
                 size: WnButtonSize.small,
                 visualState:
                     isContact ? WnButtonVisualState.secondary : WnButtonVisualState.primary,
-                icon: Text(isContact ? 'Remove Contact' : 'Add Contact'),
-                label:
-                    isContactLoading
-                        ? SizedBox(
-                          width: 14.w,
-                          height: 14.w,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color:
-                                isContact
-                                    ? context.colors.secondaryForeground
-                                    : context.colors.primaryForeground,
-                          ),
-                        )
-                        : SvgPicture.asset(
-                          isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
-                          width: 14.w,
-                          colorFilter: ColorFilter.mode(
-                            isContact
-                                ? context.colors.secondaryForeground
-                                : context.colors.primaryForeground,
-                            BlendMode.srcIn,
-                          ),
-                        ),
+                title: isContact ? 'Remove Contact' : 'Add Contact',
+                loading: isContactLoading,
+                suffixIcon: SvgPicture.asset(
+                  isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+                  width: 14.w,
+                  colorFilter: ColorFilter.mode(
+                    isContact
+                        ? context.colors.secondaryForeground
+                        : context.colors.primaryForeground,
+                    BlendMode.srcIn,
+                  ),
+                ),
                 onPressed:
                     isContactLoading
                         ? null
@@ -253,11 +241,11 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                         },
               ),
               Gap(12.h),
-              WnFilledButton.icon(
+              WnFilledButton(
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,
-                icon: const Text('Add to Group'),
-                label: SvgPicture.asset(
+                title: 'Add to Group',
+                suffixIcon: SvgPicture.asset(
                   AssetsPaths.icAdd,
                   width: 14.w,
                   colorFilter: ColorFilter.mode(

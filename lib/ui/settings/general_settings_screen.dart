@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supa_carbon_icons/supa_carbon_icons.dart';
@@ -17,6 +18,7 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
@@ -219,16 +221,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 ),
                 Gap(8.w),
                 Expanded(
-                  child: WnFilledButton.child(
+                  child: WnFilledButton(
+                    title: 'Sign out',
+                    titleTextStyle: WnButtonSize.small.textStyle().copyWith(
+                      color: context.colors.solidNeutralWhite,
+                    ),
                     visualState: WnButtonVisualState.destructive,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
-                    child: Text(
-                      'Sign out',
-                      style: WnButtonSize.small.textStyle().copyWith(
-                        color: Colors.white,
-                      ),
-                    ),
                   ),
                 ),
               ],
@@ -329,28 +329,17 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     else
                       const Center(child: Text('No accounts found')),
                     Gap(12.h),
-                    WnFilledButton.child(
+                    WnFilledButton(
+                      title: 'Switch Account',
                       size: WnButtonSize.small,
                       visualState: WnButtonVisualState.secondary,
                       onPressed: () => _showAccountSwitcher(),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Switch Account',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.primary,
-                            ),
-                          ),
-                          Gap(9.w),
-                          Icon(
-                            CarbonIcons.arrows_vertical,
-                            size: 16.w,
-                            color: context.colors.primary,
-                          ),
-                        ],
+                      suffixIcon: SvgPicture.asset(
+                        AssetsPaths.icArrowsVertical,
+                        colorFilter: ColorFilter.mode(
+                          context.colors.primary,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                     Gap(16.h),

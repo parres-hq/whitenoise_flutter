@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
@@ -78,33 +77,20 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
 
   @override
   Widget build(BuildContext context) {
-    return WnFilledButton.child(
+    return WnFilledButton(
       onPressed: _createOrOpenDirectMessageGroup,
       loading: _isLoading,
       size: WnButtonSize.small,
       visualState: WnButtonVisualState.secondary,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'Send Message',
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colors.primary,
-              fontWeight: FontWeight.w600,
-              fontSize: 14.sp,
-            ),
-          ),
-          Gap(8.w),
-          SvgPicture.asset(
-            AssetsPaths.icMessage,
-            width: 14.w,
-            height: 13.h,
-            colorFilter: ColorFilter.mode(
-              context.colors.primary,
-              BlendMode.srcIn,
-            ),
-          ),
-        ],
+      title: 'Send Message',
+      suffixIcon: SvgPicture.asset(
+        AssetsPaths.icMessage,
+        width: 14.w,
+        height: 13.h,
+        colorFilter: ColorFilter.mode(
+          context.colors.primary,
+          BlendMode.srcIn,
+        ),
       ),
     );
   }
@@ -167,33 +153,20 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
   @override
   Widget build(BuildContext context) {
     final isContact = _isContact();
-    return WnFilledButton.child(
+    return WnFilledButton(
       onPressed: _toggleContact,
       loading: _isLoading,
       size: WnButtonSize.small,
       visualState: WnButtonVisualState.secondary,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            isContact ? 'Remove Contact' : 'Add Contact',
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colors.primary,
-              fontWeight: FontWeight.w600,
-              fontSize: 14.sp,
-            ),
-          ),
-          Gap(8.w),
-          SvgPicture.asset(
-            isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
-            width: 11.w,
-            height: 11.w,
-            colorFilter: ColorFilter.mode(
-              context.colors.primary,
-              BlendMode.srcIn,
-            ),
-          ),
-        ],
+      title: isContact ? 'Remove Contact' : 'Add Contact',
+      suffixIcon: SvgPicture.asset(
+        isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+        width: 11.w,
+        height: 11.w,
+        colorFilter: ColorFilter.mode(
+          context.colors.primary,
+          BlendMode.srcIn,
+        ),
       ),
     );
   }

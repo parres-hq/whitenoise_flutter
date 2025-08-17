@@ -267,7 +267,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                   actions: Row(
                                                     children: [
                                                       Expanded(
-                                                        child: WnFilledButton.child(
+                                                        child: WnFilledButton(
                                                           onPressed: () {
                                                             ref
                                                                 .read(profileProvider.notifier)
@@ -277,10 +277,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                           visualState:
                                                               WnButtonVisualState.secondaryWarning,
                                                           size: WnButtonSize.small,
-                                                          child: const FittedBox(
-                                                            fit: BoxFit.scaleDown,
-                                                            child: Text('Discard Changes'),
-                                                          ),
+                                                          title: 'Discard Changes',
                                                         ),
                                                       ),
                                                       Gap(10.w),
