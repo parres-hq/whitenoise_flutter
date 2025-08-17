@@ -175,20 +175,15 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                               ),
                             ),
                             const Spacer(),
-                            WnFilledButton.icon(
-                              label: SvgPicture.asset(
+                            WnFilledButton(
+                              title: 'Scan QR Code',
+                              suffixIcon: SvgPicture.asset(
                                 AssetsPaths.icScan,
+                                height: 18.w,
+                                width: 18.w,
                                 colorFilter: ColorFilter.mode(
                                   context.colors.primaryForeground,
                                   BlendMode.srcIn,
-                                ),
-                              ),
-                              icon: Text(
-                                'Scan QR Code',
-                                style: TextStyle(
-                                  color: context.colors.primaryForeground,
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                               onPressed: () => context.push(Routes.settingsShareProfileQrScan),

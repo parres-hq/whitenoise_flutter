@@ -220,16 +220,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 ),
                 Gap(8.w),
                 Expanded(
-                  child: WnFilledButton.child(
+                  child: WnFilledButton(
+                    title: 'Sign out',
+                    titleTextStyle: WnButtonSize.small.textStyle().copyWith(
+                      color: context.colors.solidNeutralWhite,
+                    ),
                     visualState: WnButtonVisualState.destructive,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
-                    child: Text(
-                      'Sign out',
-                      style: WnButtonSize.small.textStyle().copyWith(
-                        color: Colors.white,
-                      ),
-                    ),
                   ),
                 ),
               ],
@@ -338,32 +336,17 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     else
                       const Center(child: Text('No accounts found')),
                     Gap(12.h),
-                    WnFilledButton.child(
+                    WnFilledButton(
+                      title: 'Switch Account',
                       size: WnButtonSize.small,
                       visualState: WnButtonVisualState.secondary,
                       onPressed: () => _showAccountSwitcher(),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Switch Account',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.primary,
-                            ),
-                          ),
-                          Gap(9.w),
-                          SvgPicture.asset(
-                            AssetsPaths.icArrowsVertical,
-                            width: 16.w,
-                            height: 16.w,
-                            colorFilter: ColorFilter.mode(
-                              context.colors.primary,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                        ],
+                      suffixIcon: SvgPicture.asset(
+                        AssetsPaths.icArrowsVertical,
+                        colorFilter: ColorFilter.mode(
+                          context.colors.primary,
+                          BlendMode.srcIn,
+                        ),
                       ),
                     ),
                     Gap(16.h),

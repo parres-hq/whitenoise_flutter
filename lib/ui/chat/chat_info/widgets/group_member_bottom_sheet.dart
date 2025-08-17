@@ -272,37 +272,24 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
         else
           SendMessageButton(widget.member),
         Gap(8.h),
-        WnFilledButton.child(
+        WnFilledButton(
           onPressed: _openAddToGroup,
           size: WnButtonSize.small,
           visualState: WnButtonVisualState.secondary,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'Add to Another Group',
-                style: context.textTheme.bodyMedium?.copyWith(
-                  color: context.colors.primary,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14.sp,
-                ),
-              ),
-              Gap(8.w),
-              SvgPicture.asset(
-                AssetsPaths.icChatInvite,
-                width: 14.w,
-                height: 13.h,
-                colorFilter: ColorFilter.mode(
-                  context.colors.primary,
-                  BlendMode.srcIn,
-                ),
-              ),
-            ],
+          title: 'Add to Another Group',
+          suffixIcon: SvgPicture.asset(
+            AssetsPaths.icChatInvite,
+            width: 14.w,
+            height: 13.h,
+            colorFilter: ColorFilter.mode(
+              context.colors.primary,
+              BlendMode.srcIn,
+            ),
           ),
         ),
         if (currentUserIsAdmin) ...[
           Gap(8.h),
-          WnFilledButton.child(
+          WnFilledButton(
             onPressed: () async {
               final result = await _openRemoveFromGroupDialog();
               if (result == true && context.mounted) {
@@ -311,28 +298,20 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
             },
             size: WnButtonSize.small,
             visualState: WnButtonVisualState.secondaryWarning,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Remove From Group',
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.colors.destructive,
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14.sp,
-                  ),
-                ),
-                Gap(8.w),
-                SvgPicture.asset(
-                  AssetsPaths.icRemoveOutlined,
-                  width: 14.w,
-                  height: 13.h,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.destructive,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ],
+            title: 'Remove From Group',
+            titleTextStyle: context.textTheme.bodyMedium?.copyWith(
+              color: context.colors.destructive,
+              fontWeight: FontWeight.w600,
+              fontSize: 14.sp,
+            ),
+            suffixIcon: SvgPicture.asset(
+              AssetsPaths.icRemoveOutlined,
+              width: 14.w,
+              height: 13.h,
+              colorFilter: ColorFilter.mode(
+                context.colors.destructive,
+                BlendMode.srcIn,
+              ),
             ),
           ),
         ] else ...[
