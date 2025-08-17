@@ -1,10 +1,4 @@
-<<<<<<< HEAD
-<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M13.8 10.3L12 12.1V2H11V12.1L9.2 10.3L8.5 11L11.5 14L14.5 11L13.8 10.3Z" fill="black" style="fill:black;fill-opacity:1;"/>
-<path d="M4.5 2L1.5 5L2.2 5.7L4 3.9V14H5V3.9L6.8 5.7L7.5 5L4.5 2Z" fill="black" style="fill:black;fill-opacity:1;"/>
-=======
 <svg width="13" height="12" viewBox="0 0 13 12" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M12.3 8.3L10.5 10.1V0H9.5V10.1L7.7 8.3L7 9L10 12L13 9L12.3 8.3Z" fill="#0A0A0A"/>
 <path d="M3 0L0 3L0.7 3.7L2.5 1.9V12H3.5V1.9L5.3 3.7L6 3L3 0Z" fill="#0A0A0A"/>
->>>>>>> 33cd9df (patch: updated WnFilledButton to have prefixIcon and suffixIcon instead of misleading and hacky params.)
 </svg>
