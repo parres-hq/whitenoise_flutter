@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 
 class ContactInfo extends StatelessWidget {
   final String? image;
@@ -53,7 +53,7 @@ class ContactInfo extends StatelessWidget {
       onTap: onTap,
       child: Row(
         children: [
-          ContactAvatar(
+          WnAvatar(
             imageUrl: image!,
             displayName: title!,
             size: 36.r,

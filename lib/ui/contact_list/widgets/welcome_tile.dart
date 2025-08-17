@@ -5,9 +5,9 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/utils/timeago_formatter.dart';
 
@@ -41,7 +41,7 @@ class WelcomeTile extends ConsumerWidget {
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             child: Row(
               children: [
-                ContactAvatar(
+                WnAvatar(
                   imageUrl: welcomerImageUrl,
                   displayName: welcomerName,
                   size: 56.r,
