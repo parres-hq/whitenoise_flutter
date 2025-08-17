@@ -8,13 +8,13 @@ class ProfileReadyCardVisibilityNotifier extends AsyncNotifier<bool> {
   ProfileReadyCardVisibilityNotifier({SharedPreferences? sharedPreferences})
     : injectedSharedPreferences = sharedPreferences;
 
-  late SharedPreferences sharedPreferences;
+  late SharedPreferences _sharedPreferences;
   final SharedPreferences? injectedSharedPreferences;
   String? _currentPubKey;
 
   @override
   Future<bool> build() async {
-    sharedPreferences = injectedSharedPreferences ?? await SharedPreferences.getInstance();
+    _sharedPreferences = injectedSharedPreferences ?? await SharedPreferences.getInstance();
     final activeAccountPubkey = ref.watch(activeAccountProvider);
     _currentPubKey = activeAccountPubkey;
     return await _loadVisibilityState();
@@ -26,7 +26,7 @@ class ProfileReadyCardVisibilityNotifier extends AsyncNotifier<bool> {
         return true;
       }
       final isDismissed =
-          sharedPreferences.getBool('${_profileReadyCardDismissedKey}_$_currentPubKey') ?? false;
+          _sharedPreferences.getBool('${_profileReadyCardDismissedKey}_$_currentPubKey') ?? false;
       return !isDismissed;
     } catch (e) {
       return true;
@@ -40,7 +40,7 @@ class ProfileReadyCardVisibilityNotifier extends AsyncNotifier<bool> {
         return;
       }
 
-      await sharedPreferences.setBool('${_profileReadyCardDismissedKey}_$_currentPubKey', true);
+      await _sharedPreferences.setBool('${_profileReadyCardDismissedKey}_$_currentPubKey', true);
       state = const AsyncValue.data(false);
     } catch (e) {
       state = const AsyncValue.data(false);
@@ -54,7 +54,7 @@ class ProfileReadyCardVisibilityNotifier extends AsyncNotifier<bool> {
         return;
       }
 
-      await sharedPreferences.remove('${_profileReadyCardDismissedKey}_$_currentPubKey');
+      await _sharedPreferences.remove('${_profileReadyCardDismissedKey}_$_currentPubKey');
       state = const AsyncValue.data(true);
     } catch (e) {
       state = const AsyncValue.data(true);
