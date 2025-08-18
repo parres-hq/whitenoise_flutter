@@ -299,7 +299,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
             size: WnButtonSize.small,
             visualState: WnButtonVisualState.secondaryWarning,
             label: 'Remove From Group',
-            titleTextStyle: context.textTheme.bodyMedium?.copyWith(
+            labelTextStyle: context.textTheme.bodyMedium?.copyWith(
               color: context.colors.destructive,
               fontWeight: FontWeight.w600,
               fontSize: 14.sp,

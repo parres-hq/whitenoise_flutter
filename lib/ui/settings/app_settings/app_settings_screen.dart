@@ -52,7 +52,7 @@ class AppSettingsScreen extends ConsumerWidget {
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
                     label: 'Delete',
-                    titleTextStyle: WnButtonSize.small.textStyle().copyWith(
+                    labelTextStyle: WnButtonSize.small.textStyle().copyWith(
                       color: context.colors.solidNeutralWhite,
                     ),
                   ),
@@ -262,7 +262,7 @@ class AppSettingsScreen extends ConsumerWidget {
                           Gap(10.h),
                           WnFilledButton(
                             label: 'Delete All Data',
-                            titleTextStyle: WnButtonSize.large.textStyle().copyWith(
+                            labelTextStyle: WnButtonSize.large.textStyle().copyWith(
                               color: context.colors.solidNeutralWhite,
                             ),
                             visualState: WnButtonVisualState.destructive,
