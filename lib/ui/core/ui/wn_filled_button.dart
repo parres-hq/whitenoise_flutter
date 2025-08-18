@@ -9,7 +9,7 @@ class WnFilledButton extends WnButton {
     this.prefixIcon,
     this.suffixIcon,
     this.titleTextStyle,
-    required String title,
+    required String label,
     required super.onPressed,
   }) : super(
          ignorePointer: loading,
@@ -24,7 +24,7 @@ class WnFilledButton extends WnButton {
              FittedBox(
                fit: BoxFit.scaleDown,
                child: Text(
-                 title,
+                 label,
                  style: titleTextStyle ?? size.textStyle(),
                ),
              ),

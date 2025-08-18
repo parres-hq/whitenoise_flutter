@@ -82,7 +82,7 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
       loading: _isLoading,
       size: WnButtonSize.small,
       visualState: WnButtonVisualState.secondary,
-      title: 'Send Message',
+      label: 'Send Message',
       suffixIcon: SvgPicture.asset(
         AssetsPaths.icMessage,
         width: 14.w,
@@ -158,7 +158,7 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
       loading: _isLoading,
       size: WnButtonSize.small,
       visualState: WnButtonVisualState.secondary,
-      title: isContact ? 'Remove Contact' : 'Add Contact',
+      label: isContact ? 'Remove Contact' : 'Add Contact',
       suffixIcon: SvgPicture.asset(
         isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
         width: 11.w,

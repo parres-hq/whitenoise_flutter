@@ -120,7 +120,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
               return WnFilledButton(
                 loading: isButtonDisabled,
                 onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
-                title: 'Setup Profile',
+                label: 'Setup Profile',
                 suffixIcon: SvgPicture.asset(
                   AssetsPaths.icArrowRight,
                   colorFilter: ColorFilter.mode(

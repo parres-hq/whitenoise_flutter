@@ -248,7 +248,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
         WnFilledButton(
           onPressed: _validUrl ? _addRelays : null,
           loading: _isValidatingUrl,
-          title: 'Add Relay',
+          label: 'Add Relay',
         ),
       ],
     );

@@ -269,7 +269,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                           size: WnButtonSize.small,
                           visualState: WnButtonVisualState.secondary,
                           onPressed: _isAddingContact ? null : _toggleContact,
-                          title: _isContact() ? 'Remove Contact' : 'Add Contact',
+                          label: _isContact() ? 'Remove Contact' : 'Add Contact',
                           suffixIcon: SvgPicture.asset(
                             _isContact() ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
                             width: 18.w,
@@ -285,7 +285,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                           size: WnButtonSize.small,
                           visualState: WnButtonVisualState.secondary,
                           onPressed: _openAddToGroup,
-                          title: 'Add to Group',
+                          label: 'Add to Group',
                           suffixIcon: SvgPicture.asset(
                             AssetsPaths.icChatInvite,
                             width: 18.w,
@@ -300,7 +300,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                         WnFilledButton(
                           onPressed: _isCreatingGroup ? null : _createOrOpenDirectMessageGroup,
                           loading: _isCreatingGroup,
-                          title: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
+                          label: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
                         ),
                       ],
                     ),

@@ -52,7 +52,7 @@ class _ShareInviteButtonState extends ConsumerState<ShareInviteButton> {
         WnFilledButton(
           onPressed: _isSendingInvite ? null : _shareInvite,
           loading: _isSendingInvite,
-          title: _isSendingInvite ? 'Sharing...' : 'Share',
+          label: _isSendingInvite ? 'Sharing...' : 'Share',
         ),
       ],
     );
