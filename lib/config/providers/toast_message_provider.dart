@@ -212,19 +212,9 @@ class ToastMessageNotifier extends Notifier<ToastState> {
     state = state.copyWith(messages: []);
   }
 
-  void updateConfig(ToastConfig config) {
-    state = state.copyWith(config: config);
-  }
-
   void setStackMode(ToastStackMode mode) {
     state = state.copyWith(
       config: state.config.copyWith(stackMode: mode),
-    );
-  }
-
-  void setDefaultShowBelowAppBar(bool showBelowAppBar) {
-    state = state.copyWith(
-      config: state.config.copyWith(defaultShowBelowAppBar: showBelowAppBar),
     );
   }
 
