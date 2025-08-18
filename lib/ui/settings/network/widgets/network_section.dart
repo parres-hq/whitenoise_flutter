@@ -96,10 +96,14 @@ class NetworkSection extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(
-                    Icons.error_outline,
-                    color: Colors.red.shade600,
-                    size: 16.w,
+                  SvgPicture.asset(
+                    AssetsPaths.icErrorFilled,
+                    colorFilter: ColorFilter.mode(
+                      context.colors.destructive,
+                      BlendMode.srcIn,
+                    ),
+                    width: 16.w,
+                    height: 16.w,
                   ),
                   Gap(8.w),
                   Expanded(
@@ -107,7 +111,7 @@ class NetworkSection extends StatelessWidget {
                       error!,
                       style: TextStyle(
                         fontSize: 14.sp,
-                        color: Colors.red.shade700,
+                        color: context.colors.destructive,
                       ),
                     ),
                   ),
