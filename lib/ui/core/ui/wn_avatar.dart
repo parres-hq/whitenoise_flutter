@@ -4,8 +4,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 
-class ContactAvatar extends StatelessWidget {
-  const ContactAvatar({
+class WnAvatar extends StatelessWidget {
+  const WnAvatar({
     super.key,
     required this.imageUrl,
     this.size = 20,

@@ -7,8 +7,8 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
@@ -59,7 +59,7 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
               if (isDirectMessage)
                 DirectMessageAvatar(welcomeData: welcomeData)
               else
-                ContactAvatar(
+                WnAvatar(
                   imageUrl: '',
                   size: 96.w,
                 ),
@@ -190,7 +190,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
                     snapshot.data?.displayName ?? snapshot.data?.name ?? 'Unknown User';
                 return Row(
                   children: [
-                    ContactAvatar(
+                    WnAvatar(
                       imageUrl: snapshot.data?.picture ?? '',
                       size: 18.w,
                     ),
@@ -268,7 +268,7 @@ class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
         final metadata = snapshot.data;
         final profileImageUrl = metadata?.picture ?? '';
 
-        return ContactAvatar(
+        return WnAvatar(
           imageUrl: profileImageUrl,
           size: 96.w,
         );

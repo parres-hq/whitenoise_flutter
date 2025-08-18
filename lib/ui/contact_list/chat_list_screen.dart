@@ -18,11 +18,11 @@ import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/services/welcome_notification_service.dart';
 import 'package:whitenoise/ui/contact_list/widgets/chat_list_item_tile.dart';
-import 'package:whitenoise/ui/contact_list/widgets/profile_avatar.dart';
 import 'package:whitenoise/ui/contact_list/widgets/profile_ready_card.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/wn_heads_up.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
@@ -181,8 +181,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     // Cache profile data to avoid unnecessary rebuilds
     final profileData = ref.watch(profileProvider);
     final currentDisplayName = profileData.valueOrNull?.displayName ?? '';
-    final userFirstLetter =
-        currentDisplayName.isNotEmpty == true ? currentDisplayName[0].toUpperCase() : '';
     final profileImagePath = profileData.valueOrNull?.picture ?? '';
 
     final chatItems = <ChatListItem>[];
@@ -252,9 +250,10 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                         }
                         context.push(Routes.settings);
                       },
-                      child: ProfileAvatar(
-                        profileImageUrl: profileImagePath,
-                        userFirstLetter: userFirstLetter,
+                      child: WnAvatar(
+                        imageUrl: profileImagePath,
+                        displayName: currentDisplayName,
+                        size: 36.r,
                       ),
                     ),
                   ),

@@ -124,7 +124,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
       child: Column(
         children: [
           Gap(64.h),
-          ContactAvatar(
+          WnAvatar(
             imageUrl: '',
             displayName: groupDetails?.name ?? 'Unknown Group',
             size: 96.w,
@@ -231,7 +231,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
                 groupId: widget.groupId,
                 member: member,
               ),
-      leading: ContactAvatar(
+      leading: WnAvatar(
         imageUrl: member.imagePath ?? '',
         displayName: member.displayName,
         size: 40.w,
