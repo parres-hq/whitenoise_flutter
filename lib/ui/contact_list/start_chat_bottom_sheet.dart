@@ -275,7 +275,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                         ),
                         Gap(8.h),
                         WnFilledButton(
-                          size: WnButtonSize.small,
+                          size: WnButtonSize.large,
                           visualState: WnButtonVisualState.secondary,
                           onPressed: _openAddToGroup,
                           label: 'Add to Group',
