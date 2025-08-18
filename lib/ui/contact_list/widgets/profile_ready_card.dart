@@ -83,7 +83,7 @@ class ProfileReadyCard extends ConsumerWidget {
           Gap(24.h),
           // Share Your Profile button
           WnFilledButton(
-            title: 'Share Your Profile',
+            label: 'Share Your Profile',
             onPressed: () => context.push('${Routes.settings}/share_profile'),
             size: WnButtonSize.small,
             visualState: WnButtonVisualState.secondary,
@@ -98,7 +98,7 @@ class ProfileReadyCard extends ConsumerWidget {
           Gap(12.h),
           // Search For Friends button
           WnFilledButton(
-            title: 'Search For Friends',
+            label: 'Search For Friends',
             onPressed: () => NewChatBottomSheet.show(context),
             size: WnButtonSize.small,
             suffixIcon: SvgPicture.asset(

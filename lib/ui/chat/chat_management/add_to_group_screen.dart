@@ -215,7 +215,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
             bottom: 16.h,
           ),
           child: WnFilledButton(
-            title: 'Add to Group',
+            label: 'Add to Group',
             loading: _isLoading,
             onPressed: _groupsToAddUserTo.isEmpty ? null : _addUserToGroups,
           ),

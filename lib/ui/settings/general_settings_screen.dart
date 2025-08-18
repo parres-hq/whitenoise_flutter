@@ -212,7 +212,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
               children: [
                 Expanded(
                   child: WnFilledButton(
-                    title: 'Cancel',
+                    label: 'Cancel',
                     visualState: WnButtonVisualState.secondary,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -221,7 +221,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 Gap(8.w),
                 Expanded(
                   child: WnFilledButton(
-                    title: 'Sign out',
+                    label: 'Sign out',
                     titleTextStyle: WnButtonSize.small.textStyle().copyWith(
                       color: context.colors.solidNeutralWhite,
                     ),
@@ -337,7 +337,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                       const Center(child: Text('No accounts found')),
                     Gap(12.h),
                     WnFilledButton(
-                      title: 'Switch Account',
+                      label: 'Switch Account',
                       size: WnButtonSize.small,
                       visualState: WnButtonVisualState.secondary,
                       onPressed: () => _showAccountSwitcher(),

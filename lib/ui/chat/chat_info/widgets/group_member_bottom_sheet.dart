@@ -162,7 +162,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
               size: WnButtonSize.small,
               onPressed: () => Navigator.pop(context),
               visualState: WnButtonVisualState.secondary,
-              title: 'Cancel',
+              label: 'Cancel',
             ),
             Gap(8.h),
             WnFilledButton(
@@ -170,7 +170,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
               loading: _isRemoving,
               onPressed: _isRemoving ? null : _removeFromGroup,
               visualState: WnButtonVisualState.destructive,
-              title: 'Remove From Group',
+              label: 'Remove From Group',
             ),
           ],
         ),
@@ -276,7 +276,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
           onPressed: _openAddToGroup,
           size: WnButtonSize.small,
           visualState: WnButtonVisualState.secondary,
-          title: 'Add to Another Group',
+          label: 'Add to Another Group',
           suffixIcon: SvgPicture.asset(
             AssetsPaths.icChatInvite,
             width: 14.w,
@@ -298,7 +298,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
             },
             size: WnButtonSize.small,
             visualState: WnButtonVisualState.secondaryWarning,
-            title: 'Remove From Group',
+            label: 'Remove From Group',
             titleTextStyle: context.textTheme.bodyMedium?.copyWith(
               color: context.colors.destructive,
               fontWeight: FontWeight.w600,

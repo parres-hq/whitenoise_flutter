@@ -176,7 +176,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                             ),
                             const Spacer(),
                             WnFilledButton(
-                              title: 'Scan QR Code',
+                              label: 'Scan QR Code',
                               suffixIcon: SvgPicture.asset(
                                 AssetsPaths.icScan,
                                 height: 18.w,

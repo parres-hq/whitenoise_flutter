@@ -112,7 +112,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
                         const Spacer(),
                         if (!widget.hideViewQrButton) ...[
                           WnFilledButton(
-                            title: 'View QR Code',
+                            label: 'View QR Code',
                             onPressed: () => context.pop(),
                             suffixIcon: SvgPicture.asset(
                               AssetsPaths.icQrCode,

@@ -277,7 +277,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                           visualState:
                                                               WnButtonVisualState.secondaryWarning,
                                                           size: WnButtonSize.small,
-                                                          title: 'Discard Changes',
+                                                          label: 'Discard Changes',
                                                         ),
                                                       ),
                                                       Gap(10.w),
@@ -291,7 +291,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                               Navigator.of(dialogContext).pop();
                                                             }
                                                           },
-                                                          title: 'Save',
+                                                          label: 'Save',
                                                           size: WnButtonSize.small,
                                                         ),
                                                       ),
@@ -299,7 +299,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                   ),
                                                 ),
                                           ),
-                                      title: 'Discard Changes',
+                                      label: 'Discard Changes',
                                       visualState: WnButtonVisualState.secondary,
                                     ),
                                     Gap(4.h),
@@ -313,7 +313,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                     .updateProfileData()
                                             : null,
                                     loading: profile.isSaving,
-                                    title: 'Save',
+                                    label: 'Save',
                                   ),
                                 ],
                               ),

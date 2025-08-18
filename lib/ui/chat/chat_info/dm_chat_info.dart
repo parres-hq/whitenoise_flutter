@@ -198,7 +198,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               WnFilledButton(
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,
-                title: 'Search Chat',
+                label: 'Search Chat',
                 suffixIcon: SvgPicture.asset(
                   AssetsPaths.icSearch,
                   width: 14.w,
@@ -217,7 +217,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 size: WnButtonSize.small,
                 visualState:
                     isContact ? WnButtonVisualState.secondary : WnButtonVisualState.primary,
-                title: isContact ? 'Remove Contact' : 'Add Contact',
+                label: isContact ? 'Remove Contact' : 'Add Contact',
                 loading: isContactLoading,
                 suffixIcon: SvgPicture.asset(
                   isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
@@ -244,7 +244,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               WnFilledButton(
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,
-                title: 'Add to Group',
+                label: 'Add to Group',
                 suffixIcon: SvgPicture.asset(
                   AssetsPaths.icAdd,
                   width: 14.w,

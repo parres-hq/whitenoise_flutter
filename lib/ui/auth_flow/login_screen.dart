@@ -228,7 +228,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                           return WnFilledButton(
                             loading: authState.isLoading,
                             onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
-                            title: 'Login',
+                            label: 'Login',
                           );
                         },
                       ),
