@@ -423,7 +423,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                 left: 0,
                 right: 0,
                 child:
-                    WnStickyHeadsUp(
+                    WnHeadsUp(
                       title: 'No Relays Connected',
                       subtitle: 'The app won\'t work until you add at least one.',
                       action: InkWell(
