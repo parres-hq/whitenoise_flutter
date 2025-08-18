@@ -151,6 +151,9 @@ brew install lcov
 
 # Linux
 apt-get install lcov
+
+# Windows
+choco install lcov
 ```
 
 ```bash
