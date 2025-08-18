@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class WnIconButton extends StatelessWidget {
   const WnIconButton({
     super.key,
     this.onPressed,
-    required this.iconPath,
+    required this.icon,
     this.size = 52,
     this.iconSize = 20,
     this.backgroundColor,
@@ -16,7 +15,7 @@ class WnIconButton extends StatelessWidget {
     this.hasBorder = false,
   });
   final VoidCallback? onPressed;
-  final String iconPath;
+  final IconData icon;
   final double size;
   final double iconSize;
   final Color? backgroundColor;
@@ -39,14 +38,10 @@ class WnIconButton extends StatelessWidget {
                   )
                   : null,
         ),
-        child: SvgPicture.asset(
-          iconPath,
-          height: iconSize.w,
-          width: iconSize.w,
-          colorFilter: ColorFilter.mode(
-            iconColor ?? context.colors.primary,
-            BlendMode.srcIn,
-          ),
+        child: Icon(
+          icon,
+          size: iconSize.sp,
+          color: iconColor ?? context.colors.primary,
         ),
       ),
     );
