@@ -8,7 +8,7 @@ class WnFilledButton extends WnButton {
     this.loading = false,
     this.prefixIcon,
     this.suffixIcon,
-    this.titleTextStyle,
+    this.labelTextStyle,
     required String label,
     required super.onPressed,
   }) : super(
@@ -25,7 +25,7 @@ class WnFilledButton extends WnButton {
                fit: BoxFit.scaleDown,
                child: Text(
                  label,
-                 style: titleTextStyle ?? size.textStyle(),
+                 style: labelTextStyle ?? size.textStyle(),
                ),
              ),
              if (suffixIcon != null) ...[
@@ -39,7 +39,7 @@ class WnFilledButton extends WnButton {
   final bool loading;
   final SvgPicture? prefixIcon;
   final SvgPicture? suffixIcon;
-  final TextStyle? titleTextStyle;
+  final TextStyle? labelTextStyle;
 
   @override
   Widget buildButton(BuildContext context) {

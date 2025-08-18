@@ -222,7 +222,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 Expanded(
                   child: WnFilledButton(
                     label: 'Sign out',
-                    titleTextStyle: WnButtonSize.small.textStyle().copyWith(
+                    labelTextStyle: WnButtonSize.small.textStyle().copyWith(
                       color: context.colors.solidNeutralWhite,
                     ),
                     visualState: WnButtonVisualState.destructive,
