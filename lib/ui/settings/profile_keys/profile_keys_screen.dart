@@ -201,10 +201,14 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
-                                    Icons.error,
-                                    color: context.colors.destructive,
-                                    size: 20.r,
+                                  SvgPicture.asset(
+                                    AssetsPaths.icErrorFilled,
+                                    colorFilter: ColorFilter.mode(
+                                      context.colors.destructive,
+                                      BlendMode.srcIn,
+                                    ),
+                                    width: 20.w,
+                                    height: 20.w,
                                   ),
                                   Gap(12.w),
                                   Expanded(

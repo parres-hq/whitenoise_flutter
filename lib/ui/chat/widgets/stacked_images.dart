@@ -3,6 +3,8 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class StackedImages extends StatelessWidget {
@@ -119,7 +121,15 @@ class StackedImages extends StatelessWidget {
                       color: Colors.grey[300],
                       width: size,
                       height: size,
-                      child: Icon(Icons.error, size: 24.sp),
+                      child: SvgPicture.asset(
+                        AssetsPaths.icErrorFilled,
+                        colorFilter: ColorFilter.mode(
+                          context.colors.destructive,
+                          BlendMode.srcIn,
+                        ),
+                        width: 24.w,
+                        height: 24.w,
+                      ),
                     ),
               )
               : Image.file(
