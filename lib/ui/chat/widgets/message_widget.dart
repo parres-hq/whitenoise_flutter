@@ -54,7 +54,7 @@ class MessageWidget extends StatelessWidget {
             ),
             if (message.reactions.isNotEmpty) ...[
               Transform.translate(
-                offset: Offset(0, -4.h), // Move reactions up to overlap slightly with bubble
+                offset: Offset(0, -8.h), // Move reactions up to overlap slightly with bubble
                 child: Padding(
                   padding: EdgeInsets.only(
                     left: message.isMe ? 0 : 16.w, // Adjust padding to align with bubble edge
@@ -304,7 +304,7 @@ class ReactionsRow extends StatelessWidget {
                 padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 3.h),
                 decoration: BoxDecoration(
                   color: bubbleColor,
-                  borderRadius: BorderRadius.circular(6.r),
+                  borderRadius: BorderRadius.circular(999.r),
                 ),
                 child: RichText(
                   text: TextSpan(
