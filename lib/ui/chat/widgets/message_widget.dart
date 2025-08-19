@@ -142,7 +142,7 @@ class MessageWidget extends StatelessWidget {
 
     final textPainter = TextPainter(
       text: TextSpan(text: messageContent, style: textStyle),
-      textDirection: TextDirection.ltr,
+      textDirection: Directionality.of(context),
     );
 
     textPainter.layout(maxWidth: maxWidth);
@@ -258,7 +258,7 @@ class MessageWidget extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: Directionality.of(context),
     );
 
     textPainter.layout();
@@ -296,7 +296,6 @@ class ReactionsRow extends StatelessWidget {
             final count = entry.value.length;
             return GestureDetector(
               onTap: () {
-                // Call the reaction tap handler to add/remove reaction
                 onReactionTap?.call(emoji);
               },
               child: Container(
