@@ -281,7 +281,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                       message,
                                       groupId: widget.groupId,
                                     ),
-                                onTap:
+                                onLongPress:
                                     () => ChatDialogService.showReactionDialog(
                                       context: context,
                                       ref: ref,
