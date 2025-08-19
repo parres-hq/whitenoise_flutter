@@ -9,9 +9,9 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
@@ -199,7 +199,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
       mainAxisSize: MainAxisSize.min,
       children: [
         Gap(16.h),
-        ContactAvatar(
+        WnAvatar(
           imageUrl: widget.member.imagePath ?? '',
           displayName: widget.member.displayName,
           size: 96.w,

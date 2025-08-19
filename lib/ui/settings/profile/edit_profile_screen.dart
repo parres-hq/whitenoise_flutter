@@ -8,9 +8,9 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
@@ -149,7 +149,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                       builder: (context, value, child) {
                                         final imageUrl = _getProfileImageUrl(profile);
                                         final displayName = value.text.trim();
-                                        return ContactAvatar(
+                                        return WnAvatar(
                                           imageUrl: imageUrl,
                                           displayName: displayName,
                                           size: 96.w,

@@ -4,9 +4,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
@@ -94,11 +94,9 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                     valueListenable: _displayNameController,
                     builder: (context, value, child) {
                       final displayText = value.text.trim();
-                      final firstLetter =
-                          displayText.isNotEmpty ? displayText[0].toUpperCase() : '';
-                      return ContactAvatar(
+                      return WnAvatar(
                         imageUrl: ref.watch(accountProvider).selectedImagePath ?? '',
-                        displayName: firstLetter,
+                        displayName: displayText,
                         size: 96.w,
                         showBorder: ref.watch(accountProvider).selectedImagePath == null,
                       );

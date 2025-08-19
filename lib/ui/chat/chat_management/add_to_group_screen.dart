@@ -5,9 +5,9 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
@@ -166,7 +166,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
 
                     return CheckboxListTile(
                       contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-                      secondary: ContactAvatar(
+                      secondary: WnAvatar(
                         imageUrl: '',
                         displayName: group.name,
                         size: 56.w,

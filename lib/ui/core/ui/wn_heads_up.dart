@@ -4,8 +4,8 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 
-class WnStickyHeadsUp extends StatelessWidget {
-  const WnStickyHeadsUp({
+class WnHeadsUp extends StatelessWidget {
+  const WnHeadsUp({
     super.key,
     required this.title,
     required this.subtitle,

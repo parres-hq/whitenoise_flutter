@@ -397,7 +397,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             suffixIcon: GestureDetector(
               onTap: _scanQRCode,
               child: Padding(
-                padding: EdgeInsets.all(12.w),
+                padding: EdgeInsets.only(right: 14.w),
                 child: SvgPicture.asset(
                   AssetsPaths.icScan,
                   width: 16.w,

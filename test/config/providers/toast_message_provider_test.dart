@@ -482,6 +482,43 @@ void main() {
           });
         });
       });
+
+      group('with auto dismiss', () {
+        setUp(() {
+          container = ProviderContainer();
+          notifier = container.read(toastMessageProvider.notifier);
+          notifier.setStackMode(ToastStackMode.stack);
+          notifier.showToast(message: 'Not your keys, not your coins', type: ToastType.warning);
+          notifier.showToast(message: 'Stay humble and stack sats', type: ToastType.info);
+          notifier.showToast(
+            message: 'Hodl!',
+            type: ToastType.success,
+            autoDismiss: true,
+            durationMs: 1,
+          );
+        });
+
+        tearDown(() {
+          container.dispose();
+        });
+
+        test('dismisses the auto dismissable message', () async {
+          await Future.delayed(const Duration(milliseconds: 1));
+          final updatedState = container.read(toastMessageProvider);
+          expect(
+            updatedState.messages.where((msg) => msg.type == ToastType.success),
+            isEmpty,
+          );
+        });
+
+        test('does not dismiss other messages', () async {
+          final toastState = container.read(toastMessageProvider);
+          expect(toastState.messages.length, 3);
+          await Future.delayed(const Duration(milliseconds: 1));
+          final updatedState = container.read(toastMessageProvider);
+          expect(updatedState.messages.length, 2);
+        });
+      });
     });
 
     group('showSuccess', () {
@@ -501,6 +538,17 @@ void main() {
         notifier.showSuccess('Success!');
         final toastState = container.read(toastMessageProvider);
         expect(toastState.messages.first.type, ToastType.success);
+      });
+
+      group('with auto dismiss', () {
+        test('dismisses message', () async {
+          notifier.showSuccess('Success!', autoDismiss: true, durationMs: 1);
+          final toastState = container.read(toastMessageProvider);
+          expect(toastState.messages.length, 1);
+          await Future.delayed(const Duration(milliseconds: 1));
+          final updatedState = container.read(toastMessageProvider);
+          expect(updatedState.messages.length, 0);
+        });
       });
     });
 
@@ -522,6 +570,17 @@ void main() {
         final toastState = container.read(toastMessageProvider);
         expect(toastState.messages.first.type, ToastType.warning);
       });
+
+      group('with auto dismiss', () {
+        test('dismisses message', () async {
+          notifier.showWarning('Warning!', autoDismiss: true, durationMs: 1);
+          final toastState = container.read(toastMessageProvider);
+          expect(toastState.messages.length, 1);
+          await Future.delayed(const Duration(milliseconds: 1));
+          final updatedState = container.read(toastMessageProvider);
+          expect(updatedState.messages.length, 0);
+        });
+      });
     });
 
     group('showInfo', () {
@@ -542,6 +601,17 @@ void main() {
         final toastState = container.read(toastMessageProvider);
         expect(toastState.messages.first.type, ToastType.info);
       });
+
+      group('with auto dismiss', () {
+        test('dismisses message', () async {
+          notifier.showInfo('Info!', autoDismiss: true, durationMs: 1);
+          final toastState = container.read(toastMessageProvider);
+          expect(toastState.messages.length, 1);
+          await Future.delayed(const Duration(milliseconds: 1));
+          final updatedState = container.read(toastMessageProvider);
+          expect(updatedState.messages.length, 0);
+        });
+      });
     });
 
     group('showError', () {
@@ -561,6 +631,124 @@ void main() {
         notifier.showError('Error!');
         final toastState = container.read(toastMessageProvider);
         expect(toastState.messages.first.type, ToastType.error);
+      });
+
+      group('with auto dismiss', () {
+        test('dismisses message', () async {
+          notifier.showError('Error!', autoDismiss: true, durationMs: 1);
+          final toastState = container.read(toastMessageProvider);
+          expect(toastState.messages.length, 1);
+          await Future.delayed(const Duration(milliseconds: 1));
+          final updatedState = container.read(toastMessageProvider);
+          expect(updatedState.messages.length, 0);
+        });
+      });
+    });
+
+    group('showRawToast', () {
+      late ProviderContainer container;
+      late ToastMessageNotifier notifier;
+
+      setUp(() {
+        container = ProviderContainer();
+        notifier = container.read(toastMessageProvider.notifier);
+      });
+
+      tearDown(() {
+        container.dispose();
+      });
+
+      test('shows raw message without sanitization', () {
+        notifier.showRawToast(
+          message: 'Exception: raw technical error message',
+          type: ToastType.error,
+        );
+        final toastState = container.read(toastMessageProvider);
+        expect(toastState.messages.first.message, 'Exception: raw technical error message');
+      });
+
+      test('shows correct toast type', () {
+        notifier.showRawToast(message: 'Raw success', type: ToastType.success);
+        final toastState = container.read(toastMessageProvider);
+        expect(toastState.messages.first.type, ToastType.success);
+      });
+
+      group('with auto dismiss', () {
+        setUp(() {
+          notifier.setStackMode(ToastStackMode.stack);
+          notifier.showRawToast(message: 'Not your keys, not your coins', type: ToastType.warning);
+          notifier.showRawToast(message: 'Stay humble and stack sats', type: ToastType.info);
+          notifier.showRawToast(
+            message: 'Hodl!',
+            type: ToastType.success,
+            autoDismiss: true,
+            durationMs: 1,
+          );
+        });
+        test('dismisses the auto dismissable message', () async {
+          await Future.delayed(const Duration(milliseconds: 1));
+          final updatedState = container.read(toastMessageProvider);
+          expect(
+            updatedState.messages.where((msg) => msg.type == ToastType.success),
+            isEmpty,
+          );
+        });
+
+        test('does not dismiss other messages', () async {
+          final toastState = container.read(toastMessageProvider);
+          expect(toastState.messages.length, 3);
+          await Future.delayed(const Duration(milliseconds: 1));
+          final updatedState = container.read(toastMessageProvider);
+          expect(updatedState.messages.length, 2);
+        });
+      });
+    });
+
+    group('dismissToast', () {
+      late ProviderContainer container;
+      late ToastMessageNotifier notifier;
+
+      setUp(() {
+        container = ProviderContainer();
+        notifier = container.read(toastMessageProvider.notifier);
+      });
+
+      tearDown(() {
+        container.dispose();
+      });
+
+      test('removes specific toast', () {
+        notifier.showSuccess('Success!');
+        final toastState = container.read(toastMessageProvider);
+        expect(toastState.messages.first.message, 'Success!');
+        final toastId = toastState.messages.first.id;
+
+        notifier.dismissToast(toastId);
+        final updatedState = container.read(toastMessageProvider);
+        expect(updatedState.messages, isEmpty);
+      });
+    });
+
+    group('dismissAll', () {
+      late ProviderContainer container;
+      late ToastMessageNotifier notifier;
+
+      setUp(() {
+        container = ProviderContainer();
+        notifier = container.read(toastMessageProvider.notifier);
+      });
+
+      tearDown(() {
+        container.dispose();
+      });
+
+      test('removes all toast messages', () {
+        notifier.showSuccess('Success!');
+        notifier.showError('Error!');
+
+        notifier.dismissAll();
+        final toastState = container.read(toastMessageProvider);
+        expect(toastState.messages, isEmpty);
       });
     });
   });

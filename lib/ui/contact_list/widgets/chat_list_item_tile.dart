@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
@@ -10,10 +9,10 @@ import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/contact_list/widgets/message_read_status.dart';
 import 'package:whitenoise/ui/contact_list/widgets/welcome_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/utils/timeago_formatter.dart';
 
@@ -93,7 +92,7 @@ class ChatListItemTile extends ConsumerWidget {
         padding: EdgeInsets.only(left: 8.w, right: 16.w, top: 8.h, bottom: 8.h),
         child: Row(
           children: [
-            ContactAvatar(
+            WnAvatar(
               imageUrl: displayImageUrl,
               displayName: displayName,
               size: 56.r,

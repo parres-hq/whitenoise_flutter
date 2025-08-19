@@ -81,7 +81,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
         _textController.text != chatState.editingMessage[widget.groupId]!.content) {
       _textController.text = chatState.editingMessage[widget.groupId]!.content ?? '';
     }
-
+    final isReplying = chatState.replyingTo[widget.groupId] != null;
     return AnimatedPadding(
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeInOutCubic,
@@ -105,13 +105,16 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                         child: Container(
                           decoration: BoxDecoration(
                             color: context.colors.avatarSurface,
-                            border: Border.all(
-                              color:
-                                  _focusNode.hasFocus
-                                      ? context.colors.primary
-                                      : context.colors.input,
-                              width: 1.w,
-                            ),
+                            border:
+                                isReplying
+                                    ? Border.all(
+                                      color:
+                                          _focusNode.hasFocus
+                                              ? context.colors.primary
+                                              : context.colors.input,
+                                      width: 1.w,
+                                    )
+                                    : null,
                           ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -138,11 +141,14 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                                 textInputAction: TextInputAction.newline,
                                 keyboardType: TextInputType.multiline,
                                 textCapitalization: TextCapitalization.sentences,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
+                                decoration:
+                                    isReplying
+                                        ? const InputDecoration(
+                                          border: InputBorder.none,
+                                          enabledBorder: InputBorder.none,
+                                          focusedBorder: InputBorder.none,
+                                        )
+                                        : null,
                               ),
                             ],
                           ),
@@ -156,13 +162,13 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                                 ? Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Gap(8.w),
+                                    Gap(4.w),
                                     WnIconButton(
                                           onPressed: _sendMessage,
                                           icon: Icons.arrow_upward,
                                           backgroundColor: context.colors.primary,
                                           iconColor: context.colors.primaryForeground,
-                                          size: 52.w,
+                                          size: 56.h,
                                         )
                                         .animate()
                                         .fadeIn(
