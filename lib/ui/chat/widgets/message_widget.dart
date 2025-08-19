@@ -71,7 +71,6 @@ class MessageWidget extends StatelessWidget {
                   ? (isSameSenderAsPrevious ? 16.w : 24.w)
                   : (isSameSenderAsPrevious ? 4.w : 12.w),
         ),
-        // FIX: Padding that pushes balloons to the edge has been removed from here.
         child: Row(
           mainAxisAlignment: message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
           children: [
@@ -88,7 +87,6 @@ class MessageWidget extends StatelessWidget {
         return IntrinsicWidth(
           child: Container(
             constraints: BoxConstraints(
-              // FIX: Maximum width constraint has been restored to its original state.
               // This allows the balloon to dynamically and correctly adjust its width.
               maxWidth: constraints.maxWidth,
             ),
