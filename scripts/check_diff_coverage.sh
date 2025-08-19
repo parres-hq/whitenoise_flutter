@@ -5,20 +5,25 @@ MIN_COVERAGE=100
 FILE_PATTERN="provider"
 BASE_BRANCH="master"
 
+debug_print() {
+  printf "[DEBUG] %s\n" "$*" >&2
+}
+
 print_error() {
     red_color="\e[31;1m%s\e[0m\n"
-    printf "${red_color}" "$1"
+    printf "${red_color}" "$1">&2
 }
 
 print_success() {
     green_color="\e[32;1m%s\e[0m\n"
-    printf "${green_color}" "$1"
+    printf "${green_color}" "$1">&2
 }
 
 raise_error() {
     print_error "$1"
     exit 1
 }
+
 
 check_prerequisites() {
     local missing_tools
@@ -66,19 +71,68 @@ check_merge_base() {
     fi
 }
 
-get_changed_files() {
+get_lib_file_from_test_file() {
+    local test_file
+    test_file=$1
+    local lib_file
+    lib_file=${test_file/test\//lib\/}
+    lib_file=${lib_file%_test.dart}
+    lib_file=${lib_file}.dart
+    echo "$lib_file"
+}
+
+get_lib_files_from_test_files() {
+    local test_changed_files
+    test_changed_files=$1
+    local lib_files_from_test_files
+    lib_files_from_test_files=""
+    for test_file in $test_changed_files; do
+        lib_file=$(get_lib_file_from_test_file "$test_file")
+        if [ -n "$lib_files_from_test_files" ]; then
+            lib_files_from_test_files="$lib_files_from_test_files"$'\n'"$lib_file"
+        else
+            lib_files_from_test_files="$lib_file"
+        fi
+    done
+    echo "$lib_files_from_test_files"
+}
+
+combine_changed_files() {
+    local lib_changed_files
+    lib_changed_files=$1
+    local lib_files_from_test_files
+    lib_files_from_test_files=$2
+    local changed_files
+    if [ -n "$lib_changed_files" ] && [ -n "$lib_files_from_test_files" ]; then
+        changed_files=$(printf "%s\n%s" "$lib_changed_files" "$lib_files_from_test_files" | sort -u)
+    elif [ -n "$lib_changed_files" ]; then
+        changed_files="$lib_changed_files"
+    elif [ -n "$lib_files_from_test_files" ]; then
+        changed_files="$lib_files_from_test_files"
+    else
+        changed_files=""
+    fi
+    echo "$changed_files"
+}
+
+get_files_to_check() {
     local merge_base
     merge_base=$1
     local file_pattern
     file_pattern=$2
-    changed_files=$(git diff --name-only "$merge_base" HEAD | grep '^lib/.*\.dart$' | grep "${file_pattern}" || true)
+    local diff_files
+    diff_files=$(git diff --name-only "$merge_base" HEAD | grep "${file_pattern}")
+    lib_diff_files=$(echo "$diff_files" | grep '^lib/.*\.dart$' || true)
+    test_diff_files=$(echo "$diff_files" | grep '^test/.*\.dart$' || true)
+    lib_files_from_test_diff_files=$(get_lib_files_from_test_files "$test_diff_files")
+    local files_to_check
+    files_to_check=$(combine_changed_files "$lib_diff_files" "$lib_files_from_test_diff_files")
 
-    if [ -z "$changed_files" ]; then
-        print_success "No lib/ Dart files matching '${file_pattern}' changed. Skipping coverage check."
-        exit 0
+    if [ -z "$files_to_check" ]; then
+       print_success "No lib/ or test/ Dart files matching '${file_pattern}' changed. Skipping coverage check."
+       exit 0
     fi
-    printf "Changed files detected:\n%s\n" "$changed_files" >&2
-    echo "$changed_files"
+    echo "$files_to_check"
 }
 
 make_temp_file() {
@@ -86,16 +140,14 @@ make_temp_file() {
 }
 
 calculate_coverage() {
-    local changed_files
-    changed_files=$1
+    local files_to_check
+    files_to_check=$1
     local temp_lcov
     temp_lcov=$2
-
-    # Convert newline-separated files to array to avoid word splitting issues
     local -a files_array
     while IFS= read -r file; do
         files_array+=("$file")
-    done <<< "$changed_files"
+    done <<< "$files_to_check"
     lcov --extract coverage/lcov.info "${files_array[@]}" --output-file "$temp_lcov"
 }
 
@@ -181,17 +233,22 @@ check_diff_coverage() {
     file_pattern=$2
     local min_coverage
     min_coverage=$3
+    local files_to_check
     check_prerequisites
     check_coverage_file_presence
     fetch_base_branch "$base_branch"
     merge_base=$(get_merge_base "$base_branch")
     check_merge_base "$base_branch" "$merge_base"
-    changed_files=$(get_changed_files "$merge_base" "$file_pattern")
-    temp_file=$(make_temp_file)
-    trap "rm -f $temp_file" EXIT
-    calculate_coverage "$changed_files" "$temp_file"
-    coverage_percentage=$(extract_coverage_percentage "$temp_file")
-    check_coverage_result "$temp_file" "$coverage_percentage" "$min_coverage"
+    files_to_check=$(get_files_to_check "$merge_base" "$file_pattern")
+    if [ -z "$files_to_check" ]; then
+       exit 0
+    else
+        temp_file=$(make_temp_file)
+        trap "rm -f $temp_file" EXIT
+        calculate_coverage "$files_to_check" "$temp_file"
+        coverage_percentage=$(extract_coverage_percentage "$temp_file")
+        check_coverage_result "$temp_file" "$coverage_percentage" "$min_coverage"
+    fi
 }
 
 check_diff_coverage "$BASE_BRANCH" "$FILE_PATTERN" "$MIN_COVERAGE"
