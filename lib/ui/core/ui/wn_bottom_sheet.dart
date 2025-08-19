@@ -1,9 +1,10 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 
+import '../themes/assets.dart';
 import '../themes/src/extensions.dart';
 
 /// A utility class for showing custom bottom sheets with a smooth slide-up animation.
@@ -124,10 +125,14 @@ class WnBottomSheet {
               if (showBackButton) ...[
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: Icon(
-                    CarbonIcons.chevron_left,
-                    color: context.colors.primary,
-                    size: 24.w,
+                  icon: SvgPicture.asset(
+                    AssetsPaths.icChevronLeft,
+                    colorFilter: ColorFilter.mode(
+                      context.colors.primary,
+                      BlendMode.srcIn,
+                    ),
+                    width: 24.w,
+                    height: 24.w,
                   ),
                 ),
                 Gap(8.w),
@@ -150,10 +155,14 @@ class WnBottomSheet {
         if (showCloseButton)
           GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: Icon(
-              Icons.close,
-              color: context.colors.primary,
-              size: 24.w,
+            child: SvgPicture.asset(
+              AssetsPaths.icClose,
+              colorFilter: ColorFilter.mode(
+                context.colors.primary,
+                BlendMode.srcIn,
+              ),
+              width: 24.w,
+              height: 24.w,
             ),
           ),
       ],

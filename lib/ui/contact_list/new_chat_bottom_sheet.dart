@@ -5,7 +5,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
@@ -383,15 +382,22 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           focusNode: _searchFocusNode,
           hintText: 'Search contact or public key...',
           decoration: InputDecoration(
-            prefixIcon: Icon(
-              CarbonIcons.search,
-              color: context.colors.primary,
-              size: 20.sp,
+            prefixIcon: Padding(
+              padding: EdgeInsets.all(12.w),
+              child: SvgPicture.asset(
+                AssetsPaths.icSearch,
+                colorFilter: ColorFilter.mode(
+                  context.colors.primary,
+                  BlendMode.srcIn,
+                ),
+                width: 20.sp,
+                height: 20.sp,
+              ),
             ),
             suffixIcon: GestureDetector(
               onTap: _scanQRCode,
               child: Padding(
-                padding: EdgeInsets.all(12.w),
+                padding: EdgeInsets.only(right: 14.w),
                 child: SvgPicture.asset(
                   AssetsPaths.icScan,
                   width: 16.w,

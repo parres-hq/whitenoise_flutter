@@ -8,6 +8,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/models/relay_status.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/lib.dart';
 
 // State for relay status management
 class RelayStatusState {
@@ -118,9 +119,61 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
     final status = getRelayStatus(url);
     return status.isConnected;
   }
+
+  Future<bool> areAllRelayTypesConnected() async {
+    try {
+      final authState = ref.read(authProvider);
+      if (!authState.isAuthenticated) {
+        return false;
+      }
+
+      // Use cached account data instead of calling loadAccount() every time
+      final activeAccountData =
+          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      if (activeAccountData == null) {
+        return false;
+      }
+
+      // Check each relay type separately using the cached account data
+      final hasConnectedNostr = await _hasConnectedRelayOfType(activeAccountData.nip65Relays);
+      final hasConnectedInbox = await _hasConnectedRelayOfType(activeAccountData.inboxRelays);
+      final hasConnectedKeyPackage = await _hasConnectedRelayOfType(
+        activeAccountData.keyPackageRelays,
+      );
+
+      return hasConnectedNostr && hasConnectedInbox && hasConnectedKeyPackage;
+    } catch (e) {
+      _logger.warning('Error checking relay type connections: $e');
+      return false;
+    }
+  }
+
+  Future<bool> _hasConnectedRelayOfType(List<RelayUrl> relayUrls) async {
+    if (relayUrls.isEmpty) {
+      return false;
+    }
+
+    for (final relayUrl in relayUrls) {
+      final url = await stringFromRelayUrl(relayUrl: relayUrl);
+      if (isRelayConnected(url)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
 
 // Provider
 final relayStatusProvider = NotifierProvider<RelayStatusNotifier, RelayStatusState>(
   RelayStatusNotifier.new,
 );
+
+// Provider for checking if all relay types have at least one connected relay
+final allRelayTypesConnectionProvider = FutureProvider<bool>((ref) async {
+  // Watch the relay status provider to trigger rebuilds when statuses change
+  ref.watch(relayStatusProvider);
+
+  final notifier = ref.read(relayStatusProvider.notifier);
+  return await notifier.areAllRelayTypesConnected();
+});

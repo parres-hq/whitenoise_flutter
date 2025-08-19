@@ -5,8 +5,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -188,12 +188,12 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
                 ],
               ),
             ),
-            Gap(8.w),
+            Gap(4.w),
             CustomIconButton(
               onTap: _pasteFromClipboard,
               iconPath: AssetsPaths.icPaste,
-              size: 42.h,
-              padding: 12.w,
+              size: 56.h,
+              padding: 20.w,
             ),
           ],
         ),
@@ -211,10 +211,14 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      CarbonIcons.warning_filled,
-                      color: context.colors.destructive,
-                      size: 16.w,
+                    SvgPicture.asset(
+                      AssetsPaths.icWarningFilled,
+                      colorFilter: ColorFilter.mode(
+                        context.colors.destructive,
+                        BlendMode.srcIn,
+                      ),
+                      width: 16.w,
+                      height: 16.w,
                     ),
                     Gap(8.w),
                     Text(

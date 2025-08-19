@@ -41,29 +41,26 @@ class ShareInviteBottomSheet extends ConsumerStatefulWidget {
 class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet> {
   @override
   Widget build(BuildContext context) {
+    if (widget.contacts.isEmpty) {
+      return const SizedBox.shrink();
+    }
     final isSingleContact = widget.contacts.length == 1;
-    final contact = isSingleContact ? widget.contacts.first : null;
-    if (contact == null) return const SizedBox.shrink();
+    final singleContact = widget.contacts.first;
 
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
         if (isSingleContact) ...[
-          // Single contact view
-          Column(
-            children: [
-              Gap(12.h),
-              UserProfile(
-                imageUrl: contact.imagePath ?? '',
-                name: contact.displayName,
-                nip05: contact.nip05 ?? '',
-                pubkey: contact.publicKey,
-                ref: ref,
-              ),
-              Gap(36.h),
-              ShareInviteCallout(contact: contact),
-            ],
+          Gap(12.h),
+          UserProfile(
+            imageUrl: singleContact.imagePath ?? '',
+            name: singleContact.displayName,
+            nip05: singleContact.nip05 ?? '',
+            pubkey: singleContact.publicKey,
+            ref: ref,
           ),
+          Gap(36.h),
+          ShareInviteCallout(contact: singleContact),
         ] else ...[
           // Multiple contacts view
           Padding(
@@ -80,19 +77,19 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
               ],
             ),
           ),
-          // Contacts list
-          Expanded(
-            child: ListView.builder(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              itemCount: widget.contacts.length,
-              itemBuilder: (context, index) {
-                final contact = widget.contacts[index];
-                return ContactListTile(contact: contact);
-              },
-            ),
+
+          ListView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 24.w),
+            shrinkWrap: true,
+            primary: false,
+            itemCount: widget.contacts.length,
+            itemBuilder: (context, index) {
+              final contact = widget.contacts[index];
+              return ContactListTile(contact: contact);
+            },
           ),
         ],
-        Gap(10.h),
+        Gap(14.h),
         const ShareInviteButton(),
       ],
     );

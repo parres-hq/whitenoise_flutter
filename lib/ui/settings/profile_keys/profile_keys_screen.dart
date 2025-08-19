@@ -2,25 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
-
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/string_extensions.dart';
 
-class NostrKeysScreen extends ConsumerStatefulWidget {
-  const NostrKeysScreen({super.key});
+class ProfileKeysScreen extends ConsumerStatefulWidget {
+  const ProfileKeysScreen({super.key});
 
   @override
-  ConsumerState<NostrKeysScreen> createState() => _NostrKeysScreenState();
+  ConsumerState<ProfileKeysScreen> createState() => _ProfileKeysScreenState();
 }
 
-class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
+class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
   final TextEditingController _privateKeyController = TextEditingController();
   final TextEditingController _publicKeyController = TextEditingController();
   bool _obscurePrivateKey = true;
@@ -30,7 +30,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(nostrKeysProvider.notifier).loadKeys();
-      _publicKeyController.text = ref.read(nostrKeysProvider).npub ?? '';
+      _publicKeyController.text = ref.read(nostrKeysProvider).npub?.formatPublicKey() ?? '';
       _privateKeyController.text = ref.read(nostrKeysProvider).nsec ?? '';
     });
   }
@@ -94,10 +94,14 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                         children: [
                           GestureDetector(
                             onTap: () => context.pop(),
-                            child: Icon(
-                              CarbonIcons.chevron_left,
-                              size: 24.w,
-                              color: context.colors.primary,
+                            child: SvgPicture.asset(
+                              AssetsPaths.icChevronLeft,
+                              colorFilter: ColorFilter.mode(
+                                context.colors.primary,
+                                BlendMode.srcIn,
+                              ),
+                              width: 24.w,
+                              height: 24.w,
                             ),
                           ),
                           Gap(16.w),
@@ -137,14 +141,15 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                                 child: WnTextFormField(
                                   controller: _publicKeyController,
                                   readOnly: true,
+                                  size: FieldSize.small,
                                 ),
                               ),
-                              Gap(8.w),
+                              Gap(4.w),
                               CustomIconButton(
                                 onTap: _copyPublicKey,
                                 iconPath: AssetsPaths.icCopy,
-                                size: 56.w,
-                                padding: 20.w,
+                                size: 44.h,
+                                padding: 14.w,
                               ),
                             ],
                           ),
@@ -196,10 +201,14 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(
-                                    Icons.error,
-                                    color: context.colors.destructive,
-                                    size: 20.r,
+                                  SvgPicture.asset(
+                                    AssetsPaths.icErrorFilled,
+                                    colorFilter: ColorFilter.mode(
+                                      context.colors.destructive,
+                                      BlendMode.srcIn,
+                                    ),
+                                    width: 20.w,
+                                    height: 20.w,
                                   ),
                                   Gap(12.w),
                                   Expanded(
@@ -222,6 +231,7 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                                     controller: _privateKeyController,
                                     readOnly: true,
                                     obscureText: _obscurePrivateKey,
+                                    size: FieldSize.small,
                                     decoration: InputDecoration(
                                       suffixIcon: IconButton(
                                         onPressed: _togglePrivateKeyVisibility,
@@ -235,12 +245,12 @@ class _NostrKeysScreenState extends ConsumerState<NostrKeysScreen> {
                                     ),
                                   ),
                                 ),
-                                Gap(8.w),
+                                Gap(4.w),
                                 CustomIconButton(
                                   onTap: _copyPrivateKey,
                                   iconPath: AssetsPaths.icCopy,
-                                  size: 56.w,
-                                  padding: 20.w,
+                                  size: 44.h,
+                                  padding: 14.w,
                                 ),
                               ],
                             ),

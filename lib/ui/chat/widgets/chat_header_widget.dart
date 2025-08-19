@@ -6,9 +6,9 @@ import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_contact_avatar.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ChatContactHeader extends ConsumerWidget {
@@ -64,7 +64,7 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
       child: Column(
         children: [
           Gap(32.h),
-          ContactAvatar(
+          WnAvatar(
             imageUrl: '',
             displayName: widget.groupData.name,
             size: 96.r,
@@ -161,7 +161,7 @@ class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
           child: Column(
             children: [
               Gap(32.h),
-              ContactAvatar(
+              WnAvatar(
                 imageUrl: otherUser.displayImage ?? '',
                 displayName: otherUser.displayName,
                 size: 96.r,

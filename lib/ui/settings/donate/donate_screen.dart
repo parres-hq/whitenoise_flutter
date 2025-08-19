@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:supa_carbon_icons/supa_carbon_icons.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -55,10 +55,14 @@ class DonateScreen extends ConsumerWidget {
                             children: [
                               GestureDetector(
                                 onTap: () => context.pop(),
-                                child: Icon(
-                                  CarbonIcons.chevron_left,
-                                  size: 24.w,
-                                  color: context.colors.primary,
+                                child: SvgPicture.asset(
+                                  AssetsPaths.icChevronLeft,
+                                  width: 24.w,
+                                  height: 24.w,
+                                  colorFilter: ColorFilter.mode(
+                                    context.colors.primary,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
                               ),
                               Gap(16.w),
@@ -102,11 +106,11 @@ class DonateScreen extends ConsumerWidget {
                                   readOnly: true,
                                 ),
                               ),
-                              Gap(8.w),
+                              Gap(4.w),
                               CustomIconButton(
                                 onTap: () => _copyToClipboard(ref, kLightningAddress),
                                 iconPath: AssetsPaths.icCopy,
-                                size: 56.w,
+                                size: 56.h,
                                 padding: 20.w,
                               ),
                             ],
@@ -131,7 +135,7 @@ class DonateScreen extends ConsumerWidget {
                                   readOnly: true,
                                 ),
                               ),
-                              Gap(8.w),
+                              Gap(4.w),
                               CustomIconButton(
                                 onTap:
                                     () => _copyToClipboard(
@@ -139,7 +143,7 @@ class DonateScreen extends ConsumerWidget {
                                       kBitcoinAddress,
                                     ),
                                 iconPath: AssetsPaths.icCopy,
-                                size: 56.w,
+                                size: 56.h,
                                 padding: 20.w,
                               ),
                             ],

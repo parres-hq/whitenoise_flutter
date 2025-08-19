@@ -100,8 +100,4 @@ extension ToastExtension on WidgetRef {
   void setToastStackMode(ToastStackMode mode) {
     read(toastMessageProvider.notifier).setStackMode(mode);
   }
-
-  void setDefaultShowBelowAppBar(bool showBelowAppBar) {
-    read(toastMessageProvider.notifier).setDefaultShowBelowAppBar(showBelowAppBar);
-  }
 }
