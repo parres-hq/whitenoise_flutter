@@ -307,7 +307,7 @@ class ReactionsRow extends StatelessWidget {
                   ),
                 ),
                 child: Transform.translate(
-                  offset: const Offset(0, -1),
+                  offset: const Offset(1, -2),
                   child: RichText(
                     text: TextSpan(
                       children: [
