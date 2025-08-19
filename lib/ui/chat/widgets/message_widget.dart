@@ -48,7 +48,7 @@ class MessageWidget extends StatelessWidget {
         ),
         if (message.reactions.isNotEmpty)
           Positioned(
-            bottom: -12.h,
+            bottom: -10.h,
             left: message.isMe ? 4.w : null,
             right: message.isMe ? null : 4.w,
             child: ReactionsRow(
@@ -87,10 +87,14 @@ class MessageWidget extends StatelessWidget {
         return IntrinsicWidth(
           child: Container(
             constraints: BoxConstraints(
-              // This allows the balloon to dynamically and correctly adjust its width.
+              // This allows the bubble to dynamically and correctly adjust its width.
               maxWidth: constraints.maxWidth,
             ),
-            padding: EdgeInsets.only(right: message.isMe ? 8.w : 0, left: message.isMe ? 0 : 8.w),
+            padding: EdgeInsets.only(
+              right: message.isMe ? 8.w : 0,
+              left: message.isMe ? 0 : 8.w,
+              bottom: message.reactions.isNotEmpty ? 8.h : 0,
+            ),
             child: Column(
               crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -280,7 +284,7 @@ class ReactionsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
-      spacing: 8.w,
+      spacing: 4.w,
       children: [
         ...(() {
           final reactionGroups = <String, List<Reaction>>{};
