@@ -299,7 +299,7 @@ class ReactionsRow extends StatelessWidget {
               },
               child: Container(
                 height: 20.h,
-                padding: EdgeInsets.symmetric(horizontal: 7.w, vertical: 0),
+                padding: EdgeInsets.symmetric(horizontal: 7.w),
                 decoration: BoxDecoration(
                   color: bubbleColor,
                   borderRadius: BorderRadius.circular(999.r),
@@ -309,7 +309,7 @@ class ReactionsRow extends StatelessWidget {
                   ),
                 ),
                 child: Transform.translate(
-                  offset: Offset(0, -1),
+                  offset: const Offset(0, -1),
                   child: RichText(
                     text: TextSpan(
                       children: [
