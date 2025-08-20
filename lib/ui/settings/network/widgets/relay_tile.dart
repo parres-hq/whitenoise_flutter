@@ -77,14 +77,14 @@ class _RelayTileState extends ConsumerState<RelayTile> {
                 WnFilledButton(
                   onPressed: () => Navigator.of(context).pop(false),
                   visualState: WnButtonVisualState.secondary,
-                  title: 'Cancel',
+                  label: 'Cancel',
                   size: WnButtonSize.small,
                 ),
                 Gap(8.h),
                 WnFilledButton(
                   onPressed: () => Navigator.of(context).pop(true),
                   visualState: WnButtonVisualState.destructive,
-                  title: 'Remove Relay',
+                  label: 'Remove Relay',
                   size: WnButtonSize.small,
                 ),
               ],

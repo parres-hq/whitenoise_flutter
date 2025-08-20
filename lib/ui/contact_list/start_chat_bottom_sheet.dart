@@ -265,81 +265,40 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                     : Column(
                       key: const ValueKey('buttons'),
                       children: [
-                        WnFilledButton.child(
-                          size: WnButtonSize.small,
+                        WnFilledButton(
                           visualState: WnButtonVisualState.secondary,
                           onPressed: _isAddingContact ? null : _toggleContact,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              if (_isAddingContact)
-                                SizedBox(
-                                  width: 16.w,
-                                  height: 16.w,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2.w,
-                                    color: context.colors.primary,
-                                  ),
-                                )
-                              else ...[
-                                Text(
-                                  _isContact() ? 'Remove Contact' : 'Add Contact',
-                                  style: TextStyle(
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.w600,
-                                    color: context.colors.primary,
-                                  ),
-                                ),
-                                Gap(9.w),
-                                SvgPicture.asset(
-                                  _isContact()
-                                      ? 'assets/svgs/ic_remove_user.svg'
-                                      : 'assets/svgs/ic_add_user.svg',
-                                  width: 18.w,
-                                  height: 18.w,
-                                  colorFilter: ColorFilter.mode(
-                                    context.colors.primary,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                              ],
-                            ],
+                          label: _isContact() ? 'Remove Contact' : 'Add Contact',
+                          suffixIcon: SvgPicture.asset(
+                            _isContact() ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+                            width: 18.w,
+                            height: 18.w,
+                            colorFilter: ColorFilter.mode(
+                              context.colors.primary,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
                         Gap(8.h),
-                        WnFilledButton.child(
-                          size: WnButtonSize.small,
+                        WnFilledButton(
                           visualState: WnButtonVisualState.secondary,
                           onPressed: _openAddToGroup,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Add to Group',
-                                style: TextStyle(
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: context.colors.primary,
-                                ),
-                              ),
-                              Gap(9.w),
-                              SvgPicture.asset(
-                                AssetsPaths.icChatInvite,
-                                width: 18.w,
-                                height: 18.w,
-                                colorFilter: ColorFilter.mode(
-                                  context.colors.primary,
-                                  BlendMode.srcIn,
-                                ),
-                              ),
-                            ],
+                          label: 'Add to Group',
+                          suffixIcon: SvgPicture.asset(
+                            AssetsPaths.icChatInvite,
+                            width: 18.w,
+                            height: 18.w,
+                            colorFilter: ColorFilter.mode(
+                              context.colors.primary,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
                         Gap(8.h),
                         WnFilledButton(
                           onPressed: _isCreatingGroup ? null : _createOrOpenDirectMessageGroup,
                           loading: _isCreatingGroup,
-                          title: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
+                          label: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
                         ),
                       ],
                     ),

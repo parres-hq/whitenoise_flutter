@@ -300,7 +300,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         WnFilledButton(
           onPressed: _isCreatingGroup || !_isGroupNameValid ? null : _createGroupChat,
           loading: _isCreatingGroup,
-          title: _isCreatingGroup ? 'Creating Group...' : 'Create Group',
+          label: _isCreatingGroup ? 'Creating Group...' : 'Create Group',
         ),
       ],
     );
