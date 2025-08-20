@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -39,7 +39,7 @@ class AppSettingsScreen extends ConsumerWidget {
               children: [
                 Expanded(
                   child: WnFilledButton(
-                    title: 'Cancel',
+                    label: 'Cancel',
                     visualState: WnButtonVisualState.secondary,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -47,15 +47,13 @@ class AppSettingsScreen extends ConsumerWidget {
                 ),
                 Gap(8.w),
                 Expanded(
-                  child: WnFilledButton.child(
+                  child: WnFilledButton(
                     visualState: WnButtonVisualState.destructive,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
-                    child: Text(
-                      'Delete',
-                      style: WnButtonSize.small.textStyle().copyWith(
-                        color: context.colors.solidNeutralWhite,
-                      ),
+                    label: 'Delete',
+                    labelTextStyle: WnButtonSize.small.textStyle().copyWith(
+                      color: context.colors.solidNeutralWhite,
                     ),
                   ),
                 ),
@@ -262,29 +260,21 @@ class AppSettingsScreen extends ConsumerWidget {
                             ),
                           ),
                           Gap(10.h),
-                          WnFilledButton.child(
+                          WnFilledButton(
+                            label: 'Delete All Data',
+                            labelTextStyle: WnButtonSize.large.textStyle().copyWith(
+                              color: context.colors.solidNeutralWhite,
+                            ),
                             visualState: WnButtonVisualState.destructive,
                             onPressed: () => _deleteAllData(context, ref),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  'Delete All Data',
-                                  style: WnButtonSize.large.textStyle().copyWith(
-                                    color: context.colors.solidNeutralWhite,
-                                  ),
-                                ),
-                                Gap(8.w),
-                                SvgPicture.asset(
-                                  AssetsPaths.icTrashCan,
-                                  width: 20.w,
-                                  height: 20.w,
-                                  colorFilter: ColorFilter.mode(
-                                    context.colors.solidNeutralWhite,
-                                    BlendMode.srcIn,
-                                  ),
-                                ),
-                              ],
+                            suffixIcon: SvgPicture.asset(
+                              AssetsPaths.icDelete,
+                              height: 18.w,
+                              width: 18.w,
+                              colorFilter: ColorFilter.mode(
+                                context.colors.solidNeutralWhite,
+                                BlendMode.srcIn,
+                              ),
                             ),
                           ),
                         ],

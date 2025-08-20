@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,14 +11,14 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 class SwipeToReplyWidget extends StatefulWidget {
   final MessageModel message;
   final VoidCallback onReply;
-  final VoidCallback onTap;
+  final VoidCallback onLongPress;
   final Widget child;
 
   const SwipeToReplyWidget({
     super.key,
     required this.message,
     required this.onReply,
-    required this.onTap,
+    required this.onLongPress,
     required this.child,
   });
 
@@ -32,8 +34,10 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
   bool _showReplyIcon = false;
   bool _hapticTriggered = false;
   bool _canUndo = false;
+  Timer? _longPressTimer;
 
   void _handleDragStart(DragStartDetails details) {
+    _longPressTimer?.cancel();
     setState(() {
       _showReplyIcon = true;
       _canUndo = false;
@@ -41,12 +45,12 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    final delta = details.delta.dx;
+    final double delta = details.delta.dx;
     if (delta > 0 || (delta < 0 && _dragExtent > 0)) {
-      final newDragExtent = (_dragExtent + delta).clamp(0.0, _maxDragExtent);
+      final double newDragExtent = (_dragExtent + delta).clamp(0.0, _maxDragExtent).toDouble();
 
-      final crossedThreshold = _dragExtent >= _hapticThreshold;
-      final belowThreshold = newDragExtent < _hapticThreshold;
+      final bool crossedThreshold = _dragExtent >= _hapticThreshold;
+      final bool belowThreshold = newDragExtent < _hapticThreshold;
 
       setState(() {
         _dragExtent = newDragExtent;
@@ -78,6 +82,26 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
     });
   }
 
+  void _onTapDown(TapDownDetails details) {
+    _longPressTimer = Timer(const Duration(milliseconds: 200), () {
+      widget.onLongPress();
+    });
+  }
+
+  void _onTapUp(TapUpDetails details) {
+    _longPressTimer?.cancel();
+  }
+
+  void _onTapCancel() {
+    _longPressTimer?.cancel();
+  }
+
+  @override
+  void dispose() {
+    _longPressTimer?.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -86,7 +110,9 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
         SizedBox(
           width: double.infinity,
           child: GestureDetector(
-            onTap: widget.onTap,
+            onTapDown: _onTapDown,
+            onTapUp: _onTapUp,
+            onTapCancel: _onTapCancel,
             onHorizontalDragStart: _handleDragStart,
             onHorizontalDragUpdate: _handleDragUpdate,
             onHorizontalDragEnd: _handleDragEnd,

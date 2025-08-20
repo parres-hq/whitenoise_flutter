@@ -39,7 +39,7 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
       mainAxisSize: MainAxisSize.min,
       children: [
         WnFilledButton(
-          title: 'Login With Existing Profile',
+          label: 'Login With Existing Profile',
           loading: _isLoginLoading,
           visualState: WnButtonVisualState.secondary,
           onPressed:
@@ -64,7 +64,7 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
         ),
         Gap(4.h),
         WnFilledButton(
-          title: 'Create New Profile',
+          label: 'Create New Profile',
           loading: authState.isLoading,
           onPressed: () async {
             // Wait for account creation and metadata generation
