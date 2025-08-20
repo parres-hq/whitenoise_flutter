@@ -267,7 +267,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                   actions: Row(
                                                     children: [
                                                       Expanded(
-                                                        child: WnFilledButton.child(
+                                                        child: WnFilledButton(
                                                           onPressed: () {
                                                             ref
                                                                 .read(profileProvider.notifier)
@@ -277,10 +277,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                           visualState:
                                                               WnButtonVisualState.secondaryWarning,
                                                           size: WnButtonSize.small,
-                                                          child: const FittedBox(
-                                                            fit: BoxFit.scaleDown,
-                                                            child: Text('Discard Changes'),
-                                                          ),
+                                                          label: 'Discard Changes',
                                                         ),
                                                       ),
                                                       Gap(10.w),
@@ -294,7 +291,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                               Navigator.of(dialogContext).pop();
                                                             }
                                                           },
-                                                          title: 'Save',
+                                                          label: 'Save',
                                                           size: WnButtonSize.small,
                                                         ),
                                                       ),
@@ -302,7 +299,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                   ),
                                                 ),
                                           ),
-                                      title: 'Discard Changes',
+                                      label: 'Discard Changes',
                                       visualState: WnButtonVisualState.secondary,
                                     ),
                                     Gap(4.h),
@@ -316,7 +313,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                     .updateProfileData()
                                             : null,
                                     loading: profile.isSaving,
-                                    title: 'Save',
+                                    label: 'Save',
                                   ),
                                 ],
                               ),

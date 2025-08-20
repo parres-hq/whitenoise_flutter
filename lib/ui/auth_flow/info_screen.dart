@@ -117,29 +117,16 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
               final accountState = ref.watch(accountProvider);
               final isButtonDisabled = _isLoading || accountState.isLoading;
 
-              return WnFilledButton.child(
+              return WnFilledButton(
                 loading: isButtonDisabled,
                 onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Setup Profile',
-                      style: TextStyle(
-                        fontSize: 16.sp,
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.primaryForeground,
-                      ),
-                    ),
-                    Gap(14.w),
-                    SvgPicture.asset(
-                      AssetsPaths.icArrowRight,
-                      colorFilter: ColorFilter.mode(
-                        context.colors.primaryForeground,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                  ],
+                label: 'Setup Profile',
+                suffixIcon: SvgPicture.asset(
+                  AssetsPaths.icArrowRight,
+                  colorFilter: ColorFilter.mode(
+                    context.colors.primaryForeground,
+                    BlendMode.srcIn,
+                  ),
                 ),
               );
             },

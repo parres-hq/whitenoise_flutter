@@ -71,7 +71,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
               child: Column(
                 children: [
                   WnFilledButton(
-                    title: 'Decline',
+                    label: 'Decline',
                     visualState: WnButtonVisualState.secondary,
                     onPressed: () async {
                       await welcomesNotifier.declineWelcomeInvitation(widget.inviteId);
@@ -82,7 +82,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
                   ),
                   Gap(8.h),
                   WnFilledButton(
-                    title: 'Accept',
+                    label: 'Accept',
                     loading: _isAccepting,
                     onPressed:
                         _isAccepting

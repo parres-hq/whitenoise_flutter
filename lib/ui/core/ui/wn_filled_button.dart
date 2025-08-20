@@ -6,43 +6,46 @@ class WnFilledButton extends WnButton {
     super.size,
     super.visualState,
     this.loading = false,
-    required String title,
+    this.prefixIcon,
+    this.suffixIcon,
+    this.labelTextStyle,
+    required String label,
     required super.onPressed,
   }) : super(
          ignorePointer: loading,
-         child: Text(
-           title,
-           style: size.textStyle(),
+         child: Row(
+           mainAxisSize: MainAxisSize.min,
+           mainAxisAlignment: MainAxisAlignment.center,
+           children: [
+             if (prefixIcon != null) ...[
+               prefixIcon,
+               size == WnButtonSize.small ? Gap(8.w) : Gap(12.w),
+             ],
+             FittedBox(
+               fit: BoxFit.scaleDown,
+               child: Text(
+                 label,
+                 style: labelTextStyle ?? size.textStyle(),
+               ),
+             ),
+             if (suffixIcon != null) ...[
+               size == WnButtonSize.small ? Gap(8.w) : Gap(12.w),
+               suffixIcon,
+             ],
+           ],
          ),
        );
 
-  const WnFilledButton.child({
-    super.key,
-    super.size,
-    super.visualState,
-    this.loading = false,
-    required super.child,
-    required super.onPressed,
-  }) : super(ignorePointer: loading);
-
-  const WnFilledButton.icon({
-    super.key,
-    super.size,
-    super.icon,
-    super.visualState,
-    super.iconAlignment,
-    this.loading = false,
-    required Widget label,
-    required super.onPressed,
-  }) : super(child: label, ignorePointer: loading);
-
   final bool loading;
+  final SvgPicture? prefixIcon;
+  final SvgPicture? suffixIcon;
+  final TextStyle? labelTextStyle;
 
   @override
   Widget buildButton(BuildContext context) {
     final theme = Theme.of(context).elevatedButtonTheme;
 
-    const loadingIndicator = ButtonLoadingIndicator();
+    final loadingIndicator = const ButtonLoadingIndicator();
 
     final effectiveStyle = (style ?? FilledButton.styleFrom())
         .merge(
@@ -62,20 +65,12 @@ class WnFilledButton extends WnButton {
             ),
             shape: const RoundedRectangleBorder(),
             elevation: 0,
+            textStyle: size.textStyle().copyWith(
+              color: visualState.foregroundColor(context),
+            ),
           ),
         )
         .merge(theme.style);
-
-    if (icon != null) {
-      return FilledButton.icon(
-        icon: icon,
-        onPressed: onPressed,
-        style: effectiveStyle,
-        onLongPress: onLongPress,
-        iconAlignment: iconAlignment,
-        label: !loading ? child : loadingIndicator,
-      );
-    }
 
     return FilledButton(
       style: effectiveStyle,

@@ -80,7 +80,7 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
               onDecline!();
             }
           },
-          title: 'Decline',
+          label: 'Decline',
         ),
         Gap(8.h),
         WnFilledButton(
@@ -90,7 +90,7 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
               onAccept!();
             }
           },
-          title: 'Accept',
+          label: 'Accept',
         ),
       ],
     );
