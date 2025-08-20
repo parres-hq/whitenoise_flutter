@@ -44,10 +44,10 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
     );
   }
 
-  void _copyPrivateKey() {
+  void _copyPrivateKey() async {
     final nsec = ref.read(nostrKeysProvider).nsec;
     if (nsec != null) {
-      ClipboardUtils.copyWithToast(
+      await ClipboardUtils.copySensitiveWithToast(
         ref: ref,
         textToCopy: nsec,
         successMessage: 'Private key copied to clipboard',
