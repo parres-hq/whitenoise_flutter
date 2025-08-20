@@ -7,6 +7,9 @@ class ClipboardUtils {
   // Private constructor to prevent instantiation
   ClipboardUtils._();
 
+  // Android-specific channel for sensitive clipboard copy
+  static const MethodChannel _sensitiveChannel = MethodChannel('clipboard_sensitive');
+
   /// Copies text to clipboard and shows a success toast
   ///
   /// [ref] - WidgetRef for accessing providers
@@ -37,6 +40,50 @@ class ClipboardUtils {
         errorMessage ?? 'Failed to copy to clipboard',
         autoDismiss: true,
       );
+    }
+  }
+
+  /// Copies text via platform-specific sensitive path (Android) with a success toast.
+  /// Falls back to regular copy on non-Android platforms.
+  ///
+  /// [ref] - WidgetRef for accessing providers
+  /// [textToCopy] - The text to copy to clipboard
+  /// [successMessage] - Optional custom message to show (defaults to "Copied to clipboard")
+  /// [noTextMessage] - Optional custom error message to show when there is no text to copy (defaults to "Nothing to copy")
+  /// [errorMessage] - Optional custom error message to show when clipboard operation fails (defaults to "Failed to copy to clipboard")
+  static Future<void> copySensitiveWithToast({
+    required WidgetRef ref,
+    required String? textToCopy,
+    String? successMessage,
+    String? noTextMessage,
+    String? errorMessage,
+  }) async {
+    if (textToCopy == null || textToCopy.isEmpty) {
+      ref.showErrorToast(noTextMessage ?? 'Nothing to copy');
+      return;
+    }
+
+    try {
+      // Try Android sensitive channel first; if it throws, fall back to Clipboard.setData
+      await _sensitiveChannel.invokeMethod('setSensitive', {'text': textToCopy});
+      ref.showSuccessToast(
+        successMessage ?? 'Copied to clipboard',
+        autoDismiss: true,
+      );
+    } catch (_) {
+      // Fallback for non-Android or if channel not available
+      try {
+        await Clipboard.setData(ClipboardData(text: textToCopy));
+        ref.showSuccessToast(
+          successMessage ?? 'Copied to clipboard',
+          autoDismiss: true,
+        );
+      } catch (e) {
+        ref.showErrorToast(
+          errorMessage ?? 'Failed to copy to clipboard',
+          autoDismiss: true,
+        );
+      }
     }
   }
 }
