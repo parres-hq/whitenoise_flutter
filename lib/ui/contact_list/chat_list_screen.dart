@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -5,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
@@ -35,138 +37,210 @@ class ChatListScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProviderStateMixin {
+  static final Logger _log = Logger('ChatListScreen');
+  String _searchQuery = '';
+
+  static const double _searchThresholdIOS = 0.1;
+  static const double _searchThresholdAndroid = 0.08;
+  static const double _refreshThresholdIOS = 0.25;
+  static const double _refreshThresholdAndroid = 0.2;
+  static const double _triggerResetOffset = -20.0;
+  static const Duration _loadingAnimationDuration = Duration(milliseconds: 500);
+  static const Duration _animationDelay = Duration(milliseconds: 500);
+
   late final PollingNotifier _pollingNotifier;
-  bool _isSearchVisible = false;
+
   final TextEditingController _searchController = TextEditingController();
   final FocusNode _searchFocusNode = FocusNode();
-  String _searchQuery = '';
   final ScrollController _scrollController = ScrollController();
-  bool _isLoadingData = false;
-  bool _isRefreshing = false;
+
   late AnimationController _loadingAnimationController;
   late Animation<double> _loadingAnimation;
-  late AnimationController _searchAnimationController;
 
-  // Pull velocity tracking
-  double _lastScrollOffset = 0;
-  DateTime _lastScrollTime = DateTime.now();
-  double _pullVelocity = 0;
   bool _hasSearchTriggered = false;
   bool _hasRefreshTriggered = false;
+  bool _isLoadingData = false;
+  bool _isRefreshing = false;
+  bool _isSearchVisible = false;
 
   @override
   void initState() {
     super.initState();
-
-    // Store reference to notifier early to avoid ref access in dispose
     _pollingNotifier = ref.read(pollingProvider.notifier);
+    _initializeControllers();
+    _setupScrollListener();
+    _scheduleInitialSetup();
+  }
 
+  void _initializeControllers() {
     _loadingAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 500),
+      duration: _loadingAnimationDuration,
       vsync: this,
     );
     _loadingAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _loadingAnimationController, curve: Curves.easeInOut),
     );
+  }
 
-    _searchAnimationController = AnimationController(
-      duration: const Duration(milliseconds: 300),
-      vsync: this,
-    );
-
+  void _setupScrollListener() {
     _scrollController.addListener(_onScroll);
+  }
+
+  void _scheduleInitialSetup() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       WelcomeNotificationService.initialize(context);
       WelcomeNotificationService.setupWelcomeNotifications(ref);
-      // Load initial data
       _loadData();
-      // Start polling for data updates
       _pollingNotifier.startPolling();
     });
   }
 
   Future<void> _loadData() async {
-    // Load initial data for groups, welcomes, profile, and relay status
     if (_isLoadingData) return;
+    _setLoadingState(isLoading: true);
+    try {
+      await _loadAllProviderData();
+    } catch (e, st) {
+      _log.severe('Error loading data: $e $st');
+    } finally {
+      _setLoadingState(isLoading: false);
+    }
+  }
+
+  void _setLoadingState({required bool isLoading}) {
     setState(() {
-      _isSearchVisible = false;
-      _isLoadingData = true;
+      _isLoadingData = isLoading;
+      if (isLoading) {
+        _isSearchVisible = false;
+      }
     });
+  }
+
+  Future<void> _loadAllProviderData() async {
     await Future.wait([
       ref.read(welcomesProvider.notifier).loadWelcomes(),
       ref.read(groupsProvider.notifier).loadGroups(),
       ref.read(profileProvider.notifier).fetchProfileData(),
       ref.read(relayStatusProvider.notifier).refreshStatuses(),
     ]);
-
-    setState(() {
-      _isLoadingData = false;
-    });
   }
 
   void _onScroll() {
-    final currentTime = DateTime.now();
     final currentOffset = _scrollController.offset;
-    final deltaTime = currentTime.difference(_lastScrollTime).inMilliseconds;
 
-    if (deltaTime > 0) {
-      final deltaOffset = currentOffset - _lastScrollOffset;
-      _pullVelocity = deltaOffset / deltaTime * 1000;
+    _resetTriggersIfNeeded(currentOffset);
+
+    if (_canProcessScrollGestures) {
+      _processScrollGestures(currentOffset);
     }
+  }
 
-    _lastScrollOffset = currentOffset;
-    _lastScrollTime = currentTime;
-
-    if (currentOffset > -20) {
+  void _resetTriggersIfNeeded(double currentOffset) {
+    if (currentOffset > _triggerResetOffset) {
       _hasSearchTriggered = false;
       _hasRefreshTriggered = false;
     }
+  }
 
-    if (currentOffset < -50 && !_isLoadingData && !_isRefreshing) {
-      if (_pullVelocity < -2000 && !_hasRefreshTriggered) {
-        _hasRefreshTriggered = true;
-        _performRefresh();
-      }
-      // Slow pull (low velocity) = search
-      else if (_pullVelocity > -1000 &&
-          currentOffset <= -80 &&
-          !_hasSearchTriggered &&
-          !_isSearchVisible) {
-        _hasSearchTriggered = true;
-        setState(() {
-          _isSearchVisible = true;
-        });
-      }
+  bool get _canProcessScrollGestures => !_isLoadingData && !_isRefreshing;
+
+  void _processScrollGestures(double currentOffset) {
+    final pullDistance = -currentOffset;
+    final thresholds = _calculateThresholds();
+
+    if (_shouldTriggerRefresh(pullDistance, thresholds.refresh)) {
+      _triggerRefresh();
+    } else if (_shouldTriggerSearch(pullDistance, thresholds.search)) {
+      _triggerSearch();
+    }
+  }
+
+  ({double search, double refresh}) _calculateThresholds() {
+    final screenHeight = 1.sh;
+    final isAndroid = defaultTargetPlatform == TargetPlatform.android;
+
+    return (
+      search: screenHeight * (isAndroid ? _searchThresholdAndroid : _searchThresholdIOS),
+      refresh: screenHeight * (isAndroid ? _refreshThresholdAndroid : _refreshThresholdIOS),
+    );
+  }
+
+  bool _shouldTriggerRefresh(double pullDistance, double refreshThreshold) {
+    return pullDistance >= refreshThreshold && !_hasRefreshTriggered;
+  }
+
+  bool _shouldTriggerSearch(double pullDistance, double searchThreshold) {
+    return pullDistance >= searchThreshold &&
+        !_hasSearchTriggered &&
+        !_isSearchVisible &&
+        !_hasRefreshTriggered;
+  }
+
+  void _triggerRefresh() {
+    _hasRefreshTriggered = true;
+    _performRefresh();
+  }
+
+  void _triggerSearch() {
+    _hasSearchTriggered = true;
+    setState(() {
+      _isSearchVisible = true;
+    });
+    FocusScope.of(context).requestFocus(_searchFocusNode);
+  }
+
+  void _clearSearch() {
+    setState(() {
+      _searchController.clear();
+      _searchQuery = '';
+      _isSearchVisible = false;
+    });
+    _unfocusSearchIfNeeded();
+  }
+
+  void _unfocusSearchIfNeeded() {
+    if (_searchFocusNode.hasFocus) {
+      _searchFocusNode.unfocus();
     }
   }
 
   Future<void> _performRefresh() async {
     if (_isRefreshing) return;
+    _setRefreshState(isRefreshing: true);
+    try {
+      await _executeRefreshSequence();
+    } catch (e, st) {
+      _log.severe('Error during refresh: $e $st');
+    } finally {
+      _setRefreshState(isRefreshing: false);
+    }
+  }
+
+  void _setRefreshState({required bool isRefreshing}) {
     setState(() {
-      _isRefreshing = true;
-      _isSearchVisible = false;
-      _hasSearchTriggered = false;
+      _isRefreshing = isRefreshing;
+      if (isRefreshing) {
+        _isSearchVisible = false;
+        _hasSearchTriggered = false;
+      } else {
+        _hasRefreshTriggered = false;
+      }
     });
+  }
+
+  Future<void> _executeRefreshSequence() async {
     _loadingAnimationController.forward();
-
     await _loadData();
-    // Wait a bit for smooth animation
-    await Future.delayed(const Duration(milliseconds: 500));
+    await Future.delayed(_animationDelay);
     await _loadingAnimationController.reverse();
-
-    setState(() {
-      _isRefreshing = false;
-      _hasRefreshTriggered = false;
-    });
   }
 
   @override
   void dispose() {
-    _pollingNotifier.dispose();
+    _pollingNotifier.stopPolling();
     _searchController.dispose();
     _scrollController.dispose();
     _loadingAnimationController.dispose();
-    _searchAnimationController.dispose();
     WelcomeNotificationService.clearContext();
     super.dispose();
   }
@@ -227,17 +301,15 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     );
 
     return GestureDetector(
-      onTap: () {
-        if (_searchFocusNode.hasFocus) {
-          _searchFocusNode.unfocus();
-        }
-      },
+      onTap: _unfocusSearchIfNeeded,
       child: Scaffold(
         body: Stack(
           children: [
             CustomScrollView(
               controller: _scrollController,
-              physics: const AlwaysScrollableScrollPhysics(),
+              physics: const AlwaysScrollableScrollPhysics(
+                parent: BouncingScrollPhysics(),
+              ),
               slivers: [
                 WnAppBar.sliver(
                   title: Padding(
@@ -245,9 +317,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                     child: InkWell(
                       borderRadius: BorderRadius.circular(16.r),
                       onTap: () {
-                        if (_searchFocusNode.hasFocus) {
-                          _searchFocusNode.unfocus();
-                        }
+                        _unfocusSearchIfNeeded();
                         context.push(Routes.settings);
                       },
                       child: WnAvatar(
@@ -263,9 +333,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                           notAllRelayTypesConnected
                               ? null
                               : () {
-                                if (_searchFocusNode.hasFocus) {
-                                  _searchFocusNode.unfocus();
-                                }
+                                _unfocusSearchIfNeeded();
                                 NewChatBottomSheet.show(context);
                               },
                       icon: Image.asset(
@@ -369,13 +437,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                   ),
                                 ),
                                 suffixIcon: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _searchController.clear();
-                                      _searchQuery = '';
-                                      _isSearchVisible = false;
-                                    });
-                                  },
+                                  onTap: _clearSearch,
                                   child: Padding(
                                     padding: EdgeInsets.all(12.w),
                                     child: SvgPicture.asset(
@@ -401,11 +463,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                         final item = filteredChatItems[index];
                         return ChatListItemTile(
                           item: item,
-                          onTap: () {
-                            if (_searchFocusNode.hasFocus) {
-                              _searchFocusNode.unfocus();
-                            }
-                          },
+                          onTap: _unfocusSearchIfNeeded,
                         );
                       },
                       itemCount: filteredChatItems.length,

@@ -17,7 +17,7 @@ class MessageWidget extends StatelessWidget {
   final Function(String)? onReplyTap;
   final SearchMatch? searchMatch;
   final bool isActiveSearchMatch;
-  final SearchMatch? currentActiveMatch; // Add current active match
+  final SearchMatch? currentActiveMatch;
   final bool isSearchActive;
 
   const MessageWidget({
@@ -37,17 +37,44 @@ class MessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        margin: EdgeInsets.only(
-          bottom: isSameSenderAsPrevious ? 4.w : 12.w,
-        ),
-        child: ChatMessageBubble(
+    final messageContentStack = Stack(
+      clipBehavior: Clip.none,
+      children: [
+        ChatMessageBubble(
           isSender: message.isMe,
           color: message.isMe ? context.colors.meChatBubble : context.colors.contactChatBubble,
           tail: !isSameSenderAsNext,
           child: _buildMessageContent(context),
+        ),
+        if (message.reactions.isNotEmpty)
+          Positioned(
+            bottom: -10.h,
+            left: message.isMe ? 4.w : null,
+            right: message.isMe ? null : 4.w,
+            child: ReactionsRow(
+              message: message,
+              onReactionTap: onReactionTap,
+              bubbleColor:
+                  message.isMe ? context.colors.meChatBubble : context.colors.contactChatBubble,
+            ),
+          ),
+      ],
+    );
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: EdgeInsets.only(
+          bottom:
+              message.reactions.isNotEmpty
+                  ? (isSameSenderAsPrevious ? 16.w : 24.w)
+                  : (isSameSenderAsPrevious ? 4.w : 12.w),
+        ),
+        child: Row(
+          mainAxisAlignment: message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+          children: [
+            messageContentStack,
+          ],
         ),
       ),
     );
@@ -59,9 +86,14 @@ class MessageWidget extends StatelessWidget {
         return IntrinsicWidth(
           child: Container(
             constraints: BoxConstraints(
+              // This allows the bubble to dynamically and correctly adjust its width.
               maxWidth: constraints.maxWidth,
             ),
-            padding: EdgeInsets.only(right: message.isMe ? 8.w : 0, left: message.isMe ? 0 : 8.w),
+            padding: EdgeInsets.only(
+              right: message.isMe ? 8.w : 0,
+              left: message.isMe ? 0 : 8.w,
+              bottom: message.reactions.isNotEmpty ? 8.h : 0,
+            ),
             child: Column(
               crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -86,11 +118,6 @@ class MessageWidget extends StatelessWidget {
                   context,
                   constraints.maxWidth - 16.w,
                 ),
-
-                if (message.reactions.isNotEmpty) ...[
-                  SizedBox(height: 4.h),
-                  ReactionsRow(message: message, onReactionTap: onReactionTap, context: context),
-                ],
               ],
             ),
           ),
@@ -100,79 +127,61 @@ class MessageWidget extends StatelessWidget {
   }
 
   Widget _buildMessageWithTimestamp(BuildContext context, double maxWidth) {
-    // Single source of truth for message text style
     final textStyle = TextStyle(
       fontSize: 16.sp,
       fontWeight: FontWeight.w500,
       color: message.isMe ? context.colors.meChatBubbleText : context.colors.contactChatBubbleText,
     );
 
-    if (message.reactions.isEmpty) {
-      final messageContent = message.content ?? '';
-      final timestampWidth = _getTimestampWidth(context);
-      final minPadding = 8.w;
+    final messageContent = message.content ?? '';
+    final timestampWidth = _getTimestampWidth(context);
+    final minPadding = 8.w;
 
-      // Build highlighted text widget
-      final textWidget = _buildHighlightedText(messageContent, textStyle, context);
+    final textWidget = _buildHighlightedText(messageContent, textStyle, context);
 
-      // Calculate if timestamp can fit on the last line
-      final textPainter = TextPainter(
-        text: TextSpan(text: messageContent, style: textStyle),
-        textDirection: TextDirection.ltr,
-      );
+    final textPainter = TextPainter(
+      text: TextSpan(text: messageContent, style: textStyle),
+      textDirection: Directionality.of(context),
+    );
 
-      textPainter.layout(maxWidth: maxWidth);
-      final lines = textPainter.computeLineMetrics();
+    textPainter.layout(maxWidth: maxWidth);
+    final lines = textPainter.computeLineMetrics();
 
-      if (lines.isNotEmpty) {
-        final lastLineWidth = lines.last.width;
-        final availableWidth = maxWidth - lastLineWidth;
-        final canFitInline = lines.length == 1 && availableWidth >= (timestampWidth + minPadding);
+    if (lines.isNotEmpty) {
+      final lastLineWidth = lines.last.width;
+      final availableWidth = maxWidth - lastLineWidth;
+      final canFitInline = lines.length == 1 && availableWidth >= (timestampWidth + minPadding);
 
-        if (canFitInline) {
-          return Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: textWidget,
-              ),
-              SizedBox(width: minPadding),
-              TimeAndStatus(message: message, context: context),
-            ],
-          );
-        }
+      if (canFitInline) {
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: textWidget,
+            ),
+            SizedBox(width: minPadding),
+            TimeAndStatus(message: message, context: context),
+          ],
+        );
       }
-
-      // Fallback to separate lines when timestamp doesn't fit
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: maxWidth,
-            child: textWidget,
-          ),
-          SizedBox(height: 4.h),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TimeAndStatus(message: message, context: context),
-            ],
-          ),
-        ],
-      );
-    } else {
-      // Messages with reactions: Display text separately and timestamp in ReactionsRow
-      return Column(
-        crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: maxWidth,
-            child: _buildHighlightedText(message.content ?? '', textStyle, context),
-          ),
-          SizedBox(height: 4.h),
-        ],
-      );
     }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(
+          width: maxWidth,
+          child: textWidget,
+        ),
+        SizedBox(height: 4.h),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            TimeAndStatus(message: message, context: context),
+          ],
+        ),
+      ],
+    );
   }
 
   Widget _buildHighlightedText(String text, TextStyle baseStyle, BuildContext context) {
@@ -183,7 +192,6 @@ class MessageWidget extends StatelessWidget {
         style: baseStyle,
       );
     }
-
     // Search is active, but this message has no matches. Dim the whole text.
     if (searchMatch == null || searchMatch!.textMatches.isEmpty) {
       return Text(
@@ -193,7 +201,6 @@ class MessageWidget extends StatelessWidget {
         ),
       );
     }
-
     // Search is active and this message has matches. Highlight them.
     final spans = <TextSpan>[];
     int currentIndex = 0;
@@ -250,7 +257,7 @@ class MessageWidget extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
       ),
-      textDirection: TextDirection.ltr,
+      textDirection: Directionality.of(context),
     );
 
     textPainter.layout();
@@ -264,90 +271,87 @@ class ReactionsRow extends StatelessWidget {
     super.key,
     required this.message,
     required this.onReactionTap,
-    required this.context,
+    required this.bubbleColor,
   });
 
   final MessageModel message;
   final Function(String p1)? onReactionTap;
-  final BuildContext context;
+  final Color bubbleColor;
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Wrap(
+      spacing: 4.w,
       children: [
-        Expanded(
-          child: Wrap(
-            spacing: 8.w,
-            children: [
-              ...(() {
-                final reactionGroups = <String, List<Reaction>>{};
-                for (final reaction in message.reactions) {
-                  reactionGroups.putIfAbsent(reaction.emoji, () => []).add(reaction);
-                }
-                return reactionGroups.entries.take(3).map((entry) {
-                  final emoji = entry.key;
-                  final count = entry.value.length;
-                  return GestureDetector(
-                    onTap: () {
-                      // Call the reaction tap handler to add/remove reaction
-                      onReactionTap?.call(emoji);
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color:
-                            message.isMe
-                                ? context.colors.primary.withValues(alpha: 0.1)
-                                : context.colors.secondary.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(12.r),
-                      ),
-                      child: RichText(
-                        text: TextSpan(
-                          children: [
-                            TextSpan(
-                              text: emoji,
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                color:
-                                    message.isMe
-                                        ? context.colors.primaryForeground
-                                        : context.colors.mutedForeground,
-                              ),
-                            ),
-                            TextSpan(
-                              text: ' ${count > 99 ? '99+' : count}',
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w600,
-                                color:
-                                    message.isMe
-                                        ? context.colors.primaryForeground
-                                        : context.colors.mutedForeground,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  );
-                }).toList();
-              })(),
-              if (message.reactions.length > 3)
-                Text(
-                  '...',
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color:
-                        message.isMe
-                            ? context.colors.primaryForeground
-                            : context.colors.mutedForeground,
+        ...(() {
+          final reactionGroups = <String, List<Reaction>>{};
+          for (final reaction in message.reactions) {
+            reactionGroups.putIfAbsent(reaction.emoji, () => []).add(reaction);
+          }
+          return reactionGroups.entries.take(3).map((entry) {
+            final emoji = entry.key;
+            final count = entry.value.length;
+            return GestureDetector(
+              onTap: () {
+                onReactionTap?.call(emoji);
+              },
+              child: Container(
+                height: 20.h,
+                padding: EdgeInsets.symmetric(horizontal: 7.w),
+                decoration: BoxDecoration(
+                  color: bubbleColor,
+                  borderRadius: BorderRadius.circular(999.r),
+                  border: Border.all(
+                    color: context.colors.surface,
+                    width: 0.5,
                   ),
                 ),
-            ],
+                child: Transform.translate(
+                  offset: const Offset(1, -2),
+                  child: RichText(
+                    text: TextSpan(
+                      children: [
+                        TextSpan(
+                          text: emoji,
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            color:
+                                message.isMe
+                                    ? context.colors.meChatBubbleText
+                                    : context.colors.contactChatBubbleText,
+                          ),
+                        ),
+                        if (count > 1)
+                          TextSpan(
+                            text: ' ${count > 99 ? '99+' : count}',
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w600,
+                              color:
+                                  message.isMe
+                                      ? context.colors.meChatBubbleText
+                                      : context.colors.contactChatBubbleText,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            );
+          }).toList();
+        })(),
+        if (message.reactions.length > 3)
+          Text(
+            '...',
+            style: TextStyle(
+              fontSize: 13.sp,
+              color:
+                  message.isMe
+                      ? context.colors.meChatBubbleText
+                      : context.colors.contactChatBubbleText,
+            ),
           ),
-        ),
-        TimeAndStatus(message: message, context: context),
       ],
     );
   }
@@ -402,10 +406,8 @@ class ReplyBox extends StatelessWidget {
     }
     return Container(
       margin: EdgeInsets.only(bottom: 8.h),
-
       child: Material(
         color: context.colors.secondary,
-
         child: InkWell(
           onTap: onTap,
           child: Container(

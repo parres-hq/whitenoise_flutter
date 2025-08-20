@@ -279,7 +279,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                 if (index == 0) {
                                   return ChatContactHeader(groupData: groupData);
                                 }
-                                final message = messages[index - 1];
+                                final int messageIndex = index - 1;
+                                final message = messages[messageIndex];
+
                                 return SwipeToReplyWidget(
                                   message: message,
                                   onReply:
@@ -287,12 +289,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                         message,
                                         groupId: widget.groupId,
                                       ),
-                                  onTap:
+                                  onLongPress:
                                       () => ChatDialogService.showReactionDialog(
                                         context: context,
                                         ref: ref,
                                         message: message,
-                                        messageIndex: index,
+                                        messageIndex: messageIndex,
                                       ),
                                   child: Hero(
                                     tag: message.id,
@@ -300,13 +302,15 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                           message: message,
                                           isGroupMessage: groupData.groupType == GroupType.group,
                                           isSameSenderAsPrevious: chatNotifier.isSameSender(
-                                            index,
+                                            messageIndex,
                                             groupId: widget.groupId,
                                           ),
-                                          isSameSenderAsNext: chatNotifier.isSameSender(
-                                            index - 1,
-                                            groupId: widget.groupId,
-                                          ),
+                                          isSameSenderAsNext:
+                                              messageIndex + 1 < messages.length &&
+                                              chatNotifier.isSameSender(
+                                                messageIndex + 1,
+                                                groupId: widget.groupId,
+                                              ),
                                           searchMatch:
                                               searchState.matches.isNotEmpty
                                                   ? _getMessageSearchMatch(
@@ -344,6 +348,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           ),
                         ],
                       ),
+                      if (messages.isNotEmpty)
+                        Positioned(
+                          bottom: 0,
+                          left: 0,
+                          right: 0,
+                          height: 20.h,
+                          child: const WnBottomFade().animate().fadeIn(),
+                        ),
                       if (messages.isNotEmpty)
                         Positioned(
                           bottom: 0,

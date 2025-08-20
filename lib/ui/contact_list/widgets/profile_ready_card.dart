@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
@@ -82,65 +82,31 @@ class ProfileReadyCard extends ConsumerWidget {
           ),
           Gap(24.h),
           // Share Your Profile button
-          WnFilledButton.child(
-            onPressed: () {
-              context.push('${Routes.settings}/share_profile');
-            },
+          WnFilledButton(
+            label: 'Share Your Profile',
+            onPressed: () => context.push('${Routes.settings}/share_profile'),
             size: WnButtonSize.small,
             visualState: WnButtonVisualState.secondary,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Share Your Profile',
-                  style: WnButtonSize.small.textStyle().copyWith(
-                    color: context.colors.primary,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Gap(6.w),
-                SvgPicture.asset(
-                  AssetsPaths.icQrCode,
-                  width: 16.w,
-                  height: 16.w,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.primary,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ],
+            suffixIcon: SvgPicture.asset(
+              AssetsPaths.icQrCode,
+              colorFilter: ColorFilter.mode(
+                context.colors.primary,
+                BlendMode.srcIn,
+              ),
             ),
           ),
           Gap(12.h),
           // Search For Friends button
-          WnFilledButton.child(
-            onPressed: () {
-              NewChatBottomSheet.show(context);
-            },
+          WnFilledButton(
+            label: 'Search For Friends',
+            onPressed: () => NewChatBottomSheet.show(context),
             size: WnButtonSize.small,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'Search For Friends',
-                  style: WnButtonSize.small.textStyle().copyWith(
-                    color: context.colors.primaryForeground,
-                  ),
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Gap(6.w),
-                SvgPicture.asset(
-                  AssetsPaths.icUserFollow,
-                  width: 16.w,
-                  height: 16.w,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.primaryForeground,
-                    BlendMode.srcIn,
-                  ),
-                ),
-              ],
+            suffixIcon: SvgPicture.asset(
+              AssetsPaths.icAddUser,
+              colorFilter: ColorFilter.mode(
+                context.colors.primaryForeground,
+                BlendMode.srcIn,
+              ),
             ),
           ),
         ],

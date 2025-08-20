@@ -111,23 +111,18 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
                         ),
                         const Spacer(),
                         if (!widget.hideViewQrButton) ...[
-                          WnFilledButton.icon(
-                            label: SvgPicture.asset(
+                          WnFilledButton(
+                            label: 'View QR Code',
+                            onPressed: () => context.pop(),
+                            suffixIcon: SvgPicture.asset(
                               AssetsPaths.icQrCode,
+                              height: 18.w,
+                              width: 18.w,
                               colorFilter: ColorFilter.mode(
                                 context.colors.primaryForeground,
                                 BlendMode.srcIn,
                               ),
                             ),
-                            icon: Text(
-                              'View QR Code',
-                              style: TextStyle(
-                                color: context.colors.primaryForeground,
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            onPressed: () => context.pop(),
                           ),
                           Gap(64.h),
                         ] else ...[

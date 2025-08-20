@@ -205,7 +205,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                       );
                     }
                     : null,
-            title: 'Continue',
+            label: 'Continue',
           ),
         ],
       ),

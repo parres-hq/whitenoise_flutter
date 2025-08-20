@@ -93,13 +93,13 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               WnFilledButton(
-                title: 'Login',
+                label: 'Login',
                 visualState: WnButtonVisualState.secondary,
                 onPressed: _isCreatingAccount ? null : () => context.go('/login'),
               ),
               Gap(12.h),
               WnFilledButton(
-                title: 'Sign Up',
+                label: 'Sign Up',
                 loading: _isCreatingAccount,
                 onPressed: _isCreatingAccount ? null : () => _handleCreateAccount(context),
               ),
