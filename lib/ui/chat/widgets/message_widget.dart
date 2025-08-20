@@ -54,7 +54,6 @@ class MessageWidget extends StatelessWidget {
             child: ReactionsRow(
               message: message,
               onReactionTap: onReactionTap,
-              context: context,
               bubbleColor:
                   message.isMe ? context.colors.meChatBubble : context.colors.contactChatBubble,
             ),
@@ -272,13 +271,11 @@ class ReactionsRow extends StatelessWidget {
     super.key,
     required this.message,
     required this.onReactionTap,
-    required this.context,
     required this.bubbleColor,
   });
 
   final MessageModel message;
   final Function(String p1)? onReactionTap;
-  final BuildContext context;
   final Color bubbleColor;
 
   @override
