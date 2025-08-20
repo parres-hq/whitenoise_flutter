@@ -46,7 +46,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
   static const double _refreshThresholdAndroid = 0.2;
   static const double _triggerResetOffset = -20.0;
   static const Duration _loadingAnimationDuration = Duration(milliseconds: 500);
-  static const Duration _searchAnimationDuration = Duration(milliseconds: 300);
   static const Duration _animationDelay = Duration(milliseconds: 500);
 
   late final PollingNotifier _pollingNotifier;
@@ -57,7 +56,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
 
   late AnimationController _loadingAnimationController;
   late Animation<double> _loadingAnimation;
-  late AnimationController _searchAnimationController;
 
   bool _hasSearchTriggered = false;
   bool _hasRefreshTriggered = false;
@@ -82,11 +80,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     _loadingAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _loadingAnimationController, curve: Curves.easeInOut),
     );
-
-    _searchAnimationController = AnimationController(
-      duration: _searchAnimationDuration,
-      vsync: this,
-    );
   }
 
   void _setupScrollListener() {
@@ -104,11 +97,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
 
   Future<void> _loadData() async {
     if (_isLoadingData) return;
-
+    _setLoadingState(isLoading: true);
     try {
-      _setLoadingState(isLoading: true);
       await _loadAllProviderData();
-      _setLoadingState(isLoading: false);
     } catch (e, st) {
       _log.severe('Error loading data: $e $st');
     } finally {
@@ -204,6 +195,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
       _searchQuery = '';
       _isSearchVisible = false;
     });
+    _unfocusSearchIfNeeded();
   }
 
   void _unfocusSearchIfNeeded() {
@@ -215,7 +207,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
   Future<void> _performRefresh() async {
     if (_isRefreshing) return;
     _setRefreshState(isRefreshing: true);
-
     try {
       await _executeRefreshSequence();
     } catch (e, st) {
@@ -246,11 +237,10 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
 
   @override
   void dispose() {
-    _pollingNotifier.dispose();
+    _pollingNotifier.stopPolling();
     _searchController.dispose();
     _scrollController.dispose();
     _loadingAnimationController.dispose();
-    _searchAnimationController.dispose();
     WelcomeNotificationService.clearContext();
     super.dispose();
   }
