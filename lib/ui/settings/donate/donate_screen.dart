@@ -6,7 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/constants.dart';
-import 'package:whitenoise/shared/custom_icon_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
@@ -107,7 +107,7 @@ class DonateScreen extends ConsumerWidget {
                                 ),
                               ),
                               Gap(4.w),
-                              CustomIconButton(
+                              WnIconButton(
                                 onTap: () => _copyToClipboard(ref, kLightningAddress),
                                 iconPath: AssetsPaths.icCopy,
                                 size: 56.h,
@@ -136,7 +136,7 @@ class DonateScreen extends ConsumerWidget {
                                 ),
                               ),
                               Gap(4.w),
-                              CustomIconButton(
+                              WnIconButton(
                                 onTap:
                                     () => _copyToClipboard(
                                       ref,
