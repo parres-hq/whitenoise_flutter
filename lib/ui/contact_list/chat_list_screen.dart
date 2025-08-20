@@ -195,6 +195,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     setState(() {
       _isSearchVisible = true;
     });
+    FocusScope.of(context).requestFocus(_searchFocusNode);
   }
 
   void _clearSearch() {
