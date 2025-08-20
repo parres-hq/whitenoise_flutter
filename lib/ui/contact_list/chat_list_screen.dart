@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
@@ -36,6 +37,7 @@ class ChatListScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProviderStateMixin {
+  static final Logger _log = Logger('ChatListScreen');
   String _searchQuery = '';
 
   static const double _searchThresholdIOS = 0.1;
@@ -103,9 +105,15 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
   Future<void> _loadData() async {
     if (_isLoadingData) return;
 
-    _setLoadingState(isLoading: true);
-    await _loadAllProviderData();
-    _setLoadingState(isLoading: false);
+    try {
+      _setLoadingState(isLoading: true);
+      await _loadAllProviderData();
+      _setLoadingState(isLoading: false);
+    } catch (e, st) {
+      _log.severe('Error loading data: $e $st');
+    } finally {
+      _setLoadingState(isLoading: false);
+    }
   }
 
   void _setLoadingState({required bool isLoading}) {
@@ -205,10 +213,15 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
 
   Future<void> _performRefresh() async {
     if (_isRefreshing) return;
-
     _setRefreshState(isRefreshing: true);
-    await _executeRefreshSequence();
-    _setRefreshState(isRefreshing: false);
+
+    try {
+      await _executeRefreshSequence();
+    } catch (e, st) {
+      _log.severe('Error during refresh: $e $st');
+    } finally {
+      _setRefreshState(isRefreshing: false);
+    }
   }
 
   void _setRefreshState({required bool isRefreshing}) {
