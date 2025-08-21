@@ -59,7 +59,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     ref.listenManual(chatProvider, (previous, next) {
       final currentMessages = next.groupMessages[widget.groupId] ?? [];
       final previousMessages = previous?.groupMessages[widget.groupId] ?? [];
-
       if (currentMessages.length != previousMessages.length) {
         _handleScrollToBottom();
       }
@@ -93,18 +92,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _handleScrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-      }
-    });
+      if (!_scrollController.hasClients) return;
+      final double max = _scrollController.position.maxScrollExtent;
+      _scrollController.animateTo(
+        max,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
 
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-      }
-    });
-
-    Future.delayed(const Duration(milliseconds: 300), () {
       if (_scrollController.hasClients) {
         _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
       }
@@ -272,7 +267,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             padding: EdgeInsets.symmetric(
                               horizontal: 8.w,
                               vertical: 8.h,
-                            ).copyWith(bottom: 16.h),
+                            ).copyWith(bottom: 28.h),
                             sliver: SliverList.builder(
                               itemCount: messages.length + 1,
                               itemBuilder: (context, index) {
@@ -348,14 +343,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                           ),
                         ],
                       ),
-                      if (messages.isNotEmpty)
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          height: 20.h,
-                          child: const WnBottomFade().animate().fadeIn(),
-                        ),
                       if (messages.isNotEmpty)
                         Positioned(
                           bottom: 0,
