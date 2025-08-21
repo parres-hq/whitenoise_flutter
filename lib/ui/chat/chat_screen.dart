@@ -272,7 +272,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             padding: EdgeInsets.symmetric(
                               horizontal: 8.w,
                               vertical: 8.h,
-                            ).copyWith(bottom: 120.h),
+                            ).copyWith(bottom: 16.h),
                             sliver: SliverList.builder(
                               itemCount: messages.length + 1,
                               itemBuilder: (context, index) {
@@ -370,6 +370,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 if (!searchState.isSearchActive)
                   ChatInput(
                     groupId: widget.groupId,
+                    onInputFocused: _handleScrollToBottom,
                     onSend: (message, isEditing) async {
                       final chatState = ref.read(chatProvider);
                       final replyingTo = chatState.replyingTo[widget.groupId];
