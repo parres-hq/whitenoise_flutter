@@ -143,7 +143,6 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                                     child: WnImage(
                                       AssetsPaths.icCopy,
                                       size: 24.w,
-
                                       color: context.colors.primary,
                                     ),
                                   ),

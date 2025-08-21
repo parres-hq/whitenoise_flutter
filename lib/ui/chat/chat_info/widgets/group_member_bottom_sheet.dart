@@ -122,7 +122,6 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                   icon: WnImage(
                     AssetsPaths.icClose,
                     size: 24.w,
-
                     color: context.colors.mutedForeground,
                   ),
                   onPressed: () => Navigator.pop(context),
@@ -239,7 +238,6 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                 child: WnImage(
                   AssetsPaths.icCopy,
                   size: 24.w,
-
                   color: context.colors.primary,
                 ),
               ),

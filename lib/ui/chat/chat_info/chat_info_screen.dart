@@ -85,7 +85,7 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
                   icon: Icon(
                     Icons.close,
                     color: context.colors.primary,
-                    size: 24.sp,
+                    size: 24.w,
                   ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),

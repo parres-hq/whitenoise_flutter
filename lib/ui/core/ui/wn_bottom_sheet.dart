@@ -128,7 +128,6 @@ class WnBottomSheet {
                   icon: WnImage(
                     AssetsPaths.icChevronLeft,
                     color: context.colors.primary,
-
                     size: 24.w,
                   ),
                 ),
@@ -155,7 +154,6 @@ class WnBottomSheet {
             child: WnImage(
               AssetsPaths.icClose,
               color: context.colors.primary,
-
               size: 24.w,
             ),
           ),

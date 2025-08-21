@@ -123,8 +123,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
                 IconButton(
                   icon: WnImage(
                     AssetsPaths.icChevronLeft,
-                    size: 24.sp,
-                    height: 24.sp,
+                    size: 24.w,
                     color: context.colors.primary,
                   ),
                   onPressed: () => Navigator.of(context).pop(),

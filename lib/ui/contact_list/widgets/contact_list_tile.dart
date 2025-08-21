@@ -180,7 +180,6 @@ class ContactListTile extends StatelessWidget {
           child: WnImage(
             AssetsPaths.icTrashCan,
             color: context.colors.primary,
-
             size: 24.w,
           ),
         ),

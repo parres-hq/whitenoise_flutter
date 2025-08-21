@@ -50,13 +50,11 @@ class _RelayTileState extends ConsumerState<RelayTile> {
                         color: context.colors.primary,
                       ),
                     ),
-
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(false),
                       icon: WnImage(
                         AssetsPaths.icClose,
                         color: context.colors.primary,
-
                         size: 24.w,
                       ),
                     ),
@@ -111,7 +109,6 @@ class _RelayTileState extends ConsumerState<RelayTile> {
         leading: WnImage(
           widget.relayInfo.status.getIconAsset(),
           color: widget.relayInfo.status.getColor(context),
-
           size: 24.w,
         ),
         title: Text(

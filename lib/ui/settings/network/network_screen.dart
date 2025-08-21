@@ -150,7 +150,6 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                           icon: WnImage(
                             AssetsPaths.icChevronLeft,
                             color: context.colors.primary,
-
                             size: 24.w,
                           ),
                         ),

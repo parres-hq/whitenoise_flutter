@@ -219,7 +219,6 @@ class AppSettingsScreen extends ConsumerWidget {
                                   color: context.colors.primary,
                                 ),
                               ),
-
                               Gap(16.w),
                               Text(
                                 'App Settings',
