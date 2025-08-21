@@ -144,7 +144,7 @@ abstract class RustLibApi extends BaseApi {
 
   Future<String> crateApiAccountsExportAccountNsec({required String pubkey});
 
-  Future<List<_ChatMessage>> crateApiMessagesFetchAggregatedMessagesForGroup({
+  Future<List<ChatMessage>> crateApiMessagesFetchAggregatedMessagesForGroup({
     required String pubkey,
     required String groupId,
   });
@@ -229,7 +229,7 @@ abstract class RustLibApi extends BaseApi {
     required List<PublicKey> memberPubkeys,
   });
 
-  Future<_MessageWithTokens> crateApiMessagesSendMessageToGroup({
+  Future<MessageWithTokens> crateApiMessagesSendMessageToGroup({
     required String pubkey,
     required String groupId,
     required String message,
@@ -858,7 +858,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<List<_ChatMessage>> crateApiMessagesFetchAggregatedMessagesForGroup({
+  Future<List<ChatMessage>> crateApiMessagesFetchAggregatedMessagesForGroup({
     required String pubkey,
     required String groupId,
   }) {
@@ -1824,7 +1824,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<_MessageWithTokens> crateApiMessagesSendMessageToGroup({
+  Future<MessageWithTokens> crateApiMessagesSendMessageToGroup({
     required String pubkey,
     required String groupId,
     required String message,
@@ -2598,16 +2598,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  _ChatMessage dco_decode_chat_message(dynamic raw) {
+  ChatMessage dco_decode_chat_message(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 11)
       throw Exception('unexpected arr length: expect 11 but see ${arr.length}');
-    return _ChatMessage(
+    return ChatMessage(
       id: dco_decode_String(arr[0]),
       pubkey: dco_decode_String(arr[1]),
       content: dco_decode_String(arr[2]),
-      createdAt: dco_decode_u_64(arr[3]),
+      createdAt: dco_decode_Chrono_Utc(arr[3]),
       tags: dco_decode_list_String(arr[4]),
       isReply: dco_decode_bool(arr[5]),
       replyToId: dco_decode_opt_String(arr[6]),
@@ -2619,12 +2619,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  _EmojiReaction dco_decode_emoji_reaction(dynamic raw) {
+  EmojiReaction dco_decode_emoji_reaction(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 3)
       throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
-    return _EmojiReaction(
+    return EmojiReaction(
       emoji: dco_decode_String(arr[0]),
       count: dco_decode_u_64(arr[1]),
       users: dco_decode_list_String(arr[2]),
@@ -2746,13 +2746,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<_ChatMessage> dco_decode_list_chat_message(dynamic raw) {
+  List<ChatMessage> dco_decode_list_chat_message(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_chat_message).toList();
   }
 
   @protected
-  List<_EmojiReaction> dco_decode_list_emoji_reaction(dynamic raw) {
+  List<EmojiReaction> dco_decode_list_emoji_reaction(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_emoji_reaction).toList();
   }
@@ -2782,7 +2782,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<_SerializableToken> dco_decode_list_serializable_token(dynamic raw) {
+  List<SerializableToken> dco_decode_list_serializable_token(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_serializable_token).toList();
   }
@@ -2794,24 +2794,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<_UserReaction> dco_decode_list_user_reaction(dynamic raw) {
+  List<UserReaction> dco_decode_list_user_reaction(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_user_reaction).toList();
   }
 
   @protected
-  _MessageWithTokens dco_decode_message_with_tokens(dynamic raw) {
+  MessageWithTokens dco_decode_message_with_tokens(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 6)
       throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
-    return _MessageWithTokens(
+    return MessageWithTokens(
       id: dco_decode_String(arr[0]),
       pubkey: dco_decode_String(arr[1]),
       kind: dco_decode_u_16(arr[2]),
-      createdAt: dco_decode_u_64(arr[3]),
+      createdAt: dco_decode_Chrono_Utc(arr[3]),
       content: dco_decode_opt_String(arr[4]),
-      tokens: dco_decode_list_String(arr[5]),
+      tokens: dco_decode_list_serializable_token(arr[5]),
     );
   }
 
@@ -2860,12 +2860,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  _ReactionSummary dco_decode_reaction_summary(dynamic raw) {
+  ReactionSummary dco_decode_reaction_summary(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 2)
       throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
-    return _ReactionSummary(
+    return ReactionSummary(
       byEmoji: dco_decode_list_emoji_reaction(arr[0]),
       userReactions: dco_decode_list_user_reaction(arr[1]),
     );
@@ -2898,12 +2898,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  _SerializableToken dco_decode_serializable_token(dynamic raw) {
+  SerializableToken dco_decode_serializable_token(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 2)
       throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
-    return _SerializableToken(
+    return SerializableToken(
       tokenType: dco_decode_String(arr[0]),
       content: dco_decode_opt_String(arr[1]),
     );
@@ -2948,15 +2948,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  _UserReaction dco_decode_user_reaction(dynamic raw) {
+  UserReaction dco_decode_user_reaction(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 3)
       throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
-    return _UserReaction(
+    return UserReaction(
       user: dco_decode_String(arr[0]),
       emoji: dco_decode_String(arr[1]),
-      createdAt: dco_decode_u_64(arr[2]),
+      createdAt: dco_decode_Chrono_Utc(arr[2]),
     );
   }
 
@@ -3386,12 +3386,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  _ChatMessage sse_decode_chat_message(SseDeserializer deserializer) {
+  ChatMessage sse_decode_chat_message(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     final var_id = sse_decode_String(deserializer);
     final var_pubkey = sse_decode_String(deserializer);
     final var_content = sse_decode_String(deserializer);
-    final var_createdAt = sse_decode_u_64(deserializer);
+    final var_createdAt = sse_decode_Chrono_Utc(deserializer);
     final var_tags = sse_decode_list_String(deserializer);
     final var_isReply = sse_decode_bool(deserializer);
     final var_replyToId = sse_decode_opt_String(deserializer);
@@ -3399,7 +3399,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     final var_contentTokens = sse_decode_list_serializable_token(deserializer);
     final var_reactions = sse_decode_reaction_summary(deserializer);
     final var_kind = sse_decode_u_16(deserializer);
-    return _ChatMessage(
+    return ChatMessage(
       id: var_id,
       pubkey: var_pubkey,
       content: var_content,
@@ -3415,12 +3415,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  _EmojiReaction sse_decode_emoji_reaction(SseDeserializer deserializer) {
+  EmojiReaction sse_decode_emoji_reaction(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     final var_emoji = sse_decode_String(deserializer);
     final var_count = sse_decode_u_64(deserializer);
     final var_users = sse_decode_list_String(deserializer);
-    return _EmojiReaction(emoji: var_emoji, count: var_count, users: var_users);
+    return EmojiReaction(emoji: var_emoji, count: var_count, users: var_users);
   }
 
   @protected
@@ -3587,13 +3587,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<_ChatMessage> sse_decode_list_chat_message(
-    SseDeserializer deserializer,
-  ) {
+  List<ChatMessage> sse_decode_list_chat_message(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     final len_ = sse_decode_i_32(deserializer);
-    final ans_ = <_ChatMessage>[];
+    final ans_ = <ChatMessage>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_chat_message(deserializer));
     }
@@ -3601,13 +3599,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<_EmojiReaction> sse_decode_list_emoji_reaction(
+  List<EmojiReaction> sse_decode_list_emoji_reaction(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     final len_ = sse_decode_i_32(deserializer);
-    final ans_ = <_EmojiReaction>[];
+    final ans_ = <EmojiReaction>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_emoji_reaction(deserializer));
     }
@@ -3660,13 +3658,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<_SerializableToken> sse_decode_list_serializable_token(
+  List<SerializableToken> sse_decode_list_serializable_token(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     final len_ = sse_decode_i_32(deserializer);
-    final ans_ = <_SerializableToken>[];
+    final ans_ = <SerializableToken>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_serializable_token(deserializer));
     }
@@ -3686,13 +3684,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  List<_UserReaction> sse_decode_list_user_reaction(
+  List<UserReaction> sse_decode_list_user_reaction(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     final len_ = sse_decode_i_32(deserializer);
-    final ans_ = <_UserReaction>[];
+    final ans_ = <UserReaction>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_user_reaction(deserializer));
     }
@@ -3700,17 +3698,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  _MessageWithTokens sse_decode_message_with_tokens(
+  MessageWithTokens sse_decode_message_with_tokens(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     final var_id = sse_decode_String(deserializer);
     final var_pubkey = sse_decode_String(deserializer);
     final var_kind = sse_decode_u_16(deserializer);
-    final var_createdAt = sse_decode_u_64(deserializer);
+    final var_createdAt = sse_decode_Chrono_Utc(deserializer);
     final var_content = sse_decode_opt_String(deserializer);
-    final var_tokens = sse_decode_list_String(deserializer);
-    return _MessageWithTokens(
+    final var_tokens = sse_decode_list_serializable_token(deserializer);
+    return MessageWithTokens(
       id: var_id,
       pubkey: var_pubkey,
       kind: var_kind,
@@ -3788,11 +3786,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  _ReactionSummary sse_decode_reaction_summary(SseDeserializer deserializer) {
+  ReactionSummary sse_decode_reaction_summary(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     final var_byEmoji = sse_decode_list_emoji_reaction(deserializer);
     final var_userReactions = sse_decode_list_user_reaction(deserializer);
-    return _ReactionSummary(
+    return ReactionSummary(
       byEmoji: var_byEmoji,
       userReactions: var_userReactions,
     );
@@ -3822,13 +3820,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  _SerializableToken sse_decode_serializable_token(
+  SerializableToken sse_decode_serializable_token(
     SseDeserializer deserializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     final var_tokenType = sse_decode_String(deserializer);
     final var_content = sse_decode_opt_String(deserializer);
-    return _SerializableToken(tokenType: var_tokenType, content: var_content);
+    return SerializableToken(tokenType: var_tokenType, content: var_content);
   }
 
   @protected
@@ -3870,12 +3868,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  _UserReaction sse_decode_user_reaction(SseDeserializer deserializer) {
+  UserReaction sse_decode_user_reaction(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     final var_user = sse_decode_String(deserializer);
     final var_emoji = sse_decode_String(deserializer);
-    final var_createdAt = sse_decode_u_64(deserializer);
-    return _UserReaction(
+    final var_createdAt = sse_decode_Chrono_Utc(deserializer);
+    return UserReaction(
       user: var_user,
       emoji: var_emoji,
       createdAt: var_createdAt,
@@ -4316,12 +4314,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_chat_message(_ChatMessage self, SseSerializer serializer) {
+  void sse_encode_chat_message(ChatMessage self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.id, serializer);
     sse_encode_String(self.pubkey, serializer);
     sse_encode_String(self.content, serializer);
-    sse_encode_u_64(self.createdAt, serializer);
+    sse_encode_Chrono_Utc(self.createdAt, serializer);
     sse_encode_list_String(self.tags, serializer);
     sse_encode_bool(self.isReply, serializer);
     sse_encode_opt_String(self.replyToId, serializer);
@@ -4332,10 +4330,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_emoji_reaction(
-    _EmojiReaction self,
-    SseSerializer serializer,
-  ) {
+  void sse_encode_emoji_reaction(EmojiReaction self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.emoji, serializer);
     sse_encode_u_64(self.count, serializer);
@@ -4466,7 +4461,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_chat_message(
-    List<_ChatMessage> self,
+    List<ChatMessage> self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -4478,7 +4473,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_emoji_reaction(
-    List<_EmojiReaction> self,
+    List<EmojiReaction> self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -4530,7 +4525,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_serializable_token(
-    List<_SerializableToken> self,
+    List<SerializableToken> self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -4551,7 +4546,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_list_user_reaction(
-    List<_UserReaction> self,
+    List<UserReaction> self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -4563,16 +4558,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_message_with_tokens(
-    _MessageWithTokens self,
+    MessageWithTokens self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.id, serializer);
     sse_encode_String(self.pubkey, serializer);
     sse_encode_u_16(self.kind, serializer);
-    sse_encode_u_64(self.createdAt, serializer);
+    sse_encode_Chrono_Utc(self.createdAt, serializer);
     sse_encode_opt_String(self.content, serializer);
-    sse_encode_list_String(self.tokens, serializer);
+    sse_encode_list_serializable_token(self.tokens, serializer);
   }
 
   @protected
@@ -4647,7 +4642,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_reaction_summary(
-    _ReactionSummary self,
+    ReactionSummary self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -4675,7 +4670,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void sse_encode_serializable_token(
-    _SerializableToken self,
+    SerializableToken self,
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
@@ -4716,11 +4711,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_user_reaction(_UserReaction self, SseSerializer serializer) {
+  void sse_encode_user_reaction(UserReaction self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.user, serializer);
     sse_encode_String(self.emoji, serializer);
-    sse_encode_u_64(self.createdAt, serializer);
+    sse_encode_Chrono_Utc(self.createdAt, serializer);
   }
 
   @protected

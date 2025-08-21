@@ -2516,22 +2516,22 @@ impl SseDecode for bool {
     }
 }
 
-impl SseDecode for crate::api::messages::_ChatMessage {
+impl SseDecode for crate::api::messages::ChatMessage {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_id = <String>::sse_decode(deserializer);
         let mut var_pubkey = <String>::sse_decode(deserializer);
         let mut var_content = <String>::sse_decode(deserializer);
-        let mut var_createdAt = <u64>::sse_decode(deserializer);
+        let mut var_createdAt = <chrono::DateTime<chrono::Utc>>::sse_decode(deserializer);
         let mut var_tags = <Vec<String>>::sse_decode(deserializer);
         let mut var_isReply = <bool>::sse_decode(deserializer);
         let mut var_replyToId = <Option<String>>::sse_decode(deserializer);
         let mut var_isDeleted = <bool>::sse_decode(deserializer);
         let mut var_contentTokens =
-            <Vec<crate::api::messages::_SerializableToken>>::sse_decode(deserializer);
-        let mut var_reactions = <crate::api::messages::_ReactionSummary>::sse_decode(deserializer);
+            <Vec<crate::api::messages::SerializableToken>>::sse_decode(deserializer);
+        let mut var_reactions = <crate::api::messages::ReactionSummary>::sse_decode(deserializer);
         let mut var_kind = <u16>::sse_decode(deserializer);
-        return crate::api::messages::_ChatMessage {
+        return crate::api::messages::ChatMessage {
             id: var_id,
             pubkey: var_pubkey,
             content: var_content,
@@ -2547,13 +2547,13 @@ impl SseDecode for crate::api::messages::_ChatMessage {
     }
 }
 
-impl SseDecode for crate::api::messages::_EmojiReaction {
+impl SseDecode for crate::api::messages::EmojiReaction {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_emoji = <String>::sse_decode(deserializer);
         let mut var_count = <u64>::sse_decode(deserializer);
         let mut var_users = <Vec<String>>::sse_decode(deserializer);
-        return crate::api::messages::_EmojiReaction {
+        return crate::api::messages::EmojiReaction {
             emoji: var_emoji,
             count: var_count,
             users: var_users,
@@ -2709,13 +2709,13 @@ impl SseDecode for Vec<crate::api::accounts::Account> {
     }
 }
 
-impl SseDecode for Vec<crate::api::messages::_ChatMessage> {
+impl SseDecode for Vec<crate::api::messages::ChatMessage> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut len_ = <i32>::sse_decode(deserializer);
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
-            ans_.push(<crate::api::messages::_ChatMessage>::sse_decode(
+            ans_.push(<crate::api::messages::ChatMessage>::sse_decode(
                 deserializer,
             ));
         }
@@ -2723,13 +2723,13 @@ impl SseDecode for Vec<crate::api::messages::_ChatMessage> {
     }
 }
 
-impl SseDecode for Vec<crate::api::messages::_EmojiReaction> {
+impl SseDecode for Vec<crate::api::messages::EmojiReaction> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut len_ = <i32>::sse_decode(deserializer);
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
-            ans_.push(<crate::api::messages::_EmojiReaction>::sse_decode(
+            ans_.push(<crate::api::messages::EmojiReaction>::sse_decode(
                 deserializer,
             ));
         }
@@ -2785,13 +2785,13 @@ impl SseDecode for Vec<crate::api::relays::Relay> {
     }
 }
 
-impl SseDecode for Vec<crate::api::messages::_SerializableToken> {
+impl SseDecode for Vec<crate::api::messages::SerializableToken> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut len_ = <i32>::sse_decode(deserializer);
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
-            ans_.push(<crate::api::messages::_SerializableToken>::sse_decode(
+            ans_.push(<crate::api::messages::SerializableToken>::sse_decode(
                 deserializer,
             ));
         }
@@ -2811,13 +2811,13 @@ impl SseDecode for Vec<crate::api::users::User> {
     }
 }
 
-impl SseDecode for Vec<crate::api::messages::_UserReaction> {
+impl SseDecode for Vec<crate::api::messages::UserReaction> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut len_ = <i32>::sse_decode(deserializer);
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
-            ans_.push(<crate::api::messages::_UserReaction>::sse_decode(
+            ans_.push(<crate::api::messages::UserReaction>::sse_decode(
                 deserializer,
             ));
         }
@@ -2825,16 +2825,17 @@ impl SseDecode for Vec<crate::api::messages::_UserReaction> {
     }
 }
 
-impl SseDecode for crate::api::messages::_MessageWithTokens {
+impl SseDecode for crate::api::messages::MessageWithTokens {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_id = <String>::sse_decode(deserializer);
         let mut var_pubkey = <String>::sse_decode(deserializer);
         let mut var_kind = <u16>::sse_decode(deserializer);
-        let mut var_createdAt = <u64>::sse_decode(deserializer);
+        let mut var_createdAt = <chrono::DateTime<chrono::Utc>>::sse_decode(deserializer);
         let mut var_content = <Option<String>>::sse_decode(deserializer);
-        let mut var_tokens = <Vec<String>>::sse_decode(deserializer);
-        return crate::api::messages::_MessageWithTokens {
+        let mut var_tokens =
+            <Vec<crate::api::messages::SerializableToken>>::sse_decode(deserializer);
+        return crate::api::messages::MessageWithTokens {
             id: var_id,
             pubkey: var_pubkey,
             kind: var_kind,
@@ -2900,13 +2901,13 @@ impl SseDecode for Option<Vec<u8>> {
     }
 }
 
-impl SseDecode for crate::api::messages::_ReactionSummary {
+impl SseDecode for crate::api::messages::ReactionSummary {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut var_byEmoji = <Vec<crate::api::messages::_EmojiReaction>>::sse_decode(deserializer);
+        let mut var_byEmoji = <Vec<crate::api::messages::EmojiReaction>>::sse_decode(deserializer);
         let mut var_userReactions =
-            <Vec<crate::api::messages::_UserReaction>>::sse_decode(deserializer);
-        return crate::api::messages::_ReactionSummary {
+            <Vec<crate::api::messages::UserReaction>>::sse_decode(deserializer);
+        return crate::api::messages::ReactionSummary {
             by_emoji: var_byEmoji,
             user_reactions: var_userReactions,
         };
@@ -2936,12 +2937,12 @@ impl SseDecode for crate::api::relays::Relay {
     }
 }
 
-impl SseDecode for crate::api::messages::_SerializableToken {
+impl SseDecode for crate::api::messages::SerializableToken {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_tokenType = <String>::sse_decode(deserializer);
         let mut var_content = <Option<String>>::sse_decode(deserializer);
-        return crate::api::messages::_SerializableToken {
+        return crate::api::messages::SerializableToken {
             token_type: var_tokenType,
             content: var_content,
         };
@@ -2990,13 +2991,13 @@ impl SseDecode for crate::api::users::User {
     }
 }
 
-impl SseDecode for crate::api::messages::_UserReaction {
+impl SseDecode for crate::api::messages::UserReaction {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_user = <String>::sse_decode(deserializer);
         let mut var_emoji = <String>::sse_decode(deserializer);
-        let mut var_createdAt = <u64>::sse_decode(deserializer);
-        return crate::api::messages::_UserReaction {
+        let mut var_createdAt = <chrono::DateTime<chrono::Utc>>::sse_decode(deserializer);
+        return crate::api::messages::UserReaction {
             user: var_user,
             emoji: var_emoji,
             created_at: var_createdAt,
@@ -3344,7 +3345,7 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::accounts::Account>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::messages::_ChatMessage {
+impl flutter_rust_bridge::IntoDart for crate::api::messages::ChatMessage {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.id.into_into_dart().into_dart(),
@@ -3363,18 +3364,18 @@ impl flutter_rust_bridge::IntoDart for crate::api::messages::_ChatMessage {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::messages::_ChatMessage
+    for crate::api::messages::ChatMessage
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::_ChatMessage>
-    for crate::api::messages::_ChatMessage
+impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::ChatMessage>
+    for crate::api::messages::ChatMessage
 {
-    fn into_into_dart(self) -> crate::api::messages::_ChatMessage {
+    fn into_into_dart(self) -> crate::api::messages::ChatMessage {
         self
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::messages::_EmojiReaction {
+impl flutter_rust_bridge::IntoDart for crate::api::messages::EmojiReaction {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.emoji.into_into_dart().into_dart(),
@@ -3385,13 +3386,13 @@ impl flutter_rust_bridge::IntoDart for crate::api::messages::_EmojiReaction {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::messages::_EmojiReaction
+    for crate::api::messages::EmojiReaction
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::_EmojiReaction>
-    for crate::api::messages::_EmojiReaction
+impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::EmojiReaction>
+    for crate::api::messages::EmojiReaction
 {
-    fn into_into_dart(self) -> crate::api::messages::_EmojiReaction {
+    fn into_into_dart(self) -> crate::api::messages::EmojiReaction {
         self
     }
 }
@@ -3473,7 +3474,7 @@ impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::groups::GroupState
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::messages::_MessageWithTokens {
+impl flutter_rust_bridge::IntoDart for crate::api::messages::MessageWithTokens {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.id.into_into_dart().into_dart(),
@@ -3487,18 +3488,18 @@ impl flutter_rust_bridge::IntoDart for crate::api::messages::_MessageWithTokens 
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::messages::_MessageWithTokens
+    for crate::api::messages::MessageWithTokens
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::_MessageWithTokens>
-    for crate::api::messages::_MessageWithTokens
+impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::MessageWithTokens>
+    for crate::api::messages::MessageWithTokens
 {
-    fn into_into_dart(self) -> crate::api::messages::_MessageWithTokens {
+    fn into_into_dart(self) -> crate::api::messages::MessageWithTokens {
         self
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::messages::_ReactionSummary {
+impl flutter_rust_bridge::IntoDart for crate::api::messages::ReactionSummary {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.by_emoji.into_into_dart().into_dart(),
@@ -3508,13 +3509,13 @@ impl flutter_rust_bridge::IntoDart for crate::api::messages::_ReactionSummary {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::messages::_ReactionSummary
+    for crate::api::messages::ReactionSummary
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::_ReactionSummary>
-    for crate::api::messages::_ReactionSummary
+impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::ReactionSummary>
+    for crate::api::messages::ReactionSummary
 {
-    fn into_into_dart(self) -> crate::api::messages::_ReactionSummary {
+    fn into_into_dart(self) -> crate::api::messages::ReactionSummary {
         self
     }
 }
@@ -3536,7 +3537,7 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::relays::Relay> for crate::api
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::messages::_SerializableToken {
+impl flutter_rust_bridge::IntoDart for crate::api::messages::SerializableToken {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.token_type.into_into_dart().into_dart(),
@@ -3546,13 +3547,13 @@ impl flutter_rust_bridge::IntoDart for crate::api::messages::_SerializableToken 
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::messages::_SerializableToken
+    for crate::api::messages::SerializableToken
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::_SerializableToken>
-    for crate::api::messages::_SerializableToken
+impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::SerializableToken>
+    for crate::api::messages::SerializableToken
 {
-    fn into_into_dart(self) -> crate::api::messages::_SerializableToken {
+    fn into_into_dart(self) -> crate::api::messages::SerializableToken {
         self
     }
 }
@@ -3575,7 +3576,7 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::users::User> for crate::api::
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for crate::api::messages::_UserReaction {
+impl flutter_rust_bridge::IntoDart for crate::api::messages::UserReaction {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
             self.user.into_into_dart().into_dart(),
@@ -3586,13 +3587,13 @@ impl flutter_rust_bridge::IntoDart for crate::api::messages::_UserReaction {
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
-    for crate::api::messages::_UserReaction
+    for crate::api::messages::UserReaction
 {
 }
-impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::_UserReaction>
-    for crate::api::messages::_UserReaction
+impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::UserReaction>
+    for crate::api::messages::UserReaction
 {
-    fn into_into_dart(self) -> crate::api::messages::_UserReaction {
+    fn into_into_dart(self) -> crate::api::messages::UserReaction {
         self
     }
 }
@@ -3860,27 +3861,24 @@ impl SseEncode for bool {
     }
 }
 
-impl SseEncode for crate::api::messages::_ChatMessage {
+impl SseEncode for crate::api::messages::ChatMessage {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.id, serializer);
         <String>::sse_encode(self.pubkey, serializer);
         <String>::sse_encode(self.content, serializer);
-        <u64>::sse_encode(self.created_at, serializer);
+        <chrono::DateTime<chrono::Utc>>::sse_encode(self.created_at, serializer);
         <Vec<String>>::sse_encode(self.tags, serializer);
         <bool>::sse_encode(self.is_reply, serializer);
         <Option<String>>::sse_encode(self.reply_to_id, serializer);
         <bool>::sse_encode(self.is_deleted, serializer);
-        <Vec<crate::api::messages::_SerializableToken>>::sse_encode(
-            self.content_tokens,
-            serializer,
-        );
-        <crate::api::messages::_ReactionSummary>::sse_encode(self.reactions, serializer);
+        <Vec<crate::api::messages::SerializableToken>>::sse_encode(self.content_tokens, serializer);
+        <crate::api::messages::ReactionSummary>::sse_encode(self.reactions, serializer);
         <u16>::sse_encode(self.kind, serializer);
     }
 }
 
-impl SseEncode for crate::api::messages::_EmojiReaction {
+impl SseEncode for crate::api::messages::EmojiReaction {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.emoji, serializer);
@@ -4004,22 +4002,22 @@ impl SseEncode for Vec<crate::api::accounts::Account> {
     }
 }
 
-impl SseEncode for Vec<crate::api::messages::_ChatMessage> {
+impl SseEncode for Vec<crate::api::messages::ChatMessage> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
-            <crate::api::messages::_ChatMessage>::sse_encode(item, serializer);
+            <crate::api::messages::ChatMessage>::sse_encode(item, serializer);
         }
     }
 }
 
-impl SseEncode for Vec<crate::api::messages::_EmojiReaction> {
+impl SseEncode for Vec<crate::api::messages::EmojiReaction> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
-            <crate::api::messages::_EmojiReaction>::sse_encode(item, serializer);
+            <crate::api::messages::EmojiReaction>::sse_encode(item, serializer);
         }
     }
 }
@@ -4064,12 +4062,12 @@ impl SseEncode for Vec<crate::api::relays::Relay> {
     }
 }
 
-impl SseEncode for Vec<crate::api::messages::_SerializableToken> {
+impl SseEncode for Vec<crate::api::messages::SerializableToken> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
-            <crate::api::messages::_SerializableToken>::sse_encode(item, serializer);
+            <crate::api::messages::SerializableToken>::sse_encode(item, serializer);
         }
     }
 }
@@ -4084,25 +4082,25 @@ impl SseEncode for Vec<crate::api::users::User> {
     }
 }
 
-impl SseEncode for Vec<crate::api::messages::_UserReaction> {
+impl SseEncode for Vec<crate::api::messages::UserReaction> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
-            <crate::api::messages::_UserReaction>::sse_encode(item, serializer);
+            <crate::api::messages::UserReaction>::sse_encode(item, serializer);
         }
     }
 }
 
-impl SseEncode for crate::api::messages::_MessageWithTokens {
+impl SseEncode for crate::api::messages::MessageWithTokens {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.id, serializer);
         <String>::sse_encode(self.pubkey, serializer);
         <u16>::sse_encode(self.kind, serializer);
-        <u64>::sse_encode(self.created_at, serializer);
+        <chrono::DateTime<chrono::Utc>>::sse_encode(self.created_at, serializer);
         <Option<String>>::sse_encode(self.content, serializer);
-        <Vec<String>>::sse_encode(self.tokens, serializer);
+        <Vec<crate::api::messages::SerializableToken>>::sse_encode(self.tokens, serializer);
     }
 }
 
@@ -4156,11 +4154,11 @@ impl SseEncode for Option<Vec<u8>> {
     }
 }
 
-impl SseEncode for crate::api::messages::_ReactionSummary {
+impl SseEncode for crate::api::messages::ReactionSummary {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <Vec<crate::api::messages::_EmojiReaction>>::sse_encode(self.by_emoji, serializer);
-        <Vec<crate::api::messages::_UserReaction>>::sse_encode(self.user_reactions, serializer);
+        <Vec<crate::api::messages::EmojiReaction>>::sse_encode(self.by_emoji, serializer);
+        <Vec<crate::api::messages::UserReaction>>::sse_encode(self.user_reactions, serializer);
     }
 }
 
@@ -4181,7 +4179,7 @@ impl SseEncode for crate::api::relays::Relay {
     }
 }
 
-impl SseEncode for crate::api::messages::_SerializableToken {
+impl SseEncode for crate::api::messages::SerializableToken {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.token_type, serializer);
@@ -4225,12 +4223,12 @@ impl SseEncode for crate::api::users::User {
     }
 }
 
-impl SseEncode for crate::api::messages::_UserReaction {
+impl SseEncode for crate::api::messages::UserReaction {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.user, serializer);
         <String>::sse_encode(self.emoji, serializer);
-        <u64>::sse_encode(self.created_at, serializer);
+        <chrono::DateTime<chrono::Utc>>::sse_encode(self.created_at, serializer);
     }
 }
 

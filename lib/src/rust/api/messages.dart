@@ -10,7 +10,7 @@ import '../frb_generated.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
-Future<_MessageWithTokens> sendMessageToGroup({
+Future<MessageWithTokens> sendMessageToGroup({
   required String pubkey,
   required String groupId,
   required String message,
@@ -24,7 +24,7 @@ Future<_MessageWithTokens> sendMessageToGroup({
   tags: tags,
 );
 
-Future<List<_ChatMessage>> fetchAggregatedMessagesForGroup({
+Future<List<ChatMessage>> fetchAggregatedMessagesForGroup({
   required String pubkey,
   required String groupId,
 }) => RustLib.instance.api.crateApiMessagesFetchAggregatedMessagesForGroup(
@@ -35,26 +35,28 @@ Future<List<_ChatMessage>> fetchAggregatedMessagesForGroup({
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Tag>>
 abstract class Tag implements RustOpaqueInterface {}
 
-class _ChatMessage {
+/// Flutter-compatible chat message
+class ChatMessage {
   final String id;
   final String pubkey;
   final String content;
-  final BigInt createdAt;
+  final DateTime createdAt;
   final List<String> tags;
   final bool isReply;
   final String? replyToId;
   final bool isDeleted;
-  final List<_SerializableToken> contentTokens;
-  final _ReactionSummary reactions;
+  final List<SerializableToken> contentTokens;
+  final ReactionSummary reactions;
   final int kind;
 
-  const _ChatMessage({
+  const ChatMessage({
     required this.id,
     required this.pubkey,
     required this.content,
     required this.createdAt,
     required this.tags,
     required this.isReply,
+    this.replyToId,
     required this.isDeleted,
     required this.contentTokens,
     required this.reactions,
@@ -78,7 +80,7 @@ class _ChatMessage {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is _ChatMessage &&
+      other is ChatMessage &&
           runtimeType == other.runtimeType &&
           id == other.id &&
           pubkey == other.pubkey &&
@@ -94,12 +96,12 @@ class _ChatMessage {
 }
 
 /// Flutter-compatible emoji reaction details
-class _EmojiReaction {
+class EmojiReaction {
   final String emoji;
   final BigInt count;
   final List<String> users;
 
-  const _EmojiReaction({
+  const EmojiReaction({
     required this.emoji,
     required this.count,
     required this.users,
@@ -111,26 +113,28 @@ class _EmojiReaction {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is _EmojiReaction &&
+      other is EmojiReaction &&
           runtimeType == other.runtimeType &&
           emoji == other.emoji &&
           count == other.count &&
           users == other.users;
 }
 
-class _MessageWithTokens {
+/// Flutter-compatible message with tokens
+class MessageWithTokens {
   final String id;
   final String pubkey;
   final int kind;
-  final BigInt createdAt;
+  final DateTime createdAt;
   final String? content;
-  final List<String> tokens;
+  final List<SerializableToken> tokens;
 
-  const _MessageWithTokens({
+  const MessageWithTokens({
     required this.id,
     required this.pubkey,
     required this.kind,
     required this.createdAt,
+    this.content,
     required this.tokens,
   });
 
@@ -146,7 +150,7 @@ class _MessageWithTokens {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is _MessageWithTokens &&
+      other is MessageWithTokens &&
           runtimeType == other.runtimeType &&
           id == other.id &&
           pubkey == other.pubkey &&
@@ -157,11 +161,11 @@ class _MessageWithTokens {
 }
 
 /// Flutter-compatible reaction summary
-class _ReactionSummary {
-  final List<_EmojiReaction> byEmoji;
-  final List<_UserReaction> userReactions;
+class ReactionSummary {
+  final List<EmojiReaction> byEmoji;
+  final List<UserReaction> userReactions;
 
-  const _ReactionSummary({
+  const ReactionSummary({
     required this.byEmoji,
     required this.userReactions,
   });
@@ -172,19 +176,20 @@ class _ReactionSummary {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is _ReactionSummary &&
+      other is ReactionSummary &&
           runtimeType == other.runtimeType &&
           byEmoji == other.byEmoji &&
           userReactions == other.userReactions;
 }
 
 /// Flutter-compatible serializable token
-class _SerializableToken {
+class SerializableToken {
   final String tokenType;
   final String? content;
 
-  const _SerializableToken({
+  const SerializableToken({
     required this.tokenType,
+    this.content,
   });
 
   @override
@@ -193,19 +198,19 @@ class _SerializableToken {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is _SerializableToken &&
+      other is SerializableToken &&
           runtimeType == other.runtimeType &&
           tokenType == other.tokenType &&
           content == other.content;
 }
 
 /// Flutter-compatible user reaction
-class _UserReaction {
+class UserReaction {
   final String user;
   final String emoji;
-  final BigInt createdAt;
+  final DateTime createdAt;
 
-  const _UserReaction({
+  const UserReaction({
     required this.user,
     required this.emoji,
     required this.createdAt,
@@ -217,7 +222,7 @@ class _UserReaction {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is _UserReaction &&
+      other is UserReaction &&
           runtimeType == other.runtimeType &&
           user == other.user &&
           emoji == other.emoji &&

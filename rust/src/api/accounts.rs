@@ -1,8 +1,10 @@
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
 use url::Url;
-use whitenoise::{Account as WhitenoiseAccount, Event, ImageType, Metadata, PublicKey, Relay, RelayType, RelayUrl, User, Whitenoise, WhitenoiseError};
+use whitenoise::{Account as WhitenoiseAccount, Event, ImageType, Metadata, PublicKey, RelayType, RelayUrl, Whitenoise, WhitenoiseError};
 use crate::api::metadata::FlutterMetadata;
+use crate::api::users::User;
+use crate::api::relays::Relay;
 
 #[frb(non_opaque)]
 #[derive(Debug, Clone)]
@@ -117,7 +119,7 @@ pub async fn account_relays(
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
     let relays = account.relays(relay_type, whitenoise).await?;
-    Ok(relays.into())
+    Ok(relays.into_iter().map(|r| r.into()).collect())
 }
 
 #[frb]
@@ -162,7 +164,7 @@ pub async fn account_follows(pubkey: String) -> Result<Vec<User>, WhitenoiseErro
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
     let follows = whitenoise.follows(&account).await?;
-    Ok(follows.into())
+    Ok(follows.into_iter().map(|u| u.into()).collect())
 }
 
 #[frb]

@@ -1,117 +1,129 @@
 use crate::api::utils::group_id_from_string;
+use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
 pub use whitenoise::{
-    ChatMessage, EmojiReaction, GroupId, MessageWithTokens, PublicKey, ReactionSummary,
-    SerializableToken, Tag, UserReaction, Whitenoise, WhitenoiseError,
+    ChatMessage as WhitenoiseChatMessage, EmojiReaction as WhitenoiseEmojiReaction, GroupId,
+    MessageWithTokens as WhitenoiseMessageWithTokens, PublicKey,
+    ReactionSummary as WhitenoiseReactionSummary, SerializableToken as WhitenoiseSerializableToken,
+    Tag, UserReaction as WhitenoiseUserReaction, Whitenoise, WhitenoiseError,
 };
 
+/// Flutter-compatible message with tokens
+#[frb(non_opaque)]
 #[derive(Debug, Clone)]
-pub struct _MessageWithTokens {
+pub struct MessageWithTokens {
     pub id: String,
     pub pubkey: String,
     pub kind: u16,
-    pub created_at: u64,
+    pub created_at: DateTime<Utc>,
     pub content: Option<String>,
-    pub tokens: Vec<String>, // Simplified tokens representation
+    pub tokens: Vec<SerializableToken>,
 }
 
+/// Flutter-compatible chat message
+#[frb(non_opaque)]
 #[derive(Debug, Clone)]
-pub struct _ChatMessage {
+pub struct ChatMessage {
     pub id: String,
     pub pubkey: String,
     pub content: String,
-    pub created_at: u64,
+    pub created_at: DateTime<Utc>,
     pub tags: Vec<String>, // Simplified tags representation for Flutter
     pub is_reply: bool,
     pub reply_to_id: Option<String>,
     pub is_deleted: bool,
-    pub content_tokens: Vec<_SerializableToken>,
-    pub reactions: _ReactionSummary,
+    pub content_tokens: Vec<SerializableToken>,
+    pub reactions: ReactionSummary,
     pub kind: u16,
 }
 
 /// Flutter-compatible reaction summary
+#[frb(non_opaque)]
 #[derive(Debug, Clone)]
-pub struct _ReactionSummary {
-    pub by_emoji: Vec<_EmojiReaction>,
-    pub user_reactions: Vec<_UserReaction>,
+pub struct ReactionSummary {
+    pub by_emoji: Vec<EmojiReaction>,
+    pub user_reactions: Vec<UserReaction>,
 }
 
 /// Flutter-compatible emoji reaction details
+#[frb(non_opaque)]
 #[derive(Debug, Clone)]
-pub struct _EmojiReaction {
+pub struct EmojiReaction {
     pub emoji: String,
     pub count: u64,         // Using u64 for Flutter compatibility
     pub users: Vec<String>, // PublicKey converted to hex strings
 }
 
 /// Flutter-compatible user reaction
+#[frb(non_opaque)]
 #[derive(Debug, Clone)]
-pub struct _UserReaction {
+pub struct UserReaction {
     pub user: String, // PublicKey converted to hex string
     pub emoji: String,
-    pub created_at: u64, // Timestamp converted to u64
+    pub created_at: DateTime<Utc>,
 }
 
 /// Flutter-compatible serializable token
+#[frb(non_opaque)]
 #[derive(Debug, Clone)]
-pub struct _SerializableToken {
+pub struct SerializableToken {
     pub token_type: String, // "Nostr", "Url", "Hashtag", "Text", "LineBreak", "Whitespace"
     pub content: Option<String>, // None for LineBreak and Whitespace
 }
 
-// From implementations to replace convert_ functions
+// From implementations to convert from Whitenoise types to Flutter-compatible types
 
-impl From<&MessageWithTokens> for _MessageWithTokens {
-    fn from(message_with_tokens: &MessageWithTokens) -> Self {
-        // Convert tokens to simplified string representation
+impl From<&WhitenoiseMessageWithTokens> for MessageWithTokens {
+    fn from(message_with_tokens: &WhitenoiseMessageWithTokens) -> Self {
+        // Convert tokens to Flutter-compatible representation
         let tokens = message_with_tokens
             .tokens
             .iter()
-            .map(|token| format!("{token:?}"))
+            .map(|token| token.into())
             .collect();
 
         Self {
             id: message_with_tokens.message.id.to_hex(),
             pubkey: message_with_tokens.message.pubkey.to_hex(),
             kind: message_with_tokens.message.kind.as_u16(),
-            created_at: message_with_tokens.message.created_at.as_u64(),
+            created_at: DateTime::from_timestamp(message_with_tokens.message.created_at.as_u64() as i64, 0)
+                .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap()),
             content: Some(message_with_tokens.message.content.clone()),
             tokens,
         }
     }
 }
 
-impl From<MessageWithTokens> for _MessageWithTokens {
-    fn from(message_with_tokens: MessageWithTokens) -> Self {
+impl From<WhitenoiseMessageWithTokens> for MessageWithTokens {
+    fn from(message_with_tokens: WhitenoiseMessageWithTokens) -> Self {
         (&message_with_tokens).into()
     }
 }
 
-impl From<&SerializableToken> for _SerializableToken {
-    fn from(token: &SerializableToken) -> Self {
+impl From<&WhitenoiseSerializableToken> for SerializableToken {
+    fn from(token: &WhitenoiseSerializableToken) -> Self {
         match token {
-            SerializableToken::Nostr(s) => Self {
+            WhitenoiseSerializableToken::Nostr(s) => Self {
                 token_type: "Nostr".to_string(),
                 content: Some(s.clone()),
             },
-            SerializableToken::Url(s) => Self {
+            WhitenoiseSerializableToken::Url(s) => Self {
                 token_type: "Url".to_string(),
                 content: Some(s.clone()),
             },
-            SerializableToken::Hashtag(s) => Self {
+            WhitenoiseSerializableToken::Hashtag(s) => Self {
                 token_type: "Hashtag".to_string(),
                 content: Some(s.clone()),
             },
-            SerializableToken::Text(s) => Self {
+            WhitenoiseSerializableToken::Text(s) => Self {
                 token_type: "Text".to_string(),
                 content: Some(s.clone()),
             },
-            SerializableToken::LineBreak => Self {
+            WhitenoiseSerializableToken::LineBreak => Self {
                 token_type: "LineBreak".to_string(),
                 content: None,
             },
-            SerializableToken::Whitespace => Self {
+            WhitenoiseSerializableToken::Whitespace => Self {
                 token_type: "Whitespace".to_string(),
                 content: None,
             },
@@ -119,18 +131,18 @@ impl From<&SerializableToken> for _SerializableToken {
     }
 }
 
-impl From<SerializableToken> for _SerializableToken {
-    fn from(token: SerializableToken) -> Self {
+impl From<WhitenoiseSerializableToken> for SerializableToken {
+    fn from(token: WhitenoiseSerializableToken) -> Self {
         (&token).into()
     }
 }
 
-impl From<&ReactionSummary> for _ReactionSummary {
-    fn from(reactions: &ReactionSummary) -> Self {
+impl From<&WhitenoiseReactionSummary> for ReactionSummary {
+    fn from(reactions: &WhitenoiseReactionSummary) -> Self {
         let by_emoji = reactions
             .by_emoji
             .iter()
-            .map(|(emoji, reaction)| _EmojiReaction {
+            .map(|(emoji, reaction)| EmojiReaction {
                 emoji: emoji.clone(),
                 count: reaction.count as u64,
                 users: reaction.users.iter().map(|pk| pk.to_hex()).collect(),
@@ -140,10 +152,11 @@ impl From<&ReactionSummary> for _ReactionSummary {
         let user_reactions = reactions
             .user_reactions
             .iter()
-            .map(|user_reaction| _UserReaction {
+            .map(|user_reaction| UserReaction {
                 user: user_reaction.user.to_hex(),
                 emoji: user_reaction.emoji.clone(),
-                created_at: user_reaction.created_at.as_u64(),
+                created_at: DateTime::from_timestamp(user_reaction.created_at.as_u64() as i64, 0)
+                    .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap()),
             })
             .collect();
 
@@ -154,14 +167,14 @@ impl From<&ReactionSummary> for _ReactionSummary {
     }
 }
 
-impl From<ReactionSummary> for _ReactionSummary {
-    fn from(reactions: ReactionSummary) -> Self {
+impl From<WhitenoiseReactionSummary> for ReactionSummary {
+    fn from(reactions: WhitenoiseReactionSummary) -> Self {
         (&reactions).into()
     }
 }
 
-impl From<&ChatMessage> for _ChatMessage {
-    fn from(chat_message: &ChatMessage) -> Self {
+impl From<&WhitenoiseChatMessage> for ChatMessage {
+    fn from(chat_message: &WhitenoiseChatMessage) -> Self {
         // Convert tags to simplified string representation
         let tags = chat_message
             .tags
@@ -183,7 +196,8 @@ impl From<&ChatMessage> for _ChatMessage {
             id: chat_message.id.clone(),
             pubkey: chat_message.author.to_hex(),
             content: chat_message.content.clone(),
-            created_at: chat_message.created_at.as_u64(),
+            created_at: DateTime::from_timestamp(chat_message.created_at.as_u64() as i64, 0)
+                .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap()),
             tags,
             is_reply: chat_message.is_reply,
             reply_to_id: chat_message.reply_to_id.clone(),
@@ -195,8 +209,8 @@ impl From<&ChatMessage> for _ChatMessage {
     }
 }
 
-impl From<ChatMessage> for _ChatMessage {
-    fn from(chat_message: ChatMessage) -> Self {
+impl From<WhitenoiseChatMessage> for ChatMessage {
+    fn from(chat_message: WhitenoiseChatMessage) -> Self {
         (&chat_message).into()
     }
 }
@@ -208,7 +222,7 @@ pub async fn send_message_to_group(
     message: String,
     kind: u16,
     tags: Option<Vec<Tag>>,
-) -> Result<_MessageWithTokens, WhitenoiseError> {
+) -> Result<MessageWithTokens, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
@@ -223,7 +237,7 @@ pub async fn send_message_to_group(
 pub async fn fetch_aggregated_messages_for_group(
     pubkey: String,
     group_id: String,
-) -> Result<Vec<_ChatMessage>, WhitenoiseError> {
+) -> Result<Vec<ChatMessage>, WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;

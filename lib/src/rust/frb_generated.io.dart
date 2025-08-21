@@ -263,10 +263,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   WhitenoiseConfig dco_decode_box_autoadd_whitenoise_config(dynamic raw);
 
   @protected
-  _ChatMessage dco_decode_chat_message(dynamic raw);
+  ChatMessage dco_decode_chat_message(dynamic raw);
 
   @protected
-  _EmojiReaction dco_decode_emoji_reaction(dynamic raw);
+  EmojiReaction dco_decode_emoji_reaction(dynamic raw);
 
   @protected
   FlutterMetadata dco_decode_flutter_metadata(dynamic raw);
@@ -308,10 +308,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<Account> dco_decode_list_account(dynamic raw);
 
   @protected
-  List<_ChatMessage> dco_decode_list_chat_message(dynamic raw);
+  List<ChatMessage> dco_decode_list_chat_message(dynamic raw);
 
   @protected
-  List<_EmojiReaction> dco_decode_list_emoji_reaction(dynamic raw);
+  List<EmojiReaction> dco_decode_list_emoji_reaction(dynamic raw);
 
   @protected
   List<Group> dco_decode_list_group(dynamic raw);
@@ -326,16 +326,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<Relay> dco_decode_list_relay(dynamic raw);
 
   @protected
-  List<_SerializableToken> dco_decode_list_serializable_token(dynamic raw);
+  List<SerializableToken> dco_decode_list_serializable_token(dynamic raw);
 
   @protected
   List<User> dco_decode_list_user(dynamic raw);
 
   @protected
-  List<_UserReaction> dco_decode_list_user_reaction(dynamic raw);
+  List<UserReaction> dco_decode_list_user_reaction(dynamic raw);
 
   @protected
-  _MessageWithTokens dco_decode_message_with_tokens(dynamic raw);
+  MessageWithTokens dco_decode_message_with_tokens(dynamic raw);
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
@@ -359,7 +359,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List? dco_decode_opt_list_prim_u_8_strict(dynamic raw);
 
   @protected
-  _ReactionSummary dco_decode_reaction_summary(dynamic raw);
+  ReactionSummary dco_decode_reaction_summary(dynamic raw);
 
   @protected
   (String, String) dco_decode_record_string_string(dynamic raw);
@@ -368,7 +368,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Relay dco_decode_relay(dynamic raw);
 
   @protected
-  _SerializableToken dco_decode_serializable_token(dynamic raw);
+  SerializableToken dco_decode_serializable_token(dynamic raw);
 
   @protected
   int dco_decode_u_16(dynamic raw);
@@ -386,7 +386,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   User dco_decode_user(dynamic raw);
 
   @protected
-  _UserReaction dco_decode_user_reaction(dynamic raw);
+  UserReaction dco_decode_user_reaction(dynamic raw);
 
   @protected
   BigInt dco_decode_usize(dynamic raw);
@@ -594,10 +594,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  _ChatMessage sse_decode_chat_message(SseDeserializer deserializer);
+  ChatMessage sse_decode_chat_message(SseDeserializer deserializer);
 
   @protected
-  _EmojiReaction sse_decode_emoji_reaction(SseDeserializer deserializer);
+  EmojiReaction sse_decode_emoji_reaction(SseDeserializer deserializer);
 
   @protected
   FlutterMetadata sse_decode_flutter_metadata(SseDeserializer deserializer);
@@ -639,10 +639,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<Account> sse_decode_list_account(SseDeserializer deserializer);
 
   @protected
-  List<_ChatMessage> sse_decode_list_chat_message(SseDeserializer deserializer);
+  List<ChatMessage> sse_decode_list_chat_message(SseDeserializer deserializer);
 
   @protected
-  List<_EmojiReaction> sse_decode_list_emoji_reaction(
+  List<EmojiReaction> sse_decode_list_emoji_reaction(
     SseDeserializer deserializer,
   );
 
@@ -661,7 +661,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<Relay> sse_decode_list_relay(SseDeserializer deserializer);
 
   @protected
-  List<_SerializableToken> sse_decode_list_serializable_token(
+  List<SerializableToken> sse_decode_list_serializable_token(
     SseDeserializer deserializer,
   );
 
@@ -669,12 +669,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<User> sse_decode_list_user(SseDeserializer deserializer);
 
   @protected
-  List<_UserReaction> sse_decode_list_user_reaction(
+  List<UserReaction> sse_decode_list_user_reaction(
     SseDeserializer deserializer,
   );
 
   @protected
-  _MessageWithTokens sse_decode_message_with_tokens(
+  MessageWithTokens sse_decode_message_with_tokens(
     SseDeserializer deserializer,
   );
 
@@ -700,7 +700,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List? sse_decode_opt_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
-  _ReactionSummary sse_decode_reaction_summary(SseDeserializer deserializer);
+  ReactionSummary sse_decode_reaction_summary(SseDeserializer deserializer);
 
   @protected
   (String, String) sse_decode_record_string_string(
@@ -711,9 +711,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Relay sse_decode_relay(SseDeserializer deserializer);
 
   @protected
-  _SerializableToken sse_decode_serializable_token(
-    SseDeserializer deserializer,
-  );
+  SerializableToken sse_decode_serializable_token(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_16(SseDeserializer deserializer);
@@ -731,7 +729,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   User sse_decode_user(SseDeserializer deserializer);
 
   @protected
-  _UserReaction sse_decode_user_reaction(SseDeserializer deserializer);
+  UserReaction sse_decode_user_reaction(SseDeserializer deserializer);
 
   @protected
   BigInt sse_decode_usize(SseDeserializer deserializer);
@@ -973,10 +971,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void sse_encode_chat_message(_ChatMessage self, SseSerializer serializer);
+  void sse_encode_chat_message(ChatMessage self, SseSerializer serializer);
 
   @protected
-  void sse_encode_emoji_reaction(_EmojiReaction self, SseSerializer serializer);
+  void sse_encode_emoji_reaction(EmojiReaction self, SseSerializer serializer);
 
   @protected
   void sse_encode_flutter_metadata(
@@ -1025,13 +1023,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_list_chat_message(
-    List<_ChatMessage> self,
+    List<ChatMessage> self,
     SseSerializer serializer,
   );
 
   @protected
   void sse_encode_list_emoji_reaction(
-    List<_EmojiReaction> self,
+    List<EmojiReaction> self,
     SseSerializer serializer,
   );
 
@@ -1055,7 +1053,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_list_serializable_token(
-    List<_SerializableToken> self,
+    List<SerializableToken> self,
     SseSerializer serializer,
   );
 
@@ -1064,13 +1062,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_list_user_reaction(
-    List<_UserReaction> self,
+    List<UserReaction> self,
     SseSerializer serializer,
   );
 
   @protected
   void sse_encode_message_with_tokens(
-    _MessageWithTokens self,
+    MessageWithTokens self,
     SseSerializer serializer,
   );
 
@@ -1105,7 +1103,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_reaction_summary(
-    _ReactionSummary self,
+    ReactionSummary self,
     SseSerializer serializer,
   );
 
@@ -1120,7 +1118,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_serializable_token(
-    _SerializableToken self,
+    SerializableToken self,
     SseSerializer serializer,
   );
 
@@ -1140,7 +1138,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_user(User self, SseSerializer serializer);
 
   @protected
-  void sse_encode_user_reaction(_UserReaction self, SseSerializer serializer);
+  void sse_encode_user_reaction(UserReaction self, SseSerializer serializer);
 
   @protected
   void sse_encode_usize(BigInt self, SseSerializer serializer);
