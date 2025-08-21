@@ -9,7 +9,7 @@ extension ChatNavigationExtension on BuildContext {
   /// Navigates to a chat immediately after creation and pops back to home
   /// This creates the feeling of opening the chat immediately while ensuring
   /// the user can navigate back to home easily
-  void navigateToGroupChatAndPopToHome(GroupData groupData) {
+  void navigateToGroupChatAndPopToHome(Group groupData) {
     // First navigate to home to clear the navigation stack
     go(Routes.home);
 
@@ -19,8 +19,8 @@ extension ChatNavigationExtension on BuildContext {
 
   /// Creates a callback function that can be used with onChatCreated callbacks
   /// This is useful for passing to bottom sheets and other components
-  ValueChanged<GroupData?>? createChatNavigationCallback() {
-    return (GroupData? groupData) {
+  ValueChanged<Group?>? createChatNavigationCallback() {
+    return (Group? groupData) {
       if (groupData != null) {
         navigateToGroupChatAndPopToHome(groupData);
       }

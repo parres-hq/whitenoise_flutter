@@ -12,10 +12,8 @@ class DMChatService {
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData == null) return null;
 
-      final currentUserHexPubkey = activeAccountData.pubkey;
-
-      final currentUserNpub = await npubFromPublicKey(
-        publicKey: await publicKeyFromString(publicKeyString: currentUserHexPubkey),
+      final currentUserNpub = await npubFromHexPubkey(
+        hexPubkey: activeAccountData.pubkey,
       );
 
       final otherMember = ref
