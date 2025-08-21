@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -10,6 +9,7 @@ import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class AddToGroupScreen extends ConsumerStatefulWidget {
   const AddToGroupScreen({super.key, required this.contactNpub});
@@ -121,14 +121,12 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
               spacing: 8.w,
               children: [
                 IconButton(
-                  icon: SvgPicture.asset(
+                  icon: WnImage(
                     AssetsPaths.icChevronLeft,
-                    width: 24.sp,
+                    size: 24.sp,
                     height: 24.sp,
-                    colorFilter: ColorFilter.mode(
-                      context.colors.primary,
-                      BlendMode.srcIn,
-                    ),
+                    color: context.colors.primary,
+                
                   ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),

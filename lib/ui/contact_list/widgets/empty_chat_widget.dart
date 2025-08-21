@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-
-import '../../core/themes/assets.dart';
-import '../../core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class EmptyChatWidget extends StatelessWidget {
   const EmptyChatWidget({super.key});
@@ -15,7 +14,7 @@ class EmptyChatWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          SvgPicture.asset(AssetsPaths.icChat),
+         const WnImage(AssetsPaths.icChat),
           Gap(20.h),
           Text(
             'No chats found',

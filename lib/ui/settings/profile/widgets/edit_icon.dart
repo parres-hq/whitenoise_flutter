@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class EditIconWidget extends StatelessWidget {
   const EditIconWidget({super.key, this.onTap});
@@ -25,12 +25,11 @@ class EditIconWidget extends StatelessWidget {
             width: 1.w,
           ),
         ),
-        child: SvgPicture.asset(
+        child: WnImage(
           AssetsPaths.icEdit,
-          colorFilter: ColorFilter.mode(
+          color: 
             context.colors.primaryForeground,
-            BlendMode.srcIn,
-          ),
+          
         ),
       ),
     );

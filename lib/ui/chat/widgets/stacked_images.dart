@@ -3,9 +3,9 @@ import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class StackedImages extends StatelessWidget {
   final List<String> imageUris;
@@ -121,14 +121,13 @@ class StackedImages extends StatelessWidget {
                       color: Colors.grey[300],
                       width: size,
                       height: size,
-                      child: SvgPicture.asset(
+                      child: WnImage(
                         AssetsPaths.icErrorFilled,
-                        colorFilter: ColorFilter.mode(
+                        color: 
                           context.colors.destructive,
-                          BlendMode.srcIn,
-                        ),
-                        width: 24.w,
-                        height: 24.w,
+                          
+                        size: 24.w,
+           
                       ),
                     ),
               )

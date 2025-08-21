@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class WnCallout extends StatelessWidget {
   final String title;
@@ -26,14 +26,13 @@ class WnCallout extends StatelessWidget {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SvgPicture.asset(
+              WnImage(
                 AssetsPaths.icInformation,
-                colorFilter: ColorFilter.mode(
+                color: 
                   context.colors.primary,
-                  BlendMode.srcIn,
-                ),
-                width: 18.w,
-                height: 18.w,
+                
+                size: 18.w,
+                
               ),
               Gap(8.w),
               Expanded(

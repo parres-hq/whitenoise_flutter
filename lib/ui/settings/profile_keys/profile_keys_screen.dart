@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
@@ -94,12 +94,11 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                         children: [
                           GestureDetector(
                             onTap: () => context.pop(),
-                            child: SvgPicture.asset(
+                            child: WnImage(
                               AssetsPaths.icChevronLeft,
-                              colorFilter: ColorFilter.mode(
+                              color: 
                                 context.colors.primary,
-                                BlendMode.srcIn,
-                              ),
+                               
                               width: 24.w,
                               height: 24.w,
                             ),
@@ -201,14 +200,13 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  SvgPicture.asset(
+                                  WnImage(
                                     AssetsPaths.icErrorFilled,
-                                    colorFilter: ColorFilter.mode(
+                                    color: 
                                       context.colors.destructive,
-                                      BlendMode.srcIn,
-                                    ),
-                                    width: 20.w,
-                                    height: 20.w,
+                                      
+                                    size: 20.w,
+               
                                   ),
                                   Gap(12.w),
                                   Expanded(

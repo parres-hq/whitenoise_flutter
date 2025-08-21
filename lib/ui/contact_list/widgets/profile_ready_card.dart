@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
@@ -10,6 +9,7 @@ import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class ProfileReadyCard extends ConsumerWidget {
   const ProfileReadyCard({super.key});
@@ -59,14 +59,13 @@ class ProfileReadyCard extends ConsumerWidget {
                 onTap: () {
                   ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
                 },
-                child: SvgPicture.asset(
+                child: WnImage(
                   AssetsPaths.icClose,
-                  width: 20.w,
-                  height: 20.w,
-                  colorFilter: ColorFilter.mode(
+                  size: 20.w,
+                  color: 
                     context.colors.mutedForeground,
-                    BlendMode.srcIn,
-                  ),
+                  
+                  
                 ),
               ),
             ],
@@ -87,12 +86,12 @@ class ProfileReadyCard extends ConsumerWidget {
             onPressed: () => context.push('${Routes.settings}/share_profile'),
             size: WnButtonSize.small,
             visualState: WnButtonVisualState.secondary,
-            suffixIcon: SvgPicture.asset(
+            suffixIcon: WnImage(
               AssetsPaths.icQrCode,
-              colorFilter: ColorFilter.mode(
+              
+              color: 
                 context.colors.primary,
-                BlendMode.srcIn,
-              ),
+               
             ),
           ),
           Gap(12.h),
@@ -101,12 +100,11 @@ class ProfileReadyCard extends ConsumerWidget {
             label: 'Search For Friends',
             onPressed: () => NewChatBottomSheet.show(context),
             size: WnButtonSize.small,
-            suffixIcon: SvgPicture.asset(
+            suffixIcon: WnImage(
               AssetsPaths.icAddUser,
-              colorFilter: ColorFilter.mode(
+              color: 
                 context.colors.primaryForeground,
-                BlendMode.srcIn,
-              ),
+              
             ),
           ),
         ],

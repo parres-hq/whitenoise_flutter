@@ -1,8 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 import '../themes/assets.dart';
 import '../themes/src/extensions.dart';
@@ -125,14 +125,13 @@ class WnBottomSheet {
               if (showBackButton) ...[
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: SvgPicture.asset(
+                  icon: WnImage(
                     AssetsPaths.icChevronLeft,
-                    colorFilter: ColorFilter.mode(
+                    color: 
                       context.colors.primary,
-                      BlendMode.srcIn,
-                    ),
-                    width: 24.w,
-                    height: 24.w,
+                      
+                    size: 24.w,
+                    
                   ),
                 ),
                 Gap(8.w),
@@ -155,14 +154,13 @@ class WnBottomSheet {
         if (showCloseButton)
           GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: SvgPicture.asset(
+            child: WnImage(
               AssetsPaths.icClose,
-              colorFilter: ColorFilter.mode(
+              color: 
                 context.colors.primary,
-                BlendMode.srcIn,
-              ),
-              width: 24.w,
-              height: 24.w,
+              
+              size: 24.w,
+              
             ),
           ),
       ],

@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class SwipeToReplyWidget extends StatefulWidget {
   final MessageModel message;
@@ -142,14 +142,12 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
               color: context.colors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child: SvgPicture.asset(
+            child:WnImage(
               AssetsPaths.icReply,
-              colorFilter: ColorFilter.mode(
-                context.colors.primary,
-                BlendMode.srcIn,
-              ),
-              width: 16.w,
-              height: 16.w,
+           color:  context.colors.primary,
+             
+              size: 16.w,
+
             ),
           ),
         ),

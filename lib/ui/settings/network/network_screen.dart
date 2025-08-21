@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_refreshing_indicator.dart';
 import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_expansion_tile.dart';
@@ -147,14 +147,13 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                       children: [
                         IconButton(
                           onPressed: () => Navigator.of(context).pop(),
-                          icon: SvgPicture.asset(
+                          icon: WnImage(
                             AssetsPaths.icChevronLeft,
-                            colorFilter: ColorFilter.mode(
+                            color:
                               context.colors.primary,
-                              BlendMode.srcIn,
-                            ),
-                            width: 24.w,
-                            height: 24.w,
+                             
+                            size: 24.w,
+                          
                           ),
                         ),
                         Text(

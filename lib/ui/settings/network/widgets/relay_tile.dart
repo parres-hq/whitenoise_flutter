@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/models/relay_status.dart';
@@ -9,6 +8,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -53,14 +53,13 @@ class _RelayTileState extends ConsumerState<RelayTile> {
 
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      icon: SvgPicture.asset(
+                      icon: WnImage(
                         AssetsPaths.icClose,
-                        colorFilter: ColorFilter.mode(
+                        color: 
                           context.colors.primary,
-                          BlendMode.srcIn,
-                        ),
-                        width: 24.w,
-                        height: 24.w,
+                          
+                        size: 24.w,
+                      
                       ),
                     ),
                   ],
@@ -111,14 +110,13 @@ class _RelayTileState extends ConsumerState<RelayTile> {
           horizontal: 16.w,
           vertical: 4.h,
         ),
-        leading: SvgPicture.asset(
+        leading: WnImage(
           widget.relayInfo.status.getIconAsset(),
-          colorFilter: ColorFilter.mode(
+          color: 
             widget.relayInfo.status.getColor(context),
-            BlendMode.srcIn,
-          ),
-          width: 24.w,
-          height: 24.w,
+          
+          size: 24.w,
+     
         ),
         title: Text(
           widget.relayInfo.url.sanitizedUrl,
@@ -130,14 +128,13 @@ class _RelayTileState extends ConsumerState<RelayTile> {
         ),
         trailing: InkWell(
           onTap: _removeRelay,
-          child: SvgPicture.asset(
+          child: WnImage(
             AssetsPaths.icDelete,
-            colorFilter: ColorFilter.mode(
+            color: 
               context.colors.primary,
-              BlendMode.srcIn,
-            ),
-            width: 23.sp,
-            height: 23.sp,
+             
+            size: 23.w,
+
           ),
         ),
       ),

@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -27,6 +26,7 @@ import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/wn_heads_up.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
@@ -336,12 +336,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                 _unfocusSearchIfNeeded();
                                 NewChatBottomSheet.show(context);
                               },
-                      icon: Image.asset(
+                      icon: WnImage(
                         notAllRelayTypesConnected
                             ? AssetsPaths.icOffChat
                             : AssetsPaths.icAddNewChat,
-                        width: 21.w,
-                        height: 21.w,
+                        size: 21.w,
                         color: context.colors.solidNeutralWhite.withValues(
                           alpha: notAllRelayTypesConnected ? 0.5 : 1.0,
                         ),
@@ -426,28 +425,26 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                               decoration: InputDecoration(
                                 prefixIcon: Padding(
                                   padding: EdgeInsets.all(12.w),
-                                  child: SvgPicture.asset(
+                                  child: WnImage(
                                     AssetsPaths.icSearch,
-                                    colorFilter: ColorFilter.mode(
+                                    color: 
                                       context.colors.primary,
-                                      BlendMode.srcIn,
-                                    ),
-                                    width: 20.w,
-                                    height: 20.w,
+                                      
+                                    size: 20.w,
+                                    
                                   ),
                                 ),
                                 suffixIcon: GestureDetector(
                                   onTap: _clearSearch,
                                   child: Padding(
                                     padding: EdgeInsets.all(12.w),
-                                    child: SvgPicture.asset(
+                                    child: WnImage(
                                       AssetsPaths.icClose,
-                                      colorFilter: ColorFilter.mode(
+                                      color: 
                                         context.colors.primary,
-                                        BlendMode.srcIn,
-                                      ),
-                                      width: 20.w,
-                                      height: 20.w,
+                                        
+                                      size: 20.w,
+                                  
                                     ),
                                   ),
                                 ),
@@ -525,14 +522,12 @@ class _EmptyGroupList extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SvgPicture.asset(
+            WnImage(
               AssetsPaths.icWhiteNoiseSvg,
               width: 69.17.w,
               height: 53.20.h,
-              colorFilter: ColorFilter.mode(
+              color: 
                 context.colors.primary,
-                BlendMode.srcIn,
-              ),
             ),
             Gap(12.h),
             Text(

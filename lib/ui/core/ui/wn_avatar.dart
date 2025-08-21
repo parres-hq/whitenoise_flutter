@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class WnAvatar extends StatelessWidget {
   const WnAvatar({
@@ -99,14 +99,13 @@ class WnAvatar extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.all(size * 0.25),
       child: Center(
-        child: SvgPicture.asset(
+        child: WnImage(
           AssetsPaths.icUser,
           width: size * 0.4,
           height: size * 0.4,
-          colorFilter: ColorFilter.mode(
+          color: 
             context.colors.primary,
-            BlendMode.srcIn,
-          ),
+           
         ),
       ),
     );
