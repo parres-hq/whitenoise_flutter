@@ -7,7 +7,6 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import '../api.dart';
 import '../frb_generated.dart';
-import 'groups.dart';
 import 'messages.dart';
 
 Future<String> npubFromPublicKey({required PublicKey publicKey}) =>
@@ -44,6 +43,12 @@ Future<String> groupIdToString({required GroupId groupId}) =>
 
 Future<GroupId> groupIdFromString({required String groupId}) =>
     RustLib.instance.api.crateApiUtilsGroupIdFromString(groupId: groupId);
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>>
+abstract class GroupId implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>
+abstract class PublicKey implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>>
 abstract class RelayUrl implements RustOpaqueInterface {}

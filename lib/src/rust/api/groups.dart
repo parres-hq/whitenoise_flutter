@@ -11,29 +11,29 @@ import '../lib.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `fmt`, `fmt`, `from`
 
-Future<List<Group>> fetchGroups({required PublicKey pubkey}) =>
-    RustLib.instance.api.crateApiGroupsFetchGroups(pubkey: pubkey);
+Future<List<Group>> activeGroups({required String pubkey}) =>
+    RustLib.instance.api.crateApiGroupsActiveGroups(pubkey: pubkey);
 
-Future<List<PublicKey>> fetchGroupMembers({
-  required PublicKey pubkey,
-  required GroupId groupId,
-}) => RustLib.instance.api.crateApiGroupsFetchGroupMembers(
+Future<List<String>> groupMembers({
+  required String pubkey,
+  required String groupId,
+}) => RustLib.instance.api.crateApiGroupsGroupMembers(
   pubkey: pubkey,
   groupId: groupId,
 );
 
-Future<List<PublicKey>> fetchGroupAdmins({
-  required PublicKey pubkey,
-  required GroupId groupId,
-}) => RustLib.instance.api.crateApiGroupsFetchGroupAdmins(
+Future<List<String>> groupAdmins({
+  required String pubkey,
+  required String groupId,
+}) => RustLib.instance.api.crateApiGroupsGroupAdmins(
   pubkey: pubkey,
   groupId: groupId,
 );
 
 Future<Group> createGroup({
-  required PublicKey creatorPubkey,
-  required List<PublicKey> memberPubkeys,
-  required List<PublicKey> adminPubkeys,
+  required String creatorPubkey,
+  required List<String> memberPubkeys,
+  required List<String> adminPubkeys,
   required String groupName,
   required String groupDescription,
 }) => RustLib.instance.api.crateApiGroupsCreateGroup(
@@ -45,9 +45,9 @@ Future<Group> createGroup({
 );
 
 Future<void> addMembersToGroup({
-  required PublicKey pubkey,
-  required GroupId groupId,
-  required List<PublicKey> memberPubkeys,
+  required String pubkey,
+  required String groupId,
+  required List<String> memberPubkeys,
 }) => RustLib.instance.api.crateApiGroupsAddMembersToGroup(
   pubkey: pubkey,
   groupId: groupId,
@@ -55,20 +55,14 @@ Future<void> addMembersToGroup({
 );
 
 Future<void> removeMembersFromGroup({
-  required PublicKey pubkey,
-  required GroupId groupId,
-  required List<PublicKey> memberPubkeys,
+  required String pubkey,
+  required String groupId,
+  required List<String> memberPubkeys,
 }) => RustLib.instance.api.crateApiGroupsRemoveMembersFromGroup(
   pubkey: pubkey,
   groupId: groupId,
   memberPubkeys: memberPubkeys,
 );
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>>
-abstract class GroupId implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>
-abstract class PublicKey implements RustOpaqueInterface {}
 
 class Group {
   final String mlsGroupId;
