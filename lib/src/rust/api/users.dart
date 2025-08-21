@@ -8,41 +8,52 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import '../api.dart';
 import '../frb_generated.dart';
 import 'accounts.dart';
+import 'metadata.dart';
+import 'relays.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `from`
 
-Future<RelayType> relayTypeNip65() =>
-    RustLib.instance.api.crateApiRelaysRelayTypeNip65();
+Future<User> getUser({required String pubkey}) =>
+    RustLib.instance.api.crateApiUsersGetUser(pubkey: pubkey);
 
-Future<RelayType> relayTypeInbox() =>
-    RustLib.instance.api.crateApiRelaysRelayTypeInbox();
+Future<FlutterMetadata> userMetadata({required String pubkey}) =>
+    RustLib.instance.api.crateApiUsersUserMetadata(pubkey: pubkey);
 
-Future<RelayType> relayTypeKeyPackage() =>
-    RustLib.instance.api.crateApiRelaysRelayTypeKeyPackage();
+Future<List<Relay>> userRelays({
+  required String pubkey,
+  required RelayType relayType,
+}) => RustLib.instance.api.crateApiUsersUserRelays(
+  pubkey: pubkey,
+  relayType: relayType,
+);
 
-Future<List<(String, String)>> fetchRelayStatus({required String pubkey}) =>
-    RustLib.instance.api.crateApiRelaysFetchRelayStatus(pubkey: pubkey);
-
-class Relay {
-  final String url;
+class User {
+  final String pubkey;
+  final FlutterMetadata metadata;
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  const Relay({
-    required this.url,
+  const User({
+    required this.pubkey,
+    required this.metadata,
     required this.createdAt,
     required this.updatedAt,
   });
 
   @override
-  int get hashCode => url.hashCode ^ createdAt.hashCode ^ updatedAt.hashCode;
+  int get hashCode =>
+      pubkey.hashCode ^
+      metadata.hashCode ^
+      createdAt.hashCode ^
+      updatedAt.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Relay &&
+      other is User &&
           runtimeType == other.runtimeType &&
-          url == other.url &&
+          pubkey == other.pubkey &&
+          metadata == other.metadata &&
           createdAt == other.createdAt &&
           updatedAt == other.updatedAt;
 }

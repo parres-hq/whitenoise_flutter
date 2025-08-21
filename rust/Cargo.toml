@@ -7,14 +7,15 @@ edition = "2021"
 crate-type = ["cdylib", "staticlib"]
 
 [dependencies]
+anyhow = "1.0.99"
+chrono = { version = "0.4.40", features = ["serde"] }
 flutter_rust_bridge = "=2.11.1"
-whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "aa07b2d637b68a8b3c1883a604efdc49b279b2fd" }
-# whitenoise = { version = "0.1.0", path = "../../whitenoise" }
-tokio = { version = "1.44", features = ["rt", "rt-multi-thread"] }
-serde_json = "1.0.140"
 hex = "0.4"
+serde_json = "1.0.140"
+tokio = { version = "1.44", features = ["rt", "rt-multi-thread"] }
 url = "2.5.1"
-dashmap = "6.1.0"
+# whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "aa07b2d637b68a8b3c1883a604efdc49b279b2fd" }
+whitenoise = { version = "0.1.0", path = "../../whitenoise" }
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
