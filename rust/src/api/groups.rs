@@ -2,8 +2,8 @@ use crate::api::{group_id_from_string, utils::group_id_to_string};
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
 use hex;
-use whitenoise::{Group as WhitenoiseGroup, GroupType, NostrGroupConfigData, Whitenoise, WhitenoiseError};
-pub use whitenoise::{GroupId, GroupState, PublicKey, RelayType};
+use whitenoise::{Group as WhitenoiseGroup, NostrGroupConfigData, Whitenoise, WhitenoiseError};
+pub use whitenoise::{GroupId, GroupState, GroupType, PublicKey, RelayType};
 
 #[frb(non_opaque)]
 #[derive(Debug, Clone)]
@@ -50,6 +50,13 @@ pub enum _GroupState {
     Active,
     Inactive,
     Pending,
+}
+
+#[frb(mirror(GroupType))]
+#[derive(Debug, Clone)]
+pub enum _GroupType {
+    DirectMessage,
+    Group,
 }
 
 #[frb]

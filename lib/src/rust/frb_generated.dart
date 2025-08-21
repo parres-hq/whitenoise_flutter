@@ -292,14 +292,6 @@ abstract class RustLibApi extends BaseApi {
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_GroupIdPtr;
 
   RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_GroupType;
-
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_GroupType;
-
-  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_GroupTypePtr;
-
-  RustArcIncrementStrongCountFnType
   get rust_arc_increment_strong_count_Metadata;
 
   RustArcDecrementStrongCountFnType
@@ -2165,14 +2157,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId;
 
   RustArcIncrementStrongCountFnType
-  get rust_arc_increment_strong_count_GroupType =>
-      wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType;
-
-  RustArcDecrementStrongCountFnType
-  get rust_arc_decrement_strong_count_GroupType =>
-      wire.rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType;
-
-  RustArcIncrementStrongCountFnType
   get rust_arc_increment_strong_count_Metadata =>
       wire.rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata;
 
@@ -2259,15 +2243,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return GroupIdImpl.frbInternalDcoDecode(raw as List<dynamic>);
-  }
-
-  @protected
-  GroupType
-  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType(
-    dynamic raw,
-  ) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return GroupTypeImpl.frbInternalDcoDecode(raw as List<dynamic>);
   }
 
   @protected
@@ -2410,15 +2385,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return GroupIdImpl.frbInternalDcoDecode(raw as List<dynamic>);
-  }
-
-  @protected
-  GroupType
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType(
-    dynamic raw,
-  ) {
-    // Codec=Dco (DartCObject based), see doc to use other codecs
-    return GroupTypeImpl.frbInternalDcoDecode(raw as List<dynamic>);
   }
 
   @protected
@@ -2612,10 +2578,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       adminPubkeys: dco_decode_list_String(arr[6]),
       lastMessageId: dco_decode_opt_String(arr[7]),
       lastMessageAt: dco_decode_opt_box_autoadd_Chrono_Utc(arr[8]),
-      groupType:
-          dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType(
-            arr[9],
-          ),
+      groupType: dco_decode_group_type(arr[9]),
       epoch: dco_decode_u_64(arr[10]),
       state: dco_decode_group_state(arr[11]),
     );
@@ -2625,6 +2588,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   GroupState dco_decode_group_state(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return GroupState.values[raw as int];
+  }
+
+  @protected
+  GroupType dco_decode_group_type(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return GroupType.values[raw as int];
   }
 
   @protected
@@ -2947,18 +2916,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  GroupType
-  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType(
-    SseDeserializer deserializer,
-  ) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return GroupTypeImpl.frbInternalSseDecode(
-      sse_decode_usize(deserializer),
-      sse_decode_i_32(deserializer),
-    );
-  }
-
-  @protected
   RelayType
   sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType(
     SseDeserializer deserializer,
@@ -3137,18 +3094,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return GroupIdImpl.frbInternalSseDecode(
-      sse_decode_usize(deserializer),
-      sse_decode_i_32(deserializer),
-    );
-  }
-
-  @protected
-  GroupType
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType(
-    SseDeserializer deserializer,
-  ) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    return GroupTypeImpl.frbInternalSseDecode(
       sse_decode_usize(deserializer),
       sse_decode_i_32(deserializer),
     );
@@ -3384,10 +3329,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     final var_lastMessageAt = sse_decode_opt_box_autoadd_Chrono_Utc(
       deserializer,
     );
-    final var_groupType =
-        sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType(
-          deserializer,
-        );
+    final var_groupType = sse_decode_group_type(deserializer);
     final var_epoch = sse_decode_u_64(deserializer);
     final var_state = sse_decode_group_state(deserializer);
     return Group(
@@ -3411,6 +3353,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     final inner = sse_decode_i_32(deserializer);
     return GroupState.values[inner];
+  }
+
+  @protected
+  GroupType sse_decode_group_type(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final inner = sse_decode_i_32(deserializer);
+    return GroupType.values[inner];
   }
 
   @protected
@@ -3836,19 +3785,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @protected
   void
-  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType(
-    GroupType self,
-    SseSerializer serializer,
-  ) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-      (self as GroupTypeImpl).frbInternalSseEncode(move: true),
-      serializer,
-    );
-  }
-
-  @protected
-  void
   sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayType(
     RelayType self,
     SseSerializer serializer,
@@ -4042,19 +3978,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_usize((self as GroupIdImpl).frbInternalSseEncode(), serializer);
-  }
-
-  @protected
-  void
-  sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType(
-    GroupType self,
-    SseSerializer serializer,
-  ) {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    sse_encode_usize(
-      (self as GroupTypeImpl).frbInternalSseEncode(),
-      serializer,
-    );
   }
 
   @protected
@@ -4255,16 +4178,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_list_String(self.adminPubkeys, serializer);
     sse_encode_opt_String(self.lastMessageId, serializer);
     sse_encode_opt_box_autoadd_Chrono_Utc(self.lastMessageAt, serializer);
-    sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType(
-      self.groupType,
-      serializer,
-    );
+    sse_encode_group_type(self.groupType, serializer);
     sse_encode_u_64(self.epoch, serializer);
     sse_encode_group_state(self.state, serializer);
   }
 
   @protected
   void sse_encode_group_state(GroupState self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_group_type(GroupType self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
   }
@@ -4664,26 +4590,6 @@ class GroupIdImpl extends RustOpaque implements GroupId {
         RustLib.instance.api.rust_arc_decrement_strong_count_GroupId,
     rustArcDecrementStrongCountPtr:
         RustLib.instance.api.rust_arc_decrement_strong_count_GroupIdPtr,
-  );
-}
-
-@sealed
-class GroupTypeImpl extends RustOpaque implements GroupType {
-  // Not to be used by end users
-  GroupTypeImpl.frbInternalDcoDecode(List<dynamic> wire)
-    : super.frbInternalDcoDecode(wire, _kStaticData);
-
-  // Not to be used by end users
-  GroupTypeImpl.frbInternalSseDecode(BigInt ptr, int externalSizeOnNative)
-    : super.frbInternalSseDecode(ptr, externalSizeOnNative, _kStaticData);
-
-  static final _kStaticData = RustArcStaticData(
-    rustArcIncrementStrongCount:
-        RustLib.instance.api.rust_arc_increment_strong_count_GroupType,
-    rustArcDecrementStrongCount:
-        RustLib.instance.api.rust_arc_decrement_strong_count_GroupType,
-    rustArcDecrementStrongCountPtr:
-        RustLib.instance.api.rust_arc_decrement_strong_count_GroupTypePtr,
   );
 }
 

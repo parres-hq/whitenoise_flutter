@@ -2080,9 +2080,6 @@ flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
-    flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupType>
-);
-flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
     flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Metadata>
 );
 flutter_rust_bridge::frb_generated_moi_arc_impl_value!(
@@ -2134,16 +2131,6 @@ impl SseDecode for GroupId {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <RustOpaqueMoi<
             flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>,
-        >>::sse_decode(deserializer);
-        return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
-    }
-}
-
-impl SseDecode for GroupType {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut inner = <RustOpaqueMoi<
-            flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupType>,
         >>::sse_decode(deserializer);
         return flutter_rust_bridge::for_generated::rust_auto_opaque_decode_owned(inner);
     }
@@ -2247,16 +2234,6 @@ impl SseDecode for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpa
 }
 
 impl SseDecode for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
-        let mut inner = <usize>::sse_decode(deserializer);
-        return decode_rust_opaque_moi(inner);
-    }
-}
-
-impl SseDecode
-    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupType>>
-{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <usize>::sse_decode(deserializer);
@@ -2458,7 +2435,7 @@ impl SseDecode for crate::api::groups::Group {
         let mut var_lastMessageId = <Option<String>>::sse_decode(deserializer);
         let mut var_lastMessageAt =
             <Option<chrono::DateTime<chrono::Utc>>>::sse_decode(deserializer);
-        let mut var_groupType = <GroupType>::sse_decode(deserializer);
+        let mut var_groupType = <crate::api::groups::GroupType>::sse_decode(deserializer);
         let mut var_epoch = <u64>::sse_decode(deserializer);
         let mut var_state = <crate::api::groups::GroupState>::sse_decode(deserializer);
         return crate::api::groups::Group {
@@ -2487,6 +2464,18 @@ impl SseDecode for crate::api::groups::GroupState {
             1 => crate::api::groups::GroupState::Inactive,
             2 => crate::api::groups::GroupState::Pending,
             _ => unreachable!("Invalid variant for GroupState: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::api::groups::GroupType {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::groups::GroupType::DirectMessage,
+            1 => crate::api::groups::GroupType::Group,
+            _ => unreachable!("Invalid variant for GroupType: {}", inner),
         };
     }
 }
@@ -3049,21 +3038,6 @@ impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<GroupId>> for GroupId {
 }
 
 // Codec=Dco (DartCObject based), see doc to use other codecs
-impl flutter_rust_bridge::IntoDart for FrbWrapper<GroupType> {
-    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
-            .into_dart()
-    }
-}
-impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for FrbWrapper<GroupType> {}
-
-impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<GroupType>> for GroupType {
-    fn into_into_dart(self) -> FrbWrapper<GroupType> {
-        self.into()
-    }
-}
-
-// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for FrbWrapper<RelayType> {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self.0)
@@ -3303,6 +3277,27 @@ impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::groups::GroupState
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for FrbWrapper<crate::api::groups::GroupType> {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self.0 {
+            crate::api::groups::GroupType::DirectMessage => 0.into_dart(),
+            crate::api::groups::GroupType::Group => 1.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for FrbWrapper<crate::api::groups::GroupType>
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<FrbWrapper<crate::api::groups::GroupType>>
+    for crate::api::groups::GroupType
+{
+    fn into_into_dart(self) -> FrbWrapper<crate::api::groups::GroupType> {
+        self.into()
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::messages::MessageWithTokens {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -3469,13 +3464,6 @@ impl SseEncode for GroupId {
     }
 }
 
-impl SseEncode for GroupType {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        <RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupType>>>::sse_encode(flutter_rust_bridge::for_generated::rust_auto_opaque_encode::<_, MoiArc<_>>(self), serializer);
-    }
-}
-
 impl SseEncode for RelayType {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -3556,17 +3544,6 @@ impl SseEncode for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpa
 }
 
 impl SseEncode for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>> {
-    // Codec=Sse (Serialization based), see doc to use other codecs
-    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
-        let (ptr, size) = self.sse_encode_raw();
-        <usize>::sse_encode(ptr, serializer);
-        <i32>::sse_encode(size, serializer);
-    }
-}
-
-impl SseEncode
-    for RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupType>>
-{
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         let (ptr, size) = self.sse_encode_raw();
@@ -3737,7 +3714,7 @@ impl SseEncode for crate::api::groups::Group {
         <Vec<String>>::sse_encode(self.admin_pubkeys, serializer);
         <Option<String>>::sse_encode(self.last_message_id, serializer);
         <Option<chrono::DateTime<chrono::Utc>>>::sse_encode(self.last_message_at, serializer);
-        <GroupType>::sse_encode(self.group_type, serializer);
+        <crate::api::groups::GroupType>::sse_encode(self.group_type, serializer);
         <u64>::sse_encode(self.epoch, serializer);
         <crate::api::groups::GroupState>::sse_encode(self.state, serializer);
     }
@@ -3751,6 +3728,22 @@ impl SseEncode for crate::api::groups::GroupState {
                 crate::api::groups::GroupState::Active => 0,
                 crate::api::groups::GroupState::Inactive => 1,
                 crate::api::groups::GroupState::Pending => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::api::groups::GroupType {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::groups::GroupType::DirectMessage => 0,
+                crate::api::groups::GroupType::Group => 1,
                 _ => {
                     unimplemented!("");
                 }
@@ -4126,20 +4119,6 @@ mod io {
         ptr: *const std::ffi::c_void,
     ) {
         MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>>::decrement_strong_count(ptr as _);
-    }
-
-    #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType(
-        ptr: *const std::ffi::c_void,
-    ) {
-        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupType>>::increment_strong_count(ptr as _);
-    }
-
-    #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupType(
-        ptr: *const std::ffi::c_void,
-    ) {
-        MoiArc::<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupType>>::decrement_strong_count(ptr as _);
     }
 
     #[unsafe(no_mangle)]
