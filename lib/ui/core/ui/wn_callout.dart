@@ -28,11 +28,9 @@ class WnCallout extends StatelessWidget {
             children: [
               WnImage(
                 AssetsPaths.icInformation,
-                color: 
-                  context.colors.primary,
-                
+                color: context.colors.primary,
+
                 size: 18.w,
-                
               ),
               Gap(8.w),
               Expanded(

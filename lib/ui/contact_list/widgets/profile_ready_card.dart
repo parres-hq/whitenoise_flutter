@@ -62,10 +62,7 @@ class ProfileReadyCard extends ConsumerWidget {
                 child: WnImage(
                   AssetsPaths.icClose,
                   size: 20.w,
-                  color: 
-                    context.colors.mutedForeground,
-                  
-                  
+                  color: context.colors.mutedForeground,
                 ),
               ),
             ],
@@ -88,10 +85,8 @@ class ProfileReadyCard extends ConsumerWidget {
             visualState: WnButtonVisualState.secondary,
             suffixIcon: WnImage(
               AssetsPaths.icQrCode,
-              
-              color: 
-                context.colors.primary,
-               
+
+              color: context.colors.primary,
             ),
           ),
           Gap(12.h),
@@ -102,9 +97,7 @@ class ProfileReadyCard extends ConsumerWidget {
             size: WnButtonSize.small,
             suffixIcon: WnImage(
               AssetsPaths.icAddUser,
-              color: 
-                context.colors.primaryForeground,
-              
+              color: context.colors.primaryForeground,
             ),
           ),
         ],

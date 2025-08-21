@@ -83,12 +83,11 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
       size: WnButtonSize.small,
       visualState: WnButtonVisualState.secondary,
       label: 'Send Message',
-      suffixIcon:WnImage(
+      suffixIcon: WnImage(
         AssetsPaths.icMessage,
         width: 14.w,
         height: 13.h,
-      color:  context.colors.primary,
-       
+        color: context.colors.primary,
       ),
     );
   }

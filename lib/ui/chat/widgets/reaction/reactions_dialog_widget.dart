@@ -137,11 +137,10 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                               widget.menuItems[index].assetPath,
                               width: 20.sp,
                               height: 20.sp,
-                              color: 
-                                widget.menuItems[index].isDestructive
-                                    ? context.colors.destructive
-                                    : context.colors.primary,
-                               
+                              color:
+                                  widget.menuItems[index].isDestructive
+                                      ? context.colors.destructive
+                                      : context.colors.primary,
                             ),
                           ),
                         ],
@@ -240,9 +239,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         AssetsPaths.icFaceAdd,
         width: 22.w,
         height: 22.w,
-        color: 
-          context.colors.primary,
-          
+        color: context.colors.primary,
       ),
     );
   }

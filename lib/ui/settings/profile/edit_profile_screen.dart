@@ -117,9 +117,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                             onPressed: () => context.pop(),
                             icon: WnImage(
                               AssetsPaths.icChevronLeft,
-                              color:
-                                context.colors.primary,
-                               
+                              color: context.colors.primary,
                             ),
                           ),
                           Text(

@@ -122,10 +122,8 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                   icon: WnImage(
                     AssetsPaths.icClose,
                     size: 24.w,
-                  
-                    color:
-                      context.colors.mutedForeground,
-                    
+
+                    color: context.colors.mutedForeground,
                   ),
                   onPressed: () => Navigator.pop(context),
                 ),
@@ -241,9 +239,8 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                 child: WnImage(
                   AssetsPaths.icCopy,
                   size: 24.w,
-                
+
                   color: context.colors.primary,
-                 
                 ),
               ),
             ],
@@ -274,13 +271,11 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
           size: WnButtonSize.small,
           visualState: WnButtonVisualState.secondary,
           label: 'Add to Another Group',
-          suffixIcon:WnImage(
+          suffixIcon: WnImage(
             AssetsPaths.icChatInvite,
             width: 14.w,
             height: 13.h,
-         color:
-              context.colors.primary,
-              
+            color: context.colors.primary,
           ),
         ),
         if (currentUserIsAdmin) ...[
@@ -300,13 +295,11 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
               fontWeight: FontWeight.w600,
               fontSize: 14.sp,
             ),
-            suffixIcon:WnImage(
+            suffixIcon: WnImage(
               AssetsPaths.icRemoveOutlined,
               width: 14.w,
               height: 13.h,
-            color:
-                context.colors.destructive,
-             
+              color: context.colors.destructive,
             ),
           ),
         ] else ...[

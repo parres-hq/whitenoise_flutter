@@ -123,11 +123,9 @@ class StackedImages extends StatelessWidget {
                       height: size,
                       child: WnImage(
                         AssetsPaths.icErrorFilled,
-                        color: 
-                          context.colors.destructive,
-                          
+                        color: context.colors.destructive,
+
                         size: 24.w,
-           
                       ),
                     ),
               )

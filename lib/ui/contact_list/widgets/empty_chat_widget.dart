@@ -14,7 +14,7 @@ class EmptyChatWidget extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-         const WnImage(AssetsPaths.icChat),
+          const WnImage(AssetsPaths.icChat),
           Gap(20.h),
           Text(
             'No chats found',

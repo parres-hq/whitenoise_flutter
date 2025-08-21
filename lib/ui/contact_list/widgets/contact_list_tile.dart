@@ -134,7 +134,7 @@ class ContactListTile extends StatelessWidget {
               trailingIcon!,
             ] else if (showExpansionArrow) ...[
               Gap(16.w),
-             WnImage(AssetsPaths.icExpand, width: 11.w, height: 18.w),
+              WnImage(AssetsPaths.icExpand, width: 11.w, height: 18.w),
             ],
           ],
         ),
@@ -179,9 +179,8 @@ class ContactListTile extends StatelessWidget {
           color: Colors.red,
           child: WnImage(
             AssetsPaths.icTrashCan,
-            color: 
-              context.colors.primary,
-            
+            color: context.colors.primary,
+
             size: 24.w,
           ),
         ),

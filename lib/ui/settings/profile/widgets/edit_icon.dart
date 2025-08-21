@@ -27,9 +27,7 @@ class EditIconWidget extends StatelessWidget {
         ),
         child: WnImage(
           AssetsPaths.icEdit,
-          color: 
-            context.colors.primaryForeground,
-          
+          color: context.colors.primaryForeground,
         ),
       ),
     );

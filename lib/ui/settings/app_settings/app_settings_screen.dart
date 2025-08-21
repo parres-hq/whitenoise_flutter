@@ -216,12 +216,10 @@ class AppSettingsScreen extends ConsumerWidget {
                                 child: WnImage(
                                   AssetsPaths.icChevronLeft,
                                   size: 24.w,
-                                  color: 
-                                    context.colors.primary,
-                                  
-                                  ),
+                                  color: context.colors.primary,
                                 ),
-                              
+                              ),
+
                               Gap(16.w),
                               Text(
                                 'App Settings',
@@ -269,10 +267,8 @@ class AppSettingsScreen extends ConsumerWidget {
                             suffixIcon: WnImage(
                               AssetsPaths.icDelete,
                               size: 18.w,
-                      
-                              color: 
-                                context.colors.solidNeutralWhite,
-                               
+
+                              color: context.colors.solidNeutralWhite,
                             ),
                           ),
                         ],
@@ -351,11 +347,8 @@ class _ThemeDropdownState extends State<_ThemeDropdown> {
                 WnImage(
                   isExpanded ? AssetsPaths.icChevronUp : AssetsPaths.icChevronDown,
                   size: 20.w,
-                  color: 
-                    context.colors.primary,
-                    
-                  ),
-                
+                  color: context.colors.primary,
+                ),
               ],
             ),
           ),

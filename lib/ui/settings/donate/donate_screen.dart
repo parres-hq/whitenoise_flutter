@@ -59,9 +59,7 @@ class DonateScreen extends ConsumerWidget {
                                   AssetsPaths.icChevronLeft,
                                   width: 24.w,
                                   height: 24.w,
-                                  color: 
-                                    context.colors.primary,
-                                
+                                  color: context.colors.primary,
                                 ),
                               ),
                               Gap(16.w),

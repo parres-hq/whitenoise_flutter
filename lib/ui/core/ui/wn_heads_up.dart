@@ -40,9 +40,7 @@ class WnHeadsUp extends StatelessWidget {
             iconAsset ?? type.iconAsset,
             width: 24.w,
             height: 24.w,
-           color:
-              color,
-             
+            color: color,
           ),
           Gap(8.w),
           Expanded(

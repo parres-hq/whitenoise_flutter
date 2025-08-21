@@ -98,10 +98,8 @@ class _RelayExpansionTileState extends ConsumerState<RelayExpansionTile> {
               onTap: widget.onInfoTap,
               child: WnImage(
                 AssetsPaths.icHelp,
-                color: 
-                  context.colors.mutedForeground,
-               
-                
+                color: context.colors.mutedForeground,
+
                 size: 18.w,
               ),
             ),
@@ -110,9 +108,8 @@ class _RelayExpansionTileState extends ConsumerState<RelayExpansionTile> {
             onTap: _showAddRelayBottomSheet,
             child: WnImage(
               AssetsPaths.icAdd,
-              color: 
-                context.colors.primary,
-               
+              color: context.colors.primary,
+
               size: 23.w,
             ),
           ),

@@ -214,11 +214,9 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
                     WnImage(
                       AssetsPaths.icWarningFilled,
                       size: 16.w,
-                      color: 
-                        context.colors.destructive,
-                        
-                      ),
-                    
+                      color: context.colors.destructive,
+                    ),
+
                     Gap(8.w),
                     Text(
                       'Relay Not Supported',

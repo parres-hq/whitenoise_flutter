@@ -55,11 +55,9 @@ class _RelayTileState extends ConsumerState<RelayTile> {
                       onPressed: () => Navigator.of(context).pop(false),
                       icon: WnImage(
                         AssetsPaths.icClose,
-                        color: 
-                          context.colors.primary,
-                          
+                        color: context.colors.primary,
+
                         size: 24.w,
-                      
                       ),
                     ),
                   ],
@@ -112,11 +110,9 @@ class _RelayTileState extends ConsumerState<RelayTile> {
         ),
         leading: WnImage(
           widget.relayInfo.status.getIconAsset(),
-          color: 
-            widget.relayInfo.status.getColor(context),
-          
+          color: widget.relayInfo.status.getColor(context),
+
           size: 24.w,
-     
         ),
         title: Text(
           widget.relayInfo.url.sanitizedUrl,
@@ -130,11 +126,9 @@ class _RelayTileState extends ConsumerState<RelayTile> {
           onTap: _removeRelay,
           child: WnImage(
             AssetsPaths.icDelete,
-            color: 
-              context.colors.primary,
-             
-            size: 23.w,
+            color: context.colors.primary,
 
+            size: 23.w,
           ),
         ),
       ),

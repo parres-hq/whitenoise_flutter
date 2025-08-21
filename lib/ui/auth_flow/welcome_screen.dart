@@ -48,13 +48,11 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Column(
                 children: [
-                 WnImage(
+                  WnImage(
                     AssetsPaths.icWhiteNoiseSvg,
                     width: 170.w,
                     height: 130.h,
-                    color:
-                      context.colors.primary,
-                    
+                    color: context.colors.primary,
                   ),
                   Gap(24.h),
                   Text(

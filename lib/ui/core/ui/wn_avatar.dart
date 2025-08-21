@@ -103,9 +103,7 @@ class WnAvatar extends StatelessWidget {
           AssetsPaths.icUser,
           width: size * 0.4,
           height: size * 0.4,
-          color: 
-            context.colors.primary,
-           
+          color: context.colors.primary,
         ),
       ),
     );

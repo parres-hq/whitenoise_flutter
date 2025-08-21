@@ -126,7 +126,6 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
                     size: 24.sp,
                     height: 24.sp,
                     color: context.colors.primary,
-                
                   ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),

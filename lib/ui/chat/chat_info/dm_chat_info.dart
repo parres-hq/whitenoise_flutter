@@ -187,7 +187,6 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                       width: 24.w,
                       height: 24.w,
                       color: context.colors.primary,
-                      
                     ),
                   ),
                 ],
@@ -197,12 +196,10 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,
                 label: 'Search Chat',
-                suffixIcon:WnImage(
+                suffixIcon: WnImage(
                   AssetsPaths.icSearch,
                   width: 14.w,
-                 color:
-                    context.colors.secondaryForeground,
-                   
+                  color: context.colors.secondaryForeground,
                 ),
                 onPressed: () {
                   ref.read(chatSearchProvider(widget.groupId).notifier).activateSearch();
@@ -216,14 +213,13 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                     isContact ? WnButtonVisualState.secondary : WnButtonVisualState.primary,
                 label: isContact ? 'Remove Contact' : 'Add Contact',
                 loading: isContactLoading,
-                suffixIcon:WnImage(
+                suffixIcon: WnImage(
                   isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
                   width: 14.w,
                   color:
-                    isContact
-                        ? context.colors.secondaryForeground
-                        : context.colors.primaryForeground,
-                  
+                      isContact
+                          ? context.colors.secondaryForeground
+                          : context.colors.primaryForeground,
                 ),
                 onPressed:
                     isContactLoading
@@ -244,9 +240,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 suffixIcon: WnImage(
                   AssetsPaths.icAdd,
                   width: 14.w,
-                  color:
-                    context.colors.secondaryForeground,
-                   
+                  color: context.colors.secondaryForeground,
                 ),
                 onPressed: _openAddToGroup,
               ),

@@ -149,11 +149,9 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                           onPressed: () => Navigator.of(context).pop(),
                           icon: WnImage(
                             AssetsPaths.icChevronLeft,
-                            color:
-                              context.colors.primary,
-                             
+                            color: context.colors.primary,
+
                             size: 24.w,
-                          
                           ),
                         ),
                         Text(

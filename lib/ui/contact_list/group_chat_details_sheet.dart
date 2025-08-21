@@ -242,10 +242,8 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                       : WnImage(
                         AssetsPaths.icCamera,
                         size: 42.w,
-                   
-                        color: 
-                          context.colors.mutedForeground,
-                       
+
+                        color: context.colors.mutedForeground,
                       ),
             ),
           ),

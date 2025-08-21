@@ -427,11 +427,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                   padding: EdgeInsets.all(12.w),
                                   child: WnImage(
                                     AssetsPaths.icSearch,
-                                    color: 
-                                      context.colors.primary,
-                                      
+                                    color: context.colors.primary,
+
                                     size: 20.w,
-                                    
                                   ),
                                 ),
                                 suffixIcon: GestureDetector(
@@ -440,11 +438,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                     padding: EdgeInsets.all(12.w),
                                     child: WnImage(
                                       AssetsPaths.icClose,
-                                      color: 
-                                        context.colors.primary,
-                                        
+                                      color: context.colors.primary,
+
                                       size: 20.w,
-                                  
                                     ),
                                   ),
                                 ),
@@ -526,8 +522,7 @@ class _EmptyGroupList extends StatelessWidget {
               AssetsPaths.icWhiteNoiseSvg,
               width: 69.17.w,
               height: 53.20.h,
-              color: 
-                context.colors.primary,
+              color: context.colors.primary,
             ),
             Gap(12.h),
             Text(

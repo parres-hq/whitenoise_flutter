@@ -96,9 +96,8 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                             onTap: () => context.pop(),
                             child: WnImage(
                               AssetsPaths.icChevronLeft,
-                              color: 
-                                context.colors.primary,
-                               
+                              color: context.colors.primary,
+
                               width: 24.w,
                               height: 24.w,
                             ),
@@ -202,11 +201,9 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                 children: [
                                   WnImage(
                                     AssetsPaths.icErrorFilled,
-                                    color: 
-                                      context.colors.destructive,
-                                      
+                                    color: context.colors.destructive,
+
                                     size: 20.w,
-               
                                   ),
                                   Gap(12.w),
                                   Expanded(

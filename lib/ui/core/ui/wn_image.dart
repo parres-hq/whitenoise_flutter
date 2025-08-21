@@ -31,12 +31,15 @@ class WnImage extends StatelessWidget {
 
   /// Image source (path, link).
   final String src;
+
   /// The width of the image. Use ```size``` if you wish to set a square image.
   /// i.e. width == height.
   final double? width;
+
   /// The height of the image. Use ```size``` if you wish to set a square image.
   /// i.e. width == height.
   final double? height;
+
   /// This is used for square images (used as both height and width).
   final double? size;
   final BoxFit? fit;
@@ -98,7 +101,7 @@ class WnImage extends StatelessWidget {
         final color = this.color;
         child = SvgPicture.asset(
           src,
-          width:  size ??width,
+          width: size ?? width,
           height: size ?? height,
           fit: fit ?? BoxFit.contain,
           alignment: alignment,
@@ -141,8 +144,8 @@ class WnImage extends StatelessWidget {
   Widget _buildError(BuildContext context) {
     final errorWidget = this.errorWidget;
     if (errorWidget != null) return errorWidget(context);
-    final width =  size ??this.width;
-    final height =  size ??this.height;
+    final width = size ?? this.width;
+    final height = size ?? this.height;
     return SizedBox(
       width: width,
       height: height,

@@ -143,10 +143,8 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                                     child: WnImage(
                                       AssetsPaths.icCopy,
                                       size: 24.w,
-                                 
-                                      color: 
-                                        context.colors.primary,
-                                      
+
+                                      color: context.colors.primary,
                                     ),
                                   ),
                                 ],
@@ -179,10 +177,8 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                               suffixIcon: WnImage(
                                 AssetsPaths.icScan,
                                 size: 18.w,
-                             
-                                color: 
-                                  context.colors.primaryForeground,
-                                 
+
+                                color: context.colors.primaryForeground,
                               ),
                               onPressed: () => context.push(Routes.settingsShareProfileQrScan),
                             ),

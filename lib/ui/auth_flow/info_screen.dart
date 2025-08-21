@@ -123,9 +123,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 label: 'Setup Profile',
                 suffixIcon: WnImage(
                   AssetsPaths.icArrowRight,
-                  color:
-                    context.colors.primaryForeground,
-                   
+                  color: context.colors.primaryForeground,
                 ),
               );
             },

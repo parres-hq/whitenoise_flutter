@@ -291,9 +291,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
             AssetsPaths.icChevronLeft,
             width: 24.w,
             height: 24.w,
-            color: 
-              context.colors.primarySolid,
-            
+            color: context.colors.primarySolid,
           ),
         ),
         title: Row(
@@ -324,9 +322,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                         trailingIcon: WnImage(
                           AssetsPaths.icQrCode,
                           size: 20.w,
-                          color: 
-                            context.colors.primary,
-                           
+                          color: context.colors.primary,
                         ),
                         onTap: () => context.push('${Routes.settings}/share_profile'),
                       )
@@ -340,10 +336,8 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                       onPressed: () => _showAccountSwitcher(),
                       suffixIcon: WnImage(
                         AssetsPaths.icArrowsVertical,
-             
-                        color: 
-                          context.colors.primary,
-                          
+
+                        color: context.colors.primary,
                       ),
                     ),
                     Gap(16.h),
@@ -441,12 +435,10 @@ class SettingsListTile extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 16.h),
         child: Row(
           children: [
-           WnImage(
+            WnImage(
               assetPath,
               size: 24.w,
-              color:
-                foregroundColor ?? context.colors.primary,
-               
+              color: foregroundColor ?? context.colors.primary,
             ),
             Gap(12.w),
             Expanded(

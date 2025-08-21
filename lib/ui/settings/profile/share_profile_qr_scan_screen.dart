@@ -117,9 +117,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
                             suffixIcon: WnImage(
                               AssetsPaths.icQrCode,
                               size: 18.w,
-                              color: 
-                                context.colors.primaryForeground,
-                               
+                              color: context.colors.primaryForeground,
                             ),
                           ),
                           Gap(64.h),

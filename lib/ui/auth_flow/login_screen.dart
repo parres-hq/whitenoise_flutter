@@ -152,9 +152,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                     ),
                   ),
                   Gap(79.5.h),
-                 const Expanded(
+                  const Expanded(
                     child: Center(
-                      child:WnImage(
+                      child: WnImage(
                         AssetsPaths.login,
                         fit: BoxFit.contain,
                         width: double.infinity,
@@ -188,12 +188,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                                   onTap: _scanQRCode,
                                   child: Padding(
                                     padding: EdgeInsets.all(12.w),
-                                    child:WnImage(
+                                    child: WnImage(
                                       AssetsPaths.icScan,
                                       size: 16.w,
                                       height: 16.w,
                                       color: context.colors.primary,
-                                      
                                     ),
                                   ),
                                 ),

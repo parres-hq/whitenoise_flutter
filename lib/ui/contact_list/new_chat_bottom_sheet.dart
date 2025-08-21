@@ -386,11 +386,9 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
               padding: EdgeInsets.all(12.w),
               child: WnImage(
                 AssetsPaths.icSearch,
-                color: 
-                  context.colors.primary,
-               
+                color: context.colors.primary,
+
                 size: 20.w,
-               
               ),
             ),
             suffixIcon: GestureDetector(
@@ -400,9 +398,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                 child: WnImage(
                   AssetsPaths.icScan,
                   size: 16.w,
-                  color: 
-                    context.colors.primary,
-                   
+                  color: context.colors.primary,
                 ),
               ),
             ),
@@ -611,9 +607,8 @@ class NewChatTile extends StatelessWidget {
         children: [
           WnImage(
             iconPath,
-            color: 
-              context.colors.primary,
-            
+            color: context.colors.primary,
+
             size: 20.w,
           ),
           Gap(10.w),
@@ -628,10 +623,8 @@ class NewChatTile extends StatelessWidget {
 
           WnImage(
             AssetsPaths.icChevronRight,
-            color: 
-              context.colors.primary,
-          
-           
+            color: context.colors.primary,
+
             width: 8.55.w,
             height: 15.w,
           ),

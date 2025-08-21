@@ -90,9 +90,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                       onPressed: () => Navigator.of(context).pop(),
                       icon: WnImage(
                         AssetsPaths.icChevronLeft,
-                        color: 
-                          context.colors.primary,
-                          
+                        color: context.colors.primary,
                       ),
                     ),
                     Text(

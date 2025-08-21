@@ -127,11 +127,9 @@ class WnBottomSheet {
                   onPressed: () => Navigator.pop(context),
                   icon: WnImage(
                     AssetsPaths.icChevronLeft,
-                    color: 
-                      context.colors.primary,
-                      
+                    color: context.colors.primary,
+
                     size: 24.w,
-                    
                   ),
                 ),
                 Gap(8.w),
@@ -156,11 +154,9 @@ class WnBottomSheet {
             onTap: () => Navigator.pop(context),
             child: WnImage(
               AssetsPaths.icClose,
-              color: 
-                context.colors.primary,
-              
+              color: context.colors.primary,
+
               size: 24.w,
-              
             ),
           ),
       ],

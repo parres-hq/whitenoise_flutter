@@ -142,12 +142,11 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
               color: context.colors.primary.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
-            child:WnImage(
+            child: WnImage(
               AssetsPaths.icReply,
-           color:  context.colors.primary,
-             
-              size: 16.w,
+              color: context.colors.primary,
 
+              size: 16.w,
             ),
           ),
         ),

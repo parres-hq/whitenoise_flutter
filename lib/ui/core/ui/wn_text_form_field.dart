@@ -115,9 +115,9 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
         (_, hasError, _) =>
             hasError
                 ? WnImage(
-                    AssetsPaths.icErrorFilled,
-                    color: context.colors.destructive,
-                  )
+                  AssetsPaths.icErrorFilled,
+                  color: context.colors.destructive,
+                )
                 : (widget.decoration?.suffixIcon ?? const SizedBox.shrink()),
   );
 
