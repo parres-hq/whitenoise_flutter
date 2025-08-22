@@ -44,12 +44,9 @@ class NostrKeysNotifier extends Notifier<NostrKeysState> {
 
       _logger.info('NostrKeysNotifier: Loading keys for account: ${activeAccountData.pubkey}');
 
-      // Convert pubkey string to PublicKey object
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-
-      // Load npub and nsec
-      final npubString = await exportAccountNpub(pubkey: publicKey);
-      final nsecString = await exportAccountNsec(pubkey: publicKey);
+      // Load npub and nsec directly from hex pubkey string
+      final npubString = await npubFromHexPubkey(hexPubkey: activeAccountData.pubkey);
+      final nsecString = await exportAccountNsec(pubkey: activeAccountData.pubkey);
 
       state = state.copyWith(
         npub: npubString,
