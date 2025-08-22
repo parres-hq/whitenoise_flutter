@@ -95,8 +95,8 @@ class AuthNotifier extends Notifier<AuthState> {
       // Account created successfully
 
       // Get the newly created account data and set it as active
-      final accountData = await convertAccountToData(account: account);
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
+
+      await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
 
       state = state.copyWith(isAuthenticated: true);
 
@@ -124,8 +124,7 @@ class AuthNotifier extends Notifier<AuthState> {
       // Account created successfully
 
       // Get the newly created account data and set it as active
-      final accountData = await convertAccountToData(account: account);
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
+      await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
 
       state = state.copyWith(isAuthenticated: true);
 
@@ -147,7 +146,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
     try {
       // Save existing accounts (before login)
-      List<AccountData> existingAccounts = [];
+      List<Account> existingAccounts = [];
       try {
         existingAccounts = await getAccounts();
         _logger.info('Existing accounts before login: ${existingAccounts.length}');
@@ -162,15 +161,15 @@ class AuthNotifier extends Notifier<AuthState> {
       // Account logged in successfully
 
       // Get the logged in account data and set it as active
-      final accountData = await convertAccountToData(account: account);
-      _logger.info('Converting account to data: ${accountData.pubkey}');
+
+      _logger.info('Converting account to data: ${account.pubkey}');
 
       // Set authenticated state first
       state = state.copyWith(isAuthenticated: true);
 
       // Then set the active account
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
-      _logger.info('Set active account: ${accountData.pubkey}');
+      await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
+      _logger.info('Set active account: ${account.pubkey}');
 
       // Load account data after login
       await ref.read(accountProvider.notifier).loadAccountData();
@@ -236,8 +235,8 @@ class AuthNotifier extends Notifier<AuthState> {
       // Account logged in successfully
 
       // Get the logged in account data and set it as active
-      final accountData = await convertAccountToData(account: account);
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(accountData.pubkey);
+
+      await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
 
       state = state.copyWith(isAuthenticated: true);
 
@@ -300,10 +299,7 @@ class AuthNotifier extends Notifier<AuthState> {
       final activeAccountData =
           await ref.read(activeAccountProvider.notifier).getActiveAccountData();
       if (activeAccountData != null) {
-        final publicKey = await publicKeyFromString(
-          publicKeyString: activeAccountData.pubkey,
-        );
-        await logout(pubkey: publicKey);
+        await logout(pubkey: activeAccountData.pubkey);
 
         // Clear the active account
         await ref.read(activeAccountProvider.notifier).clearActiveAccount();
