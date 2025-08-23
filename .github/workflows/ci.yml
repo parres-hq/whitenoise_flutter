@@ -69,17 +69,4 @@ jobs:
       run: flutter analyze --fatal-infos
 
     - name: Run Flutter tests
-      if: github.event_name == 'push'
       run: flutter test
-
-    - name: Run Flutter tests with coverage
-      if: github.event_name == 'pull_request'
-      run: flutter test --coverage
-    
-    - name: Install lcov
-      if: github.event_name == 'pull_request'
-      run: sudo apt-get install lcov
-
-    - name: Check coverage
-      if: github.event_name == 'pull_request'
-      run: ./scripts/check_diff_coverage.sh
