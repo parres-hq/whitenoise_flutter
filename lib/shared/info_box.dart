@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class InfoBox extends StatelessWidget {
   const InfoBox({
@@ -26,11 +26,11 @@ class InfoBox extends StatelessWidget {
         children: [
           Padding(
             padding: EdgeInsets.only(top: 4.w),
-            child: SvgPicture.asset(
+            child: WnImage(
               AssetsPaths.icWarning,
               width: 16.w,
               height: 16.w,
-              colorFilter: ColorFilter.mode(colorTheme, BlendMode.srcIn),
+              color: colorTheme,
             ),
           ),
           Gap(12.w),

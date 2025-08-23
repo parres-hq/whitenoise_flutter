@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -19,6 +18,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -85,7 +85,7 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
                   icon: Icon(
                     Icons.close,
                     color: context.colors.primary,
-                    size: 24.sp,
+                    size: 24.w,
                   ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),

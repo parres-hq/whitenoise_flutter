@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
@@ -11,6 +10,7 @@ import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class SendMessageButton extends ConsumerStatefulWidget {
   const SendMessageButton(this.user, {super.key});
@@ -83,14 +83,11 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
       size: WnButtonSize.small,
       visualState: WnButtonVisualState.secondary,
       label: 'Send Message',
-      suffixIcon: SvgPicture.asset(
+      suffixIcon: WnImage(
         AssetsPaths.icMessage,
         width: 14.w,
         height: 13.h,
-        colorFilter: ColorFilter.mode(
-          context.colors.primary,
-          BlendMode.srcIn,
-        ),
+        color: context.colors.primary,
       ),
     );
   }
@@ -159,14 +156,10 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
       size: WnButtonSize.small,
       visualState: WnButtonVisualState.secondary,
       label: isContact ? 'Remove Contact' : 'Add Contact',
-      suffixIcon: SvgPicture.asset(
+      suffixIcon: WnImage(
         isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
-        width: 11.w,
-        height: 11.w,
-        colorFilter: ColorFilter.mode(
-          context.colors.primary,
-          BlendMode.srcIn,
-        ),
+        size: 11.w,
+        color: context.colors.primary,
       ),
     );
   }

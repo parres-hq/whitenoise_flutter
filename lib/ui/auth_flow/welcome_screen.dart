@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -48,14 +48,11 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               padding: EdgeInsets.symmetric(horizontal: 24.w),
               child: Column(
                 children: [
-                  SvgPicture.asset(
+                  WnImage(
                     AssetsPaths.icWhiteNoiseSvg,
                     width: 170.w,
                     height: 130.h,
-                    colorFilter: ColorFilter.mode(
-                      context.colors.primary,
-                      BlendMode.srcIn,
-                    ),
+                    color: context.colors.primary,
                   ),
                   Gap(24.h),
                   Text(

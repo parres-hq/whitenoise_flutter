@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -14,6 +13,7 @@ import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class ShareProfileQrScanScreen extends ConsumerStatefulWidget {
@@ -114,14 +114,10 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
                           WnFilledButton(
                             label: 'View QR Code',
                             onPressed: () => context.pop(),
-                            suffixIcon: SvgPicture.asset(
+                            suffixIcon: WnImage(
                               AssetsPaths.icQrCode,
-                              height: 18.w,
-                              width: 18.w,
-                              colorFilter: ColorFilter.mode(
-                                context.colors.primaryForeground,
-                                BlendMode.srcIn,
-                              ),
+                              size: 18.w,
+                              color: context.colors.primaryForeground,
                             ),
                           ),
                           Gap(64.h),

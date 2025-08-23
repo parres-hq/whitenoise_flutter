@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
@@ -13,6 +12,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
 
@@ -115,12 +115,9 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                         children: [
                           IconButton(
                             onPressed: () => context.pop(),
-                            icon: SvgPicture.asset(
+                            icon: WnImage(
                               AssetsPaths.icChevronLeft,
-                              colorFilter: ColorFilter.mode(
-                                context.colors.primary,
-                                BlendMode.srcIn,
-                              ),
+                              color: context.colors.primary,
                             ),
                           ),
                           Text(
