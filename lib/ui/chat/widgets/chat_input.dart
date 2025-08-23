@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
@@ -164,11 +165,12 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                                   children: [
                                     Gap(4.w),
                                     WnIconButton(
-                                          onPressed: _sendMessage,
-                                          icon: Icons.arrow_upward,
-                                          backgroundColor: context.colors.primary,
-                                          iconColor: context.colors.primaryForeground,
+                                          iconPath: AssetsPaths.icArrowUp,
+                                          padding: 18.w,
                                           size: 56.h,
+                                          onTap: _sendMessage,
+                                          buttonColor: context.colors.primary,
+                                          iconColor: context.colors.primaryForeground,
                                         )
                                         .animate()
                                         .fadeIn(

@@ -8,11 +8,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/relay_validation.dart';
 
@@ -189,7 +189,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
               ),
             ),
             Gap(4.w),
-            CustomIconButton(
+            WnIconButton(
               onTap: _pasteFromClipboard,
               iconPath: AssetsPaths.icPaste,
               size: 56.h,

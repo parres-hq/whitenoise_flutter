@@ -1,47 +1,45 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
 class WnIconButton extends StatelessWidget {
-  const WnIconButton({
-    super.key,
-    this.onPressed,
-    required this.icon,
-    this.size = 52,
-    this.iconSize = 20,
-    this.backgroundColor,
-    this.borderColor,
-    this.iconColor,
-    this.hasBorder = false,
-  });
-  final VoidCallback? onPressed;
-  final IconData icon;
-  final double size;
-  final double iconSize;
-  final Color? backgroundColor;
-  final Color? borderColor;
+  final void Function()? onTap;
+  final String iconPath;
+  final double? padding;
+  final double? size;
+  final Color? buttonColor;
   final Color? iconColor;
-  final bool hasBorder;
+
+  const WnIconButton({
+    required this.onTap,
+    required this.iconPath,
+    this.padding,
+    this.size,
+    this.buttonColor,
+    this.iconColor,
+    super.key,
+  });
+
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onPressed,
+    return GestureDetector(
+      onTap: onTap,
       child: Container(
-        height: size,
+        height: size ?? 40.h,
         width: size,
         decoration: BoxDecoration(
-          color: backgroundColor ?? context.colors.avatarSurface,
-          border:
-              hasBorder
-                  ? Border.all(
-                    color: borderColor ?? context.colors.input,
-                  )
-                  : null,
+          border: Border.all(color: buttonColor ?? context.colors.input),
+          color: buttonColor ?? Colors.transparent,
         ),
-        child: Icon(
-          icon,
-          size: iconSize.sp,
-          color: iconColor ?? context.colors.primary,
+        child: Padding(
+          padding: EdgeInsets.all(padding ?? 12.w),
+          child: SvgPicture.asset(
+            iconPath,
+            width: 16.w,
+            height: 16.w,
+            colorFilter: ColorFilter.mode(iconColor ?? context.colors.primary, BlendMode.srcIn),
+          ),
         ),
       ),
     );
