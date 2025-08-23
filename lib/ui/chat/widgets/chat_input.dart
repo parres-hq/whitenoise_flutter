@@ -253,13 +253,16 @@ class ReplyEditHeader extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: onCancel,
-                child: SvgPicture.asset(
-                  AssetsPaths.icClose,
-                  width: 16.w,
-                  height: 16.w,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.mutedForeground,
-                    BlendMode.srcIn,
+                child: Padding(
+                  padding: EdgeInsets.all(8.w),
+                  child: SvgPicture.asset(
+                    AssetsPaths.icClose,
+                    width: 16.w,
+                    height: 16.w,
+                    colorFilter: ColorFilter.mode(
+                      context.colors.mutedForeground,
+                      BlendMode.srcIn,
+                    ),
                   ),
                 ),
               ),
