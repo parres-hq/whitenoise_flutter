@@ -94,6 +94,17 @@ class WnImage extends StatelessWidget {
           errorWidget: (context, url, error) => _buildError(context),
           color: color,
           colorBlendMode: color == null ? null : BlendMode.srcIn,
+          imageBuilder:
+              (context, provider) => Image(
+                image: provider,
+                width: width,
+                height: height,
+                fit: fit,
+                alignment: alignment,
+                color: color,
+                colorBlendMode: color == null ? null : BlendMode.srcIn,
+                semanticLabel: semanticLabel,
+              ),
         );
       }
     } else {

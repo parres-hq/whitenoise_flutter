@@ -191,7 +191,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                                     child: WnImage(
                                       AssetsPaths.icScan,
                                       size: 16.w,
-                                      height: 16.w,
                                       color: context.colors.primary,
                                     ),
                                   ),
