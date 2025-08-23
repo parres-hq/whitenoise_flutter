@@ -5,7 +5,6 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 
 // State for relay management
@@ -72,11 +71,11 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       }
       _logger.info('NormalRelaysNotifier: Active account data: $pubKeyString');
 
-      // Convert pubkey string to PublicKey object
-      final pubKey = await publicKeyFromString(publicKeyString: pubKeyString);
-      final account = await loadAccount(pubkey: pubKey);
-
-      final relayUrls = account.nip65Relays;
+      final nip65RelayType = await relayTypeNip65();
+      final relayUrls = await accountRelays(
+        pubkey: pubKeyString,
+        relayType: nip65RelayType,
+      ).then((value) => value.map((relay) => relay.url).toList());
 
       // If no relays found, log this information
       if (relayUrls.isEmpty) {
@@ -94,13 +93,14 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
       final relayInfos = await Future.wait<RelayInfo>(
         relayUrls.map((relayUrl) async {
-          final url = await stringFromRelayUrl(relayUrl: relayUrl);
           // Get status from relay status provider
           final statusNotifier = ref.read(relayStatusProvider.notifier);
-          final status = statusNotifier.getRelayStatus(url);
-          final connected = statusNotifier.isRelayConnected(url);
-          _logger.info('NormalRelaysNotifier: Relay $url - status: $status, connected: $connected');
-          return RelayInfo(url: url, connected: connected, status: status);
+          final status = statusNotifier.getRelayStatus(relayUrl);
+          final connected = statusNotifier.isRelayConnected(relayUrl);
+          _logger.info(
+            'NormalRelaysNotifier: Relay $relayUrl - status: $status, connected: $connected',
+          );
+          return RelayInfo(url: relayUrl, connected: connected, status: status);
         }),
       );
 
@@ -117,19 +117,16 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final accountPubKeyString = ref.read(activeAccountProvider);
+      final accountPubKey = ref.read(activeAccountProvider);
 
-      if (accountPubKeyString == null) {
+      if (accountPubKey == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: accountPubKeyString);
-      final relay = await relayUrlFromString(url: url);
 
-      await addNip65Relay(
-        pubkey: publicKey,
-        relay: relay,
-      );
+      final nip65RelayType = await relayTypeNip65();
+      await addAccountRelay(pubkey: accountPubKey, url: url, relayType: nip65RelayType);
+
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to add relay: $e');
@@ -138,18 +135,14 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      final accountPubKeyString = ref.read(activeAccountProvider);
-      if (accountPubKeyString == null) {
+      final accountPubKey = ref.read(activeAccountProvider);
+      if (accountPubKey == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: accountPubKeyString);
-      final relay = await relayUrlFromString(url: url);
 
-      await removeNip65Relay(
-        pubkey: publicKey,
-        relay: relay,
-      );
+      final nip65RelayType = await relayTypeNip65();
+      await removeAccountRelay(pubkey: accountPubKey, url: url, relayType: nip65RelayType);
 
       await loadRelays();
     } catch (e) {
@@ -188,24 +181,24 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       }
 
       // Get the active account data directly
-      final pubKeyString = ref.read(activeAccountProvider);
+      final accountPubKey = ref.read(activeAccountProvider);
 
-      if (pubKeyString == null) {
+      if (accountPubKey == null) {
         _logger.warning('InboxRelaysNotifier: No active account found');
         state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
-      _logger.info('InboxRelaysNotifier: Active account data: $pubKeyString');
-      // Convert pubkey string to PublicKey object
-      final pubKey = await publicKeyFromString(publicKeyString: pubKeyString);
-      final account = await loadAccount(pubkey: pubKey);
+      _logger.info('InboxRelaysNotifier: Active account data: $accountPubKey');
+      final inboxRelayType = await relayTypeInbox();
+      final inboxRelayUrls = await accountRelays(
+        pubkey: accountPubKey,
+        relayType: inboxRelayType,
+      ).then((value) => value.map((relay) => relay.url).toList());
 
-      final relayUrls = account.inboxRelays;
-
-      _logger.info('InboxRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
+      _logger.info('InboxRelaysNotifier: Fetched ${inboxRelayUrls.length} relay URLs');
 
       // If no relays found, log this information
-      if (relayUrls.isEmpty) {
+      if (inboxRelayUrls.isEmpty) {
         _logger.warning('InboxRelaysNotifier: No inbox relays found for user.');
         state = state.copyWith(relays: [], isLoading: false);
         return;
@@ -219,14 +212,15 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       }
 
       final relayInfos = await Future.wait<RelayInfo>(
-        relayUrls.map((relayUrl) async {
-          final url = await stringFromRelayUrl(relayUrl: relayUrl);
+        inboxRelayUrls.map((relayUrl) async {
           // Get status from relay status provider
           final statusNotifier = ref.read(relayStatusProvider.notifier);
-          final status = statusNotifier.getRelayStatus(url);
-          final connected = statusNotifier.isRelayConnected(url);
-          _logger.info('InboxRelaysNotifier: Relay $url - status: $status, connected: $connected');
-          return RelayInfo(url: url, connected: connected, status: status);
+          final status = statusNotifier.getRelayStatus(relayUrl);
+          final connected = statusNotifier.isRelayConnected(relayUrl);
+          _logger.info(
+            'InboxRelaysNotifier: Relay $relayUrl - status: $status, connected: $connected',
+          );
+          return RelayInfo(url: relayUrl, connected: connected, status: status);
         }),
       );
 
@@ -243,17 +237,17 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final accountPubKeyString = ref.read(activeAccountProvider);
-      if (accountPubKeyString == null) {
+      final accountPubKey = ref.read(activeAccountProvider);
+      if (accountPubKey == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: accountPubKeyString);
-      final relay = await relayUrlFromString(url: url);
 
-      await addInboxRelay(
-        pubkey: publicKey,
-        relay: relay,
+      final inboxRelayType = await relayTypeInbox();
+      await addAccountRelay(
+        pubkey: accountPubKey,
+        url: url,
+        relayType: inboxRelayType,
       );
       await loadRelays();
     } catch (e) {
@@ -269,12 +263,11 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: accountPubKeyString);
-      final relay = await relayUrlFromString(url: url);
-
-      await removeInboxRelay(
-        pubkey: publicKey,
-        relay: relay,
+      final inboxRelayType = await relayTypeInbox();
+      await removeAccountRelay(
+        pubkey: accountPubKeyString,
+        url: url,
+        relayType: inboxRelayType,
       );
       await loadRelays();
     } catch (e) {
@@ -321,11 +314,12 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
         return;
       }
       _logger.info('KeyPackageRelaysNotifier: Active account data: $pubKeyString');
-      // Convert pubkey string to PublicKey object
-      final pubKey = await publicKeyFromString(publicKeyString: pubKeyString);
-      final account = await loadAccount(pubkey: pubKey);
-
-      final relayUrls = account.keyPackageRelays;
+      // Fetch key package relays via new bridge
+      final keyPackageType = await relayTypeKeyPackage();
+      final relayUrls = await accountRelays(
+        pubkey: pubKeyString,
+        relayType: keyPackageType,
+      ).then((value) => value.map((relay) => relay.url).toList());
 
       _logger.info('KeyPackageRelaysNotifier: Fetched ${relayUrls.length} relay URLs');
 
@@ -341,15 +335,14 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
       final relayInfos = await Future.wait<RelayInfo>(
         relayUrls.map((relayUrl) async {
-          final url = await stringFromRelayUrl(relayUrl: relayUrl);
           // Get status from relay status provider
           final statusNotifier = ref.read(relayStatusProvider.notifier);
-          final status = statusNotifier.getRelayStatus(url);
-          final connected = statusNotifier.isRelayConnected(url);
+          final status = statusNotifier.getRelayStatus(relayUrl);
+          final connected = statusNotifier.isRelayConnected(relayUrl);
           _logger.info(
-            'KeyPackageRelaysNotifier: Relay $url - status: $status, connected: $connected',
+            'KeyPackageRelaysNotifier: Relay $relayUrl - status: $status, connected: $connected',
           );
-          return RelayInfo(url: url, connected: connected, status: status);
+          return RelayInfo(url: relayUrl, connected: connected, status: status);
         }),
       );
 
@@ -371,13 +364,8 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: accountPubKeyString);
-      final relay = await relayUrlFromString(url: url);
-
-      await addKeyPackageRelay(
-        pubkey: publicKey,
-        relay: relay,
-      );
+      final keyPackageType = await relayTypeKeyPackage();
+      await addAccountRelay(pubkey: accountPubKeyString, url: url, relayType: keyPackageType);
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to add relay: $e');
@@ -392,13 +380,8 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: accountPubKeyString);
-      final relay = await relayUrlFromString(url: url);
-
-      await removeKeyPackageRelay(
-        pubkey: publicKey,
-        relay: relay,
-      );
+      final keyPackageType = await relayTypeKeyPackage();
+      await removeAccountRelay(pubkey: accountPubKeyString, url: url, relayType: keyPackageType);
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to delete relay: $e');

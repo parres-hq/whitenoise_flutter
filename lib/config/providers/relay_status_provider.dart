@@ -6,9 +6,8 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/models/relay_status.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/src/rust/lib.dart';
 
 // State for relay status management
 class RelayStatusState {
@@ -74,14 +73,11 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
         return;
       }
 
-      // Convert pubkey string to PublicKey object
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-
       _logger.info(
         'RelayStatusNotifier: Fetching relay statuses for pubkey: ${activeAccountData.pubkey}',
       );
       // Fetch relay statuses using the Rust function
-      final relayStatuses = await fetchRelayStatus(pubkey: publicKey);
+      final relayStatuses = await fetchRelayStatus(pubkey: activeAccountData.pubkey);
       _logger.info('RelayStatusNotifier: Fetched ${relayStatuses.length} relay statuses');
 
       // Convert list of tuples to map
@@ -127,19 +123,29 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
         return false;
       }
 
-      // Use cached account data instead of calling loadAccount() every time
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        return false;
-      }
+      // Read the active account pubkey string
+      final accountPubKey = ref.read(activeAccountProvider);
+      if (accountPubKey == null) return false;
 
-      // Check each relay type separately using the cached account data
-      final hasConnectedNostr = await _hasConnectedRelayOfType(activeAccountData.nip65Relays);
-      final hasConnectedInbox = await _hasConnectedRelayOfType(activeAccountData.inboxRelays);
-      final hasConnectedKeyPackage = await _hasConnectedRelayOfType(
-        activeAccountData.keyPackageRelays,
-      );
+      // Fetch relay URLs for each type using new bridge methods
+      final nip65Type = await relayTypeNip65();
+      final inboxType = await relayTypeInbox();
+      final keyPackageType = await relayTypeKeyPackage();
+
+      final nip65Urls = (await accountRelays(pubkey: accountPubKey, relayType: nip65Type))
+          .map((r) => r.url)
+          .toList();
+      final inboxUrls = (await accountRelays(pubkey: accountPubKey, relayType: inboxType))
+          .map((r) => r.url)
+          .toList();
+      final keyPackageUrls = (await accountRelays(pubkey: accountPubKey, relayType: keyPackageType))
+          .map((r) => r.url)
+          .toList();
+
+      // Check each relay type separately using URL strings
+      final hasConnectedNostr = await _hasConnectedRelayOfType(nip65Urls);
+      final hasConnectedInbox = await _hasConnectedRelayOfType(inboxUrls);
+      final hasConnectedKeyPackage = await _hasConnectedRelayOfType(keyPackageUrls);
 
       return hasConnectedNostr && hasConnectedInbox && hasConnectedKeyPackage;
     } catch (e) {
@@ -148,13 +154,12 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
     }
   }
 
-  Future<bool> _hasConnectedRelayOfType(List<RelayUrl> relayUrls) async {
+  Future<bool> _hasConnectedRelayOfType(List<String> relayUrls) async {
     if (relayUrls.isEmpty) {
       return false;
     }
 
-    for (final relayUrl in relayUrls) {
-      final url = await stringFromRelayUrl(relayUrl: relayUrl);
+    for (final url in relayUrls) {
       if (isRelayConnected(url)) {
         return true;
       }
