@@ -24,7 +24,9 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
+          flutter-version: '3.32.x'
+          channel: 'stable'
+          cache: true
 
       - name: Install dependencies
         run: flutter pub get
@@ -62,7 +64,7 @@ jobs:
             --build-number=$VERSION_CODE
 
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk
