@@ -78,7 +78,7 @@ class ChatListItemTile extends ConsumerWidget {
     BuildContext context,
     String displayName,
     String? displayImage,
-    GroupData group,
+    Group group,
   ) {
     final displayImageUrl = displayImage ?? '';
     return InkWell(

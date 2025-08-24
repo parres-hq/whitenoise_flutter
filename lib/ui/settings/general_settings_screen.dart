@@ -5,18 +5,15 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/accounts_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
@@ -34,8 +31,8 @@ class GeneralSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
-  List<AccountData> _accounts = [];
-  AccountData? _currentAccount;
+  List<Account> _accounts = [];
+  Account? _activeAccount;
   Map<String, ContactModel> _accountContactModels = {}; // Cache for contact models
   ProviderSubscription<AsyncValue<ProfileState>>? _profileSubscription;
   @override
@@ -64,49 +61,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   Future<void> _loadAccounts() async {
     try {
-      final accounts = await getAccounts();
-      final activeAccountPubkey = ref.read(activeAccountProvider);
-
-      // Load metadata for all accounts using metadata cache
-      final metadataCache = ref.read(metadataCacheProvider.notifier);
-      final contactModels = <String, ContactModel>{};
-      for (final account in accounts) {
-        try {
-          // Use metadata cache instead of direct fetchMetadata
-          final contactModel = await metadataCache.getContactModel(account.pubkey);
-          contactModels[account.pubkey] = contactModel;
-        } catch (e) {
-          // Create fallback contact model
-          contactModels[account.pubkey] = ContactModel(
-            displayName: 'Unknown User',
-            publicKey: account.pubkey,
-          );
-        }
-      }
-
-      AccountData? currentAccount;
-      if (activeAccountPubkey != null) {
-        try {
-          currentAccount = accounts.firstWhere(
-            (account) => account.pubkey == activeAccountPubkey,
-          );
-        } catch (e) {
-          // Active account not found, use first account
-          if (accounts.isNotEmpty) {
-            currentAccount = accounts.first;
-            await ref.read(activeAccountProvider.notifier).setActiveAccount(currentAccount.pubkey);
-          }
-        }
-      } else if (accounts.isNotEmpty) {
-        // No active account set, use first account
-        currentAccount = accounts.first;
-        await ref.read(activeAccountProvider.notifier).setActiveAccount(currentAccount.pubkey);
-      }
+      final accountsNotifier = ref.read(accountsProvider.notifier);
+      await accountsNotifier.loadAccounts();
+      final accounts = await accountsNotifier.readAccounts();
+      final activeAccount = await accountsNotifier.readActiveAccount();
 
       setState(() {
         _accounts = accounts;
-        _currentAccount = currentAccount;
-        _accountContactModels = contactModels;
+        _activeAccount = activeAccount;
       });
     } catch (e) {
       if (mounted) {
@@ -115,13 +77,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     } finally {}
   }
 
-  Future<void> _switchAccount(AccountData account) async {
+  Future<void> _switchAccount(Account account) async {
     try {
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
+      await ref.read(accountsProvider.notifier).setActiveAccountPubkey(account.pubkey);
       await ref.read(profileProvider.notifier).fetchProfileData();
-      await ref.read(contactsProvider.notifier).loadContacts(account.pubkey);
+      // TODO big plans: load accoutns metadata
+      // await ref.read(contactsProvider.notifier).loadContacts(account.pubkey);
       await ref.read(groupsProvider.notifier).loadGroups();
-      setState(() => _currentAccount = account);
+      setState(() => _activeAccount = account);
 
       if (mounted) {
         ref.showSuccessToast('Account switched successfully');
@@ -133,36 +96,19 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     }
   }
 
-  ContactModel _accountToContactModel(AccountData account) {
-    final contactModel = _accountContactModels[account.pubkey];
-
-    // Use cached contact model if available, otherwise create fallback
-    if (contactModel != null) {
-      return contactModel;
-    }
-
-    // Fallback contact model
-    return ContactModel(
-      publicKey: account.pubkey,
-      displayName: 'Account ${account.pubkey.substring(0, 8)}',
-    );
-  }
-
   void _showAccountSwitcher({bool isDismissible = true, bool showSuccessToast = false}) {
-    final contactModels = _accounts.map(_accountToContactModel).toList();
-
     SwitchProfileBottomSheet.show(
       context: context,
-      profiles: contactModels,
+      profiles: [], //contactModels,
       isDismissible: isDismissible,
       showSuccessToast: showSuccessToast,
       onProfileSelected: (selectedProfile) async {
-        // Find the corresponding AccountData
+        // Find the corresponding Account
         // Note: selectedProfile.publicKey is in npub format (from metadata cache)
         // but account.pubkey is in hex format (from getAccounts)
         // So we need to convert npub back to hex for matching
 
-        AccountData? selectedAccount;
+        Account? selectedAccount;
 
         try {
           // Try to convert npub to hex for matching
@@ -244,11 +190,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
     // Check if there are multiple accounts before logout
     final accounts = await getAccounts();
+    debugPrint('accounts: ${accounts.map((a) => a.pubkey).toList()}');
+    debugPrint('accounts length: ${accounts.length}');
     final hasMultipleAccounts = accounts.length > 2;
+    debugPrint('hasMultipleAccounts: ${hasMultipleAccounts}');
 
     if (!mounted) return;
 
-    await authNotifier.logoutCurrentAccount();
+    await authNotifier.logoutActiveAccount();
 
     if (!mounted) return;
 
@@ -319,22 +268,22 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Column(
                   children: [
-                    if (_currentAccount != null)
-                      ContactListTile(
-                        contact: _accountToContactModel(_currentAccount!),
-                        trailingIcon: SvgPicture.asset(
-                          AssetsPaths.icQrCode,
-                          width: 20.w,
-                          height: 20.w,
-                          colorFilter: ColorFilter.mode(
-                            context.colors.primary,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                        onTap: () => context.push('${Routes.settings}/share_profile'),
-                      )
-                    else
-                      const Center(child: Text('No accounts found')),
+                    // if (_currentAccount != null)
+                    // TODO big plans: add account profile tile.
+                    // ContactListTile(
+                    //   contact: _accountToContactModel(_currentAccount!),
+                    //   trailingIcon: SvgPicture.asset(
+                    //     AssetsPaths.icQrCode,
+                    //     width: 20.w,
+                    //     height: 20.w,
+                    //     colorFilter: ColorFilter.mode(
+                    //       context.colors.primary,
+                    //       BlendMode.srcIn,
+                    //     ),
+                    //   ),
+                    //   onTap: () => context.push('${Routes.settings}/share_profile'),
+                    // )
+                    const Center(child: Text('No accounts found')),
                     Gap(12.h),
                     WnFilledButton(
                       label: 'Switch Account',

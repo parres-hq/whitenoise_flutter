@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/services/key_package_service.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
@@ -37,8 +36,8 @@ class MockActiveAccountNotifier extends ActiveAccountNotifier {
   }
 
   @override
-  Future<AccountData?> getActiveAccountData() async {
-    return AccountData(
+  Future<Account?> getActiveAccount() async {
+    return Account(
       pubkey: 'test-pubkey',
       settings: MockAccountSettings(),
       nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],

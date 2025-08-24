@@ -7,11 +7,10 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/services/key_package_service.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api.dart' as wnApi;
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/share_invite_button.dart';
@@ -24,7 +23,7 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 class StartChatBottomSheet extends ConsumerStatefulWidget {
   final ContactModel contact;
-  final ValueChanged<GroupData?>? onChatCreated;
+  final ValueChanged<Group?>? onChatCreated;
   final KeyPackageService? keyPackageService;
 
   const StartChatBottomSheet({
@@ -37,7 +36,7 @@ class StartChatBottomSheet extends ConsumerStatefulWidget {
   static Future<void> show({
     required BuildContext context,
     required ContactModel contact,
-    ValueChanged<GroupData?>? onChatCreated,
+    ValueChanged<Group?>? onChatCreated,
     KeyPackageService? keyPackageService,
   }) {
     return WnBottomSheet.show(
@@ -73,7 +72,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
   }
 
   Future<void> _loadKeyPackage() async {
-    final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+    final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
     if (activeAccountData == null) {
       ref.showErrorToast('No active account found');
       return;
@@ -82,8 +81,8 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
       final keyPackageService =
           widget.keyPackageService ??
           KeyPackageService(
-            publicKeyString: widget.contact.publicKey,
-            nip65Relays: activeAccountData.nip65Relays,
+            pubkey: widget.contact.publicKey,
+            nip65Relays: [], // TODO big plans: activeAccountData.nip65Relays,
           );
       final keyPackage = await keyPackageService.fetchWithRetry();
       if (mounted) {
@@ -94,7 +93,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
       }
     } catch (e) {
       String error;
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         error = await whitenoiseErrorToString(error: e);
       } else {
         error = e.toString();
@@ -157,13 +156,15 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
   }
 
   bool _isContact() {
-    final contactsState = ref.watch(contactsProvider);
-    final contacts = contactsState.contactModels ?? [];
+    // TODO: pepi check if user is folloed
+    // final contactsState = ref.watch(contactsProvider);
+    // final contacts = contactsState.contactModels ?? [];
 
-    // Check if the current user's pubkey exists in contacts
-    return contacts.any(
-      (contact) => contact.publicKey.toLowerCase() == widget.contact.publicKey.toLowerCase(),
-    );
+    // // Check if the current user's pubkey exists in contacts
+    // return contacts.any(
+    //   (contact) => contact.publicKey.toLowerCase() == widget.contact.publicKey.toLowerCase(),
+    // );
+    return false; // Temporal
   }
 
   Future<void> _toggleContact() async {
@@ -172,18 +173,17 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     });
 
     try {
-      final contactsNotifier = ref.read(contactsProvider.notifier);
       final isCurrentlyContact = _isContact();
 
       if (isCurrentlyContact) {
-        // Remove contact
-        await contactsNotifier.removeContactByHex(widget.contact.publicKey);
+        // TODO big plans: remove user follow
+        // await contactsNotifier.removeContactByHex(widget.contact.publicKey);
         if (mounted) {
           ref.showSuccessToast('${widget.contact.displayName} removed from contacts');
         }
       } else {
-        // Add contact
-        await contactsNotifier.addContactByHex(widget.contact.publicKey);
+        // TODO big plans: add user follow
+        // await contactsNotifier.addContactByHex(widget.contact.publicKey);
         if (mounted) {
           ref.showSuccessToast('${widget.contact.displayName} added to contacts');
         }

@@ -6,15 +6,15 @@ import 'package:path/path.dart' as path;
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/routing/router_provider.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart' as wnAccountsApi;
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart';
 
 class AccountState {
-  final MetadataData? metadata;
+  final FlutterMetadata? metadata;
   final String? pubkey;
-  final Map<String, AccountData>? accounts;
+  final Map<String, wnAccountsApi.Account>? accounts;
   final bool isLoading;
   final String? error;
   final String? selectedImagePath;
@@ -29,9 +29,9 @@ class AccountState {
   });
 
   AccountState copyWith({
-    MetadataData? metadata,
+    FlutterMetadata? metadata,
     String? pubkey,
-    Map<String, AccountData>? accounts,
+    Map<String, wnAccountsApi.Account>? accounts,
     bool? isLoading,
     String? error,
     String? selectedImagePath,
@@ -66,34 +66,28 @@ class AccountNotifier extends Notifier<AccountState> {
     }
 
     try {
-      // Get the active account data from active account provider
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccount = await ref.read(activeAccountProvider.notifier).getActiveAccount();
 
-      if (activeAccountData == null) {
+      if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
       } else {
-        final publicKey = await publicKeyFromString(
-          publicKeyString: activeAccountData.pubkey,
-        );
-        final metadata = await fetchMetadataFrom(
+        final publicKey = activeAccount.pubkey;
+        final metadata = await wnAccountsApi.accountMetadata(
           pubkey: publicKey,
-          nip65Relays: activeAccountData.nip65Relays,
         );
 
-        // We need to create a dummy Account object since we only have AccountData
-        // This is a limitation of the current API design
         state = state.copyWith(
           metadata: metadata,
-          pubkey: activeAccountData.pubkey,
+          pubkey: activeAccount.pubkey,
         );
 
-        // Automatically load contacts for the active account
-        try {
-          await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
-        } catch (e) {
-          _logger.severe('Failed to load contacts: $e');
-        }
+        // TODO big plans: load follows?
+
+        // try {
+        //   await ref.read(contactsProvider.notifier).loadContacts(activeAccount.pubkey);
+        // } catch (e) {
+        //   _logger.severe('Failed to load contacts: $e');
+        // }
       }
     } catch (e, st) {
       _logger.severe('loadAccountData', e, st);
@@ -104,10 +98,10 @@ class AccountNotifier extends Notifier<AccountState> {
   }
 
   // Fetch and store all accounts
-  Future<List<AccountData>?> listAccounts() async {
+  Future<List<wnAccountsApi.Account>?> listAccounts() async {
     try {
-      final accountsList = await getAccounts();
-      final accountsMap = <String, AccountData>{};
+      final accountsList = await wnAccountsApi.getAccounts();
+      final accountsMap = <String, wnAccountsApi.Account>{};
       for (final account in accountsList) {
         accountsMap[account.pubkey] = account;
       }
@@ -121,18 +115,17 @@ class AccountNotifier extends Notifier<AccountState> {
   }
 
   // Set a specific account as active
-  Future<void> setActiveAccount(Account account) async {
+  Future<void> setActiveAccount(wnAccountsApi.Account account) async {
     state = state.copyWith(isLoading: true);
     try {
-      final data = await convertAccountToData(account: account);
-      state = state.copyWith(pubkey: data.pubkey);
+      state = state.copyWith(pubkey: account.pubkey);
 
-      // Automatically load contacts for the newly active account
-      try {
-        await ref.read(contactsProvider.notifier).loadContacts(data.pubkey);
-      } catch (e) {
-        _logger.severe('Failed to load contacts: $e');
-      }
+      // TODO big plans: reload follows?
+      // try {
+      //   await ref.read(contactsProvider.notifier).loadContacts(account.pubkey);
+      // } catch (e) {
+      //   _logger.severe('Failed to load contacts: $e');
+      // }
     } catch (e, st) {
       _logger.severe('setActiveAccount', e, st);
       state = state.copyWith(error: e.toString());
@@ -175,21 +168,18 @@ class AccountNotifier extends Notifier<AccountState> {
         }
 
         if (profilePicPath != null) {
-          // Get file extension to determine image type
-          final fileExtension = path.extension(profilePicPath);
-          final imageType = await imageTypeFromExtension(extension_: fileExtension);
+          final imageType = path.extension(profilePicPath);
 
-          final activeAccount =
-              await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          final activeAccount = await ref.read(activeAccountProvider.notifier).getActiveAccount();
           if (activeAccount == null) {
             ref.showRawErrorToast('No active account found');
             return;
           }
 
           final serverUrl = await getDefaultBlossomServerUrl();
-          final publicKey = await publicKeyFromString(publicKeyString: activeAccount.pubkey);
+          final publicKey = activeAccount.pubkey;
 
-          profilePictureUrl = await uploadProfilePicture(
+          profilePictureUrl = await wnAccountsApi.uploadAccountProfilePicture(
             pubkey: publicKey,
             serverUrl: serverUrl,
             filePath: profilePicPath,
@@ -197,23 +187,14 @@ class AccountNotifier extends Notifier<AccountState> {
           );
         }
 
-        if (isDisplayNameChanged) {
-          accountMetadata.displayName = displayName;
-        }
+        // TODO big plans: update metadata
+        final newDisplayName = isDisplayNameChanged ? displayName : accountMetadata.displayName;
+        final newAbout = isBioProvided ? bio : accountMetadata.about;
+        final newPicture = profilePictureUrl ?? accountMetadata.picture;
 
-        if (isBioProvided) {
-          accountMetadata.about = bio;
-        }
-
-        if (profilePictureUrl != null) {
-          accountMetadata.picture = profilePictureUrl;
-        }
-
-        final publicKey = await publicKeyFromString(publicKeyString: pubkey);
-
-        await updateMetadata(
-          metadata: accountMetadata,
-          pubkey: publicKey,
+        await wnAccountsApi.updateAccountMetadata(
+          metadata: accountMetadata, // replace with new metadata object with new values
+          pubkey: pubkey,
         );
         ref.read(routerProvider).go('/chats');
       }

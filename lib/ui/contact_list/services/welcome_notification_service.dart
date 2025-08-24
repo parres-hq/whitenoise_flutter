@@ -31,42 +31,6 @@ class WelcomeNotificationService {
     ref.read(welcomesProvider.notifier).clearOnNewWelcomeCallback();
   }
 
-  /// Show welcome invitation bottom sheet
-  static Future<void> _showWelcomeBottomSheet(
-    BuildContext context,
-    WidgetRef ref,
-    WelcomeData welcomeData,
-  ) async {
-    try {
-      final result = await GroupWelcomeInvitationSheet.show(
-        context: context,
-        welcomeData: welcomeData,
-        onAccept: () => _acceptWelcome(ref, welcomeData.id),
-        onDecline: () => _declineWelcome(ref, welcomeData.id),
-      );
-
-      // If the sheet was dismissed without action (result is null), ignore the welcome
-      if (result == null) {
-        _logger.info(
-          'WelcomeNotificationService: Welcome ${welcomeData.id} dismissed, marking as ignored',
-        );
-        await _ignoreWelcome(ref, welcomeData.id);
-      } else {
-        _logger.info(
-          'WelcomeNotificationService: Welcome ${welcomeData.id} processed with result: $result',
-        );
-      }
-
-      // Show next pending welcome after this one is closed
-      _showNextWelcome(ref);
-    } catch (e) {
-      _logger.severe('WelcomeNotificationService: Error showing welcome sheet', e);
-      // If there was an error, still ignore the welcome to prevent it from reappearing
-      await _ignoreWelcome(ref, welcomeData.id);
-      _showNextWelcome(ref);
-    }
-  }
-
   /// Accept a welcome invitation
   static Future<void> _acceptWelcome(WidgetRef ref, String welcomeId) async {
     try {
@@ -96,29 +60,6 @@ class WelcomeNotificationService {
     }
   }
 
-  /// Ignore a welcome invitation (mark as dismissed)
-  static Future<void> _ignoreWelcome(WidgetRef ref, String welcomeId) async {
-    try {
-      final success = await ref.read(welcomesProvider.notifier).ignoreWelcome(welcomeId);
-      if (success) {
-        _logger.info('WelcomeNotificationService: Successfully ignored welcome $welcomeId');
-      } else {
-        _logger.warning('WelcomeNotificationService: Failed to ignore welcome $welcomeId');
-      }
-    } catch (e) {
-      _logger.severe('WelcomeNotificationService: Error ignoring welcome $welcomeId', e);
-    }
-  }
-
-  /// Manually show a welcome invitation
-  static Future<void> showWelcomeInvitation(
-    BuildContext context,
-    WidgetRef ref,
-    WelcomeData welcomeData,
-  ) async {
-    await _showWelcomeBottomSheet(context, ref, welcomeData);
-  }
-
   /// Update the context (useful for navigation changes)
   static void updateContext(BuildContext context) {
     _currentContext = context;
@@ -131,12 +72,4 @@ class WelcomeNotificationService {
 
   /// Get current context (for testing)
   static BuildContext? get currentContext => _currentContext;
-
-  /// Show the next pending welcome if available
-  static void _showNextWelcome(WidgetRef ref) {
-    // Add a small delay to ensure the current bottom sheet is fully closed
-    Future.delayed(const Duration(milliseconds: 500), () {
-      ref.read(welcomesProvider.notifier).showNextPendingWelcome();
-    });
-  }
 }

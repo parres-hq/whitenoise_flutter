@@ -10,17 +10,16 @@ import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/src/rust/api.dart' as wnApi;
 
 class AppSettingsScreen extends ConsumerWidget {
   const AppSettingsScreen({super.key});
@@ -88,7 +87,7 @@ class AppSettingsScreen extends ConsumerWidget {
 
       // Add timeout to prevent hanging
       _logger.info('🗑️ Calling backend deleteAllData...');
-      await deleteAllData().timeout(
+      await wnApi.deleteAllData().timeout(
         const Duration(seconds: 30),
         onTimeout: () {
           throw Exception('Delete operation timed out after 30 seconds');
@@ -128,12 +127,14 @@ class AppSettingsScreen extends ConsumerWidget {
         _logger.warning('⚠️ Error invalidating profile provider: $e');
       }
 
-      try {
-        ref.invalidate(contactsProvider);
-        _logger.info('✅ Contacts provider invalidated');
-      } catch (e) {
-        _logger.warning('⚠️ Error invalidating contacts provider: $e');
-      }
+      // TODO big plans: invalidate follows provider
+
+      // try {
+      //   ref.invalidate(contactsProvider);
+      //   _logger.info('✅ Contacts provider invalidated');
+      // } catch (e) {
+      //   _logger.warning('⚠️ Error invalidating contacts provider: $e');
+      // }
 
       try {
         ref.invalidate(accountProvider);

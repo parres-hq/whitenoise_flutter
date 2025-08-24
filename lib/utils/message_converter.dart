@@ -1,18 +1,16 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 
-/// Converts ChatMessageData to MessageModel for UI display
+/// Converts ChatMessage to MessageModel for UI display
 class MessageConverter {
   static Future<MessageModel> fromChatMessage(
-    ChatMessageData messageData, {
+    ChatMessage messageData, {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
-    Map<String, ChatMessageData>? messageCache,
+    Map<String, ChatMessage>? messageCache,
   }) async {
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
 
@@ -20,10 +18,6 @@ class MessageConverter {
       messageData.pubkey,
       currentUserPubkey: currentUserPublicKey,
       ref: ref,
-    );
-
-    final createdAt = DateTime.fromMillisecondsSinceEpoch(
-      messageData.createdAt.toInt() * 1000,
     );
 
     final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
@@ -38,10 +32,6 @@ class MessageConverter {
         final replyContent =
             originalMessage.content.isNotEmpty ? originalMessage.content : 'No content available';
 
-        final replyTimestamp = DateTime.fromMillisecondsSinceEpoch(
-          originalMessage.createdAt.toInt() * 1000,
-        );
-
         final replySender = await _createUserFromMetadata(
           originalMessage.pubkey,
           currentUserPubkey: currentUserPublicKey,
@@ -52,7 +42,7 @@ class MessageConverter {
           id: messageData.replyToId!,
           content: replyContent,
           type: MessageType.text,
-          createdAt: replyTimestamp,
+          createdAt: originalMessage.createdAt,
           sender: replySender,
           isMe: currentUserPublicKey != null && originalMessage.pubkey == currentUserPublicKey,
           groupId: groupId,
@@ -83,7 +73,7 @@ class MessageConverter {
       id: messageData.id,
       content: messageData.content,
       type: MessageType.text,
-      createdAt: createdAt,
+      createdAt: messageData.createdAt,
       sender: sender,
       isMe: isMe,
       groupId: groupId,
@@ -95,7 +85,7 @@ class MessageConverter {
   }
 
   static Future<List<MessageModel>> fromChatMessageList(
-    List<ChatMessageData> messageDataList, {
+    List<ChatMessage> messageDataList, {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
@@ -105,7 +95,7 @@ class MessageConverter {
         messageDataList.where((msg) => !msg.isDeleted && msg.content.isNotEmpty).toList();
 
     // Build message cache for reply lookups
-    final messageCache = <String, ChatMessageData>{};
+    final messageCache = <String, ChatMessage>{};
     for (final msg in validMessages) {
       messageCache[msg.id] = msg;
     }
@@ -128,13 +118,15 @@ class MessageConverter {
     }
 
     // Batch fetch all user metadata using build-safe helper
-    final userCache = await _batchFetchUserMetadata(uniquePubkeys, currentUserPublicKey, ref);
+    // TODO big plans: check is user cache is needed
+    // final userCache = await _batchFetchUserMetadata(uniquePubkeys, currentUserPublicKey, ref);
+    final userCache = Map<String, User>.fromEntries([]);
 
     // Process all messages using cached data
     final messages =
         validMessages
             .map(
-              (messageData) => _fromChatMessageDataWithCache(
+              (messageData) => _fromChatMessageWithCache(
                 messageData,
                 currentUserPublicKey: currentUserPublicKey,
                 groupId: groupId,
@@ -147,12 +139,12 @@ class MessageConverter {
     return messages;
   }
 
-  /// Convert ChatMessageData to MessageModel using cached user data
-  static MessageModel _fromChatMessageDataWithCache(
-    ChatMessageData messageData, {
+  /// Convert ChatMessage to MessageModel using cached user data
+  static MessageModel _fromChatMessageWithCache(
+    ChatMessage messageData, {
     required String? currentUserPublicKey,
     String? groupId,
-    required Map<String, ChatMessageData> messageCache,
+    required Map<String, ChatMessage> messageCache,
     required Map<String, User> userCache,
   }) {
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
@@ -167,10 +159,6 @@ class MessageConverter {
           publicKey: messageData.pubkey,
         );
 
-    final createdAt = DateTime.fromMillisecondsSinceEpoch(
-      messageData.createdAt.toInt() * 1000,
-    );
-
     final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
 
     final reactions = _convertReactionsWithCache(messageData.reactions, userCache);
@@ -182,10 +170,6 @@ class MessageConverter {
       if (originalMessage != null) {
         final replyContent =
             originalMessage.content.isNotEmpty ? originalMessage.content : 'No content available';
-
-        final replyTimestamp = DateTime.fromMillisecondsSinceEpoch(
-          originalMessage.createdAt.toInt() * 1000,
-        );
 
         final replySender =
             userCache[originalMessage.pubkey] ??
@@ -200,7 +184,7 @@ class MessageConverter {
           id: messageData.replyToId!,
           content: replyContent,
           type: MessageType.text,
-          createdAt: replyTimestamp,
+          createdAt: originalMessage.createdAt,
           sender: replySender,
           isMe: currentUserPublicKey != null && originalMessage.pubkey == currentUserPublicKey,
           groupId: groupId,
@@ -231,7 +215,7 @@ class MessageConverter {
       id: messageData.id,
       content: messageData.content,
       type: MessageType.text,
-      createdAt: createdAt,
+      createdAt: messageData.createdAt,
       sender: sender,
       isMe: isMe,
       groupId: groupId,
@@ -242,14 +226,14 @@ class MessageConverter {
     );
   }
 
-  /// Convert MessageWithTokensData to MessageModel
-  static Future<MessageModel> fromMessageWithTokensData(
-    MessageWithTokensData messageData, {
+  /// Convert MessageWithTokens to MessageModel
+  static Future<MessageModel> fromMessageWithTokens(
+    MessageWithTokens messageData, {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
-    ChatMessageData? replyInfo,
-    Map<String, MessageWithTokensData>? originalMessageLookup,
+    ChatMessage? replyInfo,
+    Map<String, MessageWithTokens>? originalMessageLookup,
   }) async {
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
 
@@ -257,10 +241,6 @@ class MessageConverter {
       messageData.pubkey,
       currentUserPubkey: currentUserPublicKey,
       ref: ref,
-    );
-
-    final createdAt = DateTime.fromMillisecondsSinceEpoch(
-      messageData.createdAt.toInt() * 1000,
     );
 
     final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
@@ -274,9 +254,6 @@ class MessageConverter {
             originalMessage.content?.isNotEmpty == true
                 ? originalMessage.content!
                 : 'No content available';
-        final replyTimestamp = DateTime.fromMillisecondsSinceEpoch(
-          originalMessage.createdAt.toInt() * 1000,
-        );
 
         final replySender = await _createUserFromMetadata(
           originalMessage.pubkey,
@@ -288,7 +265,7 @@ class MessageConverter {
           id: replyInfo.replyToId!,
           content: replyContent,
           type: MessageType.text,
-          createdAt: replyTimestamp,
+          createdAt: originalMessage.createdAt,
           sender: replySender,
           isMe: currentUserPublicKey != null && originalMessage.pubkey == currentUserPublicKey,
           groupId: groupId,
@@ -322,7 +299,7 @@ class MessageConverter {
       id: messageData.id,
       content: messageData.content ?? '',
       type: MessageType.text,
-      createdAt: createdAt,
+      createdAt: messageData.createdAt,
       sender: sender,
       isMe: isMe,
       groupId: groupId,
@@ -333,17 +310,17 @@ class MessageConverter {
     );
   }
 
-  /// Converts a list of MessageWithTokensData to MessageModel list with reply mapping
-  static Future<List<MessageModel>> fromMessageWithTokensDataList(
-    List<MessageWithTokensData> messageDataList, {
+  /// Converts a list of MessageWithTokens to MessageModel list with reply mapping
+  static Future<List<MessageModel>> fromMessageWithTokensList(
+    List<MessageWithTokens> messageDataList, {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
-    List<ChatMessageData>? aggregatedMessages, // TODO: For reply mapping
+    List<ChatMessage>? aggregatedMessages, // TODO: For reply mapping
   }) async {
     // Create lookup maps for reply functionality
-    final Map<String, ChatMessageData> replyMap = {};
-    final Map<String, MessageWithTokensData> originalMessageMap = {};
+    final Map<String, ChatMessage> replyMap = {};
+    final Map<String, MessageWithTokens> originalMessageMap = {};
 
     // Build original message lookup from primary message data
     for (final msg in messageDataList) {
@@ -381,14 +358,16 @@ class MessageConverter {
       }
     }
 
+    // TODO big plans: check is user cache is needed
     // Batch fetch all user metadata in parallel using build-safe helper
-    final userCache = await _batchFetchUserMetadata(uniquePubkeys, currentUserPublicKey, ref);
+    //final userCache = await _batchFetchUserMetadata(uniquePubkeys, currentUserPublicKey, ref);
+    final userCache = Map<String, User>.fromEntries([]);
 
     // Process messages in parallel using cached user data
     final futures = validMessages.map((messageData) async {
       final aggregatedData = replyMap[messageData.id];
 
-      return await _fromMessageWithTokensDataWithCache(
+      return await _fromMessageWithTokensWithCache(
         messageData,
         currentUserPublicKey: currentUserPublicKey,
         groupId: groupId,
@@ -403,13 +382,13 @@ class MessageConverter {
     return messages;
   }
 
-  /// Convert MessageWithTokensData to MessageModel using cached user data
-  static Future<MessageModel> _fromMessageWithTokensDataWithCache(
-    MessageWithTokensData messageData, {
+  /// Convert MessageWithTokens to MessageModel using cached user data
+  static Future<MessageModel> _fromMessageWithTokensWithCache(
+    MessageWithTokens messageData, {
     required String? currentUserPublicKey,
     String? groupId,
-    ChatMessageData? replyInfo,
-    Map<String, MessageWithTokensData>? originalMessageLookup,
+    ChatMessage? replyInfo,
+    Map<String, MessageWithTokens>? originalMessageLookup,
     required Map<String, User> userCache,
   }) async {
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
@@ -424,10 +403,6 @@ class MessageConverter {
           publicKey: messageData.pubkey,
         );
 
-    final createdAt = DateTime.fromMillisecondsSinceEpoch(
-      messageData.createdAt.toInt() * 1000,
-    );
-
     final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
 
     // Extract reply information from aggregated data if available
@@ -440,10 +415,6 @@ class MessageConverter {
             originalMessage.content?.isNotEmpty == true
                 ? originalMessage.content!
                 : 'No content available';
-        final replyTimestamp = DateTime.fromMillisecondsSinceEpoch(
-          originalMessage.createdAt.toInt() * 1000,
-        );
-
         // Use cached user data for reply sender too
         final replySender =
             userCache[originalMessage.pubkey] ??
@@ -458,7 +429,7 @@ class MessageConverter {
           id: replyInfo.replyToId!,
           content: replyContent,
           type: MessageType.text,
-          createdAt: replyTimestamp,
+          createdAt: originalMessage.createdAt,
           sender: replySender,
           isMe: currentUserPublicKey != null && originalMessage.pubkey == currentUserPublicKey,
           groupId: groupId,
@@ -495,7 +466,7 @@ class MessageConverter {
       id: messageData.id,
       content: messageData.content ?? '',
       type: MessageType.text,
-      createdAt: createdAt,
+      createdAt: messageData.createdAt,
       sender: sender,
       isMe: isMe,
       groupId: groupId,
@@ -522,82 +493,91 @@ class MessageConverter {
       );
     }
 
-    try {
-      // First try contacts provider for cached data
-      final contacts = ref.read(contactsProvider);
-      final contactModels = contacts.contactModels ?? [];
+    // TODO: pepi: load user metadata.
 
-      final contact = contactModels.where((contact) => contact.publicKey == pubkey).toList();
+    // try {
+    //   // First try contacts provider for cached data
+    //   final contacts = ref.read(contactsProvider);
+    //   final contactModels = contacts.contactModels ?? [];
 
-      if (contact.isNotEmpty) {
-        final contactModel = contact.first;
-        return User(
-          id: pubkey,
-          displayName:
-              contactModel.displayName.isNotEmpty ? contactModel.displayName : 'Unknown User',
-          nip05: contactModel.nip05 ?? '',
-          publicKey: pubkey,
-          imagePath: contactModel.imagePath,
-        );
-      }
+    //   final contact = contactModels.where((contact) => contact.publicKey == pubkey).toList();
 
-      // If not found in contacts, try metadata cache with build-safe scheduling
-      return await Future.microtask(() async {
-        final metadataCache = ref.read(metadataCacheProvider.notifier);
-        final contactModel = await metadataCache.getContactModel(pubkey);
+    //   if (contact.isNotEmpty) {
+    //     final contactModel = contact.first;
+    //     return User(
+    //       id: pubkey,
+    //       displayName:
+    //           contactModel.displayName.isNotEmpty ? contactModel.displayName : 'Unknown User',
+    //       nip05: contactModel.nip05 ?? '',
+    //       publicKey: pubkey,
+    //       imagePath: contactModel.imagePath,
+    //     );
+    //   }
 
-        return User(
-          id: pubkey,
-          displayName: contactModel.displayName,
-          nip05: contactModel.nip05 ?? '',
-          publicKey: pubkey,
-          imagePath: contactModel.imagePath,
-        );
-      });
-    } catch (e) {
-      // Return fallback user if both lookups fail
-      return User(
-        id: pubkey,
-        displayName: 'Unknown User',
-        nip05: '',
-        publicKey: pubkey,
-      );
-    }
+    //   // If not found in contacts, try metadata cache with build-safe scheduling
+    //   return await Future.microtask(() async {
+    //     final metadataCache = ref.read(metadataCacheProvider.notifier);
+    //     final contactModel = await metadataCache.getContactModel(pubkey);
+
+    //     return User(
+    //       id: pubkey,
+    //       displayName: contactModel.displayName,
+    //       nip05: contactModel.nip05 ?? '',
+    //       publicKey: pubkey,
+    //       imagePath: contactModel.imagePath,
+    //     );
+    //   });
+    // } catch (e) {
+    //   // Return fallback user if both lookups fail
+    //   return User(
+    //     id: pubkey,
+    //     displayName: 'Unknown User',
+    //     nip05: '',
+    //     publicKey: pubkey,
+    //   );
+    // }
+    return User(
+      id: pubkey,
+      displayName: 'Unknown User',
+      nip05: '',
+      publicKey: pubkey,
+    );
   }
 
-  /// Batch fetch all user metadata in parallel with build-safe scheduling
-  static Future<Map<String, User>> _batchFetchUserMetadata(
-    Set<String> uniquePubkeys,
-    String? currentUserPublicKey,
-    Ref ref,
-  ) async {
-    // Schedule metadata fetching in microtask to avoid build-time modifications
-    return await Future.microtask(() async {
-      final metadataCache = ref.read(metadataCacheProvider.notifier);
-      final userFutures = uniquePubkeys.map(
-        (pubkey) =>
-            metadataCache.getContactModel(pubkey).then((contact) => MapEntry(pubkey, contact)),
-      );
-      final userResults = await Future.wait(userFutures);
-      return Map<String, User>.fromEntries(
-        userResults.map(
-          (entry) => MapEntry(
-            entry.key,
-            User(
-              id: entry.key,
-              displayName: entry.key == currentUserPublicKey ? 'You' : entry.value.displayName,
-              nip05: entry.value.nip05 ?? '',
-              publicKey: entry.key,
-              imagePath: entry.value.imagePath,
-            ),
-          ),
-        ),
-      );
-    });
-  }
+  // TODO big plans: check is user cache is needed
+  // /// Batch fetch all user metadata in parallel with build-safe scheduling
+  // static Future<Map<String, User>> _batchFetchUserMetadata(
+  //   Set<String> uniquePubkeys,
+  //   String? currentUserPublicKey,
+  //   Ref ref,
+  // ) async {
+  //   // Schedule metadata fetching in microtask to avoid build-time modifications
+  //   return await Future.microtask(() async {
+  //     final metadataCache = ref.read(metadataCacheProvider.notifier);
+  //     final userFutures = uniquePubkeys.map(
+  //       (pubkey) =>
+  //           metadataCache.getContactModel(pubkey).then((contact) => MapEntry(pubkey, contact)),
+  //     );
+  //     final userResults = await Future.wait(userFutures);
+  //     return Map<String, User>.fromEntries(
+  //       userResults.map(
+  //         (entry) => MapEntry(
+  //           entry.key,
+  //           User(
+  //             id: entry.key,
+  //             displayName: entry.key == currentUserPublicKey ? 'You' : entry.value.displayName,
+  //             nip05: entry.value.nip05 ?? '',
+  //             publicKey: entry.key,
+  //             imagePath: entry.value.imagePath,
+  //           ),
+  //         ),
+  //       ),
+  //     );
+  //   });
+  // }
 
-  /// Convert ReactionSummaryData to MessageModel reactions format
-  static List<Reaction> _convertReactions(ReactionSummaryData reactions) {
+  /// Convert ReactionSummary to MessageModel reactions format
+  static List<Reaction> _convertReactions(ReactionSummary reactions) {
     final List<Reaction> convertedReactions = [];
 
     // Convert user reactions to Reaction objects
@@ -612,9 +592,7 @@ class MessageConverter {
       final reaction = Reaction(
         emoji: userReaction.emoji,
         user: user,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(
-          userReaction.createdAt.toInt() * 1000,
-        ),
+        createdAt: userReaction.createdAt,
       );
 
       convertedReactions.add(reaction);
@@ -623,9 +601,9 @@ class MessageConverter {
     return convertedReactions;
   }
 
-  /// Convert ReactionSummaryData to MessageModel reactions format with user cache
+  /// Convert ReactionSummary to MessageModel reactions format with user cache
   static List<Reaction> _convertReactionsWithCache(
-    ReactionSummaryData reactions,
+    ReactionSummary reactions,
     Map<String, User> userCache,
   ) {
     final List<Reaction> convertedReactions = [];
@@ -644,9 +622,7 @@ class MessageConverter {
       final reaction = Reaction(
         emoji: userReaction.emoji,
         user: user,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(
-          userReaction.createdAt.toInt() * 1000,
-        ),
+        createdAt: userReaction.createdAt,
       );
 
       convertedReactions.add(reaction);

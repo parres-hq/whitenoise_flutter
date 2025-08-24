@@ -4,11 +4,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/providers/toast_message_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/src/rust/api/welcomes.dart';
+import 'package:whitenoise/src/rust/api/welcomes.dart' as wnWelcomesApi;
 import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
@@ -46,7 +45,8 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
       );
     }
 
-    final isDMInvite = welcomeData.memberCount <= 2;
+    // final isDMInvite = welcomeData.memberCount <= 2;
+    final isDMInvite = true;
 
     return Scaffold(
       backgroundColor: context.colors.neutral,
@@ -55,7 +55,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
             isDMInvite
                 ? DMAppBarTitle(welcomeData: welcomeData)
                 : ContactInfo(
-                  title: welcomeData.groupName,
+                  title: 'WIP Group Name', // TODO big plans:welcomeData.groupName,
                   image: '',
                 ),
       ),
@@ -127,7 +127,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
 }
 
 class InviteHeader extends ConsumerWidget {
-  final WelcomeData welcomeData;
+  final wnWelcomesApi.Welcome welcomeData;
 
   const InviteHeader({
     super.key,
@@ -136,7 +136,8 @@ class InviteHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDMInvite = welcomeData.memberCount <= 2;
+    // final isDMInvite = welcomeData.memberCount <= 2;
+    final isDMInvite = true;
 
     if (isDMInvite) {
       return DMInviteHeader(welcomeData: welcomeData);
@@ -147,7 +148,7 @@ class InviteHeader extends ConsumerWidget {
 }
 
 class GroupInviteHeader extends StatelessWidget {
-  final WelcomeData welcomeData;
+  final wnWelcomesApi.Welcome welcomeData;
 
   const GroupInviteHeader({
     super.key,
@@ -163,13 +164,13 @@ class GroupInviteHeader extends StatelessWidget {
           Gap(32.h),
           WnAvatar(
             imageUrl: '',
-            displayName: welcomeData.groupName,
+            displayName: 'WIP Group Name', // TODO big plans: welcomeData.groupName,
             size: 96.r,
             showBorder: true,
           ),
           Gap(12.h),
           Text(
-            welcomeData.groupName,
+            'WIP Group Name', // TODO big plans: welcomeData.groupName,
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
@@ -177,41 +178,43 @@ class GroupInviteHeader extends StatelessWidget {
             ),
           ),
           Gap(16.h),
-          FutureBuilder(
-            future: npubFromHexPubkey(hexPubkey: welcomeData.nostrGroupId),
-            builder: (context, asyncSnapshot) {
-              final groupNpub = asyncSnapshot.data ?? '';
-              return Text(
-                groupNpub.formatPublicKey(),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: context.colors.mutedForeground,
-                ),
-              );
-            },
-          ),
+          // TODO big plans: add group id
+          // FutureBuilder(
+          //   future: npubFromHexPubkey(hexPubkey: welcomeData.nostrGroupId),
+          //   builder: (context, asyncSnapshot) {
+          //     final groupNpub = asyncSnapshot.data ?? '';
+          //     return Text(
+          //       groupNpub.formatPublicKey(),
+          //       textAlign: TextAlign.center,
+          //       style: TextStyle(
+          //         fontSize: 14.sp,
+          //         color: context.colors.mutedForeground,
+          //       ),
+          //     );
+          //   },
+          // ),
           Gap(12.h),
-          if (welcomeData.groupDescription.isNotEmpty) ...[
-            Text(
-              'Group Description:',
-              style: TextStyle(
-                fontSize: 16.sp,
-                fontWeight: FontWeight.w600,
-                color: context.colors.mutedForeground,
-              ),
-            ),
-            Gap(4.h),
-            Text(
-              welcomeData.groupDescription,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 14.sp,
-                color: context.colors.primary,
-              ),
-            ),
-            Gap(16.h),
-          ],
+          // TODO big plans: add group description
+          // if (welcomeData.groupDescription.isNotEmpty) ...[
+          //   Text(
+          //     'Group Description:',
+          //     style: TextStyle(
+          //       fontSize: 16.sp,
+          //       fontWeight: FontWeight.w600,
+          //       color: context.colors.mutedForeground,
+          //     ),
+          //   ),
+          //   Gap(4.h),
+          //   Text(
+          //     welcomeData.groupDescription,
+          //     textAlign: TextAlign.center,
+          //     style: TextStyle(
+          //       fontSize: 14.sp,
+          //       color: context.colors.primary,
+          //     ),
+          //   ),
+          //   Gap(16.h),
+          // ],
           Text.rich(
             TextSpan(
               text: 'Group Chat Invitation • ',
@@ -219,15 +222,16 @@ class GroupInviteHeader extends StatelessWidget {
                 fontSize: 14.sp,
                 color: context.colors.mutedForeground,
               ),
-              children: [
-                TextSpan(
-                  text: '${welcomeData.memberCount} members',
-                  style: TextStyle(
-                    color: context.colors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
+              // TODO big plans: add member count
+              // children: [
+              //   TextSpan(
+              //     text: '${welcomeData.memberCount} members',
+              //     style: TextStyle(
+              //       color: context.colors.primary,
+              //       fontWeight: FontWeight.w600,
+              //     ),
+              //   ),
+              // ],
             ),
           ),
           Gap(32.h),
@@ -238,7 +242,7 @@ class GroupInviteHeader extends StatelessWidget {
 }
 
 class DMInviteHeader extends ConsumerWidget {
-  final WelcomeData welcomeData;
+  final wnWelcomesApi.Welcome welcomeData;
 
   const DMInviteHeader({
     super.key,
@@ -247,10 +251,10 @@ class DMInviteHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
-
     return FutureBuilder(
-      future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
+      // TODO big plans: load welcomer metadata
+      // future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
+      future: Future.value(null),
       builder: (context, snapshot) {
         final welcomerContact = snapshot.data;
         final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
@@ -286,7 +290,9 @@ class DMInviteHeader extends ConsumerWidget {
               ),
               Gap(12.h),
               FutureBuilder(
-                future: npubFromHexPubkey(hexPubkey: welcomeData.welcomer),
+                // TODO big plans: load welcomer npub
+                future: Future.value(''),
+                //future: npubFromHexPubkey(hexPubkey: welcomeData.welcomer),
                 builder: (context, asyncSnapshot) {
                   final welcomerNpub = asyncSnapshot.data ?? '';
                   return Text(
@@ -329,7 +335,7 @@ class DMInviteHeader extends ConsumerWidget {
 }
 
 class DMAppBarTitle extends ConsumerWidget {
-  final WelcomeData welcomeData;
+  final wnWelcomesApi.Welcome welcomeData;
 
   const DMAppBarTitle({
     super.key,
@@ -338,10 +344,10 @@ class DMAppBarTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
-
     return FutureBuilder(
-      future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
+      // TODO big plans: load welcomer metadata
+      // future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
+      future: Future.value(null),
       builder: (context, snapshot) {
         final isLoading = snapshot.connectionState == ConnectionState.waiting;
 

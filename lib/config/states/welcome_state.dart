@@ -4,11 +4,11 @@ import 'package:whitenoise/src/rust/api/welcomes.dart';
 part 'welcome_state.freezed.dart';
 
 @freezed
-abstract class WelcomesState with _$WelcomesState {
-  const factory WelcomesState({
-    List<WelcomeData>? welcomes,
-    Map<String, WelcomeData>? welcomeById,
+abstract class WelcomeState with _$WelcomeState {
+  const factory WelcomeState({
+    List<Welcome>? welcomes,
+    Map<String, Welcome>? welcomeById,
     @Default(false) bool isLoading,
     String? error,
-  }) = _WelcomesState;
+  }) = _WelcomeState;
 }

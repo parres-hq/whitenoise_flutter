@@ -29,12 +29,12 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   });
 
   final List<ContactModel> selectedContacts;
-  final ValueChanged<GroupData?>? onGroupCreated;
+  final ValueChanged<Group?>? onGroupCreated;
 
   static Future<void> show({
     required BuildContext context,
     required List<ContactModel> selectedContacts,
-    ValueChanged<GroupData?>? onGroupCreated,
+    ValueChanged<Group?>? onGroupCreated,
   }) {
     return WnBottomSheet.show(
       context: context,
@@ -86,7 +86,8 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
     try {
       // Filter contacts based on keypackage availability
-      final filteredContacts = await _filterContactsByKeyPackage(widget.selectedContacts);
+      final filteredContacts =
+          {}; // TODO big plans: laod users, not contacts.  await _filterContactsByKeyPackage(widget.selectedContacts);
       if (!mounted) return;
 
       final contactsWithKeyPackage = filteredContacts['withKeyPackage']!;
@@ -110,7 +111,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
       // Create group with contacts that have keypackages
       if (!mounted) return;
 
-      final createdGroupData = await notifier.createNewGroup(
+      final createdGroup = await notifier.createNewGroup(
         groupName: groupName,
         groupDescription: '',
         memberPublicKeyHexs: contactsWithKeyPackage.map((c) => c.publicKey).toList(),
@@ -119,7 +120,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
       if (!mounted) return;
 
-      if (createdGroupData != null) {
+      if (createdGroup != null) {
         // Show share invite bottom sheet for members without keypackages
         if (contactsWithoutKeyPackage.isNotEmpty && mounted) {
           try {
@@ -144,7 +145,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
               // Small delay to ensure navigation completes
               await Future.delayed(const Duration(milliseconds: 150));
               if (mounted) {
-                Routes.goToChat(context, createdGroupData.mlsGroupId);
+                Routes.goToChat(context, createdGroup.mlsGroupId);
               }
             }
           });
@@ -177,35 +178,35 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
   Future<Map<String, List<ContactModel>>> _filterContactsByKeyPackage(
     List<ContactModel> contacts,
   ) async {
-    final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-    if (activeAccountData == null) {
-      throw Exception('No active account found');
-    }
-    final contactsWithKeyPackage = <ContactModel>[];
-    final contactsWithoutKeyPackage = <ContactModel>[];
+    // final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
+    // if (activeAccountData == null) {
+    //   throw Exception('No active account found');
+    // }
+    // final contactsWithKeyPackage = <ContactModel>[];
+    // final contactsWithoutKeyPackage = <ContactModel>[];
 
-    for (final contact in contacts) {
-      try {
-        final pubkey = await publicKeyFromString(publicKeyString: contact.publicKey);
-        final keyPackage = await fetchKeyPackage(
-          pubkey: pubkey,
-          nip65Relays: activeAccountData.nip65Relays,
-        );
+    // for (final contact in contacts) {
+    //   try {
+    //     final pubkey = await publicKeyFromString(publicKeyString: contact.publicKey);
+    //     final keyPackage = await fetchKeyPackage(
+    //       pubkey: pubkey,
+    //       nip65Relays: activeAccountData.nip65Relays,
+    //     );
 
-        if (keyPackage != null) {
-          contactsWithKeyPackage.add(contact);
-        } else {
-          contactsWithoutKeyPackage.add(contact);
-        }
-      } catch (e) {
-        // If there's an error checking keypackage, assume contact doesn't have one
-        contactsWithoutKeyPackage.add(contact);
-      }
-    }
+    //     if (keyPackage != null) {
+    //       contactsWithKeyPackage.add(contact);
+    //     } else {
+    //       contactsWithoutKeyPackage.add(contact);
+    //     }
+    //   } catch (e) {
+    //     // If there's an error checking keypackage, assume contact doesn't have one
+    //     contactsWithoutKeyPackage.add(contact);
+    //   }
+    // }
 
     return {
-      'withKeyPackage': contactsWithKeyPackage,
-      'withoutKeyPackage': contactsWithoutKeyPackage,
+      'withKeyPackage': [], // TODO big plans: contactsWithKeyPackage,
+      'withoutKeyPackage': [], // TODO big plans: contactsWithoutKeyPackage,
     };
   }
 

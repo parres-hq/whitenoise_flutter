@@ -16,44 +16,45 @@ final _privateConstructorUsedError = UnsupportedError(
 );
 
 /// @nodoc
-mixin _$WelcomesState {
-  List<WelcomeData>? get welcomes => throw _privateConstructorUsedError;
-  Map<String, WelcomeData>? get welcomeById => throw _privateConstructorUsedError;
+mixin _$WelcomeState {
+  List<Welcome>? get welcomes => throw _privateConstructorUsedError;
+  Map<String, Welcome>? get welcomeById => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
-  /// Create a copy of WelcomesState
+  /// Create a copy of WelcomeState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $WelcomesStateCopyWith<WelcomesState> get copyWith => throw _privateConstructorUsedError;
+  $WelcomeStateCopyWith<WelcomeState> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $WelcomesStateCopyWith<$Res> {
-  factory $WelcomesStateCopyWith(
-    WelcomesState value,
-    $Res Function(WelcomesState) then,
-  ) = _$WelcomesStateCopyWithImpl<$Res, WelcomesState>;
+abstract class $WelcomeStateCopyWith<$Res> {
+  factory $WelcomeStateCopyWith(
+    WelcomeState value,
+    $Res Function(WelcomeState) then,
+  ) = _$WelcomeStateCopyWithImpl<$Res, WelcomeState>;
   @useResult
   $Res call({
-    List<WelcomeData>? welcomes,
-    Map<String, WelcomeData>? welcomeById,
+    List<Welcome>? welcomes,
+    Map<String, Welcome>? welcomeById,
     bool isLoading,
     String? error,
   });
 }
 
 /// @nodoc
-class _$WelcomesStateCopyWithImpl<$Res, $Val extends WelcomesState>
-    implements $WelcomesStateCopyWith<$Res> {
-  _$WelcomesStateCopyWithImpl(this._value, this._then);
+class _$WelcomeStateCopyWithImpl<$Res, $Val extends WelcomeState>
+    implements $WelcomeStateCopyWith<$Res> {
+  _$WelcomeStateCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of WelcomesState
+  /// Create a copy of WelcomeState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -69,12 +70,12 @@ class _$WelcomesStateCopyWithImpl<$Res, $Val extends WelcomesState>
                 freezed == welcomes
                     ? _value.welcomes
                     : welcomes // ignore: cast_nullable_to_non_nullable
-                        as List<WelcomeData>?,
+                        as List<Welcome>?,
             welcomeById:
                 freezed == welcomeById
                     ? _value.welcomeById
                     : welcomeById // ignore: cast_nullable_to_non_nullable
-                        as Map<String, WelcomeData>?,
+                        as Map<String, Welcome>?,
             isLoading:
                 null == isLoading
                     ? _value.isLoading
@@ -92,31 +93,32 @@ class _$WelcomesStateCopyWithImpl<$Res, $Val extends WelcomesState>
 }
 
 /// @nodoc
-abstract class _$$WelcomesStateImplCopyWith<$Res> implements $WelcomesStateCopyWith<$Res> {
-  factory _$$WelcomesStateImplCopyWith(
-    _$WelcomesStateImpl value,
-    $Res Function(_$WelcomesStateImpl) then,
-  ) = __$$WelcomesStateImplCopyWithImpl<$Res>;
+abstract class _$$WelcomeStateImplCopyWith<$Res>
+    implements $WelcomeStateCopyWith<$Res> {
+  factory _$$WelcomeStateImplCopyWith(
+    _$WelcomeStateImpl value,
+    $Res Function(_$WelcomeStateImpl) then,
+  ) = __$$WelcomeStateImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call({
-    List<WelcomeData>? welcomes,
-    Map<String, WelcomeData>? welcomeById,
+    List<Welcome>? welcomes,
+    Map<String, Welcome>? welcomeById,
     bool isLoading,
     String? error,
   });
 }
 
 /// @nodoc
-class __$$WelcomesStateImplCopyWithImpl<$Res>
-    extends _$WelcomesStateCopyWithImpl<$Res, _$WelcomesStateImpl>
-    implements _$$WelcomesStateImplCopyWith<$Res> {
-  __$$WelcomesStateImplCopyWithImpl(
-    _$WelcomesStateImpl _value,
-    $Res Function(_$WelcomesStateImpl) _then,
+class __$$WelcomeStateImplCopyWithImpl<$Res>
+    extends _$WelcomeStateCopyWithImpl<$Res, _$WelcomeStateImpl>
+    implements _$$WelcomeStateImplCopyWith<$Res> {
+  __$$WelcomeStateImplCopyWithImpl(
+    _$WelcomeStateImpl _value,
+    $Res Function(_$WelcomeStateImpl) _then,
   ) : super(_value, _then);
 
-  /// Create a copy of WelcomesState
+  /// Create a copy of WelcomeState
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -127,17 +129,17 @@ class __$$WelcomesStateImplCopyWithImpl<$Res>
     Object? error = freezed,
   }) {
     return _then(
-      _$WelcomesStateImpl(
+      _$WelcomeStateImpl(
         welcomes:
             freezed == welcomes
                 ? _value._welcomes
                 : welcomes // ignore: cast_nullable_to_non_nullable
-                    as List<WelcomeData>?,
+                    as List<Welcome>?,
         welcomeById:
             freezed == welcomeById
                 ? _value._welcomeById
                 : welcomeById // ignore: cast_nullable_to_non_nullable
-                    as Map<String, WelcomeData>?,
+                    as Map<String, Welcome>?,
         isLoading:
             null == isLoading
                 ? _value.isLoading
@@ -155,18 +157,18 @@ class __$$WelcomesStateImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$WelcomesStateImpl implements _WelcomesState {
-  const _$WelcomesStateImpl({
-    final List<WelcomeData>? welcomes,
-    final Map<String, WelcomeData>? welcomeById,
+class _$WelcomeStateImpl implements _WelcomeState {
+  const _$WelcomeStateImpl({
+    final List<Welcome>? welcomes,
+    final Map<String, Welcome>? welcomeById,
     this.isLoading = false,
     this.error,
   }) : _welcomes = welcomes,
        _welcomeById = welcomeById;
 
-  final List<WelcomeData>? _welcomes;
+  final List<Welcome>? _welcomes;
   @override
-  List<WelcomeData>? get welcomes {
+  List<Welcome>? get welcomes {
     final value = _welcomes;
     if (value == null) return null;
     if (_welcomes is EqualUnmodifiableListView) return _welcomes;
@@ -174,9 +176,9 @@ class _$WelcomesStateImpl implements _WelcomesState {
     return EqualUnmodifiableListView(value);
   }
 
-  final Map<String, WelcomeData>? _welcomeById;
+  final Map<String, Welcome>? _welcomeById;
   @override
-  Map<String, WelcomeData>? get welcomeById {
+  Map<String, Welcome>? get welcomeById {
     final value = _welcomeById;
     if (value == null) return null;
     if (_welcomeById is EqualUnmodifiableMapView) return _welcomeById;
@@ -192,20 +194,21 @@ class _$WelcomesStateImpl implements _WelcomesState {
 
   @override
   String toString() {
-    return 'WelcomesState(welcomes: $welcomes, welcomeById: $welcomeById, isLoading: $isLoading, error: $error)';
+    return 'WelcomeState(welcomes: $welcomes, welcomeById: $welcomeById, isLoading: $isLoading, error: $error)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$WelcomesStateImpl &&
+            other is _$WelcomeStateImpl &&
             const DeepCollectionEquality().equals(other._welcomes, _welcomes) &&
             const DeepCollectionEquality().equals(
               other._welcomeById,
               _welcomeById,
             ) &&
-            (identical(other.isLoading, isLoading) || other.isLoading == isLoading) &&
+            (identical(other.isLoading, isLoading) ||
+                other.isLoading == isLoading) &&
             (identical(other.error, error) || other.error == error));
   }
 
@@ -218,36 +221,36 @@ class _$WelcomesStateImpl implements _WelcomesState {
     error,
   );
 
-  /// Create a copy of WelcomesState
+  /// Create a copy of WelcomeState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$WelcomesStateImplCopyWith<_$WelcomesStateImpl> get copyWith =>
-      __$$WelcomesStateImplCopyWithImpl<_$WelcomesStateImpl>(this, _$identity);
+  _$$WelcomeStateImplCopyWith<_$WelcomeStateImpl> get copyWith =>
+      __$$WelcomeStateImplCopyWithImpl<_$WelcomeStateImpl>(this, _$identity);
 }
 
-abstract class _WelcomesState implements WelcomesState {
-  const factory _WelcomesState({
-    final List<WelcomeData>? welcomes,
-    final Map<String, WelcomeData>? welcomeById,
+abstract class _WelcomeState implements WelcomeState {
+  const factory _WelcomeState({
+    final List<Welcome>? welcomes,
+    final Map<String, Welcome>? welcomeById,
     final bool isLoading,
     final String? error,
-  }) = _$WelcomesStateImpl;
+  }) = _$WelcomeStateImpl;
 
   @override
-  List<WelcomeData>? get welcomes;
+  List<Welcome>? get welcomes;
   @override
-  Map<String, WelcomeData>? get welcomeById;
+  Map<String, Welcome>? get welcomeById;
   @override
   bool get isLoading;
   @override
   String? get error;
 
-  /// Create a copy of WelcomesState
+  /// Create a copy of WelcomeState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$WelcomesStateImplCopyWith<_$WelcomesStateImpl> get copyWith =>
+  _$$WelcomeStateImplCopyWith<_$WelcomeStateImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

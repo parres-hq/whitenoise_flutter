@@ -39,7 +39,8 @@ class ChatListItem {
     return ChatListItem(
       type: ChatListItemType.welcome,
       welcomeData: welcomeData,
-      dateCreated: welcomeData.createdAtDateTime,
+      dateCreated:
+          DateTime.now(), // TODO big plans: fill with welcome created at. welcomeData.createdAtDateTime,
     );
   }
 
@@ -48,7 +49,8 @@ class ChatListItem {
       case ChatListItemType.chat:
         return groupData?.name ?? '';
       case ChatListItemType.welcome:
-        return welcomeData.senderName;
+        // TODO big plans: use sender name from Welcome
+        return 'Unknown Sender'; // TODO big plans:welcomeData.senderName;
     }
   }
 
@@ -66,7 +68,7 @@ class ChatListItem {
       case ChatListItemType.chat:
         return groupData?.mlsGroupId ?? '';
       case ChatListItemType.welcome:
-        return welcomeData?.id ?? '';
+        return ''; // welcomeData?.id ?? '' TODO big plans: use welcome id
     }
   }
 }

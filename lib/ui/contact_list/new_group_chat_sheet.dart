@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/contact_list/group_chat_details_sheet.dart';
@@ -14,14 +13,14 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 
 class NewGroupChatSheet extends ConsumerStatefulWidget {
-  final ValueChanged<GroupData?>? onGroupCreated;
+  final ValueChanged<Group?>? onGroupCreated;
 
   const NewGroupChatSheet({super.key, this.onGroupCreated});
 
   @override
   ConsumerState<NewGroupChatSheet> createState() => _NewGroupChatSheetState();
 
-  static Future<void> show(BuildContext context, {ValueChanged<GroupData?>? onGroupCreated}) {
+  static Future<void> show(BuildContext context, {ValueChanged<Group?>? onGroupCreated}) {
     return WnBottomSheet.show(
       context: context,
       title: 'New group chat',
@@ -66,7 +65,8 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     });
   }
 
-  Widget _buildContactsList(List<ContactModel> filteredContacts) {
+  // TODO big plans: remove dynamic, change to followed users
+  Widget _buildContactsList(List<dynamic> filteredContacts) {
     if (filteredContacts.isEmpty) {
       return Center(
         child: Text(
@@ -92,22 +92,23 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
           onTap: () => _toggleContactSelection(contact),
           enableSwipeToDelete: true,
           onDelete: () async {
-            try {
-              // Get the real PublicKey from the provider using the npub string
-              final realPublicKey = ref
-                  .read(contactsProvider.notifier)
-                  .getPublicKeyForContact(contact.publicKey);
-              if (realPublicKey != null) {
-                await ref.read(contactsProvider.notifier).removeContactByPublicKey(realPublicKey);
-                if (context.mounted) {
-                  ref.showSuccessToast('Contact removed successfully');
-                }
-              }
-            } catch (e) {
-              if (context.mounted) {
-                ref.showErrorToast('Failed to remove contact: $e');
-              }
-            }
+            // TODO big plans: remove user follow
+            // try {
+            //   // Get the real PublicKey from the provider using the npub string
+            //   final realPublicKey = ref
+            //       .read(contactsProvider.notifier)
+            //       .getPublicKeyForContact(contact.publicKey);
+            //   if (realPublicKey != null) {
+            //     await ref.read(contactsProvider.notifier).removeContactByPublicKey(realPublicKey);
+            //     if (context.mounted) {
+            //       ref.showSuccessToast('Contact removed successfully');
+            //     }
+            //   }
+            // } catch (e) {
+            //   if (context.mounted) {
+            //     ref.showErrorToast('Failed to remove contact: $e');
+            //   }
+            // }
           },
           showCheck: true,
         );
@@ -148,9 +149,9 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final contactsState = ref.watch(contactsProvider);
     final activeAccount = ref.watch(activeAccountProvider);
-    final filteredContacts = _getFilteredContacts(contactsState.contactModels, activeAccount);
+    final filteredContacts =
+        []; // TODO big plans: _getFilteredContacts(contactsState.contactModels, activeAccount);
 
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h),
@@ -162,9 +163,10 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
           ),
           Expanded(
             child:
-                contactsState.isLoading
+                // TODO big plans: contactsState.isLoading
+                false
                     ? const Center(child: CircularProgressIndicator())
-                    : contactsState.error != null
+                    : false // TODO big plans: contactsState.error != null
                     ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -174,7 +176,8 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                             style: TextStyle(fontSize: 16.sp),
                           ),
                           Text(
-                            contactsState.error!,
+                            // TODO big plans: contactsState.error!,
+                            'Error loading contacts',
                             style: TextStyle(
                               fontSize: 12.sp,
                               color: context.colors.baseMuted,
