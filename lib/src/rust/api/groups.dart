@@ -63,9 +63,6 @@ Future<void> removeMembersFromGroup({
   memberPubkeys: memberPubkeys,
 );
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<WhitenoiseError>>
-abstract class WhitenoiseError implements RustOpaqueInterface {}
-
 class Group {
   final String mlsGroupId;
   final String nostrGroupId;
@@ -93,20 +90,17 @@ class Group {
     required this.state,
   });
 
-  Future<GroupType> groupType() =>
-      RustLib.instance.api.crateApiGroupsGroupGroupType(
-        that: this,
-      );
+  Future<GroupType> groupType() => RustLib.instance.api.crateApiGroupsGroupGroupType(
+    that: this,
+  );
 
-  Future<bool> isDirectMessageType() =>
-      RustLib.instance.api.crateApiGroupsGroupIsDirectMessageType(
-        that: this,
-      );
+  Future<bool> isDirectMessageType() => RustLib.instance.api.crateApiGroupsGroupIsDirectMessageType(
+    that: this,
+  );
 
-  Future<bool> isGroupType() =>
-      RustLib.instance.api.crateApiGroupsGroupIsGroupType(
-        that: this,
-      );
+  Future<bool> isGroupType() => RustLib.instance.api.crateApiGroupsGroupIsGroupType(
+    that: this,
+  );
 
   @override
   int get hashCode =>

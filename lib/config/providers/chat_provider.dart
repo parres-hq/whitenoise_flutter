@@ -8,7 +8,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api.dart' as wnApi;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
@@ -66,7 +66,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
     try {
       final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         _setGroupError(groupId, 'No active account found');
         return;
@@ -109,7 +109,7 @@ class ChatNotifier extends Notifier<ChatState> {
     } catch (e, st) {
       _logger.severe('ChatProvider.loadMessagesForGroup', e, st);
       String errorMessage = 'Failed to load messages';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
         } catch (conversionError) {
@@ -150,7 +150,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
     try {
       final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         _setGroupError(groupId, 'No active account found');
         return null;
@@ -169,8 +169,8 @@ class ChatNotifier extends Notifier<ChatState> {
       // Convert sent message to MessageModel and add to local state
       final currentMessages = state.groupMessages[groupId] ?? [];
 
-      // Create ChatMessageData from the sent message
-      final sentChatMessageData = ChatMessage(
+      // Create ChatMessage from the sent message
+      final sentChatMessage = ChatMessage(
         id: sentMessage.id,
         pubkey: sentMessage.pubkey,
         content: sentMessage.content ?? '',
@@ -205,7 +205,7 @@ class ChatNotifier extends Notifier<ChatState> {
       }
 
       final sentMessageModel = await MessageConverter.fromChatMessage(
-        sentChatMessageData,
+        sentChatMessage,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
         ref: ref,
@@ -233,7 +233,7 @@ class ChatNotifier extends Notifier<ChatState> {
     } catch (e, st) {
       _logger.severe('ChatProvider.sendMessage', e, st);
       String errorMessage = 'Failed to send message';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
         } catch (conversionError) {
@@ -298,7 +298,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
     try {
       final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         return;
       }
@@ -512,7 +512,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
     try {
       final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         _setGroupError(message.groupId ?? '', 'No active account found');
         return false;
@@ -562,7 +562,7 @@ class ChatNotifier extends Notifier<ChatState> {
       _logger.severe('ChatProvider.updateMessageReaction', e, st);
 
       String errorMessage = 'Failed to update reaction';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
         } catch (conversionError) {
@@ -590,7 +590,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
     try {
       final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         _setGroupError(groupId, 'No active account found');
         return null;
@@ -615,8 +615,8 @@ class ChatNotifier extends Notifier<ChatState> {
       // Convert to MessageModel and add to local state
       final currentMessages = state.groupMessages[groupId] ?? [];
 
-      // Create ChatMessageData for the reply message
-      final sentChatMessageData = ChatMessage(
+      // Create ChatMessage for the reply message
+      final sentChatMessage = ChatMessage(
         id: sentMessage.id,
         pubkey: sentMessage.pubkey,
         content: sentMessage.content ?? '',
@@ -633,7 +633,7 @@ class ChatNotifier extends Notifier<ChatState> {
       // Build message cache from current messages for reply lookup
       final messageCache = <String, ChatMessage>{};
       for (final msg in currentMessages) {
-        // Convert existing MessageModel back to ChatMessageData for cache
+        // Convert existing MessageModel back to ChatMessage for cache
         final chatMessageData = ChatMessage(
           id: msg.id,
           pubkey: msg.sender.publicKey,
@@ -651,7 +651,7 @@ class ChatNotifier extends Notifier<ChatState> {
       }
 
       final sentMessageModel = await MessageConverter.fromChatMessage(
-        sentChatMessageData,
+        sentChatMessage,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
         ref: ref,
@@ -672,7 +672,7 @@ class ChatNotifier extends Notifier<ChatState> {
     } catch (e, st) {
       _logger.severe('ChatProvider.sendReplyMessage', e, st);
       String errorMessage = 'Failed to send reply';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
         } catch (conversionError) {
@@ -700,7 +700,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
     try {
       final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         _setGroupError(groupId, 'No active account found');
         return false;
@@ -732,7 +732,7 @@ class ChatNotifier extends Notifier<ChatState> {
     } catch (e, st) {
       _logger.severe('ChatProvider.deleteMessage', e, st);
       String errorMessage = 'Failed to delete message';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
         } catch (conversionError) {

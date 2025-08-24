@@ -33,7 +33,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
   }
 
   Future<void> _loadContact() async {
-    final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+    final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
     if (activeAccountData != null) {
       final currentUserNpub = await npubFromHexPubkey(
         hexPubkey: activeAccountData.pubkey,
@@ -43,20 +43,22 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
           .getOtherGroupMember(widget.groupId, currentUserNpub);
       if (otherMember != null && mounted) {
         otherUserNpub = otherMember.publicKey;
-        _checkContactStatus(otherMember.publicKey);
+        // _checkContactStatus(otherMember.publicKey); // TODO big plans: check follow status
       }
     }
   }
 
-  void _checkContactStatus(String userNpub) {
-    final contacts = ref.read(contactsProvider).contactModels ?? [];
-    final isUserContact = contacts.any((contact) => contact.publicKey == userNpub);
-    if (mounted) {
-      setState(() {
-        isContact = isUserContact;
-      });
-    }
-  }
+  // check follow statu
+
+  // void _checkContactStatus(String userNpub) {
+  //   final contacts = ref.read(contactsProvider).contactModels ?? [];
+  //   final isUserContact = contacts.any((contact) => contact.publicKey == userNpub);
+  //   if (mounted) {
+  //     setState(() {
+  //       isContact = isUserContact;
+  //     });
+  //   }
+  // }
 
   Future<void> _addContact() async {
     if (otherUserNpub == null) return;
@@ -65,7 +67,8 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     });
 
     try {
-      await ref.read(contactsProvider.notifier).addContactByHex(otherUserNpub!);
+      // TODO big plans: add follow
+      // await ref.read(contactsProvider.notifier).addContactByHex(otherUserNpub!);
       if (mounted) {
         setState(() {
           isContact = true;
@@ -90,7 +93,8 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     });
 
     try {
-      await ref.read(contactsProvider.notifier).removeContactByHex(otherUserNpub!);
+      // TODO big plans: unfollow
+      // await ref.read(contactsProvider.notifier).removeContactByHex(otherUserNpub!);
       if (mounted) {
         setState(() {
           isContact = false;
@@ -127,11 +131,12 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(contactsProvider, (previous, next) {
-      if (otherUserNpub != null) {
-        _checkContactStatus(otherUserNpub!);
-      }
-    });
+    // TODO big plans: listen to follows
+    // ref.listen(contactsProvider, (previous, next) {
+    //   if (otherUserNpub != null) {
+    //     _checkContactStatus(otherUserNpub!);
+    //   }
+    // });
 
     return FutureBuilder(
       future: _dmChatDataFuture,

@@ -20,13 +20,13 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadGroupData();
+      _loadGroup();
       _loadMembers();
       _loadCurrentUserNpub();
     });
   }
 
-  Future<void> _loadGroupData() async {
+  Future<void> _loadGroup() async {
     final groupDetails = ref.read(groupsProvider).groupsMap?[widget.groupId];
     if (groupDetails?.nostrGroupId != null) {
       try {

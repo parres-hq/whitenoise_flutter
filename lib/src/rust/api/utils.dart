@@ -5,6 +5,7 @@
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+import '../api.dart';
 import '../frb_generated.dart';
 import 'groups.dart';
 import 'messages.dart';
@@ -18,10 +19,8 @@ Future<String> npubFromHexPubkey({required String hexPubkey}) =>
 Future<String> hexPubkeyFromNpub({required String npub}) =>
     RustLib.instance.api.crateApiUtilsHexPubkeyFromNpub(npub: npub);
 
-Future<String> hexPubkeyFromPublicKey({required PublicKey publicKey}) => RustLib
-    .instance
-    .api
-    .crateApiUtilsHexPubkeyFromPublicKey(publicKey: publicKey);
+Future<String> hexPubkeyFromPublicKey({required PublicKey publicKey}) =>
+    RustLib.instance.api.crateApiUtilsHexPubkeyFromPublicKey(publicKey: publicKey);
 
 Future<RelayUrl> relayUrlFromString({required String url}) =>
     RustLib.instance.api.crateApiUtilsRelayUrlFromString(url: url);

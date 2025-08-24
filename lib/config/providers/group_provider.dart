@@ -6,11 +6,10 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/states/group_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api.dart' as wnApi;
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
 import 'package:whitenoise/src/rust/api/utils.dart';
@@ -26,7 +25,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     _logger.warning(logMessage, error);
 
     // For WhitenoiseError, we schedule an async operation to get detailed error info
-    if (error is WhitenoiseError) {
+    if (error is wnApi.WhitenoiseError) {
       Future.microtask(() async {
         try {
           final errorDetails = await whitenoiseErrorToString(error: error);
@@ -46,13 +45,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
         // Account switched, clear current groups and load for new account
         // Schedule state changes after the build phase to avoid provider modification errors
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          clearGroupData();
+          clearGroup();
           loadGroups();
         });
       } else if (previous != null && next == null) {
         // Account logged out, clear groups
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          clearGroupData();
+          clearGroup();
         });
       } else if (previous == null && next != null) {
         // Account logged in, load groups
@@ -83,8 +82,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
@@ -132,7 +130,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     } catch (e, st) {
       // Log the full exception details with proper WhitenoiseError unpacking
       String logMessage = 'GroupsProvider.loadGroups - Exception: ';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           final errorDetails = await whitenoiseErrorToString(error: e);
           logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -160,8 +158,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Find an existing direct message group between the current user and another user
   Future<Group?> _findExistingDirectMessage(String otherUserPubkeyHex) async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) return null;
 
       final currentUserNpub = await npubFromHexPubkey(hexPubkey: activeAccountData.pubkey);
@@ -201,8 +198,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
 
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
@@ -268,7 +264,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     } catch (e, st) {
       // Log the full exception details with proper WhitenoiseError unpacking
       String logMessage = 'GroupsProvider.createNewGroup - Exception: ';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           final errorDetails = await whitenoiseErrorToString(error: e);
           logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -311,8 +307,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -335,7 +330,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
           } catch (metadataError) {
             // Log the full exception details with proper WhitenoiseError unpacking
             String logMessage = 'Failed to fetch metadata for member - Exception: ';
-            if (metadataError is WhitenoiseError) {
+            if (metadataError is wnApi.WhitenoiseError) {
               try {
                 final errorDetails = await whitenoiseErrorToString(error: metadataError);
                 logMessage += '$errorDetails (Type: ${metadataError.runtimeType})';
@@ -359,7 +354,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         } catch (e) {
           // Log the full exception details with proper WhitenoiseError unpacking
           String logMessage = 'Failed to process member pubkey - Exception: ';
-          if (e is WhitenoiseError) {
+          if (e is wnApi.WhitenoiseError) {
             try {
               final errorDetails = await whitenoiseErrorToString(error: e);
               logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -386,7 +381,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         st,
       );
       String errorMessage = 'Failed to load group members';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
         } catch (conversionError) {
@@ -409,8 +404,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -434,7 +428,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
           } catch (metadataError) {
             // Log the full exception details with proper WhitenoiseError unpacking
             String logMessage = 'Failed to fetch metadata for admin - Exception: ';
-            if (metadataError is WhitenoiseError) {
+            if (metadataError is wnApi.WhitenoiseError) {
               try {
                 final errorDetails = await whitenoiseErrorToString(error: metadataError);
                 logMessage += '$errorDetails (Type: ${metadataError.runtimeType})';
@@ -458,7 +452,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         } catch (e) {
           // Log the full exception details with proper WhitenoiseError unpacking
           String logMessage = 'Failed to process admin pubkey - Exception: ';
-          if (e is WhitenoiseError) {
+          if (e is wnApi.WhitenoiseError) {
             try {
               final errorDetails = await whitenoiseErrorToString(error: e);
               logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -485,7 +479,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         st,
       );
       String errorMessage = 'Failed to load group admins';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
         } catch (conversionError) {
@@ -542,8 +536,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     if (group == null) return;
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) return;
 
       final displayName = await _getDisplayNameForGroup(group, activeAccountData.pubkey);
@@ -553,7 +546,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       state = state.copyWith(groupDisplayNames: updatedDisplayNames);
     } catch (e) {
       String logMessage = 'Failed to calculate display name for group $groupId - Exception: ';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           final errorDetails = await whitenoiseErrorToString(error: e);
           logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -592,7 +585,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     } catch (e) {
       // Log the full exception details with proper WhitenoiseError unpacking
       String logMessage = 'GroupsProvider: Error loading members for groups - Exception: ';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           final errorDetails = await whitenoiseErrorToString(error: e);
           logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -628,7 +621,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       } catch (e) {
         String logMessage =
             'Failed to get other member name for DM group ${group.mlsGroupId} - Exception: ';
-        if (e is WhitenoiseError) {
+        if (e is wnApi.WhitenoiseError) {
           try {
             final errorDetails = await whitenoiseErrorToString(error: e);
             logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -708,8 +701,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   Future<bool> isCurrentUserAdmin(String groupId) async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) return false;
 
       final group = findGroupById(groupId);
@@ -719,7 +711,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     } catch (e) {
       // Log the full exception details with proper WhitenoiseError unpacking
       String logMessage = 'GroupsProvider: Error checking admin status - Exception: ';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           final errorDetails = await whitenoiseErrorToString(error: e);
           logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -735,7 +727,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
-  void clearGroupData() {
+  void clearGroup() {
     state = const GroupsState();
   }
 
@@ -758,8 +750,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         return;
       }
@@ -808,7 +799,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     } catch (e, st) {
       // Log the full exception details with proper WhitenoiseError unpacking
       String logMessage = 'GroupsProvider.checkForNewGroups - Exception: ';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           final errorDetails = await whitenoiseErrorToString(error: e);
           logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -841,7 +832,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     } catch (e) {
       // Log the full exception details with proper WhitenoiseError unpacking
       String logMessage = 'GroupsProvider: Error loading members for new groups - Exception: ';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           final errorDetails = await whitenoiseErrorToString(error: e);
           logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -882,8 +873,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -909,7 +899,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       await loadGroupMembers(groupId);
     } catch (e, st) {
       String logMessage = 'GroupsProvider.addUserToGroup - Exception: ';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           final errorDetails = await whitenoiseErrorToString(error: e);
           logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -943,8 +933,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -970,7 +959,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       await loadGroupMembers(groupId);
     } catch (e, st) {
       String logMessage = 'GroupsProvider.removeFromGroup - Exception: ';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.WhitenoiseError) {
         try {
           final errorDetails = await whitenoiseErrorToString(error: e);
           logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -1002,7 +991,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     final updatedGroups =
         groups.map((group) {
           if ((group as Group?)?.mlsGroupId == groupId) {
-            final g = group as Group;
+            final g = group;
             return Group(
               mlsGroupId: g.mlsGroupId,
               nostrGroupId: g.nostrGroupId,
@@ -1011,7 +1000,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
               adminPubkeys: g.adminPubkeys,
               lastMessageId: g.lastMessageId,
               lastMessageAt: timestamp,
-              groupType: g.groupType,
               epoch: g.epoch,
               state: g.state,
             );
@@ -1066,17 +1054,6 @@ extension GroupMemberUtils on GroupsNotifier {
     }
 
     return otherMembers.first;
-  }
-
-  Future<ContactModel?> getFirstOtherMember(String? groupId, String? currentUserNpub) async {
-    if (groupId == null || currentUserNpub == null) return null;
-    final members = getGroupMembers(groupId);
-    final member = members?.where((m) => m.publicKey != currentUserNpub).firstOrNull;
-    if (member == null) return null;
-    final hexPubkey = await hexPubkeyFromNpub(npub: member.publicKey);
-    final c = await ref.read(metadataCacheProvider.notifier).getContactModel(hexPubkey);
-
-    return c;
   }
 
   /// Get the display image for a group based on its type

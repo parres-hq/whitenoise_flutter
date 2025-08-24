@@ -52,8 +52,7 @@ void main() {
         final service = KeyPackageService(
           publicKeyString: testPublicKey,
           nip65Relays: testNip65Relays,
-          fetchKeyPackage: fetchKeyPackageSuccess,
-          publicKeyFromString: mockPublicKeyFromString,
+          fetchKeyPackage: fetchKeyPackageSuccess
         );
         final result = await service.fetchWithRetry();
         expect((result as MockEvent).eventId, equals('test-key-package-event-123'));
@@ -83,7 +82,6 @@ void main() {
           publicKeyString: testPublicKey,
           nip65Relays: testNip65Relays,
           fetchKeyPackage: fakeFailThenSuccess,
-          publicKeyFromString: mockPublicKeyFromString,
         );
         final result = await service.fetchWithRetry();
 
@@ -114,7 +112,6 @@ void main() {
           publicKeyString: testPublicKey,
           nip65Relays: testNip65Relays,
           fetchKeyPackage: fakeFailTwiceThenSuccess,
-          publicKeyFromString: mockPublicKeyFromString,
         );
         final result = await service.fetchWithRetry();
 
@@ -139,7 +136,6 @@ void main() {
           publicKeyString: testPublicKey,
           nip65Relays: testNip65Relays,
           fetchKeyPackage: fakeAlwaysFails,
-          publicKeyFromString: mockPublicKeyFromString,
         );
         expect(
           () => service.fetchWithRetry(),

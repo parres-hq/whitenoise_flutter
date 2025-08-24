@@ -65,7 +65,7 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
 
       // Get the active account data directly
       final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          await ref.read(activeAccountProvider.notifier).getActiveAccount();
       _logger.info('RelayStatusNotifier: Active account data: ${activeAccountData?.pubkey}');
       if (activeAccountData == null) {
         _logger.warning('RelayStatusNotifier: No active account found');

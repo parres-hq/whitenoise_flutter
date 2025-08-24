@@ -9,7 +9,7 @@ void main() {
     late ProviderContainer container;
 
     // Test data
-    final testGroupData1 = GroupData(
+    final testGroup1 = Group(
       mlsGroupId: 'mls_group_1',
       nostrGroupId: 'nostr_group_1',
       name: 'Test Group 1',
@@ -22,7 +22,7 @@ void main() {
       state: GroupState.active,
     );
 
-    final testGroupData2 = GroupData(
+    final testGroup2 = Group(
       mlsGroupId: 'mls_group_2',
       nostrGroupId: 'nostr_group_2',
       name: 'Direct Message',
@@ -33,7 +33,7 @@ void main() {
       state: GroupState.active,
     );
 
-    final testGroupData3 = GroupData(
+    final testGroup3 = Group(
       mlsGroupId: 'mls_group_3',
       nostrGroupId: 'nostr_group_3',
       name: 'Inactive Group',
@@ -44,7 +44,7 @@ void main() {
       state: GroupState.inactive,
     );
 
-    final testGroups = [testGroupData1, testGroupData2, testGroupData3];
+    final testGroups = [testGroup1, testGroup2, testGroup3];
 
     setUp(() {
       container = ProviderContainer();
@@ -279,7 +279,7 @@ void main() {
         expect(admins, isNull);
       });
 
-      test('clearGroupData should reset state to initial values', () {
+      test('clearGroup should reset state to initial values', () {
         final notifier = container.read(groupsProvider.notifier);
 
         // Set some data first
@@ -298,7 +298,7 @@ void main() {
         );
 
         // Clear data
-        notifier.clearGroupData();
+        notifier.clearGroup();
 
         final state = container.read(groupsProvider);
         expect(state.groups, isNull);
@@ -444,7 +444,7 @@ void main() {
         expect(container.read(groupsProvider).groups!.length, 3);
 
         // Simulate adding a new group
-        final newGroup = GroupData(
+        final newGroup = Group(
           mlsGroupId: 'new_mls_group',
           nostrGroupId: 'new_nostr_group',
           name: 'New Group',
@@ -528,7 +528,7 @@ void main() {
     group('Edge Cases', () {
       test('should handle empty groups list', () {
         final notifier = container.read(groupsProvider.notifier);
-        notifier.state = notifier.state.copyWith(groups: <GroupData>[]);
+        notifier.state = notifier.state.copyWith(groups: <Group>[]);
 
         expect(notifier.getActiveGroups(), isEmpty);
         expect(notifier.getRegularGroups(), isEmpty);

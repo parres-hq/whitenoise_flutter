@@ -250,6 +250,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     // Watch both groups and welcomes
     final groupList = ref.watch(groupsProvider.select((state) => state.groups)) ?? [];
     final welcomesList = ref.watch(welcomesProvider.select((state) => state.welcomes)) ?? [];
+    final welcomesProviderWatcher = ref.watch(welcomesProvider);
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
 
     // Cache profile data to avoid unnecessary rebuilds
@@ -273,11 +274,12 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
       );
     }
 
-    // Add pending welcomes as chat items
-    final pendingWelcomes = welcomesList.where((welcome) => welcome.state == WelcomeState.pending);
-    for (final welcome in pendingWelcomes) {
-      chatItems.add(ChatListItem.fromWelcome(welcomeData: welcome));
-    }
+    // TODO big plans: Show welcomes.
+    // welcomesProviderWatcher.whenData((welcomes) {
+    //   for (final welcome in welcomes) {
+    //     chatItems.add(ChatListItem.fromWelcome(welcomeData: welcome));
+    //   }
+    // });
 
     // Sort by date created (most recent first)
     chatItems.sort((a, b) => b.dateCreated.compareTo(a.dateCreated));

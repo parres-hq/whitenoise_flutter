@@ -7,7 +7,6 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
@@ -39,21 +38,23 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
-      _loadContacts();
+      // _loadContacts();
     });
   }
 
-  Future<void> _loadContacts() async {
-    try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData != null) {
-        await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
-      }
-    } catch (e) {
-      Logger('ChatInfoScreen').warning('Error loading contacts: $e');
-    }
-  }
+  // TODO big plans: load follows
+
+  // Future<void> _loadContacts() async {
+  //   try {
+  //     final activeAccountData =
+  //         await ref.read(activeAccountProvider.notifier).getActiveAccount();
+  //     if (activeAccountData != null) {
+  //       await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
+  //     }
+  //   } catch (e) {
+  //     Logger('ChatInfoScreen').warning('Error loading contacts: $e');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {

@@ -1,10 +1,10 @@
 import 'package:whitenoise/src/rust/api/messages.dart';
 
 class ChatState {
-  final List<MessageWithTokensData> messages;
+  final List<MessageWithTokens> messages;
   final bool isLoading;
-  final MessageWithTokensData? replyingTo;
-  final MessageWithTokensData? editingMessage;
+  final MessageWithTokens? replyingTo;
+  final MessageWithTokens? editingMessage;
   final String? error;
 
   const ChatState({
@@ -16,10 +16,10 @@ class ChatState {
   });
 
   ChatState copyWith({
-    List<MessageWithTokensData>? messages,
+    List<MessageWithTokens>? messages,
     bool? isLoading,
-    MessageWithTokensData? replyingTo,
-    MessageWithTokensData? editingMessage,
+    MessageWithTokens? replyingTo,
+    MessageWithTokens? editingMessage,
     String? error,
     bool clearReplyingTo = false,
     bool clearEditingMessage = false,

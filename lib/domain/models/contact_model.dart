@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart' as wnMetadataApi;
 
 class ContactModel {
   final String publicKey;
@@ -23,7 +24,7 @@ class ContactModel {
   // Create ContactModel from Rust API Metadata with proper sanitization
   factory ContactModel.fromMetadata({
     required String publicKey,
-    MetadataData? metadata,
+    wnMetadataApi.FlutterMetadata? metadata,
   }) {
     // Sanitize and clean data
     final displayName = _sanitizeString(metadata?.displayName);

@@ -12,7 +12,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ChatContactHeader extends ConsumerWidget {
-  final GroupData groupData;
+  final Group groupData;
 
   const ChatContactHeader({super.key, required this.groupData});
 
@@ -29,7 +29,7 @@ class ChatContactHeader extends ConsumerWidget {
 }
 
 class GroupChatHeader extends ConsumerStatefulWidget {
-  final GroupData groupData;
+  final Group groupData;
 
   const GroupChatHeader({
     super.key,
@@ -122,7 +122,7 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
 }
 
 class DirectMessageHeader extends ConsumerStatefulWidget {
-  final GroupData groupData;
+  final Group groupData;
 
   const DirectMessageHeader({super.key, required this.groupData});
 

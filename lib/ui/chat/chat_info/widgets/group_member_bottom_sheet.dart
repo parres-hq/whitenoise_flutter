@@ -17,6 +17,8 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
+import 'package:whitenoise/src/rust/api/utils.dart' show npubFromHexPubkey;
+
 
 import 'member_action_buttons.dart';
 
@@ -64,9 +66,13 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
   }
 
   void _loadCurrentUserNpub() async {
-    final activeAccount = ref.read(activeAccountProvider);
-    if (activeAccount != null) {
-      currentUserNpub = await activeAccount.toNpub() ?? '';
+    final activeAccountPubkey = ref.read(activeAccountProvider);
+    if (activeAccountPubkey != null) {
+      try {
+        currentUserNpub =  await npubFromHexPubkey(hexPubkey: activeAccountPubkey);
+      } catch (e) {
+        currentUserNpub =  '';
+      }
       setState(() {});
     }
   }

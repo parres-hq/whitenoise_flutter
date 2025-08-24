@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -26,17 +25,19 @@ class WelcomeTile extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
-
     return FutureBuilder(
-      future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
+      // TODO big plans: fetch welcomer metadata
+      //future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
+      future: Future.value(),
       builder: (context, snapshot) {
         final welcomerContact = snapshot.data;
         final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
         final welcomerImageUrl = welcomerContact?.imagePath ?? '';
 
         return InkWell(
-          onTap: () => Routes.goToChat(context, welcomeData.mlsGroupId, inviteId: welcomeData.id),
+          // TODO: use welcome args to open chat
+          //onTap: () => Routes.goToChat(context, welcomeData.mlsGroupId, inviteId: welcomeData.id),
+          onTap: () {},
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             child: Row(

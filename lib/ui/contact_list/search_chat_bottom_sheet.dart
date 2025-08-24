@@ -5,7 +5,6 @@ import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/chat_model.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
@@ -80,7 +79,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
     try {
       // Get the active account data directly
       final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          await ref.read(activeAccountProvider.notifier).getActiveAccount();
 
       if (activeAccountData != null) {
         _logger.info('SearchChatBottomSheet: Found active account: ${activeAccountData.pubkey}');
@@ -100,7 +99,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
     }
   }
 
-  List<ContactModel> _getFilteredContacts(Map<PublicKey, MetadataData?>? contacts) {
+  List<ContactModel> _getFilteredContacts(Map<PublicKey, FlutterMetadata?>? contacts) {
     if (_searchQuery.isEmpty || contacts == null) return [];
 
     final contactModels = <ContactModel>[];

@@ -4,7 +4,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
@@ -109,12 +108,14 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
   bool get _isLoading => _isAddingContact;
 
   bool _isContact() {
-    final contactsState = ref.watch(contactsProvider);
-    final contacts = contactsState.contactModels ?? [];
+    // TODO: pepi check if user is followed
+    // final contactsState = ref.watch(contactsProvider);
+    // final contacts = contactsState.contactModels ?? [];
 
-    return contacts.any(
-      (contact) => contact.publicKey.toLowerCase() == widget.user.publicKey.toLowerCase(),
-    );
+    // return contacts.any(
+    //   (contact) => contact.publicKey.toLowerCase() == widget.user.publicKey.toLowerCase(),
+    // );
+    return false; // Temporal
   }
 
   Future<void> _toggleContact() async {
@@ -123,16 +124,18 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
     });
 
     try {
-      final contactsNotifier = ref.read(contactsProvider.notifier);
+      //final contactsNotifier = ref.read(contactsProvider.notifier);
       final isCurrentlyContact = _isContact();
 
       if (isCurrentlyContact) {
-        await contactsNotifier.removeContactByHex(widget.user.publicKey);
+        // TODO big plans: remove user follow
+        // await contactsNotifier.removeContactByHex(widget.user.publicKey);
         if (mounted) {
           ref.showSuccessToast('${widget.user.displayName} removed from contacts');
         }
       } else {
-        await contactsNotifier.addContactByHex(widget.user.publicKey);
+        // TODO big plans: add user follow
+        // await contactsNotifier.addContactByHex(widget.user.publicKey);
         if (mounted) {
           ref.showSuccessToast('${widget.user.displayName} added to contacts');
         }

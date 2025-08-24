@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 
-extension MessageWithTokensDataExtensions on MessageWithTokensData {
-  /// Convert BigInt timestamp to DateTime
-  DateTime get createdAtDateTime => DateTime.fromMillisecondsSinceEpoch(createdAt.toInt());
-
+extension MessageWithTokensExtensions on MessageWithTokens {
   /// Get formatted time sent (similar to MessageModel.timeSent)
   String get timeSent {
     final now = DateTime.now();
-    final messageTime = createdAtDateTime;
+    final messageTime = createdAt;
     final difference = now.difference(messageTime);
 
     // Same day - show time (HH:MM)
@@ -88,14 +85,14 @@ class MessageHelper {
     return _currentUserPubkey;
   }
 
-  static bool isMessageFromCurrentUser(MessageWithTokensData message) {
+  static bool isMessageFromCurrentUser(MessageWithTokens message) {
     final currentPubkey = _currentUserPubkey;
     if (currentPubkey == null) return false;
     return message.isFromUser(currentPubkey);
   }
 }
 
-/// Mock message status enum since MessageWithTokensData doesn't have status
+/// Mock message status enum since MessageWithTokens doesn't have status
 enum MockMessageStatus {
   sending,
   sent,

@@ -22,7 +22,8 @@ mixin _$ThemeState {
   /// Create a copy of ThemeState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ThemeStateCopyWith<ThemeState> get copyWith => throw _privateConstructorUsedError;
+  $ThemeStateCopyWith<ThemeState> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -36,7 +37,8 @@ abstract class $ThemeStateCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$ThemeStateCopyWithImpl<$Res, $Val extends ThemeState> implements $ThemeStateCopyWith<$Res> {
+class _$ThemeStateCopyWithImpl<$Res, $Val extends ThemeState>
+    implements $ThemeStateCopyWith<$Res> {
   _$ThemeStateCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -63,7 +65,8 @@ class _$ThemeStateCopyWithImpl<$Res, $Val extends ThemeState> implements $ThemeS
 }
 
 /// @nodoc
-abstract class _$$ThemeStateImplCopyWith<$Res> implements $ThemeStateCopyWith<$Res> {
+abstract class _$$ThemeStateImplCopyWith<$Res>
+    implements $ThemeStateCopyWith<$Res> {
   factory _$$ThemeStateImplCopyWith(
     _$ThemeStateImpl value,
     $Res Function(_$ThemeStateImpl) then,
@@ -74,7 +77,8 @@ abstract class _$$ThemeStateImplCopyWith<$Res> implements $ThemeStateCopyWith<$R
 }
 
 /// @nodoc
-class __$$ThemeStateImplCopyWithImpl<$Res> extends _$ThemeStateCopyWithImpl<$Res, _$ThemeStateImpl>
+class __$$ThemeStateImplCopyWithImpl<$Res>
+    extends _$ThemeStateCopyWithImpl<$Res, _$ThemeStateImpl>
     implements _$$ThemeStateImplCopyWith<$Res> {
   __$$ThemeStateImplCopyWithImpl(
     _$ThemeStateImpl _value,
@@ -117,7 +121,8 @@ class _$ThemeStateImpl implements _ThemeState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ThemeStateImpl &&
-            (identical(other.themeMode, themeMode) || other.themeMode == themeMode));
+            (identical(other.themeMode, themeMode) ||
+                other.themeMode == themeMode));
   }
 
   @override
@@ -142,5 +147,6 @@ abstract class _ThemeState implements ThemeState {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ThemeStateImplCopyWith<_$ThemeStateImpl> get copyWith => throw _privateConstructorUsedError;
+  _$$ThemeStateImplCopyWith<_$ThemeStateImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }

@@ -8,7 +8,7 @@ part 'group_state.freezed.dart';
 abstract class GroupsState with _$GroupsState {
   const factory GroupsState({
     List<Group>? groups,
-    Map<String, Group>? groupsMap, // groupId -> GroupData
+    Map<String, Group>? groupsMap, // groupId -> Group
     Map<String, List<User>>? groupMembers, // groupId -> members
     Map<String, List<User>>? groupAdmins, // groupId -> admins
     Map<String, String>? groupDisplayNames, // groupId -> display name
