@@ -2,8 +2,8 @@
 use flutter_rust_bridge::frb;
 use std::path::Path;
 pub use whitenoise::{
-    AppSettings, Event, GroupId, GroupState, GroupType, Kind, MessageWithTokens, PublicKey,
-    RelayType, RelayUrl, Tag, ThemeMode, Whitenoise, WhitenoiseError,
+    AppSettings, Event, GroupId, Kind, MessageWithTokens, PublicKey, RelayType, RelayUrl, Tag,
+    ThemeMode, Whitenoise, WhitenoiseError,
 };
 
 /// Flutter-compatible configuration structure that holds directory paths as strings.
@@ -50,10 +50,7 @@ impl From<whitenoise::WhitenoiseConfig> for WhitenoiseConfig {
 /// ```
 #[frb]
 pub fn create_whitenoise_config(data_dir: String, logs_dir: String) -> WhitenoiseConfig {
-    WhitenoiseConfig {
-        data_dir,
-        logs_dir,
-    }
+    WhitenoiseConfig { data_dir, logs_dir }
 }
 
 // Declare the modules
@@ -78,10 +75,8 @@ pub use welcomes::*;
 
 #[frb]
 pub async fn initialize_whitenoise(config: WhitenoiseConfig) -> Result<(), WhitenoiseError> {
-    let core_config = whitenoise::WhitenoiseConfig::new(
-        Path::new(&config.data_dir),
-        Path::new(&config.logs_dir)
-    );
+    let core_config =
+        whitenoise::WhitenoiseConfig::new(Path::new(&config.data_dir), Path::new(&config.logs_dir));
     Whitenoise::initialize_whitenoise(core_config).await
 }
 

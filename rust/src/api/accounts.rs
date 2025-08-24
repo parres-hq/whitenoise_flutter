@@ -1,10 +1,13 @@
+use crate::api::metadata::FlutterMetadata;
+use crate::api::relays::Relay;
+use crate::api::users::User;
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
 use url::Url;
-use whitenoise::{Account as WhitenoiseAccount, Event, ImageType, Metadata, PublicKey, RelayType, RelayUrl, Whitenoise, WhitenoiseError};
-use crate::api::metadata::FlutterMetadata;
-use crate::api::users::User;
-use crate::api::relays::Relay;
+use whitenoise::{
+    Account as WhitenoiseAccount, Event, ImageType, Metadata, PublicKey, RelayType, RelayUrl,
+    Whitenoise, WhitenoiseError,
+};
 
 #[frb(non_opaque)]
 #[derive(Debug, Clone)]
@@ -82,12 +85,12 @@ pub async fn account_metadata(pubkey: String) -> Result<FlutterMetadata, Whiteno
 #[frb]
 pub async fn update_account_metadata(
     pubkey: String,
-    metadata: &Metadata,
+    metadata: &FlutterMetadata,
 ) -> Result<(), WhitenoiseError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
-    account.update_metadata(&metadata, whitenoise).await
+    account.update_metadata(&metadata.into(), whitenoise).await
 }
 
 #[frb]

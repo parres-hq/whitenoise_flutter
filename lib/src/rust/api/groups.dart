@@ -5,10 +5,10 @@
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-import '../api.dart';
 import '../frb_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `from`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `GroupInformation`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`
 
 Future<List<Group>> activeGroups({required String pubkey}) =>
     RustLib.instance.api.crateApiGroupsActiveGroups(pubkey: pubkey);
@@ -63,6 +63,9 @@ Future<void> removeMembersFromGroup({
   memberPubkeys: memberPubkeys,
 );
 
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<WhitenoiseError>>
+abstract class WhitenoiseError implements RustOpaqueInterface {}
+
 class Group {
   final String mlsGroupId;
   final String nostrGroupId;
@@ -73,7 +76,6 @@ class Group {
   final List<String> adminPubkeys;
   final String? lastMessageId;
   final DateTime? lastMessageAt;
-  final GroupType groupType;
   final BigInt epoch;
   final GroupState state;
 
@@ -87,10 +89,24 @@ class Group {
     required this.adminPubkeys,
     this.lastMessageId,
     this.lastMessageAt,
-    required this.groupType,
     required this.epoch,
     required this.state,
   });
+
+  Future<GroupType> groupType() =>
+      RustLib.instance.api.crateApiGroupsGroupGroupType(
+        that: this,
+      );
+
+  Future<bool> isDirectMessageType() =>
+      RustLib.instance.api.crateApiGroupsGroupIsDirectMessageType(
+        that: this,
+      );
+
+  Future<bool> isGroupType() =>
+      RustLib.instance.api.crateApiGroupsGroupIsGroupType(
+        that: this,
+      );
 
   @override
   int get hashCode =>
@@ -103,7 +119,6 @@ class Group {
       adminPubkeys.hashCode ^
       lastMessageId.hashCode ^
       lastMessageAt.hashCode ^
-      groupType.hashCode ^
       epoch.hashCode ^
       state.hashCode;
 
@@ -121,7 +136,6 @@ class Group {
           adminPubkeys == other.adminPubkeys &&
           lastMessageId == other.lastMessageId &&
           lastMessageAt == other.lastMessageAt &&
-          groupType == other.groupType &&
           epoch == other.epoch &&
           state == other.state;
 }

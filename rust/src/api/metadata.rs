@@ -46,8 +46,6 @@ pub struct FlutterMetadata {
     pub custom: HashMap<String, String>,
 }
 
-
-
 /// Implements conversion from the core `Metadata` type to our Flutter-compatible `FlutterMetadata` type.
 ///
 /// This conversion handles the transformation of the `custom` field from `BTreeMap<String, serde_json::Value>`

@@ -86,8 +86,11 @@ impl From<&WhitenoiseMessageWithTokens> for MessageWithTokens {
             id: message_with_tokens.message.id.to_hex(),
             pubkey: message_with_tokens.message.pubkey.to_hex(),
             kind: message_with_tokens.message.kind.as_u16(),
-            created_at: DateTime::from_timestamp(message_with_tokens.message.created_at.as_u64() as i64, 0)
-                .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap()),
+            created_at: DateTime::from_timestamp(
+                message_with_tokens.message.created_at.as_u64() as i64,
+                0,
+            )
+            .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap()),
             content: Some(message_with_tokens.message.content.clone()),
             tokens,
         }

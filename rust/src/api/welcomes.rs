@@ -1,6 +1,9 @@
 use crate::api::utils::group_id_to_string;
 use flutter_rust_bridge::frb;
-pub use whitenoise::{GroupId, PublicKey, Welcome, WelcomeState, Whitenoise, WhitenoiseError};
+pub use whitenoise::{
+    GroupId, PublicKey, Welcome as WhitenoiseWelcome, WelcomeState as WhitenoiseWelcomeState,
+    Whitenoise, WhitenoiseError,
+};
 
 /// Converts a GroupId to a hex string representation.
 ///
@@ -13,8 +16,9 @@ pub use whitenoise::{GroupId, PublicKey, Welcome, WelcomeState, Whitenoise, Whit
 /// # Returns
 /// Hexadecimal string representation of the group ID
 
+#[frb]
 #[derive(Debug, Clone)]
-pub struct _Welcome {
+pub struct Welcome {
     pub id: String,
     pub mls_group_id: String,
     pub nostr_group_id: String,
@@ -28,9 +32,9 @@ pub struct _Welcome {
     pub created_at: u64,
 }
 
-#[frb(mirror(WelcomeState))]
+#[frb]
 #[derive(Debug, Clone)]
-pub enum _WelcomeState {
+pub enum WelcomeState {
     // Pending: The welcome has been sent but not yet accepted or declined
     Pending,
     // Accepted: The welcome has been accepted
@@ -41,8 +45,19 @@ pub enum _WelcomeState {
     Ignored,
 }
 
-impl From<Welcome> for _Welcome {
-    fn from(welcome: Welcome) -> Self {
+impl From<WhitenoiseWelcomeState> for WelcomeState {
+    fn from(state: WhitenoiseWelcomeState) -> Self {
+        match state {
+            WhitenoiseWelcomeState::Pending => WelcomeState::Pending,
+            WhitenoiseWelcomeState::Accepted => WelcomeState::Accepted,
+            WhitenoiseWelcomeState::Declined => WelcomeState::Declined,
+            WhitenoiseWelcomeState::Ignored => WelcomeState::Ignored,
+        }
+    }
+}
+
+impl From<WhitenoiseWelcome> for Welcome {
+    fn from(welcome: WhitenoiseWelcome) -> Self {
         Self {
             id: welcome.id.to_string(),
             mls_group_id: group_id_to_string(&welcome.mls_group_id),
@@ -57,14 +72,14 @@ impl From<Welcome> for _Welcome {
             group_relays: welcome.group_relays.iter().map(|r| r.to_string()).collect(),
             welcomer: welcome.welcomer.to_hex(),
             member_count: welcome.member_count,
-            state: welcome.state,
+            state: welcome.state.into(),
             created_at: welcome.event.created_at.as_u64(),
         }
     }
 }
 
-impl From<&Welcome> for _Welcome {
-    fn from(welcome: &Welcome) -> Self {
+impl From<&WhitenoiseWelcome> for Welcome {
+    fn from(welcome: &WhitenoiseWelcome) -> Self {
         Self {
             id: welcome.id.to_string(),
             mls_group_id: group_id_to_string(&welcome.mls_group_id),
@@ -79,7 +94,7 @@ impl From<&Welcome> for _Welcome {
             group_relays: welcome.group_relays.iter().map(|r| r.to_string()).collect(),
             welcomer: welcome.welcomer.to_hex(),
             member_count: welcome.member_count,
-            state: welcome.state,
+            state: welcome.state.into(),
             created_at: welcome.event.created_at.as_u64(),
         }
     }

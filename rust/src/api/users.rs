@@ -1,8 +1,8 @@
+use crate::api::metadata::FlutterMetadata;
+use crate::api::relays::Relay;
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
 use whitenoise::{PublicKey, RelayType, User as WhitenoiseUser, Whitenoise, WhitenoiseError};
-use crate::api::metadata::FlutterMetadata;
-use crate::api::relays::Relay;
 
 #[frb(non_opaque)]
 #[derive(Debug, Clone)]

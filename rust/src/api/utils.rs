@@ -4,9 +4,7 @@
 //! including key management, relay operations, and data conversions.
 
 use flutter_rust_bridge::frb;
-pub use whitenoise::{
-    GroupId, PublicKey, RelayUrl, Tag, Whitenoise, WhitenoiseError,
-};
+pub use whitenoise::{GroupId, PublicKey, RelayUrl, Tag, Whitenoise, WhitenoiseError};
 
 #[frb]
 pub fn npub_from_public_key(public_key: &PublicKey) -> Result<String, WhitenoiseError> {
@@ -65,6 +63,7 @@ pub fn group_id_to_string(group_id: &GroupId) -> String {
 }
 
 pub fn group_id_from_string(group_id: &str) -> Result<GroupId, WhitenoiseError> {
-    let bytes = hex::decode(group_id).map_err(|e| WhitenoiseError::Other(anyhow::Error::from(e)))?;
+    let bytes =
+        hex::decode(group_id).map_err(|e| WhitenoiseError::Other(anyhow::Error::from(e)))?;
     Ok(GroupId::from_slice(&bytes))
 }

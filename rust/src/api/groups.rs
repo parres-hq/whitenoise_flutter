@@ -2,8 +2,12 @@ use crate::api::{group_id_from_string, utils::group_id_to_string};
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
 use hex;
+pub use whitenoise::{
+    whitenoise::group_information::GroupInformation as WhitenoiseGroupInformation,
+    whitenoise::group_information::GroupType as WhitenoiseGroupType, GroupId,
+    GroupState as WhitenoiseGroupState, PublicKey, RelayType,
+};
 use whitenoise::{Group as WhitenoiseGroup, NostrGroupConfigData, Whitenoise, WhitenoiseError};
-pub use whitenoise::{GroupId, GroupState, GroupType, PublicKey, RelayType};
 
 #[frb(non_opaque)]
 #[derive(Debug, Clone)]
@@ -17,7 +21,6 @@ pub struct Group {
     pub admin_pubkeys: Vec<String>,
     pub last_message_id: Option<String>,
     pub last_message_at: Option<DateTime<Utc>>,
-    pub group_type: GroupType,
     pub epoch: u64,
     pub state: GroupState,
 }
@@ -37,26 +40,93 @@ impl From<WhitenoiseGroup> for Group {
                 DateTime::from_timestamp(ts.as_u64() as i64, 0)
                     .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap())
             }),
-            group_type: group.group_type,
             epoch: group.epoch,
-            state: group.state,
+            state: group.state.into(),
         }
     }
 }
 
-#[frb(mirror(GroupState))]
+impl Group {
+    #[frb]
+    pub async fn group_type(&self) -> Result<GroupType, WhitenoiseError> {
+        let whitenoise = Whitenoise::get_instance()?;
+        let mls_group_id = group_id_from_string(&self.mls_group_id)?;
+        let group_information =
+            WhitenoiseGroupInformation::get_by_mls_group_id(&mls_group_id, whitenoise).await?;
+        Ok(group_information.group_type.into())
+    }
+
+    #[frb]
+    pub async fn is_direct_message_type(&self) -> Result<bool, WhitenoiseError> {
+        let whitenoise = Whitenoise::get_instance()?;
+        let mls_group_id = group_id_from_string(&self.mls_group_id)?;
+        let group_information =
+            WhitenoiseGroupInformation::get_by_mls_group_id(&mls_group_id, whitenoise).await?;
+        Ok(group_information.group_type == WhitenoiseGroupType::DirectMessage)
+    }
+
+    #[frb]
+    pub async fn is_group_type(&self) -> Result<bool, WhitenoiseError> {
+        let whitenoise = Whitenoise::get_instance()?;
+        let mls_group_id = group_id_from_string(&self.mls_group_id)?;
+        let group_information =
+            WhitenoiseGroupInformation::get_by_mls_group_id(&mls_group_id, whitenoise).await?;
+        Ok(group_information.group_type == WhitenoiseGroupType::Group)
+    }
+}
+
+// Define our own GroupState enum that can be used by Dart
+#[frb]
 #[derive(Debug, Clone)]
-pub enum _GroupState {
+pub enum GroupState {
     Active,
     Inactive,
     Pending,
 }
 
-#[frb(mirror(GroupType))]
+// Implement conversion from the whitenoise crate's GroupState to our GroupState
+impl From<WhitenoiseGroupState> for GroupState {
+    fn from(whitenoise_state: WhitenoiseGroupState) -> Self {
+        match whitenoise_state {
+            WhitenoiseGroupState::Active => GroupState::Active,
+            WhitenoiseGroupState::Inactive => GroupState::Inactive,
+            WhitenoiseGroupState::Pending => GroupState::Pending,
+        }
+    }
+}
+
+// Define our own GroupType enum that can be used by Dart
+#[frb]
 #[derive(Debug, Clone)]
-pub enum _GroupType {
+pub enum GroupType {
     DirectMessage,
     Group,
+}
+
+// Implement conversion from the whitenoise crate's GroupType to our GroupType
+impl From<WhitenoiseGroupType> for GroupType {
+    fn from(whitenoise_type: WhitenoiseGroupType) -> Self {
+        match whitenoise_type {
+            WhitenoiseGroupType::DirectMessage => GroupType::DirectMessage,
+            WhitenoiseGroupType::Group => GroupType::Group,
+        }
+    }
+}
+
+// Define our own GroupInformation struct that can be used by Dart
+#[frb(non_opaque)]
+#[derive(Debug, Clone)]
+pub struct GroupInformation {
+    pub group_type: GroupType,
+}
+
+// Implement conversion from the whitenoise crate's GroupInformation to our GroupInformation
+impl From<WhitenoiseGroupInformation> for GroupInformation {
+    fn from(whitenoise_info: WhitenoiseGroupInformation) -> Self {
+        Self {
+            group_type: whitenoise_info.group_type.into(),
+        }
+    }
 }
 
 #[frb]
@@ -108,6 +178,10 @@ pub async fn create_group(
 
     // Fetch the creator's Nostr relays to include in the group configuration
     let nostr_relays = creator_account.relays(RelayType::Nip65, whitenoise).await?;
+    let admin_pubkeys = admin_pubkeys
+        .into_iter()
+        .map(|pk| PublicKey::from_hex(&pk))
+        .collect::<Result<Vec<_>, _>>()?;
 
     let nostr_group_config = NostrGroupConfigData {
         name: group_name,
@@ -115,19 +189,16 @@ pub async fn create_group(
         image_key: None,
         image_url: None,
         relays: nostr_relays.into_iter().map(|r| r.url).collect(),
+        admins: admin_pubkeys,
     };
 
-    let member_pubkeys = member_pubkeys.into_iter().map(|pk| PublicKey::from_hex(&pk)).collect::<Result<Vec<_>, _>>()?;
-    let admin_pubkeys = admin_pubkeys.into_iter().map(|pk| PublicKey::from_hex(&pk)).collect::<Result<Vec<_>, _>>()?;
+    let member_pubkeys = member_pubkeys
+        .into_iter()
+        .map(|pk| PublicKey::from_hex(&pk))
+        .collect::<Result<Vec<_>, _>>()?;
 
     let group = whitenoise
-        .create_group(
-            &creator_account,
-            member_pubkeys,
-            admin_pubkeys,
-            nostr_group_config,
-            None,
-        )
+        .create_group(&creator_account, member_pubkeys, nostr_group_config, None)
         .await?;
     Ok(group.into())
 }
@@ -142,7 +213,10 @@ pub async fn add_members_to_group(
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
-    let member_pubkeys = member_pubkeys.into_iter().map(|pk| PublicKey::from_hex(&pk)).collect::<Result<Vec<_>, _>>()?;
+    let member_pubkeys = member_pubkeys
+        .into_iter()
+        .map(|pk| PublicKey::from_hex(&pk))
+        .collect::<Result<Vec<_>, _>>()?;
     whitenoise
         .add_members_to_group(&account, &group_id, member_pubkeys)
         .await
@@ -158,7 +232,10 @@ pub async fn remove_members_from_group(
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
-    let member_pubkeys = member_pubkeys.into_iter().map(|pk| PublicKey::from_hex(&pk)).collect::<Result<Vec<_>, _>>()?;
+    let member_pubkeys = member_pubkeys
+        .into_iter()
+        .map(|pk| PublicKey::from_hex(&pk))
+        .collect::<Result<Vec<_>, _>>()?;
     whitenoise
         .remove_members_from_group(&account, &group_id, member_pubkeys)
         .await

@@ -5,9 +5,8 @@
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-import '../api.dart';
 import '../frb_generated.dart';
-import '../lib.dart';
+import 'groups.dart';
 import 'metadata.dart';
 import 'relays.dart';
 import 'users.dart';
@@ -39,7 +38,7 @@ Future<FlutterMetadata> accountMetadata({required String pubkey}) =>
 
 Future<void> updateAccountMetadata({
   required String pubkey,
-  required Metadata metadata,
+  required FlutterMetadata metadata,
 }) => RustLib.instance.api.crateApiAccountsUpdateAccountMetadata(
   pubkey: pubkey,
   metadata: metadata,
