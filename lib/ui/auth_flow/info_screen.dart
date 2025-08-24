@@ -5,10 +5,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
-
-import '../core/themes/assets.dart';
-import '../core/themes/src/extensions.dart';
 
 class InfoScreen extends ConsumerStatefulWidget {
   const InfoScreen({super.key});
