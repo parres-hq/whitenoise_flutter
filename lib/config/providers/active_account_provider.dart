@@ -57,7 +57,7 @@ class ActiveAccountNotifier extends Notifier<String?> {
     }
   }
 
-  Future<Account?> getActiveAccountData() async {
+  Future<Account?> getActiveAccount() async {
     _logger.fine('Getting active account data, state: $state');
     if (state == null) {
       _logger.warning('No active account set');

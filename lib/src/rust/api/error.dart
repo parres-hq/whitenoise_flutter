@@ -49,8 +49,8 @@ sealed class ApiError with _$ApiError implements FrbException {
       );
 
   /// Get the error message
-  @override
-  Future<void> message() => RustLib.instance.api.crateApiErrorApiErrorMessage(
-    that: this,
-  );
+  // @override
+  // Future<void> message() => RustLib.instance.api.crateApiErrorApiErrorMessage(
+  //   that: this,
+  // );
 }

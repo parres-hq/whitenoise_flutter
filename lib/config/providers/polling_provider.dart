@@ -107,8 +107,8 @@ class PollingNotifier extends Notifier<bool> {
     if (!state) return;
 
     try {
-      // Check for new welcomes incrementally
-      await ref.read(welcomesProvider.notifier).checkForNewWelcomes();
+      // TODO big plans: check for new welcomes incrementally
+      // await ref.read(welcomesProvider.notifier).checkForNewWelcomes();
 
       // Check for new groups incrementally
       await ref.read(groupsProvider.notifier).checkForNewGroups();

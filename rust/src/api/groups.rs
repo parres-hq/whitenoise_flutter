@@ -178,14 +178,14 @@ pub async fn create_group(
         .map(|pk| PublicKey::from_hex(&pk))
         .collect::<Result<Vec<_>, _>>()?;
 
-    let nostr_group_config = NostrGroupConfigData {
-        name: group_name,
-        description: group_description,
-        image_key: None,
-        image_url: None,
-        relays: nostr_relays.into_iter().map(|r| r.url).collect(),
-        admins: admin_pubkeys,
-    };
+    let nostr_group_config = NostrGroupConfigData::new(
+        group_name,
+        group_description,
+        None,
+        None,
+        nostr_relays.into_iter().map(|r| r.url).collect(),
+        admin_pubkeys,
+    );
 
     let member_pubkeys = member_pubkeys
         .into_iter()
@@ -193,7 +193,12 @@ pub async fn create_group(
         .collect::<Result<Vec<_>, _>>()?;
 
     let group = whitenoise
-        .create_group(&creator_account, member_pubkeys, nostr_group_config, None)
+        .create_group(
+            &creator_account,
+            member_pubkeys,
+            nostr_group_config,
+            None,
+        )
         .await?;
     Ok(group.into())
 }

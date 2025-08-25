@@ -1,34 +1,28 @@
 import 'package:logging/logging.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
-import 'package:whitenoise/src/rust/api/relays.dart' as relays;
-import 'package:whitenoise/src/rust/api/utils.dart' as utils;
-import 'package:whitenoise/src/rust/lib.dart';
+import 'package:whitenoise/src/rust/api/relays.dart' as wnRelaysApi;
+import 'package:whitenoise/src/rust/api/accounts.dart' as wnAccountsApi;
+import 'package:whitenoise/src/rust/api/utils.dart' as wnUtilsApi;
 
 typedef FetchKeyPackageFunction =
-    Future<relays.Event?> Function({
-      required PublicKey pubkey,
-      required List<RelayUrl> nip65Relays,
+    Future<wnAccountsApi.Event?> Function({
+      required String pubkey,
+      required List<wnUtilsApi.RelayUrl> nip65Relays,
     });
-typedef PublicKeyFromStringFunction = Future<PublicKey> Function({required String publicKeyString});
 
 class KeyPackageService {
+  // TODO: pepi need to use fetch user relays method.. Maybe delet this service and move to user
   final _logger = Logger('KeyPackageService');
-  final FetchKeyPackageFunction _fetchKeyPackage;
-  final PublicKeyFromStringFunction _publicKeyFromString;
-  final String _publicKeyString;
-  final List<RelayUrl> _nip65Relays;
+  final String _pubkey;
+  final List<wnUtilsApi.RelayUrl> _nip65Relays;
 
   KeyPackageService({
-    required String publicKeyString,
-    required List<RelayUrl> nip65Relays,
-    FetchKeyPackageFunction? fetchKeyPackage,
-    PublicKeyFromStringFunction? publicKeyFromString,
-  }) : _publicKeyString = publicKeyString,
-       _nip65Relays = nip65Relays,
-       _fetchKeyPackage = fetchKeyPackage ?? relays.fetchKeyPackage,
-       _publicKeyFromString = publicKeyFromString ?? utils.publicKeyFromString;
+    required String pubkey,
+    required List<wnUtilsApi.RelayUrl> nip65Relays,
+  }) : _pubkey = pubkey,
+       _nip65Relays = nip65Relays;
 
-  Future<relays.Event?> fetchWithRetry() async {
+  Future<wnAccountsApi.Event?> fetchWithRetry() async {
     const maxAttempts = 3;
 
     for (int attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -44,17 +38,19 @@ class KeyPackageService {
     return null;
   }
 
-  Future<relays.Event?> _attemptToFetchKeyPackage(int attempt) async {
-    _logger.info('Key package fetch attempt $attempt for $_publicKeyString');
+  Future<wnAccountsApi.Event?> _attemptToFetchKeyPackage(int attempt) async {
+    // TODO big plans: fetch key package
+    // _logger.info('Key package fetch attempt $attempt for $_pubkey');
 
-    final freshPubkey = await _publicKeyFromString(publicKeyString: _publicKeyString);
-    final keyPackage = await _fetchKeyPackage(pubkey: freshPubkey, nip65Relays: _nip65Relays);
+    // final freshPubkey = _pubkey;
+    // final keyPackage = await _fetchKeyPackage(pubkey: freshPubkey, nip65Relays: _nip65Relays);
 
-    _logger.info(
-      'Key package fetch successful on attempt $attempt - result: ${keyPackage != null ? "found" : "null"}',
-    );
+    // _logger.info(
+    //   'Key package fetch successful on attempt $attempt - result: ${keyPackage != null ? "found" : "null"}',
+    // );
 
-    return keyPackage;
+    //return keyPackage;
+    return null;
   }
 
   void _handleFetchKeyPackageError(

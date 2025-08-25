@@ -9,6 +9,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
+import 'package:whitenoise/src/rust/api/utils.dart' show npubFromHexPubkey;
 
 class ContactListTile extends StatelessWidget {
   final ContactModel contact;
@@ -34,8 +35,7 @@ class ContactListTile extends StatelessWidget {
 
   Future<String> _getNpub(String publicKeyHex) async {
     try {
-      final publicKey = await publicKeyFromString(publicKeyString: publicKeyHex);
-      final npub = await exportAccountNpub(pubkey: publicKey);
+      final npub = await npubFromHexPubkey(hexPubkey: publicKeyHex);
       return npub.formatPublicKey();
     } catch (e) {
       // Return the full hex key as fallback

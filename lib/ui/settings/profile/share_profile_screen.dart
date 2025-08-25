@@ -15,6 +15,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
+import 'package:whitenoise/src/rust/api/utils.dart' show npubFromHexPubkey;
 
 class ShareProfileScreen extends ConsumerStatefulWidget {
   const ShareProfileScreen({super.key});
@@ -37,7 +38,12 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
   Future<void> loadProfile() async {
     try {
       await ref.read(profileProvider.notifier).fetchProfileData();
-      npub = await ref.read(activeAccountProvider)?.toNpub() ?? '';
+      final currentAccountHexPubkey = ref.read(activeAccountProvider);
+      if (currentAccountHexPubkey == null) {
+        ref.showErrorToast('Failed to load profile');
+      } else {
+        npub = await npubFromHexPubkey(hexPubkey: currentAccountHexPubkey);
+      }
       setState(() {});
     } catch (e) {
       if (!mounted) return;

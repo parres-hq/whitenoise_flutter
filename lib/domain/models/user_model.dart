@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart';
 
 class User {
   final String id;
@@ -16,7 +17,7 @@ class User {
     this.imagePath,
   });
 
-  factory User.fromMetadata(MetadataData metadata, String publicKey) {
+  factory User.fromMetadata(FlutterMetadata metadata, String publicKey) {
     return User(
       id: publicKey,
       displayName: metadata.displayName ?? 'Unknown',

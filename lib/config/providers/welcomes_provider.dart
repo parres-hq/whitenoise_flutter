@@ -3,30 +3,30 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
-import 'package:whitenoise/config/states/welcome_state.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/config/states/welcome_state.dart' as wnWelcomeStateApi;
+import 'package:whitenoise/src/rust/api.dart' as wnApi;
+import 'package:whitenoise/src/rust/api/error.dart' as wnApi;
 import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/src/rust/api/welcomes.dart';
+import 'package:whitenoise/src/rust/api/welcomes.dart' as wnWelcomesApi;
 
-class WelcomesNotifier extends Notifier<WelcomesState> {
+class WelcomesNotifier extends Notifier<wnWelcomeStateApi.WelcomeState> {
   final _logger = Logger('WelcomesNotifier');
 
-  // Callback for when a new pending welcome is available
-  void Function(WelcomeData)? _onNewWelcomeCallback;
+  void Function(wnWelcomesApi.Welcome)? _onNewWelcomeCallback;
 
   @override
-  WelcomesState build() {
+  wnWelcomeStateApi.WelcomeState build() {
     // Listen to active account changes and refresh welcomes automatically
     ref.listen<String?>(activeAccountProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
         // Schedule state changes after the build phase to avoid provider modification errors
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          clearWelcomeData();
+          clearWelcome();
           loadWelcomes();
         });
       } else if (previous != null && next == null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          clearWelcomeData();
+          clearWelcome();
         });
       } else if (previous == null && next != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -35,10 +35,10 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       }
     });
 
-    return const WelcomesState();
+    return const wnWelcomeStateApi.WelcomeState();
   }
 
-  void setOnNewWelcomeCallback(void Function(WelcomeData)? callback) {
+  void setOnNewWelcomeCallback(void Function(wnWelcomesApi.Welcome)? callback) {
     _onNewWelcomeCallback = callback;
   }
 
@@ -60,23 +60,19 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final welcomes = await fetchWelcomes(pubkey: publicKey);
+      final welcomes = await wnWelcomesApi.pendingWelcomes(pubkey: activeAccountData.pubkey);
 
-      final welcomeByData = <String, WelcomeData>{};
-      for (final welcome in welcomes) {
-        welcomeByData[welcome.id] = welcome;
-      }
-
-      // Get current pending welcomes to compare
-      final previousPendingIds = getPendingWelcomes().map((w) => w.id).toSet();
+      final welcomeByData = <String, wnWelcomesApi.Welcome>{};
+      // TODO big plans: load welcomes maped by id?
+      // for (final welcome in welcomes) {
+      //   welcomeByData[welcome.id] = welcome;
+      // }
 
       state = state.copyWith(
         welcomes: welcomes,
@@ -85,23 +81,19 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       );
 
       // Find new pending welcomes and trigger callback for the first one
-      final newPendingWelcomes =
-          welcomes
-              .where((w) => w.state == WelcomeState.pending && !previousPendingIds.contains(w.id))
-              .toList();
-
-      if (newPendingWelcomes.isNotEmpty && _onNewWelcomeCallback != null) {
+      final pendingWelcomes = await getPendingWelcomes();
+      if (pendingWelcomes.isNotEmpty && _onNewWelcomeCallback != null) {
         _logger.info(
-          'WelcomesProvider: Found ${newPendingWelcomes.length} new pending welcomes, showing first one',
+          'WelcomesProvider: Found ${pendingWelcomes.length} new pending welcomes, showing first one',
         );
-        _onNewWelcomeCallback!(newPendingWelcomes.first);
+        _onNewWelcomeCallback!(pendingWelcomes.first);
       }
     } catch (e, st) {
       _logger.severe('WelcomesProvider.loadWelcomes', e, st);
       String errorMessage = 'Failed to load welcomes';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.ApiError) {
         try {
-          errorMessage = await whitenoiseErrorToString(error: e);
+          errorMessage = e.message;
         } catch (conversionError) {
           _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
           errorMessage = 'Failed to load welcomes due to an internal error';
@@ -113,33 +105,35 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
   }
 
-  Future<WelcomeData?> fetchWelcomeById(String welcomeEventId) async {
+  Future<wnWelcomesApi.Welcome?> fetchWelcomeById(String welcomeEventId) async {
     if (!_isAuthAvailable()) {
       return null;
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return null;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final welcome = await fetchWelcome(pubkey: publicKey, welcomeEventId: welcomeEventId);
+      final welcome = await wnWelcomesApi.findWeclcomeByEventId(
+        pubkey: activeAccountData.pubkey,
+        welcomeEventId: welcomeEventId,
+      );
 
-      final updatedWelcomeById = Map<String, WelcomeData>.from(state.welcomeById ?? {});
-      updatedWelcomeById[welcome.id] = welcome;
+      final updatedWelcomeById = Map<String, wnWelcomesApi.Welcome>.from(state.welcomeById ?? {});
+      // TODO big plans: load welcomes maped by id?
+      // updatedWelcomeById[welcome.id] = welcome;
 
       state = state.copyWith(welcomeById: updatedWelcomeById);
       return welcome;
     } catch (e, st) {
       _logger.severe('WelcomesProvider.fetchWelcomeById', e, st);
       String errorMessage = 'Failed to fetch welcome';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.ApiError) {
         try {
-          errorMessage = await whitenoiseErrorToString(error: e);
+          errorMessage = e.message;
         } catch (conversionError) {
           _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
           errorMessage = 'Failed to fetch welcome due to an internal error';
@@ -158,27 +152,26 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return false;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      await acceptWelcome(pubkey: publicKey, welcomeEventId: welcomeEventId);
-
-      // Update the welcome state to accepted
-      await _updateWelcomeState(welcomeEventId, WelcomeState.accepted);
+      await wnWelcomesApi.acceptWelcome(
+        pubkey: activeAccountData.pubkey,
+        welcomeEventId: welcomeEventId,
+      );
+      await loadWelcomes();
 
       _logger.info('WelcomesProvider: Welcome accepted successfully - $welcomeEventId');
       return true;
     } catch (e, st) {
       _logger.severe('WelcomesProvider.acceptWelcomeInvitation', e, st);
       String errorMessage = 'Failed to accept welcome';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.ApiError) {
         try {
-          errorMessage = await whitenoiseErrorToString(error: e);
+          errorMessage = e.message;
         } catch (conversionError) {
           _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
           errorMessage = 'Failed to accept welcome due to an internal error';
@@ -197,27 +190,26 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return false;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      await declineWelcome(pubkey: publicKey, welcomeEventId: welcomeEventId);
-
-      // Update the welcome state to declined
-      await _updateWelcomeState(welcomeEventId, WelcomeState.declined);
+      await wnWelcomesApi.declineWelcome(
+        pubkey: activeAccountData.pubkey,
+        welcomeEventId: welcomeEventId,
+      );
+      await loadWelcomes();
 
       _logger.info('WelcomesProvider: Welcome declined successfully - $welcomeEventId');
       return true;
     } catch (e, st) {
       _logger.severe('WelcomesProvider.declineWelcomeInvitation', e, st);
       String errorMessage = 'Failed to decline welcome';
-      if (e is WhitenoiseError) {
+      if (e is wnApi.ApiError) {
         try {
-          errorMessage = await whitenoiseErrorToString(error: e);
+          errorMessage = e.message;
         } catch (conversionError) {
           _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
           errorMessage = 'Failed to decline welcome due to an internal error';
@@ -230,76 +222,22 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
   }
 
-  /// Mark a welcome as ignored (dismissed without action)
-  Future<bool> ignoreWelcome(String welcomeEventId) async {
-    try {
-      // Update the welcome state to ignored locally
-      await _updateWelcomeState(welcomeEventId, WelcomeState.ignored);
-      _logger.info('WelcomesProvider: Welcome ignored - $welcomeEventId');
-      return true;
-    } catch (e, st) {
-      _logger.severe('WelcomesProvider.ignoreWelcome', e, st);
-      state = state.copyWith(error: 'Failed to ignore welcome');
-      return false;
+  Future<List<wnWelcomesApi.Welcome>> getPendingWelcomes() async {
+    final activeAccount = await ref.read(activeAccountProvider.notifier).getActiveAccount();
+    if (activeAccount == null) {
+      return [];
+    } else {
+      final pendingWelcomes = await wnWelcomesApi.pendingWelcomes(pubkey: activeAccount.pubkey);
+      return pendingWelcomes;
     }
   }
 
-  Future<void> _updateWelcomeState(String welcomeEventId, WelcomeState newState) async {
-    final currentWelcome = state.welcomeById?[welcomeEventId];
-    if (currentWelcome != null) {
-      final updatedWelcome = WelcomeData(
-        id: currentWelcome.id,
-        mlsGroupId: currentWelcome.mlsGroupId,
-        nostrGroupId: currentWelcome.nostrGroupId,
-        groupName: currentWelcome.groupName,
-        groupDescription: currentWelcome.groupDescription,
-        groupAdminPubkeys: currentWelcome.groupAdminPubkeys,
-        groupRelays: currentWelcome.groupRelays,
-        welcomer: currentWelcome.welcomer,
-        memberCount: currentWelcome.memberCount,
-        state: newState,
-        createdAt: currentWelcome.createdAt,
-      );
-
-      final updatedWelcomeById = Map<String, WelcomeData>.from(state.welcomeById ?? {});
-      updatedWelcomeById[welcomeEventId] = updatedWelcome;
-
-      final updatedWelcomes =
-          state.welcomes?.map((welcome) {
-            return welcome.id == welcomeEventId ? updatedWelcome : welcome;
-          }).toList();
-
-      state = state.copyWith(
-        welcomes: updatedWelcomes,
-        welcomeById: updatedWelcomeById,
-      );
-    }
-  }
-
-  List<WelcomeData> getPendingWelcomes() {
-    final welcomes = state.welcomes;
-    if (welcomes == null) return [];
-    return welcomes.where((welcome) => welcome.state == WelcomeState.pending).toList();
-  }
-
-  List<WelcomeData> getAcceptedWelcomes() {
-    final welcomes = state.welcomes;
-    if (welcomes == null) return [];
-    return welcomes.where((welcome) => welcome.state == WelcomeState.accepted).toList();
-  }
-
-  List<WelcomeData> getDeclinedWelcomes() {
-    final welcomes = state.welcomes;
-    if (welcomes == null) return [];
-    return welcomes.where((welcome) => welcome.state == WelcomeState.declined).toList();
-  }
-
-  WelcomeData? getWelcomeById(String welcomeId) {
+  wnWelcomesApi.Welcome? getWelcomeById(String welcomeId) {
     return state.welcomeById?[welcomeId];
   }
 
-  void clearWelcomeData() {
-    state = const WelcomesState();
+  void clearWelcome() {
+    state = const wnWelcomeStateApi.WelcomeState();
   }
 
   Future<void> refreshWelcomes() async {
@@ -307,84 +245,70 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
   }
 
   /// Trigger callback for a specific welcome invitation
-  void triggerWelcomeCallback(WelcomeData welcomeData) {
-    if (_onNewWelcomeCallback != null && welcomeData.state == WelcomeState.pending) {
-      _logger.info('WelcomesProvider: Triggering callback for welcome ${welcomeData.id}');
-      _onNewWelcomeCallback!(welcomeData);
-    }
-  }
+  /// TOTO pepi: trigger welcome callback if a welcome is pending
+  // void triggerWelcomeCallback(wnWelcomesApi.Welcome welcomeData) {
+  //   if (_onNewWelcomeCallback != null && welcomeData.state == wnWelcomesApi.wnWelcomeStateApi.WelcomeState.pending) {
+  //     _logger.info('WelcomesProvider: Triggering callback for welcome ${welcomeData.id}');
+  //     _onNewWelcomeCallback!(welcomeData);
+  //   }
+  // }
 
   /// Clear the callback
   void clearOnNewWelcomeCallback() {
     _onNewWelcomeCallback = null;
   }
 
-  /// Show next pending welcome if available
-  void showNextPendingWelcome() {
-    final pendingWelcomes = getPendingWelcomes();
-    if (pendingWelcomes.isNotEmpty && _onNewWelcomeCallback != null) {
-      _logger.info('WelcomesProvider: Showing next pending welcome');
-      _onNewWelcomeCallback!(pendingWelcomes.first);
-    } else {
-      _logger.info('WelcomesProvider: No more pending welcomes to show');
-    }
-  }
+  /// TODO big plans: Check for new welcomes and add them incrementally (for polling)
+  // Future<void> checkForNewWelcomes() async {
+  //   if (!_isAuthAvailable()) {
+  //     return;
+  //   }
 
-  /// Check for new welcomes and add them incrementally (for polling)
-  Future<void> checkForNewWelcomes() async {
-    if (!_isAuthAvailable()) {
-      return;
-    }
+  //   try {
+  //     final activeAccountData =
+  //         await ref.read(activeAccountProvider.notifier).getActiveAccount();
+  //     if (activeAccountData == null) {
+  //       return;
+  //     }
 
-    try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        return;
-      }
+  //     final newWelcomes = await wnWelcomesApi.pendingWelcomes(pubkey: activeAccountData.pubkey);
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final newWelcomes = await fetchWelcomes(pubkey: publicKey);
+  //     final currentWelcomes = state.welcomes ?? [];
+  //     final currentWelcomeIds = currentWelcomes.map((w) => w.id).toSet();
 
-      final currentWelcomes = state.welcomes ?? [];
-      final currentWelcomeIds = currentWelcomes.map((w) => w.id).toSet();
+  //     // Find truly new welcomes
+  //     final actuallyNewWelcomes =
+  //         newWelcomes.where((welcome) => !currentWelcomeIds.contains(welcome.id)).toList();
 
-      // Find truly new welcomes
-      final actuallyNewWelcomes =
-          newWelcomes.where((welcome) => !currentWelcomeIds.contains(welcome.id)).toList();
+  //     if (actuallyNewWelcomes.isNotEmpty) {
+  //       // Add new welcomes to existing list
+  //       final updatedWelcomes = [...currentWelcomes, ...actuallyNewWelcomes];
 
-      if (actuallyNewWelcomes.isNotEmpty) {
-        // Add new welcomes to existing list
-        final updatedWelcomes = [...currentWelcomes, ...actuallyNewWelcomes];
+  //       // Update welcomeById map
+  //       final welcomeByData = Map<String, wnWelcomesApi.Welcome>.from(state.welcomeById ?? {});
+  //       for (final welcome in actuallyNewWelcomes) {
+  //         welcomeByData[welcome.id] = welcome;
+  //       }
 
-        // Update welcomeById map
-        final welcomeByData = Map<String, WelcomeData>.from(state.welcomeById ?? {});
-        for (final welcome in actuallyNewWelcomes) {
-          welcomeByData[welcome.id] = welcome;
-        }
+  //       state = state.copyWith(
+  //         welcomes: updatedWelcomes,
+  //         welcomeById: welcomeByData,
+  //       );
 
-        state = state.copyWith(
-          welcomes: updatedWelcomes,
-          welcomeById: welcomeByData,
-        );
+  //       final newPendingWelcomes = await wnWelcomesApi.pendingWelcomes(pubkey: activeAccountData.pubkey);
+  //       if (newPendingWelcomes.isNotEmpty && _onNewWelcomeCallback != null) {
+  //         _logger.info('WelcomesProvider: Found ${newPendingWelcomes.length} new pending welcomes');
+  //         _onNewWelcomeCallback!(newPendingWelcomes.first);
+  //       }
 
-        // Trigger callback for new pending welcomes
-        final newPendingWelcomes =
-            actuallyNewWelcomes.where((w) => w.state == WelcomeState.pending).toList();
-
-        if (newPendingWelcomes.isNotEmpty && _onNewWelcomeCallback != null) {
-          _logger.info('WelcomesProvider: Found ${newPendingWelcomes.length} new pending welcomes');
-          _onNewWelcomeCallback!(newPendingWelcomes.first);
-        }
-
-        _logger.info('WelcomesProvider: Added ${actuallyNewWelcomes.length} new welcomes');
-      }
-    } catch (e, st) {
-      _logger.severe('WelcomesProvider.checkForNewWelcomes', e, st);
-    }
-  }
+  //       _logger.info('WelcomesProvider: Added ${actuallyNewWelcomes.length} new welcomes');
+  //     }
+  //   } catch (e, st) {
+  //     _logger.severe('WelcomesProvider.checkForNewWelcomes', e, st);
+  //   }
+  // }
 }
 
-final welcomesProvider = NotifierProvider<WelcomesNotifier, WelcomesState>(
+final welcomesProvider = NotifierProvider<WelcomesNotifier, wnWelcomeStateApi.WelcomeState>(
   WelcomesNotifier.new,
 );

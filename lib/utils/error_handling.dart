@@ -1,5 +1,6 @@
 import 'package:logging/logging.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api.dart'as wnApi;
+import 'package:whitenoise/src/rust/api/error.dart' as wnApi;
 import 'package:whitenoise/src/rust/api/utils.dart';
 
 /// Utility class for handling WhitenoiseError conversion and providing user-friendly error messages
@@ -26,10 +27,10 @@ class ErrorHandlingUtils {
     final logPrefix = context.isNotEmpty ? '$context: ' : '';
 
     try {
-      if (error is WhitenoiseError) {
+      if (error is wnApi.ApiError) {
         try {
           _logger.severe('${logPrefix}Converting WhitenoiseError to string...');
-          final rawErrorMessage = await whitenoiseErrorToString(error: error);
+          final rawErrorMessage = error.message;
           _logger.severe('${logPrefix}WhitenoiseError converted to: $rawErrorMessage');
           return _parseSpecificErrorPatterns(rawErrorMessage);
         } catch (conversionError) {

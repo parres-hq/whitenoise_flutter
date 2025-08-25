@@ -8,7 +8,6 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -174,7 +173,9 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
         return;
       }
       _controller.stop();
-      final contact = await ref.read(metadataCacheProvider.notifier).getContactModel(npub);
+      // final contact = await ref.read(metadataCacheProvider.notifier).getContactModel(npub);
+      // TODO big plans: replace ContactModel with User/Account model.
+      final contact = null;
       if (mounted) {
         await StartChatBottomSheet.show(
           context: context,

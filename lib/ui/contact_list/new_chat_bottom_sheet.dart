@@ -8,8 +8,6 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/routing/routes.dart';
@@ -92,12 +90,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   Future<void> _loadContacts() async {
     try {
       // Get the active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
 
       if (activeAccountData != null) {
         _logger.info('NewChatBottomSheet: Found active account: ${activeAccountData.pubkey}');
-        await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
+        // TODO big plans: load folowed users
+        // await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
         _logger.info('NewChatBottomSheet: Contacts loaded successfully');
       } else {
         _logger.severe('NewChatBottomSheet: No active account found');
@@ -125,13 +123,13 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     });
 
     try {
-      // Use metadata cache to fetch contact model
-      final metadataCache = ref.read(metadataCacheProvider.notifier);
-      final contactModel = await metadataCache.getContactModel(publicKey.trim());
+      // TODO big plans: load user with metadata
+      // final metadataCache = ref.read(metadataCacheProvider.notifier);
+      // final contactModel = await metadataCache.getContactModel(publicKey.trim());
 
       if (mounted) {
         setState(() {
-          _tempContact = contactModel;
+          _tempContact = null; //TODO big plans:contactModel;
           _isLoadingMetadata = false;
         });
       }
@@ -139,10 +137,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       _logger.warning('Failed to fetch metadata for public key: $e');
       if (mounted) {
         setState(() {
-          _tempContact = ContactModel(
-            displayName: 'Unknown User',
-            publicKey: publicKey.trim(),
-          );
+          _tempContact = null; //TODO big plans: ContactModel(
+          // displayName: 'Unknown User',
+          // publicKey: publicKey.trim(),
+          // );
           _isLoadingMetadata = false;
         });
       }
@@ -324,23 +322,24 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             Navigator.pop(context);
 
             try {
-              // Use metadata cache for support contact
-              final metadataCache = ref.read(metadataCacheProvider.notifier);
-              final supportContact = await metadataCache.getContactModel(kSupportNpub);
+              //  TODO big plans: load support user metadata
+              // final metadataCache = ref.read(metadataCacheProvider.notifier);
+              // final supportContact = await metadataCache.getContactModel(kSupportNpub);
 
               if (context.mounted) {
-                _handleContactTap(supportContact);
+                // TODO big plans: _handleContactTap(supportContact);
               }
             } catch (e) {
               _logger.warning('Failed to fetch metadata for support contact: $e');
 
-              final basicContact = ContactModel(
-                displayName: 'Support',
-                publicKey: kSupportNpub,
-              );
+              // TODO big plans: basicContact
+              // final basicContact = ContactModel(
+              //   displayName: 'Support',
+              //   publicKey: kSupportNpub,
+              // );
 
               if (context.mounted) {
-                _handleContactTap(basicContact);
+                // TODO big plans: _handleContactTap(basicContact);
               }
             }
           },
@@ -364,9 +363,13 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final contactsState = ref.watch(contactsProvider);
-    final filteredContacts = _getFilteredContacts(contactsState.contactModels);
-    final rawContacts = contactsState.contactModels ?? [];
+    // TODO big plans: load users instead of contacts
+    // final contactsState = ref.watch(contactsProvider);
+    // final filteredContacts = _getFilteredContacts(contactsState.contactModels);
+    final filteredContacts = [];
+    // TODO big plans: load filtered users instead of contacts
+    // final rawContacts = contactsState.contactModels ?? [];
+    final rawContacts = [];
 
     final showTempContact =
         _searchQuery.isNotEmpty &&
@@ -415,10 +418,13 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         // Scrollable content area that goes to bottom
         Expanded(
           child:
-              contactsState.isLoading
+              // TODO big plans:contactsState.isLoading
+              false
                   ? _buildContactsLoadingWidget()
-                  : contactsState.error != null
-                  ? _buildErrorWidget(contactsState.error!)
+                  : false // TODO big plans: contactsState.error != null
+                  ? _buildErrorWidget(
+                    'Error loading contacts',
+                  ) // TODO big plans: contactsState.error!)
                   : SingleChildScrollView(
                     controller: _scrollController,
                     child: Column(
@@ -561,23 +567,24 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                 enableSwipeToDelete: true,
                                 onTap: () => _handleContactTap(contact),
                                 onDelete: () async {
-                                  try {
-                                    final realPublicKey = ref
-                                        .read(contactsProvider.notifier)
-                                        .getPublicKeyForContact(contact.publicKey);
-                                    if (realPublicKey != null) {
-                                      await ref
-                                          .read(contactsProvider.notifier)
-                                          .removeContactByPublicKey(realPublicKey);
-                                      if (context.mounted) {
-                                        ref.showSuccessToast('Contact removed successfully');
-                                      }
-                                    }
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      ref.showErrorToast('Failed to remove contact: $e');
-                                    }
-                                  }
+                                  // TODO big plans: remove  user follow
+                                  // try {
+                                  //   final realPublicKey = ref
+                                  //       .read(contactsProvider.notifier)
+                                  //       .getPublicKeyForContact(contact.publicKey);
+                                  //   if (realPublicKey != null) {
+                                  //     await ref
+                                  //         .read(contactsProvider.notifier)
+                                  //         .removeContactByPublicKey(realPublicKey);
+                                  //     if (context.mounted) {
+                                  //       ref.showSuccessToast('Contact removed successfully');
+                                  //     }
+                                  //   }
+                                  // } catch (e) {
+                                  //   if (context.mounted) {
+                                  //     ref.showErrorToast('Failed to remove contact: $e');
+                                  //   }
+                                  //}
                                 },
                               ),
                             ),

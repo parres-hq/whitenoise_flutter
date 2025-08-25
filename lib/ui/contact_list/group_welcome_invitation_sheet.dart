@@ -7,6 +7,7 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart' as wnMetadataApi;
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
@@ -14,7 +15,7 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class GroupWelcomeInvitationSheet extends StatelessWidget {
-  final WelcomeData welcomeData;
+  final Welcome welcomeData;
   final VoidCallback? onAccept;
   final VoidCallback? onDecline;
 
@@ -27,13 +28,14 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
 
   static Future<String?> show({
     required BuildContext context,
-    required WelcomeData welcomeData,
+    required Welcome welcomeData,
     VoidCallback? onAccept,
     VoidCallback? onDecline,
   }) {
     return WnBottomSheet.show<String>(
       context: context,
-      title: welcomeData.memberCount > 2 ? 'Group Invitation' : 'Chat Invitation',
+      title:
+          'Chat Invitation', // TODO big plans: user Welcome Group type ... welcomeData.memberCount > 2 ? 'Group Invitation' : 'Chat Invitation',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
@@ -47,7 +49,8 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDirectMessage = welcomeData.memberCount <= 2;
+    final isDirectMessage =
+        true; // TODO big plans. User Welcome group type ... welcomeData.memberCount <= 2;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -103,38 +106,41 @@ class GroupMessageInvite extends ConsumerStatefulWidget {
     required this.welcomeData,
   });
 
-  final WelcomeData welcomeData;
+  final Welcome welcomeData;
 
   @override
   ConsumerState<GroupMessageInvite> createState() => _GroupMessageInviteState();
 }
 
 class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
-  Future<MetadataData?> _fetchInviterMetadata() async {
-    try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        ref.showErrorToast('No active account found');
-        return null;
-      }
-      final publicKey = await publicKeyFromString(publicKeyString: widget.welcomeData.welcomer);
-      return await fetchMetadataFrom(
-        pubkey: publicKey,
-        nip65Relays: activeAccountData.nip65Relays,
-      );
-    } catch (e) {
-      return null;
-    }
+  Future<wnMetadataApi.FlutterMetadata?> _fetchInviterMetadata() async {
+    // TODO big plans: fetch inviter metadata
+    // try {
+    //   final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
+    //   if (activeAccountData == null) {
+    //     ref.showErrorToast('No active account found');
+    //     return null;
+    //   }
+    //   return await fetchMetadataFrom(
+    //     pubkey: widget.welcomeData.welcomer
+    //     nip65Relays: activeAccountData.nip65Relays,
+    //   );
+    // } catch (e) {
+    //   return null;
+    // }
+    ref.showErrorToast('No active account found');
+    return null;
   }
 
   Future<String> _getDisplayablePublicKey() async {
-    try {
-      final npub = await npubFromHexPubkey(hexPubkey: widget.welcomeData.nostrGroupId);
-      return npub;
-    } catch (e) {
-      return widget.welcomeData.nostrGroupId.formatPublicKey();
-    }
+    // TODO big plans: get group public key
+    // try {
+    //   final npub = await npubFromHexPubkey(hexPubkey: widget.welcomeData.nostrGroupId);
+    //   return npub;
+    // } catch (e) {
+    //   return widget.welcomeData.nostrGroupId.formatPublicKey();
+    // }
+    return '';
   }
 
   @override
@@ -142,7 +148,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
     return Column(
       children: [
         Text(
-          widget.welcomeData.groupName,
+          'Unknown Group', // TODO: show gorup name from Welcome widget.welcomeData.groupName,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 18.sp,
@@ -151,7 +157,8 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
           ),
         ),
         Gap(12.h),
-        if (widget.welcomeData.groupDescription.isNotEmpty) ...[
+        if (true) ...[
+          // TODO: use Welcome group description (widget.welcomeData.groupDescription.isNotEmpty) ...[
           Text(
             'Group Description:',
             textAlign: TextAlign.center,
@@ -162,7 +169,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
             ),
           ),
           Text(
-            widget.welcomeData.groupDescription,
+            'Unknown group description', // TODO big plans use grou description _> widget.welcomeData.groupDescription,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14.sp,
@@ -183,7 +190,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
               ),
             ),
             Gap(8.w),
-            FutureBuilder<MetadataData?>(
+            FutureBuilder<wnMetadataApi.FlutterMetadata?>(
               future: _fetchInviterMetadata(),
               builder: (context, snapshot) {
                 final displayName =
@@ -212,7 +219,8 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
         FutureBuilder<String>(
           future: _getDisplayablePublicKey(),
           builder: (context, npubSnapshot) {
-            final displayKey = npubSnapshot.data ?? widget.welcomeData.welcomer;
+            final displayKey =
+                npubSnapshot.data ?? ''; // use Wemcome data ...widget.welcomeData.welcomer;
             return Text(
               displayKey.formatPublicKey(),
               textAlign: TextAlign.center,
@@ -235,34 +243,34 @@ class DirectMessageAvatar extends ConsumerStatefulWidget {
     required this.welcomeData,
   });
 
-  final WelcomeData welcomeData;
+  final Welcome welcomeData;
 
   @override
   ConsumerState<DirectMessageAvatar> createState() => _DirectMessageAvatarState();
 }
 
 class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
-  Future<MetadataData?> _fetchInviterMetadata() async {
-    try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        ref.showErrorToast('No active account found');
-        return null;
-      }
-      final publicKey = await publicKeyFromString(publicKeyString: widget.welcomeData.welcomer);
-      return await fetchMetadataFrom(
-        pubkey: publicKey,
-        nip65Relays: activeAccountData.nip65Relays,
-      );
-    } catch (e) {
-      return null;
-    }
+  Future<wnMetadataApi.FlutterMetadata?> _fetchInviterMetadata() async {
+    // TODO big plans: fetch inviter metadata
+    // try {
+    //   final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
+    //   if (activeAccountData == null) {
+    //     ref.showErrorToast('No active account found');
+    //     return null;
+    //   }
+    //   return await fetchMetadataFrom(
+    //     pubkey: widget.welcomeData.welcomer,
+    //     nip65Relays: activeAccountData.nip65Relays,
+    //   );
+    // } catch (e) {
+    //   return null;
+    // }
+    return null;
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<MetadataData?>(
+    return FutureBuilder<wnMetadataApi.FlutterMetadata?>(
       future: _fetchInviterMetadata(),
       builder: (context, snapshot) {
         final metadata = snapshot.data;
@@ -283,43 +291,45 @@ class DirectMessageInviteCard extends ConsumerStatefulWidget {
     required this.welcomeData,
   });
 
-  final WelcomeData welcomeData;
+  final Welcome welcomeData;
 
   @override
   ConsumerState<DirectMessageInviteCard> createState() => _DirectMessageInviteCardState();
 }
 
 class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCard> {
-  Future<MetadataData?> _fetchInviterMetadata() async {
-    try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
-        ref.showErrorToast('No active account found');
-        return null;
-      }
-      final publicKey = await publicKeyFromString(publicKeyString: widget.welcomeData.welcomer);
-      return fetchMetadataFrom(
-        pubkey: publicKey,
-        nip65Relays: activeAccountData.nip65Relays,
-      );
-    } catch (e) {
-      return null;
-    }
+  Future<wnMetadataApi.FlutterMetadata?> _fetchInviterMetadata() async {
+    // TODO big plans: fetch inviter metadata
+    // try {
+    //   final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccount();
+    //   if (activeAccountData == null) {
+    //     ref.showErrorToast('No active account found');
+    //     return null;
+    //   }
+    //   return fetchMetadataFrom(
+    //     pubkey: widget.welcomeData.welcomer,
+    //     nip65Relays: activeAccountData.nip65Relays,
+    //   );
+    // } catch (e) {
+    //   return null;
+    // }
+    return null;
   }
 
   Future<String> _getDisplayablePublicKey() async {
-    try {
-      final npub = await npubFromHexPubkey(hexPubkey: widget.welcomeData.welcomer);
-      return npub;
-    } catch (e) {
-      return widget.welcomeData.welcomer.formatPublicKey();
-    }
+    // TODO big plans:  user welcomer public key
+    // try {
+    //   final npub = await npubFromHexPubkey(hexPubkey: widget.welcomeData.welcomer);
+    //   return npub;
+    // } catch (e) {
+    //   return widget.welcomeData.welcomer.formatPublicKey();
+    // }
+    return '';
   }
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<MetadataData?>(
+    return FutureBuilder<wnMetadataApi.FlutterMetadata?>(
       future: _fetchInviterMetadata(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
@@ -379,7 +389,9 @@ class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCar
             FutureBuilder<String>(
               future: _getDisplayablePublicKey(),
               builder: (context, npubSnapshot) {
-                final displayKey = npubSnapshot.data ?? widget.welcomeData.welcomer;
+                final displayKey =
+                    npubSnapshot.data ??
+                    ''; // TODO big plans: use welcomer public key ... widget.welcomeData.welcomer;
                 return Text(
                   displayKey.formatPublicKey(),
                   textAlign: TextAlign.center,
