@@ -99,10 +99,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         duration: const Duration(milliseconds: 200),
         curve: Curves.easeOut,
       );
-
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-      }
     });
   }
 
