@@ -52,7 +52,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
         ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
-        _handleScrollToBottom();
+        _handleScrollToBottom(hasAnimation: false);
       }
     });
 
@@ -90,15 +90,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  void _handleScrollToBottom() {
+  void _handleScrollToBottom({bool hasAnimation = true}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_scrollController.hasClients) return;
       final double max = _scrollController.position.maxScrollExtent;
-      _scrollController.animateTo(
-        max,
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-      );
+      if (!_scrollController.hasClients && !mounted) return;
+      if (hasAnimation) {
+        _scrollController.animateTo(
+          max,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      } else {
+        _scrollController.jumpTo(max);
+      }
     });
   }
 
