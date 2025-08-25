@@ -93,7 +93,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void _handleScrollToBottom({bool hasAnimation = true}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final double max = _scrollController.position.maxScrollExtent;
-      if (!_scrollController.hasClients && !mounted) return;
+      if (!_scrollController.hasClients || !mounted) return;
       if (hasAnimation) {
         _scrollController.animateTo(
           max,
