@@ -10,6 +10,7 @@ class WnAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.title,
     this.isTransparent = false,
     this.leading,
+    this.onTitleTap,
   }) : pinned = false,
        floating = false,
        snap = false,
@@ -30,6 +31,7 @@ class WnAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.stretch = false,
     this.isTransparent = false,
     this.expandedHeight,
+    this.onTitleTap,
   }) : _isSliver = true;
 
   final Widget? leading;
@@ -44,11 +46,12 @@ class WnAppBar extends StatelessWidget implements PreferredSizeWidget {
   final double? expandedHeight;
   final bool _isSliver;
   final bool isTransparent;
+  final VoidCallback? onTitleTap;
 
   Widget? _buildStyledTitle(BuildContext context) {
     if (title == null) return null;
 
-    return DefaultTextStyle(
+    final styledTitle = DefaultTextStyle(
       style: TextStyle(
         fontSize: 20.sp,
         fontWeight: FontWeight.w600,
@@ -56,6 +59,20 @@ class WnAppBar extends StatelessWidget implements PreferredSizeWidget {
       ),
       child: title!,
     );
+
+    if (onTitleTap != null) {
+      return GestureDetector(
+        onTap: onTitleTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          width: double.infinity,
+          alignment: centerTitle ? Alignment.center : Alignment.centerLeft,
+          child: styledTitle,
+        ),
+      );
+    }
+
+    return styledTitle;
   }
 
   @override

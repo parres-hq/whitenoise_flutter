@@ -247,6 +247,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                             WnAppBar.sliver(
                               floating: true,
                               pinned: true,
+                              onTitleTap: () => context.push('/chats/${widget.groupId}/info'),
                               title: FutureBuilder(
                                 future: _dmChatDataFuture,
                                 builder: (context, snapshot) {
@@ -263,7 +264,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                         groupData.groupType == GroupType.directMessage
                                             ? otherUser?.displayImage ?? ''
                                             : '',
-                                    onTap: () => context.push('/chats/${widget.groupId}/info'),
                                   );
                                 },
                               ),
