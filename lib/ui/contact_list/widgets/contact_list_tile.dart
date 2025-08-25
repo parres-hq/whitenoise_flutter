@@ -127,7 +127,18 @@ class ContactListTile extends StatelessWidget {
                   ),
                   color: isSelected ? context.colors.primary : Colors.transparent,
                 ),
-                child: isSelected ? Icon(Icons.check, size: 12.w, color: Colors.white) : null,
+                child:
+                    isSelected
+                        ? SvgPicture.asset(
+                          AssetsPaths.icCheckmark,
+                          width: 16.w,
+                          height: 16.w,
+                          colorFilter: ColorFilter.mode(
+                            context.colors.primaryForeground,
+                            BlendMode.srcIn,
+                          ),
+                        )
+                        : null,
               ),
             ] else if (trailingIcon != null) ...[
               Gap(16.w),

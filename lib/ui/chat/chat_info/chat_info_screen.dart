@@ -82,10 +82,14 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(
-                    Icons.close,
-                    color: context.colors.primary,
-                    size: 24.sp,
+                  icon: SvgPicture.asset(
+                    AssetsPaths.icClose,
+                    width: 24.w,
+                    height: 24.w,
+                    colorFilter: ColorFilter.mode(
+                      context.colors.primary,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),
