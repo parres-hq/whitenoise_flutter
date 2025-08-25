@@ -14,6 +14,15 @@ hex = "0.4"
 serde_json = "1.0.140"
 tokio = { version = "1.44", features = ["rt", "rt-multi-thread"] }
 url = "2.5.1"
+
+
+nostr-mls = { version = "0.43.0", git="https://github.com/erskingardner/rust-nostr", rev = "5ec43be393f895622a90e3957dfc3d7d8df6d508" }
+nostr-sdk = { version = "0.43.0", git="https://github.com/erskingardner/rust-nostr", rev = "5ec43be393f895622a90e3957dfc3d7d8df6d508" }
+# nostr-mls = {version = "0.43.0", path = "../../rust-nostr/mls/nostr-mls"}
+# nostr-sdk = {version = "0.43.0", path = "../../rust-nostr/crates/nostr-sdk"}
+
+thiserror = "2.0.12"
+
 # whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "aa07b2d637b68a8b3c1883a604efdc49b279b2fd" }
 whitenoise = { version = "0.1.0", path = "../../whitenoise" }
 

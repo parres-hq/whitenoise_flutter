@@ -5,7 +5,6 @@
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-import 'api/groups.dart';
 import 'frb_generated.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `from`
@@ -37,19 +36,23 @@ Future<WhitenoiseConfig> createWhitenoiseConfig({
   logsDir: logsDir,
 );
 
-Future<void> initializeWhitenoise({required WhitenoiseConfig config}) =>
+Future<ApiResult> initializeWhitenoise({required WhitenoiseConfig config}) =>
     RustLib.instance.api.crateApiInitializeWhitenoise(config: config);
 
-Future<void> deleteAllData() => RustLib.instance.api.crateApiDeleteAllData();
+Future<ApiResult> deleteAllData() =>
+    RustLib.instance.api.crateApiDeleteAllData();
 
-Future<AppSettings> getAppSettings() =>
+Future<ApiResultAppSettings> getAppSettings() =>
     RustLib.instance.api.crateApiGetAppSettings();
 
-Future<void> updateThemeMode({required ThemeMode themeMode}) =>
+Future<ApiResult> updateThemeMode({required ThemeMode themeMode}) =>
     RustLib.instance.api.crateApiUpdateThemeMode(themeMode: themeMode);
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<AppSettings>>
-abstract class AppSettings implements RustOpaqueInterface {}
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < () >>>
+abstract class ApiResult implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < AppSettings >>>
+abstract class ApiResultAppSettings implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ThemeMode>>
 abstract class ThemeMode implements RustOpaqueInterface {}

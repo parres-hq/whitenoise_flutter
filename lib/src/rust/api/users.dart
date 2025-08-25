@@ -7,25 +7,32 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import '../frb_generated.dart';
 import 'accounts.dart';
-import 'groups.dart';
 import 'metadata.dart';
-import 'relays.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `from`
 
-Future<User> getUser({required String pubkey}) =>
+Future<ApiResultUser> getUser({required String pubkey}) =>
     RustLib.instance.api.crateApiUsersGetUser(pubkey: pubkey);
 
-Future<FlutterMetadata> userMetadata({required String pubkey}) =>
+Future<ApiResultFlutterMetadata> userMetadata({required String pubkey}) =>
     RustLib.instance.api.crateApiUsersUserMetadata(pubkey: pubkey);
 
-Future<List<Relay>> userRelays({
+Future<ApiResultVecRelay> userRelays({
   required String pubkey,
   required RelayType relayType,
 }) => RustLib.instance.api.crateApiUsersUserRelays(
   pubkey: pubkey,
   relayType: relayType,
 );
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < FlutterMetadata >>>
+abstract class ApiResultFlutterMetadata implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < User >>>
+abstract class ApiResultUser implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < Vec < Relay > >>>
+abstract class ApiResultVecRelay implements RustOpaqueInterface {}
 
 class User {
   final String pubkey;

@@ -6,7 +6,7 @@
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import '../frb_generated.dart';
-import 'groups.dart';
+import 'error.dart';
 import 'metadata.dart';
 import 'relays.dart';
 import 'users.dart';
@@ -105,6 +105,12 @@ Future<void> unfollowUser({
   accountPubkey: accountPubkey,
   userToUnfollowPubkey: userToUnfollowPubkey,
 );
+
+/// Example function demonstrating the new ApiError usage pattern.
+/// When you specify the return type as Result<T, ApiError>, the ? operator
+/// automatically converts WhitenoiseError to ApiError using .into()
+Future<List<Account>> getAccountsWithApiError() =>
+    RustLib.instance.api.crateApiAccountsGetAccountsWithApiError();
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
 abstract class Event implements RustOpaqueInterface {}

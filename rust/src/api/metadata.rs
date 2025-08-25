@@ -10,8 +10,8 @@
 //! - Standard Nostr metadata fields (NIP-01 compliant)
 
 use flutter_rust_bridge::frb;
+pub use nostr_sdk::Metadata;
 use std::collections::HashMap;
-pub use whitenoise::{Metadata, WhitenoiseError};
 
 /// Flutter-compatible representation of user metadata following Nostr protocol standards.
 ///

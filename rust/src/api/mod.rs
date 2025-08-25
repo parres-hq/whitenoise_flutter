@@ -1,10 +1,11 @@
 // Re-export everything from the whitenoise crate
 use flutter_rust_bridge::frb;
 use std::path::Path;
-pub use whitenoise::{
-    AppSettings, Event, GroupId, Kind, MessageWithTokens, PublicKey, RelayType, RelayUrl, Tag,
-    ThemeMode, Whitenoise, WhitenoiseError,
-};
+pub use whitenoise::{AppSettings, RelayType, ThemeMode, Whitenoise};
+
+// Re-export types that flutter_rust_bridge needs
+pub use nostr_mls::prelude::GroupId;
+pub use nostr_sdk::{Event, PublicKey, RelayUrl, Tag};
 
 /// Flutter-compatible configuration structure that holds directory paths as strings.
 ///
@@ -55,6 +56,7 @@ pub fn create_whitenoise_config(data_dir: String, logs_dir: String) -> Whitenois
 
 // Declare the modules
 pub mod accounts;
+pub mod error;
 pub mod groups;
 pub mod messages;
 pub mod metadata;
@@ -65,6 +67,7 @@ pub mod welcomes;
 
 // Re-export everything
 pub use accounts::*;
+pub use error::*;
 pub use groups::*;
 pub use messages::*;
 pub use metadata::*;
@@ -74,26 +77,31 @@ pub use utils::*;
 pub use welcomes::*;
 
 #[frb]
-pub async fn initialize_whitenoise(config: WhitenoiseConfig) -> Result<(), WhitenoiseError> {
+pub async fn initialize_whitenoise(config: WhitenoiseConfig) -> ApiResult<()> {
     let core_config =
         whitenoise::WhitenoiseConfig::new(Path::new(&config.data_dir), Path::new(&config.logs_dir));
-    Whitenoise::initialize_whitenoise(core_config).await
+    Whitenoise::initialize_whitenoise(core_config)
+        .await
+        .map_err(ApiError::from)
 }
 
 #[frb]
-pub async fn delete_all_data() -> Result<(), WhitenoiseError> {
+pub async fn delete_all_data() -> ApiResult<()> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.delete_all_data().await
+    whitenoise.delete_all_data().await.map_err(ApiError::from)
 }
 
 #[frb]
-pub async fn get_app_settings() -> Result<AppSettings, WhitenoiseError> {
+pub async fn get_app_settings() -> ApiResult<AppSettings> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.app_settings().await
+    whitenoise.app_settings().await.map_err(ApiError::from)
 }
 
 #[frb]
-pub async fn update_theme_mode(theme_mode: ThemeMode) -> Result<(), WhitenoiseError> {
+pub async fn update_theme_mode(theme_mode: ThemeMode) -> ApiResult<()> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.update_theme_mode(theme_mode).await
+    whitenoise
+        .update_theme_mode(theme_mode)
+        .await
+        .map_err(ApiError::from)
 }

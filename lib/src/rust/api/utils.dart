@@ -6,34 +6,30 @@
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import '../frb_generated.dart';
-import 'groups.dart';
-import 'messages.dart';
 
-Future<String> npubFromPublicKey({required PublicKey publicKey}) =>
+Future<ApiResultString> npubFromPublicKey({required PublicKey publicKey}) =>
     RustLib.instance.api.crateApiUtilsNpubFromPublicKey(publicKey: publicKey);
 
-Future<String> npubFromHexPubkey({required String hexPubkey}) =>
+Future<ApiResultString> npubFromHexPubkey({required String hexPubkey}) =>
     RustLib.instance.api.crateApiUtilsNpubFromHexPubkey(hexPubkey: hexPubkey);
 
-Future<String> hexPubkeyFromNpub({required String npub}) =>
+Future<ApiResultString> hexPubkeyFromNpub({required String npub}) =>
     RustLib.instance.api.crateApiUtilsHexPubkeyFromNpub(npub: npub);
 
-Future<String> hexPubkeyFromPublicKey({required PublicKey publicKey}) => RustLib
-    .instance
-    .api
-    .crateApiUtilsHexPubkeyFromPublicKey(publicKey: publicKey);
+Future<ApiResultString> hexPubkeyFromPublicKey({
+  required PublicKey publicKey,
+}) => RustLib.instance.api.crateApiUtilsHexPubkeyFromPublicKey(
+  publicKey: publicKey,
+);
 
-Future<RelayUrl> relayUrlFromString({required String url}) =>
+Future<ApiResultRelayUrl> relayUrlFromString({required String url}) =>
     RustLib.instance.api.crateApiUtilsRelayUrlFromString(url: url);
 
 Future<String> stringFromRelayUrl({required RelayUrl relayUrl}) =>
     RustLib.instance.api.crateApiUtilsStringFromRelayUrl(relayUrl: relayUrl);
 
-Future<Tag> tagFromVec({required List<String> vec}) =>
+Future<ApiResultTag> tagFromVec({required List<String> vec}) =>
     RustLib.instance.api.crateApiUtilsTagFromVec(vec: vec);
-
-Future<String> whitenoiseErrorToString({required WhitenoiseError error}) =>
-    RustLib.instance.api.crateApiUtilsWhitenoiseErrorToString(error: error);
 
 Future<String> getDefaultBlossomServerUrl() =>
     RustLib.instance.api.crateApiUtilsGetDefaultBlossomServerUrl();
@@ -41,8 +37,20 @@ Future<String> getDefaultBlossomServerUrl() =>
 Future<String> groupIdToString({required GroupId groupId}) =>
     RustLib.instance.api.crateApiUtilsGroupIdToString(groupId: groupId);
 
-Future<GroupId> groupIdFromString({required String groupId}) =>
+Future<ApiResultGroupId> groupIdFromString({required String groupId}) =>
     RustLib.instance.api.crateApiUtilsGroupIdFromString(groupId: groupId);
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < GroupId >>>
+abstract class ApiResultGroupId implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < RelayUrl >>>
+abstract class ApiResultRelayUrl implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < String >>>
+abstract class ApiResultString implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < Tag >>>
+abstract class ApiResultTag implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>>
 abstract class GroupId implements RustOpaqueInterface {}

@@ -6,11 +6,11 @@
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import '../frb_generated.dart';
-import 'groups.dart';
 
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `EmojiReaction`, `ReactionSummary`, `SerializableToken`, `UserReaction`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
-Future<MessageWithTokens> sendMessageToGroup({
+Future<ApiResultMessageWithTokens> sendMessageToGroup({
   required String pubkey,
   required String groupId,
   required String message,
@@ -24,7 +24,7 @@ Future<MessageWithTokens> sendMessageToGroup({
   tags: tags,
 );
 
-Future<List<ChatMessage>> fetchAggregatedMessagesForGroup({
+Future<ApiResultVecChatMessage> fetchAggregatedMessagesForGroup({
   required String pubkey,
   required String groupId,
 }) => RustLib.instance.api.crateApiMessagesFetchAggregatedMessagesForGroup(
@@ -32,199 +32,11 @@ Future<List<ChatMessage>> fetchAggregatedMessagesForGroup({
   groupId: groupId,
 );
 
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < MessageWithTokens >>>
+abstract class ApiResultMessageWithTokens implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < Vec < ChatMessage > >>>
+abstract class ApiResultVecChatMessage implements RustOpaqueInterface {}
+
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Tag>>
 abstract class Tag implements RustOpaqueInterface {}
-
-/// Flutter-compatible chat message
-class ChatMessage {
-  final String id;
-  final String pubkey;
-  final String content;
-  final DateTime createdAt;
-  final List<String> tags;
-  final bool isReply;
-  final String? replyToId;
-  final bool isDeleted;
-  final List<SerializableToken> contentTokens;
-  final ReactionSummary reactions;
-  final int kind;
-
-  const ChatMessage({
-    required this.id,
-    required this.pubkey,
-    required this.content,
-    required this.createdAt,
-    required this.tags,
-    required this.isReply,
-    this.replyToId,
-    required this.isDeleted,
-    required this.contentTokens,
-    required this.reactions,
-    required this.kind,
-  });
-
-  @override
-  int get hashCode =>
-      id.hashCode ^
-      pubkey.hashCode ^
-      content.hashCode ^
-      createdAt.hashCode ^
-      tags.hashCode ^
-      isReply.hashCode ^
-      replyToId.hashCode ^
-      isDeleted.hashCode ^
-      contentTokens.hashCode ^
-      reactions.hashCode ^
-      kind.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ChatMessage &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          pubkey == other.pubkey &&
-          content == other.content &&
-          createdAt == other.createdAt &&
-          tags == other.tags &&
-          isReply == other.isReply &&
-          replyToId == other.replyToId &&
-          isDeleted == other.isDeleted &&
-          contentTokens == other.contentTokens &&
-          reactions == other.reactions &&
-          kind == other.kind;
-}
-
-/// Flutter-compatible emoji reaction details
-class EmojiReaction {
-  final String emoji;
-  final BigInt count;
-  final List<String> users;
-
-  const EmojiReaction({
-    required this.emoji,
-    required this.count,
-    required this.users,
-  });
-
-  @override
-  int get hashCode => emoji.hashCode ^ count.hashCode ^ users.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is EmojiReaction &&
-          runtimeType == other.runtimeType &&
-          emoji == other.emoji &&
-          count == other.count &&
-          users == other.users;
-}
-
-/// Flutter-compatible message with tokens
-class MessageWithTokens {
-  final String id;
-  final String pubkey;
-  final int kind;
-  final DateTime createdAt;
-  final String? content;
-  final List<SerializableToken> tokens;
-
-  const MessageWithTokens({
-    required this.id,
-    required this.pubkey,
-    required this.kind,
-    required this.createdAt,
-    this.content,
-    required this.tokens,
-  });
-
-  @override
-  int get hashCode =>
-      id.hashCode ^
-      pubkey.hashCode ^
-      kind.hashCode ^
-      createdAt.hashCode ^
-      content.hashCode ^
-      tokens.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is MessageWithTokens &&
-          runtimeType == other.runtimeType &&
-          id == other.id &&
-          pubkey == other.pubkey &&
-          kind == other.kind &&
-          createdAt == other.createdAt &&
-          content == other.content &&
-          tokens == other.tokens;
-}
-
-/// Flutter-compatible reaction summary
-class ReactionSummary {
-  final List<EmojiReaction> byEmoji;
-  final List<UserReaction> userReactions;
-
-  const ReactionSummary({
-    required this.byEmoji,
-    required this.userReactions,
-  });
-
-  @override
-  int get hashCode => byEmoji.hashCode ^ userReactions.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is ReactionSummary &&
-          runtimeType == other.runtimeType &&
-          byEmoji == other.byEmoji &&
-          userReactions == other.userReactions;
-}
-
-/// Flutter-compatible serializable token
-class SerializableToken {
-  final String tokenType;
-  final String? content;
-
-  const SerializableToken({
-    required this.tokenType,
-    this.content,
-  });
-
-  @override
-  int get hashCode => tokenType.hashCode ^ content.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is SerializableToken &&
-          runtimeType == other.runtimeType &&
-          tokenType == other.tokenType &&
-          content == other.content;
-}
-
-/// Flutter-compatible user reaction
-class UserReaction {
-  final String user;
-  final String emoji;
-  final DateTime createdAt;
-
-  const UserReaction({
-    required this.user,
-    required this.emoji,
-    required this.createdAt,
-  });
-
-  @override
-  int get hashCode => user.hashCode ^ emoji.hashCode ^ createdAt.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is UserReaction &&
-          runtimeType == other.runtimeType &&
-          user == other.user &&
-          emoji == other.emoji &&
-          createdAt == other.createdAt;
-}

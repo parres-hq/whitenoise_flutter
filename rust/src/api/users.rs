@@ -1,8 +1,9 @@
-use crate::api::metadata::FlutterMetadata;
 use crate::api::relays::Relay;
+use crate::api::{metadata::FlutterMetadata, ApiError, ApiResult};
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
-use whitenoise::{PublicKey, RelayType, User as WhitenoiseUser, Whitenoise, WhitenoiseError};
+use nostr_sdk::prelude::*;
+use whitenoise::{RelayType, User as WhitenoiseUser, Whitenoise};
 
 #[frb(non_opaque)]
 #[derive(Debug, Clone)]
@@ -25,15 +26,18 @@ impl From<WhitenoiseUser> for User {
 }
 
 #[frb]
-pub async fn get_user(pubkey: String) -> Result<User, WhitenoiseError> {
+pub async fn get_user(pubkey: String) -> ApiResult<User> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
-    let user = whitenoise.find_user_by_pubkey(&pubkey).await?;
+    let user = whitenoise
+        .find_user_by_pubkey(&pubkey)
+        .await
+        .map_err(ApiError::from)?;
     Ok(user.into())
 }
 
 #[frb]
-pub async fn user_metadata(pubkey: String) -> Result<FlutterMetadata, WhitenoiseError> {
+pub async fn user_metadata(pubkey: String) -> ApiResult<FlutterMetadata> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let user = whitenoise.find_user_by_pubkey(&pubkey).await?;
@@ -41,10 +45,7 @@ pub async fn user_metadata(pubkey: String) -> Result<FlutterMetadata, Whitenoise
 }
 
 #[frb]
-pub async fn user_relays(
-    pubkey: String,
-    relay_type: RelayType,
-) -> Result<Vec<Relay>, WhitenoiseError> {
+pub async fn user_relays(pubkey: String, relay_type: RelayType) -> ApiResult<Vec<Relay>> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let user = whitenoise.find_user_by_pubkey(&pubkey).await?;

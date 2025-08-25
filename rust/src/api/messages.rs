@@ -1,11 +1,12 @@
-use crate::api::utils::group_id_from_string;
+use crate::api::{error::ApiResult, utils::group_id_from_string};
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
+use nostr_sdk::prelude::*;
 pub use whitenoise::{
-    ChatMessage as WhitenoiseChatMessage, EmojiReaction as WhitenoiseEmojiReaction, GroupId,
-    MessageWithTokens as WhitenoiseMessageWithTokens, PublicKey,
-    ReactionSummary as WhitenoiseReactionSummary, SerializableToken as WhitenoiseSerializableToken,
-    Tag, UserReaction as WhitenoiseUserReaction, Whitenoise, WhitenoiseError,
+    ChatMessage as WhitenoiseChatMessage, EmojiReaction as WhitenoiseEmojiReaction,
+    MessageWithTokens as WhitenoiseMessageWithTokens, ReactionSummary as WhitenoiseReactionSummary,
+    SerializableToken as WhitenoiseSerializableToken, UserReaction as WhitenoiseUserReaction,
+    Whitenoise,
 };
 
 /// Flutter-compatible message with tokens
@@ -225,7 +226,7 @@ pub async fn send_message_to_group(
     message: String,
     kind: u16,
     tags: Option<Vec<Tag>>,
-) -> Result<MessageWithTokens, WhitenoiseError> {
+) -> ApiResult<MessageWithTokens> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
@@ -240,7 +241,7 @@ pub async fn send_message_to_group(
 pub async fn fetch_aggregated_messages_for_group(
     pubkey: String,
     group_id: String,
-) -> Result<Vec<ChatMessage>, WhitenoiseError> {
+) -> ApiResult<Vec<ChatMessage>> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;

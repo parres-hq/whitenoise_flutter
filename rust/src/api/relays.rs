@@ -1,6 +1,8 @@
+use crate::api::error::ApiResult;
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
-use whitenoise::{PublicKey, Relay as WhitenoiseRelay, RelayType, Whitenoise, WhitenoiseError};
+use nostr_sdk::prelude::*;
+use whitenoise::{Relay as WhitenoiseRelay, RelayType, Whitenoise};
 
 #[frb(non_opaque)]
 #[derive(Debug, Clone)]
@@ -36,7 +38,7 @@ pub fn relay_type_key_package() -> RelayType {
 }
 
 #[frb]
-pub async fn fetch_relay_status(pubkey: String) -> Result<Vec<(String, String)>, WhitenoiseError> {
+pub async fn fetch_relay_status(pubkey: String) -> ApiResult<Vec<(String, String)>> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;

@@ -1,13 +1,16 @@
-use crate::api::{group_id_from_string, utils::group_id_to_string};
+use crate::api::{
+    error::ApiError, error::ApiResult, group_id_from_string, utils::group_id_to_string,
+};
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
-use hex;
-pub use whitenoise::{
-    whitenoise::group_information::GroupInformation as WhitenoiseGroupInformation,
-    whitenoise::group_information::GroupType as WhitenoiseGroupType, GroupId,
-    GroupState as WhitenoiseGroupState, PublicKey, RelayType,
+use nostr_mls::prelude::group_types::Group as WhitenoiseGroup;
+use nostr_mls::prelude::group_types::GroupState as WhitenoiseGroupState;
+use nostr_mls::prelude::NostrGroupConfigData;
+use nostr_sdk::prelude::*;
+use whitenoise::{
+    GroupInformation as WhitenoiseGroupInformation, GroupType as WhitenoiseGroupType, RelayType,
+    Whitenoise,
 };
-use whitenoise::{Group as WhitenoiseGroup, NostrGroupConfigData, Whitenoise, WhitenoiseError};
 
 #[frb(non_opaque)]
 #[derive(Debug, Clone)]
@@ -48,7 +51,7 @@ impl From<WhitenoiseGroup> for Group {
 
 impl Group {
     #[frb]
-    pub async fn group_type(&self) -> Result<GroupType, WhitenoiseError> {
+    pub async fn group_type(&self) -> ApiResult<GroupType> {
         let whitenoise = Whitenoise::get_instance()?;
         let mls_group_id = group_id_from_string(&self.mls_group_id)?;
         let group_information =
@@ -57,7 +60,7 @@ impl Group {
     }
 
     #[frb]
-    pub async fn is_direct_message_type(&self) -> Result<bool, WhitenoiseError> {
+    pub async fn is_direct_message_type(&self) -> ApiResult<bool> {
         let whitenoise = Whitenoise::get_instance()?;
         let mls_group_id = group_id_from_string(&self.mls_group_id)?;
         let group_information =
@@ -66,7 +69,7 @@ impl Group {
     }
 
     #[frb]
-    pub async fn is_group_type(&self) -> Result<bool, WhitenoiseError> {
+    pub async fn is_group_type(&self) -> ApiResult<bool> {
         let whitenoise = Whitenoise::get_instance()?;
         let mls_group_id = group_id_from_string(&self.mls_group_id)?;
         let group_information =
@@ -130,7 +133,7 @@ impl From<WhitenoiseGroupInformation> for GroupInformation {
 }
 
 #[frb]
-pub async fn active_groups(pubkey: String) -> Result<Vec<Group>, WhitenoiseError> {
+pub async fn active_groups(pubkey: String) -> ApiResult<Vec<Group>> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
@@ -139,10 +142,7 @@ pub async fn active_groups(pubkey: String) -> Result<Vec<Group>, WhitenoiseError
 }
 
 #[frb]
-pub async fn group_members(
-    pubkey: String,
-    group_id: String,
-) -> Result<Vec<String>, WhitenoiseError> {
+pub async fn group_members(pubkey: String, group_id: String) -> ApiResult<Vec<String>> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;
@@ -152,10 +152,7 @@ pub async fn group_members(
 }
 
 #[frb]
-pub async fn group_admins(
-    pubkey: String,
-    group_id: String,
-) -> Result<Vec<String>, WhitenoiseError> {
+pub async fn group_admins(pubkey: String, group_id: String) -> ApiResult<Vec<String>> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;
@@ -171,7 +168,7 @@ pub async fn create_group(
     admin_pubkeys: Vec<String>,
     group_name: String,
     group_description: String,
-) -> Result<Group, WhitenoiseError> {
+) -> ApiResult<Group> {
     let whitenoise = Whitenoise::get_instance()?;
     let creator_pubkey = PublicKey::from_hex(&creator_pubkey)?;
     let creator_account = whitenoise.find_account_by_pubkey(&creator_pubkey).await?;
@@ -208,7 +205,7 @@ pub async fn add_members_to_group(
     pubkey: String,
     group_id: String,
     member_pubkeys: Vec<String>,
-) -> Result<(), WhitenoiseError> {
+) -> ApiResult<()> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;
@@ -220,6 +217,7 @@ pub async fn add_members_to_group(
     whitenoise
         .add_members_to_group(&account, &group_id, member_pubkeys)
         .await
+        .map_err(ApiError::from)
 }
 
 #[frb]
@@ -227,7 +225,7 @@ pub async fn remove_members_from_group(
     pubkey: String,
     group_id: String,
     member_pubkeys: Vec<String>,
-) -> Result<(), WhitenoiseError> {
+) -> ApiResult<()> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;
@@ -239,4 +237,5 @@ pub async fn remove_members_from_group(
     whitenoise
         .remove_members_from_group(&account, &group_id, member_pubkeys)
         .await
+        .map_err(ApiError::from)
 }
