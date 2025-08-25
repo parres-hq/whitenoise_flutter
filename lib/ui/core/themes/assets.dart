@@ -73,6 +73,9 @@ class AssetsPaths {
   static const String icOffChat = '$_svgsDir/ic_off_chat.svg';
   static const String icCheckmarkSolid = '$_svgsDir/ic_checkmark_solid.svg';
   static const String icCheckmarkFilled = '$_svgsDir/ic_checkmark_filled.svg';
+  static const String icEye = '$_svgsDir/ic_eye.svg';
+  static const String icEyeOff = '$_svgsDir/ic_eye_off.svg';
+  static const String icCheckmark = '$_svgsDir/ic_checkmark.svg';
 
   //PNGS
   static const String blueHoodie = '$_pngsDir/blue_hoodie.png';

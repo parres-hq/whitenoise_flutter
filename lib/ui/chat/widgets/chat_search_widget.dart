@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
@@ -70,16 +72,27 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                   color: context.colors.mutedForeground,
                   fontSize: 16.sp,
                 ),
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: context.colors.mutedForeground,
-                  size: 20.w,
+                prefixIcon: Padding(
+                  padding: EdgeInsets.only(left: 12.w),
+                  child: SvgPicture.asset(
+                    AssetsPaths.icSearch,
+                    width: 20.w,
+                    height: 20.w,
+                    colorFilter: ColorFilter.mode(
+                      context.colors.mutedForeground,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                 ),
                 suffixIcon: IconButton(
-                  icon: Icon(
-                    Icons.clear,
-                    color: context.colors.mutedForeground,
-                    size: 20.w,
+                  icon: SvgPicture.asset(
+                    AssetsPaths.icClose,
+                    width: 20.w,
+                    height: 20.w,
+                    colorFilter: ColorFilter.mode(
+                      context.colors.mutedForeground,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   onPressed: () {
                     _searchController.clear();
@@ -98,7 +111,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                 ),
               ),
               style: TextStyle(
-                color: Colors.black,
+                color: context.colors.primary,
                 fontSize: 16.sp,
               ),
             ),
@@ -121,10 +134,14 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                         searchNotifier.totalMatches > 1 && searchNotifier.currentMatchNumber > 1
                             ? () => searchNotifier.goToPreviousMatch()
                             : null,
-                    icon: Icon(
-                      Icons.keyboard_arrow_up,
-                      color: context.colors.secondary,
-                      size: 20.w,
+                    icon: SvgPicture.asset(
+                      AssetsPaths.icChevronUp,
+                      height: 16.w,
+                      width: 16.w,
+                      colorFilter: ColorFilter.mode(
+                        context.colors.primarySolid,
+                        BlendMode.srcIn,
+                      ),
                     ),
                     padding: EdgeInsets.all(4.w), // Reduce button padding
                     constraints: BoxConstraints(
@@ -153,10 +170,14 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                                 searchNotifier.currentMatchNumber < searchNotifier.totalMatches
                             ? () => searchNotifier.goToNextMatch()
                             : null,
-                    icon: Icon(
-                      Icons.keyboard_arrow_down,
-                      color: context.colors.secondary,
-                      size: 20.w,
+                    icon: SvgPicture.asset(
+                      AssetsPaths.icChevronDown,
+                      height: 16.w,
+                      width: 16.w,
+                      colorFilter: ColorFilter.mode(
+                        context.colors.primarySolid,
+                        BlendMode.srcIn,
+                      ),
                     ),
                     padding: EdgeInsets.all(4.w), // Reduce button padding
                     constraints: BoxConstraints(
