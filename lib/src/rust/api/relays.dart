@@ -7,6 +7,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import '../frb_generated.dart';
 import 'accounts.dart';
+import 'error.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `from`
 
@@ -19,11 +20,8 @@ Future<RelayType> relayTypeInbox() =>
 Future<RelayType> relayTypeKeyPackage() =>
     RustLib.instance.api.crateApiRelaysRelayTypeKeyPackage();
 
-Future<ApiResultVecStringString> fetchRelayStatus({required String pubkey}) =>
+Future<List<(String, String)>> fetchRelayStatus({required String pubkey}) =>
     RustLib.instance.api.crateApiRelaysFetchRelayStatus(pubkey: pubkey);
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < Vec < (String , String) > >>>
-abstract class ApiResultVecStringString implements RustOpaqueInterface {}
 
 class Relay {
   final String url;

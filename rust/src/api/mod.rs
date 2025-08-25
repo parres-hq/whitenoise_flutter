@@ -77,7 +77,7 @@ pub use utils::*;
 pub use welcomes::*;
 
 #[frb]
-pub async fn initialize_whitenoise(config: WhitenoiseConfig) -> ApiResult<()> {
+pub async fn initialize_whitenoise(config: WhitenoiseConfig) -> Result<(), ApiError> {
     let core_config =
         whitenoise::WhitenoiseConfig::new(Path::new(&config.data_dir), Path::new(&config.logs_dir));
     Whitenoise::initialize_whitenoise(core_config)
@@ -86,19 +86,19 @@ pub async fn initialize_whitenoise(config: WhitenoiseConfig) -> ApiResult<()> {
 }
 
 #[frb]
-pub async fn delete_all_data() -> ApiResult<()> {
+pub async fn delete_all_data() -> Result<(), ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise.delete_all_data().await.map_err(ApiError::from)
 }
 
 #[frb]
-pub async fn get_app_settings() -> ApiResult<AppSettings> {
+pub async fn get_app_settings() -> Result<AppSettings, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise.app_settings().await.map_err(ApiError::from)
 }
 
 #[frb]
-pub async fn update_theme_mode(theme_mode: ThemeMode) -> ApiResult<()> {
+pub async fn update_theme_mode(theme_mode: ThemeMode) -> Result<(), ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     whitenoise
         .update_theme_mode(theme_mode)

@@ -1,4 +1,4 @@
-use crate::api::{error::ApiResult, utils::group_id_from_string};
+use crate::api::{error::ApiError, utils::group_id_from_string};
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
 use nostr_sdk::prelude::*;
@@ -226,7 +226,7 @@ pub async fn send_message_to_group(
     message: String,
     kind: u16,
     tags: Option<Vec<Tag>>,
-) -> ApiResult<MessageWithTokens> {
+) -> Result<MessageWithTokens, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
@@ -241,7 +241,7 @@ pub async fn send_message_to_group(
 pub async fn fetch_aggregated_messages_for_group(
     pubkey: String,
     group_id: String,
-) -> ApiResult<Vec<ChatMessage>> {
+) -> Result<Vec<ChatMessage>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;

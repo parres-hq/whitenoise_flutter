@@ -1,10 +1,6 @@
 use flutter_rust_bridge::frb;
 use thiserror::Error;
 
-/// Type alias for Results that use ApiError as the error type
-/// This makes function signatures cleaner throughout the API layer
-pub type ApiResult<T> = Result<T, ApiError>;
-
 /// Comprehensive API error type using thiserror for better error handling
 /// This enum covers all possible error scenarios in the API layer
 #[frb(non_opaque)]

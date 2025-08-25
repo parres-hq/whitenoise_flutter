@@ -5,16 +5,16 @@
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-import '../api.dart';
 import '../frb_generated.dart';
+import 'error.dart';
 
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `GroupInformation`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`
 
-Future<ApiResultVecGroup> activeGroups({required String pubkey}) =>
+Future<List<Group>> activeGroups({required String pubkey}) =>
     RustLib.instance.api.crateApiGroupsActiveGroups(pubkey: pubkey);
 
-Future<ApiResultVecString> groupMembers({
+Future<List<String>> groupMembers({
   required String pubkey,
   required String groupId,
 }) => RustLib.instance.api.crateApiGroupsGroupMembers(
@@ -22,7 +22,7 @@ Future<ApiResultVecString> groupMembers({
   groupId: groupId,
 );
 
-Future<ApiResultVecString> groupAdmins({
+Future<List<String>> groupAdmins({
   required String pubkey,
   required String groupId,
 }) => RustLib.instance.api.crateApiGroupsGroupAdmins(
@@ -30,7 +30,7 @@ Future<ApiResultVecString> groupAdmins({
   groupId: groupId,
 );
 
-Future<ApiResultGroup> createGroup({
+Future<Group> createGroup({
   required String creatorPubkey,
   required List<String> memberPubkeys,
   required List<String> adminPubkeys,
@@ -44,7 +44,7 @@ Future<ApiResultGroup> createGroup({
   groupDescription: groupDescription,
 );
 
-Future<ApiResult> addMembersToGroup({
+Future<void> addMembersToGroup({
   required String pubkey,
   required String groupId,
   required List<String> memberPubkeys,
@@ -54,7 +54,7 @@ Future<ApiResult> addMembersToGroup({
   memberPubkeys: memberPubkeys,
 );
 
-Future<ApiResult> removeMembersFromGroup({
+Future<void> removeMembersFromGroup({
   required String pubkey,
   required String groupId,
   required List<String> memberPubkeys,
@@ -63,21 +63,6 @@ Future<ApiResult> removeMembersFromGroup({
   groupId: groupId,
   memberPubkeys: memberPubkeys,
 );
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < Group >>>
-abstract class ApiResultGroup implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < GroupType >>>
-abstract class ApiResultGroupType implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < Vec < Group > >>>
-abstract class ApiResultVecGroup implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < Vec < String > >>>
-abstract class ApiResultVecString implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < bool >>>
-abstract class ApiResultBool implements RustOpaqueInterface {}
 
 class Group {
   final String mlsGroupId;
@@ -106,17 +91,17 @@ class Group {
     required this.state,
   });
 
-  Future<ApiResultGroupType> groupType() =>
+  Future<GroupType> groupType() =>
       RustLib.instance.api.crateApiGroupsGroupGroupType(
         that: this,
       );
 
-  Future<ApiResultBool> isDirectMessageType() =>
+  Future<bool> isDirectMessageType() =>
       RustLib.instance.api.crateApiGroupsGroupIsDirectMessageType(
         that: this,
       );
 
-  Future<ApiResultBool> isGroupType() =>
+  Future<bool> isGroupType() =>
       RustLib.instance.api.crateApiGroupsGroupIsGroupType(
         that: this,
       );
@@ -157,4 +142,9 @@ enum GroupState {
   active,
   inactive,
   pending,
+}
+
+enum GroupType {
+  directMessage,
+  group,
 }

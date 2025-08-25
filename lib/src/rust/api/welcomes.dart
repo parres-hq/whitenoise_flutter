@@ -5,16 +5,15 @@
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-import '../api.dart';
 import '../frb_generated.dart';
+import 'error.dart';
 
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `WelcomeState`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `fmt`, `fmt`, `from`, `from`, `from`
 
-Future<ApiResultVecWelcome> pendingWelcomes({required String pubkey}) =>
+Future<List<Welcome>> pendingWelcomes({required String pubkey}) =>
     RustLib.instance.api.crateApiWelcomesPendingWelcomes(pubkey: pubkey);
 
-Future<ApiResultWelcome> findWeclcomeByEventId({
+Future<Welcome> findWeclcomeByEventId({
   required String pubkey,
   required String welcomeEventId,
 }) => RustLib.instance.api.crateApiWelcomesFindWeclcomeByEventId(
@@ -22,7 +21,7 @@ Future<ApiResultWelcome> findWeclcomeByEventId({
   welcomeEventId: welcomeEventId,
 );
 
-Future<ApiResult> acceptWelcome({
+Future<void> acceptWelcome({
   required String pubkey,
   required String welcomeEventId,
 }) => RustLib.instance.api.crateApiWelcomesAcceptWelcome(
@@ -30,7 +29,7 @@ Future<ApiResult> acceptWelcome({
   welcomeEventId: welcomeEventId,
 );
 
-Future<ApiResult> declineWelcome({
+Future<void> declineWelcome({
   required String pubkey,
   required String welcomeEventId,
 }) => RustLib.instance.api.crateApiWelcomesDeclineWelcome(
@@ -38,8 +37,78 @@ Future<ApiResult> declineWelcome({
   welcomeEventId: welcomeEventId,
 );
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < Vec < Welcome > >>>
-abstract class ApiResultVecWelcome implements RustOpaqueInterface {}
+/// Converts a GroupId to a hex string representation.
+///
+/// This function provides a consistent way to convert MLS group IDs to strings
+/// for use in the Flutter bridge layer.
+///
+/// # Parameters
+/// * `group_id` - Reference to a GroupId object
+///
+/// # Returns
+/// Hexadecimal string representation of the group ID
+class Welcome {
+  final String id;
+  final String mlsGroupId;
+  final String nostrGroupId;
+  final String groupName;
+  final String groupDescription;
+  final List<String> groupAdminPubkeys;
+  final List<String> groupRelays;
+  final String welcomer;
+  final int memberCount;
+  final WelcomeState state;
+  final BigInt createdAt;
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ApiResult < Welcome >>>
-abstract class ApiResultWelcome implements RustOpaqueInterface {}
+  const Welcome({
+    required this.id,
+    required this.mlsGroupId,
+    required this.nostrGroupId,
+    required this.groupName,
+    required this.groupDescription,
+    required this.groupAdminPubkeys,
+    required this.groupRelays,
+    required this.welcomer,
+    required this.memberCount,
+    required this.state,
+    required this.createdAt,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      mlsGroupId.hashCode ^
+      nostrGroupId.hashCode ^
+      groupName.hashCode ^
+      groupDescription.hashCode ^
+      groupAdminPubkeys.hashCode ^
+      groupRelays.hashCode ^
+      welcomer.hashCode ^
+      memberCount.hashCode ^
+      state.hashCode ^
+      createdAt.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Welcome &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          mlsGroupId == other.mlsGroupId &&
+          nostrGroupId == other.nostrGroupId &&
+          groupName == other.groupName &&
+          groupDescription == other.groupDescription &&
+          groupAdminPubkeys == other.groupAdminPubkeys &&
+          groupRelays == other.groupRelays &&
+          welcomer == other.welcomer &&
+          memberCount == other.memberCount &&
+          state == other.state &&
+          createdAt == other.createdAt;
+}
+
+enum WelcomeState {
+  pending,
+  accepted,
+  declined,
+  ignored,
+}

@@ -1,4 +1,4 @@
-use crate::api::{error::ApiError, error::ApiResult, utils::group_id_to_string};
+use crate::api::{error::ApiError, utils::group_id_to_string};
 use flutter_rust_bridge::frb;
 use nostr_mls::prelude::welcome_types::Welcome as WhitenoiseWelcome;
 use nostr_mls::prelude::welcome_types::WelcomeState as WhitenoiseWelcomeState;
@@ -101,7 +101,7 @@ impl From<&WhitenoiseWelcome> for Welcome {
 }
 
 #[frb]
-pub async fn pending_welcomes(pubkey: String) -> ApiResult<Vec<Welcome>> {
+pub async fn pending_welcomes(pubkey: String) -> Result<Vec<Welcome>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let welcomes = whitenoise.pending_welcomes(&pubkey).await?;
@@ -112,7 +112,7 @@ pub async fn pending_welcomes(pubkey: String) -> ApiResult<Vec<Welcome>> {
 pub async fn find_weclcome_by_event_id(
     pubkey: String,
     welcome_event_id: String,
-) -> ApiResult<Welcome> {
+) -> Result<Welcome, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     let welcome = whitenoise
@@ -122,7 +122,7 @@ pub async fn find_weclcome_by_event_id(
 }
 
 #[frb]
-pub async fn accept_welcome(pubkey: String, welcome_event_id: String) -> ApiResult<()> {
+pub async fn accept_welcome(pubkey: String, welcome_event_id: String) -> Result<(), ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     whitenoise
@@ -132,7 +132,7 @@ pub async fn accept_welcome(pubkey: String, welcome_event_id: String) -> ApiResu
 }
 
 #[frb]
-pub async fn decline_welcome(pubkey: String, welcome_event_id: String) -> ApiResult<()> {
+pub async fn decline_welcome(pubkey: String, welcome_event_id: String) -> Result<(), ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::from_hex(&pubkey)?;
     whitenoise
