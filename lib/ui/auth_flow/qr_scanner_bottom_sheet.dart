@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 
@@ -70,10 +72,14 @@ class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.check_circle,
-                              size: 64.w,
-                              color: context.colors.primary,
+                            SvgPicture.asset(
+                              AssetsPaths.icCheckmarkFilledSvg,
+                              width: 94.w,
+                              height: 94.w,
+                              colorFilter: ColorFilter.mode(
+                                context.colors.primary,
+                                BlendMode.srcIn,
+                              ),
                             ),
                             Gap(16.h),
                             Text(

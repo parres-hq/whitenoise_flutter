@@ -235,11 +235,16 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                     decoration: InputDecoration(
                                       suffixIcon: IconButton(
                                         onPressed: _togglePrivateKeyVisibility,
-                                        icon: Icon(
+                                        icon: SvgPicture.asset(
                                           _obscurePrivateKey
-                                              ? Icons.visibility
-                                              : Icons.visibility_off,
-                                          color: context.colors.primary,
+                                              ? AssetsPaths.icEye
+                                              : AssetsPaths.icEyeOff,
+                                          height: _obscurePrivateKey ? 16.w : 19.w,
+                                          width: _obscurePrivateKey ? 16.w : 19.w,
+                                          colorFilter: ColorFilter.mode(
+                                            context.colors.primary,
+                                            BlendMode.srcIn,
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -278,10 +283,14 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                               children: [
                                 Padding(
                                   padding: EdgeInsets.only(top: 4.w),
-                                  child: Icon(
-                                    Icons.warning,
-                                    size: 16.w,
-                                    color: context.colors.destructive,
+                                  child: SvgPicture.asset(
+                                    AssetsPaths.icWarning,
+                                    height: 16.w,
+                                    width: 16.w,
+                                    colorFilter: ColorFilter.mode(
+                                      context.colors.destructive,
+                                      BlendMode.srcIn,
+                                    ),
                                   ),
                                 ),
                                 Gap(12.w),
