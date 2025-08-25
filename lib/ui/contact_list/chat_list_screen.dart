@@ -336,14 +336,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                 _unfocusSearchIfNeeded();
                                 NewChatBottomSheet.show(context);
                               },
-                      icon: Image.asset(
+                      icon: SvgPicture.asset(
                         notAllRelayTypesConnected
                             ? AssetsPaths.icOffChat
                             : AssetsPaths.icAddNewChat,
                         width: 21.w,
                         height: 21.w,
-                        color: context.colors.solidNeutralWhite.withValues(
-                          alpha: notAllRelayTypesConnected ? 0.5 : 1.0,
+                        colorFilter: ColorFilter.mode(
+                          context.colors.solidNeutralWhite.withValues(
+                            alpha: notAllRelayTypesConnected ? 0.5 : 1.0,
+                          ),
+                          BlendMode.srcIn,
                         ),
                       ),
                     ),
