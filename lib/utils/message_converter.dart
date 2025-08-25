@@ -7,7 +7,7 @@ import 'package:whitenoise/src/rust/api/messages.dart';
 
 /// Converts ChatMessageData to MessageModel for UI display
 class MessageConverter {
-  static Future<MessageModel> fromChatMessageData(
+  static Future<MessageModel> fromChatMessage(
     ChatMessageData messageData, {
     required String? currentUserPublicKey,
     String? groupId,
@@ -94,7 +94,7 @@ class MessageConverter {
     );
   }
 
-  static Future<List<MessageModel>> fromChatMessageDataList(
+  static Future<List<MessageModel>> fromChatMessageList(
     List<ChatMessageData> messageDataList, {
     required String? currentUserPublicKey,
     String? groupId,

@@ -9,9 +9,9 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
-import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
 import 'package:whitenoise/utils/message_converter.dart';
 
 class ChatNotifier extends Notifier<ChatState> {
@@ -72,15 +72,12 @@ class ChatNotifier extends Notifier<ChatState> {
         return;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final groupIdObj = await groupIdFromString(hexString: groupId);
-
       _logger.info('ChatProvider: Loading messages for group $groupId');
 
       // Use fetchAggregatedMessagesForGroup which includes all message data including replies
       final aggregatedMessages = await fetchAggregatedMessagesForGroup(
-        pubkey: publicKey,
-        groupId: groupIdObj,
+        pubkey: activeAccountData.pubkey,
+        groupId: groupId,
       );
 
       _logger.info(
@@ -90,7 +87,7 @@ class ChatNotifier extends Notifier<ChatState> {
       // Sort messages by creation time (oldest first)
       aggregatedMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
 
-      final messages = await MessageConverter.fromChatMessageDataList(
+      final messages = await MessageConverter.fromChatMessageList(
         aggregatedMessages,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
@@ -127,7 +124,7 @@ class ChatNotifier extends Notifier<ChatState> {
   }
 
   /// Send a message to a group
-  Future<MessageWithTokensData?> sendMessage({
+  Future<MessageWithTokens?> sendMessage({
     required String groupId,
     required String message,
     int kind = 9, // Default to text message
@@ -159,14 +156,11 @@ class ChatNotifier extends Notifier<ChatState> {
         return null;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final groupIdObj = await groupIdFromString(hexString: groupId);
-
       _logger.info('ChatProvider: Sending message to group $groupId');
 
       final sentMessage = await sendMessageToGroup(
-        pubkey: publicKey,
-        groupId: groupIdObj,
+        pubkey: activeAccountData.pubkey,
+        groupId: groupId,
         message: message,
         kind: kind,
         tags: tags,
@@ -176,7 +170,7 @@ class ChatNotifier extends Notifier<ChatState> {
       final currentMessages = state.groupMessages[groupId] ?? [];
 
       // Create ChatMessageData from the sent message
-      final sentChatMessageData = ChatMessageData(
+      final sentChatMessageData = ChatMessage(
         id: sentMessage.id,
         pubkey: sentMessage.pubkey,
         content: sentMessage.content ?? '',
@@ -186,31 +180,31 @@ class ChatNotifier extends Notifier<ChatState> {
         replyToId: null,
         isDeleted: false,
         contentTokens: const [],
-        reactions: const ReactionSummaryData(byEmoji: [], userReactions: []),
+        reactions: const ReactionSummary(byEmoji: [], userReactions: []),
         kind: sentMessage.kind,
       );
 
       // Build message cache from current messages for consistency
-      final messageCache = <String, ChatMessageData>{};
+      final messageCache = <String, ChatMessage>{};
       for (final msg in currentMessages) {
-        // Convert existing MessageModel back to ChatMessageData for cache
-        final chatMessageData = ChatMessageData(
+        // Convert existing MessageModel back to ChatMessage for cache
+        final chatMessage = ChatMessage(
           id: msg.id,
           pubkey: msg.sender.publicKey,
           content: msg.content ?? '',
-          createdAt: BigInt.from(msg.createdAt.millisecondsSinceEpoch ~/ 1000),
+          createdAt: msg.createdAt,
           tags: const [],
           isReply: msg.replyTo != null,
           replyToId: msg.replyTo?.id,
           isDeleted: false,
           contentTokens: const [],
-          reactions: const ReactionSummaryData(byEmoji: [], userReactions: []),
+          reactions: const ReactionSummary(byEmoji: [], userReactions: []),
           kind: msg.kind, // Use the actual message kind
         );
-        messageCache[msg.id] = chatMessageData;
+        messageCache[msg.id] = chatMessage;
       }
 
-      final sentMessageModel = await MessageConverter.fromChatMessageData(
+      final sentMessageModel = await MessageConverter.fromChatMessage(
         sentChatMessageData,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
@@ -309,17 +303,14 @@ class ChatNotifier extends Notifier<ChatState> {
         return;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final groupIdObj = await groupIdFromString(hexString: groupId);
-
       // Use fetchAggregatedMessagesForGroup for polling as well
       final aggregatedMessages = await fetchAggregatedMessagesForGroup(
-        pubkey: publicKey,
-        groupId: groupIdObj,
+        pubkey: activeAccountData.pubkey,
+        groupId: groupId,
       );
 
       aggregatedMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-      final newMessages = await MessageConverter.fromChatMessageDataList(
+      final newMessages = await MessageConverter.fromChatMessageList(
         aggregatedMessages,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
@@ -526,9 +517,10 @@ class ChatNotifier extends Notifier<ChatState> {
         _setGroupError(message.groupId ?? '', 'No active account found');
         return false;
       }
-
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final groupIdObj = await groupIdFromString(hexString: message.groupId ?? '');
+      if (message.groupId.nullOrEmpty) {
+        _setGroupError(message.groupId ?? '', 'Message not found');
+        return false;
+      }
 
       _logger.info('ChatProvider: Adding reaction "$reaction" to message ${message.id}');
 
@@ -554,8 +546,8 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Send reaction message (kind 7 for reactions in Nostr)
       await sendMessageToGroup(
-        pubkey: publicKey,
-        groupId: groupIdObj,
+        pubkey: activeAccountData.pubkey,
+        groupId: message.groupId ?? '',
         message: reactionContent,
         kind: 7, // Nostr kind 7 = reaction
         tags: reactionTags,
@@ -586,7 +578,7 @@ class ChatNotifier extends Notifier<ChatState> {
   }
 
   /// Send a reply message to a specific message
-  Future<MessageWithTokensData?> sendReplyMessage({
+  Future<MessageWithTokens?> sendReplyMessage({
     required String groupId,
     required String replyToMessageId,
     required String message,
@@ -604,9 +596,6 @@ class ChatNotifier extends Notifier<ChatState> {
         return null;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final groupIdObj = await groupIdFromString(hexString: groupId);
-
       _logger.info('ChatProvider: Sending reply to message $replyToMessageId');
 
       // Create tags for reply
@@ -616,8 +605,8 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Send the reply message using rust API
       final sentMessage = await sendMessageToGroup(
-        pubkey: publicKey,
-        groupId: groupIdObj,
+        pubkey: activeAccountData.pubkey,
+        groupId: groupId,
         message: message,
         kind: 9, // Kind 9 for replies
         tags: replyTags,
@@ -627,7 +616,7 @@ class ChatNotifier extends Notifier<ChatState> {
       final currentMessages = state.groupMessages[groupId] ?? [];
 
       // Create ChatMessageData for the reply message
-      final sentChatMessageData = ChatMessageData(
+      final sentChatMessageData = ChatMessage(
         id: sentMessage.id,
         pubkey: sentMessage.pubkey,
         content: sentMessage.content ?? '',
@@ -637,31 +626,31 @@ class ChatNotifier extends Notifier<ChatState> {
         replyToId: replyToMessageId,
         isDeleted: false,
         contentTokens: const [],
-        reactions: const ReactionSummaryData(byEmoji: [], userReactions: []),
+        reactions: const ReactionSummary(byEmoji: [], userReactions: []),
         kind: sentMessage.kind,
       );
 
       // Build message cache from current messages for reply lookup
-      final messageCache = <String, ChatMessageData>{};
+      final messageCache = <String, ChatMessage>{};
       for (final msg in currentMessages) {
         // Convert existing MessageModel back to ChatMessageData for cache
-        final chatMessageData = ChatMessageData(
+        final chatMessageData = ChatMessage(
           id: msg.id,
           pubkey: msg.sender.publicKey,
           content: msg.content ?? '',
-          createdAt: BigInt.from(msg.createdAt.millisecondsSinceEpoch ~/ 1000),
+          createdAt: msg.createdAt,
           tags: const [],
           isReply: msg.replyTo != null,
           replyToId: msg.replyTo?.id,
           isDeleted: false,
           contentTokens: const [],
-          reactions: const ReactionSummaryData(byEmoji: [], userReactions: []),
+          reactions: const ReactionSummary(byEmoji: [], userReactions: []),
           kind: msg.kind, // Use the actual message kind
         );
         messageCache[msg.id] = chatMessageData;
       }
 
-      final sentMessageModel = await MessageConverter.fromChatMessageData(
+      final sentMessageModel = await MessageConverter.fromChatMessage(
         sentChatMessageData,
         currentUserPublicKey: activeAccountData.pubkey,
         groupId: groupId,
@@ -717,9 +706,6 @@ class ChatNotifier extends Notifier<ChatState> {
         return false;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final groupIdObj = await groupIdFromString(hexString: groupId);
-
       _logger.info('ChatProvider: Deleting message $messageId');
 
       // Create tags for deletion (NIP-09)
@@ -731,8 +717,8 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Send deletion message using rust API
       await sendMessageToGroup(
-        pubkey: publicKey,
-        groupId: groupIdObj,
+        pubkey: activeAccountData.pubkey,
+        groupId: groupId,
         message: '', // Empty content for deletion
         kind: 5, // Nostr kind 5 = deletion
         tags: deleteTags,

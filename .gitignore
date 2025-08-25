@@ -11,6 +11,10 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+.env
+.env.local
+.env.development
+.env.production
 
 # IntelliJ related
 *.iml
@@ -57,3 +61,4 @@ rust/.cargo/config.toml
 
 # Coverage
 coverage/*
+

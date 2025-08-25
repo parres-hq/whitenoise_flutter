@@ -1,14 +1,15 @@
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
+import 'package:whitenoise/ui/chat/utils/message_extensions.dart';
 import 'package:whitenoise/utils/big_int_extension.dart';
 
 enum ChatListItemType { chat, welcome }
 
 class ChatListItem {
   final ChatListItemType type;
-  final GroupData? groupData;
-  final WelcomeData? welcomeData;
+  final Group? groupData;
+  final Welcome? welcomeData;
   final MessageModel? lastMessage;
   final DateTime dateCreated;
 
@@ -21,7 +22,7 @@ class ChatListItem {
   });
 
   factory ChatListItem.fromGroup({
-    required GroupData groupData,
+    required Group groupData,
     MessageModel? lastMessage,
   }) {
     return ChatListItem(
@@ -33,12 +34,12 @@ class ChatListItem {
   }
 
   factory ChatListItem.fromWelcome({
-    required WelcomeData welcomeData,
+    required Welcome welcomeData,
   }) {
     return ChatListItem(
       type: ChatListItemType.welcome,
       welcomeData: welcomeData,
-      dateCreated: welcomeData.createdAt.toDateTime(),
+      dateCreated: welcomeData.createdAtDateTime,
     );
   }
 
@@ -47,7 +48,7 @@ class ChatListItem {
       case ChatListItemType.chat:
         return groupData?.name ?? '';
       case ChatListItemType.welcome:
-        return welcomeData?.groupName ?? '';
+        return welcomeData.senderName;
     }
   }
 

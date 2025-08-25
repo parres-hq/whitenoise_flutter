@@ -30,8 +30,8 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     final groupDetails = ref.read(groupsProvider).groupsMap?[widget.groupId];
     if (groupDetails?.nostrGroupId != null) {
       try {
-        final npub = await npubFromPublicKey(
-          publicKey: await publicKeyFromString(publicKeyString: groupDetails!.nostrGroupId),
+        final npub = await npubFromHexPubkey(
+          hexPubkey: groupDetails!.nostrGroupId,
         );
         if (mounted) {
           setState(() {

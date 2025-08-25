@@ -2,7 +2,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 
 /// Active Account Provider
 ///
@@ -58,7 +57,7 @@ class ActiveAccountNotifier extends Notifier<String?> {
     }
   }
 
-  Future<AccountData?> getActiveAccountData() async {
+  Future<Account?> getActiveAccountData() async {
     _logger.fine('Getting active account data, state: $state');
     if (state == null) {
       _logger.warning('No active account set');
@@ -67,8 +66,8 @@ class ActiveAccountNotifier extends Notifier<String?> {
 
     try {
       // Use the new getAccount API function for better performance
-      final publicKey = await publicKeyFromString(publicKeyString: state!);
-      final activeAccount = await getAccount(pubkey: publicKey);
+
+      final activeAccount = await getAccount(pubkey: state!);
       _logger.fine('Found active account: ${activeAccount.pubkey}');
       return activeAccount;
     } catch (e) {
