@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
@@ -164,6 +165,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Gap(4.w),
+                                    //TODO @Quwaysim ... This will come in PR for issue #511
                                     WnIconButton(
                                           iconPath: AssetsPaths.icArrowUp,
                                           padding: 18.w,
@@ -252,10 +254,17 @@ class ReplyEditHeader extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: onCancel,
-                child: Icon(
-                  Icons.close,
-                  size: 14.w,
-                  color: context.colors.mutedForeground,
+                child: Padding(
+                  padding: EdgeInsets.all(8.w),
+                  child: SvgPicture.asset(
+                    AssetsPaths.icClose,
+                    width: 16.w,
+                    height: 16.w,
+                    colorFilter: ColorFilter.mode(
+                      context.colors.mutedForeground,
+                      BlendMode.srcIn,
+                    ),
+                  ),
                 ),
               ),
             ],
