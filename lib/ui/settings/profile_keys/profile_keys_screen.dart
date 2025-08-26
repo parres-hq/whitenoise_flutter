@@ -230,10 +230,11 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                     decoration: InputDecoration(
                                       suffixIcon: IconButton(
                                         onPressed: _togglePrivateKeyVisibility,
-                                        icon: Icon(
+                                        icon: WnImage(
                                           _obscurePrivateKey
-                                              ? Icons.visibility
-                                              : Icons.visibility_off,
+                                              ? AssetsPaths.icEye
+                                              : AssetsPaths.icEyeOff,
+                                          size: _obscurePrivateKey ? 16.w : 19.w,
                                           color: context.colors.primary,
                                         ),
                                       ),
@@ -273,8 +274,8 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                               children: [
                                 Padding(
                                   padding: EdgeInsets.only(top: 4.w),
-                                  child: Icon(
-                                    Icons.warning,
+                                  child: WnImage(
+                                    AssetsPaths.icWarning,
                                     size: 16.w,
                                     color: context.colors.destructive,
                                   ),

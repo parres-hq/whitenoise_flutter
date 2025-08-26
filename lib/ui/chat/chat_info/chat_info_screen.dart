@@ -82,10 +82,10 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
                   ),
                 ),
                 IconButton(
-                  icon: Icon(
-                    Icons.close,
-                    color: context.colors.primary,
+                  icon: WnImage(
+                    AssetsPaths.icClose,
                     size: 24.w,
+                    color: context.colors.primary,
                   ),
                   onPressed: () => Navigator.of(context).pop(),
                 ),

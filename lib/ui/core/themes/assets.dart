@@ -69,24 +69,17 @@ class AssetsPaths {
   static const String icTrashCan = '$_svgsDir/ic_trash_can.svg';
   static const String icUser = '$_svgsDir/ic_user.svg';
   static const String icUserFollow = '$_svgsDir/ic_user_follow.svg';
+  static const String icAddNewChat = '$_svgsDir/ic_add_new_chat.svg';
+  static const String icOffChat = '$_svgsDir/ic_off_chat.svg';
+  static const String icCheckmarkSolid = '$_svgsDir/ic_checkmark_solid.svg';
+  static const String icCheckmarkFilled = '$_svgsDir/ic_checkmark_filled.svg';
+  static const String icEye = '$_svgsDir/ic_eye.svg';
+  static const String icEyeOff = '$_svgsDir/ic_eye_off.svg';
+  static const String icCheckmark = '$_svgsDir/ic_checkmark.svg';
 
   //PNGS
-  static const String icImage = '$_pngsDir/ic_image.png';
-  static const String groupLogo = '$_pngsDir/group_logo.png';
-  static const String loginSplash = '$_pngsDir/login_splash.png';
-  static const String icWhiteNoise = '$_pngsDir/ic_whitenoise.png';
-  static const String profileBackground = '$_pngsDir/profile_background.png';
-  static const String avatarPlaceholder = '$_pngsDir/avatar_placeholder.png';
   static const String blueHoodie = '$_pngsDir/blue_hoodie.png';
   static const String purpleWoman = '$_pngsDir/purple_woman.png';
   static const String greenBird = '$_pngsDir/green_bird.png';
-  static const String hands = '$_pngsDir/hands.png';
-  static const String icAddNewChat = '$_pngsDir/ic_add_chat.png';
-  static const String icOffChat = '$_pngsDir/ic_off_chat.png';
-  static const String icNotificationMuted = '$_pngsDir/ic_notification_muted.png';
-  static const String icCheckmarkSolid = '$_pngsDir/ic_checkmark_solid.png';
-  static const String icCheckmarkDashed = '$_pngsDir/ic_checkmark_dashed.png';
-  static const String icCheckmarkFilled = '$_pngsDir/ic_checkmark_filled.png';
   static const String login = '$_pngsDir/login.png';
-  static const String icAvatar = '$_pngsDir/ic_avatar.png';
 }

@@ -191,13 +191,17 @@ class _WnToastMessageWidgetState extends ConsumerState<WnToastMessageWidget>
                       ),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () {
-                      ref.read(toastMessageProvider.notifier).dismissToast(widget.message.id);
-                    },
-                    icon: Icon(
-                      Icons.close,
-                      color: context.colors.primary,
+                  GestureDetector(
+                    onTap:
+                        () =>
+                            ref.read(toastMessageProvider.notifier).dismissToast(widget.message.id),
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 8.w, top: 8.w, bottom: 8.w),
+                      child: WnImage(
+                        AssetsPaths.icClose,
+                        size: 20.w,
+                        color: context.colors.primary,
+                      ),
                     ),
                   ),
                 ],

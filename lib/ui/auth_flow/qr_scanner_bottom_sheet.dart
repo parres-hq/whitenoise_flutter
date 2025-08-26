@@ -74,7 +74,7 @@ class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
                           children: [
                             WnImage(
                               AssetsPaths.icCheckmarkFilledSvg,
-                              size: 64.w,
+                              size: 94.w,
                               color: context.colors.primary,
                             ),
                             Gap(16.h),

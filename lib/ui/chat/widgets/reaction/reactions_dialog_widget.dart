@@ -165,10 +165,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
       alignment: widget.widgetAlignment,
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16.w),
-        child: Hero(
-          tag: widget.id,
-          child: widget.messageWidget,
-        ),
+        child: widget.messageWidget,
       ),
     );
   }
@@ -199,7 +196,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
   Widget _buildReactionItem(String reaction) {
     return FadeInLeft(
       from: 0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
-      duration: const Duration(milliseconds: 50),
+      duration: const Duration(milliseconds: 100),
       child: InkWell(
         onTap: () {
           setState(() {
@@ -209,9 +206,12 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
           Navigator.of(context).pop();
           widget.onReactionTap(reaction);
         },
-        child: Pulse(
-          duration: const Duration(milliseconds: 50),
-          animate: reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction),
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 100),
+          scale:
+              reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction)
+                  ? 1.2
+                  : 1.0,
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 16.h),
             child: Text(
