@@ -55,7 +55,6 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
 
 class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> with SafeToastMixin {
   final TextEditingController _groupNameController = TextEditingController();
-  bool _hasGroupImage = false;
   bool _isGroupNameValid = false;
   bool _isCreatingGroup = false;
 
@@ -218,9 +217,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         Center(
           child: GestureDetector(
             onTap: () {
-              setState(() {
-                _hasGroupImage = !_hasGroupImage;
-              });
+              // TODO: implement group image upload.
             },
             child: Container(
               width: 80.w,
@@ -230,24 +227,15 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                 color: context.colors.baseMuted,
                 shape: BoxShape.circle,
               ),
-              child:
-                  _hasGroupImage
-                      ? ClipRRect(
-                        borderRadius: BorderRadius.circular(40.r),
-                        child: Image.asset(
-                          AssetsPaths.icWhiteNoise,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                      : SvgPicture.asset(
-                        AssetsPaths.icCamera,
-                        width: 42.w,
-                        height: 42.w,
-                        colorFilter: ColorFilter.mode(
-                          context.colors.mutedForeground,
-                          BlendMode.srcIn,
-                        ),
-                      ),
+              child: SvgPicture.asset(
+                AssetsPaths.icCamera,
+                width: 42.w,
+                height: 42.w,
+                colorFilter: ColorFilter.mode(
+                  context.colors.mutedForeground,
+                  BlendMode.srcIn,
+                ),
+              ),
             ),
           ),
         ),

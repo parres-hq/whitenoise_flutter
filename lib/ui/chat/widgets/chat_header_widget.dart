@@ -205,7 +205,7 @@ class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
 extension StringExtension on String? {
   bool get nullOrEmpty => this?.isEmpty ?? true;
   // Returns a default image path if the string is null or empty
-  String get orDefault => (this == null || this!.isEmpty) ? AssetsPaths.icImage : this!;
+  String get orDefault => (this == null || this!.isEmpty) ? AssetsPaths.icUser : this!;
   String get capitalizeFirst {
     if (this == null || this!.isEmpty) return '';
     return '${this![0].toUpperCase()}${this!.substring(1)}';
