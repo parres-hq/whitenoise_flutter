@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
@@ -13,6 +12,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -152,9 +152,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                     ),
                   ),
                   Gap(79.5.h),
-                  Expanded(
+                  const Expanded(
                     child: Center(
-                      child: Image.asset(
+                      child: WnImage(
                         AssetsPaths.login,
                         fit: BoxFit.contain,
                         width: double.infinity,
@@ -188,14 +188,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                                   onTap: _scanQRCode,
                                   child: Padding(
                                     padding: EdgeInsets.all(12.w),
-                                    child: SvgPicture.asset(
+                                    child: WnImage(
                                       AssetsPaths.icScan,
-                                      width: 16.w,
-                                      height: 16.w,
-                                      colorFilter: ColorFilter.mode(
-                                        context.colors.primary,
-                                        BlendMode.srcIn,
-                                      ),
+                                      size: 16.w,
+                                      color: context.colors.primary,
                                     ),
                                   ),
                                 ),

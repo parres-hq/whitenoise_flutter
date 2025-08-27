@@ -3,12 +3,12 @@ import 'dart:ui';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class ReactionsDialogWidget extends StatefulWidget {
   const ReactionsDialogWidget({
@@ -133,16 +133,14 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                           Pulse(
                             duration: const Duration(milliseconds: 100),
                             animate: clickedContextMenuIndex == index,
-                            child: SvgPicture.asset(
+                            child: WnImage(
                               widget.menuItems[index].assetPath,
                               width: 20.sp,
                               height: 20.sp,
-                              colorFilter: ColorFilter.mode(
-                                widget.menuItems[index].isDestructive
-                                    ? context.colors.destructive
-                                    : context.colors.primary,
-                                BlendMode.srcIn,
-                              ),
+                              color:
+                                  widget.menuItems[index].isDestructive
+                                      ? context.colors.destructive
+                                      : context.colors.primary,
                             ),
                           ),
                         ],
@@ -237,14 +235,11 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         // Trigger the emoji picker by calling onReactionTap with a special value
         widget.onReactionTap('⋯');
       },
-      child: SvgPicture.asset(
+      child: WnImage(
         AssetsPaths.icFaceAdd,
         width: 22.w,
         height: 22.w,
-        colorFilter: ColorFilter.mode(
-          context.colors.primary,
-          BlendMode.srcIn,
-        ),
+        color: context.colors.primary,
       ),
     );
   }

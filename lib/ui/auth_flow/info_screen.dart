@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 import '../core/themes/assets.dart';
 import '../core/themes/src/extensions.dart';
@@ -121,12 +121,9 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 loading: isButtonDisabled,
                 onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
                 label: 'Setup Profile',
-                suffixIcon: SvgPicture.asset(
+                suffixIcon: WnImage(
                   AssetsPaths.icArrowRight,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.primaryForeground,
-                    BlendMode.srcIn,
-                  ),
+                  color: context.colors.primaryForeground,
                 ),
               );
             },
@@ -157,7 +154,7 @@ class FeatureItem extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 36).w,
       child: Row(
         children: [
-          Image.asset(imagePath, width: 128.w, height: 128.w, fit: BoxFit.contain),
+          WnImage(imagePath, width: 128.w, height: 128.w, fit: BoxFit.contain),
           Gap(12.w),
           Expanded(
             child: Column(

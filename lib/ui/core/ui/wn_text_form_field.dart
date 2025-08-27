@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_validation_notification.dart';
 
 enum FieldType {
@@ -114,7 +114,10 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
     builder:
         (_, hasError, _) =>
             hasError
-                ? SvgPicture.asset(AssetsPaths.icErrorFilled)
+                ? WnImage(
+                  AssetsPaths.icErrorFilled,
+                  color: context.colors.destructive,
+                )
                 : (widget.decoration?.suffixIcon ?? const SizedBox.shrink()),
   );
 

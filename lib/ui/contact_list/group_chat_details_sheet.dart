@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -19,6 +18,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 
 class GroupChatDetailsSheet extends ConsumerStatefulWidget {
@@ -227,14 +227,10 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                 color: context.colors.baseMuted,
                 shape: BoxShape.circle,
               ),
-              child: SvgPicture.asset(
+              child: WnImage(
                 AssetsPaths.icCamera,
-                width: 42.w,
-                height: 42.w,
-                colorFilter: ColorFilter.mode(
-                  context.colors.mutedForeground,
-                  BlendMode.srcIn,
-                ),
+                size: 42.w,
+                color: context.colors.mutedForeground,
               ),
             ),
           ),

@@ -182,14 +182,11 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                   Gap(8.w),
                   InkWell(
                     onTap: _copyToClipboard,
-                    child: SvgPicture.asset(
+                    child: WnImage(
                       AssetsPaths.icCopy,
                       width: 24.w,
                       height: 24.w,
-                      colorFilter: ColorFilter.mode(
-                        context.colors.primary,
-                        BlendMode.srcIn,
-                      ),
+                      color: context.colors.primary,
                     ),
                   ),
                 ],
@@ -199,13 +196,10 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,
                 label: 'Search Chat',
-                suffixIcon: SvgPicture.asset(
+                suffixIcon: WnImage(
                   AssetsPaths.icSearch,
                   width: 14.w,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.secondaryForeground,
-                    BlendMode.srcIn,
-                  ),
+                  color: context.colors.secondaryForeground,
                 ),
                 onPressed: () {
                   ref.read(chatSearchProvider(widget.groupId).notifier).activateSearch();
@@ -219,15 +213,13 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                     isContact ? WnButtonVisualState.secondary : WnButtonVisualState.primary,
                 label: isContact ? 'Remove Contact' : 'Add Contact',
                 loading: isContactLoading,
-                suffixIcon: SvgPicture.asset(
+                suffixIcon: WnImage(
                   isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
                   width: 14.w,
-                  colorFilter: ColorFilter.mode(
-                    isContact
-                        ? context.colors.secondaryForeground
-                        : context.colors.primaryForeground,
-                    BlendMode.srcIn,
-                  ),
+                  color:
+                      isContact
+                          ? context.colors.secondaryForeground
+                          : context.colors.primaryForeground,
                 ),
                 onPressed:
                     isContactLoading
@@ -245,13 +237,10 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,
                 label: 'Add to Group',
-                suffixIcon: SvgPicture.asset(
+                suffixIcon: WnImage(
                   AssetsPaths.icAdd,
                   width: 14.w,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.secondaryForeground,
-                    BlendMode.srcIn,
-                  ),
+                  color: context.colors.secondaryForeground,
                 ),
                 onPressed: _openAddToGroup,
               ),

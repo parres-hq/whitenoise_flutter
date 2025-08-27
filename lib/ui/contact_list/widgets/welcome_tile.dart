@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
@@ -8,6 +7,7 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/utils/timeago_formatter.dart';
 
@@ -93,14 +93,10 @@ class WelcomeTile extends ConsumerWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
-                          SvgPicture.asset(
+                          WnImage(
                             AssetsPaths.icChatInvite,
-                            width: 16.w,
-                            height: 16.w,
-                            colorFilter: ColorFilter.mode(
-                              context.colors.mutedForeground,
-                              BlendMode.srcIn,
-                            ),
+                            size: 16.w,
+                            color: context.colors.mutedForeground,
                           ),
                         ],
                       ),
