@@ -7,11 +7,11 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/auth_flow/qr_scanner_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
@@ -209,7 +209,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                             decoration: BoxDecoration(
                               color: context.colors.avatarSurface,
                             ),
-                            child: CustomIconButton(
+                            child: WnIconButton(
                               iconPath: AssetsPaths.icPaste,
                               onTap: _pasteFromClipboard,
                               padding: 20.w,

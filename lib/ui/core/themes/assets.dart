@@ -69,6 +69,7 @@ class AssetsPaths {
   static const String icTrashCan = '$_svgsDir/ic_trash_can.svg';
   static const String icUser = '$_svgsDir/ic_user.svg';
   static const String icUserFollow = '$_svgsDir/ic_user_follow.svg';
+  static const String icArrowUp = '$_svgsDir/ic_arrow_up.svg';
   static const String icAddNewChat = '$_svgsDir/ic_add_new_chat.svg';
   static const String icOffChat = '$_svgsDir/ic_off_chat.svg';
   static const String icCheckmarkSolid = '$_svgsDir/ic_checkmark_solid.svg';

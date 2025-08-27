@@ -167,11 +167,12 @@ class _ChatInputState extends ConsumerState<ChatInput> {
                                     Gap(4.w),
                                     //TODO @Quwaysim ... This will come in PR for issue #511
                                     WnIconButton(
-                                          onPressed: _sendMessage,
-                                          icon: Icons.arrow_upward,
-                                          backgroundColor: context.colors.primary,
-                                          iconColor: context.colors.primaryForeground,
+                                          iconPath: AssetsPaths.icArrowUp,
+                                          padding: 18.w,
                                           size: 56.h,
+                                          onTap: _sendMessage,
+                                          buttonColor: context.colors.primary,
+                                          iconColor: context.colors.primaryForeground,
                                         )
                                         .animate()
                                         .fadeIn(
