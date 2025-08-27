@@ -10,6 +10,7 @@ import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/contacts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 
 class ContactsState {
   final Map<PublicKey, MetadataData?>? contacts;
@@ -54,8 +55,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
         // Schedule state changes after the build phase to avoid provider modification errors
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           state = const ContactsState();
-          final activeAccountData =
-              await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          final activeAccountData = await ref
+              .read(activeAccountProvider.notifier)
+              .getActiveAccountData();
           if (activeAccountData != null) {
             await loadContacts(activeAccountData.pubkey);
           }
@@ -66,8 +68,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
         });
       } else if (previous == null && next != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          final activeAccountData =
-              await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          final activeAccountData = await ref
+              .read(activeAccountProvider.notifier)
+              .getActiveAccountData();
           if (activeAccountData != null) {
             await loadContacts(activeAccountData.pubkey);
           }
@@ -307,13 +310,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
     } catch (e, st) {
       _logger.severe('ContactsProvider: loadContacts failed: $e\n$st');
       String errorMessage = 'Failed to load contacts';
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to load contacts due to an internal error';
-        }
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
@@ -334,8 +332,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref
+          .read(activeAccountProvider.notifier)
+          .getActiveAccountData();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -374,13 +373,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
     } catch (e, st) {
       _logger.severe('addContact', e, st);
       String errorMessage = 'Failed to add contact';
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to add contact due to an internal error';
-        }
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
@@ -401,8 +395,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref
+          .read(activeAccountProvider.notifier)
+          .getActiveAccountData();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -422,13 +417,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
     } catch (e, st) {
       _logger.severe('removeContact', e, st);
       String errorMessage = 'Failed to remove contact';
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to remove contact due to an internal error';
-        }
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
@@ -449,8 +439,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref
+          .read(activeAccountProvider.notifier)
+          .getActiveAccountData();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -474,13 +465,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
     } catch (e, st) {
       _logger.severe('replaceContacts', e, st);
       String errorMessage = 'Failed to update contacts';
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to update contacts due to an internal error';
-        }
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
@@ -511,8 +497,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref
+          .read(activeAccountProvider.notifier)
+          .getActiveAccountData();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -531,13 +518,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
     } catch (e, st) {
       _logger.severe('removeContactByPublicKey', e, st);
       String errorMessage = 'Failed to remove contact';
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to remove contact due to an internal error';
-        }
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }

@@ -8,7 +8,7 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 
 /// Auth Provider
 ///
@@ -195,18 +195,12 @@ class AuthNotifier extends Notifier<AuthState> {
     } catch (e, st) {
       String errorMessage;
 
-      // Check if it's a WhitenoiseError and convert it to a readable message
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-          if (errorMessage.contains('InvalidSecretKey')) {
-            errorMessage = 'Invalid nsec or private key';
-          }
-        } catch (conversionError) {
-          // Fallback if conversion fails
+      // Check if it's a Whitenoise ApiError and convert it to a readable message
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
+        if (e.errorType() == 'InvalidSecretKey') {
           errorMessage = 'Invalid nsec or private key';
         }
-        // Log the user-friendly error message for WhitenoiseError instead of the raw exception
         _logger.warning('loginWithKey failed: $errorMessage');
       } else {
         errorMessage = e.toString();
@@ -245,18 +239,13 @@ class AuthNotifier extends Notifier<AuthState> {
     } catch (e, st) {
       String errorMessage;
 
-      // Check if it's a WhitenoiseError and convert it to a readable message
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-          if (errorMessage.contains('InvalidSecretKey')) {
-            errorMessage = 'Invalid nsec or private key';
-          }
-        } catch (conversionError) {
-          // Fallback if conversion fails
+      // Check if it's a Whitenoise ApiError and convert it to a readable message
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
+        if (e.errorTye() == 'InvalidSecretKey') {
           errorMessage = 'Invalid nsec or private key';
         }
-        // Log the user-friendly error message for WhitenoiseError instead of the raw exception
+        // Log the user-friendly error message for Whitenoise ApiError instead of the raw exception
         _logger.warning('loginWithKeyInBackground failed: $errorMessage');
       } else {
         errorMessage = e.toString();

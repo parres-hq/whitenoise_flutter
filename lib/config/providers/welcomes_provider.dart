@@ -7,6 +7,7 @@ import 'package:whitenoise/config/states/welcome_state.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
+import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 
 class WelcomesNotifier extends Notifier<WelcomesState> {
   final _logger = Logger('WelcomesNotifier');
@@ -60,8 +61,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref
+          .read(activeAccountProvider.notifier)
+          .getActiveAccountData();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
@@ -85,10 +87,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       );
 
       // Find new pending welcomes and trigger callback for the first one
-      final newPendingWelcomes =
-          welcomes
-              .where((w) => w.state == WelcomeState.pending && !previousPendingIds.contains(w.id))
-              .toList();
+      final newPendingWelcomes = welcomes
+          .where((w) => w.state == WelcomeState.pending && !previousPendingIds.contains(w.id))
+          .toList();
 
       if (newPendingWelcomes.isNotEmpty && _onNewWelcomeCallback != null) {
         _logger.info(
@@ -99,11 +100,11 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     } catch (e, st) {
       _logger.severe('WelcomesProvider.loadWelcomes', e, st);
       String errorMessage = 'Failed to load welcomes';
-      if (e is WhitenoiseError) {
+      if (e is ApiError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
         } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          _logger.warning('Failed to convert ApiError to string: $conversionError');
           errorMessage = 'Failed to load welcomes due to an internal error';
         }
       } else {
@@ -119,8 +120,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref
+          .read(activeAccountProvider.notifier)
+          .getActiveAccountData();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return null;
@@ -137,13 +139,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     } catch (e, st) {
       _logger.severe('WelcomesProvider.fetchWelcomeById', e, st);
       String errorMessage = 'Failed to fetch welcome';
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to fetch welcome due to an internal error';
-        }
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
@@ -158,8 +155,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref
+          .read(activeAccountProvider.notifier)
+          .getActiveAccountData();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return false;
@@ -176,11 +174,11 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     } catch (e, st) {
       _logger.severe('WelcomesProvider.acceptWelcomeInvitation', e, st);
       String errorMessage = 'Failed to accept welcome';
-      if (e is WhitenoiseError) {
+      if (e is ApiError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
         } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          _logger.warning('Failed to convert ApiError to string: $conversionError');
           errorMessage = 'Failed to accept welcome due to an internal error';
         }
       } else {
@@ -197,8 +195,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref
+          .read(activeAccountProvider.notifier)
+          .getActiveAccountData();
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return false;
@@ -215,11 +214,11 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     } catch (e, st) {
       _logger.severe('WelcomesProvider.declineWelcomeInvitation', e, st);
       String errorMessage = 'Failed to decline welcome';
-      if (e is WhitenoiseError) {
+      if (e is ApiError) {
         try {
           errorMessage = await whitenoiseErrorToString(error: e);
         } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
+          _logger.warning('Failed to convert ApiError to string: $conversionError');
           errorMessage = 'Failed to decline welcome due to an internal error';
         }
       } else {
@@ -264,10 +263,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       final updatedWelcomeById = Map<String, WelcomeData>.from(state.welcomeById ?? {});
       updatedWelcomeById[welcomeEventId] = updatedWelcome;
 
-      final updatedWelcomes =
-          state.welcomes?.map((welcome) {
-            return welcome.id == welcomeEventId ? updatedWelcome : welcome;
-          }).toList();
+      final updatedWelcomes = state.welcomes?.map((welcome) {
+        return welcome.id == welcomeEventId ? updatedWelcome : welcome;
+      }).toList();
 
       state = state.copyWith(
         welcomes: updatedWelcomes,
@@ -337,8 +335,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref
+          .read(activeAccountProvider.notifier)
+          .getActiveAccountData();
       if (activeAccountData == null) {
         return;
       }
@@ -350,8 +349,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       final currentWelcomeIds = currentWelcomes.map((w) => w.id).toSet();
 
       // Find truly new welcomes
-      final actuallyNewWelcomes =
-          newWelcomes.where((welcome) => !currentWelcomeIds.contains(welcome.id)).toList();
+      final actuallyNewWelcomes = newWelcomes
+          .where((welcome) => !currentWelcomeIds.contains(welcome.id))
+          .toList();
 
       if (actuallyNewWelcomes.isNotEmpty) {
         // Add new welcomes to existing list
@@ -369,8 +369,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         );
 
         // Trigger callback for new pending welcomes
-        final newPendingWelcomes =
-            actuallyNewWelcomes.where((w) => w.state == WelcomeState.pending).toList();
+        final newPendingWelcomes = actuallyNewWelcomes
+            .where((w) => w.state == WelcomeState.pending)
+            .toList();
 
         if (newPendingWelcomes.isNotEmpty && _onNewWelcomeCallback != null) {
           _logger.info('WelcomesProvider: Found ${newPendingWelcomes.length} new pending welcomes');

@@ -8,7 +8,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
@@ -109,13 +109,8 @@ class ChatNotifier extends Notifier<ChatState> {
     } catch (e, st) {
       _logger.severe('ChatProvider.loadMessagesForGroup', e, st);
       String errorMessage = 'Failed to load messages';
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to load messages due to an internal error';
-        }
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
@@ -233,13 +228,8 @@ class ChatNotifier extends Notifier<ChatState> {
     } catch (e, st) {
       _logger.severe('ChatProvider.sendMessage', e, st);
       String errorMessage = 'Failed to send message';
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to send message due to an internal error';
-        }
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
@@ -562,13 +552,8 @@ class ChatNotifier extends Notifier<ChatState> {
       _logger.severe('ChatProvider.updateMessageReaction', e, st);
 
       String errorMessage = 'Failed to update reaction';
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to update reaction due to an internal error';
-        }
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
@@ -672,13 +657,8 @@ class ChatNotifier extends Notifier<ChatState> {
     } catch (e, st) {
       _logger.severe('ChatProvider.sendReplyMessage', e, st);
       String errorMessage = 'Failed to send reply';
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to send reply due to an internal error';
-        }
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
@@ -732,13 +712,8 @@ class ChatNotifier extends Notifier<ChatState> {
     } catch (e, st) {
       _logger.severe('ChatProvider.deleteMessage', e, st);
       String errorMessage = 'Failed to delete message';
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert WhitenoiseError to string: $conversionError');
-          errorMessage = 'Failed to delete message due to an internal error';
-        }
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }

@@ -107,30 +107,30 @@ impl From<anyhow::Error> for ApiError {
 
 impl ApiError {
     /// Get a user-friendly error type name
-    pub fn error_type(&self) -> &'static str {
+    pub fn error_type(&self) -> String {
         match self {
-            ApiError::Whitenoise { .. } => "Whitenoise",
-            ApiError::InvalidKey { .. } => "InvalidKey",
-            ApiError::NostrUrl { .. } => "NostrUrl",
-            ApiError::NostrTag { .. } => "NostrTag",
-            ApiError::NostrEvent { .. } => "NostrEvent",
-            ApiError::NostrParse { .. } => "NostrParse",
-            ApiError::NostrHex { .. } => "NostrHex",
-            ApiError::Other { .. } => "Other",
+            ApiError::Whitenoise { .. } => "Whitenoise".to_string(),
+            ApiError::InvalidKey { .. } => "InvalidKey".to_string(),
+            ApiError::NostrUrl { .. } => "NostrUrl".to_string(),
+            ApiError::NostrTag { .. } => "NostrTag".to_string(),
+            ApiError::NostrEvent { .. } => "NostrEvent".to_string(),
+            ApiError::NostrParse { .. } => "NostrParse".to_string(),
+            ApiError::NostrHex { .. } => "NostrHex".to_string(),
+            ApiError::Other { .. } => "Other".to_string(),
         }
     }
 
-    /// Get the error message
-    pub fn message(&self) -> &str {
+    /// Get the error message as a string
+    pub fn message_text(&self) -> String {
         match self {
-            ApiError::Whitenoise { message } => message,
-            ApiError::InvalidKey { message } => message,
-            ApiError::NostrUrl { message } => message,
-            ApiError::NostrTag { message } => message,
-            ApiError::NostrEvent { message } => message,
-            ApiError::NostrParse { message } => message,
-            ApiError::NostrHex { message } => message,
-            ApiError::Other { message } => message,
+            ApiError::Whitenoise { message } => message.clone(),
+            ApiError::InvalidKey { message } => message.clone(),
+            ApiError::NostrUrl { message } => message.clone(),
+            ApiError::NostrTag { message } => message.clone(),
+            ApiError::NostrEvent { message } => message.clone(),
+            ApiError::NostrParse { message } => message.clone(),
+            ApiError::NostrHex { message } => message.clone(),
+            ApiError::Other { message } => message.clone(),
         }
     }
 }

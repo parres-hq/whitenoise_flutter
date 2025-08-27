@@ -10,6 +10,7 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 
 class ProfileNotifier extends AsyncNotifier<ProfileState> {
   final _logger = Logger('ProfileNotifier');
@@ -33,8 +34,9 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       }
 
       // Get active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref
+          .read(activeAccountProvider.notifier)
+          .getActiveAccountData();
       if (activeAccountData == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
@@ -110,10 +112,9 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       );
       if (image != null) {
         state.whenData(
-          (value) =>
-              state = AsyncValue.data(
-                value.copyWith(selectedImagePath: image.path),
-              ),
+          (value) => state = AsyncValue.data(
+            value.copyWith(selectedImagePath: image.path),
+          ),
         );
       }
     } catch (e, st) {
@@ -135,8 +136,9 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       }
 
       // Get active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref
+          .read(activeAccountProvider.notifier)
+          .getActiveAccountData();
       if (activeAccountData == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
@@ -201,12 +203,8 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
 
       // Handle error messaging
       String? errorMessage;
-      if (e is WhitenoiseError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          errorMessage = 'Failed to update profile due to an internal error';
-        }
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
