@@ -827,6 +827,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "dashmap"
+version = "6.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5041cc499144891f3790297212f32a74fb938e5136a14943f338ef9e0ae276cf"
+dependencies = [
+ "cfg-if",
+ "crossbeam-utils",
+ "hashbrown 0.14.5",
+ "lock_api",
+ "once_cell",
+ "parking_lot_core",
+]
+
+[[package]]
 name = "data-encoding"
 version = "2.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2773,7 +2787,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "80d2043d1f61d77cb2f4b1f7b7b2295f40507f5f8e9d1c8bf10a1ca5f97a3969"
 dependencies = [
  "cc",
- "dashmap",
+ "dashmap 5.5.3",
  "log",
 ]
 
@@ -4923,7 +4937,7 @@ checksum = "a751b3277700db47d3e574514de2eced5e54dc8a5436a3bf7a0b248b2cee16f3"
 [[package]]
 name = "whitenoise"
 version = "0.1.0"
-source = "git+https://github.com/parres-hq/whitenoise?rev=9a91245a5f0b33aa36ba3079fd16ecbc8642698b#9a91245a5f0b33aa36ba3079fd16ecbc8642698b"
+source = "git+https://github.com/parres-hq/whitenoise?rev=7e0e47b29990cc8ddcec34780b82af724da5ca55#7e0e47b29990cc8ddcec34780b82af724da5ca55"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -4933,6 +4947,7 @@ dependencies = [
  "chacha20poly1305",
  "chrono",
  "clap",
+ "dashmap 6.1.0",
  "dotenvy",
  "futures",
  "hex",
