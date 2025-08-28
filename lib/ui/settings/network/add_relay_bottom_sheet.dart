@@ -5,14 +5,14 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/relay_validation.dart';
 
@@ -189,7 +189,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
               ),
             ),
             Gap(4.w),
-            CustomIconButton(
+            WnIconButton(
               onTap: _pasteFromClipboard,
               iconPath: AssetsPaths.icPaste,
               size: 56.h,
@@ -211,15 +211,12 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
               children: [
                 Row(
                   children: [
-                    SvgPicture.asset(
+                    WnImage(
                       AssetsPaths.icWarningFilled,
-                      colorFilter: ColorFilter.mode(
-                        context.colors.destructive,
-                        BlendMode.srcIn,
-                      ),
-                      width: 16.w,
-                      height: 16.w,
+                      size: 16.w,
+                      color: context.colors.destructive,
                     ),
+
                     Gap(8.w),
                     Text(
                       'Relay Not Supported',

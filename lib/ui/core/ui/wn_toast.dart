@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
-
 import 'package:whitenoise/config/providers/toast_message_provider.dart';
 import 'package:whitenoise/config/states/toast_state.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class WnToastOverlay extends ConsumerWidget {
   const WnToastOverlay({super.key});
@@ -176,14 +175,10 @@ class _WnToastMessageWidgetState extends ConsumerState<WnToastMessageWidget>
               ),
               child: Row(
                 children: [
-                  SvgPicture.asset(
+                  WnImage(
                     _getIconPath(),
-                    height: 20.w,
-                    width: 20.w,
-                    colorFilter: ColorFilter.mode(
-                      _getBackgroundColor(context),
-                      BlendMode.srcIn,
-                    ),
+                    size: 20.w,
+                    color: _getBackgroundColor(context),
                   ),
                   SizedBox(width: 8.w),
                   Expanded(
@@ -202,14 +197,10 @@ class _WnToastMessageWidgetState extends ConsumerState<WnToastMessageWidget>
                             ref.read(toastMessageProvider.notifier).dismissToast(widget.message.id),
                     child: Padding(
                       padding: EdgeInsets.only(left: 8.w, top: 8.w, bottom: 8.w),
-                      child: SvgPicture.asset(
+                      child: WnImage(
                         AssetsPaths.icClose,
-                        height: 20.w,
-                        width: 20.w,
-                        colorFilter: ColorFilter.mode(
-                          context.colors.primary,
-                          BlendMode.srcIn,
-                        ),
+                        size: 20.w,
+                        color: context.colors.primary,
                       ),
                     ),
                   ),

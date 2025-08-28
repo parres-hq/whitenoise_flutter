@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class MessageReadStatus extends StatelessWidget {
   const MessageReadStatus({
@@ -16,7 +17,7 @@ class MessageReadStatus extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (unreadCount <= 0) {
-      return Image.asset(
+      return WnImage(
         lastSentMessageStatus.imagePath,
         width: 17.5.w,
         height: 17.5.w,

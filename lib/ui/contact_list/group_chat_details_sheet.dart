@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -19,6 +18,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 
 class GroupChatDetailsSheet extends ConsumerStatefulWidget {
@@ -55,7 +55,6 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
 
 class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> with SafeToastMixin {
   final TextEditingController _groupNameController = TextEditingController();
-  bool _hasGroupImage = false;
   bool _isGroupNameValid = false;
   bool _isCreatingGroup = false;
 
@@ -218,9 +217,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         Center(
           child: GestureDetector(
             onTap: () {
-              setState(() {
-                _hasGroupImage = !_hasGroupImage;
-              });
+              // TODO: implement group image upload.
             },
             child: Container(
               width: 80.w,
@@ -230,24 +227,11 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                 color: context.colors.baseMuted,
                 shape: BoxShape.circle,
               ),
-              child:
-                  _hasGroupImage
-                      ? ClipRRect(
-                        borderRadius: BorderRadius.circular(40.r),
-                        child: Image.asset(
-                          AssetsPaths.icWhiteNoise,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                      : SvgPicture.asset(
-                        AssetsPaths.icCamera,
-                        width: 42.w,
-                        height: 42.w,
-                        colorFilter: ColorFilter.mode(
-                          context.colors.mutedForeground,
-                          BlendMode.srcIn,
-                        ),
-                      ),
+              child: WnImage(
+                AssetsPaths.icCamera,
+                size: 42.w,
+                color: context.colors.mutedForeground,
+              ),
             ),
           ),
         ),

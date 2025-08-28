@@ -2,7 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
@@ -15,6 +14,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -119,14 +119,10 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                   ),
                 ),
                 IconButton(
-                  icon: SvgPicture.asset(
+                  icon: WnImage(
                     AssetsPaths.icClose,
-                    width: 24.w,
-                    height: 24.w,
-                    colorFilter: ColorFilter.mode(
-                      context.colors.mutedForeground,
-                      BlendMode.srcIn,
-                    ),
+                    size: 24.w,
+                    color: context.colors.mutedForeground,
                   ),
                   onPressed: () => Navigator.pop(context),
                 ),
@@ -239,14 +235,10 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
               Gap(8.w),
               InkWell(
                 onTap: _copyToClipboard,
-                child: SvgPicture.asset(
+                child: WnImage(
                   AssetsPaths.icCopy,
-                  width: 24.w,
-                  height: 24.w,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.primary,
-                    BlendMode.srcIn,
-                  ),
+                  size: 24.w,
+                  color: context.colors.primary,
                 ),
               ),
             ],
@@ -277,14 +269,11 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
           size: WnButtonSize.small,
           visualState: WnButtonVisualState.secondary,
           label: 'Add to Another Group',
-          suffixIcon: SvgPicture.asset(
+          suffixIcon: WnImage(
             AssetsPaths.icChatInvite,
             width: 14.w,
             height: 13.h,
-            colorFilter: ColorFilter.mode(
-              context.colors.primary,
-              BlendMode.srcIn,
-            ),
+            color: context.colors.primary,
           ),
         ),
         if (currentUserIsAdmin) ...[
@@ -304,14 +293,11 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
               fontWeight: FontWeight.w600,
               fontSize: 14.sp,
             ),
-            suffixIcon: SvgPicture.asset(
+            suffixIcon: WnImage(
               AssetsPaths.icRemoveOutlined,
               width: 14.w,
               height: 13.h,
-              colorFilter: ColorFilter.mode(
-                context.colors.destructive,
-                BlendMode.srcIn,
-              ),
+              color: context.colors.destructive,
             ),
           ),
         ] else ...[

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/shared/custom_icon_button.dart';
-import 'package:whitenoise/shared/info_box.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/info_box.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
+import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 
@@ -74,7 +74,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                               ),
                             ),
                             Gap(8.w),
-                            CustomIconButton(
+                            WnIconButton(
                               iconPath: AssetsPaths.icCopy,
                               onTap: () {
                                 ClipboardUtils.copyWithToast(
@@ -85,7 +85,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                               },
                             ),
                             Gap(8.w),
-                            CustomIconButton(
+                            WnIconButton(
                               iconPath: AssetsPaths.icScan,
                               onTap: () {
                                 // QR code scanner functionality

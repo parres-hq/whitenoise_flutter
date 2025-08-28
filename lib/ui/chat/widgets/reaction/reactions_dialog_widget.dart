@@ -3,12 +3,12 @@ import 'dart:ui';
 import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class ReactionsDialogWidget extends StatefulWidget {
   const ReactionsDialogWidget({
@@ -133,16 +133,14 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
                           Pulse(
                             duration: const Duration(milliseconds: 100),
                             animate: clickedContextMenuIndex == index,
-                            child: SvgPicture.asset(
+                            child: WnImage(
                               widget.menuItems[index].assetPath,
                               width: 20.sp,
                               height: 20.sp,
-                              colorFilter: ColorFilter.mode(
-                                widget.menuItems[index].isDestructive
-                                    ? context.colors.destructive
-                                    : context.colors.primary,
-                                BlendMode.srcIn,
-                              ),
+                              color:
+                                  widget.menuItems[index].isDestructive
+                                      ? context.colors.destructive
+                                      : context.colors.primary,
                             ),
                           ),
                         ],
@@ -167,10 +165,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
       alignment: widget.widgetAlignment,
       child: Container(
         margin: EdgeInsets.symmetric(horizontal: 16.w),
-        child: Hero(
-          tag: widget.id,
-          child: widget.messageWidget,
-        ),
+        child: widget.messageWidget,
       ),
     );
   }
@@ -201,7 +196,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
   Widget _buildReactionItem(String reaction) {
     return FadeInLeft(
       from: 0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
-      duration: const Duration(milliseconds: 50),
+      duration: const Duration(milliseconds: 100),
       child: InkWell(
         onTap: () {
           setState(() {
@@ -211,9 +206,12 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
           Navigator.of(context).pop();
           widget.onReactionTap(reaction);
         },
-        child: Pulse(
-          duration: const Duration(milliseconds: 50),
-          animate: reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction),
+        child: AnimatedScale(
+          duration: const Duration(milliseconds: 100),
+          scale:
+              reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction)
+                  ? 1.2
+                  : 1.0,
           child: Container(
             padding: EdgeInsets.symmetric(vertical: 16.h),
             child: Text(
@@ -237,14 +235,11 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         // Trigger the emoji picker by calling onReactionTap with a special value
         widget.onReactionTap('⋯');
       },
-      child: SvgPicture.asset(
+      child: WnImage(
         AssetsPaths.icFaceAdd,
         width: 22.w,
         height: 22.w,
-        colorFilter: ColorFilter.mode(
-          context.colors.primary,
-          BlendMode.srcIn,
-        ),
+        color: context.colors.primary,
       ),
     );
   }
