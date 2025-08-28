@@ -596,8 +596,8 @@ class MessageConverter {
     });
   }
 
-  /// Convert ReactionSummaryData to MessageModel reactions format
-  static List<Reaction> _convertReactions(ReactionSummaryData reactions) {
+  /// Convert ReactionSummary to MessageModel reactions format
+  static List<Reaction> _convertReactions(ReactionSummary reactions) {
     final List<Reaction> convertedReactions = [];
 
     // Convert user reactions to Reaction objects
@@ -623,9 +623,9 @@ class MessageConverter {
     return convertedReactions;
   }
 
-  /// Convert ReactionSummaryData to MessageModel reactions format with user cache
+  /// Convert ReactionSummary to MessageModel reactions format with user cache
   static List<Reaction> _convertReactionsWithCache(
-    ReactionSummaryData reactions,
+    ReactionSummary reactions,
     Map<String, User> userCache,
   ) {
     final List<Reaction> convertedReactions = [];
