@@ -3,7 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
-import 'package:whitenoise/config/providers/active_account_data_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
@@ -35,9 +35,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
-      // Get active account data from the new provider
-      final activeAccountDataAsync = ref.read(activeAccountDataProvider);
-      final activeAccountData = activeAccountDataAsync.valueOrNull;
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
