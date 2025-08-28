@@ -2,15 +2,45 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart' show Account;
+import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api show Account;
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
+class MockWnImageUtils implements WnImageUtils {
+  String? _mimeType = 'image/jpeg';
+  bool _shouldFail = false;
+
+  void setMimeType(String? mimeType) {
+    _mimeType = mimeType;
+  }
+
+  void setShouldFail(bool shouldFail) {
+    _shouldFail = shouldFail;
+  }
+
+  @override
+  Future<String?> getMimeTypeFromPath(String filePath) async {
+    if (_shouldFail) {
+      throw Exception('Failed to get MIME type');
+    }
+    return _mimeType;
+  }
+}
+
+class MockWnUtils implements WnUtils {
+  @override
+  Future<String> getDefaultBlossomServerUrl() async {
+    return 'https://test.blossom.server';
+  }
+}
+
 class MockWnAccountsApi implements WnAccountsApi {
-  final Map<String, Account> _accounts = {};
+  final Map<String, accounts_api.Account> _accounts = {};
   final Map<String, FlutterMetadata> _metadata = {};
   final List<String> _errorPubkeys = [];
+  final List<String> _updateErrorPubkeys = [];
+  final List<String> _uploadErrorPubkeys = [];
 
-  void setAccount(String pubkey, Account account) {
+  void setAccount(String pubkey, accounts_api.Account account) {
     _accounts[pubkey] = account;
   }
 
@@ -22,8 +52,16 @@ class MockWnAccountsApi implements WnAccountsApi {
     _errorPubkeys.add(pubkey);
   }
 
+  void setUpdateError(String pubkey) {
+    _updateErrorPubkeys.add(pubkey);
+  }
+
+  void setUploadError(String pubkey) {
+    _uploadErrorPubkeys.add(pubkey);
+  }
+
   @override
-  Future<Account> getAccount({required String pubkey}) async {
+  Future<accounts_api.Account> getAccount({required String pubkey}) async {
     if (_errorPubkeys.contains(pubkey)) {
       throw Exception('Network error');
     }
@@ -57,6 +95,32 @@ class MockWnAccountsApi implements WnAccountsApi {
       custom: {},
     );
   }
+
+  @override
+  Future<void> updateAccountMetadata({
+    required String pubkey,
+    required FlutterMetadata metadata,
+  }) async {
+    if (_updateErrorPubkeys.contains(pubkey)) {
+      throw Exception('Update error');
+    }
+
+    _metadata[pubkey] = metadata;
+  }
+
+  @override
+  Future<String> uploadAccountProfilePicture({
+    required String pubkey,
+    required String serverUrl,
+    required String filePath,
+    required String imageType,
+  }) async {
+    if (_uploadErrorPubkeys.contains(pubkey)) {
+      throw Exception('Upload error');
+    }
+
+    return 'https://example.com/profile-pictures/$pubkey.jpg';
+  }
 }
 
 class MockActivePubkeyNotifier extends ActivePubkeyNotifier {
@@ -76,7 +140,7 @@ class MockActivePubkeyNotifier extends ActivePubkeyNotifier {
   }
 }
 
-final testAccount = Account(
+final testAccount = accounts_api.Account(
   pubkey: 'test_pubkey_123',
   lastSyncedAt: DateTime.now(),
   createdAt: DateTime.now().subtract(const Duration(days: 30)),
@@ -113,23 +177,33 @@ void main() {
   group('ActiveAccountProvider Tests', () {
     late ProviderContainer container;
     late MockWnAccountsApi mockAccountsApi;
+    late MockWnImageUtils mockImageUtils;
+    late MockWnUtils mockUtils;
 
     ProviderContainer createContainer({
       String? activePubkey,
       MockWnAccountsApi? accountsApi,
+      MockWnImageUtils? imageUtils,
+      MockWnUtils? utils,
     }) {
       final api = accountsApi ?? mockAccountsApi;
+      final imgUtils = imageUtils ?? mockImageUtils;
+      final utilsImpl = utils ?? mockUtils;
 
       return ProviderContainer(
         overrides: [
           activePubkeyProvider.overrideWith(() => MockActivePubkeyNotifier(activePubkey)),
           wnAccountsApiProvider.overrideWithValue(api),
+          wnImageUtilsProvider.overrideWithValue(imgUtils),
+          wnUtilsProvider.overrideWithValue(utilsImpl),
         ],
       );
     }
 
     setUp(() {
       mockAccountsApi = MockWnAccountsApi();
+      mockImageUtils = MockWnImageUtils();
+      mockUtils = MockWnUtils();
     });
 
     tearDown(() {
@@ -207,7 +281,7 @@ void main() {
       });
 
       group('when active pubkey changes', () {
-        final otherTestAccount = Account(
+        final otherTestAccount = accounts_api.Account(
           pubkey: 'test_pubkey_456',
           lastSyncedAt: DateTime.now(),
           createdAt: DateTime.now().subtract(const Duration(days: 60)),
@@ -306,7 +380,7 @@ void main() {
       group('when active pubkey changes', () {
         setUp(() {
           mockAccountsApi.setAccount('test_pubkey_123', testAccount);
-          mockAccountsApi.setAccount('test_pubkey_456', Account(
+          mockAccountsApi.setAccount('test_pubkey_456', accounts_api.Account(
             pubkey: 'test_pubkey_456',
             lastSyncedAt: DateTime.now(),
             createdAt: DateTime.now().subtract(const Duration(days: 60)),
@@ -324,6 +398,196 @@ void main() {
           final updatedActiveAccountState = await container.read(activeAccountProvider.future);
           final updatedMetadata = updatedActiveAccountState.metadata;
           expect(updatedMetadata?.name, 'other_name');
+        });
+      });
+    });
+
+    group('updateMetadata', () {
+      const newMetadata = FlutterMetadata(
+        name: 'New Name',
+        displayName: 'New Display Name',
+        about: 'New About',
+        picture: 'New Picture',
+        nip05: 'New Nip05',
+        lud16: 'New Lud16',
+        website: 'New Website',
+        banner: 'New Banner',
+        custom: {},
+      );
+
+      group('with null active pubkey', () {
+        setUp(() {
+          container = createContainer();
+        });
+
+        test('throws exception for null pubkey', () async {
+          final notifier = container.read(activeAccountProvider.notifier);
+          
+          expect(
+            () => notifier.updateMetadata(metadata: newMetadata),
+            throwsA(isA<Exception>()),
+          );
+        });
+      });
+
+      group('with empty active pubkey', () {
+        setUp(() {
+          container = createContainer(activePubkey: '');
+        });
+
+        test('throws exception for empty pubkey', () async {
+          final notifier = container.read(activeAccountProvider.notifier);
+          
+          expect(
+            () => notifier.updateMetadata(metadata: newMetadata),
+            throwsA(isA<Exception>()),
+          );
+        });
+      });
+
+      group('with valid pubkey', () {
+        setUp(() {
+          mockAccountsApi.setAccount('test_pubkey_123', testAccount);
+          mockAccountsApi.setMetadata('test_pubkey_123', testMetadata);
+          container = createContainer(
+            activePubkey: 'test_pubkey_123',
+            accountsApi: mockAccountsApi,
+          );
+        });
+
+        test('updates metadata', () async {
+          final notifier = container.read(activeAccountProvider.notifier);
+          final initialState = await container.read(activeAccountProvider.future);
+          expect(initialState.account?.pubkey, 'test_pubkey_123');
+          expect(initialState.metadata?.displayName, 'test_display_name');
+          await notifier.updateMetadata(metadata: newMetadata);
+          final updatedActiveAccountState = await container.read(activeAccountProvider.future);
+          final updatedMetadata = updatedActiveAccountState.metadata;
+          expect(updatedMetadata?.displayName, 'New Display Name');
+        });
+      });
+
+      group('when update fails', () {
+        setUp(() {
+          mockAccountsApi.setAccount('test_pubkey_123', testAccount);
+          mockAccountsApi.setMetadata('test_pubkey_123', testMetadata);
+          mockAccountsApi.setUpdateError('test_pubkey_123');
+          container = createContainer(
+            activePubkey: 'test_pubkey_123',
+            accountsApi: mockAccountsApi,
+          );
+        });
+
+        test('thows error but does not update state', () async {
+          final notifier = container.read(activeAccountProvider.notifier);
+          expect(
+            () => notifier.updateMetadata(metadata: newMetadata),
+            throwsA(isA<Exception>()),
+          );
+          final currentState = await container.read(activeAccountProvider.future);
+          expect(currentState.metadata?.displayName, 'test_display_name');
+          expect(currentState.metadata?.about, 'test_about');
+        });
+      });
+    });
+
+    group('uploadProfilePicture', () {
+      const testFilePath = '/path/to/test/image.jpg';
+
+      group('with null active pubkey', () {
+        setUp(() {
+          container = createContainer();
+        });
+
+        test('throws exception for null pubkey', () async {
+          final notifier = container.read(activeAccountProvider.notifier);
+          
+          expect(
+            () => notifier.uploadProfilePicture(filePath: testFilePath),
+            throwsA(isA<Exception>()),
+          );
+        });
+      });
+
+      group('with empty active pubkey', () {
+        setUp(() {
+          container = createContainer(activePubkey: '');
+        });
+
+        test('throws exception for empty pubkey', () async {
+          final notifier = container.read(activeAccountProvider.notifier);
+          
+          expect(
+            () => notifier.uploadProfilePicture(filePath: testFilePath),
+            throwsA(isA<Exception>()),
+          );
+        });
+      });
+
+      group('with valid pubkey', () {
+        setUp(() {
+          mockAccountsApi.setAccount('test_pubkey_123', testAccount);
+          mockAccountsApi.setMetadata('test_pubkey_123', testMetadata);
+          container = createContainer(
+            activePubkey: 'test_pubkey_123',
+            accountsApi: mockAccountsApi,
+          );
+        });
+
+        test('returns profile picture URL when upload is successful', () async {
+          final notifier = container.read(activeAccountProvider.notifier);
+          
+          final profilePictureUrl = await notifier.uploadProfilePicture(filePath: testFilePath);
+          
+          expect(profilePictureUrl, 'https://example.com/profile-pictures/test_pubkey_123.jpg');
+        });
+      });
+
+      group('when upload fails', () {
+        setUp(() {
+          mockAccountsApi.setAccount('test_pubkey_123', testAccount);
+          mockAccountsApi.setMetadata('test_pubkey_123', testMetadata);
+          mockAccountsApi.setUploadError('test_pubkey_123');
+          container = createContainer(
+            activePubkey: 'test_pubkey_123',
+            accountsApi: mockAccountsApi,
+          );
+        });
+
+        test('throws error when upload fails', () async {
+          final notifier = container.read(activeAccountProvider.notifier);
+          
+          expect(
+            () => notifier.uploadProfilePicture(filePath: testFilePath),
+            throwsA(isA<Exception>()),
+          );
+        });
+      });
+
+      group('when getMimeTypeFromPath returns null', () {
+        setUp(() {
+          final mockImageUtilsForNull = MockWnImageUtils();
+          mockImageUtilsForNull.setMimeType(null);
+          
+          mockAccountsApi.setAccount('test_pubkey_123', testAccount);
+          mockAccountsApi.setMetadata('test_pubkey_123', testMetadata);
+          container = createContainer(
+            activePubkey: 'test_pubkey_123',
+            accountsApi: mockAccountsApi,
+            imageUtils: mockImageUtilsForNull,
+          );
+        });
+
+        test('throws error when image type cannot be determined', () async {
+          final notifier = container.read(activeAccountProvider.notifier);
+          
+          expect(
+            () => notifier.uploadProfilePicture(filePath: testFilePath),
+            throwsA(predicate((e) => 
+              e is Exception && 
+              e.toString().contains('Could not determine image type')
+            )),
+          );
         });
       });
     });
