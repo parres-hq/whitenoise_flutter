@@ -68,8 +68,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final welcomes = await fetchWelcomes(pubkey: publicKey);
+      final welcomes = await fetchWelcomes(pubkey: activeAccountData.pubkey);
 
       final welcomeByData = <String, WelcomeData>{};
       for (final welcome in welcomes) {
@@ -121,8 +120,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return null;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final welcome = await fetchWelcome(pubkey: publicKey, welcomeEventId: welcomeEventId);
+      final welcome = await fetchWelcome(pubkey: activeAccountData.pubkey, welcomeEventId: welcomeEventId);
 
       final updatedWelcomeById = Map<String, WelcomeData>.from(state.welcomeById ?? {});
       updatedWelcomeById[welcome.id] = welcome;
@@ -154,8 +152,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return false;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      await acceptWelcome(pubkey: publicKey, welcomeEventId: welcomeEventId);
+      await acceptWelcome(pubkey: activeAccountData.pubkey, welcomeEventId: welcomeEventId);
 
       // Update the welcome state to accepted
       await _updateWelcomeState(welcomeEventId, WelcomeState.accepted);
@@ -187,8 +184,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return false;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      await declineWelcome(pubkey: publicKey, welcomeEventId: welcomeEventId);
+      await declineWelcome(pubkey: activeAccountData.pubkey, welcomeEventId: welcomeEventId);
 
       // Update the welcome state to declined
       await _updateWelcomeState(welcomeEventId, WelcomeState.declined);
@@ -320,8 +316,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final newWelcomes = await fetchWelcomes(pubkey: publicKey);
+      final newWelcomes = await fetchWelcomes(pubkey: activeAccountData.pubkey);
 
       final currentWelcomes = state.welcomes ?? [];
       final currentWelcomeIds = currentWelcomes.map((w) => w.id).toSet();

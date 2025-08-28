@@ -44,16 +44,11 @@ void main() {
         return MockEvent(eventId: 'test-key-package-event-123');
       }
 
-      Future<PublicKey> mockPublicKeyFromString({required String publicKeyString}) async {
-        return MockPublicKey(key: publicKeyString);
-      }
-
       test('returns key package', () async {
         final service = KeyPackageService(
-          publicKeyString: testPublicKey,
+          publicKey: testPublicKey,
           nip65Relays: testNip65Relays,
           fetchKeyPackage: fetchKeyPackageSuccess,
-          publicKeyFromString: mockPublicKeyFromString,
         );
         final result = await service.fetchWithRetry();
         expect((result as MockEvent).eventId, equals('test-key-package-event-123'));
@@ -75,15 +70,10 @@ void main() {
           return MockEvent(eventId: 'test-success-on-retry');
         }
 
-        Future<PublicKey> mockPublicKeyFromString({required String publicKeyString}) async {
-          return MockPublicKey(key: publicKeyString);
-        }
-
         final service = KeyPackageService(
-          publicKeyString: testPublicKey,
+          publicKey: testPublicKey,
           nip65Relays: testNip65Relays,
           fetchKeyPackage: fakeFailThenSuccess,
-          publicKeyFromString: mockPublicKeyFromString,
         );
         final result = await service.fetchWithRetry();
 
@@ -106,15 +96,10 @@ void main() {
           return MockEvent(eventId: 'test-success-on-third-attempt');
         }
 
-        Future<PublicKey> mockPublicKeyFromString({required String publicKeyString}) async {
-          return MockPublicKey(key: publicKeyString);
-        }
-
         final service = KeyPackageService(
-          publicKeyString: testPublicKey,
+          publicKey: testPublicKey,
           nip65Relays: testNip65Relays,
           fetchKeyPackage: fakeFailTwiceThenSuccess,
-          publicKeyFromString: mockPublicKeyFromString,
         );
         final result = await service.fetchWithRetry();
 
@@ -131,15 +116,10 @@ void main() {
           throw Exception('DroppableDisposedException');
         }
 
-        Future<PublicKey> mockPublicKeyFromString({required String publicKeyString}) async {
-          return MockPublicKey(key: publicKeyString);
-        }
-
         final service = KeyPackageService(
-          publicKeyString: testPublicKey,
+          publicKey: testPublicKey,
           nip65Relays: testNip65Relays,
           fetchKeyPackage: fakeAlwaysFails,
-          publicKeyFromString: mockPublicKeyFromString,
         );
         expect(
           () => service.fetchWithRetry(),

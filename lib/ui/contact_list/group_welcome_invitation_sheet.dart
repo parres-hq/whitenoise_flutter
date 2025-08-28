@@ -118,9 +118,8 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
         ref.showErrorToast('No active account found');
         return null;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: widget.welcomeData.welcomer);
       return await fetchMetadataFrom(
-        pubkey: publicKey,
+        pubkey: widget.welcomeData.welcomer,
         nip65Relays: activeAccountData.nip65Relays,
       );
     } catch (e) {
@@ -249,9 +248,8 @@ class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
         ref.showErrorToast('No active account found');
         return null;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: widget.welcomeData.welcomer);
       return await fetchMetadataFrom(
-        pubkey: publicKey,
+        pubkey: widget.welcomeData.welcomer,
         nip65Relays: activeAccountData.nip65Relays,
       );
     } catch (e) {
@@ -296,9 +294,8 @@ class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCar
         ref.showErrorToast('No active account found');
         return null;
       }
-      final publicKey = await publicKeyFromString(publicKeyString: widget.welcomeData.welcomer);
       return fetchMetadataFrom(
-        pubkey: publicKey,
+        pubkey: widget.welcomeData.welcomer,
         nip65Relays: activeAccountData.nip65Relays,
       );
     } catch (e) {

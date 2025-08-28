@@ -98,8 +98,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
     }
 
     try {
-      final ownerPk = await publicKeyFromString(publicKeyString: ownerHex);
-      final raw = await queryContacts(pubkey: ownerPk);
+      final raw = await queryContacts(pubkey: ownerHex);
 
       _logger.info('ContactsProvider: Loaded ${raw.length} raw contacts from nostr database cache');
 
@@ -336,19 +335,16 @@ class ContactsNotifier extends Notifier<ContactsState> {
       }
 
       // Convert pubkey string to PublicKey object
-      final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final contactPk = await publicKeyFromString(publicKeyString: contactKey.trim());
 
       _logger.info('ContactsProvider: Adding contact with key: ${contactKey.trim()}');
-      await addContact(pubkey: ownerPubkey, contactPubkey: contactPk);
+      await addContact(pubkey: activeAccountData.pubkey, contactPubkey: contactKey.trim());
       _logger.info('ContactsProvider: Contact added successfully, checking metadata...');
 
       // Try to fetch metadata for the newly added contact
       try {
         // Create a fresh PublicKey object to avoid disposal issues
-        final contactPkForMetadata = await publicKeyFromString(publicKeyString: contactKey.trim());
         final metadata = await fetchMetadataFrom(
-          pubkey: contactPkForMetadata,
+          pubkey: contactKey.trim(),
           nip65Relays: activeAccountData.nip65Relays,
         );
         if (metadata != null) {
@@ -396,13 +392,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
         return;
       }
 
-      // Convert pubkey strings to PublicKey objects
-      final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      final contactPk = await publicKeyFromString(publicKeyString: contactKey.trim());
-
       await removeContact(
-        pubkey: ownerPubkey,
-        contactPubkey: contactPk,
+        pubkey: activeAccountData.pubkey,
+        contactPubkey: contactKey.trim(),
       );
 
       // Refresh the list
@@ -438,17 +430,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
         return;
       }
 
-      // Convert pubkey string to PublicKey object
-      final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-
-      final pkList = <PublicKey>[];
-      for (final hex in hexList) {
-        pkList.add(await publicKeyFromString(publicKeyString: hex));
-      }
-
       await updateContacts(
-        pubkey: ownerPubkey,
-        contactPubkeys: pkList,
+        pubkey: activeAccountData.pubkey,
+        contactPubkeys: hexList,
       );
 
       // Refresh the list
@@ -494,11 +478,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
         return;
       }
 
-      // Convert pubkey string to PublicKey object
-      final ownerPubkey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-
       await removeContact(
-        pubkey: ownerPubkey,
+        pubkey: activeAccountData.pubkey,
         contactPubkey: publicKey,
       );
 

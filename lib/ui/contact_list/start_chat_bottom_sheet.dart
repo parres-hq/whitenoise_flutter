@@ -83,7 +83,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
       final keyPackageService =
           widget.keyPackageService ??
           KeyPackageService(
-            publicKeyString: widget.contact.publicKey,
+            publicKey: widget.contact.publicKey,
             nip65Relays: activeAccountData.nip65Relays,
           );
       final keyPackage = await keyPackageService.fetchWithRetry();

@@ -43,8 +43,6 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
-      
       // Get relays for this account separately
       final nip65RelayType = await relayTypeNip65();
       final relays = await accountRelays(
@@ -158,17 +156,14 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         final imageType = await imageTypeFromExtension(extension_: fileExtension);
 
         final serverUrl = await getDefaultBlossomServerUrl();
-        final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
 
         profilePictureUrl = await uploadProfilePicture(
-          pubkey: publicKey,
+          pubkey: activeAccountData.pubkey,
           serverUrl: serverUrl,
           filePath: state.value!.selectedImagePath!,
           imageType: imageType,
         );
       }
-
-      final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
       
       // Get relays for this account separately
       final nip65RelayType = await relayTypeNip65();
@@ -178,7 +173,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       );
       
       final metadata = await fetchMetadataFrom(
-        pubkey: publicKey,
+        pubkey: activeAccountData.pubkey,
         nip65Relays: relays,
       );
 
@@ -192,13 +187,8 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       metadata.picture = profilePictureUrl ?? currentState.picture;
       metadata.nip05 = currentState.nip05;
 
-      // Create a new PublicKey object just before using it to avoid disposal issues
-      final publicKeyForUpdate = await publicKeyFromString(
-        publicKeyString: activeAccountData.pubkey,
-      );
-
       await updateMetadata(
-        pubkey: publicKeyForUpdate,
+        pubkey: activeAccountData.pubkey,
         metadata: metadata,
       );
 

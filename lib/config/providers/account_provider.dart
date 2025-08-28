@@ -73,11 +73,8 @@ class AccountNotifier extends Notifier<AccountState> {
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
       } else {
-        final publicKey = await publicKeyFromString(
-          publicKeyString: activeAccountData.pubkey,
-        );
         final metadata = await fetchMetadataFrom(
-          pubkey: publicKey,
+          pubkey: activeAccountData.pubkey,
           nip65Relays: activeAccountData.nip65Relays,
         );
 
@@ -158,10 +155,8 @@ class AccountNotifier extends Notifier<AccountState> {
           }
 
           final serverUrl = await getDefaultBlossomServerUrl();
-          final publicKey = await publicKeyFromString(publicKeyString: activeAccount.pubkey);
-
           profilePictureUrl = await uploadProfilePicture(
-            pubkey: publicKey,
+            pubkey: activeAccount.pubkey,
             serverUrl: serverUrl,
             filePath: profilePicPath,
             imageType: imageType,
@@ -180,11 +175,9 @@ class AccountNotifier extends Notifier<AccountState> {
           accountMetadata.picture = profilePictureUrl;
         }
 
-        final publicKey = await publicKeyFromString(publicKeyString: pubkey);
-
         await updateMetadata(
           metadata: accountMetadata,
-          pubkey: publicKey,
+          pubkey: pubkey
         );
         ref.read(routerProvider).go('/chats');
       }

@@ -34,8 +34,7 @@ class ContactListTile extends StatelessWidget {
 
   Future<String> _getNpub(String publicKeyHex) async {
     try {
-      final publicKey = await publicKeyFromString(publicKeyString: publicKeyHex);
-      final npub = await exportAccountNpub(pubkey: publicKey);
+      final npub = await exportAccountNpub(pubkey: publicKeyHex);
       return npub.formatPublicKey();
     } catch (e) {
       // Return the full hex key as fallback

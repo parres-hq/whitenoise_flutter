@@ -186,9 +186,8 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
     for (final contact in contacts) {
       try {
-        final pubkey = await publicKeyFromString(publicKeyString: contact.publicKey);
         final keyPackage = await fetchKeyPackage(
-          pubkey: pubkey,
+          pubkey: contact.publicKey,
           nip65Relays: activeAccountData.nip65Relays,
         );
 

@@ -14,8 +14,7 @@ extension StringExtensions on String {
   /// Returns null if conversion fails
   Future<String?> toNpub() async {
     try {
-      final publicKey = await publicKeyFromString(publicKeyString: this);
-      return await exportAccountNpub(pubkey: publicKey);
+      return await exportAccountNpub(pubkey: this);
     } catch (e) {
       return null;
     }

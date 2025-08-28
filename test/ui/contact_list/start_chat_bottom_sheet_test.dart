@@ -71,7 +71,7 @@ class MockRelayUrl implements RelayUrl {
 class MockKeyPackageServiceWithPackage extends KeyPackageService {
   MockKeyPackageServiceWithPackage()
     : super(
-        publicKeyString: 'test',
+        publicKey: 'test',
         nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
       );
 
@@ -85,7 +85,7 @@ class MockKeyPackageServiceWithPackage extends KeyPackageService {
 class MockKeyPackageServiceWithoutPackage extends KeyPackageService {
   MockKeyPackageServiceWithoutPackage()
     : super(
-        publicKeyString: 'test',
+        publicKey: 'test',
         nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
       );
 
@@ -99,7 +99,7 @@ class MockKeyPackageServiceWithoutPackage extends KeyPackageService {
 class MockKeyPackageServiceWithError extends KeyPackageService {
   MockKeyPackageServiceWithError()
     : super(
-        publicKeyString: 'test',
+        publicKey: 'test',
         nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
       );
 

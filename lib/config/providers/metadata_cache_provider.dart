@@ -114,11 +114,8 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
         throw 'No active account found';
       }
 
-      // Create PublicKey object and fetch metadata
-      final contactPk = await publicKeyFromString(publicKeyString: fetchKey);
-
       final metadata = await fetchMetadataFrom(
-        pubkey: contactPk,
+        pubkey: fetchKey,
         nip65Relays: activeAccountData.nip65Relays,
       );
 
