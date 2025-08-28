@@ -145,7 +145,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
         StartChatBottomSheet.show(
           context: context,
           contact: contact,
-          onChatCreated: (groupData) {
+          onChatCreated: (group) {
             // Close the parent search bottom sheet when chat is created
             Navigator.pop(context);
           },

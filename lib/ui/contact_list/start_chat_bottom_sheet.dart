@@ -25,7 +25,7 @@ import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 
 class StartChatBottomSheet extends ConsumerStatefulWidget {
   final ContactModel contact;
-  final ValueChanged<GroupData?>? onChatCreated;
+  final ValueChanged<Group?>? onChatCreated;
   final KeyPackageService? keyPackageService;
 
   const StartChatBottomSheet({
@@ -38,7 +38,7 @@ class StartChatBottomSheet extends ConsumerStatefulWidget {
   static Future<void> show({
     required BuildContext context,
     required ContactModel contact,
-    ValueChanged<GroupData?>? onChatCreated,
+    ValueChanged<Group?>? onChatCreated,
     KeyPackageService? keyPackageService,
   }) {
     return WnBottomSheet.show(
@@ -117,7 +117,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     });
 
     try {
-      final groupData = await ref
+      final group = await ref
           .read(groupsProvider.notifier)
           .createNewGroup(
             groupName: 'DM',
@@ -126,14 +126,14 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
             adminPublicKeyHexs: [widget.contact.publicKey],
           );
 
-      if (groupData != null) {
-        _logger.info('Direct message group created successfully: ${groupData.mlsGroupId}');
+      if (group != null) {
+        _logger.info('Direct message group created successfully: ${group.mlsGroupId}');
 
         if (mounted) {
           Navigator.pop(context);
 
           if (widget.onChatCreated != null) {
-            widget.onChatCreated?.call(groupData);
+            widget.onChatCreated?.call(group);
           }
 
           ref.showSuccessToast(

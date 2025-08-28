@@ -179,15 +179,15 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
         await StartChatBottomSheet.show(
           context: context,
           contact: contact,
-          onChatCreated: (groupData) {
-            if (groupData != null && mounted) {
+          onChatCreated: (group) {
+            if (group != null && mounted) {
               // Navigate to home first, then to the group chat
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
                   context.go(Routes.home);
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     if (mounted) {
-                      Routes.goToChat(context, groupData.mlsGroupId);
+                      Routes.goToChat(context, group.mlsGroupId);
                     }
                   });
                 }

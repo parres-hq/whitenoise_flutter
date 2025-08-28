@@ -19,7 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$GroupsState {
   List<Group>? get groups => throw _privateConstructorUsedError;
   Map<String, Group>? get groupsMap =>
-      throw _privateConstructorUsedError; // groupId -> GroupData
+      throw _privateConstructorUsedError; // groupId -> Group
   Map<String, List<User>>? get groupMembers =>
       throw _privateConstructorUsedError; // groupId -> members
   Map<String, List<User>>? get groupAdmins =>
@@ -241,9 +241,9 @@ class _$GroupsStateImpl implements _GroupsState {
     return EqualUnmodifiableMapView(value);
   }
 
-  // groupId -> GroupData
+  // groupId -> Group
   final Map<String, List<User>>? _groupMembers;
-  // groupId -> GroupData
+  // groupId -> Group
   @override
   Map<String, List<User>>? get groupMembers {
     final value = _groupMembers;
@@ -352,7 +352,7 @@ abstract class _GroupsState implements GroupsState {
   @override
   List<Group>? get groups;
   @override
-  Map<String, Group>? get groupsMap; // groupId -> GroupData
+  Map<String, Group>? get groupsMap; // groupId -> Group
   @override
   Map<String, List<User>>? get groupMembers; // groupId -> members
   @override

@@ -8,26 +8,26 @@ enum ChatListItemType { chat, welcome }
 
 class ChatListItem {
   final ChatListItemType type;
-  final Group? groupData;
+  final Group? group;
   final Welcome? welcome;
   final MessageModel? lastMessage;
   final DateTime dateCreated;
 
   const ChatListItem({
     required this.type,
-    this.groupData,
+    this.group,
     this.welcome,
     this.lastMessage,
     required this.dateCreated,
   });
 
   factory ChatListItem.fromGroup({
-    required Group groupData,
+    required Group group,
     MessageModel? lastMessage,
   }) {
     return ChatListItem(
       type: ChatListItemType.chat,
-      groupData: groupData,
+      group: group,
       lastMessage: lastMessage,
       dateCreated: lastMessage?.createdAt ?? DateTime.now(),
     );
@@ -46,7 +46,7 @@ class ChatListItem {
   String get displayName {
     switch (type) {
       case ChatListItemType.chat:
-        return groupData?.name ?? '';
+        return group?.name ?? '';
       case ChatListItemType.welcome:
         return welcome.senderName;
     }
@@ -64,7 +64,7 @@ class ChatListItem {
   String get id {
     switch (type) {
       case ChatListItemType.chat:
-        return groupData?.mlsGroupId ?? '';
+        return group?.mlsGroupId ?? '';
       case ChatListItemType.welcome:
         return welcome?.id ?? '';
     }

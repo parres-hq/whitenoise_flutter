@@ -267,7 +267,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
       );
       chatItems.add(
         ChatListItem.fromGroup(
-          groupData: group,
+          group: group,
           lastMessage: lastMessage,
         ),
       );

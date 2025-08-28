@@ -204,12 +204,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         StartChatBottomSheet.show(
           context: context,
           contact: contact,
-          onChatCreated: (groupData) {
-            if (groupData != null && mounted) {
+          onChatCreated: (group) {
+            if (group != null && mounted) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
                   context.pop();
-                  context.navigateToGroupChatAndPopToHome(groupData);
+                  context.navigateToGroupChatAndPopToHome(group);
                 }
               });
             }

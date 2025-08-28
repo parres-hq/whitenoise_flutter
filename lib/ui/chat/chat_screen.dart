@@ -85,9 +85,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _initializeDMChatData() {
     final groupsNotifier = ref.read(groupsProvider.notifier);
-    final groupData = groupsNotifier.findGroupById(widget.groupId);
-    if (groupData != null) {
-      _dmChatDataFuture = ref.getDMChatData(groupData.mlsGroupId);
+    final group = groupsNotifier.findGroupById(widget.groupId);
+    if (group != null) {
+      _dmChatDataFuture = ref.getDMChatData(group.mlsGroupId);
     }
   }
 
@@ -173,9 +173,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       );
     }
 
-    final groupData = groupsNotifier.findGroupById(widget.groupId);
+    final group = groupsNotifier.findGroupById(widget.groupId);
 
-    if (groupData == null) {
+    if (group == null) {
       return Scaffold(
         backgroundColor: context.colors.neutral,
         body: const Center(
@@ -256,11 +256,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                   final otherUser = snapshot.data;
                                   return ContactInfo(
                                     title:
-                                        groupData.groupType == GroupType.directMessage
+                                        group.groupType == GroupType.directMessage
                                             ? otherUser?.displayName ?? ''
-                                            : groupData.name,
+                                            : group.name,
                                     image:
-                                        groupData.groupType == GroupType.directMessage
+                                        group.groupType == GroupType.directMessage
                                             ? otherUser?.displayImage ?? ''
                                             : '',
                                     onTap: () => context.push('/chats/${widget.groupId}/info'),
@@ -277,7 +277,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               itemCount: messages.length + 1,
                               itemBuilder: (context, index) {
                                 if (index == 0) {
-                                  return ChatContactHeader(groupData: groupData);
+                                  return ChatContactHeader(group: group);
                                 }
                                 final int messageIndex = index - 1;
                                 final message = messages[messageIndex];
@@ -300,7 +300,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                     tag: message.id,
                                     child: MessageWidget(
                                           message: message,
-                                          isGroupMessage: groupData.groupType == GroupType.group,
+                                          isGroupMessage: group.groupType == GroupType.group,
                                           isSameSenderAsPrevious: chatNotifier.isSameSender(
                                             messageIndex,
                                             groupId: widget.groupId,

@@ -14,14 +14,14 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 
 class NewGroupChatSheet extends ConsumerStatefulWidget {
-  final ValueChanged<GroupData?>? onGroupCreated;
+  final ValueChanged<Group?>? onGroupCreated;
 
   const NewGroupChatSheet({super.key, this.onGroupCreated});
 
   @override
   ConsumerState<NewGroupChatSheet> createState() => _NewGroupChatSheetState();
 
-  static Future<void> show(BuildContext context, {ValueChanged<GroupData?>? onGroupCreated}) {
+  static Future<void> show(BuildContext context, {ValueChanged<Group?>? onGroupCreated}) {
     return WnBottomSheet.show(
       context: context,
       title: 'New group chat',

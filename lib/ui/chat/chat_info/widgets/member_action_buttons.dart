@@ -35,7 +35,7 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
     });
 
     try {
-      final groupData = await ref
+      final group = await ref
           .read(groupsProvider.notifier)
           .createNewGroup(
             groupName: 'DM',
@@ -44,14 +44,14 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
             adminPublicKeyHexs: [widget.user.publicKey],
           );
 
-      if (groupData != null) {
-        _logger.info('Direct message group created successfully: ${groupData.mlsGroupId}');
+      if (group != null) {
+        _logger.info('Direct message group created successfully: ${group.mlsGroupId}');
 
         if (mounted) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               Navigator.pop(context);
-              context.navigateToGroupChatAndPopToHome(groupData);
+              context.navigateToGroupChatAndPopToHome(group);
             }
           });
 

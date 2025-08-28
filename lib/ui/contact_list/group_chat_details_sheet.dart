@@ -29,12 +29,12 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   });
 
   final List<ContactModel> selectedContacts;
-  final ValueChanged<GroupData?>? onGroupCreated;
+  final ValueChanged<Group?>? onGroupCreated;
 
   static Future<void> show({
     required BuildContext context,
     required List<ContactModel> selectedContacts,
-    ValueChanged<GroupData?>? onGroupCreated,
+    ValueChanged<Group?>? onGroupCreated,
   }) {
     return WnBottomSheet.show(
       context: context,
@@ -110,7 +110,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
       // Create group with contacts that have keypackages
       if (!mounted) return;
 
-      final createdGroupData = await notifier.createNewGroup(
+      final createdGroup = await notifier.createNewGroup(
         groupName: groupName,
         groupDescription: '',
         memberPublicKeyHexs: contactsWithKeyPackage.map((c) => c.publicKey).toList(),
@@ -119,7 +119,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
       if (!mounted) return;
 
-      if (createdGroupData != null) {
+      if (createdGroup != null) {
         // Show share invite bottom sheet for members without keypackages
         if (contactsWithoutKeyPackage.isNotEmpty && mounted) {
           try {
@@ -144,7 +144,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
               // Small delay to ensure navigation completes
               await Future.delayed(const Duration(milliseconds: 150));
               if (mounted) {
-                Routes.goToChat(context, createdGroupData.mlsGroupId);
+                Routes.goToChat(context, createdGroup.mlsGroupId);
               }
             }
           });

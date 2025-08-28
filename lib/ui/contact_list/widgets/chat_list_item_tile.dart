@@ -37,7 +37,7 @@ class ChatListItemTile extends ConsumerWidget {
 
   Widget _buildChatTile(BuildContext context, WidgetRef ref) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
-    final group = item.groupData!;
+    final group = item.group!;
 
     // For DM chats, get the other member and use metadata cache for better user info
     if (group.groupType == GroupType.directMessage) {
@@ -78,7 +78,7 @@ class ChatListItemTile extends ConsumerWidget {
     BuildContext context,
     String displayName,
     String? displayImage,
-    GroupData group,
+    Group group,
   ) {
     final displayImageUrl = displayImage ?? '';
     return InkWell(

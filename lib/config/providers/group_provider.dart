@@ -44,13 +44,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
         // Account switched, clear current groups and load for new account
         // Schedule state changes after the build phase to avoid provider modification errors
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          clearGroupData();
+          clearGroup();
           loadGroups();
         });
       } else if (previous != null && next == null) {
         // Account logged out, clear groups
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          clearGroupData();
+          clearGroup();
         });
       } else if (previous == null && next != null) {
         // Account logged in, load groups
@@ -660,7 +660,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
-  void clearGroupData() {
+  void clearGroup() {
     state = const GroupsState();
   }
 
