@@ -1,5 +1,5 @@
 import 'package:whitenoise/src/rust/api/accounts.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/utils.dart' as wn_utils_api;
 
 extension StringExtensions on String {
   /// Formats the public key by adding a space every 5 characters
@@ -14,7 +14,7 @@ extension StringExtensions on String {
   /// Returns null if conversion fails
   Future<String?> toNpub() async {
     try {
-      return await exportAccountNpub(pubkey: this);
+      return await wn_utils_api.npubFromHexPubkey(hexPubkey: this);
     } catch (e) {
       return null;
     }

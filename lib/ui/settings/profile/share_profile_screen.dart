@@ -36,7 +36,8 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
 
   Future<void> loadProfile() async {
     try {
-      npub = await ref.read(activePubkeyProvider)?.toNpub() ?? '';
+      final activeAccountPubkey = await ref.read(activePubkeyProvider);
+      npub = await activeAccountPubkey?.toNpub() ?? '';
       setState(() {});
     } catch (e) {
       if (!mounted) return;
