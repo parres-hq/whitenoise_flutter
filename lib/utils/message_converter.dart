@@ -242,14 +242,14 @@ class MessageConverter {
     );
   }
 
-  /// Convert MessageWithTokensData to MessageModel
-  static Future<MessageModel> fromMessageWithTokensData(
-    MessageWithTokensData messageData, {
+  /// Convert MessageWithTokens to MessageModel
+  static Future<MessageModel> fromMessageWithTokens(
+    MessageWithTokens messageData, {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
     ChatMessage? replyInfo,
-    Map<String, MessageWithTokensData>? originalMessageLookup,
+    Map<String, MessageWithTokens>? originalMessageLookup,
   }) async {
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
 
@@ -333,9 +333,9 @@ class MessageConverter {
     );
   }
 
-  /// Converts a list of MessageWithTokensData to MessageModel list with reply mapping
-  static Future<List<MessageModel>> fromMessageWithTokensDataList(
-    List<MessageWithTokensData> messageDataList, {
+  /// Converts a list of MessageWithTokens to MessageModel list with reply mapping
+  static Future<List<MessageModel>> fromMessageWithTokensList(
+    List<MessageWithTokens> messageDataList, {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
@@ -343,7 +343,7 @@ class MessageConverter {
   }) async {
     // Create lookup maps for reply functionality
     final Map<String, ChatMessage> replyMap = {};
-    final Map<String, MessageWithTokensData> originalMessageMap = {};
+    final Map<String, MessageWithTokens> originalMessageMap = {};
 
     // Build original message lookup from primary message data
     for (final msg in messageDataList) {
@@ -388,7 +388,7 @@ class MessageConverter {
     final futures = validMessages.map((messageData) async {
       final aggregatedData = replyMap[messageData.id];
 
-      return await _fromMessageWithTokensDataWithCache(
+      return await _fromMessageWithTokensWithCache(
         messageData,
         currentUserPublicKey: currentUserPublicKey,
         groupId: groupId,
@@ -403,13 +403,13 @@ class MessageConverter {
     return messages;
   }
 
-  /// Convert MessageWithTokensData to MessageModel using cached user data
-  static Future<MessageModel> _fromMessageWithTokensDataWithCache(
-    MessageWithTokensData messageData, {
+  /// Convert MessageWithTokens to MessageModel using cached user data
+  static Future<MessageModel> _fromMessageWithTokensWithCache(
+    MessageWithTokens messageData, {
     required String? currentUserPublicKey,
     String? groupId,
     ChatMessage? replyInfo,
-    Map<String, MessageWithTokensData>? originalMessageLookup,
+    Map<String, MessageWithTokens>? originalMessageLookup,
     required Map<String, User> userCache,
   }) async {
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
