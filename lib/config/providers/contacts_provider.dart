@@ -56,7 +56,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
         // Schedule state changes after the build phase to avoid provider modification errors
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           state = const ContactsState();
-          final activeAccount = await ref.read(activeAccountProvider.future);
+          final activeAccountState = await ref.read(activeAccountProvider.future);
+          final activeAccount = activeAccountState.account;
           if (activeAccount != null) {
             await loadContacts(activeAccount.pubkey);
           }
@@ -67,7 +68,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
         });
       } else if (previous == null && next != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          final activeAccount = await ref.read(activeAccountProvider.future);
+          final activeAccountState = await ref.read(activeAccountProvider.future);
+          final activeAccount = activeAccountState.account;
           if (activeAccount != null) {
             await loadContacts(activeAccount.pubkey);
           }
@@ -327,7 +329,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -381,7 +384,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -418,8 +422,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
     }
 
     try {
-      // Get the active account data
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -466,8 +470,8 @@ class ContactsNotifier extends Notifier<ContactsState> {
     }
 
     try {
-      // Get the active account data
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return;

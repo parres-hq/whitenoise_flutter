@@ -177,7 +177,8 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
   Future<Map<String, List<ContactModel>>> _filterContactsByKeyPackage(
     List<ContactModel> contacts,
   ) async {
-    final activeAccount = await ref.read(activeAccountProvider.future);
+    final activeAccountState = await ref.read(activeAccountProvider.future);
+    final activeAccount = activeAccountState.account;
     if (activeAccount == null) {
       throw Exception('No active account found');
     }

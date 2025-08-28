@@ -81,7 +81,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
@@ -152,7 +153,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Find an existing direct message group between the current user and another user
   Future<Group?> _findExistingDirectMessage(String otherUserPubkeyHex) async {
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) return null;
 
       final currentUserNpub = await npubFromHexPubkey(hexPubkey: activeAccount.pubkey);
@@ -192,7 +194,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
 
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
@@ -296,7 +299,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -375,7 +379,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -489,7 +494,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
     if (group == null) return;
 
     try {
-      final activeAccoun = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) return;
 
       final displayName = await _getDisplayNameForGroup(group, activeAccount.pubkey);
@@ -639,7 +645,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   Future<bool> isCurrentUserAdmin(String groupId) async {
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) return false;
 
       final group = findGroupById(groupId);
@@ -683,7 +690,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         return;
       }
@@ -796,7 +804,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -851,7 +860,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return;

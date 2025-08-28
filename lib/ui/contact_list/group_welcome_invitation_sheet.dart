@@ -114,7 +114,8 @@ class GroupMessageInvite extends ConsumerStatefulWidget {
 class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
   Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         ref.showErrorToast('No active account found');
         return null;
@@ -244,7 +245,8 @@ class DirectMessageAvatar extends ConsumerStatefulWidget {
 class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
   Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         ref.showErrorToast('No active account found');
         return null;
@@ -290,7 +292,8 @@ class DirectMessageInviteCard extends ConsumerStatefulWidget {
 class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCard> {
   Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         ref.showErrorToast('No active account found');
         return null;

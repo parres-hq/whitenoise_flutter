@@ -36,7 +36,8 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
@@ -142,7 +143,8 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
-      final activeAccount = ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;

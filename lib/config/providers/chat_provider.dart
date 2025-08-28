@@ -66,7 +66,8 @@ class ChatNotifier extends Notifier<ChatState> {
     );
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         _setGroupError(groupId, 'No active account found');
         return;
@@ -144,7 +145,8 @@ class ChatNotifier extends Notifier<ChatState> {
     );
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         _setGroupError(groupId, 'No active account found');
         return null;
@@ -286,7 +288,8 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         return;
       }
@@ -499,7 +502,8 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         _setGroupError(message.groupId ?? '', 'No active account found');
         return false;
@@ -571,7 +575,8 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         _setGroupError(groupId, 'No active account found');
         return null;
@@ -675,7 +680,8 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         _setGroupError(groupId, 'No active account found');
         return false;

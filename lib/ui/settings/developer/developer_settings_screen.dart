@@ -50,7 +50,8 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
     setState(() => _isLoading = true);
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
 
       if (activeAccount != null) {
         await ref.read(contactsProvider.notifier).loadContacts(activeAccount.pubkey);

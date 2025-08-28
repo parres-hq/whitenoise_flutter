@@ -46,7 +46,8 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
 
   Future<void> _loadContacts() async {
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount != null) {
         await ref.read(contactsProvider.notifier).loadContacts(activeAccount.pubkey);
       }

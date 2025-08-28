@@ -5,7 +5,7 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/welcome_state.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api.dart'; 
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
@@ -62,7 +62,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
@@ -114,7 +115,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return null;
@@ -146,7 +148,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return false;
@@ -178,7 +181,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return false;
@@ -311,7 +315,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
         return;
       }
