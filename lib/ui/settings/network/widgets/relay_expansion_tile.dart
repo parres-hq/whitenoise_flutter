@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_tile.dart';
 
@@ -96,27 +96,21 @@ class _RelayExpansionTileState extends ConsumerState<RelayExpansionTile> {
             InkWell(
               key: widget.helpIconKey,
               onTap: widget.onInfoTap,
-              child: SvgPicture.asset(
+              child: WnImage(
                 AssetsPaths.icHelp,
-                colorFilter: ColorFilter.mode(
-                  context.colors.mutedForeground,
-                  BlendMode.srcIn,
-                ),
-                width: 18.sp,
-                height: 18.sp,
+                color: context.colors.mutedForeground,
+
+                size: 18.w,
               ),
             ),
           const Spacer(),
           InkWell(
             onTap: _showAddRelayBottomSheet,
-            child: SvgPicture.asset(
+            child: WnImage(
               AssetsPaths.icAdd,
-              colorFilter: ColorFilter.mode(
-                context.colors.primary,
-                BlendMode.srcIn,
-              ),
-              width: 23.sp,
-              height: 23.sp,
+              color: context.colors.primary,
+
+              size: 23.w,
             ),
           ),
         ],

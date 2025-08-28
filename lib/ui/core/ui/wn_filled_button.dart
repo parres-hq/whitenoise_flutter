@@ -37,8 +37,8 @@ class WnFilledButton extends WnButton {
        );
 
   final bool loading;
-  final SvgPicture? prefixIcon;
-  final SvgPicture? suffixIcon;
+  final Widget? prefixIcon;
+  final Widget? suffixIcon;
   final TextStyle? labelTextStyle;
 
   @override

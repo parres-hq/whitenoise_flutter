@@ -6,6 +6,7 @@ import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_bubble/bubble.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class MessageWidget extends StatelessWidget {
   final MessageModel message;
@@ -382,10 +383,9 @@ class TimeAndStatus extends StatelessWidget {
         ),
         if (message.isMe) ...[
           Gap(8.w),
-          Image.asset(
+          WnImage(
             message.status.imagePath,
-            width: 14.w,
-            height: 14.w,
+            size: 14.w,
             color: message.status.bubbleStatusColor(context),
           ),
         ],
