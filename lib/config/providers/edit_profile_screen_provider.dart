@@ -16,9 +16,9 @@ import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
-class ProfileNotifier extends AsyncNotifier<ProfileState> {
-  final _logger = Logger('ProfileNotifier');
-  static const _imagePickerService = ImagePickerService();
+class EditProfileScreenNotifier extends AsyncNotifier<ProfileState> {
+  final _logger = Logger('EditProfileScreenNotifier');
+  static final _imagePickerService = ImagePickerService();
 
   @override
   Future<ProfileState> build() async {
@@ -40,22 +40,12 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
 
       final activeAccountState = await ref.read(activeAccountProvider.future);
       final activeAccount = activeAccountState.account;
+      final metadata = activeAccountState.metadata;
+      
       if (activeAccount == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
       }
-
-      // Get relays for this account separately
-      final nip65RelayType = await relayTypeNip65();
-      final relays = await accountRelays(
-        pubkey: activeAccount.pubkey,
-        relayType: nip65RelayType,
-      );
-      
-      final metadata = await fetchMetadataFrom(
-        pubkey: publicKey,
-        nip65Relays: relays,
-      );
 
       final profileState = ProfileState(
         displayName: metadata?.displayName,
@@ -143,55 +133,45 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
 
       final activeAccountState = await ref.read(activeAccountProvider.future);
       final activeAccount = activeAccountState.account;
+      final initialMetadata = activeAccountState.metadata;
+      
       if (activeAccount == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
       }
 
-      if ((state.value?.selectedImagePath?.isNotEmpty) ?? false) {
-        final fileExtension = path.extension(state.value!.selectedImagePath!);
-        final imageType = await imageTypeFromExtension(extension_: fileExtension);
-
-        final serverUrl = await getDefaultBlossomServerUrl();
-
-        profilePictureUrl = await uploadProfilePicture(
-          pubkey: activeAccount.pubkey,
-          serverUrl: serverUrl,
-          filePath: state.value!.selectedImagePath!,
-          imageType: imageType,
-        );
-      }
-      
-      // Get relays for this account separately
-      final nip65RelayType = await relayTypeNip65();
-      final relays = await accountRelays(
-        pubkey: activeAccount.pubkey,
-        relayType: nip65RelayType,
-      );
-      
-      final metadata = await fetchMetadataFrom(
-        pubkey: activeAccount.pubkey,
-        nip65Relays: relays,
-      );
-
-      if (metadata == null) {
+      if (initialMetadata == null) {
         throw Exception('Metadata not found');
       }
 
-      final currentState = state.value!;
-      metadata.displayName = currentState.displayName;
-      metadata.about = currentState.about;
-      metadata.picture = profilePictureUrl ?? currentState.picture;
-      metadata.nip05 = currentState.nip05;
+      final activeAccountNotifier = ref.read(activeAccountProvider.notifier);
 
-      await updateMetadata(
-        pubkey: activeAccount.pubkey,
-        metadata: metadata,
+      if ((state.value?.selectedImagePath?.isNotEmpty) ?? false) {
+        profilePictureUrl = await activeAccountNotifier.uploadProfilePicture(
+          filePath: state.value!.selectedImagePath!,
+        );
+      }
+
+      final currentState = state.value!;
+      final displayNameChanged = currentState.displayName != null && currentState.displayName != initialMetadata.displayName;
+      final aboutChanged = currentState.about != null && currentState.about != initialMetadata.about;
+      final nip05Changed = currentState.nip05 != null && currentState.nip05 != initialMetadata.nip05;
+
+      final newMetadata = FlutterMetadata(
+        name: initialMetadata.name,
+        displayName: displayNameChanged ? currentState.displayName : initialMetadata.displayName,
+        about: aboutChanged ? currentState.about : initialMetadata.about,
+        picture: profilePictureUrl != null ? profilePictureUrl : initialMetadata.picture,
+        banner: initialMetadata.banner,
+        website: initialMetadata.website,
+        nip05: nip05Changed ? currentState.nip05 : initialMetadata.nip05,
+        lud06: initialMetadata.lud06,
+        lud16: initialMetadata.lud16,
+        custom: initialMetadata.custom,
       );
 
-      // Update the metadata cache with the new profile data
-      await _updateMetadataCache(activeAccount.pubkey, metadata);
 
+      await activeAccountNotifier.updateMetadata(metadata: newMetadata);
       await fetchProfileData();
     } catch (e, st) {
       _logger.severe('updateProfileData', e, st);
@@ -209,30 +189,8 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       state = AsyncValue.error(errorMessage, st);
     }
   }
-
-  /// Update the metadata cache with new profile data
-  Future<void> _updateMetadataCache(String pubkey, FlutterMetadata metadata) async {
-    try {
-      // Convert pubkey to npub format for consistent caching
-      final npub = await npubFromHexPubkey(hexPubkey: pubkey);
-
-      // Create a ContactModel from the updated metadata
-      final contactModel = ContactModel.fromMetadata(
-        publicKey: npub,
-        metadata: metadata,
-      );
-
-      // Update the metadata cache
-      ref.read(metadataCacheProvider.notifier).updateCachedMetadata(npub, contactModel);
-
-      _logger.info('Updated metadata cache for user: $npub');
-    } catch (e, _) {
-      _logger.warning('Failed to update metadata cache: $e');
-      // Don't throw - this is not critical for the profile update
-    }
-  }
 }
 
-final profileProvider = AsyncNotifierProvider<ProfileNotifier, ProfileState>(
-  ProfileNotifier.new,
+final editProfileScreenProvider = AsyncNotifierProvider<EditProfileScreenNotifier, ProfileState>(
+  EditProfileScreenNotifier.new,
 );

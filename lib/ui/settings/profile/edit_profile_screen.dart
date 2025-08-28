@@ -6,7 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/profile_provider.dart';
+import 'package:whitenoise/config/providers/edit_profile_screen_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -20,10 +20,10 @@ class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
 
   @override
-  ConsumerState<EditProfileScreen> createState() => _EditProfileScreenState();
+  ConsumerState<EditProfileScreen> createState() => _ProfileState();
 }
 
-class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
+class _ProfileState extends ConsumerState<EditProfileScreen> {
   late TextEditingController _displayNameController;
   late TextEditingController _aboutController;
   late TextEditingController _nostrAddressController;
@@ -36,11 +36,11 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
     _nostrAddressController = TextEditingController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await ref.read(profileProvider.notifier).fetchProfileData();
+      await ref.read(editProfileScreenProvider.notifier).fetchProfileData();
       setState(() {
-        _displayNameController.text = ref.read(profileProvider).value?.displayName ?? '';
-        _aboutController.text = ref.read(profileProvider).value?.about ?? '';
-        _nostrAddressController.text = ref.read(profileProvider).value?.nip05 ?? '';
+        _displayNameController.text = ref.read(editProfileScreenProvider).value?.displayName ?? '';
+        _aboutController.text = ref.read(editProfileScreenProvider).value?.about ?? '';
+        _nostrAddressController.text = ref.read(editProfileScreenProvider).value?.nip05 ?? '';
       });
     });
   }
@@ -55,7 +55,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(profileProvider, (previous, next) {
+    ref.listen(editProfileScreenProvider, (previous, next) {
       next.when(
         data: (profile) {
           if (profile.error != null) {
@@ -84,7 +84,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       );
     });
 
-    final profileState = ref.watch(profileProvider);
+    final profileState = ref.watch(editProfileScreenProvider);
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
@@ -165,7 +165,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                         onTap: () async {
                                           try {
                                             await ref
-                                                .read(profileProvider.notifier)
+                                                .read(editProfileScreenProvider.notifier)
                                                 .pickProfileImage();
                                           } catch (e) {
                                             if (context.mounted) {
@@ -192,7 +192,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   hintText: 'Trent Reznor',
                                   onChanged: (value) {
                                     ref
-                                        .read(profileProvider.notifier)
+                                        .read(editProfileScreenProvider.notifier)
                                         .updateLocalProfile(displayName: value);
                                   },
                                 ),
@@ -211,7 +211,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   hintText: 'example@whitenoise.chat',
                                   onChanged: (value) {
                                     ref
-                                        .read(profileProvider.notifier)
+                                        .read(editProfileScreenProvider.notifier)
                                         .updateLocalProfile(nip05: value);
                                   },
                                 ),
@@ -233,7 +233,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                   keyboardType: TextInputType.multiline,
                                   onChanged: (value) {
                                     ref
-                                        .read(profileProvider.notifier)
+                                        .read(editProfileScreenProvider.notifier)
                                         .updateLocalProfile(about: value);
                                   },
                                 ),
@@ -270,7 +270,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                         child: WnFilledButton(
                                                           onPressed: () {
                                                             ref
-                                                                .read(profileProvider.notifier)
+                                                                .read(editProfileScreenProvider.notifier)
                                                                 .discardChanges();
                                                             Navigator.of(dialogContext).pop();
                                                           },
@@ -285,7 +285,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                                         child: WnFilledButton(
                                                           onPressed: () async {
                                                             await ref
-                                                                .read(profileProvider.notifier)
+                                                                .read(editProfileScreenProvider.notifier)
                                                                 .updateProfileData();
                                                             if (context.mounted) {
                                                               Navigator.of(dialogContext).pop();
@@ -309,7 +309,7 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                                         profile.isDirty && !profile.isSaving
                                             ? () async =>
                                                 await ref
-                                                    .read(profileProvider.notifier)
+                                                    .read(editProfileScreenProvider.notifier)
                                                     .updateProfileData()
                                             : null,
                                     loading: profile.isSaving,
