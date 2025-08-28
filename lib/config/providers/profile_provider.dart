@@ -8,6 +8,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/services/image_picker_service.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
@@ -17,6 +18,7 @@ import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
 class ProfileNotifier extends AsyncNotifier<ProfileState> {
   final _logger = Logger('ProfileNotifier');
+  static const _imagePickerService = ImagePickerService();
 
   @override
   Future<ProfileState> build() async {
@@ -111,17 +113,13 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
 
   Future<void> pickProfileImage() async {
     try {
-      final XFile? image = await ImagePicker().pickImage(
-        source: ImageSource.gallery,
-        maxWidth: 512,
-        maxHeight: 512,
-        imageQuality: 85,
-      );
-      if (image != null) {
+      final imagePath = await _imagePickerService.pickProfileImage();
+      
+      if (imagePath != null) {
         state.whenData(
           (value) =>
               state = AsyncValue.data(
-                value.copyWith(selectedImagePath: image.path),
+                value.copyWith(selectedImagePath: imagePath),
               ),
         );
       }

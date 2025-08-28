@@ -10,10 +10,10 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
-import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
@@ -120,7 +120,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     await Future.wait([
       ref.read(welcomesProvider.notifier).loadWelcomes(),
       ref.read(groupsProvider.notifier).loadGroups(),
-      ref.read(profileProvider.notifier).fetchProfileData(),
       ref.read(relayStatusProvider.notifier).refreshStatuses(),
     ]);
   }
@@ -252,10 +251,10 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     final welcomesList = ref.watch(welcomesProvider.select((state) => state.welcomes)) ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
 
-    // Cache profile data to avoid unnecessary rebuilds
-    final profileData = ref.watch(profileProvider);
-    final currentDisplayName = profileData.valueOrNull?.displayName ?? '';
-    final profileImagePath = profileData.valueOrNull?.picture ?? '';
+    final activeAccountState = ref.watch(activeAccountProvider);
+    final metadata = activeAccountState.value?.metadata;
+    final currentDisplayName = metadata?.displayName ?? '';
+    final profileImagePath = metadata?.picture ?? '';
 
     final chatItems = <ChatListItem>[];
 

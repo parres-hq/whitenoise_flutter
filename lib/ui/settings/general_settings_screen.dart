@@ -10,8 +10,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
-import 'package:whitenoise/config/providers/profile_provider.dart';
-import 'package:whitenoise/config/states/profile_state.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
@@ -37,17 +36,15 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   List<Account> _accounts = [];
   Account? _currentAccount;
   Map<String, ContactModel> _accountContactModels = {}; // Cache for contact models
-  ProviderSubscription<AsyncValue<ProfileState>>? _profileSubscription;
+  ProviderSubscription<AsyncValue<ActiveAccountState>>? _activeAccountSubscription;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAccounts();
-      // Listen for profile updates
-      _profileSubscription = ref.listenManual(
-        profileProvider,
+      _activeAccountSubscription = ref.listenManual(
+        activeAccountProvider,
         (previous, next) {
-          // When profile is updated successfully, refresh the accounts
           if (next is AsyncData) {
             _loadAccounts();
           }
@@ -58,7 +55,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   @override
   void dispose() {
-    _profileSubscription?.close();
+    _activeAccountSubscription?.close();
     super.dispose();
   }
 
@@ -118,7 +115,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Future<void> _switchAccount(Account account) async {
     try {
       await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
-      await ref.read(profileProvider.notifier).fetchProfileData();
       await ref.read(contactsProvider.notifier).loadContacts(account.pubkey);
       await ref.read(groupsProvider.notifier).loadGroups();
       setState(() => _currentAccount = account);

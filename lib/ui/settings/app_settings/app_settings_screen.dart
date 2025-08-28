@@ -13,7 +13,6 @@ import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
-import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api.dart' as wn_api;
@@ -122,10 +121,10 @@ class AppSettingsScreen extends ConsumerWidget {
       }
 
       try {
-        ref.invalidate(profileProvider);
-        _logger.info('✅ Profile provider invalidated');
+        ref.invalidate(activeAccountProvider);
+        _logger.info('✅ Active account provider invalidated');
       } catch (e) {
-        _logger.warning('⚠️ Error invalidating profile provider: $e');
+        _logger.warning('⚠️ Error invalidating active account provider: $e');
       }
 
       try {

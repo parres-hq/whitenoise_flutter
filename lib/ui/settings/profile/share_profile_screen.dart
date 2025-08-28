@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
-import 'package:whitenoise/config/providers/profile_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
@@ -36,7 +36,6 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
 
   Future<void> loadProfile() async {
     try {
-      await ref.read(profileProvider.notifier).fetchProfileData();
       npub = await ref.read(activePubkeyProvider)?.toNpub() ?? '';
       setState(() {});
     } catch (e) {
@@ -55,7 +54,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final currentProfile = ref.watch(profileProvider);
+    final activeAccountState = ref.watch(activeAccountProvider);
 
     return AnnotatedRegion(
       value: const SystemUiOverlayStyle(
@@ -87,22 +86,23 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                   ],
                 ),
                 Expanded(
-                  child: currentProfile.when(
-                    data: (profile) {
+                  child: activeAccountState.when(
+                    data: (state) {
+                      final profile = state.metadata;
                       return Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
                         child: Column(
                           children: [
                             Gap(16.h),
                             WnAvatar(
-                              imageUrl: profile.picture ?? '',
-                              displayName: profile.displayName ?? '',
+                              imageUrl: profile?.picture ?? '',
+                              displayName: profile?.displayName ?? '',
                               size: 96.w,
                               showBorder: true,
                             ),
                             Gap(8.h),
                             Text(
-                              profile.displayName ?? '',
+                              profile?.displayName ?? '',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 18.sp,
@@ -110,9 +110,9 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                                 color: context.colors.primary,
                               ),
                             ),
-                            if (profile.nip05 != null) ...[
+                            if (profile?.nip05 != null) ...[
                               Text(
-                                profile.nip05!,
+                                profile?.nip05 ?? '',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 14.sp,
