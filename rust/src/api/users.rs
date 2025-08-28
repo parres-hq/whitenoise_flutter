@@ -52,3 +52,11 @@ pub async fn user_relays(pubkey: String, relay_type: RelayType) -> Result<Vec<Re
     let relays = user.relays_by_type(relay_type, &whitenoise).await?;
     Ok(relays.into_iter().map(|r| r.into()).collect())
 }
+
+#[frb]
+pub async fn user_has_key_package(pubkey: String) -> Result<bool, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::from_hex(&pubkey)?;
+    let user = whitenoise.find_user_by_pubkey(&pubkey).await?;
+    Ok(user.key_package_event(whitenoise).await?.is_some())
+}
