@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -26,24 +27,13 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Try to load existing metadata first
-      final currentMetadata = ref.read(accountProvider).metadata;
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final currentMetadata = activeAccountState.metadata;
       if (currentMetadata?.displayName != null && currentMetadata!.displayName!.isNotEmpty) {
         _displayNameController.text = currentMetadata.displayName!;
         setState(() {
           _isLoadingDisplayName = false;
         });
-      } else {
-        // If no metadata, try to load it
-        await ref.read(accountProvider.notifier).loadAccount();
-        final newMetadata = ref.read(accountProvider).metadata;
-        if (newMetadata?.displayName != null && newMetadata!.displayName!.isNotEmpty) {
-          _displayNameController.text = newMetadata.displayName!;
-          setState(() {
-            _isLoadingDisplayName = false;
-          });
-        }
-        // Keep loading if no displayName is found - don't stop loading
       }
     });
   }

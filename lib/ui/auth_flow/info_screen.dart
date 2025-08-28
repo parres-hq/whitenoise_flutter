@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
-import 'package:whitenoise/config/providers/account_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
 import '../core/themes/assets.dart';
@@ -23,9 +23,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
   @override
   void initState() {
     super.initState();
-    // Start loading account data when the screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(accountProvider.notifier).loadAccount();
+      ref.read(activeAccountProvider.future);
     });
   }
 
@@ -35,15 +34,12 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     });
 
     // Wait for account data to be loaded and petname to be available
-    final accountNotifier = ref.read(accountProvider.notifier);
-
     // Keep loading until we have a displayName (petname)
     while (true) {
-      await accountNotifier.loadAccount();
-      final accountState = ref.read(accountProvider);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
 
-      if (accountState.metadata?.displayName != null &&
-          accountState.metadata!.displayName!.isNotEmpty) {
+      if (activeAccountState.metadata?.displayName != null &&
+          activeAccountState.metadata!.displayName!.isNotEmpty) {
         break;
       }
 
@@ -114,8 +110,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
           ).copyWith(bottom: 32.h),
           child: Consumer(
             builder: (context, ref, child) {
-              final accountState = ref.watch(accountProvider);
-              final isButtonDisabled = _isLoading || accountState.isLoading;
+              final activeAccountState = ref.watch(activeAccountProvider);
+              final isButtonDisabled = _isLoading || activeAccountState.isLoading;
 
               return WnFilledButton(
                 loading: isButtonDisabled,

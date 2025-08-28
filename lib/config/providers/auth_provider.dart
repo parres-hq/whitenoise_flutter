@@ -101,8 +101,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
       state = state.copyWith(isAuthenticated: true);
 
-      // Load account data after creating identity
-      await ref.read(accountProvider.notifier).loadAccount();
+      await ref.read(activeAccountProvider.future);
     } catch (e, st) {
       _logger.severe('createAccount', e, st);
       state = state.copyWith(error: e.toString());
@@ -129,8 +128,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
       state = state.copyWith(isAuthenticated: true);
 
-      // Load account data after creating identity
-      await ref.read(accountProvider.notifier).loadAccount();
+      await ref.read(activeAccountProvider.future);
     } catch (e, st) {
       _logger.severe('createAccountInBackground', e, st);
       state = state.copyWith(error: e.toString());
@@ -172,8 +170,7 @@ class AuthNotifier extends Notifier<AuthState> {
       await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
       _logger.info('Set active account: ${account.pubkey}');
 
-      // Load account data after login
-      await ref.read(accountProvider.notifier).loadAccount();
+      await ref.read(activeAccountProvider.future);
       _logger.info('Account data loaded');
 
       // Check account count after login
@@ -235,8 +232,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
       state = state.copyWith(isAuthenticated: true);
 
-      // Load account data after login
-      await ref.read(accountProvider.notifier).loadAccount();
+      await ref.read(activeAccountProvider.future);
     } catch (e, st) {
       String errorMessage;
 
@@ -306,8 +302,7 @@ class AuthNotifier extends Notifier<AuthState> {
           _logger.info('Switching to another account after logout: ${otherAccounts.first.pubkey}');
           await ref.read(activePubkeyProvider.notifier).setActivePubkey(otherAccounts.first.pubkey);
 
-          // Reload account data for the new active account
-          await ref.read(accountProvider.notifier).loadAccount();
+          await ref.read(activeAccountProvider.future);
 
           // Keep authenticated state as true since we have another account
           state = state.copyWith(isAuthenticated: true, isLoading: false);
@@ -322,7 +317,7 @@ class AuthNotifier extends Notifier<AuthState> {
         if (accounts.isNotEmpty) {
           // Set the first account as active
           await ref.read(activePubkeyProvider.notifier).setActivePubkey(accounts.first.pubkey);
-          await ref.read(accountProvider.notifier).loadAccount();
+          await ref.read(activeAccountProvider.future);
           state = state.copyWith(isAuthenticated: true, isLoading: false);
         } else {
           state = state.copyWith(isAuthenticated: false, isLoading: false);
