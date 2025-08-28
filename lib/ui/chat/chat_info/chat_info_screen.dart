@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -45,8 +46,7 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
 
   Future<void> _loadContacts() async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData != null) {
         await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
       }

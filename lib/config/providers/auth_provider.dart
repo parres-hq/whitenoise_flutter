@@ -5,6 +5,7 @@ import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
@@ -46,10 +47,10 @@ class AuthNotifier extends Notifier<AuthState> {
         final accounts = await getAccounts();
         if (accounts.isNotEmpty) {
           // Wait for active account provider to load from storage first
-          final activeAccountNotifier = ref.read(activeAccountProvider.notifier);
-          await activeAccountNotifier.loadActiveAccount();
+          final activePubkeyNotifier = ref.read(activePubkeyProvider.notifier);
+          await activePubkeyNotifier.loadActivePubkey();
 
-          final storedActivePubkey = ref.read(activeAccountProvider);
+          final storedActivePubkey = ref.read(activePubkeyProvider);
           _logger.info('Stored active pubkey: $storedActivePubkey');
 
           // Check if stored active account exists in current accounts
@@ -62,7 +63,7 @@ class AuthNotifier extends Notifier<AuthState> {
             _logger.info(
               'No valid stored active account, setting first account as active: ${accounts.first.pubkey}',
             );
-            await activeAccountNotifier.setActiveAccount(accounts.first.pubkey);
+            await activePubkeyNotifier.setActivePubkey(accounts.first.pubkey);
             state = state.copyWith(isAuthenticated: true);
           }
         } else {
@@ -96,7 +97,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
       // Get the newly created account data and set it as active
 
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
+      await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
 
       state = state.copyWith(isAuthenticated: true);
 
@@ -124,7 +125,7 @@ class AuthNotifier extends Notifier<AuthState> {
       // Account created successfully
 
       // Get the newly created account data and set it as active
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
+      await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
 
       state = state.copyWith(isAuthenticated: true);
 
@@ -168,7 +169,7 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(isAuthenticated: true);
 
       // Then set the active account
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
+      await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
       _logger.info('Set active account: ${account.pubkey}');
 
       // Load account data after login
@@ -181,7 +182,7 @@ class AuthNotifier extends Notifier<AuthState> {
         _logger.info('Accounts after login: ${accountsAfterLogin.length}');
 
         // Check that the active account is set correctly
-        final currentActiveAccount = ref.read(activeAccountProvider);
+        final currentActiveAccount = ref.read(activePubkeyProvider);
         _logger.info('Current active account after login: $currentActiveAccount');
 
         // Warn if previous accounts have been lost
@@ -230,7 +231,7 @@ class AuthNotifier extends Notifier<AuthState> {
 
       // Get the logged in account data and set it as active
 
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
+      await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
 
       state = state.copyWith(isAuthenticated: true);
 
@@ -285,13 +286,12 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData != null) {
         await logout(pubkey: activeAccountData.pubkey);
 
         // Clear the active account
-        await ref.read(activeAccountProvider.notifier).clearActiveAccount();
+        await ref.read(activePubkeyProvider.notifier).clearActivePubkey();
 
         // Check if there are other accounts available
         final remainingAccounts = await getAccounts();
@@ -305,9 +305,7 @@ class AuthNotifier extends Notifier<AuthState> {
         if (otherAccounts.isNotEmpty) {
           // Switch to the first available account
           _logger.info('Switching to another account after logout: ${otherAccounts.first.pubkey}');
-          await ref
-              .read(activeAccountProvider.notifier)
-              .setActiveAccount(otherAccounts.first.pubkey);
+          await ref.read(activePubkeyProvider.notifier).setActivePubkey(otherAccounts.first.pubkey);
 
           // Reload account data for the new active account
           await ref.read(accountProvider.notifier).loadAccountData();
@@ -324,7 +322,7 @@ class AuthNotifier extends Notifier<AuthState> {
         final accounts = await getAccounts();
         if (accounts.isNotEmpty) {
           // Set the first account as active
-          await ref.read(activeAccountProvider.notifier).setActiveAccount(accounts.first.pubkey);
+          await ref.read(activePubkeyProvider.notifier).setActivePubkey(accounts.first.pubkey);
           await ref.read(accountProvider.notifier).loadAccountData();
           state = state.copyWith(isAuthenticated: true, isLoading: false);
         } else {

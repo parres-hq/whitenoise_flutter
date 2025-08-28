@@ -46,11 +46,12 @@ class StartChatBottomSheet extends ConsumerStatefulWidget {
       title: 'User Profile',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
-      builder: (context) => StartChatBottomSheet(
-        contact: contact,
-        onChatCreated: onChatCreated,
-        keyPackageService: keyPackageService,
-      ),
+      builder:
+          (context) => StartChatBottomSheet(
+            contact: contact,
+            onChatCreated: onChatCreated,
+            keyPackageService: keyPackageService,
+          ),
     );
   }
 
@@ -73,7 +74,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
   }
 
   Future<void> _loadKeyPackage() async {
-    final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+    final activeAccountData = await ref.read(activeAccountProvider.future);
     if (activeAccountData == null) {
       ref.showErrorToast('No active account found');
       return;
@@ -235,72 +236,73 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
           curve: Curves.easeInOut,
           child: AnimatedSwitcher(
             duration: const Duration(milliseconds: 500),
-            child: _isLoadingKeyPackageError
-                ? const SizedBox.shrink(key: ValueKey('error'))
-                : _isLoadingKeyPackage
-                ? Center(
-                    key: const ValueKey('loading'),
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 40.h),
-                      child: SizedBox(
-                        width: 32.w,
-                        height: 32.w,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3.0,
-                          valueColor: AlwaysStoppedAnimation<Color>(context.colors.primary),
+            child:
+                _isLoadingKeyPackageError
+                    ? const SizedBox.shrink(key: ValueKey('error'))
+                    : _isLoadingKeyPackage
+                    ? Center(
+                      key: const ValueKey('loading'),
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 40.h),
+                        child: SizedBox(
+                          width: 32.w,
+                          height: 32.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3.0,
+                            valueColor: AlwaysStoppedAnimation<Color>(context.colors.primary),
+                          ),
                         ),
                       ),
+                    )
+                    : _needsInvite
+                    ? Column(
+                      key: const ValueKey('invite'),
+                      children: [
+                        ShareInviteCallout(contact: widget.contact),
+                        Gap(10.h),
+                        const ShareInviteButton(),
+                      ],
+                    )
+                    : Column(
+                      key: const ValueKey('buttons'),
+                      children: [
+                        WnFilledButton(
+                          visualState: WnButtonVisualState.secondary,
+                          onPressed: _isAddingContact ? null : _toggleContact,
+                          label: _isContact() ? 'Remove Contact' : 'Add Contact',
+                          suffixIcon: SvgPicture.asset(
+                            _isContact() ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+                            width: 18.w,
+                            height: 18.w,
+                            colorFilter: ColorFilter.mode(
+                              context.colors.primary,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                        Gap(8.h),
+                        WnFilledButton(
+                          visualState: WnButtonVisualState.secondary,
+                          onPressed: _openAddToGroup,
+                          label: 'Add to Group',
+                          suffixIcon: SvgPicture.asset(
+                            AssetsPaths.icChatInvite,
+                            width: 18.w,
+                            height: 18.w,
+                            colorFilter: ColorFilter.mode(
+                              context.colors.primary,
+                              BlendMode.srcIn,
+                            ),
+                          ),
+                        ),
+                        Gap(8.h),
+                        WnFilledButton(
+                          onPressed: _isCreatingGroup ? null : _createOrOpenDirectMessageGroup,
+                          loading: _isCreatingGroup,
+                          label: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
+                        ),
+                      ],
                     ),
-                  )
-                : _needsInvite
-                ? Column(
-                    key: const ValueKey('invite'),
-                    children: [
-                      ShareInviteCallout(contact: widget.contact),
-                      Gap(10.h),
-                      const ShareInviteButton(),
-                    ],
-                  )
-                : Column(
-                    key: const ValueKey('buttons'),
-                    children: [
-                      WnFilledButton(
-                        visualState: WnButtonVisualState.secondary,
-                        onPressed: _isAddingContact ? null : _toggleContact,
-                        label: _isContact() ? 'Remove Contact' : 'Add Contact',
-                        suffixIcon: SvgPicture.asset(
-                          _isContact() ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
-                          width: 18.w,
-                          height: 18.w,
-                          colorFilter: ColorFilter.mode(
-                            context.colors.primary,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
-                      Gap(8.h),
-                      WnFilledButton(
-                        visualState: WnButtonVisualState.secondary,
-                        onPressed: _openAddToGroup,
-                        label: 'Add to Group',
-                        suffixIcon: SvgPicture.asset(
-                          AssetsPaths.icChatInvite,
-                          width: 18.w,
-                          height: 18.w,
-                          colorFilter: ColorFilter.mode(
-                            context.colors.primary,
-                            BlendMode.srcIn,
-                          ),
-                        ),
-                      ),
-                      Gap(8.h),
-                      WnFilledButton(
-                        onPressed: _isCreatingGroup ? null : _createOrOpenDirectMessageGroup,
-                        loading: _isCreatingGroup,
-                        label: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
-                      ),
-                    ],
-                  ),
           ),
         ),
       ],

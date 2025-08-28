@@ -3,6 +3,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -50,14 +51,12 @@ class ContactsNotifier extends Notifier<ContactsState> {
   @override
   ContactsState build() {
     // Listen to active account changes and refresh contacts automatically
-    ref.listen<String?>(activeAccountProvider, (previous, next) {
+    ref.listen<String?>(activePubkeyProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
         // Schedule state changes after the build phase to avoid provider modification errors
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           state = const ContactsState();
-          final activeAccountData = await ref
-              .read(activeAccountProvider.notifier)
-              .getActiveAccountData();
+          final activeAccountData = await ref.read(activeAccountProvider.future);
           if (activeAccountData != null) {
             await loadContacts(activeAccountData.pubkey);
           }
@@ -68,9 +67,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
         });
       } else if (previous == null && next != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          final activeAccountData = await ref
-              .read(activeAccountProvider.notifier)
-              .getActiveAccountData();
+          final activeAccountData = await ref.read(activeAccountProvider.future);
           if (activeAccountData != null) {
             await loadContacts(activeAccountData.pubkey);
           }
@@ -332,9 +329,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -395,9 +390,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -439,9 +432,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -497,9 +488,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;

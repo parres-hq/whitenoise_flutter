@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -65,7 +65,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Future<void> _loadAccounts() async {
     try {
       final accounts = await getAccounts();
-      final activeAccountPubkey = ref.read(activeAccountProvider);
+      final activeAccountPubkey = ref.read(activePubkeyProvider);
 
       // Load metadata for all accounts using metadata cache
       final metadataCache = ref.read(metadataCacheProvider.notifier);
@@ -94,13 +94,13 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
           // Active account not found, use first account
           if (accounts.isNotEmpty) {
             currentAccount = accounts.first;
-            await ref.read(activeAccountProvider.notifier).setActiveAccount(currentAccount.pubkey);
+            await ref.read(activePubkeyProvider.notifier).setActivePubkey(currentAccount.pubkey);
           }
         }
       } else if (accounts.isNotEmpty) {
         // No active account set, use first account
         currentAccount = accounts.first;
-        await ref.read(activeAccountProvider.notifier).setActiveAccount(currentAccount.pubkey);
+        await ref.read(activePubkeyProvider.notifier).setActivePubkey(currentAccount.pubkey);
       }
 
       setState(() {
@@ -117,7 +117,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   Future<void> _switchAccount(AccountData account) async {
     try {
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
+      await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
       await ref.read(profileProvider.notifier).fetchProfileData();
       await ref.read(contactsProvider.notifier).loadContacts(account.pubkey);
       await ref.read(groupsProvider.notifier).loadGroups();

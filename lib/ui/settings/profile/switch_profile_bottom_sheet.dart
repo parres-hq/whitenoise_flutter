@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -83,7 +83,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
   @override
   void initState() {
     super.initState();
-    _loadActiveAccountHex();
+    _getActivePubkeyHex();
     _precomputeProfileHexes();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.showSuccessToast) {
@@ -92,8 +92,8 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
     });
   }
 
-  Future<void> _loadActiveAccountHex() async {
-    final activeAccountPubkey = ref.read(activeAccountProvider);
+  Future<void> _getActivePubkeyHex() async {
+    final activeAccountPubkey = ref.read(activePubkeyProvider);
     if (activeAccountPubkey != null) {
       setState(() {
         _activeAccountHex = activeAccountPubkey;
@@ -140,7 +140,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
 
   @override
   Widget build(BuildContext context) {
-    final activeAccountPubkey = ref.watch(activeAccountProvider);
+    final activeAccountPubkey = ref.watch(activePubkeyProvider);
 
     // Sort profiles: active account first, then others
     final sortedProfiles = [...widget.profiles];

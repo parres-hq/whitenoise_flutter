@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
@@ -62,7 +62,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
       }
 
       // Get the active account data directly
-      final pubKeyString = ref.read(activeAccountProvider);
+      final pubKeyString = ref.read(activePubkeyProvider);
 
       if (pubKeyString == null) {
         _logger.warning('NormalRelaysNotifier: No active account found');
@@ -117,7 +117,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final accountPubKey = ref.read(activeAccountProvider);
+      final accountPubKey = ref.read(activePubkeyProvider);
 
       if (accountPubKey == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
@@ -135,7 +135,7 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      final accountPubKey = ref.read(activeAccountProvider);
+      final accountPubKey = ref.read(activePubkeyProvider);
       if (accountPubKey == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
@@ -181,7 +181,7 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
       }
 
       // Get the active account data directly
-      final accountPubKey = ref.read(activeAccountProvider);
+      final accountPubKey = ref.read(activePubkeyProvider);
 
       if (accountPubKey == null) {
         _logger.warning('InboxRelaysNotifier: No active account found');
@@ -237,7 +237,7 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final accountPubKey = ref.read(activeAccountProvider);
+      final accountPubKey = ref.read(activePubkeyProvider);
       if (accountPubKey == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
@@ -257,7 +257,7 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      final accountPubKeyString = ref.read(activeAccountProvider);
+      final accountPubKeyString = ref.read(activePubkeyProvider);
 
       if (accountPubKeyString == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
@@ -306,7 +306,7 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
       }
 
       // Get the active account data directly
-      final pubKeyString = ref.read(activeAccountProvider);
+      final pubKeyString = ref.read(activePubkeyProvider);
 
       if (pubKeyString == null) {
         _logger.warning('KeyPackageRelaysNotifier: No active account found');
@@ -359,7 +359,7 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final accountPubKeyString = ref.read(activeAccountProvider);
+      final accountPubKeyString = ref.read(activePubkeyProvider);
       if (accountPubKeyString == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
@@ -374,7 +374,7 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      final accountPubKeyString = ref.read(activeAccountProvider);
+      final accountPubKeyString = ref.read(activePubkeyProvider);
 
       if (accountPubKeyString == null) {
         _logger.severe('RelayProvider: No active account found for adding relay');

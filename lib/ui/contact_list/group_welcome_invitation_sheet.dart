@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
@@ -112,8 +113,7 @@ class GroupMessageInvite extends ConsumerStatefulWidget {
 class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
   Future<MetadataData?> _fetchInviterMetadata() async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         ref.showErrorToast('No active account found');
         return null;
@@ -244,8 +244,7 @@ class DirectMessageAvatar extends ConsumerStatefulWidget {
 class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
   Future<MetadataData?> _fetchInviterMetadata() async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         ref.showErrorToast('No active account found');
         return null;
@@ -292,8 +291,7 @@ class DirectMessageInviteCard extends ConsumerStatefulWidget {
 class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCard> {
   Future<MetadataData?> _fetchInviterMetadata() async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         ref.showErrorToast('No active account found');
         return null;

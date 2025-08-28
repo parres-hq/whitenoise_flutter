@@ -109,8 +109,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
       if (publicKey.startsWith('npub1')) {
         fetchKey = await _safeNpubToHex(publicKey);
       }
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         throw 'No active account found';
       }

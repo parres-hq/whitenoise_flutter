@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
@@ -20,7 +21,7 @@ class ChatNotifier extends Notifier<ChatState> {
   @override
   ChatState build() {
     // Listen to active account changes and refresh chats automatically
-    ref.listen<String?>(activeAccountProvider, (previous, next) {
+    ref.listen<String?>(activePubkeyProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
         // Schedule state changes after the build phase to avoid provider modification errors
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -65,8 +66,7 @@ class ChatNotifier extends Notifier<ChatState> {
     );
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         _setGroupError(groupId, 'No active account found');
         return;
@@ -144,8 +144,7 @@ class ChatNotifier extends Notifier<ChatState> {
     );
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         _setGroupError(groupId, 'No active account found');
         return null;
@@ -287,8 +286,7 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         return;
       }
@@ -501,8 +499,7 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         _setGroupError(message.groupId ?? '', 'No active account found');
         return false;
@@ -574,8 +571,7 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         _setGroupError(groupId, 'No active account found');
         return null;
@@ -679,8 +675,7 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         _setGroupError(groupId, 'No active account found');
         return false;

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -149,7 +149,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
   @override
   Widget build(BuildContext context) {
     final contactsState = ref.watch(contactsProvider);
-    final activeAccount = ref.watch(activeAccountProvider);
+    final activeAccount = ref.watch(activePubkeyProvider);
     final filteredContacts = _getFilteredContacts(contactsState.contactModels, activeAccount);
 
     return Padding(

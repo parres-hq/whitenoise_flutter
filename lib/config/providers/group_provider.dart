@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
@@ -38,7 +39,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
   @override
   GroupsState build() {
     // Listen to active account changes and refresh groups automatically
-    ref.listen<String?>(activeAccountProvider, (previous, next) {
+    ref.listen<String?>(activePubkeyProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
         // Account switched, clear current groups and load for new account
         // Schedule state changes after the build phase to avoid provider modification errors
@@ -80,9 +81,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
@@ -91,19 +90,18 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final groups = await activeGroups(pubkey: activeAccountData.pubkey);
 
       // Sort groups by lastMessageAt in descending order (newest first)
-      final sortedGroups = [...groups]
-        ..sort((a, b) {
-          final aTime = a.lastMessageAt;
-          final bTime = b.lastMessageAt;
+      final sortedGroups = [...groups]..sort((a, b) {
+        final aTime = a.lastMessageAt;
+        final bTime = b.lastMessageAt;
 
-          // Handle null values - groups without messages go to the end
-          if (aTime == null && bTime == null) return 0;
-          if (aTime == null) return 1;
-          if (bTime == null) return -1;
+        // Handle null values - groups without messages go to the end
+        if (aTime == null && bTime == null) return 0;
+        if (aTime == null) return 1;
+        if (bTime == null) return -1;
 
-          // Sort by descending order (newest first)
-          return bTime.compareTo(aTime);
-        });
+        // Sort by descending order (newest first)
+        return bTime.compareTo(aTime);
+      });
 
       // First set the groups and create groupsMap
       final groupsMap = <String, Group>{};
@@ -154,9 +152,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Find an existing direct message group between the current user and another user
   Future<Group?> _findExistingDirectMessage(String otherUserPubkeyHex) async {
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) return null;
 
       final currentUserNpub = await npubFromHexPubkey(hexPubkey: activeAccountData.pubkey);
@@ -196,9 +192,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
 
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
@@ -219,9 +213,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       // Filter out the creator from the members list since they shouldn't be explicitly included
       final creatorPubkeyHex = activeAccountData.pubkey.trim();
-      final filteredMemberHexs = memberPublicKeyHexs
-          .where((hex) => hex.trim() != creatorPubkeyHex)
-          .toList();
+      final filteredMemberHexs =
+          memberPublicKeyHexs.where((hex) => hex.trim() != creatorPubkeyHex).toList();
 
       // Use hex strings directly instead of converting to PublicKey objects
       final filteredMemberPubkeys = filteredMemberHexs.map((hexKey) => hexKey.trim()).toList();
@@ -230,10 +223,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
       );
 
       // Use hex strings directly instead of converting to PublicKey objects
-      final resolvedAdminPublicKeys = adminPublicKeyHexs
-          .toSet()
-          .map((hexKey) => hexKey.trim())
-          .toList();
+      final resolvedAdminPublicKeys =
+          adminPublicKeyHexs.toSet().map((hexKey) => hexKey.trim()).toList();
       final combinedAdminKeys = {activeAccountData.pubkey, ...resolvedAdminPublicKeys}.toList();
       _logger.info('GroupsProvider: Admin pubkeys loaded - ${combinedAdminKeys.length}');
 
@@ -305,9 +296,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -350,7 +339,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
           // Log the full exception details with proper ApiError unpacking
           String logMessage = 'Failed to process member pubkey - Exception: ';
           if (e is ApiError) {
-            final errorDetails = await  e.messageText();
+            final errorDetails = await e.messageText();
             logMessage += '$errorDetails (Type: ${e.runtimeType})';
           } else {
             logMessage += '$e (Type: ${e.runtimeType})';
@@ -386,9 +375,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -502,9 +489,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     if (group == null) return;
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) return;
 
       final displayName = await _getDisplayNameForGroup(group, activeAccountData.pubkey);
@@ -515,7 +500,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     } catch (e) {
       String logMessage = 'Failed to calculate display name for group $groupId - Exception: ';
       if (e is ApiError) {
-        final errorDetails = await e.messageText():
+        final errorDetails = await e.messageText();
         logMessage += '$errorDetails (Type: ${e.runtimeType})';
       } else {
         logMessage += '$e (Type: ${e.runtimeType})';
@@ -550,7 +535,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       String logMessage = 'GroupsProvider: Error loading members for groups - Exception: ';
       if (e is ApiError) {
         final errorDetails = await e.messageText();
-         logMessage += '$errorDetails (Type: ${e.runtimeType})';
+        logMessage += '$errorDetails (Type: ${e.runtimeType})';
       } else {
         logMessage += '$e (Type: ${e.runtimeType})';
       }
@@ -654,9 +639,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   Future<bool> isCurrentUserAdmin(String groupId) async {
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) return false;
 
       final group = findGroupById(groupId);
@@ -700,9 +683,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         return;
       }
@@ -710,31 +691,27 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final newGroups = await activeGroups(pubkey: activeAccountData.pubkey);
 
       final currentGroups = state.groups ?? [];
-      final currentGroupIds = currentGroups
-          .map((g) => (g as Group?)?.mlsGroupId)
-          .whereType<String>()
-          .toSet();
+      final currentGroupIds =
+          currentGroups.map((g) => (g as Group?)?.mlsGroupId).whereType<String>().toSet();
 
       // Find truly new groups
-      final actuallyNewGroups = newGroups
-          .where((group) => !currentGroupIds.contains(group.mlsGroupId))
-          .toList();
+      final actuallyNewGroups =
+          newGroups.where((group) => !currentGroupIds.contains(group.mlsGroupId)).toList();
 
       if (actuallyNewGroups.isNotEmpty) {
         // Add new groups to existing list and sort by lastMessageAt (newest first)
-        final updatedGroups = [...currentGroups, ...actuallyNewGroups]
-          ..sort((a, b) {
-            final aTime = (a as Group?)?.lastMessageAt;
-            final bTime = (b as Group?)?.lastMessageAt;
+        final updatedGroups = [...currentGroups, ...actuallyNewGroups]..sort((a, b) {
+          final aTime = (a as Group?)?.lastMessageAt;
+          final bTime = (b as Group?)?.lastMessageAt;
 
-            // Handle null values - groups without messages go to the end
-            if (aTime == null && bTime == null) return 0;
-            if (aTime == null) return 1;
-            if (bTime == null) return -1;
+          // Handle null values - groups without messages go to the end
+          if (aTime == null && bTime == null) return 0;
+          if (aTime == null) return 1;
+          if (bTime == null) return -1;
 
-            // Sort by descending order (newest first)
-            return bTime.compareTo(aTime);
-          });
+          // Sort by descending order (newest first)
+          return bTime.compareTo(aTime);
+        });
 
         // Update groupsMap with all groups
         final updatedGroupsMap = Map<String, Group>.from(state.groupsMap ?? {});
@@ -819,9 +796,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -876,9 +851,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return;
@@ -928,24 +901,25 @@ class GroupsNotifier extends Notifier<GroupsState> {
     final groups = state.groups;
     if (groups == null) return;
 
-    final updatedGroups = groups.map((group) {
-      if ((group as Group?)?.mlsGroupId == groupId) {
-        final g = group as Group;
-        return Group(
-          mlsGroupId: g.mlsGroupId,
-          nostrGroupId: g.nostrGroupId,
-          name: g.name,
-          description: g.description,
-          adminPubkeys: g.adminPubkeys,
-          lastMessageId: g.lastMessageId,
-          lastMessageAt: timestamp,
-          groupType: g.groupType,
-          epoch: g.epoch,
-          state: g.state,
-        );
-      }
-      return group;
-    }).toList();
+    final updatedGroups =
+        groups.map((group) {
+          if ((group as Group?)?.mlsGroupId == groupId) {
+            final g = group as Group;
+            return Group(
+              mlsGroupId: g.mlsGroupId,
+              nostrGroupId: g.nostrGroupId,
+              name: g.name,
+              description: g.description,
+              adminPubkeys: g.adminPubkeys,
+              lastMessageId: g.lastMessageId,
+              lastMessageAt: timestamp,
+              groupType: g.groupType,
+              epoch: g.epoch,
+              state: g.state,
+            );
+          }
+          return group;
+        }).toList();
 
     updatedGroups.sort((a, b) {
       final aTime = (a)?.lastMessageAt;

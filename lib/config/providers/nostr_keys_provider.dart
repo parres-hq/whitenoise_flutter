@@ -30,8 +30,7 @@ class NostrKeysNotifier extends Notifier<NostrKeysState> {
         return;
       }
 
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
 
       if (activeAccountData == null) {
         _logger.severe('NostrKeysNotifier: No active account found');

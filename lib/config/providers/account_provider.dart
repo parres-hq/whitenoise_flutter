@@ -5,6 +5,7 @@ import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/routing/router_provider.dart';
@@ -67,8 +68,7 @@ class AccountNotifier extends Notifier<AccountState> {
 
     try {
       // Get the active account data from active account provider
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
 
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
@@ -120,34 +120,6 @@ class AccountNotifier extends Notifier<AccountState> {
     }
   }
 
-  // Set a specific account as active
-  Future<void> setActiveAccount(Account account) async {
-    state = state.copyWith(isLoading: true);
-    try {
-      final data = await convertAccountToData(account: account);
-      state = state.copyWith(pubkey: data.pubkey);
-
-      // Automatically load contacts for the newly active account
-      try {
-        await ref.read(contactsProvider.notifier).loadContacts(data.pubkey);
-      } catch (e) {
-        _logger.severe('Failed to load contacts: $e');
-      }
-    } catch (e, st) {
-      _logger.severe('setActiveAccount', e, st);
-      state = state.copyWith(error: e.toString());
-    } finally {
-      state = state.copyWith(isLoading: false);
-    }
-  }
-
-  // Return pubkey (load account if missing)
-  Future<String?> getPubkey() async {
-    if (state.pubkey != null) return state.pubkey;
-    await loadAccountData();
-    return state.pubkey;
-  }
-
   // Update metadata for the current account
   Future<void> updateAccountMetadata(WidgetRef ref, String displayName, String bio) async {
     if (displayName.isEmpty) {
@@ -179,8 +151,7 @@ class AccountNotifier extends Notifier<AccountState> {
           final fileExtension = path.extension(profilePicPath);
           final imageType = await imageTypeFromExtension(extension_: fileExtension);
 
-          final activeAccount =
-              await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+          final activeAccount = await ref.read(activeAccountProvider.future);
           if (activeAccount == null) {
             ref.showRawErrorToast('No active account found');
             return;

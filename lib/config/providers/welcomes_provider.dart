@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/welcome_state.dart';
 import 'package:whitenoise/src/rust/api.dart';
@@ -18,7 +19,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
   @override
   WelcomesState build() {
     // Listen to active account changes and refresh welcomes automatically
-    ref.listen<String?>(activeAccountProvider, (previous, next) {
+    ref.listen<String?>(activePubkeyProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
         // Schedule state changes after the build phase to avoid provider modification errors
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -61,9 +62,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
@@ -87,9 +86,10 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       );
 
       // Find new pending welcomes and trigger callback for the first one
-      final newPendingWelcomes = welcomes
-          .where((w) => w.state == WelcomeState.pending && !previousPendingIds.contains(w.id))
-          .toList();
+      final newPendingWelcomes =
+          welcomes
+              .where((w) => w.state == WelcomeState.pending && !previousPendingIds.contains(w.id))
+              .toList();
 
       if (newPendingWelcomes.isNotEmpty && _onNewWelcomeCallback != null) {
         _logger.info(
@@ -120,9 +120,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return null;
@@ -155,9 +153,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return false;
@@ -195,9 +191,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         state = state.copyWith(error: 'No active account found');
         return false;
@@ -263,9 +257,10 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       final updatedWelcomeById = Map<String, WelcomeData>.from(state.welcomeById ?? {});
       updatedWelcomeById[welcomeEventId] = updatedWelcome;
 
-      final updatedWelcomes = state.welcomes?.map((welcome) {
-        return welcome.id == welcomeEventId ? updatedWelcome : welcome;
-      }).toList();
+      final updatedWelcomes =
+          state.welcomes?.map((welcome) {
+            return welcome.id == welcomeEventId ? updatedWelcome : welcome;
+          }).toList();
 
       state = state.copyWith(
         welcomes: updatedWelcomes,
@@ -335,9 +330,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
         return;
       }
@@ -349,9 +342,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       final currentWelcomeIds = currentWelcomes.map((w) => w.id).toSet();
 
       // Find truly new welcomes
-      final actuallyNewWelcomes = newWelcomes
-          .where((welcome) => !currentWelcomeIds.contains(welcome.id))
-          .toList();
+      final actuallyNewWelcomes =
+          newWelcomes.where((welcome) => !currentWelcomeIds.contains(welcome.id)).toList();
 
       if (actuallyNewWelcomes.isNotEmpty) {
         // Add new welcomes to existing list
@@ -369,9 +361,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         );
 
         // Trigger callback for new pending welcomes
-        final newPendingWelcomes = actuallyNewWelcomes
-            .where((w) => w.state == WelcomeState.pending)
-            .toList();
+        final newPendingWelcomes =
+            actuallyNewWelcomes.where((w) => w.state == WelcomeState.pending).toList();
 
         if (newPendingWelcomes.isNotEmpty && _onNewWelcomeCallback != null) {
           _logger.info('WelcomesProvider: Found ${newPendingWelcomes.length} new pending welcomes');

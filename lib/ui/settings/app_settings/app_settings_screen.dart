@@ -7,7 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/account_provider.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
@@ -143,7 +143,7 @@ class AppSettingsScreen extends ConsumerWidget {
       }
 
       try {
-        ref.invalidate(activeAccountProvider);
+        ref.invalidate(activePubkeyProvider);
         _logger.info('✅ Active account provider invalidated');
       } catch (e) {
         _logger.warning('⚠️ Error invalidating active account provider: $e');

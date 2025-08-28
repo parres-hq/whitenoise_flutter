@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/models/relay_status.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
@@ -64,8 +65,7 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
       }
 
       // Get the active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountData = await ref.read(activeAccountProvider.future);
       _logger.info('RelayStatusNotifier: Active account data: ${activeAccountData?.pubkey}');
       if (activeAccountData == null) {
         _logger.warning('RelayStatusNotifier: No active account found');
@@ -124,7 +124,7 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
       }
 
       // Read the active account pubkey string
-      final accountPubKey = ref.read(activeAccountProvider);
+      final accountPubKey = ref.read(activePubkeyProvider);
       if (accountPubKey == null) return false;
 
       // Fetch relay URLs for each type using new bridge methods
@@ -132,15 +132,21 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
       final inboxType = await relayTypeInbox();
       final keyPackageType = await relayTypeKeyPackage();
 
-      final nip65Urls = (await accountRelays(pubkey: accountPubKey, relayType: nip65Type))
-          .map((r) => r.url)
-          .toList();
-      final inboxUrls = (await accountRelays(pubkey: accountPubKey, relayType: inboxType))
-          .map((r) => r.url)
-          .toList();
-      final keyPackageUrls = (await accountRelays(pubkey: accountPubKey, relayType: keyPackageType))
-          .map((r) => r.url)
-          .toList();
+      final nip65Urls =
+          (await accountRelays(
+            pubkey: accountPubKey,
+            relayType: nip65Type,
+          )).map((r) => r.url).toList();
+      final inboxUrls =
+          (await accountRelays(
+            pubkey: accountPubKey,
+            relayType: inboxType,
+          )).map((r) => r.url).toList();
+      final keyPackageUrls =
+          (await accountRelays(
+            pubkey: accountPubKey,
+            relayType: keyPackageType,
+          )).map((r) => r.url).toList();
 
       // Check each relay type separately using URL strings
       final hasConnectedNostr = await _hasConnectedRelayOfType(nip65Urls);

@@ -2,13 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
 import 'package:path/path.dart' as path;
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/config/providers/active_account_data_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 
@@ -33,19 +35,26 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
-      // Get active account data directly
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      // Get active account data from the new provider
+      final activeAccountDataAsync = ref.read(activeAccountDataProvider);
+      final activeAccountData = activeAccountDataAsync.valueOrNull;
       if (activeAccountData == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
       }
 
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      
+      // Get relays for this account separately
+      final nip65RelayType = await relayTypeNip65();
+      final relays = await accountRelays(
+        pubkey: activeAccountData.pubkey,
+        relayType: nip65RelayType,
+      );
+      
       final metadata = await fetchMetadataFrom(
         pubkey: publicKey,
-        nip65Relays: activeAccountData.nip65Relays,
+        nip65Relays: relays,
       );
 
       final profileState = ProfileState(
@@ -112,9 +121,10 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       );
       if (image != null) {
         state.whenData(
-          (value) => state = AsyncValue.data(
-            value.copyWith(selectedImagePath: image.path),
-          ),
+          (value) =>
+              state = AsyncValue.data(
+                value.copyWith(selectedImagePath: image.path),
+              ),
         );
       }
     } catch (e, st) {
@@ -135,10 +145,9 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
-      // Get active account data directly
-      final activeAccountData = await ref
-          .read(activeAccountProvider.notifier)
-          .getActiveAccountData();
+      // Get active account data from the new provider
+      final activeAccountDataAsync = ref.read(activeAccountDataProvider);
+      final activeAccountData = activeAccountDataAsync.valueOrNull;
       if (activeAccountData == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
@@ -148,14 +157,8 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         final fileExtension = path.extension(state.value!.selectedImagePath!);
         final imageType = await imageTypeFromExtension(extension_: fileExtension);
 
-        final activeAccount = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-        if (activeAccount == null) {
-          state = AsyncValue.error('No active account found', StackTrace.current);
-          return;
-        }
-
         final serverUrl = await getDefaultBlossomServerUrl();
-        final publicKey = await publicKeyFromString(publicKeyString: activeAccount.pubkey);
+        final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
 
         profilePictureUrl = await uploadProfilePicture(
           pubkey: publicKey,
@@ -166,9 +169,17 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       }
 
       final publicKey = await publicKeyFromString(publicKeyString: activeAccountData.pubkey);
+      
+      // Get relays for this account separately
+      final nip65RelayType = await relayTypeNip65();
+      final relays = await accountRelays(
+        pubkey: activeAccountData.pubkey,
+        relayType: nip65RelayType,
+      );
+      
       final metadata = await fetchMetadataFrom(
         pubkey: publicKey,
-        nip65Relays: activeAccountData.nip65Relays,
+        nip65Relays: relays,
       );
 
       if (metadata == null) {
