@@ -5,14 +5,14 @@ import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 
-/// Converts ChatMessageData to MessageModel for UI display
+/// Converts ChatMessage to MessageModel for UI display
 class MessageConverter {
   static Future<MessageModel> fromChatMessage(
-    ChatMessageData messageData, {
+    ChatMessage messageData, {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
-    Map<String, ChatMessageData>? messageCache,
+    Map<String, ChatMessage>? messageCache,
   }) async {
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
 
@@ -95,7 +95,7 @@ class MessageConverter {
   }
 
   static Future<List<MessageModel>> fromChatMessageList(
-    List<ChatMessageData> messageDataList, {
+    List<ChatMessage> messageDataList, {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
@@ -105,7 +105,7 @@ class MessageConverter {
         messageDataList.where((msg) => !msg.isDeleted && msg.content.isNotEmpty).toList();
 
     // Build message cache for reply lookups
-    final messageCache = <String, ChatMessageData>{};
+    final messageCache = <String, ChatMessage>{};
     for (final msg in validMessages) {
       messageCache[msg.id] = msg;
     }
@@ -134,7 +134,7 @@ class MessageConverter {
     final messages =
         validMessages
             .map(
-              (messageData) => _fromChatMessageDataWithCache(
+              (messageData) => _fromChatMessageWithCache(
                 messageData,
                 currentUserPublicKey: currentUserPublicKey,
                 groupId: groupId,
@@ -147,12 +147,12 @@ class MessageConverter {
     return messages;
   }
 
-  /// Convert ChatMessageData to MessageModel using cached user data
-  static MessageModel _fromChatMessageDataWithCache(
-    ChatMessageData messageData, {
+  /// Convert ChatMessage to MessageModel using cached user data
+  static MessageModel _fromChatMessageWithCache(
+    ChatMessage messageData, {
     required String? currentUserPublicKey,
     String? groupId,
-    required Map<String, ChatMessageData> messageCache,
+    required Map<String, ChatMessage> messageCache,
     required Map<String, User> userCache,
   }) {
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
@@ -248,7 +248,7 @@ class MessageConverter {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
-    ChatMessageData? replyInfo,
+    ChatMessage? replyInfo,
     Map<String, MessageWithTokensData>? originalMessageLookup,
   }) async {
     final isMe = currentUserPublicKey != null && messageData.pubkey == currentUserPublicKey;
@@ -339,10 +339,10 @@ class MessageConverter {
     required String? currentUserPublicKey,
     String? groupId,
     required Ref ref,
-    List<ChatMessageData>? aggregatedMessages, // TODO: For reply mapping
+    List<ChatMessage>? aggregatedMessages, // TODO: For reply mapping
   }) async {
     // Create lookup maps for reply functionality
-    final Map<String, ChatMessageData> replyMap = {};
+    final Map<String, ChatMessage> replyMap = {};
     final Map<String, MessageWithTokensData> originalMessageMap = {};
 
     // Build original message lookup from primary message data
@@ -408,7 +408,7 @@ class MessageConverter {
     MessageWithTokensData messageData, {
     required String? currentUserPublicKey,
     String? groupId,
-    ChatMessageData? replyInfo,
+    ChatMessage? replyInfo,
     Map<String, MessageWithTokensData>? originalMessageLookup,
     required Map<String, User> userCache,
   }) async {

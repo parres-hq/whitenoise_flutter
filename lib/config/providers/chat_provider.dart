@@ -163,8 +163,8 @@ class ChatNotifier extends Notifier<ChatState> {
       // Convert sent message to MessageModel and add to local state
       final currentMessages = state.groupMessages[groupId] ?? [];
 
-      // Create ChatMessageData from the sent message
-      final sentChatMessageData = ChatMessage(
+      // Create ChatMessage from the sent message
+      final sentChatMessage = ChatMessage(
         id: sentMessage.id,
         pubkey: sentMessage.pubkey,
         content: sentMessage.content ?? '',
@@ -199,7 +199,7 @@ class ChatNotifier extends Notifier<ChatState> {
       }
 
       final sentMessageModel = await MessageConverter.fromChatMessage(
-        sentChatMessageData,
+        sentChatMessage,
         currentUserPublicKey: activeAccount.pubkey,
         groupId: groupId,
         ref: ref,
@@ -596,8 +596,8 @@ class ChatNotifier extends Notifier<ChatState> {
       // Convert to MessageModel and add to local state
       final currentMessages = state.groupMessages[groupId] ?? [];
 
-      // Create ChatMessageData for the reply message
-      final sentChatMessageData = ChatMessage(
+      // Create ChatMessage for the reply message
+      final sentChatMessage = ChatMessage(
         id: sentMessage.id,
         pubkey: sentMessage.pubkey,
         content: sentMessage.content ?? '',
@@ -614,8 +614,8 @@ class ChatNotifier extends Notifier<ChatState> {
       // Build message cache from current messages for reply lookup
       final messageCache = <String, ChatMessage>{};
       for (final msg in currentMessages) {
-        // Convert existing MessageModel back to ChatMessageData for cache
-        final chatMessageData = ChatMessage(
+        // Convert existing MessageModel back to ChatMessage for cache
+        final chatMessage = ChatMessage(
           id: msg.id,
           pubkey: msg.sender.publicKey,
           content: msg.content ?? '',
@@ -628,11 +628,11 @@ class ChatNotifier extends Notifier<ChatState> {
           reactions: const ReactionSummary(byEmoji: [], userReactions: []),
           kind: msg.kind, // Use the actual message kind
         );
-        messageCache[msg.id] = chatMessageData;
+        messageCache[msg.id] = chatMessage;
       }
 
       final sentMessageModel = await MessageConverter.fromChatMessage(
-        sentChatMessageData,
+        sentChatMessage,
         currentUserPublicKey: activeAccount.pubkey,
         groupId: groupId,
         ref: ref,
