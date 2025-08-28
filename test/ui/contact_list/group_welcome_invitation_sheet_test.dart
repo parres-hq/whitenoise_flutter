@@ -4,7 +4,7 @@ import 'package:whitenoise/src/rust/api/welcomes.dart';
 void main() {
   group('GroupWelcomeInvitationSheet Logic Tests', () {
     // Test data for direct message (memberCount <= 2)
-    final directMessageWelcome = WelcomeData(
+    final directMessageWelcome = Welcome(
       id: 'dm_welcome_1',
       mlsGroupId: 'mls_dm_1',
       nostrGroupId: 'nostr_dm_1',
@@ -19,7 +19,7 @@ void main() {
     );
 
     // Test data for group message (memberCount > 2)
-    final groupMessageWelcome = WelcomeData(
+    final groupMessageWelcome = Welcome(
       id: 'group_welcome_1',
       mlsGroupId: 'mls_group_1',
       nostrGroupId: 'nostr_group_1',

@@ -14,7 +14,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
   final _logger = Logger('WelcomesNotifier');
 
   // Callback for when a new pending welcome is available
-  void Function(WelcomeData)? _onNewWelcomeCallback;
+  void Function(Welcome)? _onNewWelcomeCallback;
 
   @override
   WelcomesState build() {
@@ -23,12 +23,12 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       if (previous != null && next != null && previous != next) {
         // Schedule state changes after the build phase to avoid provider modification errors
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          clearWelcomeData();
+          clearWelcome();
           loadWelcomes();
         });
       } else if (previous != null && next == null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          clearWelcomeData();
+          clearWelcome();
         });
       } else if (previous == null && next != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -40,7 +40,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     return const WelcomesState();
   }
 
-  void setOnNewWelcomeCallback(void Function(WelcomeData)? callback) {
+  void setOnNewWelcomeCallback(void Function(Welcome)? callback) {
     _onNewWelcomeCallback = callback;
   }
 
@@ -70,7 +70,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
 
       final welcomes = await fetchWelcomes(pubkey: activeAccount.pubkey);
 
-      final welcomeByData = <String, WelcomeData>{};
+      final welcomeByData = <String, Welcome>{};
       for (final welcome in welcomes) {
         welcomeByData[welcome.id] = welcome;
       }
@@ -108,7 +108,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
   }
 
-  Future<WelcomeData?> fetchWelcomeById(String welcomeEventId) async {
+  Future<Welcome?> fetchWelcomeById(String welcomeEventId) async {
     if (!_isAuthAvailable()) {
       return null;
     }
@@ -122,7 +122,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
 
       final welcome = await fetchWelcome(pubkey: activeAccount.pubkey, welcomeEventId: welcomeEventId);
 
-      final updatedWelcomeById = Map<String, WelcomeData>.from(state.welcomeById ?? {});
+      final updatedWelcomeById = Map<String, Welcome>.from(state.welcomeById ?? {});
       updatedWelcomeById[welcome.id] = welcome;
 
       state = state.copyWith(welcomeById: updatedWelcomeById);
@@ -221,7 +221,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
   Future<void> _updateWelcomeState(String welcomeEventId, WelcomeState newState) async {
     final currentWelcome = state.welcomeById?[welcomeEventId];
     if (currentWelcome != null) {
-      final updatedWelcome = WelcomeData(
+      final updatedWelcome = Welcome(
         id: currentWelcome.id,
         mlsGroupId: currentWelcome.mlsGroupId,
         nostrGroupId: currentWelcome.nostrGroupId,
@@ -235,7 +235,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         createdAt: currentWelcome.createdAt,
       );
 
-      final updatedWelcomeById = Map<String, WelcomeData>.from(state.welcomeById ?? {});
+      final updatedWelcomeById = Map<String, Welcome>.from(state.welcomeById ?? {});
       updatedWelcomeById[welcomeEventId] = updatedWelcome;
 
       final updatedWelcomes =
@@ -250,29 +250,29 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
   }
 
-  List<WelcomeData> getPendingWelcomes() {
+  List<Welcome> getPendingWelcomes() {
     final welcomes = state.welcomes;
     if (welcomes == null) return [];
     return welcomes.where((welcome) => welcome.state == WelcomeState.pending).toList();
   }
 
-  List<WelcomeData> getAcceptedWelcomes() {
+  List<Welcome> getAcceptedWelcomes() {
     final welcomes = state.welcomes;
     if (welcomes == null) return [];
     return welcomes.where((welcome) => welcome.state == WelcomeState.accepted).toList();
   }
 
-  List<WelcomeData> getDeclinedWelcomes() {
+  List<Welcome> getDeclinedWelcomes() {
     final welcomes = state.welcomes;
     if (welcomes == null) return [];
     return welcomes.where((welcome) => welcome.state == WelcomeState.declined).toList();
   }
 
-  WelcomeData? getWelcomeById(String welcomeId) {
+  Welcome? getWelcomeById(String welcomeId) {
     return state.welcomeById?[welcomeId];
   }
 
-  void clearWelcomeData() {
+  void clearWelcome() {
     state = const WelcomesState();
   }
 
@@ -281,10 +281,10 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
   }
 
   /// Trigger callback for a specific welcome invitation
-  void triggerWelcomeCallback(WelcomeData welcomeData) {
-    if (_onNewWelcomeCallback != null && welcomeData.state == WelcomeState.pending) {
-      _logger.info('WelcomesProvider: Triggering callback for welcome ${welcomeData.id}');
-      _onNewWelcomeCallback!(welcomeData);
+  void triggerWelcomeCallback(Welcome welcome) {
+    if (_onNewWelcomeCallback != null && welcome.state == WelcomeState.pending) {
+      _logger.info('WelcomesProvider: Triggering callback for welcome ${welcome.id}');
+      _onNewWelcomeCallback!(welcome);
     }
   }
 
@@ -330,7 +330,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         final updatedWelcomes = [...currentWelcomes, ...actuallyNewWelcomes];
 
         // Update welcomeById map
-        final welcomeByData = Map<String, WelcomeData>.from(state.welcomeById ?? {});
+        final welcomeByData = Map<String, Welcome>.from(state.welcomeById ?? {});
         for (final welcome in actuallyNewWelcomes) {
           welcomeByData[welcome.id] = welcome;
         }

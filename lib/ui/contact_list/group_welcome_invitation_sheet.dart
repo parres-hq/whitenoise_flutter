@@ -16,31 +16,31 @@ import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
 class GroupWelcomeInvitationSheet extends StatelessWidget {
-  final WelcomeData welcomeData;
+  final Welcome welcome;
   final VoidCallback? onAccept;
   final VoidCallback? onDecline;
 
   const GroupWelcomeInvitationSheet({
     super.key,
-    required this.welcomeData,
+    required this.welcome,
     this.onAccept,
     this.onDecline,
   });
 
   static Future<String?> show({
     required BuildContext context,
-    required WelcomeData welcomeData,
+    required Welcome welcome,
     VoidCallback? onAccept,
     VoidCallback? onDecline,
   }) {
     return WnBottomSheet.show<String>(
       context: context,
-      title: welcomeData.memberCount > 2 ? 'Group Invitation' : 'Chat Invitation',
+      title: welcome.memberCount > 2 ? 'Group Invitation' : 'Chat Invitation',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
           (context) => GroupWelcomeInvitationSheet(
-            welcomeData: welcomeData,
+            welcome: welcome,
             onAccept: onAccept,
             onDecline: onDecline,
           ),
@@ -49,7 +49,7 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDirectMessage = welcomeData.memberCount <= 2;
+    final isDirectMessage = welcome.memberCount <= 2;
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -59,7 +59,7 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
             children: [
               Gap(24.h),
               if (isDirectMessage)
-                DirectMessageAvatar(welcomeData: welcomeData)
+                DirectMessageAvatar(welcome: welcome)
               else
                 WnAvatar(
                   imageUrl: '',
@@ -67,9 +67,9 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
                 ),
               Gap(16.h),
               if (isDirectMessage)
-                DirectMessageInviteCard(welcomeData: welcomeData)
+                DirectMessageInviteCard(welcome: welcome)
               else
-                GroupMessageInvite(welcomeData: welcomeData),
+                GroupMessageInvite(welcome: welcome),
             ],
           ),
         ),
@@ -102,10 +102,10 @@ class GroupWelcomeInvitationSheet extends StatelessWidget {
 class GroupMessageInvite extends ConsumerStatefulWidget {
   const GroupMessageInvite({
     super.key,
-    required this.welcomeData,
+    required this.welcome,
   });
 
-  final WelcomeData welcomeData;
+  final Welcome welcome;
 
   @override
   ConsumerState<GroupMessageInvite> createState() => _GroupMessageInviteState();
@@ -120,7 +120,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
         return null;
       }
       return await fetchMetadataFrom(
-        pubkey: widget.welcomeData.welcomer,
+        pubkey: widget.welcome.welcomer,
         nip65Relays: activeAccount.nip65Relays,
       );
     } catch (e) {
@@ -130,10 +130,10 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
 
   Future<String> _getDisplayablePublicKey() async {
     try {
-      final npub = await npubFromHexPubkey(hexPubkey: widget.welcomeData.nostrGroupId);
+      final npub = await npubFromHexPubkey(hexPubkey: widget.welcome.nostrGroupId);
       return npub;
     } catch (e) {
-      return widget.welcomeData.nostrGroupId.formatPublicKey();
+      return widget.welcome.nostrGroupId.formatPublicKey();
     }
   }
 
@@ -142,7 +142,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
     return Column(
       children: [
         Text(
-          widget.welcomeData.groupName,
+          widget.welcome.groupName,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 18.sp,
@@ -151,7 +151,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
           ),
         ),
         Gap(12.h),
-        if (widget.welcomeData.groupDescription.isNotEmpty) ...[
+        if (widget.welcome.groupDescription.isNotEmpty) ...[
           Text(
             'Group Description:',
             textAlign: TextAlign.center,
@@ -162,7 +162,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
             ),
           ),
           Text(
-            widget.welcomeData.groupDescription,
+            widget.welcome.groupDescription,
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14.sp,
@@ -212,7 +212,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
         FutureBuilder<String>(
           future: _getDisplayablePublicKey(),
           builder: (context, npubSnapshot) {
-            final displayKey = npubSnapshot.data ?? widget.welcomeData.welcomer;
+            final displayKey = npubSnapshot.data ?? widget.welcome.welcomer;
             return Text(
               displayKey.formatPublicKey(),
               textAlign: TextAlign.center,
@@ -232,10 +232,10 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
 class DirectMessageAvatar extends ConsumerStatefulWidget {
   const DirectMessageAvatar({
     super.key,
-    required this.welcomeData,
+    required this.welcome,
   });
 
-  final WelcomeData welcomeData;
+  final Welcome welcome;
 
   @override
   ConsumerState<DirectMessageAvatar> createState() => _DirectMessageAvatarState();
@@ -250,7 +250,7 @@ class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
         return null;
       }
       return await fetchMetadataFrom(
-        pubkey: widget.welcomeData.welcomer,
+        pubkey: widget.welcome.welcomer,
         nip65Relays: activeAccount.nip65Relays,
       );
     } catch (e) {
@@ -278,10 +278,10 @@ class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
 class DirectMessageInviteCard extends ConsumerStatefulWidget {
   const DirectMessageInviteCard({
     super.key,
-    required this.welcomeData,
+    required this.welcome,
   });
 
-  final WelcomeData welcomeData;
+  final Welcome welcome;
 
   @override
   ConsumerState<DirectMessageInviteCard> createState() => _DirectMessageInviteCardState();
@@ -296,7 +296,7 @@ class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCar
         return null;
       }
       return fetchMetadataFrom(
-        pubkey: widget.welcomeData.welcomer,
+        pubkey: widget.welcome.welcomer,
         nip65Relays: activeAccount.nip65Relays,
       );
     } catch (e) {
@@ -306,10 +306,10 @@ class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCar
 
   Future<String> _getDisplayablePublicKey() async {
     try {
-      final npub = await npubFromHexPubkey(hexPubkey: widget.welcomeData.welcomer);
+      final npub = await npubFromHexPubkey(hexPubkey: widget.welcome.welcomer);
       return npub;
     } catch (e) {
-      return widget.welcomeData.welcomer.formatPublicKey();
+      return widget.welcome.welcomer.formatPublicKey();
     }
   }
 
@@ -375,7 +375,7 @@ class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCar
             FutureBuilder<String>(
               future: _getDisplayablePublicKey(),
               builder: (context, npubSnapshot) {
-                final displayKey = npubSnapshot.data ?? widget.welcomeData.welcomer;
+                final displayKey = npubSnapshot.data ?? widget.welcome.welcomer;
                 return Text(
                   displayKey.formatPublicKey(),
                   textAlign: TextAlign.center,

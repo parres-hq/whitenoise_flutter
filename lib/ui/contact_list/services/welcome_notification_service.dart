@@ -22,7 +22,7 @@ class WelcomeNotificationService {
     // ref
     //     .read(welcomesProvider.notifier)
     //     .setOnNewWelcomeCallback(
-    //       (welcomeData) => _handleNewWelcome(ref, welcomeData),
+    //       (welcome) => _handleNewWelcome(ref, welcome),
     //     );
   }
 
@@ -35,25 +35,25 @@ class WelcomeNotificationService {
   static Future<void> _showWelcomeBottomSheet(
     BuildContext context,
     WidgetRef ref,
-    WelcomeData welcomeData,
+    Welcome welcome,
   ) async {
     try {
       final result = await GroupWelcomeInvitationSheet.show(
         context: context,
-        welcomeData: welcomeData,
-        onAccept: () => _acceptWelcome(ref, welcomeData.id),
-        onDecline: () => _declineWelcome(ref, welcomeData.id),
+        welcome: welcome,
+        onAccept: () => _acceptWelcome(ref, welcome.id),
+        onDecline: () => _declineWelcome(ref, welcome.id),
       );
 
       // If the sheet was dismissed without action (result is null), ignore the welcome
       if (result == null) {
         _logger.info(
-          'WelcomeNotificationService: Welcome ${welcomeData.id} dismissed, marking as ignored',
+          'WelcomeNotificationService: Welcome ${welcome.id} dismissed, marking as ignored',
         );
-        await _ignoreWelcome(ref, welcomeData.id);
+        await _ignoreWelcome(ref, welcome.id);
       } else {
         _logger.info(
-          'WelcomeNotificationService: Welcome ${welcomeData.id} processed with result: $result',
+          'WelcomeNotificationService: Welcome ${welcome.id} processed with result: $result',
         );
       }
 
@@ -62,7 +62,7 @@ class WelcomeNotificationService {
     } catch (e) {
       _logger.severe('WelcomeNotificationService: Error showing welcome sheet', e);
       // If there was an error, still ignore the welcome to prevent it from reappearing
-      await _ignoreWelcome(ref, welcomeData.id);
+      await _ignoreWelcome(ref, welcome.id);
       _showNextWelcome(ref);
     }
   }
@@ -114,9 +114,9 @@ class WelcomeNotificationService {
   static Future<void> showWelcomeInvitation(
     BuildContext context,
     WidgetRef ref,
-    WelcomeData welcomeData,
+    Welcome welcome,
   ) async {
-    await _showWelcomeBottomSheet(context, ref, welcomeData);
+    await _showWelcomeBottomSheet(context, ref, welcome);
   }
 
   /// Update the context (useful for navigation changes)

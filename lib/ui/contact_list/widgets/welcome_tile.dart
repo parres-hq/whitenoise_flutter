@@ -21,22 +21,22 @@ class WelcomeTile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final welcomeData = item.welcomeData;
-    if (welcomeData == null) {
+    final welcome = item.welcome;
+    if (welcome == null) {
       return const SizedBox.shrink();
     }
 
     final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
 
     return FutureBuilder(
-      future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
+      future: metadataCacheNotifier.getContactModel(welcome.welcomer),
       builder: (context, snapshot) {
         final welcomerContact = snapshot.data;
         final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
         final welcomerImageUrl = welcomerContact?.imagePath ?? '';
 
         return InkWell(
-          onTap: () => Routes.goToChat(context, welcomeData.mlsGroupId, inviteId: welcomeData.id),
+          onTap: () => Routes.goToChat(context, welcome.mlsGroupId, inviteId: welcome.id),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
             child: Row(

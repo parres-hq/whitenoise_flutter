@@ -276,7 +276,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     // Add pending welcomes as chat items
     final pendingWelcomes = welcomesList.where((welcome) => welcome.state == WelcomeState.pending);
     for (final welcome in pendingWelcomes) {
-      chatItems.add(ChatListItem.fromWelcome(welcomeData: welcome));
+      chatItems.add(ChatListItem.fromWelcome(welcome: welcome));
     }
 
     // Sort by date created (most recent first)

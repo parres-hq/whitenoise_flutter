@@ -9,14 +9,14 @@ enum ChatListItemType { chat, welcome }
 class ChatListItem {
   final ChatListItemType type;
   final Group? groupData;
-  final Welcome? welcomeData;
+  final Welcome? welcome;
   final MessageModel? lastMessage;
   final DateTime dateCreated;
 
   const ChatListItem({
     required this.type,
     this.groupData,
-    this.welcomeData,
+    this.welcome,
     this.lastMessage,
     required this.dateCreated,
   });
@@ -34,12 +34,12 @@ class ChatListItem {
   }
 
   factory ChatListItem.fromWelcome({
-    required Welcome welcomeData,
+    required Welcome welcome,
   }) {
     return ChatListItem(
       type: ChatListItemType.welcome,
-      welcomeData: welcomeData,
-      dateCreated: welcomeData.createdAtDateTime,
+      welcome: welcome,
+      dateCreated: welcome.createdAtDateTime,
     );
   }
 
@@ -48,7 +48,7 @@ class ChatListItem {
       case ChatListItemType.chat:
         return groupData?.name ?? '';
       case ChatListItemType.welcome:
-        return welcomeData.senderName;
+        return welcome.senderName;
     }
   }
 
@@ -66,7 +66,7 @@ class ChatListItem {
       case ChatListItemType.chat:
         return groupData?.mlsGroupId ?? '';
       case ChatListItemType.welcome:
-        return welcomeData?.id ?? '';
+        return welcome?.id ?? '';
     }
   }
 }
