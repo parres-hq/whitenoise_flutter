@@ -16,7 +16,7 @@ import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api.dart' as wn_api;
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
