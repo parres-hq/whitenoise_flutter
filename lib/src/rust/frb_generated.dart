@@ -79,7 +79,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -292629470;
+  int get rustContentHash => 147061844;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -122,9 +122,9 @@ abstract class RustLibApi extends BaseApi {
     required List<String> memberPubkeys,
   });
 
-  Future<void> crateApiErrorApiErrorErrorType({required ApiError that});
+  Future<String> crateApiErrorApiErrorErrorType({required ApiError that});
 
-  Future<void> crateApiErrorApiErrorMessage({required ApiError that});
+  Future<String> crateApiErrorApiErrorMessageText({required ApiError that});
 
   Future<Group> crateApiGroupsCreateGroup({
     required String creatorPubkey,
@@ -623,7 +623,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<void> crateApiErrorApiErrorErrorType({required ApiError that}) {
+  Future<String> crateApiErrorApiErrorErrorType({required ApiError that}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -637,7 +637,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           );
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_unit,
+          decodeSuccessData: sse_decode_String,
           decodeErrorData: null,
         ),
         constMeta: kCrateApiErrorApiErrorErrorTypeConstMeta,
@@ -654,7 +654,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
-  Future<void> crateApiErrorApiErrorMessage({required ApiError that}) {
+  Future<String> crateApiErrorApiErrorMessageText({required ApiError that}) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
@@ -668,19 +668,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           );
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_unit,
+          decodeSuccessData: sse_decode_String,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiErrorApiErrorMessageConstMeta,
+        constMeta: kCrateApiErrorApiErrorMessageTextConstMeta,
         argValues: [that],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiErrorApiErrorMessageConstMeta =>
+  TaskConstMeta get kCrateApiErrorApiErrorMessageTextConstMeta =>
       const TaskConstMeta(
-        debugName: 'api_error_message',
+        debugName: 'api_error_message_text',
         argNames: ['that'],
       );
 

@@ -41,7 +41,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -292629470;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 147061844;
 
 // Section: executor
 
@@ -384,16 +384,15 @@ fn wire__crate__api__error__api_error_error_type_impl(
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, ()>((move || {
-                    let output_ok = Result::<_, ()>::Ok({
-                        crate::api::error::ApiError::error_type(&api_that);
-                    })?;
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::error::ApiError::error_type(&api_that))?;
                     Ok(output_ok)
                 })())
             }
         },
     )
 }
-fn wire__crate__api__error__api_error_message_impl(
+fn wire__crate__api__error__api_error_message_text_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -401,7 +400,7 @@ fn wire__crate__api__error__api_error_message_impl(
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "api_error_message",
+            debug_name: "api_error_message_text",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
@@ -419,9 +418,8 @@ fn wire__crate__api__error__api_error_message_impl(
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, ()>((move || {
-                    let output_ok = Result::<_, ()>::Ok({
-                        crate::api::error::ApiError::message(&api_that);
-                    })?;
+                    let output_ok =
+                        Result::<_, ()>::Ok(crate::api::error::ApiError::message_text(&api_that))?;
                     Ok(output_ok)
                 })())
             }
@@ -3070,7 +3068,9 @@ fn pde_ffi_dispatcher_primary_impl(
         7 => wire__crate__api__accounts__add_account_relay_impl(port, ptr, rust_vec_len, data_len),
         8 => wire__crate__api__groups__add_members_to_group_impl(port, ptr, rust_vec_len, data_len),
         9 => wire__crate__api__error__api_error_error_type_impl(port, ptr, rust_vec_len, data_len),
-        10 => wire__crate__api__error__api_error_message_impl(port, ptr, rust_vec_len, data_len),
+        10 => {
+            wire__crate__api__error__api_error_message_text_impl(port, ptr, rust_vec_len, data_len)
+        }
         11 => wire__crate__api__groups__create_group_impl(port, ptr, rust_vec_len, data_len),
         12 => wire__crate__api__accounts__create_identity_impl(port, ptr, rust_vec_len, data_len),
         13 => wire__crate__api__create_whitenoise_config_impl(port, ptr, rust_vec_len, data_len),
