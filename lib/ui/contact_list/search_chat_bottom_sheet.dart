@@ -14,6 +14,7 @@ import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
 class SearchChatBottomSheet extends ConsumerStatefulWidget {
   const SearchChatBottomSheet({super.key});
@@ -99,7 +100,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
     }
   }
 
-  List<ContactModel> _getFilteredContacts(Map<PublicKey, MetadataData?>? contacts) {
+  List<ContactModel> _getFilteredContacts(Map<PublicKey, FlutterMetadata?>? contacts) {
     if (_searchQuery.isEmpty || contacts == null) return [];
 
     final contactModels = <ContactModel>[];

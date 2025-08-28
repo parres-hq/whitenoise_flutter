@@ -13,6 +13,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
 class GroupWelcomeInvitationSheet extends StatelessWidget {
   final WelcomeData welcomeData;
@@ -111,7 +112,7 @@ class GroupMessageInvite extends ConsumerStatefulWidget {
 }
 
 class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
-  Future<MetadataData?> _fetchInviterMetadata() async {
+  Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
       final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
@@ -182,7 +183,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
               ),
             ),
             Gap(8.w),
-            FutureBuilder<MetadataData?>(
+            FutureBuilder<FlutterMetadata?>(
               future: _fetchInviterMetadata(),
               builder: (context, snapshot) {
                 final displayName =
@@ -241,7 +242,7 @@ class DirectMessageAvatar extends ConsumerStatefulWidget {
 }
 
 class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
-  Future<MetadataData?> _fetchInviterMetadata() async {
+  Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
       final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
@@ -259,7 +260,7 @@ class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<MetadataData?>(
+    return FutureBuilder<FlutterMetadata?>(
       future: _fetchInviterMetadata(),
       builder: (context, snapshot) {
         final metadata = snapshot.data;
@@ -287,7 +288,7 @@ class DirectMessageInviteCard extends ConsumerStatefulWidget {
 }
 
 class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCard> {
-  Future<MetadataData?> _fetchInviterMetadata() async {
+  Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
       final activeAccountData = await ref.read(activeAccountProvider.future);
       if (activeAccountData == null) {
@@ -314,7 +315,7 @@ class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCar
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<MetadataData?>(
+    return FutureBuilder<FlutterMetadata?>(
       future: _fetchInviterMetadata(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {

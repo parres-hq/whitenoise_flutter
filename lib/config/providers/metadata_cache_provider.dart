@@ -8,6 +8,7 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
 /// Cached metadata with basic expiration
 class CachedMetadata {
@@ -214,7 +215,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
 
   /// Bulk populate cache from queryContacts results
   Future<void> bulkPopulateFromQueryResults(
-    Map<PublicKey, MetadataData?> queryResults,
+    Map<PublicKey, FlutterMetadata?> queryResults,
   ) async {
     _logger.info('Bulk populating cache from ${queryResults.length} query results');
 

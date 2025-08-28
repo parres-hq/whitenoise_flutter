@@ -11,9 +11,10 @@ import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/routing/router_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
 class AccountState {
-  final MetadataData? metadata;
+  final FlutterMetadata? metadata;
   final String? pubkey;
   final Map<String, AccountData>? accounts;
   final bool isLoading;
@@ -30,7 +31,7 @@ class AccountState {
   });
 
   AccountState copyWith({
-    MetadataData? metadata,
+    FlutterMetadata? metadata,
     String? pubkey,
     Map<String, AccountData>? accounts,
     bool? isLoading,

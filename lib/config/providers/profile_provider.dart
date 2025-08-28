@@ -13,6 +13,7 @@ import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/relays.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
+import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
 class ProfileNotifier extends AsyncNotifier<ProfileState> {
   final _logger = Logger('ProfileNotifier');
@@ -212,7 +213,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
   }
 
   /// Update the metadata cache with new profile data
-  Future<void> _updateMetadataCache(String pubkey, MetadataData metadata) async {
+  Future<void> _updateMetadataCache(String pubkey, FlutterMetadata metadata) async {
     try {
       // Convert pubkey to npub format for consistent caching
       final npub = await npubFromHexPubkey(hexPubkey: pubkey);

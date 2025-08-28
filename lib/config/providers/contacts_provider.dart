@@ -11,10 +11,11 @@ import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/contacts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 
 class ContactsState {
-  final Map<PublicKey, MetadataData?>? contacts;
+  final Map<PublicKey, FlutterMetadata?>? contacts;
   final List<ContactModel>? contactModels;
   final Map<String, PublicKey>? publicKeyMap;
   final bool isLoading;
@@ -29,7 +30,7 @@ class ContactsState {
   });
 
   ContactsState copyWith({
-    Map<PublicKey, MetadataData?>? contacts,
+    Map<PublicKey, FlutterMetadata?>? contacts,
     List<ContactModel>? contactModels,
     Map<String, PublicKey>? publicKeyMap,
     bool? isLoading,
@@ -455,7 +456,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
   void removeContactFromState(PublicKey publicKey) {
     final currentContacts = state.contacts;
     if (currentContacts != null) {
-      final updatedContacts = Map<PublicKey, MetadataData?>.from(currentContacts);
+      final updatedContacts = Map<PublicKey, FlutterMetadata?>.from(currentContacts);
       updatedContacts.remove(publicKey);
       state = state.copyWith(contacts: updatedContacts);
     }
