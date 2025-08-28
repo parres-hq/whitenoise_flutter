@@ -30,9 +30,9 @@ class NostrKeysNotifier extends Notifier<NostrKeysState> {
         return;
       }
 
-      final activeAccountData = await ref.read(activeAccountProvider.future);
+      final activeAccount = await ref.read(activeAccountProvider.future);
 
-      if (activeAccountData == null) {
+      if (activeAccount == null) {
         _logger.severe('NostrKeysNotifier: No active account found');
         state = state.copyWith(
           isLoading: false,
@@ -41,11 +41,11 @@ class NostrKeysNotifier extends Notifier<NostrKeysState> {
         return;
       }
 
-      _logger.info('NostrKeysNotifier: Loading keys for account: ${activeAccountData.pubkey}');
+      _logger.info('NostrKeysNotifier: Loading keys for account: ${activeAccount.pubkey}');
 
       // Load npub and nsec directly from hex pubkey string
-      final npubString = await npubFromHexPubkey(hexPubkey: activeAccountData.pubkey);
-      final nsecString = await exportAccountNsec(pubkey: activeAccountData.pubkey);
+      final npubString = await npubFromHexPubkey(hexPubkey: activeAccount.pubkey);
+      final nsecString = await exportAccountNsec(pubkey: activeAccount.pubkey);
 
       state = state.copyWith(
         npub: npubString,
@@ -64,8 +64,8 @@ class NostrKeysNotifier extends Notifier<NostrKeysState> {
     }
   }
 
-  /// Load public key from AccountData directly (fallback method)
-  void loadPublicKeyFromAccountData(String pubkey) {
+  /// Load public key from Account directly (fallback method)
+  void loadPublicKeyFromAccount(String pubkey) {
     state = state.copyWith(
       npub: pubkey,
       error: null,

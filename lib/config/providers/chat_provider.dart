@@ -66,8 +66,8 @@ class ChatNotifier extends Notifier<ChatState> {
     );
 
     try {
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         _setGroupError(groupId, 'No active account found');
         return;
       }
@@ -76,7 +76,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Use fetchAggregatedMessagesForGroup which includes all message data including replies
       final aggregatedMessages = await fetchAggregatedMessagesForGroup(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         groupId: groupId,
       );
 
@@ -89,7 +89,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       final messages = await MessageConverter.fromChatMessageList(
         aggregatedMessages,
-        currentUserPublicKey: activeAccountData.pubkey,
+        currentUserPublicKey: activeAccount.pubkey,
         groupId: groupId,
         ref: ref,
       );
@@ -144,8 +144,8 @@ class ChatNotifier extends Notifier<ChatState> {
     );
 
     try {
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         _setGroupError(groupId, 'No active account found');
         return null;
       }
@@ -153,7 +153,7 @@ class ChatNotifier extends Notifier<ChatState> {
       _logger.info('ChatProvider: Sending message to group $groupId');
 
       final sentMessage = await sendMessageToGroup(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         groupId: groupId,
         message: message,
         kind: kind,
@@ -200,7 +200,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       final sentMessageModel = await MessageConverter.fromChatMessage(
         sentChatMessageData,
-        currentUserPublicKey: activeAccountData.pubkey,
+        currentUserPublicKey: activeAccount.pubkey,
         groupId: groupId,
         ref: ref,
         messageCache: messageCache,
@@ -286,21 +286,21 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         return;
       }
 
       // Use fetchAggregatedMessagesForGroup for polling as well
       final aggregatedMessages = await fetchAggregatedMessagesForGroup(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         groupId: groupId,
       );
 
       aggregatedMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
       final newMessages = await MessageConverter.fromChatMessageList(
         aggregatedMessages,
-        currentUserPublicKey: activeAccountData.pubkey,
+        currentUserPublicKey: activeAccount.pubkey,
         groupId: groupId,
         ref: ref,
       );
@@ -499,8 +499,8 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         _setGroupError(message.groupId ?? '', 'No active account found');
         return false;
       }
@@ -533,7 +533,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Send reaction message (kind 7 for reactions in Nostr)
       await sendMessageToGroup(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         groupId: message.groupId ?? '',
         message: reactionContent,
         kind: 7, // Nostr kind 7 = reaction
@@ -571,8 +571,8 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         _setGroupError(groupId, 'No active account found');
         return null;
       }
@@ -586,7 +586,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Send the reply message using rust API
       final sentMessage = await sendMessageToGroup(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         groupId: groupId,
         message: message,
         kind: 9, // Kind 9 for replies
@@ -633,7 +633,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       final sentMessageModel = await MessageConverter.fromChatMessage(
         sentChatMessageData,
-        currentUserPublicKey: activeAccountData.pubkey,
+        currentUserPublicKey: activeAccount.pubkey,
         groupId: groupId,
         ref: ref,
         messageCache: messageCache,
@@ -675,8 +675,8 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         _setGroupError(groupId, 'No active account found');
         return false;
       }
@@ -692,7 +692,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Send deletion message using rust API
       await sendMessageToGroup(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         groupId: groupId,
         message: '', // Empty content for deletion
         kind: 5, // Nostr kind 5 = deletion

@@ -36,8 +36,8 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
       }
@@ -45,7 +45,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       // Get relays for this account separately
       final nip65RelayType = await relayTypeNip65();
       final relays = await accountRelays(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         relayType: nip65RelayType,
       );
       
@@ -142,10 +142,8 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         return;
       }
 
-      // Get active account data from the new provider
-      final activeAccountDataAsync = ref.read(activeAccountDataProvider);
-      final activeAccountData = activeAccountDataAsync.valueOrNull;
-      if (activeAccountData == null) {
+      final activeAccount = ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
       }
@@ -157,7 +155,7 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
         final serverUrl = await getDefaultBlossomServerUrl();
 
         profilePictureUrl = await uploadProfilePicture(
-          pubkey: activeAccountData.pubkey,
+          pubkey: activeAccount.pubkey,
           serverUrl: serverUrl,
           filePath: state.value!.selectedImagePath!,
           imageType: imageType,
@@ -167,12 +165,12 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       // Get relays for this account separately
       final nip65RelayType = await relayTypeNip65();
       final relays = await accountRelays(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         relayType: nip65RelayType,
       );
       
       final metadata = await fetchMetadataFrom(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         nip65Relays: relays,
       );
 
@@ -187,12 +185,12 @@ class ProfileNotifier extends AsyncNotifier<ProfileState> {
       metadata.nip05 = currentState.nip05;
 
       await updateMetadata(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         metadata: metadata,
       );
 
       // Update the metadata cache with the new profile data
-      await _updateMetadataCache(activeAccountData.pubkey, metadata);
+      await _updateMetadataCache(activeAccount.pubkey, metadata);
 
       await fetchProfileData();
     } catch (e, st) {

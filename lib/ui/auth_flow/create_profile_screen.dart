@@ -35,7 +35,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
         });
       } else {
         // If no metadata, try to load it
-        await ref.read(accountProvider.notifier).loadAccountData();
+        await ref.read(accountProvider.notifier).loadAccount();
         final newMetadata = ref.read(accountProvider).metadata;
         if (newMetadata?.displayName != null && newMetadata!.displayName!.isNotEmpty) {
           _displayNameController.text = newMetadata.displayName!;

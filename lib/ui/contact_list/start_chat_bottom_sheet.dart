@@ -74,8 +74,8 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
   }
 
   Future<void> _loadKeyPackage() async {
-    final activeAccountData = await ref.read(activeAccountProvider.future);
-    if (activeAccountData == null) {
+    final activeAccount = await ref.read(activeAccountProvider.future);
+    if (activeAccount == null) {
       ref.showErrorToast('No active account found');
       return;
     }
@@ -84,7 +84,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
           widget.keyPackageService ??
           KeyPackageService(
             publicKey: widget.contact.publicKey,
-            nip65Relays: activeAccountData.nip65Relays,
+            nip65Relays: activeAccount.nip65Relays,
           );
       final keyPackage = await keyPackageService.fetchWithRetry();
       if (mounted) {

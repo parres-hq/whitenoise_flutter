@@ -33,10 +33,10 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
   }
 
   Future<void> _loadContact() async {
-    final activeAccountData = await ref.read(activeAccountProvider.future);
-    if (activeAccountData != null) {
+    final activeAccount = await ref.read(activeAccountProvider.future);
+    if (activeAccount != null) {
       final currentUserNpub = await npubFromHexPubkey(
-        hexPubkey: activeAccountData.pubkey,
+        hexPubkey: activeAccount.pubkey,
       );
       final otherMember = ref
           .read(groupsProvider.notifier)

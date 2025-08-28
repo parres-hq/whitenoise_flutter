@@ -34,8 +34,8 @@ class GeneralSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
-  List<AccountData> _accounts = [];
-  AccountData? _currentAccount;
+  List<Account> _accounts = [];
+  Account? _currentAccount;
   Map<String, ContactModel> _accountContactModels = {}; // Cache for contact models
   ProviderSubscription<AsyncValue<ProfileState>>? _profileSubscription;
   @override
@@ -84,7 +84,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         }
       }
 
-      AccountData? currentAccount;
+      Account? currentAccount;
       if (activeAccountPubkey != null) {
         try {
           currentAccount = accounts.firstWhere(
@@ -115,7 +115,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     } finally {}
   }
 
-  Future<void> _switchAccount(AccountData account) async {
+  Future<void> _switchAccount(Account account) async {
     try {
       await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
       await ref.read(profileProvider.notifier).fetchProfileData();
@@ -133,7 +133,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     }
   }
 
-  ContactModel _accountToContactModel(AccountData account) {
+  ContactModel _accountToContactModel(Account account) {
     final contactModel = _accountContactModels[account.pubkey];
 
     // Use cached contact model if available, otherwise create fallback
@@ -157,12 +157,12 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       isDismissible: isDismissible,
       showSuccessToast: showSuccessToast,
       onProfileSelected: (selectedProfile) async {
-        // Find the corresponding AccountData
+        // Find the corresponding Account
         // Note: selectedProfile.publicKey is in npub format (from metadata cache)
         // but account.pubkey is in hex format (from getAccounts)
         // So we need to convert npub back to hex for matching
 
-        AccountData? selectedAccount;
+        Account? selectedAccount;
 
         try {
           // Try to convert npub to hex for matching

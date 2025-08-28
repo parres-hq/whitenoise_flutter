@@ -65,19 +65,19 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
       }
 
       // Get the active account data directly
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      _logger.info('RelayStatusNotifier: Active account data: ${activeAccountData?.pubkey}');
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      _logger.info('RelayStatusNotifier: Active account data: ${activeAccount?.pubkey}');
+      if (activeAccount == null) {
         _logger.warning('RelayStatusNotifier: No active account found');
         state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
 
       _logger.info(
-        'RelayStatusNotifier: Fetching relay statuses for pubkey: ${activeAccountData.pubkey}',
+        'RelayStatusNotifier: Fetching relay statuses for pubkey: ${activeAccount.pubkey}',
       );
       // Fetch relay statuses using the Rust function
-      final relayStatuses = await fetchRelayStatus(pubkey: activeAccountData.pubkey);
+      final relayStatuses = await fetchRelayStatus(pubkey: activeAccount.pubkey);
       _logger.info('RelayStatusNotifier: Fetched ${relayStatuses.length} relay statuses');
 
       // Convert list of tuples to map

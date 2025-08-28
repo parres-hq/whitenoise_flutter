@@ -37,8 +37,8 @@ class MockActiveAccountNotifier extends ActiveAccountNotifier {
   }
 
   @override
-  Future<AccountData?> getActiveAccountData() async {
-    return AccountData(
+  Future<Account?> getActiveAccount() async {
+    return Account(
       pubkey: 'test-pubkey',
       settings: MockAccountSettings(),
       nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],

@@ -92,11 +92,11 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   Future<void> _loadContacts() async {
     try {
       // Get the active account data directly
-      final activeAccountData = await ref.read(activeAccountProvider.future);
+      final activeAccount = await ref.read(activeAccountProvider.future);
 
-      if (activeAccountData != null) {
-        _logger.info('NewChatBottomSheet: Found active account: ${activeAccountData.pubkey}');
-        await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
+      if (activeAccount != null) {
+        _logger.info('NewChatBottomSheet: Found active account: ${activeAccount.pubkey}');
+        await ref.read(contactsProvider.notifier).loadContacts(activeAccount.pubkey);
         _logger.info('NewChatBottomSheet: Contacts loaded successfully');
       } else {
         _logger.severe('NewChatBottomSheet: No active account found');

@@ -110,14 +110,14 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
       if (publicKey.startsWith('npub1')) {
         fetchKey = await _safeNpubToHex(publicKey);
       }
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         throw 'No active account found';
       }
 
       final metadata = await fetchMetadataFrom(
         pubkey: fetchKey,
-        nip65Relays: activeAccountData.nip65Relays,
+        nip65Relays: activeAccount.nip65Relays,
       );
 
       // Get standardized npub for consistent identification

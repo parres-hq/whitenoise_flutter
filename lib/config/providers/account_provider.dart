@@ -16,7 +16,7 @@ import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 class AccountState {
   final FlutterMetadata? metadata;
   final String? pubkey;
-  final Map<String, AccountData>? accounts;
+  final Map<String, Account>? accounts;
   final bool isLoading;
   final String? error;
   final String? selectedImagePath;
@@ -33,7 +33,7 @@ class AccountState {
   AccountState copyWith({
     FlutterMetadata? metadata,
     String? pubkey,
-    Map<String, AccountData>? accounts,
+    Map<String, Account>? accounts,
     bool? isLoading,
     String? error,
     String? selectedImagePath,
@@ -56,7 +56,7 @@ class AccountNotifier extends Notifier<AccountState> {
   AccountState build() => const AccountState();
 
   // Load the currently active account
-  Future<void> loadAccountData() async {
+  Future<void> loadAccount() async {
     state = state.copyWith(isLoading: true, error: null);
 
     if (!ref.read(authProvider).isAuthenticated) {
@@ -68,33 +68,30 @@ class AccountNotifier extends Notifier<AccountState> {
     }
 
     try {
-      // Get the active account data from active account provider
-      final activeAccountData = await ref.read(activeAccountProvider.future);
+      final activeAccount = await ref.read(activeAccountProvider.future);
 
-      if (activeAccountData == null) {
+      if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
       } else {
         final metadata = await fetchMetadataFrom(
-          pubkey: activeAccountData.pubkey,
-          nip65Relays: activeAccountData.nip65Relays,
+          pubkey: activeAccount.pubkey,
+          nip65Relays: activeAccount.nip65Relays,
         );
 
-        // We need to create a dummy Account object since we only have AccountData
-        // This is a limitation of the current API design
         state = state.copyWith(
           metadata: metadata,
-          pubkey: activeAccountData.pubkey,
+          pubkey: activeAccount.pubkey,
         );
 
         // Automatically load contacts for the active account
         try {
-          await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
+          await ref.read(contactsProvider.notifier).loadContacts(activeAccount.pubkey);
         } catch (e) {
           _logger.severe('Failed to load contacts: $e');
         }
       }
     } catch (e, st) {
-      _logger.severe('loadAccountData', e, st);
+      _logger.severe('loadAccount', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
       state = state.copyWith(isLoading: false);
@@ -102,10 +99,10 @@ class AccountNotifier extends Notifier<AccountState> {
   }
 
   // Fetch and store all accounts
-  Future<List<AccountData>?> listAccounts() async {
+  Future<List<Account>?> listAccounts() async {
     try {
       final accountsList = await getAccounts();
-      final accountsMap = <String, AccountData>{};
+      final accountsMap = <String, Account>{};
       for (final account in accountsList) {
         accountsMap[account.pubkey] = account;
       }

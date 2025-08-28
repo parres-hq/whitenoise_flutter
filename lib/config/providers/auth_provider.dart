@@ -102,7 +102,7 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(isAuthenticated: true);
 
       // Load account data after creating identity
-      await ref.read(accountProvider.notifier).loadAccountData();
+      await ref.read(accountProvider.notifier).loadAccount();
     } catch (e, st) {
       _logger.severe('createAccount', e, st);
       state = state.copyWith(error: e.toString());
@@ -130,7 +130,7 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(isAuthenticated: true);
 
       // Load account data after creating identity
-      await ref.read(accountProvider.notifier).loadAccountData();
+      await ref.read(accountProvider.notifier).loadAccount();
     } catch (e, st) {
       _logger.severe('createAccountInBackground', e, st);
       state = state.copyWith(error: e.toString());
@@ -173,7 +173,7 @@ class AuthNotifier extends Notifier<AuthState> {
       _logger.info('Set active account: ${account.pubkey}');
 
       // Load account data after login
-      await ref.read(accountProvider.notifier).loadAccountData();
+      await ref.read(accountProvider.notifier).loadAccount();
       _logger.info('Account data loaded');
 
       // Check account count after login
@@ -236,7 +236,7 @@ class AuthNotifier extends Notifier<AuthState> {
       state = state.copyWith(isAuthenticated: true);
 
       // Load account data after login
-      await ref.read(accountProvider.notifier).loadAccountData();
+      await ref.read(accountProvider.notifier).loadAccount();
     } catch (e, st) {
       String errorMessage;
 
@@ -269,8 +269,6 @@ class AuthNotifier extends Notifier<AuthState> {
       if (accounts.isNotEmpty) {
         // Return the first account as the active one
         // In a real implementation, you might want to store which account is active
-        // We need to create an Account object from AccountData
-        // For now, we'll use a workaround - we need to get the actual Account object
         // This is a limitation of the current API design
         return null; // This will be handled by the calling code
       }
@@ -286,9 +284,9 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData != null) {
-        await logout(pubkey: activeAccountData.pubkey);
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount != null) {
+        await logout(pubkey: activeAccount.pubkey);
 
         // Clear the active account
         await ref.read(activePubkeyProvider.notifier).clearActivePubkey();
@@ -298,7 +296,7 @@ class AuthNotifier extends Notifier<AuthState> {
         final otherAccounts =
             remainingAccounts
                 .where(
-                  (account) => account.pubkey != activeAccountData.pubkey,
+                  (account) => account.pubkey != activeAccount.pubkey,
                 )
                 .toList();
 
@@ -308,7 +306,7 @@ class AuthNotifier extends Notifier<AuthState> {
           await ref.read(activePubkeyProvider.notifier).setActivePubkey(otherAccounts.first.pubkey);
 
           // Reload account data for the new active account
-          await ref.read(accountProvider.notifier).loadAccountData();
+          await ref.read(accountProvider.notifier).loadAccount();
 
           // Keep authenticated state as true since we have another account
           state = state.copyWith(isAuthenticated: true, isLoading: false);
@@ -323,7 +321,7 @@ class AuthNotifier extends Notifier<AuthState> {
         if (accounts.isNotEmpty) {
           // Set the first account as active
           await ref.read(activePubkeyProvider.notifier).setActivePubkey(accounts.first.pubkey);
-          await ref.read(accountProvider.notifier).loadAccountData();
+          await ref.read(accountProvider.notifier).loadAccount();
           state = state.copyWith(isAuthenticated: true, isLoading: false);
         } else {
           state = state.copyWith(isAuthenticated: false, isLoading: false);

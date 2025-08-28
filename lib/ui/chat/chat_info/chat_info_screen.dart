@@ -46,9 +46,9 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
 
   Future<void> _loadContacts() async {
     try {
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData != null) {
-        await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount != null) {
+        await ref.read(contactsProvider.notifier).loadContacts(activeAccount.pubkey);
       }
     } catch (e) {
       Logger('ChatInfoScreen').warning('Error loading contacts: $e');

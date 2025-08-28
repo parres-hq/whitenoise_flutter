@@ -25,7 +25,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     super.initState();
     // Start loading account data when the screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(accountProvider.notifier).loadAccountData();
+      ref.read(accountProvider.notifier).loadAccount();
     });
   }
 
@@ -39,7 +39,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
 
     // Keep loading until we have a displayName (petname)
     while (true) {
-      await accountNotifier.loadAccountData();
+      await accountNotifier.loadAccount();
       final accountState = ref.read(accountProvider);
 
       if (accountState.metadata?.displayName != null &&

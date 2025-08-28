@@ -177,8 +177,8 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
   Future<Map<String, List<ContactModel>>> _filterContactsByKeyPackage(
     List<ContactModel> contacts,
   ) async {
-    final activeAccountData = await ref.read(activeAccountProvider.future);
-    if (activeAccountData == null) {
+    final activeAccount = await ref.read(activeAccountProvider.future);
+    if (activeAccount == null) {
       throw Exception('No active account found');
     }
     final contactsWithKeyPackage = <ContactModel>[];
@@ -188,7 +188,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
       try {
         final keyPackage = await fetchKeyPackage(
           pubkey: contact.publicKey,
-          nip65Relays: activeAccountData.nip65Relays,
+          nip65Relays: activeAccount.nip65Relays,
         );
 
         if (keyPackage != null) {

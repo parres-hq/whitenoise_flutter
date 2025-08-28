@@ -9,7 +9,6 @@ import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
-import 'package:whitenoise/src/rust/api/contacts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
@@ -57,9 +56,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
         // Schedule state changes after the build phase to avoid provider modification errors
         WidgetsBinding.instance.addPostFrameCallback((_) async {
           state = const ContactsState();
-          final activeAccountData = await ref.read(activeAccountProvider.future);
-          if (activeAccountData != null) {
-            await loadContacts(activeAccountData.pubkey);
+          final activeAccount = await ref.read(activeAccountProvider.future);
+          if (activeAccount != null) {
+            await loadContacts(activeAccount.pubkey);
           }
         });
       } else if (previous != null && next == null) {
@@ -68,9 +67,9 @@ class ContactsNotifier extends Notifier<ContactsState> {
         });
       } else if (previous == null && next != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) async {
-          final activeAccountData = await ref.read(activeAccountProvider.future);
-          if (activeAccountData != null) {
-            await loadContacts(activeAccountData.pubkey);
+          final activeAccount = await ref.read(activeAccountProvider.future);
+          if (activeAccount != null) {
+            await loadContacts(activeAccount.pubkey);
           }
         });
       }
@@ -328,17 +327,14 @@ class ContactsNotifier extends Notifier<ContactsState> {
     }
 
     try {
-      // Get the active account data
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return;
       }
 
-      // Convert pubkey string to PublicKey object
-
       _logger.info('ContactsProvider: Adding contact with key: ${contactKey.trim()}');
-      await addContact(pubkey: activeAccountData.pubkey, contactPubkey: contactKey.trim());
+      await addContact(pubkey: activeAccount.pubkey, contactPubkey: contactKey.trim());
       _logger.info('ContactsProvider: Contact added successfully, checking metadata...');
 
       // Try to fetch metadata for the newly added contact
@@ -346,7 +342,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
         // Create a fresh PublicKey object to avoid disposal issues
         final metadata = await fetchMetadataFrom(
           pubkey: contactKey.trim(),
-          nip65Relays: activeAccountData.nip65Relays,
+          nip65Relays: activeAccount.nip65Relays,
         );
         if (metadata != null) {
           _logger.info(
@@ -359,8 +355,7 @@ class ContactsNotifier extends Notifier<ContactsState> {
         _logger.severe('ContactsProvider: Error fetching metadata for new contact: $e');
       }
 
-      // Refresh the complete list to get updated contacts with metadata
-      await loadContacts(activeAccountData.pubkey);
+      await loadContacts(activeAccount.pubkey);
       _logger.info('ContactsProvider: Contact list refreshed after adding');
     } catch (e, st) {
       _logger.severe('addContact', e, st);
@@ -386,20 +381,19 @@ class ContactsNotifier extends Notifier<ContactsState> {
     }
 
     try {
-      // Get the active account data
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return;
       }
 
       await removeContact(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         contactPubkey: contactKey.trim(),
       );
 
       // Refresh the list
-      await loadContacts(activeAccountData.pubkey);
+      await loadContacts(activeAccount.pubkey);
     } catch (e, st) {
       _logger.severe('removeContact', e, st);
       String errorMessage = 'Failed to remove contact';
@@ -425,19 +419,19 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return;
       }
 
       await updateContacts(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         contactPubkeys: hexList,
       );
 
       // Refresh the list
-      await loadContacts(activeAccountData.pubkey);
+      await loadContacts(activeAccount.pubkey);
     } catch (e, st) {
       _logger.severe('replaceContacts', e, st);
       String errorMessage = 'Failed to update contacts';
@@ -473,19 +467,19 @@ class ContactsNotifier extends Notifier<ContactsState> {
 
     try {
       // Get the active account data
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found');
         return;
       }
 
       await removeContact(
-        pubkey: activeAccountData.pubkey,
+        pubkey: activeAccount.pubkey,
         contactPubkey: publicKey,
       );
 
       // Refresh the list
-      await loadContacts(activeAccountData.pubkey);
+      await loadContacts(activeAccount.pubkey);
     } catch (e, st) {
       _logger.severe('removeContactByPublicKey', e, st);
       String errorMessage = 'Failed to remove contact';

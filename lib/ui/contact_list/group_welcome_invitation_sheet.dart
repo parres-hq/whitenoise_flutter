@@ -114,14 +114,14 @@ class GroupMessageInvite extends ConsumerStatefulWidget {
 class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
   Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         ref.showErrorToast('No active account found');
         return null;
       }
       return await fetchMetadataFrom(
         pubkey: widget.welcomeData.welcomer,
-        nip65Relays: activeAccountData.nip65Relays,
+        nip65Relays: activeAccount.nip65Relays,
       );
     } catch (e) {
       return null;
@@ -244,14 +244,14 @@ class DirectMessageAvatar extends ConsumerStatefulWidget {
 class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
   Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         ref.showErrorToast('No active account found');
         return null;
       }
       return await fetchMetadataFrom(
         pubkey: widget.welcomeData.welcomer,
-        nip65Relays: activeAccountData.nip65Relays,
+        nip65Relays: activeAccount.nip65Relays,
       );
     } catch (e) {
       return null;
@@ -290,14 +290,14 @@ class DirectMessageInviteCard extends ConsumerStatefulWidget {
 class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCard> {
   Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
-      final activeAccountData = await ref.read(activeAccountProvider.future);
-      if (activeAccountData == null) {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount == null) {
         ref.showErrorToast('No active account found');
         return null;
       }
       return fetchMetadataFrom(
         pubkey: widget.welcomeData.welcomer,
-        nip65Relays: activeAccountData.nip65Relays,
+        nip65Relays: activeAccount.nip65Relays,
       );
     } catch (e) {
       return null;
