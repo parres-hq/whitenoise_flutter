@@ -243,7 +243,7 @@ class AuthNotifier extends Notifier<AuthState> {
       // Check if it's a Whitenoise ApiError and convert it to a readable message
       if (e is ApiError) {
         errorMessage = await e.messageText();
-        if (e.errorTye() == 'InvalidSecretKey') {
+        if (await e.errorType() == 'InvalidSecretKey') {
           errorMessage = 'Invalid nsec or private key';
         }
         // Log the user-friendly error message for Whitenoise ApiError instead of the raw exception

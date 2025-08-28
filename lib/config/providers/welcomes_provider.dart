@@ -101,12 +101,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       _logger.severe('WelcomesProvider.loadWelcomes', e, st);
       String errorMessage = 'Failed to load welcomes';
       if (e is ApiError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert ApiError to string: $conversionError');
-          errorMessage = 'Failed to load welcomes due to an internal error';
-        }
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
@@ -171,12 +166,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       _logger.severe('WelcomesProvider.acceptWelcomeInvitation', e, st);
       String errorMessage = 'Failed to accept welcome';
       if (e is ApiError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert ApiError to string: $conversionError');
-          errorMessage = 'Failed to accept welcome due to an internal error';
-        }
+        errorMessage = e.messageText();
       } else {
         errorMessage = e.toString();
       }
@@ -209,12 +199,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       _logger.severe('WelcomesProvider.declineWelcomeInvitation', e, st);
       String errorMessage = 'Failed to decline welcome';
       if (e is ApiError) {
-        try {
-          errorMessage = await whitenoiseErrorToString(error: e);
-        } catch (conversionError) {
-          _logger.warning('Failed to convert ApiError to string: $conversionError');
-          errorMessage = 'Failed to decline welcome due to an internal error';
-        }
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
