@@ -2,7 +2,7 @@ name: Build APK
 
 on:
   schedule:
-    - cron: "0 22 * * *" # every day at 22:00 UTC
+    - cron: "0 22 * * *" # every day at 22:00 UTC, seems not to be working yet
   push:
     tags:
       - 'v*'            # run on tags like v0.1.4
