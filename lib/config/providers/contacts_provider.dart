@@ -7,11 +7,9 @@ import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/src/rust/api.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
+import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
+import 'package:whitenoise/src/rust/api/utils.dart';
 
 class ContactsState {
   final Map<PublicKey, FlutterMetadata?>? contacts;

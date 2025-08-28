@@ -11,12 +11,11 @@ import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/states/group_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/error_handling.dart';
-import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 
 class GroupsNotifier extends Notifier<GroupsState> {
   final _logger = Logger('GroupsNotifier');
@@ -620,7 +619,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
     try {
       return groups.firstWhere(
-        (group) => (group as Group?)?.mlsGroupId == groupId || (group)?.nostrGroupId == groupId,
+        (group) => (group as Group?)?.mlsGroupId == groupId || (group).nostrGroupId == groupId,
       );
     } catch (e) {
       return null;
@@ -914,7 +913,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     final updatedGroups =
         groups.map((group) {
           if ((group as Group?)?.mlsGroupId == groupId) {
-            final g = group as Group;
+            final g = group;
             return Group(
               mlsGroupId: g.mlsGroupId,
               nostrGroupId: g.nostrGroupId,
@@ -932,8 +931,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
         }).toList();
 
     updatedGroups.sort((a, b) {
-      final aTime = (a)?.lastMessageAt;
-      final bTime = (b)?.lastMessageAt;
+      final aTime = (a).lastMessageAt;
+      final bTime = (b).lastMessageAt;
 
       if (aTime == null && bTime == null) return 0;
       if (aTime == null) return 1;
@@ -947,9 +946,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     final updatedGroupsMap = <String, Group>{};
     for (final group in updatedGroups) {
       final g = group;
-      if (g?.mlsGroupId != null) {
-        updatedGroupsMap[g!.mlsGroupId] = g;
-      }
+      updatedGroupsMap[g.mlsGroupId] = g;
     }
 
     state = state.copyWith(groups: updatedGroups, groupsMap: updatedGroupsMap);

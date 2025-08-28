@@ -6,8 +6,8 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
@@ -36,7 +36,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
 
   Future<void> loadProfile() async {
     try {
-      final activeAccountPubkey = await ref.read(activePubkeyProvider);
+      final activeAccountPubkey = ref.read(activePubkeyProvider);
       npub = await activeAccountPubkey?.toNpub() ?? '';
       setState(() {});
     } catch (e) {

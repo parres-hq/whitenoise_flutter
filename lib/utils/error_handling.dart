@@ -1,6 +1,4 @@
 import 'package:logging/logging.dart';
-import 'package:whitenoise/src/rust/api.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 
 /// Utility class for handling ApiError conversion and providing user-friendly error messages
@@ -84,9 +82,8 @@ class ErrorHandlingUtils {
         // This is a best-effort approach since ApiErrorImpl is opaque
         if (exceptionString.length > 'Exception: Instance of \'ApiErrorImpl\''.length) {
           // If there's more text beyond the generic message, try to use it
-          final cleanedException = exceptionString
-              .replaceFirst('Exception: Instance of \'ApiErrorImpl\'', '')
-              .trim();
+          final cleanedException =
+              exceptionString.replaceFirst('Exception: Instance of \'ApiErrorImpl\'', '').trim();
           if (cleanedException.isNotEmpty) {
             baseErrorMessage = cleanedException;
           }

@@ -5,8 +5,7 @@ class ImagePickerService {
   static final _logger = Logger('ImagePickerService');
   final ImagePicker _imagePicker;
 
-  ImagePickerService({ImagePicker? imagePicker}) 
-      : _imagePicker = imagePicker ?? ImagePicker();
+  ImagePickerService({ImagePicker? imagePicker}) : _imagePicker = imagePicker ?? ImagePicker();
 
   Future<String?> pickProfileImage() async {
     try {

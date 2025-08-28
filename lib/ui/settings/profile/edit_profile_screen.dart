@@ -270,7 +270,10 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                                         child: WnFilledButton(
                                                           onPressed: () {
                                                             ref
-                                                                .read(editProfileScreenProvider.notifier)
+                                                                .read(
+                                                                  editProfileScreenProvider
+                                                                      .notifier,
+                                                                )
                                                                 .discardChanges();
                                                             Navigator.of(dialogContext).pop();
                                                           },
@@ -285,7 +288,10 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                                         child: WnFilledButton(
                                                           onPressed: () async {
                                                             await ref
-                                                                .read(editProfileScreenProvider.notifier)
+                                                                .read(
+                                                                  editProfileScreenProvider
+                                                                      .notifier,
+                                                                )
                                                                 .updateProfileData();
                                                             if (context.mounted) {
                                                               Navigator.of(dialogContext).pop();

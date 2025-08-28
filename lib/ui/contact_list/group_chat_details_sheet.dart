@@ -10,8 +10,6 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/src/rust/api/relays.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/safe_toast_mixin.dart';
 import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';

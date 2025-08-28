@@ -1,8 +1,6 @@
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
-import 'package:whitenoise/ui/chat/utils/message_extensions.dart';
-import 'package:whitenoise/utils/big_int_extension.dart';
 
 enum ChatListItemType { chat, welcome }
 

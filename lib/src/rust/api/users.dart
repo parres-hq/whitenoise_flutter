@@ -4,7 +4,6 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
-import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
 import '../frb_generated.dart';
 import 'accounts.dart';
@@ -28,6 +27,9 @@ Future<List<Relay>> userRelays({
   relayType: relayType,
 );
 
+Future<bool> userHasKeyPackage({required String pubkey}) =>
+    RustLib.instance.api.crateApiUsersUserHasKeyPackage(pubkey: pubkey);
+
 class User {
   final String pubkey;
   final FlutterMetadata metadata;
@@ -42,11 +44,7 @@ class User {
   });
 
   @override
-  int get hashCode =>
-      pubkey.hashCode ^
-      metadata.hashCode ^
-      createdAt.hashCode ^
-      updatedAt.hashCode;
+  int get hashCode => pubkey.hashCode ^ metadata.hashCode ^ createdAt.hashCode ^ updatedAt.hashCode;
 
   @override
   bool operator ==(Object other) =>

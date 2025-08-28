@@ -1,18 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:logging/logging.dart';
-import 'package:path/path.dart' as path;
-import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/services/image_picker_service.dart';
-import 'package:whitenoise/src/rust/api.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
-import 'package:whitenoise/src/rust/api/relays.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
@@ -41,7 +32,7 @@ class EditProfileScreenNotifier extends AsyncNotifier<ProfileState> {
       final activeAccountState = await ref.read(activeAccountProvider.future);
       final activeAccount = activeAccountState.account;
       final metadata = activeAccountState.metadata;
-      
+
       if (activeAccount == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
@@ -104,7 +95,7 @@ class EditProfileScreenNotifier extends AsyncNotifier<ProfileState> {
   Future<void> pickProfileImage() async {
     try {
       final imagePath = await _imagePickerService.pickProfileImage();
-      
+
       if (imagePath != null) {
         state.whenData(
           (value) =>
@@ -134,7 +125,7 @@ class EditProfileScreenNotifier extends AsyncNotifier<ProfileState> {
       final activeAccountState = await ref.read(activeAccountProvider.future);
       final activeAccount = activeAccountState.account;
       final initialMetadata = activeAccountState.metadata;
-      
+
       if (activeAccount == null) {
         state = AsyncValue.error('No active account found', StackTrace.current);
         return;
@@ -153,15 +144,19 @@ class EditProfileScreenNotifier extends AsyncNotifier<ProfileState> {
       }
 
       final currentState = state.value!;
-      final displayNameChanged = currentState.displayName != null && currentState.displayName != initialMetadata.displayName;
-      final aboutChanged = currentState.about != null && currentState.about != initialMetadata.about;
-      final nip05Changed = currentState.nip05 != null && currentState.nip05 != initialMetadata.nip05;
+      final displayNameChanged =
+          currentState.displayName != null &&
+          currentState.displayName != initialMetadata.displayName;
+      final aboutChanged =
+          currentState.about != null && currentState.about != initialMetadata.about;
+      final nip05Changed =
+          currentState.nip05 != null && currentState.nip05 != initialMetadata.nip05;
 
       final newMetadata = FlutterMetadata(
         name: initialMetadata.name,
         displayName: displayNameChanged ? currentState.displayName : initialMetadata.displayName,
         about: aboutChanged ? currentState.about : initialMetadata.about,
-        picture: profilePictureUrl != null ? profilePictureUrl : initialMetadata.picture,
+        picture: profilePictureUrl ?? initialMetadata.picture,
         banner: initialMetadata.banner,
         website: initialMetadata.website,
         nip05: nip05Changed ? currentState.nip05 : initialMetadata.nip05,
@@ -169,7 +164,6 @@ class EditProfileScreenNotifier extends AsyncNotifier<ProfileState> {
         lud16: initialMetadata.lud16,
         custom: initialMetadata.custom,
       );
-
 
       await activeAccountNotifier.updateMetadata(metadata: newMetadata);
       await fetchProfileData();

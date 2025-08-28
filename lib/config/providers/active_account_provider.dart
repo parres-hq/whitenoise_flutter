@@ -3,7 +3,6 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api;
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
-import 'package:whitenoise/src/rust/api/utils.dart' show getDefaultBlossomServerUrl;
 import 'package:whitenoise/utils/image_utils.dart';
 
 final _logger = Logger('ActiveAccountProvider');
@@ -135,8 +134,6 @@ Future<FlutterMetadata> _fetchMetadata(WnAccountsApi accountsApi, String pubkey)
 }
 
 class ActiveAccountNotifier extends AsyncNotifier<ActiveAccountState> {
-
-
   @override
   Future<ActiveAccountState> build() async {
     final activePubkey = ref.watch(activePubkeyProvider);
@@ -148,19 +145,24 @@ class ActiveAccountNotifier extends AsyncNotifier<ActiveAccountState> {
     }
 
     try {
-      final (account, metadata) = await (
-        _fetchAccount(accountsApi, activePubkey),
-        _fetchMetadata(accountsApi, activePubkey),
-      ).wait;
-      
-      _logger.fine('ActiveAccountProvider: Successfully fetched account and metadata for ${account.pubkey}');
-      
+      final (account, metadata) =
+          await (
+            _fetchAccount(accountsApi, activePubkey),
+            _fetchMetadata(accountsApi, activePubkey),
+          ).wait;
+
+      _logger.fine(
+        'ActiveAccountProvider: Successfully fetched account and metadata for ${account.pubkey}',
+      );
+
       return ActiveAccountState(
         account: account,
         metadata: metadata,
       );
     } catch (e) {
-      _logger.warning('ActiveAccountProvider: Error fetching account/metadata for $activePubkey: $e');
+      _logger.warning(
+        'ActiveAccountProvider: Error fetching account/metadata for $activePubkey: $e',
+      );
       return ActiveAccountState(error: e.toString());
     }
   }
@@ -202,7 +204,7 @@ class ActiveAccountNotifier extends AsyncNotifier<ActiveAccountState> {
 
     try {
       _logger.fine('Uploading profile picture for pubkey: $activePubkey');
-      
+
       final imageUtils = ref.read(wnImageUtilsProvider);
       final imageType = await imageUtils.getMimeTypeFromPath(filePath);
       if (imageType == null) {
@@ -219,7 +221,9 @@ class ActiveAccountNotifier extends AsyncNotifier<ActiveAccountState> {
         imageType: imageType,
       );
 
-      _logger.fine('Successfully uploaded profile picture for pubkey: $activePubkey, URL: $profilePictureUrl');
+      _logger.fine(
+        'Successfully uploaded profile picture for pubkey: $activePubkey, URL: $profilePictureUrl',
+      );
       return profilePictureUrl;
     } catch (e) {
       _logger.severe('Failed to upload profile picture: $e');

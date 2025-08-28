@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/create_profile_screen_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/create_profile_screen_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -90,12 +90,14 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                         imageUrl: ref.watch(createProfileScreenProvider).selectedImagePath ?? '',
                         displayName: displayText,
                         size: 96.w,
-                        showBorder: ref.watch(createProfileScreenProvider).selectedImagePath == null,
+                        showBorder:
+                            ref.watch(createProfileScreenProvider).selectedImagePath == null,
                       );
                     },
                   ),
                   GestureDetector(
-                    onTap: () => ref.read(createProfileScreenProvider.notifier).pickProfileImage(ref),
+                    onTap:
+                        () => ref.read(createProfileScreenProvider.notifier).pickProfileImage(ref),
                     child: Container(
                       width: 28.w,
                       height: 28.w,

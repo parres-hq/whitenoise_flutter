@@ -11,9 +11,8 @@ import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/services/key_package_service.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/share_invite_button.dart';
 import 'package:whitenoise/ui/contact_list/widgets/share_invite_callout.dart';
 import 'package:whitenoise/ui/contact_list/widgets/user_profile.dart';
@@ -21,7 +20,6 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
-import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 
 class StartChatBottomSheet extends ConsumerStatefulWidget {
   final ContactModel contact;

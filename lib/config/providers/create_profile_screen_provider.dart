@@ -50,7 +50,7 @@ class CreateProfileScreenNotifier extends Notifier<CreateProfileScreenState> {
     final activeAccountState = await ref.read(activeAccountProvider.future);
     final activeAccount = activeAccountState.account;
     final initialMetadata = activeAccountState.metadata;
-  
+
     if (activeAccount == null) {
       ref.showRawErrorToast('No active account found');
       return;
@@ -74,7 +74,7 @@ class CreateProfileScreenNotifier extends Notifier<CreateProfileScreenState> {
         }
 
         final newMetadata = FlutterMetadata(
-          name: initialMetadata?.name,
+          name: initialMetadata.name,
           displayName: isDisplayNameChanged ? displayName : initialMetadata.displayName,
           about: isBioProvided ? bio : initialMetadata.about,
           picture: profilePictureUrl ?? initialMetadata.picture,
@@ -100,7 +100,7 @@ class CreateProfileScreenNotifier extends Notifier<CreateProfileScreenState> {
   Future<void> pickProfileImage(WidgetRef ref) async {
     try {
       final imagePath = await _imagePickerService.pickProfileImage();
-      
+
       if (imagePath != null) {
         state = state.copyWith(selectedImagePath: imagePath);
       }
@@ -110,6 +110,7 @@ class CreateProfileScreenNotifier extends Notifier<CreateProfileScreenState> {
   }
 }
 
-final createProfileScreenProvider = NotifierProvider<CreateProfileScreenNotifier, CreateProfileScreenState>(
-  CreateProfileScreenNotifier.new,
-);
+final createProfileScreenProvider =
+    NotifierProvider<CreateProfileScreenNotifier, CreateProfileScreenState>(
+      CreateProfileScreenNotifier.new,
+    );

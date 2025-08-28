@@ -82,7 +82,7 @@ class MockWnAccountsApi implements WnAccountsApi {
       throw Exception('Network error');
     }
 
-    return _metadata[pubkey] ?? FlutterMetadata(
+    return _metadata[pubkey] ?? const FlutterMetadata(
       name: '',
       displayName: '',
       about: '',
@@ -147,7 +147,7 @@ final testAccount = accounts_api.Account(
   updatedAt: DateTime.now().subtract(const Duration(days: 1)),
 );
 
-final testMetadata = FlutterMetadata(
+final testMetadata = const FlutterMetadata(
   name: 'test_name',
   displayName: 'test_display_name',
   about: 'test_about',
@@ -160,7 +160,7 @@ final testMetadata = FlutterMetadata(
   custom: {},
 );
 
-final otherTestMetadata = FlutterMetadata(
+final otherTestMetadata = const FlutterMetadata(
   name: 'other_name',
   displayName: 'other_display_name',
   about: 'other_about',

@@ -1,4 +1,3 @@
-import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/utils.dart' as wn_utils_api;
 
 extension StringExtensions on String {

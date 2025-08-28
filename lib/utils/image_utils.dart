@@ -1,11 +1,9 @@
 import 'dart:io';
 import 'package:logging/logging.dart';
 import 'package:mime/mime.dart' show lookupMimeType;
-import 'package:path/path.dart' as path;
 
 class ImageUtils {
   static final _logger = Logger('ImageUtils');
-
 
   static Future<String?> getMimeTypeFromPath(String filePath) async {
     try {

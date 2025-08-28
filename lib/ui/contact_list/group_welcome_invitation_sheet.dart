@@ -4,8 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -13,7 +12,6 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
-import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
 class GroupWelcomeInvitationSheet extends StatelessWidget {
   final Welcome welcome;

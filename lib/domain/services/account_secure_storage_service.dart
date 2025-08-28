@@ -33,7 +33,7 @@ class AccountSecureStorageService {
       _logger.info('AccountSecureStorageService: Wrote active pubkey: $pubkey');
     } catch (e) {
       _logger.severe('Error writing active pubkey: $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -44,7 +44,7 @@ class AccountSecureStorageService {
       _logger.info('AccountSecureStorageService: Cleared active pubkey');
     } catch (e) {
       _logger.severe('AccountSecureStorageService: Error clearing active pubkey $e');
-      throw e;
+      rethrow;
     }
   }
 
@@ -55,7 +55,7 @@ class AccountSecureStorageService {
       _logger.info('AccountSecureStorageService: Cleared all secure storage data');
     } catch (e) {
       _logger.severe('AccountSecureStorageService: Error clearing all secure storage: $e');
-      throw e;
+      rethrow;
     }
   }
 }

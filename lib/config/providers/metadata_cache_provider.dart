@@ -5,10 +5,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
-import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 
 /// Cached metadata with basic expiration
 class CachedMetadata {

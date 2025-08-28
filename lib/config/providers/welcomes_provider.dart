@@ -5,10 +5,8 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/welcome_state.dart';
-import 'package:whitenoise/src/rust/api.dart'; 
-import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
+import 'package:whitenoise/src/rust/api/welcomes.dart';
 
 class WelcomesNotifier extends Notifier<WelcomesState> {
   final _logger = Logger('WelcomesNotifier');
@@ -122,7 +120,10 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return null;
       }
 
-      final welcome = await fetchWelcome(pubkey: activeAccount.pubkey, welcomeEventId: welcomeEventId);
+      final welcome = await fetchWelcome(
+        pubkey: activeAccount.pubkey,
+        welcomeEventId: welcomeEventId,
+      );
 
       final updatedWelcomeById = Map<String, Welcome>.from(state.welcomeById ?? {});
       updatedWelcomeById[welcome.id] = welcome;
