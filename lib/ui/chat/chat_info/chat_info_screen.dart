@@ -58,7 +58,8 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final groupDetails = ref.watch(groupsProvider).groupsMap?[widget.groupId];
+    final groupsNotifier = ref.watch(groupsProvider.notifier);
+    final groupType = groupsNotifier.getGroupTypeById(widget.groupId);
 
     return Scaffold(
       body: Column(
@@ -74,9 +75,7 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  groupDetails?.groupType == GroupType.directMessage
-                      ? 'Chat Information'
-                      : 'Group Information',
+                  groupType == GroupType.directMessage ? 'Chat Information' : 'Group Information',
                   style: context.textTheme.bodyMedium?.copyWith(
                     color: context.colors.mutedForeground,
                     fontSize: 18.sp,
@@ -95,7 +94,7 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
           ),
           Expanded(
             child:
-                groupDetails?.groupType == GroupType.directMessage
+                groupType == GroupType.directMessage
                     ? DMChatInfo(groupId: widget.groupId)
                     : GroupChatInfo(groupId: widget.groupId),
           ),

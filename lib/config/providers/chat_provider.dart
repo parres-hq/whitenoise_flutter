@@ -221,7 +221,7 @@ class ChatNotifier extends Notifier<ChatState> {
       );
 
       // Update group order by triggering a resort based on the new message
-      _updateGroupOrderForNewMessage(groupId);
+      await _updateGroupOrderForNewMessage(groupId);
 
       _logger.info('ChatProvider: Message sent successfully to group $groupId');
       onMessageSent?.call();
@@ -781,10 +781,10 @@ class ChatNotifier extends Notifier<ChatState> {
     );
   }
 
-  void _updateGroupOrderForNewMessage(String groupId) {
+  Future<void> _updateGroupOrderForNewMessage(String groupId) async {
     final now = DateTime.now();
 
-    ref.read(groupsProvider.notifier).updateGroupActivityTime(groupId, now);
+    await ref.read(groupsProvider.notifier).updateGroupActivityTime(groupId, now);
   }
 
   /// Helper method to compare if two reaction lists are equal

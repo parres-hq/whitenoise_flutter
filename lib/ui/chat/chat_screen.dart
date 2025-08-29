@@ -174,6 +174,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
 
     final group = groupsNotifier.findGroupById(widget.groupId);
+    final groupType = groupsNotifier.getGroupTypeById(widget.groupId);
 
     if (group == null) {
       return Scaffold(
@@ -256,11 +257,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                   final otherUser = snapshot.data;
                                   return ContactInfo(
                                     title:
-                                        group.groupType == GroupType.directMessage
+                                        groupType == GroupType.directMessage
                                             ? otherUser?.displayName ?? ''
                                             : group.name,
                                     image:
-                                        group.groupType == GroupType.directMessage
+                                        groupType == GroupType.directMessage
                                             ? otherUser?.displayImage ?? ''
                                             : '',
                                     onTap: () => context.push('/chats/${widget.groupId}/info'),
@@ -300,7 +301,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                                     tag: message.id,
                                     child: MessageWidget(
                                           message: message,
-                                          isGroupMessage: group.groupType == GroupType.group,
+                                          isGroupMessage: groupType == GroupType.group,
                                           isSameSenderAsPrevious: chatNotifier.isSameSender(
                                             messageIndex,
                                             groupId: widget.groupId,

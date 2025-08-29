@@ -38,9 +38,10 @@ class ChatListItemTile extends ConsumerWidget {
   Widget _buildChatTile(BuildContext context, WidgetRef ref) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
     final group = item.group!;
+    final groupType = groupsNotifier.getGroupType(group);
 
     // For DM chats, get the other member and use metadata cache for better user info
-    if (group.groupType == GroupType.directMessage) {
+    if (groupType == GroupType.directMessage) {
       return FutureBuilder(
         future: ref.getDMChatData(group.mlsGroupId),
         builder: (context, AsyncSnapshot<DMChatData?> snapshot) {

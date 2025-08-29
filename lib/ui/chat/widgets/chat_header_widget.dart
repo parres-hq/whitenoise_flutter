@@ -18,7 +18,9 @@ class ChatContactHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isGroupChat = group.groupType == GroupType.group;
+    final groupsNotifier = ref.watch(groupsProvider.notifier);
+    final groupType = groupsNotifier.getGroupType(group.mlsGroupId);
+    final isGroupChat = groupType == GroupType.group;
 
     if (isGroupChat) {
       return GroupChatHeader(group: group);

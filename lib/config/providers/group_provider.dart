@@ -159,7 +159,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final currentUserNpub = await npubFromHexPubkey(hexPubkey: activeAccount.pubkey);
       final otherUserNpub = await npubFromHexPubkey(hexPubkey: otherUserPubkeyHex);
 
-      final directMessageGroups = getDirectMessageGroups();
+      final directMessageGroups = await getDirectMessageGroups();
 
       for (final group in directMessageGroups) {
         final members = getGroupMembers(group.mlsGroupId);
@@ -552,7 +552,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Get the appropriate display name for a group
   Future<String> _getDisplayNameForGroup(Group group, String currentUserPubkey) async {
     // For direct messages, use the other member's name
-    if (group.groupType == GroupType.directMessage) {
+    final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
+    if (groupInformation.groupType == GroupType.directMessage) {
       try {
         final currentUserNpub = await npubFromHexPubkey(hexPubkey: currentUserPubkey);
         final otherMember = getOtherGroupMember(group.mlsGroupId, currentUserNpub);
@@ -584,10 +585,25 @@ class GroupsNotifier extends Notifier<GroupsState> {
     return group.name;
   }
 
-  List<Group> getGroupsByType(GroupType type) {
+  Future<Map<String, GroupInformation>> _getGroupInformationsMap(List<Group> groups) async {
+    final groupIds = groups.map((group) => group.mlsGroupId).toList();
+    final groupInformations = await getGroupsInformations(groupIds: groupIds);
+    final groupInformationsMap = <String, GroupInformation>{};
+    for (int i = 0; i < groupIds.length && i < groupInformations.length; i++) {
+      groupInformationsMap[groupIds[i]] = groupInformations[i];
+    }
+    return groupInformationsMap;
+  }
+
+  Future<List<Group>> getGroupsByType(GroupType type) async {
     final groups = state.groups;
     if (groups == null) return [];
-    return groups.where((group) => (group as Group?)?.groupType == type).toList();
+
+    final groupInformationsMap = await _getGroupInformationsMap(groups);
+
+    return groups
+        .where((group) => groupInformationsMap[group.mlsGroupId]?.groupType == type)
+        .toList();
   }
 
   List<Group> getActiveGroups() {
@@ -596,13 +612,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
     return groups.where((group) => (group as Group?)?.state == GroupState.active).toList();
   }
 
-  List<Group> getDirectMessageGroups() {
-    return getGroupsByType(GroupType.directMessage);
+  Future<List<Group>> getDirectMessageGroups() async {
+    return await getGroupsByType(GroupType.directMessage);
   }
 
-  // Get regular groups (not direct messages)
-  List<Group> getRegularGroups() {
-    return getGroupsByType(GroupType.group);
+  Future<List<Group>> getRegularGroups() async {
+    return await getGroupsByType(GroupType.group);
   }
 
   Group? findGroupById(String groupId) {
@@ -624,6 +639,18 @@ class GroupsNotifier extends Notifier<GroupsState> {
     } catch (e) {
       return null;
     }
+  }
+
+  Future<GroupType> getGroupType(Group group) async {
+    final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
+
+    return groupInformation.groupType ?? GroupType.group;
+  }
+
+  Future<GroupType> getGroupTypeById(String groupId) async {
+    final groupInformation = await getGroupInformation(groupId: groupId);
+
+    return groupInformation.groupType ?? GroupType.group;
   }
 
   List<User>? getGroupMembers(String groupId) {
@@ -906,9 +933,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
-  void updateGroupActivityTime(String groupId, DateTime timestamp) {
+  Future<void> updateGroupActivityTime(String groupId, DateTime timestamp) async {
     final groups = state.groups;
     if (groups == null) return;
+    final groupsInformationsMap = await _getGroupInformationsMap(groups);
 
     final updatedGroups =
         groups.map((group) {
@@ -922,7 +950,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
               adminPubkeys: g.adminPubkeys,
               lastMessageId: g.lastMessageId,
               lastMessageAt: timestamp,
-              groupType: g.groupType,
               epoch: g.epoch,
               state: g.state,
             );
@@ -993,10 +1020,11 @@ extension GroupMemberUtils on GroupsNotifier {
   /// For regular groups, returns null (can be extended for group avatars)
   String? getGroupDisplayImage(String groupId, String currentUserNpub) {
     final group = findGroupById(groupId);
+    final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
     if (group == null) return null;
 
     // For direct messages, use the other member's image
-    if (group.groupType == GroupType.directMessage) {
+    if (groupInformation.groupType == GroupType.directMessage) {
       final otherMember = getOtherGroupMember(groupId, currentUserNpub);
       return otherMember?.imagePath;
     }

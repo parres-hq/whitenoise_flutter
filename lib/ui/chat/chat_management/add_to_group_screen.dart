@@ -31,6 +31,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
   // should store id of groups to add user to
   final List<String> _groupsToAddUserTo = [];
   bool _isLoading = false;
+  List<Group> _regularGroups = [];
 
   Future<void> _loadGroups() async {
     setState(() {
@@ -38,14 +39,14 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
     });
     await ref.read(groupsProvider.notifier).loadGroups();
 
-    final groups = ref.read(groupsProvider).groups;
-    if (groups == null || groups.isEmpty) {
+    final regularGroups = await ref.read(groupsProvider.notifier).getRegularGroups();
+    if (regularGroups.isEmpty) {
       return;
     }
 
     final loadTasks = <Future<void>>[];
 
-    for (final group in groups) {
+    for (final group in regularGroups) {
       final existingMembers = ref.read(groupsProvider).groupMembers?[group.mlsGroupId];
       if (existingMembers == null) {
         loadTasks.add(ref.read(groupsProvider.notifier).loadGroupMembers(group.mlsGroupId));
@@ -55,7 +56,9 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
     if (loadTasks.isNotEmpty) {
       await Future.wait(loadTasks);
     }
+
     setState(() {
+      _regularGroups = regularGroups;
       _isLoading = false;
     });
   }
@@ -146,17 +149,13 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
           Flexible(
             child: Consumer(
               builder: (context, ref, child) {
-                final allGroups = ref.watch(groupsProvider).groups ?? [];
                 final groupsState = ref.watch(groupsProvider);
-
-                final regularGroups =
-                    allGroups.where((group) => group.groupType == GroupType.group).toList();
 
                 return ListView.builder(
                   padding: EdgeInsets.zero,
-                  itemCount: regularGroups.length,
+                  itemCount: _regularGroups.length,
                   itemBuilder: (context, index) {
-                    final group = regularGroups[index];
+                    final group = _regularGroups[index];
                     final members = groupsState.groupMembers?[group.mlsGroupId] ?? [];
                     final memberCount = members.length;
 
@@ -184,11 +183,9 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
                         style: context.textTheme.bodySmall?.copyWith(
                           color: context.colors.mutedForeground,
                           fontWeight: FontWeight.w500,
-
                           fontSize: 12.sp,
                         ),
                       ),
-
                       enabled: !isContactInGroup,
                       value: _groupsToAddUserTo.contains(group.mlsGroupId) || isContactInGroup,
                       onChanged: (bool? value) {
