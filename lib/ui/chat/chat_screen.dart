@@ -40,7 +40,7 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-
+  double _lastScrollOffset = 0.0;
   Future<DMChatData?>? _dmChatDataFuture;
 
   @override
