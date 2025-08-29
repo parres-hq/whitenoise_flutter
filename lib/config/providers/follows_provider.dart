@@ -1,6 +1,5 @@
 // ignore_for_file: avoid_redundant_argument_values
 
-import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
@@ -42,16 +41,16 @@ class FollowsNotifier extends Notifier<FollowsState> {
   FollowsState build() {
     ref.listen<String?>(activePubkeyProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.microtask(() {
           clearFollows();
           loadFollows();
         });
       } else if (previous != null && next == null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.microtask(() {
           clearFollows();
         });
       } else if (previous == null && next != null) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
+        Future.microtask(() {
           loadFollows();
         });
       }
@@ -70,6 +69,8 @@ class FollowsNotifier extends Notifier<FollowsState> {
   }
 
   Future<void> loadFollows() async {
+    if (state.isLoading) return;
+
     state = state.copyWith(isLoading: true, error: null);
 
     if (!_isAuthAvailable()) {

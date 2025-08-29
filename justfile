@@ -15,6 +15,17 @@ precommit:
     just test-rust
     @echo "✅ All pre-commit checks passed!"
 
+# Pre-commit checks without auto-fixing (for releases)
+precommit-check:
+    just deps-flutter
+    just deps-rust
+    just check-rust-format
+    just check-dart-format
+    just lint
+    just test-flutter
+    just test-rust
+    @echo "✅ All pre-commit checks passed!"
+
 # ==============================================================================
 # CODE GENERATION
 # ==============================================================================
@@ -203,9 +214,27 @@ android-build:
 # Check and build versioned release
 release:
     @echo "🔨 Building versioned release..."
+    @echo "🔍 Verifying working tree is clean..."
+    @if [ -n "$$(git status --porcelain)" ]; then \
+        echo "❌ Working tree is not clean. Please commit or stash changes before release."; \
+        git status --short; \
+        exit 1; \
+    fi
+    @echo "✅ Working tree is clean"
+    @echo "🔍 Verifying build script..."
+    @if [ ! -f "scripts/build.sh" ]; then \
+        echo "❌ Build script not found: scripts/build.sh"; \
+        exit 1; \
+    fi
+    @if [ ! -x "scripts/build.sh" ]; then \
+        echo "❌ Build script is not executable: scripts/build.sh"; \
+        echo "💡 Run: chmod +x scripts/build.sh"; \
+        exit 1; \
+    fi
+    @echo "✅ Build script verified"
     @echo "✔︎ Running a precommit check..."
-    just precommit
-    @echo "🎁 Building versioned release for all platforms..."
+    just precommit-check
+    @echo "🎁 Building versioned release for Android and iOS..."
     ./scripts/build.sh --full --versioned
     @echo "🎉 Versioned release built successfully!"
 
