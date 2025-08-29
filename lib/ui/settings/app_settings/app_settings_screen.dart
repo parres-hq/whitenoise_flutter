@@ -19,6 +19,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/src/rust/api.dart' as wn_api;
 
 class AppSettingsScreen extends ConsumerWidget {
   const AppSettingsScreen({super.key});
@@ -86,7 +87,7 @@ class AppSettingsScreen extends ConsumerWidget {
 
       // Add timeout to prevent hanging
       _logger.info('🗑️ Calling backend deleteAllData...');
-      await deleteAllData().timeout(
+      await wn_api.deleteAllData().timeout(
         const Duration(seconds: 30),
         onTimeout: () {
           throw Exception('Delete operation timed out after 30 seconds');
