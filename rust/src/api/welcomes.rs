@@ -109,7 +109,7 @@ pub async fn pending_welcomes(pubkey: String) -> Result<Vec<Welcome>, ApiError> 
 }
 
 #[frb]
-pub async fn find_weclcome_by_event_id(
+pub async fn find_welcome_by_event_id(
     pubkey: String,
     welcome_event_id: String,
 ) -> Result<Welcome, ApiError> {

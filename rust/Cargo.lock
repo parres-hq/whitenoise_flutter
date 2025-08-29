@@ -2440,7 +2440,7 @@ checksum = "f0efe882e02d206d8d279c20eb40e03baf7cb5136a1476dc084a324fbc3ec42d"
 [[package]]
 name = "nostr"
 version = "0.43.0"
-source = "git+https://github.com/erskingardner/rust-nostr?rev=5ec43be393f895622a90e3957dfc3d7d8df6d508#5ec43be393f895622a90e3957dfc3d7d8df6d508"
+source = "git+https://github.com/rust-nostr/nostr?rev=84b1a016cffc30625567a03e2d3bcae86463f075#84b1a016cffc30625567a03e2d3bcae86463f075"
 dependencies = [
  "aes",
  "base64 0.22.1",
@@ -2451,6 +2451,7 @@ dependencies = [
  "chacha20",
  "chacha20poly1305",
  "getrandom 0.2.16",
+ "hex",
  "instant",
  "scrypt",
  "secp256k1",
@@ -2463,7 +2464,7 @@ dependencies = [
 [[package]]
 name = "nostr-blossom"
 version = "0.43.0"
-source = "git+https://github.com/erskingardner/rust-nostr?rev=5ec43be393f895622a90e3957dfc3d7d8df6d508#5ec43be393f895622a90e3957dfc3d7d8df6d508"
+source = "git+https://github.com/rust-nostr/nostr?rev=84b1a016cffc30625567a03e2d3bcae86463f075#84b1a016cffc30625567a03e2d3bcae86463f075"
 dependencies = [
  "base64 0.22.1",
  "nostr",
@@ -2474,7 +2475,7 @@ dependencies = [
 [[package]]
 name = "nostr-database"
 version = "0.43.0"
-source = "git+https://github.com/erskingardner/rust-nostr?rev=5ec43be393f895622a90e3957dfc3d7d8df6d508#5ec43be393f895622a90e3957dfc3d7d8df6d508"
+source = "git+https://github.com/rust-nostr/nostr?rev=84b1a016cffc30625567a03e2d3bcae86463f075#84b1a016cffc30625567a03e2d3bcae86463f075"
 dependencies = [
  "flatbuffers",
  "lru",
@@ -2485,7 +2486,7 @@ dependencies = [
 [[package]]
 name = "nostr-lmdb"
 version = "0.43.0"
-source = "git+https://github.com/erskingardner/rust-nostr?rev=5ec43be393f895622a90e3957dfc3d7d8df6d508#5ec43be393f895622a90e3957dfc3d7d8df6d508"
+source = "git+https://github.com/rust-nostr/nostr?rev=84b1a016cffc30625567a03e2d3bcae86463f075#84b1a016cffc30625567a03e2d3bcae86463f075"
 dependencies = [
  "async-utility",
  "flume",
@@ -2499,9 +2500,10 @@ dependencies = [
 [[package]]
 name = "nostr-mls"
 version = "0.43.0"
-source = "git+https://github.com/erskingardner/rust-nostr?rev=5ec43be393f895622a90e3957dfc3d7d8df6d508#5ec43be393f895622a90e3957dfc3d7d8df6d508"
+source = "git+https://github.com/rust-nostr/nostr?rev=84b1a016cffc30625567a03e2d3bcae86463f075#84b1a016cffc30625567a03e2d3bcae86463f075"
 dependencies = [
  "aes-gcm",
+ "hex",
  "nostr",
  "nostr-mls-storage",
  "openmls",
@@ -2515,7 +2517,7 @@ dependencies = [
 [[package]]
 name = "nostr-mls-sqlite-storage"
 version = "0.43.0"
-source = "git+https://github.com/erskingardner/rust-nostr?rev=5ec43be393f895622a90e3957dfc3d7d8df6d508#5ec43be393f895622a90e3957dfc3d7d8df6d508"
+source = "git+https://github.com/rust-nostr/nostr?rev=84b1a016cffc30625567a03e2d3bcae86463f075#84b1a016cffc30625567a03e2d3bcae86463f075"
 dependencies = [
  "nostr",
  "nostr-mls-storage",
@@ -2531,7 +2533,7 @@ dependencies = [
 [[package]]
 name = "nostr-mls-storage"
 version = "0.43.0"
-source = "git+https://github.com/erskingardner/rust-nostr?rev=5ec43be393f895622a90e3957dfc3d7d8df6d508#5ec43be393f895622a90e3957dfc3d7d8df6d508"
+source = "git+https://github.com/rust-nostr/nostr?rev=84b1a016cffc30625567a03e2d3bcae86463f075#84b1a016cffc30625567a03e2d3bcae86463f075"
 dependencies = [
  "nostr",
  "openmls",
@@ -2543,11 +2545,12 @@ dependencies = [
 [[package]]
 name = "nostr-relay-pool"
 version = "0.43.0"
-source = "git+https://github.com/erskingardner/rust-nostr?rev=5ec43be393f895622a90e3957dfc3d7d8df6d508#5ec43be393f895622a90e3957dfc3d7d8df6d508"
+source = "git+https://github.com/rust-nostr/nostr?rev=84b1a016cffc30625567a03e2d3bcae86463f075#84b1a016cffc30625567a03e2d3bcae86463f075"
 dependencies = [
  "async-utility",
  "async-wsocket",
  "atomic-destructor",
+ "hex",
  "lru",
  "negentropy",
  "nostr",
@@ -2559,7 +2562,7 @@ dependencies = [
 [[package]]
 name = "nostr-sdk"
 version = "0.43.0"
-source = "git+https://github.com/erskingardner/rust-nostr?rev=5ec43be393f895622a90e3957dfc3d7d8df6d508#5ec43be393f895622a90e3957dfc3d7d8df6d508"
+source = "git+https://github.com/rust-nostr/nostr?rev=84b1a016cffc30625567a03e2d3bcae86463f075#84b1a016cffc30625567a03e2d3bcae86463f075"
 dependencies = [
  "async-utility",
  "nostr",
@@ -2655,7 +2658,7 @@ dependencies = [
 [[package]]
 name = "nwc"
 version = "0.43.0"
-source = "git+https://github.com/erskingardner/rust-nostr?rev=5ec43be393f895622a90e3957dfc3d7d8df6d508#5ec43be393f895622a90e3957dfc3d7d8df6d508"
+source = "git+https://github.com/rust-nostr/nostr?rev=84b1a016cffc30625567a03e2d3bcae86463f075#84b1a016cffc30625567a03e2d3bcae86463f075"
 dependencies = [
  "async-utility",
  "nostr",
@@ -4937,7 +4940,7 @@ checksum = "a751b3277700db47d3e574514de2eced5e54dc8a5436a3bf7a0b248b2cee16f3"
 [[package]]
 name = "whitenoise"
 version = "0.1.0"
-source = "git+https://github.com/parres-hq/whitenoise?rev=7e0e47b29990cc8ddcec34780b82af724da5ca55#7e0e47b29990cc8ddcec34780b82af724da5ca55"
+source = "git+https://github.com/parres-hq/whitenoise?rev=bd94fac990fec7812a1baa8a9444aacacbc38801#bd94fac990fec7812a1baa8a9444aacacbc38801"
 dependencies = [
  "anyhow",
  "async-trait",

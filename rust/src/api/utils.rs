@@ -6,7 +6,7 @@
 use crate::api::error::ApiError;
 use flutter_rust_bridge::frb;
 use nostr_mls::prelude::GroupId;
-use nostr_sdk::{PublicKey, RelayUrl, Tag};
+use nostr_sdk::prelude::*;
 pub use whitenoise::Whitenoise;
 
 #[frb]
@@ -40,6 +40,7 @@ pub fn string_from_relay_url(relay_url: &RelayUrl) -> String {
     relay_url.to_string()
 }
 
+#[frb]
 pub fn tag_from_vec(vec: Vec<String>) -> Result<Tag, ApiError> {
     Ok(Tag::parse(&vec)?)
 }

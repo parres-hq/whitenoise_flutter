@@ -16,14 +16,14 @@ tokio = { version = "1.44", features = ["rt", "rt-multi-thread"] }
 url = "2.5.1"
 
 
-nostr-mls = { version = "0.43.0", git="https://github.com/erskingardner/rust-nostr", rev = "5ec43be393f895622a90e3957dfc3d7d8df6d508" }
-nostr-sdk = { version = "0.43.0", git="https://github.com/erskingardner/rust-nostr", rev = "5ec43be393f895622a90e3957dfc3d7d8df6d508" }
+nostr-mls = { version = "0.43.0", git="https://github.com/rust-nostr/nostr", rev = "84b1a016cffc30625567a03e2d3bcae86463f075" }
+nostr-sdk = { version = "0.43.0", git="https://github.com/rust-nostr/nostr", rev = "84b1a016cffc30625567a03e2d3bcae86463f075" }
 # nostr-mls = {version = "0.43.0", path = "../../rust-nostr/mls/nostr-mls"}
 # nostr-sdk = {version = "0.43.0", path = "../../rust-nostr/crates/nostr-sdk"}
 
 thiserror = "2.0.12"
 
-whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "7e0e47b29990cc8ddcec34780b82af724da5ca55" }
+whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "bd94fac990fec7812a1baa8a9444aacacbc38801" }
 # whitenoise = { version = "0.1.0", path = "../../whitenoise" }
 
 [lints.rust]
