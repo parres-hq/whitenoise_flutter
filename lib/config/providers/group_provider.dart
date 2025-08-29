@@ -1020,11 +1020,15 @@ extension GroupMemberUtils on GroupsNotifier {
   /// For regular groups, returns null (can be extended for group avatars)
   String? getGroupDisplayImage(String groupId, String currentUserNpub) {
     final group = findGroupById(groupId);
-    final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
     if (group == null) return null;
 
+    // TODO BIG PLANS FIX groupInformation: get group type from groupInformation
+    // The problem here is that if this function is async then theb builds wwhere it used, complains
+    // final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
+    final groupType = GroupType.group;
+
     // For direct messages, use the other member's image
-    if (groupInformation.groupType == GroupType.directMessage) {
+    if (groupType == GroupType.directMessage) {
       final otherMember = getOtherGroupMember(groupId, currentUserNpub);
       return otherMember?.imagePath;
     }

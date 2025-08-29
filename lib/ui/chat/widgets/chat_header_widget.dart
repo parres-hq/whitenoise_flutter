@@ -10,6 +10,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
 
 class ChatContactHeader extends ConsumerWidget {
   final Group group;
@@ -19,7 +20,7 @@ class ChatContactHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
-    final groupType = groupsNotifier.getGroupType(group.mlsGroupId);
+    final groupType = GroupType.group;// TODO BIG PLANS FIX groupType:  await groupsNotifier.getGroupType(group.mlsGroupId);
     final isGroupChat = groupType == GroupType.group;
 
     if (isGroupChat) {
