@@ -195,7 +195,7 @@ class AuthNotifier extends Notifier<AuthState> {
       // Check if it's a Whitenoise ApiError and convert it to a readable message
       if (e is ApiError) {
         errorMessage = await e.messageText();
-        if (e.errorType() == 'InvalidSecretKey') {
+        if (await e.errorType() == 'InvalidSecretKey') {
           errorMessage = 'Invalid nsec or private key';
         }
         _logger.warning('loginWithKey failed: $errorMessage');

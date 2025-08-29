@@ -110,7 +110,7 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
 
   bool _isContact() {
     final followsState = ref.watch(followsProvider);
-    final follows = followsState.follows ?? [];
+    final follows = followsState.follows;
 
     return follows.any(
       (follow) => follow.pubkey.toLowerCase() == widget.user.publicKey.toLowerCase(),

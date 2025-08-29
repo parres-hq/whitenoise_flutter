@@ -59,46 +59,58 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
   @override
   Widget build(BuildContext context) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
-    final groupType = groupsNotifier.getGroupTypeById(widget.groupId);
 
     return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            margin: EdgeInsets.only(bottom: 16.h),
-            height: MediaQuery.of(context).padding.top,
-            color: context.colors.appBarBackground,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  groupType == GroupType.directMessage ? 'Chat Information' : 'Group Information',
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.colors.mutedForeground,
-                    fontSize: 18.sp,
-                  ),
+      body: FutureBuilder<GroupType>(
+        future: groupsNotifier.getGroupTypeById(widget.groupId),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final groupType = snapshot.data!;
+
+          return Column(
+            children: [
+              Container(
+                margin: EdgeInsets.only(bottom: 16.h),
+                height: MediaQuery.of(context).padding.top,
+                color: context.colors.appBarBackground,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      groupType == GroupType.directMessage
+                          ? 'Chat Information'
+                          : 'Group Information',
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colors.mutedForeground,
+                        fontSize: 18.sp,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.close,
+                        color: context.colors.primary,
+                        size: 24.sp,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: Icon(
-                    Icons.close,
-                    color: context.colors.primary,
-                    size: 24.sp,
-                  ),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child:
-                groupType == GroupType.directMessage
-                    ? DMChatInfo(groupId: widget.groupId)
-                    : GroupChatInfo(groupId: widget.groupId),
-          ),
-        ],
+              ),
+              Expanded(
+                child:
+                    groupType == GroupType.directMessage
+                        ? DMChatInfo(groupId: widget.groupId)
+                        : GroupChatInfo(groupId: widget.groupId),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

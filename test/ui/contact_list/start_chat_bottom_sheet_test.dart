@@ -24,16 +24,16 @@ class MockFollowsNotifier extends FollowsNotifier {
   }
 }
 
-
 class MockActiveAccountNotifier extends ActiveAccountNotifier {
   @override
   Future<ActiveAccountState> build() async {
-    final account = Account(
+    final mockAccount = Account(
       pubkey: 'test-pubkey',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
-    return ActiveAccountState(account: account);
+
+    return ActiveAccountState(account: mockAccount);
   }
 }
 
@@ -68,6 +68,19 @@ void main() {
       publicKey: 'abc123def456789012345678901234567890123456789012345678901234567890',
       nip05: 'satoshi@nakamoto.com',
       imagePath: 'https://example.com/satoshi.png',
+    );
+
+    final mockUser = User(
+      pubkey: 'abc123def456789012345678901234567890123456789012345678901234567890',
+      metadata: const FlutterMetadata(
+        name: 'Satoshi Nakamoto',
+        displayName: 'Satoshi Nakamoto',
+        nip05: 'satoshi@nakamoto.com',
+        picture: 'https://example.com/satoshi.png',
+        custom: {},
+      ),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
     );
 
     // Common provider overrides for all tests
@@ -232,7 +245,7 @@ void main() {
               ),
               overrides: [
                 ...commonOverrides,
-                followsProvider.overrideWith(() => MockFollowsNotifier([])),
+                followsProvider.overrideWith(() => MockFollowsNotifier([mockUser])),
               ],
             ),
           );

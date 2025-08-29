@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:logging/logging.dart';
 import 'package:mime/mime.dart' show lookupMimeType;
 
@@ -8,7 +9,7 @@ class ImageUtils {
   static Future<String?> getMimeTypeFromPath(String filePath) async {
     try {
       final file = File(filePath);
-      if (!await file.exists()) {
+      if (!file.existsSync()) {
         _logger.warning('File does not exist: $filePath, defaulting to image/jpeg');
         return null;
       }

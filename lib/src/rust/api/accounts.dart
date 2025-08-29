@@ -103,7 +103,7 @@ Future<void> unfollowUser({
 );
 
 /// Example function demonstrating the new ApiError usage pattern.
-/// When you specify the return type as Result<T, ApiError>, the ? operator
+/// When you specify the return type as Result\<T, ApiError\>, the ? operator
 /// automatically converts WhitenoiseError to ApiError using .into()
 Future<List<Account>> getAccountsWithApiError() =>
     RustLib.instance.api.crateApiAccountsGetAccountsWithApiError();
