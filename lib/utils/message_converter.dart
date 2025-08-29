@@ -23,9 +23,7 @@ class MessageConverter {
       ref: ref,
     );
 
-    final createdAt = DateTime.fromMillisecondsSinceEpoch(
-      messageData.createdAt.toInt() * 1000,
-    );
+    final createdAt = messageData.createdAt;
 
     final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
 
@@ -39,9 +37,7 @@ class MessageConverter {
         final replyContent =
             originalMessage.content.isNotEmpty ? originalMessage.content : 'No content available';
 
-        final replyTimestamp = DateTime.fromMillisecondsSinceEpoch(
-          originalMessage.createdAt.toInt() * 1000,
-        );
+        final replyTimestamp = originalMessage.createdAt;
 
         final replySender = await _createUserFromMetadata(
           originalMessage.pubkey,
@@ -168,9 +164,7 @@ class MessageConverter {
           publicKey: messageData.pubkey,
         );
 
-    final createdAt = DateTime.fromMillisecondsSinceEpoch(
-      messageData.createdAt.toInt() * 1000,
-    );
+    final createdAt = messageData.createdAt;
 
     final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
 
@@ -184,10 +178,7 @@ class MessageConverter {
         final replyContent =
             originalMessage.content.isNotEmpty ? originalMessage.content : 'No content available';
 
-        final replyTimestamp = DateTime.fromMillisecondsSinceEpoch(
-          originalMessage.createdAt.toInt() * 1000,
-        );
-
+        final replyTimestamp = originalMessage.createdAt;
         final replySender =
             userCache[originalMessage.pubkey] ??
             User(
@@ -260,9 +251,7 @@ class MessageConverter {
       ref: ref,
     );
 
-    final createdAt = DateTime.fromMillisecondsSinceEpoch(
-      messageData.createdAt.toInt() * 1000,
-    );
+    final createdAt = messageData.createdAt;
 
     final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
 
@@ -275,9 +264,7 @@ class MessageConverter {
             originalMessage.content?.isNotEmpty == true
                 ? originalMessage.content!
                 : 'No content available';
-        final replyTimestamp = DateTime.fromMillisecondsSinceEpoch(
-          originalMessage.createdAt.toInt() * 1000,
-        );
+        final replyTimestamp = originalMessage.createdAt;
 
         final replySender = await _createUserFromMetadata(
           originalMessage.pubkey,
@@ -425,9 +412,7 @@ class MessageConverter {
           publicKey: messageData.pubkey,
         );
 
-    final createdAt = DateTime.fromMillisecondsSinceEpoch(
-      messageData.createdAt.toInt() * 1000,
-    );
+    final createdAt = messageData.createdAt;
 
     final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
 
@@ -441,9 +426,7 @@ class MessageConverter {
             originalMessage.content?.isNotEmpty == true
                 ? originalMessage.content!
                 : 'No content available';
-        final replyTimestamp = DateTime.fromMillisecondsSinceEpoch(
-          originalMessage.createdAt.toInt() * 1000,
-        );
+        final replyTimestamp = originalMessage.createdAt;
 
         // Use cached user data for reply sender too
         final replySender =
@@ -611,9 +594,7 @@ class MessageConverter {
       final reaction = Reaction(
         emoji: userReaction.emoji,
         user: user,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(
-          userReaction.createdAt.toInt() * 1000,
-        ),
+        createdAt: userReaction.createdAt,
       );
 
       convertedReactions.add(reaction);
@@ -643,9 +624,7 @@ class MessageConverter {
       final reaction = Reaction(
         emoji: userReaction.emoji,
         user: user,
-        createdAt: DateTime.fromMillisecondsSinceEpoch(
-          userReaction.createdAt.toInt() * 1000,
-        ),
+        createdAt: userReaction.createdAt,
       );
 
       convertedReactions.add(reaction);
