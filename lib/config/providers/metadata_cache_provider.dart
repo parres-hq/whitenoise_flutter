@@ -6,8 +6,10 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
+import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
+
 
 /// Cached metadata with basic expiration
 class CachedMetadata {
@@ -115,10 +117,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
         throw 'No active account found';
       }
 
-      final metadata = await fetchMetadataFrom(
-        pubkey: fetchKey,
-        nip65Relays: activeAccount.nip65Relays,
-      );
+      final metadata = await wn_users_api.userMetadata(pubkey: fetchKey);
 
       // Get standardized npub for consistent identification
       final standardNpub = await _getStandardizedNpub(publicKey);
