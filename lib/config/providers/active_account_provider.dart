@@ -55,7 +55,8 @@ class DefaultWnUtils implements WnUtils {
 
   @override
   Future<String> getDefaultBlossomServerUrl() {
-    return getDefaultBlossomServerUrl();
+    // TODO: Replace with the actual implementation (e.g., read from settings).
+    throw UnimplementedError('getDefaultBlossomServerUrl not implemented');
   }
 }
 
