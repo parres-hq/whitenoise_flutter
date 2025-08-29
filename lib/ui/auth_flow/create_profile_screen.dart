@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/create_profile_screen_provider.dart';
@@ -9,6 +8,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
 class CreateProfileScreen extends ConsumerStatefulWidget {
@@ -110,12 +110,9 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                           width: 1.w,
                         ),
                       ),
-                      child: SvgPicture.asset(
+                      child: WnImage(
                         AssetsPaths.icEdit,
-                        colorFilter: ColorFilter.mode(
-                          context.colors.primaryForeground,
-                          BlendMode.srcIn,
-                        ),
+                        color: context.colors.primaryForeground,
                       ),
                     ),
                   ),

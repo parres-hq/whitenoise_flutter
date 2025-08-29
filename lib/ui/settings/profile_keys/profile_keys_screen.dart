@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
-import 'package:whitenoise/shared/custom_icon_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
@@ -94,12 +94,10 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                         children: [
                           GestureDetector(
                             onTap: () => context.pop(),
-                            child: SvgPicture.asset(
+                            child: WnImage(
                               AssetsPaths.icChevronLeft,
-                              colorFilter: ColorFilter.mode(
-                                context.colors.primary,
-                                BlendMode.srcIn,
-                              ),
+                              color: context.colors.primary,
+
                               width: 24.w,
                               height: 24.w,
                             ),
@@ -145,7 +143,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                 ),
                               ),
                               Gap(4.w),
-                              CustomIconButton(
+                              WnIconButton(
                                 onTap: _copyPublicKey,
                                 iconPath: AssetsPaths.icCopy,
                                 size: 44.h,
@@ -201,14 +199,11 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                               child: Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  SvgPicture.asset(
+                                  WnImage(
                                     AssetsPaths.icErrorFilled,
-                                    colorFilter: ColorFilter.mode(
-                                      context.colors.destructive,
-                                      BlendMode.srcIn,
-                                    ),
-                                    width: 20.w,
-                                    height: 20.w,
+                                    color: context.colors.destructive,
+
+                                    size: 20.w,
                                   ),
                                   Gap(12.w),
                                   Expanded(
@@ -235,10 +230,11 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                     decoration: InputDecoration(
                                       suffixIcon: IconButton(
                                         onPressed: _togglePrivateKeyVisibility,
-                                        icon: Icon(
+                                        icon: WnImage(
                                           _obscurePrivateKey
-                                              ? Icons.visibility
-                                              : Icons.visibility_off,
+                                              ? AssetsPaths.icEye
+                                              : AssetsPaths.icEyeOff,
+                                          size: _obscurePrivateKey ? 16.w : 19.w,
                                           color: context.colors.primary,
                                         ),
                                       ),
@@ -246,7 +242,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                   ),
                                 ),
                                 Gap(4.w),
-                                CustomIconButton(
+                                WnIconButton(
                                   onTap: _copyPrivateKey,
                                   iconPath: AssetsPaths.icCopy,
                                   size: 44.h,
@@ -278,8 +274,8 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                               children: [
                                 Padding(
                                   padding: EdgeInsets.only(top: 4.w),
-                                  child: Icon(
-                                    Icons.warning,
+                                  child: WnImage(
+                                    AssetsPaths.icWarning,
                                     size: 16.w,
                                     color: context.colors.destructive,
                                   ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -20,6 +19,7 @@ import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
@@ -341,28 +341,21 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           decoration: InputDecoration(
             prefixIcon: Padding(
               padding: EdgeInsets.all(12.w),
-              child: SvgPicture.asset(
+              child: WnImage(
                 AssetsPaths.icSearch,
-                colorFilter: ColorFilter.mode(
-                  context.colors.primary,
-                  BlendMode.srcIn,
-                ),
-                width: 20.sp,
-                height: 20.sp,
+                color: context.colors.primary,
+
+                size: 20.w,
               ),
             ),
             suffixIcon: GestureDetector(
               onTap: _scanQRCode,
               child: Padding(
                 padding: EdgeInsets.only(right: 14.w),
-                child: SvgPicture.asset(
+                child: WnImage(
                   AssetsPaths.icScan,
-                  width: 16.w,
-                  height: 16.w,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.primary,
-                    BlendMode.srcIn,
-                  ),
+                  size: 16.w,
+                  color: context.colors.primary,
                 ),
               ),
             ),
@@ -565,14 +558,11 @@ class NewChatTile extends StatelessWidget {
       onTap: onTap,
       child: Row(
         children: [
-          SvgPicture.asset(
+          WnImage(
             iconPath,
-            colorFilter: ColorFilter.mode(
-              context.colors.primary,
-              BlendMode.srcIn,
-            ),
-            width: 20.w,
-            height: 20.w,
+            color: context.colors.primary,
+
+            size: 20.w,
           ),
           Gap(10.w),
           Text(
@@ -584,12 +574,10 @@ class NewChatTile extends StatelessWidget {
           ),
           Gap(8.w),
 
-          SvgPicture.asset(
+          WnImage(
             AssetsPaths.icChevronRight,
-            colorFilter: ColorFilter.mode(
-              context.colors.primary,
-              BlendMode.srcIn,
-            ),
+            color: context.colors.primary,
+
             width: 8.55.w,
             height: 15.w,
           ),

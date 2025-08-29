@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class WnHeadsUp extends StatelessWidget {
   const WnHeadsUp({
@@ -36,14 +36,11 @@ class WnHeadsUp extends StatelessWidget {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SvgPicture.asset(
+          WnImage(
             iconAsset ?? type.iconAsset,
             width: 24.w,
             height: 24.w,
-            colorFilter: ColorFilter.mode(
-              color,
-              BlendMode.srcIn,
-            ),
+            color: color,
           ),
           Gap(8.w),
           Expanded(

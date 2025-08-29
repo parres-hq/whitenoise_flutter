@@ -40,7 +40,7 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-  double _lastScrollOffset = 0.0;
+
   Future<DMChatData?>? _dmChatDataFuture;
 
   @override
@@ -51,14 +51,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
         ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
-        _handleScrollToBottom();
+        _handleScrollToBottom(hasAnimation: false);
       }
     });
 
     ref.listenManual(chatProvider, (previous, next) {
       final currentMessages = next.groupMessages[widget.groupId] ?? [];
       final previousMessages = previous?.groupMessages[widget.groupId] ?? [];
-
       if (currentMessages.length != previousMessages.length) {
         _handleScrollToBottom();
       }
@@ -90,22 +89,18 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  void _handleScrollToBottom() {
+  void _handleScrollToBottom({bool hasAnimation = true}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-      }
-    });
-
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
-      }
-    });
-
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (_scrollController.hasClients) {
-        _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+      final double max = _scrollController.position.maxScrollExtent;
+      if (!_scrollController.hasClients || !mounted) return;
+      if (hasAnimation) {
+        _scrollController.animateTo(
+          max,
+          duration: const Duration(milliseconds: 200),
+          curve: Curves.easeOut,
+        );
+      } else {
+        _scrollController.jumpTo(max);
       }
     });
   }

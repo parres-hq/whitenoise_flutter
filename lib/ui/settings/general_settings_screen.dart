@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
@@ -21,6 +20,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
@@ -283,14 +283,11 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         automaticallyImplyLeading: false,
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: SvgPicture.asset(
+          icon: WnImage(
             AssetsPaths.icChevronLeft,
             width: 24.w,
             height: 24.w,
-            colorFilter: ColorFilter.mode(
-              context.colors.primarySolid,
-              BlendMode.srcIn,
-            ),
+            color: context.colors.primarySolid,
           ),
         ),
         title: Row(
@@ -318,14 +315,10 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     if (_currentAccount != null)
                       ContactListTile(
                         contact: _accountToContactModel(_currentAccount!),
-                        trailingIcon: SvgPicture.asset(
+                        trailingIcon: WnImage(
                           AssetsPaths.icQrCode,
-                          width: 20.w,
-                          height: 20.w,
-                          colorFilter: ColorFilter.mode(
-                            context.colors.primary,
-                            BlendMode.srcIn,
-                          ),
+                          size: 20.w,
+                          color: context.colors.primary,
                         ),
                         onTap: () => context.push('${Routes.settings}/share_profile'),
                       )
@@ -337,12 +330,10 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                       size: WnButtonSize.small,
                       visualState: WnButtonVisualState.secondary,
                       onPressed: () => _showAccountSwitcher(),
-                      suffixIcon: SvgPicture.asset(
+                      suffixIcon: WnImage(
                         AssetsPaths.icArrowsVertical,
-                        colorFilter: ColorFilter.mode(
-                          context.colors.primary,
-                          BlendMode.srcIn,
-                        ),
+
+                        color: context.colors.primary,
                       ),
                     ),
                     Gap(16.h),
@@ -440,14 +431,10 @@ class SettingsListTile extends StatelessWidget {
         padding: EdgeInsets.symmetric(vertical: 16.h),
         child: Row(
           children: [
-            SvgPicture.asset(
+            WnImage(
               assetPath,
-              width: 24.w,
-              height: 24.w,
-              colorFilter: ColorFilter.mode(
-                foregroundColor ?? context.colors.primary,
-                BlendMode.srcIn,
-              ),
+              size: 24.w,
+              color: foregroundColor ?? context.colors.primary,
             ),
             Gap(12.w),
             Expanded(

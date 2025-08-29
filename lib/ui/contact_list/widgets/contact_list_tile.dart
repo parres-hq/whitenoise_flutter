@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ContactListTile extends StatelessWidget {
@@ -125,14 +125,21 @@ class ContactListTile extends StatelessWidget {
                   ),
                   color: isSelected ? context.colors.primary : Colors.transparent,
                 ),
-                child: isSelected ? Icon(Icons.check, size: 12.w, color: Colors.white) : null,
+                child:
+                    isSelected
+                        ? WnImage(
+                          AssetsPaths.icCheckmark,
+                          size: 16.w,
+                          color: context.colors.primaryForeground,
+                        )
+                        : null,
               ),
             ] else if (trailingIcon != null) ...[
               Gap(16.w),
               trailingIcon!,
             ] else if (showExpansionArrow) ...[
               Gap(16.w),
-              SvgPicture.asset(AssetsPaths.icExpand, width: 11.w, height: 18.w),
+              WnImage(AssetsPaths.icExpand, width: 11.w, height: 18.w),
             ],
           ],
         ),
@@ -175,14 +182,10 @@ class ContactListTile extends StatelessWidget {
           alignment: Alignment.centerRight,
           padding: EdgeInsets.only(right: 24.w),
           color: Colors.red,
-          child: SvgPicture.asset(
+          child: WnImage(
             AssetsPaths.icTrashCan,
-            colorFilter: const ColorFilter.mode(
-              Colors.white,
-              BlendMode.srcIn,
-            ),
-            width: 24.w,
-            height: 24.w,
+            color: context.colors.primary,
+            size: 24.w,
           ),
         ),
         child: contactTile,

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -81,15 +81,11 @@ class UserProfile extends StatelessWidget {
             ),
             IconButton(
               onPressed: _copyToClipboard,
-              padding: EdgeInsets.all(8.sp),
-              icon: SvgPicture.asset(
+              padding: EdgeInsets.all(8.w),
+              icon: WnImage(
                 AssetsPaths.icCopy,
-                width: 24.sp,
-                height: 24.sp,
-                colorFilter: ColorFilter.mode(
-                  context.colors.primary,
-                  BlendMode.srcIn,
-                ),
+                size: 24.w,
+                color: context.colors.primary,
               ),
             ),
           ],

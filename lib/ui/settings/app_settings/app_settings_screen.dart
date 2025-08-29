@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -20,6 +19,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class AppSettingsScreen extends ConsumerWidget {
   const AppSettingsScreen({super.key});
@@ -212,14 +212,10 @@ class AppSettingsScreen extends ConsumerWidget {
                             children: [
                               GestureDetector(
                                 onTap: () => context.pop(),
-                                child: SvgPicture.asset(
+                                child: WnImage(
                                   AssetsPaths.icChevronLeft,
-                                  width: 24.w,
-                                  height: 24.w,
-                                  colorFilter: ColorFilter.mode(
-                                    context.colors.primary,
-                                    BlendMode.srcIn,
-                                  ),
+                                  size: 24.w,
+                                  color: context.colors.primary,
                                 ),
                               ),
                               Gap(16.w),
@@ -266,14 +262,11 @@ class AppSettingsScreen extends ConsumerWidget {
                             ),
                             visualState: WnButtonVisualState.destructive,
                             onPressed: () => _deleteAllData(context, ref),
-                            suffixIcon: SvgPicture.asset(
+                            suffixIcon: WnImage(
                               AssetsPaths.icDelete,
-                              height: 18.w,
-                              width: 18.w,
-                              colorFilter: ColorFilter.mode(
-                                context.colors.solidNeutralWhite,
-                                BlendMode.srcIn,
-                              ),
+                              size: 18.w,
+
+                              color: context.colors.solidNeutralWhite,
                             ),
                           ),
                         ],
@@ -349,14 +342,10 @@ class _ThemeDropdownState extends State<_ThemeDropdown> {
                     color: context.colors.primary,
                   ),
                 ),
-                SvgPicture.asset(
+                WnImage(
                   isExpanded ? AssetsPaths.icChevronUp : AssetsPaths.icChevronDown,
-                  width: 20.w,
-                  height: 20.w,
-                  colorFilter: ColorFilter.mode(
-                    context.colors.primary,
-                    BlendMode.srcIn,
-                  ),
+                  size: 20.w,
+                  color: context.colors.primary,
                 ),
               ],
             ),

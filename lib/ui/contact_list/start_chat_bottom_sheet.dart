@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -20,6 +19,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 // User API interface for testing
 abstract class WnUsersApi {
@@ -281,14 +281,10 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                           visualState: WnButtonVisualState.secondary,
                           onPressed: _openAddToGroup,
                           label: 'Add to Group',
-                          suffixIcon: SvgPicture.asset(
+                          suffixIcon: WnImage(
                             AssetsPaths.icChatInvite,
-                            width: 18.w,
-                            height: 18.w,
-                            colorFilter: ColorFilter.mode(
-                              context.colors.primary,
-                              BlendMode.srcIn,
-                            ),
+                            size: 18.w,
+                            color: context.colors.primary,
                           ),
                         ),
                         Gap(8.h),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -13,6 +12,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -141,14 +141,10 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                                   Gap(8.w),
                                   InkWell(
                                     onTap: () => _copyToClipboard(context, npub),
-                                    child: SvgPicture.asset(
+                                    child: WnImage(
                                       AssetsPaths.icCopy,
-                                      width: 24.w,
-                                      height: 24.w,
-                                      colorFilter: ColorFilter.mode(
-                                        context.colors.primary,
-                                        BlendMode.srcIn,
-                                      ),
+                                      size: 24.w,
+                                      color: context.colors.primary,
                                     ),
                                   ),
                                 ],
@@ -178,14 +174,11 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                             const Spacer(),
                             WnFilledButton(
                               label: 'Scan QR Code',
-                              suffixIcon: SvgPicture.asset(
+                              suffixIcon: WnImage(
                                 AssetsPaths.icScan,
-                                height: 18.w,
-                                width: 18.w,
-                                colorFilter: ColorFilter.mode(
-                                  context.colors.primaryForeground,
-                                  BlendMode.srcIn,
-                                ),
+                                size: 18.w,
+
+                                color: context.colors.primaryForeground,
                               ),
                               onPressed: () => context.push(Routes.settingsShareProfileQrScan),
                             ),

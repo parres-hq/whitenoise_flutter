@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class QRScannerBottomSheet extends StatefulWidget {
   const QRScannerBottomSheet({super.key});
@@ -70,9 +72,9 @@ class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
-                              Icons.check_circle,
-                              size: 64.w,
+                            WnImage(
+                              AssetsPaths.icCheckmarkFilledSvg,
+                              size: 94.w,
                               color: context.colors.primary,
                             ),
                             Gap(16.h),
