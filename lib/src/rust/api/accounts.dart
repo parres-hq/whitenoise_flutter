@@ -102,12 +102,6 @@ Future<void> unfollowUser({
   userToUnfollowPubkey: userToUnfollowPubkey,
 );
 
-/// Example function demonstrating the new ApiError usage pattern.
-/// When you specify the return type as Result\<T, ApiError\>, the ? operator
-/// automatically converts WhitenoiseError to ApiError using .into()
-Future<List<Account>> getAccountsWithApiError() =>
-    RustLib.instance.api.crateApiAccountsGetAccountsWithApiError();
-
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
 abstract class Event implements RustOpaqueInterface {}
 

@@ -57,10 +57,12 @@ pub fn get_default_blossom_server_url() -> String {
     }
 }
 
+#[frb]
 pub fn group_id_to_string(group_id: &GroupId) -> String {
     hex::encode(group_id.as_slice())
 }
 
+#[frb]
 pub fn group_id_from_string(group_id: &str) -> Result<GroupId, ApiError> {
     let bytes = hex::decode(group_id)?;
     Ok(GroupId::from_slice(&bytes))

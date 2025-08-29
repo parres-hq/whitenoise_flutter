@@ -143,6 +143,20 @@ class MockImagePicker extends _i1.Mock implements _i3.ImagePicker {
           as _i4.Future<_i2.XFile?>);
 
   @override
+  _i4.Future<List<_i2.XFile>> pickMultiVideo({
+    Duration? maxDuration,
+    int? limit,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#pickMultiVideo, [], {
+              #maxDuration: maxDuration,
+              #limit: limit,
+            }),
+            returnValue: _i4.Future<List<_i2.XFile>>.value(<_i2.XFile>[]),
+          )
+          as _i4.Future<List<_i2.XFile>>);
+
+  @override
   _i4.Future<_i2.LostDataResponse> retrieveLostData() =>
       (super.noSuchMethod(
             Invocation.method(#retrieveLostData, []),

@@ -1,4 +1,4 @@
-use crate::api::{error::ApiError, group_id_from_string, utils::group_id_to_string};
+use crate::api::{error::ApiError, group_id_from_string, group_id_to_string};
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
 use nostr_mls::prelude::group_types::Group as WhitenoiseGroup;

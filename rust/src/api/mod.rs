@@ -63,6 +63,7 @@ pub mod metadata;
 pub mod relays;
 pub mod users;
 pub mod utils;
+pub use utils::{group_id_from_string, group_id_to_string};
 pub mod welcomes;
 
 // Re-export everything

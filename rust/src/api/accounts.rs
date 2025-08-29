@@ -205,13 +205,3 @@ pub async fn unfollow_user(
         .await
         .map_err(ApiError::from)
 }
-
-/// Example function demonstrating the new ApiError usage pattern.
-/// When you specify the return type as Result<T, ApiError>, the ? operator
-/// automatically converts WhitenoiseError to ApiError using .into()
-#[frb]
-pub async fn get_accounts_with_api_error() -> Result<Vec<Account>, ApiError> {
-    let whitenoise = Whitenoise::get_instance()?;
-    let accounts = whitenoise.all_accounts().await?;
-    Ok(accounts.into_iter().map(|a| a.into()).collect())
-}

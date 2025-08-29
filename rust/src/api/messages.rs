@@ -1,5 +1,5 @@
 use crate::api::{error::ApiError, utils::group_id_from_string};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, TimeZone, Utc};
 use flutter_rust_bridge::frb;
 use nostr_sdk::prelude::*;
 pub use whitenoise::{
@@ -87,11 +87,13 @@ impl From<&WhitenoiseMessageWithTokens> for MessageWithTokens {
             id: message_with_tokens.message.id.to_hex(),
             pubkey: message_with_tokens.message.pubkey.to_hex(),
             kind: message_with_tokens.message.kind.as_u16(),
-            created_at: DateTime::from_timestamp(
-                message_with_tokens.message.created_at.as_u64() as i64,
-                0,
-            )
-            .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap()),
+            created_at: {
+                let ts =
+                    i64::try_from(message_with_tokens.message.created_at.as_u64()).unwrap_or(0);
+                Utc.timestamp_opt(ts, 0)
+                    .single()
+                    .unwrap_or_else(|| Utc.timestamp_opt(0, 0).single().unwrap())
+            },
             content: Some(message_with_tokens.message.content.clone()),
             tokens,
         }
@@ -159,8 +161,12 @@ impl From<&WhitenoiseReactionSummary> for ReactionSummary {
             .map(|user_reaction| UserReaction {
                 user: user_reaction.user.to_hex(),
                 emoji: user_reaction.emoji.clone(),
-                created_at: DateTime::from_timestamp(user_reaction.created_at.as_u64() as i64, 0)
-                    .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap()),
+                created_at: {
+                    let ts = i64::try_from(user_reaction.created_at.as_u64()).unwrap_or(0);
+                    Utc.timestamp_opt(ts, 0)
+                        .single()
+                        .unwrap_or_else(|| Utc.timestamp_opt(0, 0).single().unwrap())
+                },
             })
             .collect();
 
@@ -200,8 +206,12 @@ impl From<&WhitenoiseChatMessage> for ChatMessage {
             id: chat_message.id.clone(),
             pubkey: chat_message.author.to_hex(),
             content: chat_message.content.clone(),
-            created_at: DateTime::from_timestamp(chat_message.created_at.as_u64() as i64, 0)
-                .unwrap_or_else(|| DateTime::from_timestamp(0, 0).unwrap()),
+            created_at: {
+                let ts = i64::try_from(chat_message.created_at.as_u64()).unwrap_or(0);
+                Utc.timestamp_opt(ts, 0)
+                    .single()
+                    .unwrap_or_else(|| Utc.timestamp_opt(0, 0).single().unwrap())
+            },
             tags,
             is_reply: chat_message.is_reply,
             reply_to_id: chat_message.reply_to_id.clone(),
