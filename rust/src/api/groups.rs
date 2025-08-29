@@ -237,3 +237,32 @@ pub async fn remove_members_from_group(
         .await
         .map_err(ApiError::from)
 }
+
+#[frb]
+pub async fn get_group_information(group_id: String) -> Result<GroupInformation, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let group_id = group_id_from_string(&group_id)?;
+    Ok(
+        WhitenoiseGroupInformation::get_by_mls_group_id(&group_id, &whitenoise)
+            .await?
+            .into(),
+    )
+}
+
+#[frb]
+pub async fn get_groups_informations(
+    group_ids: Vec<String>,
+) -> Result<Vec<GroupInformation>, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let group_ids = group_ids
+        .into_iter()
+        .map(|id| group_id_from_string(&id))
+        .collect::<Result<Vec<_>, _>>()?;
+    Ok(
+        WhitenoiseGroupInformation::get_by_mls_group_ids(&group_ids, &whitenoise)
+            .await?
+            .into_iter()
+            .map(|info| info.into())
+            .collect(),
+    )
+}

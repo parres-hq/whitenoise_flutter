@@ -202,6 +202,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Group dco_decode_group(dynamic raw);
 
   @protected
+  GroupInformation dco_decode_group_information(dynamic raw);
+
+  @protected
   GroupState dco_decode_group_state(dynamic raw);
 
   @protected
@@ -233,6 +236,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<Group> dco_decode_list_group(dynamic raw);
+
+  @protected
+  List<GroupInformation> dco_decode_list_group_information(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
@@ -479,6 +485,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Group sse_decode_group(SseDeserializer deserializer);
 
   @protected
+  GroupInformation sse_decode_group_information(SseDeserializer deserializer);
+
+  @protected
   GroupState sse_decode_group_state(SseDeserializer deserializer);
 
   @protected
@@ -512,6 +521,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<Group> sse_decode_list_group(SseDeserializer deserializer);
+
+  @protected
+  List<GroupInformation> sse_decode_list_group_information(
+    SseDeserializer deserializer,
+  );
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
@@ -795,6 +809,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_group(Group self, SseSerializer serializer);
 
   @protected
+  void sse_encode_group_information(
+    GroupInformation self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_group_state(GroupState self, SseSerializer serializer);
 
   @protected
@@ -832,6 +852,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_list_group(List<Group> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_group_information(
+    List<GroupInformation> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_prim_u_8_strict(

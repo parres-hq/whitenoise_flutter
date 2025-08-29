@@ -8,7 +8,6 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import '../frb_generated.dart';
 import 'error.dart';
 
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `GroupInformation`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`
 
 Future<List<Group>> activeGroups({required String pubkey}) =>
@@ -62,6 +61,15 @@ Future<void> removeMembersFromGroup({
   pubkey: pubkey,
   groupId: groupId,
   memberPubkeys: memberPubkeys,
+);
+
+Future<GroupInformation> getGroupInformation({required String groupId}) =>
+    RustLib.instance.api.crateApiGroupsGetGroupInformation(groupId: groupId);
+
+Future<List<GroupInformation>> getGroupsInformations({
+  required List<String> groupIds,
+}) => RustLib.instance.api.crateApiGroupsGetGroupsInformations(
+  groupIds: groupIds,
 );
 
 class Group {
@@ -133,6 +141,22 @@ class Group {
           lastMessageAt == other.lastMessageAt &&
           epoch == other.epoch &&
           state == other.state;
+}
+
+class GroupInformation {
+  final GroupType groupType;
+
+  const GroupInformation({
+    required this.groupType,
+  });
+
+  @override
+  int get hashCode => groupType.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GroupInformation && runtimeType == other.runtimeType && groupType == other.groupType;
 }
 
 enum GroupState {
