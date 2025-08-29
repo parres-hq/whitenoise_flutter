@@ -99,20 +99,17 @@ class Group {
     required this.state,
   });
 
-  Future<GroupType> groupType() =>
-      RustLib.instance.api.crateApiGroupsGroupGroupType(
-        that: this,
-      );
+  Future<GroupType> groupType() => RustLib.instance.api.crateApiGroupsGroupGroupType(
+    that: this,
+  );
 
-  Future<bool> isDirectMessageType() =>
-      RustLib.instance.api.crateApiGroupsGroupIsDirectMessageType(
-        that: this,
-      );
+  Future<bool> isDirectMessageType() => RustLib.instance.api.crateApiGroupsGroupIsDirectMessageType(
+    that: this,
+  );
 
-  Future<bool> isGroupType() =>
-      RustLib.instance.api.crateApiGroupsGroupIsGroupType(
-        that: this,
-      );
+  Future<bool> isGroupType() => RustLib.instance.api.crateApiGroupsGroupIsGroupType(
+    that: this,
+  );
 
   @override
   int get hashCode =>
@@ -159,9 +156,7 @@ class GroupInformation {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is GroupInformation &&
-          runtimeType == other.runtimeType &&
-          groupType == other.groupType;
+      other is GroupInformation && runtimeType == other.runtimeType && groupType == other.groupType;
 }
 
 enum GroupState {
