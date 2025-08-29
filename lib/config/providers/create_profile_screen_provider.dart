@@ -53,7 +53,7 @@ class CreateProfileScreenNotifier extends Notifier<CreateProfileScreenState> {
 
     if (activeAccount == null) {
       ref.showRawErrorToast('No active account found');
-      state = state.copyWith(isLoading: false);  
+      state = state.copyWith(isLoading: false);
       return;
     }
 
