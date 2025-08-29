@@ -37,7 +37,10 @@ class ChatListItemTile extends ConsumerWidget {
 
   Widget _buildChatTile(BuildContext context, WidgetRef ref) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
-    final group = item.group!;
+    final group = item.group;
+    if (group == null) {
+      return const SizedBox.shrink();
+    }
     final groupType = groupsNotifier.getCachedGroupType(group.mlsGroupId);
 
     // If group type is not cached yet, use FutureBuilder to handle the async loading
