@@ -133,14 +133,6 @@ class AppSettingsScreen extends ConsumerWidget {
       } catch (e) {
         _logger.warning('⚠️ Error invalidating follows provider: $e');
       }
-
-      try {
-        ref.invalidate(activeAccountProvider);
-        _logger.info('✅ Active account provider invalidated');
-      } catch (e) {
-        _logger.warning('⚠️ Error invalidating active account provider: $e');
-      }
-
       try {
         ref.invalidate(activePubkeyProvider);
         _logger.info('✅ Active pubkey provider invalidated');
