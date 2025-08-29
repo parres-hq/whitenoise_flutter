@@ -12,7 +12,6 @@ import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
 import 'package:whitenoise/utils/message_converter.dart';
 
 class ChatNotifier extends Notifier<ChatState> {
