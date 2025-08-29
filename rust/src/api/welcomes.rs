@@ -103,7 +103,7 @@ impl From<&WhitenoiseWelcome> for Welcome {
 #[frb]
 pub async fn pending_welcomes(pubkey: String) -> Result<Vec<Welcome>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::from_hex(&pubkey)?;
+    let pubkey = PublicKey::parse(&pubkey)?;
     let welcomes = whitenoise.pending_welcomes(&pubkey).await?;
     Ok(welcomes.into_iter().map(|w| w.into()).collect())
 }
@@ -114,7 +114,7 @@ pub async fn find_welcome_by_event_id(
     welcome_event_id: String,
 ) -> Result<Welcome, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::from_hex(&pubkey)?;
+    let pubkey = PublicKey::parse(&pubkey)?;
     let welcome = whitenoise
         .find_welcome_by_event_id(&pubkey, welcome_event_id)
         .await?;
@@ -124,7 +124,7 @@ pub async fn find_welcome_by_event_id(
 #[frb]
 pub async fn accept_welcome(pubkey: String, welcome_event_id: String) -> Result<(), ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::from_hex(&pubkey)?;
+    let pubkey = PublicKey::parse(&pubkey)?;
     whitenoise
         .accept_welcome(&pubkey, welcome_event_id)
         .await
@@ -134,7 +134,7 @@ pub async fn accept_welcome(pubkey: String, welcome_event_id: String) -> Result<
 #[frb]
 pub async fn decline_welcome(pubkey: String, welcome_event_id: String) -> Result<(), ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::from_hex(&pubkey)?;
+    let pubkey = PublicKey::parse(&pubkey)?;
     whitenoise
         .decline_welcome(&pubkey, welcome_event_id)
         .await

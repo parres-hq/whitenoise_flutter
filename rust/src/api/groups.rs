@@ -133,7 +133,7 @@ impl From<WhitenoiseGroupInformation> for GroupInformation {
 #[frb]
 pub async fn active_groups(pubkey: String) -> Result<Vec<Group>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::from_hex(&pubkey)?;
+    let pubkey = PublicKey::parse(&pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
     let groups = whitenoise.groups(&account, true).await?;
     Ok(groups.into_iter().map(|g| g.into()).collect())
@@ -142,7 +142,7 @@ pub async fn active_groups(pubkey: String) -> Result<Vec<Group>, ApiError> {
 #[frb]
 pub async fn group_members(pubkey: String, group_id: String) -> Result<Vec<String>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::from_hex(&pubkey)?;
+    let pubkey = PublicKey::parse(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
     let members = whitenoise.group_members(&account, &group_id).await?;
@@ -152,7 +152,7 @@ pub async fn group_members(pubkey: String, group_id: String) -> Result<Vec<Strin
 #[frb]
 pub async fn group_admins(pubkey: String, group_id: String) -> Result<Vec<String>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::from_hex(&pubkey)?;
+    let pubkey = PublicKey::parse(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
     let admins = whitenoise.group_admins(&account, &group_id).await?;
@@ -168,14 +168,14 @@ pub async fn create_group(
     group_description: String,
 ) -> Result<Group, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let creator_pubkey = PublicKey::from_hex(&creator_pubkey)?;
+    let creator_pubkey = PublicKey::parse(&creator_pubkey)?;
     let creator_account = whitenoise.find_account_by_pubkey(&creator_pubkey).await?;
 
     // Fetch the creator's Nostr relays to include in the group configuration
     let nostr_relays = creator_account.relays(RelayType::Nip65, whitenoise).await?;
     let admin_pubkeys = admin_pubkeys
         .into_iter()
-        .map(|pk| PublicKey::from_hex(&pk))
+        .map(|pk| PublicKey::parse(&pk))
         .collect::<Result<Vec<_>, _>>()?;
 
     let nostr_group_config = NostrGroupConfigData {
@@ -190,7 +190,7 @@ pub async fn create_group(
 
     let member_pubkeys = member_pubkeys
         .into_iter()
-        .map(|pk| PublicKey::from_hex(&pk))
+        .map(|pk| PublicKey::parse(&pk))
         .collect::<Result<Vec<_>, _>>()?;
 
     let group = whitenoise
@@ -206,12 +206,12 @@ pub async fn add_members_to_group(
     member_pubkeys: Vec<String>,
 ) -> Result<(), ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::from_hex(&pubkey)?;
+    let pubkey = PublicKey::parse(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
     let member_pubkeys = member_pubkeys
         .into_iter()
-        .map(|pk| PublicKey::from_hex(&pk))
+        .map(|pk| PublicKey::parse(&pk))
         .collect::<Result<Vec<_>, _>>()?;
     whitenoise
         .add_members_to_group(&account, &group_id, member_pubkeys)
@@ -226,12 +226,12 @@ pub async fn remove_members_from_group(
     member_pubkeys: Vec<String>,
 ) -> Result<(), ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::from_hex(&pubkey)?;
+    let pubkey = PublicKey::parse(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
     let member_pubkeys = member_pubkeys
         .into_iter()
-        .map(|pk| PublicKey::from_hex(&pk))
+        .map(|pk| PublicKey::parse(&pk))
         .collect::<Result<Vec<_>, _>>()?;
     whitenoise
         .remove_members_from_group(&account, &group_id, member_pubkeys)

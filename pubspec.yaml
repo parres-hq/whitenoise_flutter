@@ -65,6 +65,7 @@ dependencies:
     mobile_scanner: ^7.0.1
     collection: ^1.19.1
     mime: ^1.0.6
+    package_info_plus: ^8.0.2
 
 dev_dependencies:
     flutter_test:

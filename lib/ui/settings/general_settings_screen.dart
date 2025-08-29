@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
@@ -37,11 +38,13 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Account? _currentAccount;
   Map<String, ContactModel> _accountContactModels = {}; // Cache for contact models
   ProviderSubscription<AsyncValue<ActiveAccountState>>? _activeAccountSubscription;
+  PackageInfo? _packageInfo;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAccounts();
+      _loadPackageInfo();
       _activeAccountSubscription = ref.listenManual(
         activeAccountProvider,
         (previous, next) {
@@ -110,6 +113,18 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         ref.showErrorToast('Failed to load accounts: $e');
       }
     } finally {}
+  }
+
+  Future<void> _loadPackageInfo() async {
+    try {
+      final packageInfo = await PackageInfo.fromPlatform();
+      setState(() {
+        _packageInfo = packageInfo;
+      });
+    } catch (e) {
+      // Silently handle error - version info is not critical
+      debugPrint('Failed to load package info: $e');
+    }
   }
 
   Future<void> _switchAccount(Account account) async {
@@ -403,6 +418,20 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
               ),
             ],
           ),
+          // Version information at the bottom
+          Gap(32.h),
+          if (_packageInfo != null)
+            Center(
+              child: Text(
+                'Version ${_packageInfo!.version}+${_packageInfo!.buildNumber}',
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w400,
+                  color: context.colors.mutedForeground,
+                ),
+              ),
+            ),
+          Gap(16.h),
         ],
       ),
     );

@@ -34,7 +34,7 @@ if [ -z "$ANDROID_HOME" ] && [ -z "$ANDROID_SDK_ROOT" ]; then
         "$HOME/AppData/Local/Android/Sdk"     # Windows default
         "/opt/android-sdk"                    # Linux alternative
     )
-    
+
     for path in "${POSSIBLE_SDK_PATHS[@]}"; do
         if [ -d "$path" ]; then
             export ANDROID_HOME="$path"
@@ -84,6 +84,11 @@ esac
 
 export PATH="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$HOST_TAG/bin:$PATH"
 
+# Set environment variables for ring crate and cc-rs
+export CC_armv7_linux_androideabi="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$HOST_TAG/bin/armv7a-linux-androideabi33-clang"
+export CXX_armv7_linux_androideabi="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$HOST_TAG/bin/armv7a-linux-androideabi33-clang++"
+export AR_armv7_linux_androideabi="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/$HOST_TAG/bin/llvm-ar"
+
 # Check if required tools are installed
 print_step "Checking development environment"
 if ! command -v rustup &> /dev/null; then
@@ -95,30 +100,38 @@ fi
 print_step "Setting up Cargo configuration"
 ./scripts/setup_android_config.sh
 
-# Add only 64-bit Android targets
+# Add Android targets
 print_step "Adding Android targets to Rust"
-rustup target add aarch64-linux-android
-rustup target add x86_64-linux-android
+rustup target add aarch64-linux-android      # arm64-v8a (64-bit ARM)
+rustup target add armv7-linux-androideabi    # armeabi-v7a (32-bit ARM)
+rustup target add x86_64-linux-android       # x86_64 (64-bit Intel)
 print_success "Android targets added to Rust"
 
 # Create output directories
 print_step "Creating output directories"
 mkdir -p android/app/src/main/jniLibs/arm64-v8a
+mkdir -p android/app/src/main/jniLibs/armeabi-v7a
 mkdir -p android/app/src/main/jniLibs/x86_64
 
 # Build for each Android architecture
 print_step "Building for Android architectures"
 cd rust
 
-# aarch64 (arm64-v8a)
+# aarch64 (arm64-v8a) - 64-bit ARM
 print_step "Building for aarch64 (arm64-v8a)"
-cargo build --target aarch64-linux-android --release
+cargo build --target aarch64-linux-android --release --quiet
 cp target/aarch64-linux-android/release/librust_lib_whitenoise.so ../android/app/src/main/jniLibs/arm64-v8a/
 print_success "Built for aarch64 (arm64-v8a)"
 
-# x86_64
+# armv7 (armeabi-v7a) - 32-bit ARM
+print_step "Building for armv7 (armeabi-v7a)"
+cargo build --target armv7-linux-androideabi --release --quiet
+cp target/armv7-linux-androideabi/release/librust_lib_whitenoise.so ../android/app/src/main/jniLibs/armeabi-v7a/
+print_success "Built for armv7 (armeabi-v7a)"
+
+# x86_64 - 64-bit Intel
 print_step "Building for x86_64"
-cargo build --target x86_64-linux-android --release
+cargo build --target x86_64-linux-android --release --quiet
 cp target/x86_64-linux-android/release/librust_lib_whitenoise.so ../android/app/src/main/jniLibs/x86_64/
 print_success "Built for x86_64"
 

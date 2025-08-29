@@ -191,6 +191,15 @@ setup: doctor clean-all deps regenerate build-rust-debug
 # BUILDING
 # ==============================================================================
 
+# Build unversioned android release
+android-build:
+    @echo "🔨 Building unversioned android release..."
+    @echo "✔︎ Running a precommit check..."
+    just precommit
+    @echo "🎁 Building unversioned android release..."
+    ./scripts/build.sh --full --versioned
+    @echo "🎉 Unversioned android release built successfully!"
+
 # Check and build versioned release
 release:
     @echo "🔨 Building versioned release..."

@@ -238,7 +238,7 @@ pub async fn send_message_to_group(
     tags: Option<Vec<Tag>>,
 ) -> Result<MessageWithTokens, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::from_hex(&pubkey)?;
+    let pubkey = PublicKey::parse(&pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
     let group_id = group_id_from_string(&group_id)?;
     let message_with_tokens = whitenoise
@@ -253,7 +253,7 @@ pub async fn fetch_aggregated_messages_for_group(
     group_id: String,
 ) -> Result<Vec<ChatMessage>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::from_hex(&pubkey)?;
+    let pubkey = PublicKey::parse(&pubkey)?;
     let group_id = group_id_from_string(&group_id)?;
     let messages = whitenoise
         .fetch_aggregated_messages_for_group(&pubkey, &group_id)
