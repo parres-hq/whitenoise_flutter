@@ -8,7 +8,7 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -115,7 +115,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Future<void> _switchAccount(Account account) async {
     try {
       await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
-      await ref.read(contactsProvider.notifier).loadContacts(account.pubkey);
+      await ref.read(followsProvider.notifier).loadFollows();
       await ref.read(groupsProvider.notifier).loadGroups();
       setState(() => _currentAccount = account);
 

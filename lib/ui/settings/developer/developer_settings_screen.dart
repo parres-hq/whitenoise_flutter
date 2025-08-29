@@ -6,7 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -46,7 +46,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
     }
   }
 
-  Future<void> _reloadContacts() async {
+  Future<void> _reloadFollows() async {
     setState(() => _isLoading = true);
 
     try {
@@ -54,13 +54,13 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
       final activeAccount = activeAccountState.account;
 
       if (activeAccount != null) {
-        await ref.read(contactsProvider.notifier).loadContacts(activeAccount.pubkey);
-        ref.showSuccessToast('Contacts reloaded successfully');
+        await ref.read(followsProvider.notifier).loadFollows();
+        ref.showSuccessToast('Follows reloaded successfully');
       } else {
         ref.showErrorToast('No active account found');
       }
     } catch (e) {
-      ref.showErrorToast('Failed to reload contacts: $e');
+      ref.showErrorToast('Failed to reload follows: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -134,8 +134,8 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                         Gap(8.h),
 
                         WnFilledButton(
-                          label: 'Reload Contacts',
-                          onPressed: _isLoading ? null : _reloadContacts,
+                          label: 'Reload Follows',
+                          onPressed: _isLoading ? null : _reloadFollows,
                           loading: _isLoading,
                         ),
                         Gap(MediaQuery.of(context).padding.bottom),

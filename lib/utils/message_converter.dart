@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
@@ -506,7 +507,7 @@ class MessageConverter {
     );
   }
 
-  /// Creates a User object from metadata cache with build-safe fetching
+  /// Creates a User Model object from metadata cache with build-safe fetching
   static Future<User> _createUserFromMetadata(
     String pubkey, {
     String? currentUserPubkey,
@@ -524,13 +525,11 @@ class MessageConverter {
 
     try {
       // First try contacts provider for cached data
-      final contacts = ref.read(contactsProvider);
-      final contactModels = contacts.contactModels ?? [];
+      final followsNotifier = ref.read(followsProvider.notifier);
+      final follow = followsNotifier.findFollowByPubkey(pubkey);
 
-      final contact = contactModels.where((contact) => contact.publicKey == pubkey).toList();
-
-      if (contact.isNotEmpty) {
-        final contactModel = contact.first;
+      if (follow != null) {
+        final contactModel = ContactModel.fromUser(user: follow);
         return User(
           id: pubkey,
           displayName:

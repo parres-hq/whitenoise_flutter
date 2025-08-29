@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
+import 'package:whitenoise/src/rust/api/users.dart' show User;
 
 class ContactModel {
   final String publicKey;
@@ -36,6 +37,28 @@ class ContactModel {
     return ContactModel(
       displayName: displayName.isNotEmpty ? displayName : 'Unknown User',
       publicKey: publicKey,
+      imagePath: picture,
+      about: about,
+      website: website,
+      nip05: nip05,
+      lud16: lud16,
+    );
+  }
+
+  factory ContactModel.fromUser({
+    required User user,
+  }) {
+    final metadata = user.metadata;
+    final displayName = _sanitizeString(metadata?.displayName);
+    final about = _sanitizeString(metadata?.about);
+    final website = _sanitizeUrl(metadata?.website);
+    final nip05 = _sanitizeString(metadata?.nip05);
+    final lud16 = _sanitizeString(metadata?.lud16);
+    final picture = _sanitizeUrl(metadata?.picture);
+
+    return ContactModel(
+      displayName: displayName.isNotEmpty ? displayName : 'Unknown User',
+      publicKey: user.pubkey,
       imagePath: picture,
       about: about,
       website: website,

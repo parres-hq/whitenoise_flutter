@@ -8,7 +8,7 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
@@ -40,19 +40,19 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
-      _loadContacts();
+      _loadFollows();
     });
   }
 
-  Future<void> _loadContacts() async {
+  Future<void> _loadFollows() async {
     try {
       final activeAccountState = await ref.read(activeAccountProvider.future);
       final activeAccount = activeAccountState.account;
       if (activeAccount != null) {
-        await ref.read(contactsProvider.notifier).loadContacts(activeAccount.pubkey);
+        await ref.read(followsProvider.notifier).loadFollows();
       }
     } catch (e) {
-      Logger('ChatInfoScreen').warning('Error loading contacts: $e');
+      Logger('ChatInfoScreen').warning('Error loading follows: $e');
     }
   }
 

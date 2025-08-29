@@ -11,8 +11,8 @@ class DMChatInfo extends ConsumerStatefulWidget {
 class _DMChatInfoState extends ConsumerState<DMChatInfo> {
   final _logger = Logger('DMChatInfo');
   String? otherUserNpub;
-  bool isContact = false;
-  bool isContactLoading = false;
+  bool isFollow = false;
+  bool isFollowLoading = false;
   Future<DMChatData?>? _dmChatDataFuture;
 
   @override
@@ -44,17 +44,17 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
           .getOtherGroupMember(widget.groupId, currentUserNpub);
       if (otherMember != null && mounted) {
         otherUserNpub = otherMember.publicKey;
-        _checkContactStatus(otherMember.publicKey);
+        _checkFollowStatus(otherMember.publicKey);
       }
     }
   }
 
-  void _checkContactStatus(String userNpub) {
-    final contacts = ref.read(contactsProvider).contactModels ?? [];
-    final isUserContact = contacts.any((contact) => contact.publicKey == userNpub);
+  void _checkFollowStatus(String userNpub) {
+    final followsNotifier = ref.read(followsProvider.notifier);
+    final isUserFollow = followsNotifier.isFollowing(userNpub);
     if (mounted) {
       setState(() {
-        isContact = isUserContact;
+        isFollow = isUserFollow;
       });
     }
   }
@@ -62,14 +62,14 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
   Future<void> _addContact() async {
     if (otherUserNpub == null) return;
     setState(() {
-      isContactLoading = true;
+      isFollowLoading = true;
     });
 
     try {
-      await ref.read(contactsProvider.notifier).addContactByHex(otherUserNpub!);
+      await ref.read(followsProvider.notifier).addFollow(otherUserNpub!);
       if (mounted) {
         setState(() {
-          isContact = true;
+          isFollow = true;
         });
       }
     } catch (e) {
@@ -77,7 +77,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     } finally {
       if (mounted) {
         setState(() {
-          isContactLoading = false;
+          isFollowLoading = false;
         });
       }
     }
@@ -87,14 +87,14 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     if (otherUserNpub == null) return;
 
     setState(() {
-      isContactLoading = true;
+      isFollowLoading = true;
     });
 
     try {
-      await ref.read(contactsProvider.notifier).removeContactByHex(otherUserNpub!);
+      await ref.read(followsProvider.notifier).removeFollow(otherUserNpub!);
       if (mounted) {
         setState(() {
-          isContact = false;
+          isFollow = false;
         });
       }
     } catch (e) {
@@ -102,7 +102,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     } finally {
       if (mounted) {
         setState(() {
-          isContactLoading = false;
+          isFollowLoading = false;
         });
       }
     }
@@ -128,9 +128,9 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(contactsProvider, (previous, next) {
+    ref.listen(followsProvider, (previous, next) {
       if (otherUserNpub != null) {
-        _checkContactStatus(otherUserNpub!);
+        _checkFollowStatus(otherUserNpub!);
       }
     });
 
@@ -217,24 +217,24 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               WnFilledButton(
                 size: WnButtonSize.small,
                 visualState:
-                    isContact ? WnButtonVisualState.secondary : WnButtonVisualState.primary,
-                label: isContact ? 'Remove Contact' : 'Add Contact',
-                loading: isContactLoading,
+                    isFollow ? WnButtonVisualState.secondary : WnButtonVisualState.primary,
+                label: isFollow ? 'Remove Contact' : 'Add Contact',
+                loading: isFollowLoading,
                 suffixIcon: SvgPicture.asset(
-                  isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+                  isFollow ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
                   width: 14.w,
                   colorFilter: ColorFilter.mode(
-                    isContact
+                    isFollow
                         ? context.colors.secondaryForeground
                         : context.colors.primaryForeground,
                     BlendMode.srcIn,
                   ),
                 ),
                 onPressed:
-                    isContactLoading
+                    isFollowLoading
                         ? null
                         : () {
-                          if (isContact) {
+                          if (isFollow) {
                             _removeContact();
                           } else {
                             _addContact();

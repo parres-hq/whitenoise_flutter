@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
@@ -160,14 +160,9 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     }
   }
 
-  bool _isContact() {
-    final contactsState = ref.watch(contactsProvider);
-    final contacts = contactsState.contactModels ?? [];
-
-    // Check if the current user's pubkey exists in contacts
-    return contacts.any(
-      (contact) => contact.publicKey.toLowerCase() == widget.contact.publicKey.toLowerCase(),
-    );
+  bool _isFollow() {
+    final followsNotifier = ref.read(followsProvider.notifier);
+    return followsNotifier.isFollowing(widget.contact.publicKey);
   }
 
   Future<void> _toggleContact() async {
@@ -176,18 +171,16 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     });
 
     try {
-      final contactsNotifier = ref.read(contactsProvider.notifier);
-      final isCurrentlyContact = _isContact();
+      final followsNotifier = ref.read(followsProvider.notifier);
+      final isCurrentlyFollow = followsNotifier.isFollowing(widget.contact.publicKey);
 
-      if (isCurrentlyContact) {
-        // Remove contact
-        await contactsNotifier.removeContactByHex(widget.contact.publicKey);
+      if (isCurrentlyFollow) {
+        await followsNotifier.removeFollow(widget.contact.publicKey);
         if (mounted) {
           ref.showSuccessToast('${widget.contact.displayName} removed from contacts');
         }
       } else {
-        // Add contact
-        await contactsNotifier.addContactByHex(widget.contact.publicKey);
+        await followsNotifier.addFollow(widget.contact.publicKey);
         if (mounted) {
           ref.showSuccessToast('${widget.contact.displayName} added to contacts');
         }
@@ -272,9 +265,9 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                         WnFilledButton(
                           visualState: WnButtonVisualState.secondary,
                           onPressed: _isAddingContact ? null : _toggleContact,
-                          label: _isContact() ? 'Remove Contact' : 'Add Contact',
+                          label: _isFollow() ? 'Remove Contact' : 'Add Contact',
                           suffixIcon: SvgPicture.asset(
-                            _isContact() ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+                            _isFollow() ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
                             width: 18.w,
                             height: 18.w,
                             colorFilter: ColorFilter.mode(

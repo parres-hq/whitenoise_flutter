@@ -5,7 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/domain/models/chat_model.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
@@ -83,7 +83,7 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
 
       if (activeAccount != null) {
         _logger.info('SearchChatBottomSheet: Found active account: ${activeAccount.pubkey}');
-        await ref.read(contactsProvider.notifier).loadContacts(activeAccount.pubkey);
+        await ref.read(followsProvider.notifier).loadFollows();
         _logger.info('SearchChatBottomSheet: Contacts loaded successfully');
       } else {
         _logger.severe('SearchChatBottomSheet: No active account found');
@@ -160,8 +160,9 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final contactsState = ref.watch(contactsProvider);
-    final filteredContacts = _getFilteredContacts(contactsState.contacts);
+    final followsState = ref.watch(followsProvider);
+    final filteredFollows = _getFilteredFolloes(followsState.follows);
+    final filteredContacts = filteredFollows.map((follow) => ContactModel.fromUser(user: follow));
     final filteredChats = _getFilteredChats();
 
     return Column(
@@ -283,13 +284,11 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
                       onTap: () => _handleContactTap(contact),
                       onDelete: () async {
                         try {
-                          // Get the real PublicKey from our map
-                          final realPublicKey = _publicKeyMap[contact.publicKey];
-                          if (realPublicKey != null) {
+                          if (contact.publicKey != null) {
                             // Use the proper method to remove contact from Rust backend
                             await ref
-                                .read(contactsProvider.notifier)
-                                .removeContactByPublicKey(realPublicKey);
+                                .read(followsProvider.notifier)
+                                .removeFollow(contact.publicKey);
 
                             if (context.mounted) {
                               ref.showSuccessToast('Contact removed successfully');

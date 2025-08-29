@@ -10,7 +10,7 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
@@ -128,10 +128,10 @@ class AppSettingsScreen extends ConsumerWidget {
       }
 
       try {
-        ref.invalidate(contactsProvider);
-        _logger.info('✅ Contacts provider invalidated');
+        ref.invalidate(followsProvider);
+        _logger.info('✅ Follows provider invalidated');
       } catch (e) {
-        _logger.warning('⚠️ Error invalidating contacts provider: $e');
+        _logger.warning('⚠️ Error invalidating follows provider: $e');
       }
 
       try {

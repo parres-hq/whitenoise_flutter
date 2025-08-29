@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/services/key_package_service.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
@@ -12,15 +12,15 @@ import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 
 import '../../test_helpers.dart';
 
-class MockContactsNotifier extends ContactsNotifier {
-  final List<ContactModel> _mockContacts;
+class MockFollowsNotifier extends FollowsNotifier {
+  final List<User> _mockFollows;
 
-  MockContactsNotifier(this._mockContacts);
+  MockFollowsNotifier(this._mockFollows);
 
   @override
-  ContactsState build() {
-    return ContactsState(
-      contactModels: _mockContacts,
+  FollowsState build() {
+    return FollowsState(
+      follows: _mockFollows,
     );
   }
 }
@@ -280,7 +280,7 @@ void main() {
               ),
               overrides: [
                 ...commonOverrides,
-                contactsProvider.overrideWith(() => MockContactsNotifier([contact])),
+                followsProvider.overrideWith(() => MockFollowsNotifier([contact])),
               ],
             ),
           );
