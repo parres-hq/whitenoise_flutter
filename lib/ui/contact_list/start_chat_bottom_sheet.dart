@@ -10,9 +10,9 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/contacts_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/domain/services/key_package_service.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
+import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/ui/contact_list/widgets/share_invite_button.dart';
 import 'package:whitenoise/ui/contact_list/widgets/share_invite_callout.dart';
 import 'package:whitenoise/ui/contact_list/widgets/user_profile.dart';
@@ -21,35 +21,44 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 
+// User API interface for testing
+abstract class WnUsersApi {
+  Future<bool> userHasKeyPackage({required String pubkey});
+}
+
+// Default implementation that uses the real API
+class DefaultWnUsersApi implements WnUsersApi {
+  const DefaultWnUsersApi();
+
+  @override
+  Future<bool> userHasKeyPackage({required String pubkey}) {
+    return wn_users_api.userHasKeyPackage(pubkey: pubkey);
+  }
+}
+
 class StartChatBottomSheet extends ConsumerStatefulWidget {
   final ContactModel contact;
   final ValueChanged<Group?>? onChatCreated;
-  final KeyPackageService? keyPackageService;
+  final WnUsersApi? usersApi;
 
   const StartChatBottomSheet({
     super.key,
     required this.contact,
     this.onChatCreated,
-    this.keyPackageService,
+    this.usersApi,
   });
 
   static Future<void> show({
     required BuildContext context,
     required ContactModel contact,
     ValueChanged<Group?>? onChatCreated,
-    KeyPackageService? keyPackageService,
   }) {
     return WnBottomSheet.show(
       context: context,
       title: 'User Profile',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
-      builder:
-          (context) => StartChatBottomSheet(
-            contact: contact,
-            onChatCreated: onChatCreated,
-            keyPackageService: keyPackageService,
-          ),
+      builder: (context) => StartChatBottomSheet(contact: contact, onChatCreated: onChatCreated),
     );
   }
 
@@ -79,17 +88,12 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
       return;
     }
     try {
-      final keyPackageService =
-          widget.keyPackageService ??
-          KeyPackageService(
-            publicKey: widget.contact.publicKey,
-            nip65Relays: activeAccount.nip65Relays,
-          );
-      final keyPackage = await keyPackageService.fetchWithRetry();
+      final usersApi = widget.usersApi ?? const DefaultWnUsersApi();
+      final userHasKeyPackage = await usersApi.userHasKeyPackage(pubkey: widget.contact.publicKey);
       if (mounted) {
         setState(() {
           _isLoadingKeyPackage = false;
-          _needsInvite = keyPackage == null;
+          _needsInvite = userHasKeyPackage == false;
         });
       }
     } catch (e) {
