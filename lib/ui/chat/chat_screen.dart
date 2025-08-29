@@ -91,8 +91,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _handleScrollToBottom({bool hasAnimation = true}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final double max = _scrollController.position.maxScrollExtent;
       if (!_scrollController.hasClients || !mounted) return;
+      final double max = _scrollController.position.maxScrollExtent;
       if (hasAnimation) {
         _scrollController.animateTo(
           max,
@@ -160,6 +160,31 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
     final isInviteMode = widget.inviteId != null;
 
+    // Watch messages first so they're available for listeners
+    final messages = ref.watch(
+      chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
+    );
+
+    // Move ref.listen calls to the main build method
+    ref.listen(chatSearchProvider(widget.groupId), (previous, next) {
+      if (next.query.isNotEmpty && next.query != previous?.query) {
+        searchNotifier.performSearchWithMessages(next.query, messages);
+      }
+    });
+
+    ref.listen(chatSearchProvider(widget.groupId).select((state) => state.currentMatchIndex), (
+      previous,
+      next,
+    ) {
+      final currentMatch = searchNotifier.currentMatch;
+      if (currentMatch != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          _scrollToMessage(currentMatch.messageId);
+        });
+      }
+    });
+
     if (isInviteMode) {
       return ChatInviteScreen(
         groupId: widget.groupId,
@@ -189,28 +214,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         }
 
         final groupType = groupTypeSnapshot.data!;
-
-        final messages = ref.watch(
-          chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
-        );
-
-        ref.listen(chatSearchProvider(widget.groupId), (previous, next) {
-          if (next.query.isNotEmpty && next.query != previous?.query) {
-            searchNotifier.performSearchWithMessages(next.query, messages);
-          }
-        });
-
-        ref.listen(chatSearchProvider(widget.groupId).select((state) => state.currentMatchIndex), (
-          previous,
-          next,
-        ) {
-          final currentMatch = searchNotifier.currentMatch;
-          if (currentMatch != null) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _scrollToMessage(currentMatch.messageId);
-            });
-          }
-        });
 
         return PopScope(
           onPopInvokedWithResult: (_, _) {
