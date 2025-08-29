@@ -13,6 +13,7 @@ import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -21,7 +22,6 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
-import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 
 class NewChatBottomSheet extends ConsumerStatefulWidget {
   const NewChatBottomSheet({super.key});
@@ -147,8 +147,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       }
     }
   }
-
-
 
   Future<void> _handleContactTap(ContactModel contact) async {
     _logger.info('Starting chat flow with contact: ${contact.publicKey}');
@@ -320,10 +318,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   Widget build(BuildContext context) {
     final followsState = ref.watch(followsProvider);
     final followsNotifier = ref.read(followsProvider.notifier);
-    final filteredFollows = _searchQuery.isEmpty 
-        ? followsState.follows 
-        : followsNotifier.getFilteredFollows(_searchQuery);
-    final filteredContacts = filteredFollows.map((follow) => ContactModel.fromUser(user: follow)).toList();
+    final filteredFollows =
+        _searchQuery.isEmpty
+            ? followsState.follows
+            : followsNotifier.getFilteredFollows(_searchQuery);
+    final filteredContacts =
+        filteredFollows.map((follow) => ContactModel.fromUser(user: follow)).toList();
 
     final showTempContact =
         _searchQuery.isNotEmpty &&
@@ -520,13 +520,11 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                 onTap: () => _handleContactTap(contact),
                                 onDelete: () async {
                                   try {
-                                    if (contact.publicKey != null) {
-                                      await ref
-                                          .read(followsProvider.notifier)
-                                          .removeFollow(contact.publicKey);
-                                      if (context.mounted) {
-                                        ref.showSuccessToast('Contact removed successfully');
-                                      }
+                                    await ref
+                                        .read(followsProvider.notifier)
+                                        .removeFollow(contact.publicKey);
+                                    if (context.mounted) {
+                                      ref.showSuccessToast('Contact removed successfully');
                                     }
                                   } catch (e) {
                                     if (context.mounted) {

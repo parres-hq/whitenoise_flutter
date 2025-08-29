@@ -38,7 +38,40 @@ class ChatListItemTile extends ConsumerWidget {
   Widget _buildChatTile(BuildContext context, WidgetRef ref) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
     final group = item.group!;
-    final groupType = groupsNotifier.getGroupType(group);
+    final groupType = groupsNotifier.getCachedGroupType(group.mlsGroupId);
+
+    // If group type is not cached yet, use FutureBuilder to handle the async loading
+    if (groupType == null) {
+      return FutureBuilder<GroupType>(
+        future: groupsNotifier.getGroupTypeById(group.mlsGroupId),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // Show loading state with basic info while determining group type
+            final currentUserNpub = ref.watch(nostrKeysProvider).npub ?? '';
+            final displayName = groupsNotifier.getGroupDisplayName(group.mlsGroupId) ?? group.name;
+            final displayImage = groupsNotifier.getGroupDisplayImage(
+              group.mlsGroupId,
+              currentUserNpub,
+            );
+            return _buildChatTileContent(context, displayName, displayImage, group);
+          }
+
+          final resolvedGroupType = snapshot.data ?? GroupType.group;
+          return _buildChatTileForType(context, ref, group, resolvedGroupType);
+        },
+      );
+    }
+
+    return _buildChatTileForType(context, ref, group, groupType);
+  }
+
+  Widget _buildChatTileForType(
+    BuildContext context,
+    WidgetRef ref,
+    Group group,
+    GroupType groupType,
+  ) {
+    final groupsNotifier = ref.watch(groupsProvider.notifier);
 
     // For DM chats, get the other member and use metadata cache for better user info
     if (groupType == GroupType.directMessage) {

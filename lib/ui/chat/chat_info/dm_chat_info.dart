@@ -216,8 +216,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               Gap(12.h),
               WnFilledButton(
                 size: WnButtonSize.small,
-                visualState:
-                    isFollow ? WnButtonVisualState.secondary : WnButtonVisualState.primary,
+                visualState: isFollow ? WnButtonVisualState.secondary : WnButtonVisualState.primary,
                 label: isFollow ? 'Remove Contact' : 'Add Contact',
                 loading: isFollowLoading,
                 suffixIcon: SvgPicture.asset(

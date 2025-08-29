@@ -37,7 +37,7 @@ class ChatListItem {
     return ChatListItem(
       type: ChatListItemType.welcome,
       welcome: welcome,
-      dateCreated: welcome.createdAtDateTime,
+      dateCreated: DateTime.fromMillisecondsSinceEpoch(welcome.createdAt.toInt() * 1000),
     );
   }
 
@@ -46,7 +46,7 @@ class ChatListItem {
       case ChatListItemType.chat:
         return group?.name ?? '';
       case ChatListItemType.welcome:
-        return welcome.senderName;
+        return welcome?.groupName ?? 'Group Invitation';
     }
   }
 

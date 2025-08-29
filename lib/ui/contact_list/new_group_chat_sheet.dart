@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
@@ -93,11 +94,9 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
           enableSwipeToDelete: true,
           onDelete: () async {
             try {
-              if (contact.publicKey != null) {
-                await ref.read(followsProvider.notifier).removeFollow(contact.publicKey);
-                if (context.mounted) {
-                  ref.showSuccessToast('Contact removed successfully');
-                }
+              await ref.read(followsProvider.notifier).removeFollow(contact.publicKey);
+              if (context.mounted) {
+                ref.showSuccessToast('Contact removed successfully');
               }
             } catch (e) {
               if (context.mounted) {
@@ -147,7 +146,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     final followsState = ref.watch(followsProvider);
     final activeAccount = ref.watch(activePubkeyProvider);
     final follows = followsState.follows;
-    final contactModels = follows.map((follow) => ContactModel.fromUser(user: follow));
+    final contactModels = follows.map((follow) => ContactModel.fromUser(user: follow)).toList();
     final filteredContacts = _getFilteredContacts(contactModels, activeAccount);
 
     return Padding(
@@ -160,9 +159,9 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
           ),
           Expanded(
             child:
-                contactsState.isLoading
+                followsState.isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : contactsState.error != null
+                    : followsState.error != null
                     ? Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -171,14 +170,16 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                             'Error loading contacts',
                             style: TextStyle(fontSize: 16.sp),
                           ),
+                          Gap(8.h),
                           Text(
-                            contactsState.error!,
+                            followsState.error!,
                             style: TextStyle(
                               fontSize: 12.sp,
                               color: context.colors.baseMuted,
                             ),
                             textAlign: TextAlign.center,
                           ),
+                          Gap(16.h),
                           ElevatedButton(
                             onPressed: () {
                               // Navigate back - contacts should be loaded by new_chat_bottom_sheet

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -10,7 +11,6 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
-import 'package:whitenoise/config/providers/group_provider.dart';
 
 class ChatContactHeader extends ConsumerWidget {
   final Group group;
@@ -20,7 +20,14 @@ class ChatContactHeader extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
-    final groupType = GroupType.group;// TODO BIG PLANS FIX groupType:  await groupsNotifier.getGroupType(group.mlsGroupId);
+    final groupType = groupsNotifier.getCachedGroupType(group.mlsGroupId);
+
+    // If group type is not cached yet, show a loading state or default to group
+    if (groupType == null) {
+      // Default to group chat header while group type is loading
+      return GroupChatHeader(group: group);
+    }
+
     final isGroupChat = groupType == GroupType.group;
 
     if (isGroupChat) {

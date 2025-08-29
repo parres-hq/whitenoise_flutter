@@ -82,6 +82,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     try {
       final activeAccountState = await ref.read(activeAccountProvider.future);
       final activeAccount = activeAccountState.account;
+
       if (activeAccount == null) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
@@ -112,6 +113,9 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       // Load members for all groups to enable proper display name calculation
       await _loadMembersForAllGroups(groups);
+
+      // Load and cache group types for synchronous access
+      await _loadGroupTypesForAllGroups(groups);
 
       // Now calculate display names with member data available
       await _calculateDisplayNames(groups, activeAccount.pubkey);
@@ -514,6 +518,51 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
+  /// Load and cache group types for all groups
+  Future<void> _loadGroupTypesForAllGroups(List<Group> groups) async {
+    try {
+      final Map<String, GroupType> groupTypes = Map<String, GroupType>.from(
+        state.groupTypes ?? {},
+      );
+
+      final List<Future<void>> loadTasks = [];
+
+      for (final group in groups) {
+        loadTasks.add(
+          group
+              .groupType()
+              .then((groupType) {
+                groupTypes[group.mlsGroupId] = groupType;
+              })
+              .catchError((e) {
+                _logErrorSync('Failed to load group type for group ${group.mlsGroupId}', e);
+                // Set a default fallback type
+                groupTypes[group.mlsGroupId] = GroupType.group;
+              }),
+        );
+      }
+
+      // Execute all group type loading in parallel for better performance
+      await Future.wait(loadTasks);
+
+      // Update state with the cached group types
+      state = state.copyWith(groupTypes: groupTypes);
+
+      _logger.info('GroupsProvider: Loaded group types for ${groups.length} groups');
+    } catch (e) {
+      // Log the full exception details with proper ApiError unpacking
+      String logMessage = 'GroupsProvider: Error loading group types - Exception: ';
+      if (e is ApiError) {
+        final errorDetails = await e.messageText();
+        logMessage += '$errorDetails (Type: ${e.runtimeType})';
+      } else {
+        logMessage += '$e (Type: ${e.runtimeType})';
+      }
+      _logger.severe(logMessage, e);
+      // Don't throw - we want to continue even if some group type loading fails
+    }
+  }
+
   /// Load members for all groups (used during initial group loading)
   Future<void> _loadMembersForAllGroups(List<Group> groups) async {
     try {
@@ -644,13 +693,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
   Future<GroupType> getGroupType(Group group) async {
     final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
 
-    return groupInformation.groupType ?? GroupType.group;
+    return groupInformation.groupType;
   }
 
   Future<GroupType> getGroupTypeById(String groupId) async {
     final groupInformation = await getGroupInformation(groupId: groupId);
 
-    return groupInformation.groupType ?? GroupType.group;
+    return groupInformation.groupType;
   }
 
   List<User>? getGroupMembers(String groupId) {
@@ -667,6 +716,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   Group? getGroupById(String groupId) {
     return state.groupsMap?[groupId];
+  }
+
+  /// Get cached group type synchronously
+  /// Returns null if group type is not cached yet
+  GroupType? getCachedGroupType(String groupId) {
+    return state.groupTypes?[groupId];
   }
 
   Future<bool> isCurrentUserAdmin(String groupId) async {
@@ -757,6 +812,9 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
         // Load members for new groups only
         await _loadMembersForSpecificGroups(actuallyNewGroups);
+
+        // Load and cache group types for new groups
+        await _loadGroupTypesForAllGroups(actuallyNewGroups);
 
         // Calculate display names for new groups
         await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups, activeAccount.pubkey);
@@ -936,7 +994,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
   Future<void> updateGroupActivityTime(String groupId, DateTime timestamp) async {
     final groups = state.groups;
     if (groups == null) return;
-    final groupsInformationsMap = await _getGroupInformationsMap(groups);
 
     final updatedGroups =
         groups.map((group) {
@@ -1022,10 +1079,15 @@ extension GroupMemberUtils on GroupsNotifier {
     final group = findGroupById(groupId);
     if (group == null) return null;
 
-    // TODO BIG PLANS FIX groupInformation: get group type from groupInformation
-    // The problem here is that if this function is async then theb builds wwhere it used, complains
-    // final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
-    final groupType = GroupType.group;
+    // Use cached group type for synchronous access
+    final groupType = getCachedGroupType(groupId);
+
+    // If group type is not cached yet, default to group type for safety
+    // This can happen during initial loading before group types are cached
+    if (groupType == null) {
+      _logger.info('Group type not cached yet for group $groupId, defaulting to group type');
+      return null;
+    }
 
     // For direct messages, use the other member's image
     if (groupType == GroupType.directMessage) {

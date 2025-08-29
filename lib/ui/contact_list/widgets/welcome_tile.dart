@@ -84,7 +84,7 @@ class WelcomeTile extends ConsumerWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              'sent you a secure chat invitation.',
+                              'invited you to ${welcome.groupName}',
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 color: context.colors.mutedForeground,

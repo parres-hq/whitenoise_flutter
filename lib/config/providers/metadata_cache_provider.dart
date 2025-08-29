@@ -10,7 +10,6 @@ import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
-
 /// Cached metadata with basic expiration
 class CachedMetadata {
   final ContactModel contactModel;

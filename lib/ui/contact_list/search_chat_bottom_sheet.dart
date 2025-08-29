@@ -8,8 +8,6 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/domain/models/chat_model.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
@@ -38,7 +36,6 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
   final FocusNode _searchFocusNode = FocusNode();
   String _searchQuery = '';
   bool _hasSearchResults = false;
-  final Map<String, PublicKey> _publicKeyMap = {}; // Map ContactModel.publicKey to real PublicKey
   final _logger = Logger('SearchChatBottomSheet');
 
   @override
@@ -99,37 +96,6 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
     }
   }
 
-  List<ContactModel> _getFilteredContacts(Map<PublicKey, FlutterMetadata?>? contacts) {
-    if (_searchQuery.isEmpty || contacts == null) return [];
-
-    final contactModels = <ContactModel>[];
-    for (final entry in contacts.entries) {
-      final contactModel = ContactModel.fromMetadata(
-        publicKey: entry.key.hashCode.toString(), // Temporary ID for UI
-        metadata: entry.value,
-      );
-      // Store the real PublicKey reference for operations
-      _publicKeyMap[contactModel.publicKey] = entry.key;
-      contactModels.add(contactModel);
-    }
-
-    return contactModels
-        .where(
-          (contact) =>
-              contact.displayName.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ) ||
-              (contact.nip05?.toLowerCase().contains(
-                    _searchQuery.toLowerCase(),
-                  ) ??
-                  false) ||
-              contact.publicKey.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ),
-        )
-        .toList();
-  }
-
   List<ChatModel> _getFilteredChats() {
     // No dummy chats anymore - return empty list
     return [];
@@ -161,8 +127,13 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
   @override
   Widget build(BuildContext context) {
     final followsState = ref.watch(followsProvider);
-    final filteredFollows = _getFilteredFolloes(followsState.follows);
-    final filteredContacts = filteredFollows.map((follow) => ContactModel.fromUser(user: follow));
+    final followsNotifier = ref.read(followsProvider.notifier);
+    final filteredFollows =
+        _searchQuery.isEmpty
+            ? followsState.follows
+            : followsNotifier.getFilteredFollows(_searchQuery);
+    final filteredContacts =
+        filteredFollows.map((follow) => ContactModel.fromUser(user: follow)).toList();
     final filteredChats = _getFilteredChats();
 
     return Column(
@@ -284,15 +255,10 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
                       onTap: () => _handleContactTap(contact),
                       onDelete: () async {
                         try {
-                          if (contact.publicKey != null) {
-                            // Use the proper method to remove contact from Rust backend
-                            await ref
-                                .read(followsProvider.notifier)
-                                .removeFollow(contact.publicKey);
+                          await ref.read(followsProvider.notifier).removeFollow(contact.publicKey);
 
-                            if (context.mounted) {
-                              ref.showSuccessToast('Contact removed successfully');
-                            }
+                          if (context.mounted) {
+                            ref.showSuccessToast('Contact removed successfully');
                           }
                         } catch (e) {
                           if (context.mounted) {

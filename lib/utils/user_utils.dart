@@ -4,7 +4,7 @@ import 'package:whitenoise/src/rust/api/users.dart';
 class UserUtils {
   static List<User> sortUsersByName(List<User> users) {
     final sortedUsers = List<User>.from(users);
-    
+
     sortedUsers.sort((a, b) {
       final aName = _getDisplayName(a);
       final bName = _getDisplayName(b);
@@ -23,29 +23,27 @@ class UserUtils {
     if (searchQuery.isEmpty) return users;
 
     final query = searchQuery.toLowerCase();
-    
+
     return users.where((user) {
       final displayName = _getDisplayName(user).toLowerCase();
       final nip05 = user.metadata.nip05?.toLowerCase() ?? '';
       final pubkey = user.pubkey.toLowerCase();
-      
-      return displayName.contains(query) ||
-             nip05.contains(query) ||
-             pubkey.contains(query);
+
+      return displayName.contains(query) || nip05.contains(query) || pubkey.contains(query);
     }).toList();
   }
 
   static String _getDisplayName(User user) {
     final metadata = user.metadata;
-    
+
     if (metadata.displayName != null && metadata.displayName!.isNotEmpty) {
       return metadata.displayName!;
     }
-    
+
     if (metadata.name != null && metadata.name!.isNotEmpty) {
       return metadata.name!;
     }
-    
+
     return 'Unknown User';
   }
 
@@ -53,23 +51,19 @@ class UserUtils {
     return _getDisplayName(user);
   }
 
-
   static bool hasValidDisplayName(User user) {
     final metadata = user.metadata;
     return (metadata.displayName != null && metadata.displayName!.isNotEmpty) ||
-           (metadata.name != null && metadata.name!.isNotEmpty);
+        (metadata.name != null && metadata.name!.isNotEmpty);
   }
-
 
   static String? getProfilePicture(User user) {
     return user.metadata.picture;
   }
 
-
   static String? getNip05(User user) {
     return user.metadata.nip05;
   }
-
 
   static String? getAbout(User user) {
     return user.metadata.about;

@@ -67,7 +67,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return;
       }
 
-      final welcomes = await fetchWelcomes(pubkey: activeAccount.pubkey);
+      final welcomes = await pendingWelcomes(pubkey: activeAccount.pubkey);
 
       final welcomeByData = <String, Welcome>{};
       for (final welcome in welcomes) {
@@ -120,7 +120,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return null;
       }
 
-      final welcome = await fetchWelcome(
+      final welcome = await findWeclcomeByEventId(
         pubkey: activeAccount.pubkey,
         welcomeEventId: welcomeEventId,
       );
@@ -167,7 +167,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       _logger.severe('WelcomesProvider.acceptWelcomeInvitation', e, st);
       String errorMessage = 'Failed to accept welcome';
       if (e is ApiError) {
-        errorMessage = e.messageText();
+        errorMessage = await e.messageText();
       } else {
         errorMessage = e.toString();
       }
@@ -322,7 +322,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return;
       }
 
-      final newWelcomes = await fetchWelcomes(pubkey: activeAccount.pubkey);
+      final newWelcomes = await pendingWelcomes(pubkey: activeAccount.pubkey);
 
       final currentWelcomes = state.welcomes ?? [];
       final currentWelcomeIds = currentWelcomes.map((w) => w.id).toSet();

@@ -49,12 +49,12 @@ class ContactModel {
     required User user,
   }) {
     final metadata = user.metadata;
-    final displayName = _sanitizeString(metadata?.displayName);
-    final about = _sanitizeString(metadata?.about);
-    final website = _sanitizeUrl(metadata?.website);
-    final nip05 = _sanitizeString(metadata?.nip05);
-    final lud16 = _sanitizeString(metadata?.lud16);
-    final picture = _sanitizeUrl(metadata?.picture);
+    final displayName = _sanitizeString(metadata.displayName);
+    final about = _sanitizeString(metadata.about);
+    final website = _sanitizeUrl(metadata.website);
+    final nip05 = _sanitizeString(metadata.nip05);
+    final lud16 = _sanitizeString(metadata.lud16);
+    final picture = _sanitizeUrl(metadata.picture);
 
     return ContactModel(
       displayName: displayName.isNotEmpty ? displayName : 'Unknown User',

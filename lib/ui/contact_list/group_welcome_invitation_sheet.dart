@@ -5,7 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
-import 'package:whitenoise/src/rust/api/metadata.dart' as wn_users_api;
+import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';

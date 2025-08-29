@@ -177,8 +177,6 @@ class ActiveAccountNotifier extends AsyncNotifier<ActiveAccountState> {
       throw Exception('No active pubkey available');
     }
 
-    final currentState = await future;
-    final currentMetadata = currentState.metadata;
     final accountsApi = ref.read(wnAccountsApiProvider);
     try {
       await accountsApi.updateAccountMetadata(

@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 
 extension MessageWithTokensExtensions on MessageWithTokens {
-  /// Convert BigInt timestamp to DateTime
-  DateTime get createdAtDateTime => DateTime.fromMillisecondsSinceEpoch(createdAt.toInt());
-
   /// Get formatted time sent (similar to MessageModel.timeSent)
   String get timeSent {
     final now = DateTime.now();
-    final messageTime = createdAtDateTime;
+    final messageTime = createdAt;
     final difference = now.difference(messageTime);
 
     // Same day - show time (HH:MM)
