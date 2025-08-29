@@ -508,8 +508,9 @@ class ChatNotifier extends Notifier<ChatState> {
         _setGroupError(message.groupId ?? '', 'No active account found');
         return false;
       }
-      if (message.groupId.nullOrEmpty) {
-        _setGroupError(message.groupId ?? '', 'Message not found');
+      final groupId = message.groupId;
+      if (groupId == null || groupId.isEmpty) {
+        _logger.warning('Cannot update reaction: message has no groupId');
         return false;
       }
 

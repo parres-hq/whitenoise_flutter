@@ -170,7 +170,7 @@ class ActiveAccountNotifier extends AsyncNotifier<ActiveAccountState> {
   Future<void> updateMetadata({
     required FlutterMetadata metadata,
   }) async {
-    final activePubkey = ref.watch(activePubkeyProvider);
+    final activePubkey = ref.read(activePubkeyProvider);
 
     if (activePubkey == null || activePubkey.isEmpty) {
       _logger.fine('No active pubkey set');
@@ -193,7 +193,7 @@ class ActiveAccountNotifier extends AsyncNotifier<ActiveAccountState> {
   Future<String> uploadProfilePicture({
     required String filePath,
   }) async {
-    final activePubkey = ref.watch(activePubkeyProvider);
+    final activePubkey = ref.read(activePubkeyProvider);
 
     if (activePubkey == null || activePubkey.isEmpty) {
       _logger.fine('No active pubkey set');

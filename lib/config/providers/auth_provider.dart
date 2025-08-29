@@ -9,6 +9,7 @@ import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/src/rust/api.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
+import 'package:whitenoise/src/rust/api/utils.dart';
 
 /// Auth Provider
 ///
@@ -289,13 +290,19 @@ class AuthNotifier extends Notifier<AuthState> {
 
         // Check if there are other accounts available
         final remainingAccounts = await getAccounts();
-        final otherAccounts =
-            remainingAccounts
-                .where(
-                  (account) => account.pubkey != activeAccount.pubkey,
-                )
-                .toList();
-
+        // Normalize pubkeys to hex then filter
+        final activeHex =
+            activeAccount.pubkey.startsWith('npub')
+                ? await hexPubkeyFromNpub(npub: activeAccount.pubkey)
+                : activeAccount.pubkey.toLowerCase();
+        final otherAccounts = <Account>[];
+        for (final account in remainingAccounts) {
+          final keyHex =
+              account.pubkey.startsWith('npub')
+                  ? await hexPubkeyFromNpub(npub: account.pubkey)
+                  : account.pubkey.toLowerCase();
+          if (keyHex != activeHex) otherAccounts.add(account);
+        }
         if (otherAccounts.isNotEmpty) {
           // Switch to the first available account
           _logger.info('Switching to another account after logout: ${otherAccounts.first.pubkey}');
