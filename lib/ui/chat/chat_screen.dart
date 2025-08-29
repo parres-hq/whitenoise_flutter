@@ -179,6 +179,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final currentMatch = searchNotifier.currentMatch;
       if (currentMatch != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
           _scrollToMessage(currentMatch.messageId);
         });
       }
