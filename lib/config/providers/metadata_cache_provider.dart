@@ -113,7 +113,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
       final activeAccountState = await ref.read(activeAccountProvider.future);
       final activeAccount = activeAccountState.account;
       if (activeAccount == null) {
-        throw 'No active account found';
+        throw StateError('No active account found');
       }
 
       final metadata = await wn_users_api.userMetadata(pubkey: fetchKey);

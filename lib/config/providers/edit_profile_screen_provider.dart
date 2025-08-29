@@ -53,9 +53,12 @@ class EditProfileScreenNotifier extends AsyncNotifier<ProfileState> {
       _logger.severe('loadProfileData', e, st);
       state = AsyncValue.error(e.toString(), st);
     } finally {
-      state = AsyncValue.data(
-        state.value!.copyWith(isSaving: false, stackTrace: null, error: null),
-      );
+      final stateValue = state.value;
+      if (stateValue != null) {
+        state = AsyncValue.data(
+          stateValue.copyWith(isSaving: false, stackTrace: null, error: null),
+        );
+      }
     }
   }
 
@@ -111,9 +114,9 @@ class EditProfileScreenNotifier extends AsyncNotifier<ProfileState> {
   }
 
   Future<void> updateProfileData() async {
-    state = AsyncValue.data(
-      state.value!.copyWith(isSaving: true, error: null, stackTrace: null),
-    );
+    final previousState = state.asData?.value ?? const ProfileState();
+    state = AsyncValue.data(previousState.copyWith(isSaving: true, error: null, stackTrace: null));
+
     try {
       String? profilePictureUrl;
       final authState = ref.read(authProvider);
@@ -169,18 +172,9 @@ class EditProfileScreenNotifier extends AsyncNotifier<ProfileState> {
       await fetchProfileData();
     } catch (e, st) {
       _logger.severe('updateProfileData', e, st);
-      state = AsyncValue.data(
-        state.value!.copyWith(isSaving: false, error: e, stackTrace: st),
-      );
-
-      // Handle error messaging
-      String? errorMessage;
-      if (e is ApiError) {
-        errorMessage = await e.messageText();
-      } else {
-        errorMessage = e.toString();
-      }
-      state = AsyncValue.error(errorMessage, st);
+      final prev = state.asData?.value ?? const ProfileState();
+      final message = e is ApiError ? (await e.messageText()) : e.toString();
+      state = AsyncValue.data(prev.copyWith(isSaving: false, error: message, stackTrace: st));
     }
   }
 }

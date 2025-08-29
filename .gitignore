@@ -12,9 +12,11 @@
 .swiftpm/
 migrate_working_dir/
 .env
-.env.local
-.env.development
-.env.production
+.env.*
+.envrc
+*.env
+!.env.example
+!.env.*.example
 
 # IntelliJ related
 *.iml
