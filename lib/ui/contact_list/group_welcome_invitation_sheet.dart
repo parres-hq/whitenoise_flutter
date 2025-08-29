@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
+import 'package:whitenoise/src/rust/api/metadata.dart' as wn_users_api;
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -118,10 +119,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
         ref.showErrorToast('No active account found');
         return null;
       }
-      return await fetchMetadataFrom(
-        pubkey: widget.welcome.welcomer,
-        nip65Relays: activeAccount.nip65Relays,
-      );
+      return await wn_users_api.userMetadata(pubkey: widget.welcome.welcomer);
     } catch (e) {
       return null;
     }
@@ -249,10 +247,7 @@ class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
         ref.showErrorToast('No active account found');
         return null;
       }
-      return await fetchMetadataFrom(
-        pubkey: widget.welcome.welcomer,
-        nip65Relays: activeAccount.nip65Relays,
-      );
+      return await wn_users_api.userMetadata(pubkey: widget.welcome.welcomer);
     } catch (e) {
       return null;
     }
@@ -296,10 +291,7 @@ class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCar
         ref.showErrorToast('No active account found');
         return null;
       }
-      return fetchMetadataFrom(
-        pubkey: widget.welcome.welcomer,
-        nip65Relays: activeAccount.nip65Relays,
-      );
+      return wn_users_api.userMetadata(pubkey: widget.welcome.welcomer);
     } catch (e) {
       return null;
     }
