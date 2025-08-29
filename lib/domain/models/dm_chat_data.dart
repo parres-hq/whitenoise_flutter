@@ -36,8 +36,7 @@ class DMChatData {
           publicKey == other.publicKey;
 
   @override
-  int get hashCode =>
-      displayName.hashCode ^ displayImage.hashCode ^ nip05.hashCode ^ publicKey.hashCode;
+  int get hashCode => Object.hash(displayName, displayImage, nip05, publicKey);
 
   @override
   String toString() {

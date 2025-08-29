@@ -4,13 +4,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/src/rust/api/relays.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/users.dart';
 import 'package:whitenoise/ui/contact_list/safe_toast_mixin.dart';
 import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -29,12 +27,12 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   });
 
   final List<ContactModel> selectedContacts;
-  final ValueChanged<GroupData?>? onGroupCreated;
+  final ValueChanged<Group?>? onGroupCreated;
 
   static Future<void> show({
     required BuildContext context,
     required List<ContactModel> selectedContacts,
-    ValueChanged<GroupData?>? onGroupCreated,
+    ValueChanged<Group?>? onGroupCreated,
   }) {
     return WnBottomSheet.show(
       context: context,
@@ -109,7 +107,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
       // Create group with contacts that have keypackages
       if (!mounted) return;
 
-      final createdGroupData = await notifier.createNewGroup(
+      final createdGroup = await notifier.createNewGroup(
         groupName: groupName,
         groupDescription: '',
         memberPublicKeyHexs: contactsWithKeyPackage.map((c) => c.publicKey).toList(),
@@ -118,7 +116,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
       if (!mounted) return;
 
-      if (createdGroupData != null) {
+      if (createdGroup != null) {
         // Show share invite bottom sheet for members without keypackages
         if (contactsWithoutKeyPackage.isNotEmpty && mounted) {
           try {
@@ -143,7 +141,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
               // Small delay to ensure navigation completes
               await Future.delayed(const Duration(milliseconds: 150));
               if (mounted) {
-                Routes.goToChat(context, createdGroupData.mlsGroupId);
+                Routes.goToChat(context, createdGroup.mlsGroupId);
               }
             }
           });
@@ -176,22 +174,14 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
   Future<Map<String, List<ContactModel>>> _filterContactsByKeyPackage(
     List<ContactModel> contacts,
   ) async {
-    final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-    if (activeAccountData == null) {
-      throw Exception('No active account found');
-    }
     final contactsWithKeyPackage = <ContactModel>[];
     final contactsWithoutKeyPackage = <ContactModel>[];
 
     for (final contact in contacts) {
       try {
-        final pubkey = await publicKeyFromString(publicKeyString: contact.publicKey);
-        final keyPackage = await fetchKeyPackage(
-          pubkey: pubkey,
-          nip65Relays: activeAccountData.nip65Relays,
-        );
+        final hasKeyPackage = await userHasKeyPackage(pubkey: contact.publicKey);
 
-        if (keyPackage != null) {
+        if (hasKeyPackage) {
           contactsWithKeyPackage.add(contact);
         } else {
           contactsWithoutKeyPackage.add(contact);

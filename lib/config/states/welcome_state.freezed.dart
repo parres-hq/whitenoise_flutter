@@ -17,8 +17,8 @@ final _privateConstructorUsedError = UnsupportedError(
 
 /// @nodoc
 mixin _$WelcomesState {
-  List<WelcomeData>? get welcomes => throw _privateConstructorUsedError;
-  Map<String, WelcomeData>? get welcomeById => throw _privateConstructorUsedError;
+  List<Welcome>? get welcomes => throw _privateConstructorUsedError;
+  Map<String, Welcome>? get welcomeById => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
@@ -36,8 +36,8 @@ abstract class $WelcomesStateCopyWith<$Res> {
   ) = _$WelcomesStateCopyWithImpl<$Res, WelcomesState>;
   @useResult
   $Res call({
-    List<WelcomeData>? welcomes,
-    Map<String, WelcomeData>? welcomeById,
+    List<Welcome>? welcomes,
+    Map<String, Welcome>? welcomeById,
     bool isLoading,
     String? error,
   });
@@ -69,12 +69,12 @@ class _$WelcomesStateCopyWithImpl<$Res, $Val extends WelcomesState>
                 freezed == welcomes
                     ? _value.welcomes
                     : welcomes // ignore: cast_nullable_to_non_nullable
-                        as List<WelcomeData>?,
+                        as List<Welcome>?,
             welcomeById:
                 freezed == welcomeById
                     ? _value.welcomeById
                     : welcomeById // ignore: cast_nullable_to_non_nullable
-                        as Map<String, WelcomeData>?,
+                        as Map<String, Welcome>?,
             isLoading:
                 null == isLoading
                     ? _value.isLoading
@@ -100,8 +100,8 @@ abstract class _$$WelcomesStateImplCopyWith<$Res> implements $WelcomesStateCopyW
   @override
   @useResult
   $Res call({
-    List<WelcomeData>? welcomes,
-    Map<String, WelcomeData>? welcomeById,
+    List<Welcome>? welcomes,
+    Map<String, Welcome>? welcomeById,
     bool isLoading,
     String? error,
   });
@@ -132,12 +132,12 @@ class __$$WelcomesStateImplCopyWithImpl<$Res>
             freezed == welcomes
                 ? _value._welcomes
                 : welcomes // ignore: cast_nullable_to_non_nullable
-                    as List<WelcomeData>?,
+                    as List<Welcome>?,
         welcomeById:
             freezed == welcomeById
                 ? _value._welcomeById
                 : welcomeById // ignore: cast_nullable_to_non_nullable
-                    as Map<String, WelcomeData>?,
+                    as Map<String, Welcome>?,
         isLoading:
             null == isLoading
                 ? _value.isLoading
@@ -157,16 +157,16 @@ class __$$WelcomesStateImplCopyWithImpl<$Res>
 
 class _$WelcomesStateImpl implements _WelcomesState {
   const _$WelcomesStateImpl({
-    final List<WelcomeData>? welcomes,
-    final Map<String, WelcomeData>? welcomeById,
+    final List<Welcome>? welcomes,
+    final Map<String, Welcome>? welcomeById,
     this.isLoading = false,
     this.error,
   }) : _welcomes = welcomes,
        _welcomeById = welcomeById;
 
-  final List<WelcomeData>? _welcomes;
+  final List<Welcome>? _welcomes;
   @override
-  List<WelcomeData>? get welcomes {
+  List<Welcome>? get welcomes {
     final value = _welcomes;
     if (value == null) return null;
     if (_welcomes is EqualUnmodifiableListView) return _welcomes;
@@ -174,9 +174,9 @@ class _$WelcomesStateImpl implements _WelcomesState {
     return EqualUnmodifiableListView(value);
   }
 
-  final Map<String, WelcomeData>? _welcomeById;
+  final Map<String, Welcome>? _welcomeById;
   @override
-  Map<String, WelcomeData>? get welcomeById {
+  Map<String, Welcome>? get welcomeById {
     final value = _welcomeById;
     if (value == null) return null;
     if (_welcomeById is EqualUnmodifiableMapView) return _welcomeById;
@@ -229,16 +229,16 @@ class _$WelcomesStateImpl implements _WelcomesState {
 
 abstract class _WelcomesState implements WelcomesState {
   const factory _WelcomesState({
-    final List<WelcomeData>? welcomes,
-    final Map<String, WelcomeData>? welcomeById,
+    final List<Welcome>? welcomes,
+    final Map<String, Welcome>? welcomeById,
     final bool isLoading,
     final String? error,
   }) = _$WelcomesStateImpl;
 
   @override
-  List<WelcomeData>? get welcomes;
+  List<Welcome>? get welcomes;
   @override
-  Map<String, WelcomeData>? get welcomeById;
+  Map<String, Welcome>? get welcomeById;
   @override
   bool get isLoading;
   @override

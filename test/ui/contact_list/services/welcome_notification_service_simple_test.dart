@@ -9,7 +9,7 @@ void main() {
     late ProviderContainer container;
 
     // Test data
-    final testWelcomeData = WelcomeData(
+    final testWelcome = Welcome(
       id: 'test_welcome_1',
       mlsGroupId: 'mls_group_1',
       nostrGroupId: 'nostr_group_1',
@@ -59,7 +59,7 @@ void main() {
       test('should integrate with welcomes provider', () {
         final notifier = container.read(welcomesProvider.notifier);
         var callbackTriggered = false;
-        WelcomeData? receivedWelcome;
+        Welcome? receivedWelcome;
 
         // Manually set callback to test integration
         notifier.setOnNewWelcomeCallback((welcome) {
@@ -68,10 +68,10 @@ void main() {
         });
 
         // Trigger callback
-        notifier.triggerWelcomeCallback(testWelcomeData);
+        notifier.triggerWelcomeCallback(testWelcome);
 
         expect(callbackTriggered, true);
-        expect(receivedWelcome, testWelcomeData);
+        expect(receivedWelcome, testWelcome);
       });
 
       test('should handle provider callback clearing', () {
@@ -87,7 +87,7 @@ void main() {
         notifier.clearOnNewWelcomeCallback();
 
         // Try to trigger (should not work)
-        notifier.triggerWelcomeCallback(testWelcomeData);
+        notifier.triggerWelcomeCallback(testWelcome);
 
         expect(callbackTriggered, false);
       });
@@ -114,11 +114,11 @@ void main() {
         });
 
         // Pending welcome should trigger callback
-        notifier.triggerWelcomeCallback(testWelcomeData);
+        notifier.triggerWelcomeCallback(testWelcome);
         expect(callbackCount, 1);
 
         // Non-pending welcome should not trigger callback
-        final acceptedWelcome = WelcomeData(
+        final acceptedWelcome = Welcome(
           id: 'accepted_welcome',
           mlsGroupId: 'mls_group_accepted',
           nostrGroupId: 'nostr_group_accepted',

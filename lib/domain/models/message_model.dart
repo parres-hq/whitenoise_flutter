@@ -258,7 +258,7 @@ class Reaction {
   }
 
   @override
-  int get hashCode => emoji.hashCode ^ user.hashCode ^ createdAt.hashCode;
+  int get hashCode => Object.hash(emoji, user, createdAt);
 }
 
 enum MessageType { text, image, audio, video, file }

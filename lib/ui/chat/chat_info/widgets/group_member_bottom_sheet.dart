@@ -5,7 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -64,9 +64,9 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
   }
 
   void _loadCurrentUserNpub() async {
-    final activeAccount = ref.read(activeAccountProvider);
-    if (activeAccount != null) {
-      currentUserNpub = await activeAccount.toNpub() ?? '';
+    final activeAccountPubkey = ref.read(activePubkeyProvider);
+    if (activeAccountPubkey != null) {
+      currentUserNpub = await activeAccountPubkey.toNpub() ?? '';
       setState(() {});
     }
   }

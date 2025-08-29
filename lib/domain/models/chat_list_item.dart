@@ -1,53 +1,52 @@
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
-import 'package:whitenoise/utils/big_int_extension.dart';
 
 enum ChatListItemType { chat, welcome }
 
 class ChatListItem {
   final ChatListItemType type;
-  final GroupData? groupData;
-  final WelcomeData? welcomeData;
+  final Group? group;
+  final Welcome? welcome;
   final MessageModel? lastMessage;
   final DateTime dateCreated;
 
   const ChatListItem({
     required this.type,
-    this.groupData,
-    this.welcomeData,
+    this.group,
+    this.welcome,
     this.lastMessage,
     required this.dateCreated,
   });
 
   factory ChatListItem.fromGroup({
-    required GroupData groupData,
+    required Group group,
     MessageModel? lastMessage,
   }) {
     return ChatListItem(
       type: ChatListItemType.chat,
-      groupData: groupData,
+      group: group,
       lastMessage: lastMessage,
       dateCreated: lastMessage?.createdAt ?? DateTime.now(),
     );
   }
 
   factory ChatListItem.fromWelcome({
-    required WelcomeData welcomeData,
+    required Welcome welcome,
   }) {
     return ChatListItem(
       type: ChatListItemType.welcome,
-      welcomeData: welcomeData,
-      dateCreated: welcomeData.createdAt.toDateTime(),
+      welcome: welcome,
+      dateCreated: DateTime.fromMillisecondsSinceEpoch(welcome.createdAt.toInt() * 1000),
     );
   }
 
   String get displayName {
     switch (type) {
       case ChatListItemType.chat:
-        return groupData?.name ?? '';
+        return group?.name ?? '';
       case ChatListItemType.welcome:
-        return welcomeData?.groupName ?? '';
+        return welcome?.groupName ?? 'Group Invitation';
     }
   }
 
@@ -63,9 +62,9 @@ class ChatListItem {
   String get id {
     switch (type) {
       case ChatListItemType.chat:
-        return groupData?.mlsGroupId ?? '';
+        return group?.mlsGroupId ?? '';
       case ChatListItemType.welcome:
-        return welcomeData?.id ?? '';
+        return welcome?.id ?? '';
     }
   }
 }

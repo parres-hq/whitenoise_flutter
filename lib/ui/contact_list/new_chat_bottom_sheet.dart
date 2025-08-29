@@ -7,11 +7,12 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -54,9 +55,9 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     super.initState();
     _searchController.addListener(_onSearchChanged);
     _scrollController.addListener(_onScrollChanged);
-    // Load contacts when the widget initializes
+    // Load follows when the widget initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadContacts();
+      _loadFollows();
     });
   }
 
@@ -89,15 +90,14 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     }
   }
 
-  Future<void> _loadContacts() async {
+  Future<void> _loadFollows() async {
     try {
-      // Get the active account data directly
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
 
-      if (activeAccountData != null) {
-        _logger.info('NewChatBottomSheet: Found active account: ${activeAccountData.pubkey}');
-        await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
+      if (activeAccount != null) {
+        _logger.info('NewChatBottomSheet: Found active account: ${activeAccount.pubkey}');
+        await ref.read(followsProvider.notifier).loadFollows();
         _logger.info('NewChatBottomSheet: Contacts loaded successfully');
       } else {
         _logger.severe('NewChatBottomSheet: No active account found');
@@ -106,9 +106,9 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         }
       }
     } catch (e) {
-      _logger.severe('NewChatBottomSheet: Error loading contacts: $e');
+      _logger.severe('NewChatBottomSheet: Error loading follows: $e');
       if (mounted) {
-        ref.showErrorToast('Error loading contacts: $e');
+        ref.showErrorToast('Error loading follows: $e');
       }
     }
   }
@@ -125,9 +125,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     });
 
     try {
-      // Use metadata cache to fetch contact model
-      final metadataCache = ref.read(metadataCacheProvider.notifier);
-      final contactModel = await metadataCache.getContactModel(publicKey.trim());
+      final user = await wn_users_api.getUser(pubkey: publicKey.trim());
+      final contactModel = ContactModel.fromUser(user: user);
 
       if (mounted) {
         setState(() {
@@ -149,53 +148,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     }
   }
 
-  List<ContactModel> _getFilteredContacts(List<ContactModel>? contacts) {
-    if (contacts == null) return [];
-
-    // 1. Deduplicate contacts with the same publicKey
-    final Map<String, ContactModel> uniqueContacts = {};
-    for (final contact in contacts) {
-      final normalizedKey = contact.publicKey.trim().toLowerCase();
-      if (normalizedKey.isEmpty) continue;
-      uniqueContacts.putIfAbsent(normalizedKey, () => contact);
-    }
-
-    final deduplicatedContacts = uniqueContacts.values.toList();
-
-    // 2. Apply search filter if needed
-    final query = _searchQuery.trim().toLowerCase();
-    final filteredContacts =
-        query.isEmpty
-            ? deduplicatedContacts
-            : deduplicatedContacts.where((contact) {
-              final displayName = contact.displayName.toLowerCase();
-              final nip05 = contact.nip05?.toLowerCase() ?? '';
-              final about = contact.about?.toLowerCase() ?? '';
-              final publicKey = contact.publicKey.toLowerCase();
-
-              return displayName.contains(query) ||
-                  nip05.contains(query) ||
-                  about.contains(query) ||
-                  publicKey.contains(query);
-            }).toList();
-
-    // 3. Sort the filtered contacts alphabetically (Unknown User at bottom) for consistent ordering
-    filteredContacts.sort((a, b) {
-      final aName = a.displayName;
-      final bName = b.displayName;
-
-      // Put "Unknown User" entries at the bottom
-      if (aName == 'Unknown User' && bName != 'Unknown User') return 1;
-      if (bName == 'Unknown User' && aName != 'Unknown User') return -1;
-      if (aName == 'Unknown User' && bName == 'Unknown User') return 0;
-
-      // Normal alphabetical sorting for everything else
-      return aName.toLowerCase().compareTo(bName.toLowerCase());
-    });
-
-    return filteredContacts;
-  }
-
   Future<void> _handleContactTap(ContactModel contact) async {
     _logger.info('Starting chat flow with contact: ${contact.publicKey}');
 
@@ -205,12 +157,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         StartChatBottomSheet.show(
           context: context,
           contact: contact,
-          onChatCreated: (groupData) {
-            if (groupData != null && mounted) {
+          onChatCreated: (group) {
+            if (group != null && mounted) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 if (mounted) {
                   context.pop();
-                  context.navigateToGroupChatAndPopToHome(groupData);
+                  context.navigateToGroupChatAndPopToHome(group);
                 }
               });
             }
@@ -236,7 +188,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Error loading contacts',
+            'Error loading follows',
             style: TextStyle(
               color: context.colors.mutedForeground,
               fontSize: 16.sp,
@@ -253,7 +205,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           ),
           Gap(16.h),
           ElevatedButton(
-            onPressed: _loadContacts,
+            onPressed: _loadFollows,
             child: const Text('Retry'),
           ),
         ],
@@ -364,9 +316,14 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final contactsState = ref.watch(contactsProvider);
-    final filteredContacts = _getFilteredContacts(contactsState.contactModels);
-    final rawContacts = contactsState.contactModels ?? [];
+    final followsState = ref.watch(followsProvider);
+    final followsNotifier = ref.read(followsProvider.notifier);
+    final filteredFollows =
+        _searchQuery.isEmpty
+            ? followsState.follows
+            : followsNotifier.getFilteredFollows(_searchQuery);
+    final filteredContacts =
+        filteredFollows.map((follow) => ContactModel.fromUser(user: follow)).toList();
 
     final showTempContact =
         _searchQuery.isNotEmpty &&
@@ -408,10 +365,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         // Scrollable content area that goes to bottom
         Expanded(
           child:
-              contactsState.isLoading
+              followsState.isLoading
                   ? _buildContactsLoadingWidget()
-                  : contactsState.error != null
-                  ? _buildErrorWidget(contactsState.error!)
+                  : followsState.error != null
+                  ? _buildErrorWidget(followsState.error!)
                   : SingleChildScrollView(
                     controller: _scrollController,
                     child: Column(
@@ -420,7 +377,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                         Gap(26.h),
                         _buildMainOptions(),
                         Gap(26.h),
-                        // DEBUG: Raw contacts section
+                        // DEBUG: Raw follows section
                         if (_searchQuery.toLowerCase() == 'debug') ...[
                           Gap(16.h),
                           Container(
@@ -443,16 +400,17 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                 ),
                                 Gap(8.h),
                                 Text(
-                                  'Total raw contacts: ${rawContacts.length}',
+                                  'Total raw follows: ${followsState.follows.length}',
                                   style: TextStyle(
                                     color: context.colors.mutedForeground,
                                     fontSize: 14.sp,
                                   ),
                                 ),
                                 Gap(8.h),
-                                ...rawContacts.asMap().entries.map((entry) {
+                                ...followsState.follows.asMap().entries.map((entry) {
                                   final index = entry.key;
-                                  final contact = entry.value;
+                                  final user = entry.value;
+                                  final contact = ContactModel.fromUser(user: user);
                                   return Container(
                                     margin: EdgeInsets.only(bottom: 8.h),
                                     padding: EdgeInsets.all(8.w),
@@ -533,10 +491,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                       ? const CircularProgressIndicator()
                                       : Text(
                                         _searchQuery.isEmpty
-                                            ? 'No contacts found'
+                                            ? 'No follows found'
                                             : _isValidPublicKey(_searchQuery)
                                             ? 'Loading metadata...'
-                                            : 'No contacts match your search',
+                                            : 'No follows match your search',
                                         style: TextStyle(
                                           color: context.colors.mutedForeground,
                                           fontSize: 16.sp,
@@ -545,7 +503,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                             ),
                           ),
                         ] else ...[
-                          // Contacts list - all contacts as individual widgets in the scroll view
+                          // Contacts list - all follows as individual widgets in the scroll view
                           ...filteredContacts.map(
                             (contact) => Padding(
                               padding: EdgeInsets.only(bottom: 4.h),
@@ -555,16 +513,11 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                 onTap: () => _handleContactTap(contact),
                                 onDelete: () async {
                                   try {
-                                    final realPublicKey = ref
-                                        .read(contactsProvider.notifier)
-                                        .getPublicKeyForContact(contact.publicKey);
-                                    if (realPublicKey != null) {
-                                      await ref
-                                          .read(contactsProvider.notifier)
-                                          .removeContactByPublicKey(realPublicKey);
-                                      if (context.mounted) {
-                                        ref.showSuccessToast('Contact removed successfully');
-                                      }
+                                    await ref
+                                        .read(followsProvider.notifier)
+                                        .removeFollow(contact.publicKey);
+                                    if (context.mounted) {
+                                      ref.showSuccessToast('Contact removed successfully');
                                     }
                                   } catch (e) {
                                     if (context.mounted) {

@@ -1,9 +1,24 @@
-use crate::api::groups::group_id_to_string;
+use crate::api::{error::ApiError, utils::group_id_to_string};
 use flutter_rust_bridge::frb;
-pub use whitenoise::{PublicKey, Welcome, WelcomeState, Whitenoise, WhitenoiseError};
+use nostr_mls::prelude::welcome_types::Welcome as WhitenoiseWelcome;
+use nostr_mls::prelude::welcome_types::WelcomeState as WhitenoiseWelcomeState;
+use nostr_sdk::prelude::*;
+use whitenoise::Whitenoise;
 
+/// Converts a GroupId to a hex string representation.
+///
+/// This function provides a consistent way to convert MLS group IDs to strings
+/// for use in the Flutter bridge layer.
+///
+/// # Parameters
+/// * `group_id` - Reference to a GroupId object
+///
+/// # Returns
+/// Hexadecimal string representation of the group ID
+
+#[frb]
 #[derive(Debug, Clone)]
-pub struct WelcomeData {
+pub struct Welcome {
     pub id: String,
     pub mls_group_id: String,
     pub nostr_group_id: String,
@@ -17,9 +32,9 @@ pub struct WelcomeData {
     pub created_at: u64,
 }
 
-#[frb(mirror(WelcomeState))]
+#[frb]
 #[derive(Debug, Clone)]
-pub enum _WelcomeState {
+pub enum WelcomeState {
     // Pending: The welcome has been sent but not yet accepted or declined
     Pending,
     // Accepted: The welcome has been accepted
@@ -30,154 +45,98 @@ pub enum _WelcomeState {
     Ignored,
 }
 
-pub fn convert_welcome_to_data(welcome: &Welcome) -> WelcomeData {
-    WelcomeData {
-        id: welcome.id.to_string(),
-        mls_group_id: group_id_to_string(&welcome.mls_group_id),
-        nostr_group_id: hex::encode(welcome.nostr_group_id),
-        group_name: welcome.group_name.to_string(),
-        group_description: welcome.group_description.to_string(),
-        group_admin_pubkeys: welcome
-            .group_admin_pubkeys
-            .iter()
-            .map(|pk| pk.to_hex())
-            .collect(),
-        group_relays: welcome.group_relays.iter().map(|r| r.to_string()).collect(),
-        welcomer: welcome.welcomer.to_hex(),
-        member_count: welcome.member_count,
-        state: welcome.state,
-        created_at: welcome.event.created_at.as_u64(),
+impl From<WhitenoiseWelcomeState> for WelcomeState {
+    fn from(state: WhitenoiseWelcomeState) -> Self {
+        match state {
+            WhitenoiseWelcomeState::Pending => WelcomeState::Pending,
+            WhitenoiseWelcomeState::Accepted => WelcomeState::Accepted,
+            WhitenoiseWelcomeState::Declined => WelcomeState::Declined,
+            WhitenoiseWelcomeState::Ignored => WelcomeState::Ignored,
+        }
     }
 }
 
-/// Fetches all welcome invitations for a given public key.
-///
-/// Welcome invitations are group membership invitations that have been sent to the user
-/// but may not yet have been processed (accepted, declined, or ignored).
-///
-/// # Arguments
-///
-/// * `pubkey` - The public key of the account to fetch welcomes for
-///
-/// # Returns
-///
-/// Returns a `Result` containing:
-/// * `Ok(Vec<WelcomeData>)` - A vector of welcome invitation data if successful
-/// * `Err(WhitenoiseError)` - An error if the operation fails
-///
-/// # Errors
-///
-/// This function will return an error if:
-/// * The Whitenoise instance cannot be retrieved
-/// * The network request to fetch welcomes fails
-/// * The account associated with the public key is not found
-#[frb]
-pub async fn fetch_welcomes(pubkey: &PublicKey) -> Result<Vec<WelcomeData>, WhitenoiseError> {
-    let whitenoise = Whitenoise::get_instance()?;
-    let welcomes = whitenoise.fetch_welcomes(pubkey).await?;
-    Ok(welcomes.iter().map(convert_welcome_to_data).collect())
+impl From<WhitenoiseWelcome> for Welcome {
+    fn from(welcome: WhitenoiseWelcome) -> Self {
+        Self {
+            id: welcome.id.to_string(),
+            mls_group_id: group_id_to_string(&welcome.mls_group_id),
+            nostr_group_id: hex::encode(welcome.nostr_group_id),
+            group_name: welcome.group_name,
+            group_description: welcome.group_description,
+            group_admin_pubkeys: welcome
+                .group_admin_pubkeys
+                .iter()
+                .map(|pk| pk.to_hex())
+                .collect(),
+            group_relays: welcome.group_relays.iter().map(|r| r.to_string()).collect(),
+            welcomer: welcome.welcomer.to_hex(),
+            member_count: welcome.member_count,
+            state: welcome.state.into(),
+            created_at: welcome.event.created_at.as_u64(),
+        }
+    }
 }
 
-/// Fetches a specific welcome invitation by its event ID.
-///
-/// This method retrieves detailed information about a single welcome invitation,
-/// including group details, admin information, and current state.
-///
-/// # Arguments
-///
-/// * `pubkey` - The public key of the account that received the welcome
-/// * `welcome_event_id` - The unique event ID of the welcome invitation to fetch
-///
-/// # Returns
-///
-/// Returns a `Result` containing:
-/// * `Ok(WelcomeData)` - The welcome invitation data if found
-/// * `Err(WhitenoiseError)` - An error if the operation fails
-///
-/// # Errors
-///
-/// This function will return an error if:
-/// * The Whitenoise instance cannot be retrieved
-/// * The welcome with the specified event ID is not found
-/// * The account associated with the public key is not found
-/// * Network connectivity issues occur
-#[frb]
-pub async fn fetch_welcome(
-    pubkey: &PublicKey,
-    welcome_event_id: String,
-) -> Result<WelcomeData, WhitenoiseError> {
-    let whitenoise = Whitenoise::get_instance()?;
-    let welcome = whitenoise.fetch_welcome(pubkey, welcome_event_id).await?;
-    Ok(convert_welcome_to_data(&welcome))
+impl From<&WhitenoiseWelcome> for Welcome {
+    fn from(welcome: &WhitenoiseWelcome) -> Self {
+        Self {
+            id: welcome.id.to_string(),
+            mls_group_id: group_id_to_string(&welcome.mls_group_id),
+            nostr_group_id: hex::encode(welcome.nostr_group_id),
+            group_name: welcome.group_name.clone(),
+            group_description: welcome.group_description.clone(),
+            group_admin_pubkeys: welcome
+                .group_admin_pubkeys
+                .iter()
+                .map(|pk| pk.to_hex())
+                .collect(),
+            group_relays: welcome.group_relays.iter().map(|r| r.to_string()).collect(),
+            welcomer: welcome.welcomer.to_hex(),
+            member_count: welcome.member_count,
+            state: welcome.state.into(),
+            created_at: welcome.event.created_at.as_u64(),
+        }
+    }
 }
 
-/// Accepts a group welcome invitation.
-///
-/// This method processes a welcome invitation by accepting it, which typically involves:
-/// * Joining the MLS group
-/// * Updating the welcome state to "Accepted"
-/// * Synchronizing with the group's message history
-///
-/// # Arguments
-///
-/// * `pubkey` - The public key of the account accepting the welcome
-/// * `welcome_event_id` - The unique event ID of the welcome invitation to accept
-///
-/// # Returns
-///
-/// Returns a `Result` containing:
-/// * `Ok(())` - Success indicator if the welcome was accepted
-/// * `Err(WhitenoiseError)` - An error if the operation fails
-///
-/// # Errors
-///
-/// This function will return an error if:
-/// * The Whitenoise instance cannot be retrieved
-/// * The account associated with the public key is not found
-/// * The welcome with the specified event ID is not found
-/// * The welcome has already been processed (accepted/declined)
-/// * MLS group joining fails
-/// * Network connectivity issues occur
 #[frb]
-pub async fn accept_welcome(
-    pubkey: &PublicKey,
-    welcome_event_id: String,
-) -> Result<(), WhitenoiseError> {
+pub async fn pending_welcomes(pubkey: String) -> Result<Vec<Welcome>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.accept_welcome(pubkey, welcome_event_id).await
+    let pubkey = PublicKey::parse(&pubkey)?;
+    let welcomes = whitenoise.pending_welcomes(&pubkey).await?;
+    Ok(welcomes.into_iter().map(|w| w.into()).collect())
 }
 
-/// Declines a group welcome invitation.
-///
-/// This method processes a welcome invitation by declining it, which:
-/// * Updates the welcome state to "Declined"
-/// * Prevents the user from joining the associated group
-/// * May send a decline notification to the group admin (implementation dependent)
-///
-/// # Arguments
-///
-/// * `pubkey` - The public key of the account declining the welcome
-/// * `welcome_event_id` - The unique event ID of the welcome invitation to decline
-///
-/// # Returns
-///
-/// Returns a `Result` containing:
-/// * `Ok(())` - Success indicator if the welcome was declined
-/// * `Err(WhitenoiseError)` - An error if the operation fails
-///
-/// # Errors
-///
-/// This function will return an error if:
-/// * The Whitenoise instance cannot be retrieved
-/// * The account associated with the public key is not found
-/// * The welcome with the specified event ID is not found
-/// * The welcome has already been processed (accepted/declined)
-/// * Network connectivity issues occur
 #[frb]
-pub async fn decline_welcome(
-    pubkey: &PublicKey,
+pub async fn find_welcome_by_event_id(
+    pubkey: String,
     welcome_event_id: String,
-) -> Result<(), WhitenoiseError> {
+) -> Result<Welcome, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.decline_welcome(pubkey, welcome_event_id).await
+    let pubkey = PublicKey::parse(&pubkey)?;
+    let welcome = whitenoise
+        .find_welcome_by_event_id(&pubkey, welcome_event_id)
+        .await?;
+    Ok(welcome.into())
+}
+
+#[frb]
+pub async fn accept_welcome(pubkey: String, welcome_event_id: String) -> Result<(), ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&pubkey)?;
+    whitenoise
+        .accept_welcome(&pubkey, welcome_event_id)
+        .await
+        .map_err(ApiError::from)
+}
+
+#[frb]
+pub async fn decline_welcome(pubkey: String, welcome_event_id: String) -> Result<(), ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&pubkey)?;
+    whitenoise
+        .decline_welcome(&pubkey, welcome_event_id)
+        .await
+        .map_err(ApiError::from)
 }

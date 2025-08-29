@@ -1,97 +1,108 @@
 // Re-export everything from the whitenoise crate
 use flutter_rust_bridge::frb;
-pub use whitenoise::{
-    Account, AccountSettings, Event, Group, GroupId, GroupState, GroupType, Kind,
-    MessageWithTokens, Metadata, PublicKey, RelayType, RelayUrl, Tag, Whitenoise, WhitenoiseConfig,
-    WhitenoiseError,
-};
+use std::path::Path;
+pub use whitenoise::{AppSettings, RelayType, ThemeMode, Whitenoise};
 
-// Declare the modules
-pub mod accounts;
-pub mod contacts;
-pub mod groups;
-pub mod messages;
-pub mod relays;
-pub mod utils;
-pub mod welcomes;
+// Re-export types that flutter_rust_bridge needs
+pub use nostr_mls::prelude::GroupId;
+pub use nostr_sdk::{Event, PublicKey, RelayUrl, Tag};
 
-// Re-export everything
-pub use accounts::*;
-pub use contacts::*;
-pub use groups::*;
-pub use messages::*;
-pub use relays::*;
-pub use utils::*;
-pub use welcomes::*;
-
-/// Initializes the Whitenoise system with the provided configuration.
+/// Flutter-compatible configuration structure that holds directory paths as strings.
 ///
-/// # CRITICAL: Must be called first
-/// This function MUST be called before any other Whitenoise methods are used.
-/// It sets up the global singleton instance, creates necessary directories,
-/// and initializes the database connections.
+/// This struct is used to pass configuration data from Flutter to Rust, as flutter_rust_bridge
+/// cannot directly handle `Path` types. The paths are converted to proper `Path` objects
+/// internally when creating a `WhitenoiseConfig`.
+#[frb(non_opaque)]
+#[derive(Debug, Clone)]
+pub struct WhitenoiseConfig {
+    /// Path to the directory where application data will be stored
+    pub data_dir: String,
+    /// Path to the directory where log files will be written
+    pub logs_dir: String,
+}
+
+impl From<whitenoise::WhitenoiseConfig> for WhitenoiseConfig {
+    fn from(config: whitenoise::WhitenoiseConfig) -> Self {
+        Self {
+            data_dir: config.data_dir.to_string_lossy().to_string(),
+            logs_dir: config.logs_dir.to_string_lossy().to_string(),
+        }
+    }
+}
+
+/// Creates a `WhitenoiseConfig` object from string directory paths.
+///
+/// This function bridges the gap between Flutter's string-based paths and Rust's
+/// `Path` types, creating a proper configuration object for Whitenoise initialization.
 ///
 /// # Parameters
-/// * `config` - WhitenoiseConfig object containing setup parameters
+/// * `data_dir` - Path string for data directory where app data will be stored
+/// * `logs_dir` - Path string for logs directory where log files will be written
 ///
 /// # Returns
-/// * `Ok(())` - System successfully initialized
-/// * `Err(WhitenoiseError)` - If initialization fails (directory creation, database setup, etc.)
+/// A WhitenoiseConfig object ready for initialization
 ///
 /// # Example
 /// ```rust
 /// let config = create_whitenoise_config(
-///     "/app/data".to_string(),
-///     "/app/logs".to_string()
+///     "/path/to/data".to_string(),
+///     "/path/to/logs".to_string()
 /// );
-/// initialize_whitenoise(config).await?;
-///
-/// // Now other Whitenoise functions can be called
 /// ```
-///
-/// # Errors
-/// Common failure reasons:
-/// - Insufficient permissions to create directories
-/// - Database corruption or locking issues
-/// - Invalid configuration parameters
 #[frb]
-pub async fn initialize_whitenoise(config: WhitenoiseConfig) -> Result<(), WhitenoiseError> {
-    Whitenoise::initialize_whitenoise(config).await
+pub fn create_whitenoise_config(data_dir: String, logs_dir: String) -> WhitenoiseConfig {
+    WhitenoiseConfig { data_dir, logs_dir }
 }
 
-/// Deletes all data from the Whitenoise instance.
-///
-/// # WARNING: This action is irreversible
-/// This function logs out all accounts and removes ALL local data from the application.
-/// Use with extreme caution as this cannot be undone.
-///
-/// # Returns
-/// * `Ok(())` - All data successfully deleted
-/// * `Err(WhitenoiseError)` - If deletion fails or instance not initialized
-///
-/// # Usage
-/// Typically used for:
-/// - Factory reset functionality
-/// - Complete app data cleanup during uninstall
-/// - Development/testing purposes
-/// - Recovery from corrupted state
-///
-/// # Example
-/// ```rust
-/// // Confirm with user before calling this
-/// if user_confirmed_reset {
-///     delete_all_data().await?;
-///     println!("All data has been deleted");
-/// }
-/// ```
-///
-/// # Errors
-/// Common failure reasons:
-/// - Whitenoise not initialized
-/// - File system permission issues
-/// - Database locks or corruption
+// Declare the modules
+pub mod accounts;
+pub mod error;
+pub mod groups;
+pub mod messages;
+pub mod metadata;
+pub mod relays;
+pub mod users;
+pub mod utils;
+pub use utils::{group_id_from_string, group_id_to_string};
+pub mod welcomes;
+
+// Re-export everything
+pub use accounts::*;
+pub use error::*;
+pub use groups::*;
+pub use messages::*;
+pub use metadata::*;
+pub use relays::*;
+pub use users::*;
+pub use utils::*;
+pub use welcomes::*;
+
 #[frb]
-pub async fn delete_all_data() -> Result<(), WhitenoiseError> {
+pub async fn initialize_whitenoise(config: WhitenoiseConfig) -> Result<(), ApiError> {
+    let core_config =
+        whitenoise::WhitenoiseConfig::new(Path::new(&config.data_dir), Path::new(&config.logs_dir));
+    Whitenoise::initialize_whitenoise(core_config)
+        .await
+        .map_err(ApiError::from)
+}
+
+#[frb]
+pub async fn delete_all_data() -> Result<(), ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
-    whitenoise.delete_all_data().await
+    whitenoise.delete_all_data().await.map_err(ApiError::from)
+}
+
+#[frb]
+pub async fn get_app_settings() -> Result<AppSettings, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    whitenoise.app_settings().await.map_err(ApiError::from)
+}
+
+#[frb]
+pub async fn update_theme_mode(theme_mode: ThemeMode) -> Result<(), ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    whitenoise
+        .update_theme_mode(theme_mode)
+        .await
+        .map_err(ApiError::from)
 }

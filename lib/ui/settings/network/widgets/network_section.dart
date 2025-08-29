@@ -31,5 +31,5 @@ class RelayInfo {
   }
 
   @override
-  int get hashCode => url.hashCode ^ connected.hashCode ^ status.hashCode;
+  int get hashCode => Object.hash(url, connected, status);
 }

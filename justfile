@@ -187,12 +187,27 @@ doctor:
 setup: doctor clean-all deps regenerate build-rust-debug
     @echo "🎉 Setup complete! Run 'just run' to start the app."
 
-# Build APK (for Max)
-build-apk:
-    just regenerate
-    scripts/build_android.sh
+# ==============================================================================
+# BUILDING
+# ==============================================================================
+
+# Build unversioned android release
+android-build:
+    @echo "🔨 Building unversioned android release..."
+    @echo "✔︎ Running a precommit check..."
     just precommit
-    flutter build apk --split-per-abi --release
+    @echo "🎁 Building unversioned android release..."
+    ./scripts/build.sh --full --versioned
+    @echo "🎉 Unversioned android release built successfully!"
+
+# Check and build versioned release
+release:
+    @echo "🔨 Building versioned release..."
+    @echo "✔︎ Running a precommit check..."
+    just precommit
+    @echo "🎁 Building versioned release for all platforms..."
+    ./scripts/build.sh --full --versioned
+    @echo "🎉 Versioned release built successfully!"
 
 # ==============================================================================
 # LOGS

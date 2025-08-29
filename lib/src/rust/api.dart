@@ -5,76 +5,79 @@
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+import 'api/error.dart';
 import 'frb_generated.dart';
 
-/// Initializes the Whitenoise system with the provided configuration.
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `from`
+
+/// Creates a `WhitenoiseConfig` object from string directory paths.
 ///
-/// # CRITICAL: Must be called first
-/// This function MUST be called before any other Whitenoise methods are used.
-/// It sets up the global singleton instance, creates necessary directories,
-/// and initializes the database connections.
+/// This function bridges the gap between Flutter's string-based paths and Rust's
+/// `Path` types, creating a proper configuration object for Whitenoise initialization.
 ///
 /// # Parameters
-/// * `config` - WhitenoiseConfig object containing setup parameters
+/// * `data_dir` - Path string for data directory where app data will be stored
+/// * `logs_dir` - Path string for logs directory where log files will be written
 ///
 /// # Returns
-/// * `Ok(())` - System successfully initialized
-/// * `Err(WhitenoiseError)` - If initialization fails (directory creation, database setup, etc.)
+/// A WhitenoiseConfig object ready for initialization
 ///
 /// # Example
 /// ```rust
 /// let config = create_whitenoise_config(
-///     "/app/data".to_string(),
-///     "/app/logs".to_string()
+///     "/path/to/data".to_string(),
+///     "/path/to/logs".to_string()
 /// );
-/// initialize_whitenoise(config).await?;
-///
-/// // Now other Whitenoise functions can be called
 /// ```
-///
-/// # Errors
-/// Common failure reasons:
-/// - Insufficient permissions to create directories
-/// - Database corruption or locking issues
-/// - Invalid configuration parameters
+Future<WhitenoiseConfig> createWhitenoiseConfig({
+  required String dataDir,
+  required String logsDir,
+}) => RustLib.instance.api.crateApiCreateWhitenoiseConfig(
+  dataDir: dataDir,
+  logsDir: logsDir,
+);
+
 Future<void> initializeWhitenoise({required WhitenoiseConfig config}) =>
     RustLib.instance.api.crateApiInitializeWhitenoise(config: config);
 
-/// Deletes all data from the Whitenoise instance.
-///
-/// # WARNING: This action is irreversible
-/// This function logs out all accounts and removes ALL local data from the application.
-/// Use with extreme caution as this cannot be undone.
-///
-/// # Returns
-/// * `Ok(())` - All data successfully deleted
-/// * `Err(WhitenoiseError)` - If deletion fails or instance not initialized
-///
-/// # Usage
-/// Typically used for:
-/// - Factory reset functionality
-/// - Complete app data cleanup during uninstall
-/// - Development/testing purposes
-/// - Recovery from corrupted state
-///
-/// # Example
-/// ```rust
-/// // Confirm with user before calling this
-/// if user_confirmed_reset {
-///     delete_all_data().await?;
-///     println!("All data has been deleted");
-/// }
-/// ```
-///
-/// # Errors
-/// Common failure reasons:
-/// - Whitenoise not initialized
-/// - File system permission issues
-/// - Database locks or corruption
 Future<void> deleteAllData() => RustLib.instance.api.crateApiDeleteAllData();
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<WhitenoiseConfig>>
-abstract class WhitenoiseConfig implements RustOpaqueInterface {}
+Future<AppSettings> getAppSettings() => RustLib.instance.api.crateApiGetAppSettings();
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<WhitenoiseError>>
-abstract class WhitenoiseError implements RustOpaqueInterface {}
+Future<void> updateThemeMode({required ThemeMode themeMode}) =>
+    RustLib.instance.api.crateApiUpdateThemeMode(themeMode: themeMode);
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<AppSettings>>
+abstract class AppSettings implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ThemeMode>>
+abstract class ThemeMode implements RustOpaqueInterface {}
+
+/// Flutter-compatible configuration structure that holds directory paths as strings.
+///
+/// This struct is used to pass configuration data from Flutter to Rust, as flutter_rust_bridge
+/// cannot directly handle `Path` types. The paths are converted to proper `Path` objects
+/// internally when creating a `WhitenoiseConfig`.
+class WhitenoiseConfig {
+  /// Path to the directory where application data will be stored
+  final String dataDir;
+
+  /// Path to the directory where log files will be written
+  final String logsDir;
+
+  const WhitenoiseConfig({
+    required this.dataDir,
+    required this.logsDir,
+  });
+
+  @override
+  int get hashCode => dataDir.hashCode ^ logsDir.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WhitenoiseConfig &&
+          runtimeType == other.runtimeType &&
+          dataDir == other.dataDir &&
+          logsDir == other.logsDir;
+}

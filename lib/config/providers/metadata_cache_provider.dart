@@ -5,7 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
+import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
@@ -109,19 +110,13 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
       if (publicKey.startsWith('npub1')) {
         fetchKey = await _safeNpubToHex(publicKey);
       }
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) {
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
+      if (activeAccount == null) {
         throw 'No active account found';
       }
 
-      // Create PublicKey object and fetch metadata
-      final contactPk = await publicKeyFromString(publicKeyString: fetchKey);
-
-      final metadata = await fetchMetadataFrom(
-        pubkey: contactPk,
-        nip65Relays: activeAccountData.nip65Relays,
-      );
+      final metadata = await wn_users_api.userMetadata(pubkey: fetchKey);
 
       // Get standardized npub for consistent identification
       final standardNpub = await _getStandardizedNpub(publicKey);
@@ -218,7 +213,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
 
   /// Bulk populate cache from queryContacts results
   Future<void> bulkPopulateFromQueryResults(
-    Map<PublicKey, MetadataData?> queryResults,
+    Map<PublicKey, FlutterMetadata?> queryResults,
   ) async {
     _logger.info('Bulk populating cache from ${queryResults.length} query results');
 

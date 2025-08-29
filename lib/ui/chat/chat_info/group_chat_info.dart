@@ -20,18 +20,18 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadGroupData();
+      _loadGroup();
       _loadMembers();
       _loadCurrentUserNpub();
     });
   }
 
-  Future<void> _loadGroupData() async {
+  Future<void> _loadGroup() async {
     final groupDetails = ref.read(groupsProvider).groupsMap?[widget.groupId];
     if (groupDetails?.nostrGroupId != null) {
       try {
-        final npub = await npubFromPublicKey(
-          publicKey: await publicKeyFromString(publicKeyString: groupDetails!.nostrGroupId),
+        final npub = await npubFromHexPubkey(
+          hexPubkey: groupDetails!.nostrGroupId,
         );
         if (mounted) {
           setState(() {
@@ -102,9 +102,9 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
   }
 
   Future<void> _loadCurrentUserNpub() async {
-    final activeAccountData = ref.read(activeAccountProvider);
-    if (activeAccountData != null) {
-      final currentUserNpub = await npubFromHexPubkey(hexPubkey: activeAccountData);
+    final activeAccount = ref.read(activePubkeyProvider);
+    if (activeAccount != null) {
+      final currentUserNpub = await npubFromHexPubkey(hexPubkey: activeAccount);
       if (mounted) {
         setState(() {
           this.currentUserNpub = currentUserNpub;

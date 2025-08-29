@@ -1,16 +1,18 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 
-class MockActiveAccountNotifier extends ActiveAccountNotifier {
+class MockActivePubkeyNotifier extends ActivePubkeyNotifier {
   final String? _mockValue;
 
-  MockActiveAccountNotifier(this._mockValue);
+  MockActivePubkeyNotifier(this._mockValue);
 
   @override
-  String? build() => _mockValue;
+  String? build() {
+    return _mockValue;
+  }
 }
 
 class _MockFailingSharedPreferences implements SharedPreferences {
@@ -36,7 +38,7 @@ void main() {
     ProviderContainer createContainer({String? mockedPubkey}) {
       return ProviderContainer(
         overrides: [
-          activeAccountProvider.overrideWith(() => MockActiveAccountNotifier(mockedPubkey)),
+          activePubkeyProvider.overrideWith(() => MockActivePubkeyNotifier(mockedPubkey)),
         ],
       );
     }
@@ -138,8 +140,8 @@ void main() {
                   profileReadyCardVisibilityProvider.overrideWith(
                     () => ProfileReadyCardVisibilityNotifier(sharedPreferences: mockFailingPrefs),
                   ),
-                  activeAccountProvider.overrideWith(
-                    () => MockActiveAccountNotifier('test_pubkey_123'),
+                  activePubkeyProvider.overrideWith(
+                    () => MockActivePubkeyNotifier('test_pubkey_123'),
                   ),
                 ],
               );
@@ -249,8 +251,8 @@ void main() {
                   profileReadyCardVisibilityProvider.overrideWith(
                     () => ProfileReadyCardVisibilityNotifier(sharedPreferences: mockFailingPrefs),
                   ),
-                  activeAccountProvider.overrideWith(
-                    () => MockActiveAccountNotifier('test_pubkey_123'),
+                  activePubkeyProvider.overrideWith(
+                    () => MockActivePubkeyNotifier('test_pubkey_123'),
                   ),
                 ],
               );

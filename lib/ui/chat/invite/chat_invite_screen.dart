@@ -36,8 +36,8 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
   @override
   Widget build(BuildContext context) {
     final welcomesNotifier = ref.watch(welcomesProvider.notifier);
-    final welcomeData = welcomesNotifier.getWelcomeById(widget.inviteId);
-    if (welcomeData == null) {
+    final welcome = welcomesNotifier.getWelcomeById(widget.inviteId);
+    if (welcome == null) {
       return Scaffold(
         backgroundColor: context.colors.neutral,
         body: const Center(
@@ -46,23 +46,23 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
       );
     }
 
-    final isDMInvite = welcomeData.memberCount <= 2;
+    final isDMInvite = welcome.memberCount <= 2;
 
     return Scaffold(
       backgroundColor: context.colors.neutral,
       appBar: WnAppBar(
         title:
             isDMInvite
-                ? DMAppBarTitle(welcomeData: welcomeData)
+                ? DMAppBarTitle(welcome: welcome)
                 : ContactInfo(
-                  title: welcomeData.groupName,
+                  title: welcome.groupName,
                   image: '',
                 ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          InviteHeader(welcomeData: welcomeData),
+          InviteHeader(welcome: welcome),
           const Spacer(),
           Container(
             padding: EdgeInsets.all(24.w),
@@ -127,31 +127,31 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
 }
 
 class InviteHeader extends ConsumerWidget {
-  final WelcomeData welcomeData;
+  final Welcome welcome;
 
   const InviteHeader({
     super.key,
-    required this.welcomeData,
+    required this.welcome,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDMInvite = welcomeData.memberCount <= 2;
+    final isDMInvite = welcome.memberCount <= 2;
 
     if (isDMInvite) {
-      return DMInviteHeader(welcomeData: welcomeData);
+      return DMInviteHeader(welcome: welcome);
     } else {
-      return GroupInviteHeader(welcomeData: welcomeData);
+      return GroupInviteHeader(welcome: welcome);
     }
   }
 }
 
 class GroupInviteHeader extends StatelessWidget {
-  final WelcomeData welcomeData;
+  final Welcome welcome;
 
   const GroupInviteHeader({
     super.key,
-    required this.welcomeData,
+    required this.welcome,
   });
 
   @override
@@ -163,13 +163,13 @@ class GroupInviteHeader extends StatelessWidget {
           Gap(32.h),
           WnAvatar(
             imageUrl: '',
-            displayName: welcomeData.groupName,
+            displayName: welcome.groupName,
             size: 96.r,
             showBorder: true,
           ),
           Gap(12.h),
           Text(
-            welcomeData.groupName,
+            welcome.groupName,
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
@@ -178,7 +178,7 @@ class GroupInviteHeader extends StatelessWidget {
           ),
           Gap(16.h),
           FutureBuilder(
-            future: npubFromHexPubkey(hexPubkey: welcomeData.nostrGroupId),
+            future: npubFromHexPubkey(hexPubkey: welcome.nostrGroupId),
             builder: (context, asyncSnapshot) {
               final groupNpub = asyncSnapshot.data ?? '';
               return Text(
@@ -192,7 +192,7 @@ class GroupInviteHeader extends StatelessWidget {
             },
           ),
           Gap(12.h),
-          if (welcomeData.groupDescription.isNotEmpty) ...[
+          if (welcome.groupDescription.isNotEmpty) ...[
             Text(
               'Group Description:',
               style: TextStyle(
@@ -203,7 +203,7 @@ class GroupInviteHeader extends StatelessWidget {
             ),
             Gap(4.h),
             Text(
-              welcomeData.groupDescription,
+              welcome.groupDescription,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14.sp,
@@ -221,7 +221,7 @@ class GroupInviteHeader extends StatelessWidget {
               ),
               children: [
                 TextSpan(
-                  text: '${welcomeData.memberCount} members',
+                  text: '${welcome.memberCount} members',
                   style: TextStyle(
                     color: context.colors.primary,
                     fontWeight: FontWeight.w600,
@@ -238,11 +238,11 @@ class GroupInviteHeader extends StatelessWidget {
 }
 
 class DMInviteHeader extends ConsumerWidget {
-  final WelcomeData welcomeData;
+  final Welcome welcome;
 
   const DMInviteHeader({
     super.key,
-    required this.welcomeData,
+    required this.welcome,
   });
 
   @override
@@ -250,7 +250,7 @@ class DMInviteHeader extends ConsumerWidget {
     final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
 
     return FutureBuilder(
-      future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
+      future: metadataCacheNotifier.getContactModel(welcome.welcomer),
       builder: (context, snapshot) {
         final welcomerContact = snapshot.data;
         final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
@@ -286,7 +286,7 @@ class DMInviteHeader extends ConsumerWidget {
               ),
               Gap(12.h),
               FutureBuilder(
-                future: npubFromHexPubkey(hexPubkey: welcomeData.welcomer),
+                future: npubFromHexPubkey(hexPubkey: welcome.welcomer),
                 builder: (context, asyncSnapshot) {
                   final welcomerNpub = asyncSnapshot.data ?? '';
                   return Text(
@@ -329,11 +329,11 @@ class DMInviteHeader extends ConsumerWidget {
 }
 
 class DMAppBarTitle extends ConsumerWidget {
-  final WelcomeData welcomeData;
+  final Welcome welcome;
 
   const DMAppBarTitle({
     super.key,
-    required this.welcomeData,
+    required this.welcome,
   });
 
   @override
@@ -341,7 +341,7 @@ class DMAppBarTitle extends ConsumerWidget {
     final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
 
     return FutureBuilder(
-      future: metadataCacheNotifier.getContactModel(welcomeData.welcomer),
+      future: metadataCacheNotifier.getContactModel(welcome.welcomer),
       builder: (context, snapshot) {
         final isLoading = snapshot.connectionState == ConnectionState.waiting;
 
