@@ -39,10 +39,6 @@ class User {
 
   @override
   int get hashCode {
-    return id.hashCode ^
-        displayName.hashCode ^
-        nip05.hashCode ^
-        publicKey.hashCode ^
-        imagePath.hashCode;
+    return Object.hash(id, displayName, nip05, publicKey, imagePath);
   }
 }

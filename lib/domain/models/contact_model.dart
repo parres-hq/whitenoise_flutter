@@ -104,12 +104,6 @@ class ContactModel {
 
   @override
   int get hashCode {
-    return publicKey.hashCode ^
-        imagePath.hashCode ^
-        displayName.hashCode ^
-        about.hashCode ^
-        website.hashCode ^
-        nip05.hashCode ^
-        lud16.hashCode;
+    return Object.hash(publicKey, imagePath, displayName, about, website, nip05, lud16);
   }
 }
