@@ -4,10 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/domain/services/key_package_service.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
-import 'package:whitenoise/src/rust/api/relays.dart' as relays;
-import 'package:whitenoise/src/rust/lib.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart';
+import 'package:whitenoise/src/rust/api/users.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 
 import '../../test_helpers.dart';
@@ -25,86 +24,39 @@ class MockFollowsNotifier extends FollowsNotifier {
   }
 }
 
-class MockAccountSettings implements AccountSettings {
-  @override
-  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
-}
 
 class MockActiveAccountNotifier extends ActiveAccountNotifier {
   @override
-  String? build() {
-    return 'test-pubkey';
-  }
-
-  @override
-  Future<Account?> getActiveAccount() async {
-    return Account(
+  Future<ActiveAccountState> build() async {
+    final account = Account(
       pubkey: 'test-pubkey',
-      settings: MockAccountSettings(),
-      nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
-      inboxRelays: [MockRelayUrl(url: 'wss://inbox-relay.com')],
-      keyPackageRelays: [MockRelayUrl(url: 'wss://keypackage-relay.com')],
-      lastSynced: BigInt.from(DateTime.now().millisecondsSinceEpoch),
+      createdAt: DateTime.now(),
+      updatedAt: DateTime.now(),
     );
+    return ActiveAccountState(account: account);
   }
 }
 
-class MockEvent implements relays.Event {
-  final String eventId;
-
-  MockEvent({required this.eventId});
-
+// Mock WnUsersApi that returns true (user has key package)
+class MockWnUsersApiWithPackage implements WnUsersApi {
   @override
-  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
-}
-
-class MockRelayUrl implements RelayUrl {
-  final String url;
-
-  MockRelayUrl({required this.url});
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
-}
-
-// Mock KeyPackageService that returns a key package (user is on White Noise)
-class MockKeyPackageServiceWithPackage extends KeyPackageService {
-  MockKeyPackageServiceWithPackage()
-    : super(
-        publicKey: 'test',
-        nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
-      );
-
-  @override
-  Future<relays.Event?> fetchWithRetry() async {
-    return MockEvent(eventId: 'test-key-package');
+  Future<bool> userHasKeyPackage({required String pubkey}) async {
+    return true;
   }
 }
 
-// Mock KeyPackageService that returns null (user needs invite)
-class MockKeyPackageServiceWithoutPackage extends KeyPackageService {
-  MockKeyPackageServiceWithoutPackage()
-    : super(
-        publicKey: 'test',
-        nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
-      );
-
+// Mock WnUsersApi that returns false (user needs invite)
+class MockWnUsersApiWithoutPackage implements WnUsersApi {
   @override
-  Future<relays.Event?> fetchWithRetry() async {
-    return null;
+  Future<bool> userHasKeyPackage({required String pubkey}) async {
+    return false;
   }
 }
 
-// Mock KeyPackageService that throws an error
-class MockKeyPackageServiceWithError extends KeyPackageService {
-  MockKeyPackageServiceWithError()
-    : super(
-        publicKey: 'test',
-        nip65Relays: [MockRelayUrl(url: 'wss://test-relay.com')],
-      );
-
+// Mock WnUsersApi that throws an error
+class MockWnUsersApiWithError implements WnUsersApi {
   @override
-  Future<relays.Event?> fetchWithRetry() async {
+  Future<bool> userHasKeyPackage({required String pubkey}) async {
     throw Exception('Network error');
   }
 }
@@ -193,7 +145,7 @@ void main() {
             SingleChildScrollView(
               child: StartChatBottomSheet(
                 contact: contact,
-                keyPackageService: MockKeyPackageServiceWithoutPackage(),
+                usersApi: MockWnUsersApiWithoutPackage(),
               ),
             ),
             overrides: commonOverrides,
@@ -236,7 +188,7 @@ void main() {
             SingleChildScrollView(
               child: StartChatBottomSheet(
                 contact: contact,
-                keyPackageService: MockKeyPackageServiceWithPackage(),
+                usersApi: MockWnUsersApiWithPackage(),
               ),
             ),
             overrides: commonOverrides,
@@ -276,11 +228,11 @@ void main() {
             createTestWidget(
               StartChatBottomSheet(
                 contact: contact,
-                keyPackageService: MockKeyPackageServiceWithPackage(),
+                usersApi: MockWnUsersApiWithPackage(),
               ),
               overrides: [
                 ...commonOverrides,
-                followsProvider.overrideWith(() => MockFollowsNotifier([contact])),
+                followsProvider.overrideWith(() => MockFollowsNotifier([])),
               ],
             ),
           );
@@ -288,12 +240,46 @@ void main() {
         }
 
         testWidgets('displays remove contact option', (WidgetTester tester) async {
-          await setup(tester);
+          await tester.pumpWidget(
+            createTestWidget(
+              StartChatBottomSheet(
+                contact: contact,
+                usersApi: MockWnUsersApiWithPackage(),
+              ),
+              overrides: [
+                ...commonOverrides,
+                followsProvider.overrideWith(() => MockFollowsNotifier([User(
+                  pubkey: contact.publicKey,
+                  metadata: const FlutterMetadata(custom: {}),
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                )])),
+              ],
+            ),
+          );
+          await tester.pumpAndSettle();
           expect(find.text('Remove Contact'), findsOneWidget);
         });
 
         testWidgets('hides add contact option', (WidgetTester tester) async {
-          await setup(tester);
+          await tester.pumpWidget(
+            createTestWidget(
+              StartChatBottomSheet(
+                contact: contact,
+                usersApi: MockWnUsersApiWithPackage(),
+              ),
+              overrides: [
+                ...commonOverrides,
+                followsProvider.overrideWith(() => MockFollowsNotifier([User(
+                  pubkey: contact.publicKey,
+                  metadata: const FlutterMetadata(custom: {}),
+                  createdAt: DateTime.now(),
+                  updatedAt: DateTime.now(),
+                )])),
+              ],
+            ),
+          );
+          await tester.pumpAndSettle();
           expect(find.text('Add Contact'), findsNothing);
         });
 
@@ -310,7 +296,7 @@ void main() {
           createTestWidget(
             StartChatBottomSheet(
               contact: contact,
-              keyPackageService: MockKeyPackageServiceWithError(),
+              usersApi: MockWnUsersApiWithError(),
             ),
             overrides: commonOverrides,
           ),
