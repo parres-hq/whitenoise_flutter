@@ -10,7 +10,7 @@ import '../frb_generated.dart';
 
 part 'error.freezed.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 @freezed
 sealed class ApiError with _$ApiError implements FrbException {
@@ -43,14 +43,12 @@ sealed class ApiError with _$ApiError implements FrbException {
   }) = ApiError_Other;
 
   /// Get a user-friendly error type name
-  Future<String> errorType() =>
-      RustLib.instance.api.crateApiErrorApiErrorErrorType(
-        that: this,
-      );
+  Future<String> errorType() => RustLib.instance.api.crateApiErrorApiErrorErrorType(
+    that: this,
+  );
 
   /// Get the error message as a string
-  Future<String> messageText() =>
-      RustLib.instance.api.crateApiErrorApiErrorMessageText(
-        that: this,
-      );
+  Future<String> messageText() => RustLib.instance.api.crateApiErrorApiErrorMessageText(
+    that: this,
+  );
 }

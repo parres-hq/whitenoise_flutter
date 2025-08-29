@@ -81,14 +81,6 @@ impl From<nostr_sdk::types::ParseError> for ApiError {
     }
 }
 
-impl From<nostr_sdk::util::hex::Error> for ApiError {
-    fn from(error: nostr_sdk::util::hex::Error) -> Self {
-        Self::NostrHex {
-            message: error.to_string(),
-        }
-    }
-}
-
 impl From<hex::FromHexError> for ApiError {
     fn from(error: hex::FromHexError) -> Self {
         Self::NostrHex {

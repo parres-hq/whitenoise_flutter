@@ -13,10 +13,10 @@ import 'error.dart';
 Future<List<Welcome>> pendingWelcomes({required String pubkey}) =>
     RustLib.instance.api.crateApiWelcomesPendingWelcomes(pubkey: pubkey);
 
-Future<Welcome> findWeclcomeByEventId({
+Future<Welcome> findWelcomeByEventId({
   required String pubkey,
   required String welcomeEventId,
-}) => RustLib.instance.api.crateApiWelcomesFindWeclcomeByEventId(
+}) => RustLib.instance.api.crateApiWelcomesFindWelcomeByEventId(
   pubkey: pubkey,
   welcomeEventId: welcomeEventId,
 );

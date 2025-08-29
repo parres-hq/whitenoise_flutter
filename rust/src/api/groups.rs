@@ -183,6 +183,7 @@ pub async fn create_group(
         description: group_description,
         image_key: None,
         image_url: None,
+        image_nonce: None,
         relays: nostr_relays.into_iter().map(|r| r.url).collect(),
         admins: admin_pubkeys,
     };

@@ -120,7 +120,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return null;
       }
 
-      final welcome = await findWeclcomeByEventId(
+      final welcome = await findWelcomeByEventId(
         pubkey: activeAccount.pubkey,
         welcomeEventId: welcomeEventId,
       );

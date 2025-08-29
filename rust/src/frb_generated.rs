@@ -41,7 +41,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1798890596;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 150220859;
 
 // Section: executor
 
@@ -733,7 +733,7 @@ fn wire__crate__api__relays__fetch_relay_status_impl(
         },
     )
 }
-fn wire__crate__api__welcomes__find_weclcome_by_event_id_impl(
+fn wire__crate__api__welcomes__find_welcome_by_event_id_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -741,7 +741,7 @@ fn wire__crate__api__welcomes__find_weclcome_by_event_id_impl(
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "find_weclcome_by_event_id",
+            debug_name: "find_welcome_by_event_id",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
@@ -761,7 +761,7 @@ fn wire__crate__api__welcomes__find_weclcome_by_event_id_impl(
             move |context| async move {
                 transform_result_sse::<_, crate::api::error::ApiError>(
                     (move || async move {
-                        let output_ok = crate::api::welcomes::find_weclcome_by_event_id(
+                        let output_ok = crate::api::welcomes::find_welcome_by_event_id(
                             api_pubkey,
                             api_welcome_event_id,
                         )
@@ -3220,7 +3220,7 @@ fn pde_ffi_dispatcher_primary_impl(
             data_len,
         ),
         18 => wire__crate__api__relays__fetch_relay_status_impl(port, ptr, rust_vec_len, data_len),
-        19 => wire__crate__api__welcomes__find_weclcome_by_event_id_impl(
+        19 => wire__crate__api__welcomes__find_welcome_by_event_id_impl(
             port,
             ptr,
             rust_vec_len,
