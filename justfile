@@ -208,7 +208,7 @@ android-build:
     @echo "✔︎ Running a precommit check..."
     just precommit
     @echo "🎁 Building unversioned android release..."
-    ./scripts/build.sh --full --versioned
+    ./scripts/build.sh --full --android
     @echo "🎉 Unversioned android release built successfully!"
 
 # Check and build versioned release

@@ -40,7 +40,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: npub,
-      successMessage: 'Public key copied to clipboard',
+      successMessage: 'Public key copied',
     );
   }
 
@@ -50,7 +50,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
       await ClipboardUtils.copySensitiveWithToast(
         ref: ref,
         textToCopy: nsec,
-        successMessage: 'Private key copied to clipboard',
+        successMessage: 'Private key copied',
       );
     }
   }

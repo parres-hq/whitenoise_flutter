@@ -49,7 +49,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: text,
-      successMessage: 'Public Key copied.',
+      successMessage: 'Public key copied',
     );
   }
 
