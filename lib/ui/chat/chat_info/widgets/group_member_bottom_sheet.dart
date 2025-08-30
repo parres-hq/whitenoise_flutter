@@ -50,7 +50,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: npub,
-      successMessage: 'Public Key copied.',
+      successMessage: 'Public key copied',
       noTextMessage: 'No public key to copy',
     );
   }

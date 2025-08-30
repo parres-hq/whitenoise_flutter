@@ -225,14 +225,13 @@ BUILD_NUMBER=$(echo "$FULL_VERSION" | cut -d'+' -f2)
 print_info "Version: $VERSION_NAME"
 print_info "Build Number: $BUILD_NUMBER"
 
-# Set up output directory
+# Set up output directory path (but don't create it yet - wait until after cleaning)
 if [ "$VERSIONED_OUTPUT" = true ]; then
     if [ -n "$CUSTOM_OUTPUT_DIR" ]; then
         OUTPUT_DIR="$CUSTOM_OUTPUT_DIR"
     else
         OUTPUT_DIR="build/releases/v$VERSION_NAME"
     fi
-    mkdir -p "$OUTPUT_DIR"
     print_info "Output Directory: $OUTPUT_DIR"
 fi
 
@@ -271,6 +270,12 @@ elif [ "$FULL_BUILD" = true ]; then
 else
     print_step "🧹 Standard clean"
     flutter clean
+fi
+
+# Create output directory now (after cleaning)
+if [ "$VERSIONED_OUTPUT" = true ]; then
+    mkdir -p "$OUTPUT_DIR"
+    print_success "Created output directory: $OUTPUT_DIR"
 fi
 
 # Get dependencies
@@ -337,9 +342,9 @@ if [ "$BUILD_ANDROID" = true ]; then
         flutter build apk --split-per-abi --release
 
         # Handle output files
-        ARM64_APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
-        ARMV7_APK_PATH="build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk"
-        X86_64_APK_PATH="build/app/outputs/flutter-apk/app-x86_64-release.apk"
+        ARM64_APK_PATH="build/app/outputs/flutter-apk/whitenoise-arm64-v8a-release.apk"
+        ARMV7_APK_PATH="build/app/outputs/flutter-apk/whitenoise-armeabi-v7a-release.apk"
+        X86_64_APK_PATH="build/app/outputs/flutter-apk/whitenoise-x86_64-release.apk"
 
         # Generate SHA-256 hashes
         print_step "🔐 Generating SHA-256 hashes"
@@ -433,8 +438,8 @@ if [ "$BUILD_ANDROID" = true ]; then
     else
         flutter build apk --split-per-abi --debug --verbose
 
-        ARM64_DEBUG_APK="build/app/outputs/flutter-apk/app-arm64-v8a-debug.apk"
-        ARMV7_DEBUG_APK="build/app/outputs/flutter-apk/app-armeabi-v7a-debug.apk"
+        ARM64_DEBUG_APK="build/app/outputs/flutter-apk/whitenoise-arm64-v8a-debug.apk"
+        ARMV7_DEBUG_APK="build/app/outputs/flutter-apk/whitenoise-armeabi-v7a-debug.apk"
 
         # Generate SHA-256 hashes for debug builds
         print_step "🔐 Generating SHA-256 hashes for debug builds"
