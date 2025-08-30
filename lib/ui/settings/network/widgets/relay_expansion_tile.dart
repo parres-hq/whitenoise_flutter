@@ -118,18 +118,19 @@ class _RelayExpansionTileState extends ConsumerState<RelayExpansionTile> {
           const Center(child: Text('Error Loading Relays'))
         else
           Column(
-            children: widget.relayState.relays
-                .map(
-                  (relay) => Padding(
-                    padding: EdgeInsets.only(bottom: 12.h),
-                    child: RelayTile(
-                      relayInfo: relay,
-                      showOptions: true,
-                      onDelete: () => _deleteRelay(relay.url),
-                    ),
-                  ),
-                )
-                .toList(),
+            children:
+                widget.relayState.relays
+                    .map(
+                      (relay) => Padding(
+                        padding: EdgeInsets.only(bottom: 12.h),
+                        child: RelayTile(
+                          relayInfo: relay,
+                          showOptions: true,
+                          onDelete: () => _deleteRelay(relay.url),
+                        ),
+                      ),
+                    )
+                    .toList(),
           ),
       ],
     );
