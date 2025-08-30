@@ -342,9 +342,9 @@ if [ "$BUILD_ANDROID" = true ]; then
         flutter build apk --split-per-abi --release
 
         # Handle output files
-        ARM64_APK_PATH="build/app/outputs/flutter-apk/app-arm64-v8a-release.apk"
-        ARMV7_APK_PATH="build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk"
-        X86_64_APK_PATH="build/app/outputs/flutter-apk/app-x86_64-release.apk"
+        ARM64_APK_PATH="build/app/outputs/flutter-apk/whitenoise-arm64-v8a-release.apk"
+        ARMV7_APK_PATH="build/app/outputs/flutter-apk/whitenoise-armeabi-v7a-release.apk"
+        X86_64_APK_PATH="build/app/outputs/flutter-apk/whitenoise-x86_64-release.apk"
 
         # Generate SHA-256 hashes
         print_step "🔐 Generating SHA-256 hashes"
@@ -438,8 +438,8 @@ if [ "$BUILD_ANDROID" = true ]; then
     else
         flutter build apk --split-per-abi --debug --verbose
 
-        ARM64_DEBUG_APK="build/app/outputs/flutter-apk/app-arm64-v8a-debug.apk"
-        ARMV7_DEBUG_APK="build/app/outputs/flutter-apk/app-armeabi-v7a-debug.apk"
+        ARM64_DEBUG_APK="build/app/outputs/flutter-apk/whitenoise-arm64-v8a-debug.apk"
+        ARMV7_DEBUG_APK="build/app/outputs/flutter-apk/whitenoise-armeabi-v7a-debug.apk"
 
         # Generate SHA-256 hashes for debug builds
         print_step "🔐 Generating SHA-256 hashes for debug builds"
