@@ -225,14 +225,13 @@ BUILD_NUMBER=$(echo "$FULL_VERSION" | cut -d'+' -f2)
 print_info "Version: $VERSION_NAME"
 print_info "Build Number: $BUILD_NUMBER"
 
-# Set up output directory
+# Set up output directory path (but don't create it yet - wait until after cleaning)
 if [ "$VERSIONED_OUTPUT" = true ]; then
     if [ -n "$CUSTOM_OUTPUT_DIR" ]; then
         OUTPUT_DIR="$CUSTOM_OUTPUT_DIR"
     else
         OUTPUT_DIR="build/releases/v$VERSION_NAME"
     fi
-    mkdir -p "$OUTPUT_DIR"
     print_info "Output Directory: $OUTPUT_DIR"
 fi
 
@@ -271,6 +270,12 @@ elif [ "$FULL_BUILD" = true ]; then
 else
     print_step "🧹 Standard clean"
     flutter clean
+fi
+
+# Create output directory now (after cleaning)
+if [ "$VERSIONED_OUTPUT" = true ]; then
+    mkdir -p "$OUTPUT_DIR"
+    print_success "Created output directory: $OUTPUT_DIR"
 fi
 
 # Get dependencies

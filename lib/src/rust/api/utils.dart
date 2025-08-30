@@ -18,8 +18,10 @@ Future<String> npubFromHexPubkey({required String hexPubkey}) =>
 Future<String> hexPubkeyFromNpub({required String npub}) =>
     RustLib.instance.api.crateApiUtilsHexPubkeyFromNpub(npub: npub);
 
-Future<String> hexPubkeyFromPublicKey({required PublicKey publicKey}) =>
-    RustLib.instance.api.crateApiUtilsHexPubkeyFromPublicKey(publicKey: publicKey);
+Future<String> hexPubkeyFromPublicKey({required PublicKey publicKey}) => RustLib
+    .instance
+    .api
+    .crateApiUtilsHexPubkeyFromPublicKey(publicKey: publicKey);
 
 Future<RelayUrl> relayUrlFromString({required String url}) =>
     RustLib.instance.api.crateApiUtilsRelayUrlFromString(url: url);
