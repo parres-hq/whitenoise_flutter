@@ -15,11 +15,11 @@ import 'package:whitenoise/utils/clipboard_utils.dart';
 class DonateScreen extends ConsumerWidget {
   const DonateScreen({super.key});
 
-  void _copyToClipboard(WidgetRef ref, String text) {
+  void _copyToClipboard(WidgetRef ref, String type, String text) {
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: text,
-      successMessage: 'Copied address to clipboard',
+      successMessage: 'Copied $type address',
     );
   }
 
@@ -105,7 +105,7 @@ class DonateScreen extends ConsumerWidget {
                               ),
                               Gap(4.w),
                               WnIconButton(
-                                onTap: () => _copyToClipboard(ref, kLightningAddress),
+                                onTap: () => _copyToClipboard(ref, 'lightning', kLightningAddress),
                                 iconPath: AssetsPaths.icCopy,
                                 size: 56.h,
                                 padding: 20.w,
@@ -137,6 +137,7 @@ class DonateScreen extends ConsumerWidget {
                                 onTap:
                                     () => _copyToClipboard(
                                       ref,
+                                      'bitcoin',
                                       kBitcoinAddress,
                                     ),
                                 iconPath: AssetsPaths.icCopy,

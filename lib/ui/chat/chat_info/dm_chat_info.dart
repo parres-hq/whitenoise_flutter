@@ -113,7 +113,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: npub,
-      successMessage: 'Public Key copied.',
+      successMessage: 'Public key copied',
       noTextMessage: 'No public key to copy',
     );
   }
