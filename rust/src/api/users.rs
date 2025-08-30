@@ -30,7 +30,7 @@ pub async fn get_user(pubkey: String) -> Result<User, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::parse(&pubkey)?;
     let user = whitenoise
-        .find_user_by_pubkey(&pubkey)
+        .find_or_create_user_by_pubkey(&pubkey)
         .await
         .map_err(ApiError::from)?;
     Ok(user.into())
