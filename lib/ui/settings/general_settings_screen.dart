@@ -10,10 +10,11 @@ import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts, accountMetadata;
+import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts;
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -66,12 +67,10 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     try {
       final accounts = await getAccounts();
       final contactModels = <String, ContactModel>{};
+      final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
       for (final account in accounts) {
-        final metadata = await accountMetadata(pubkey: account.pubkey);
-        contactModels[account.pubkey] = ContactModel.fromMetadata(
-          publicKey: account.pubkey,
-          metadata: metadata,
-        );
+        final userProfileData = await userProfileDataNotifier.getUserProfileData(account.pubkey);
+        contactModels[account.pubkey] = userProfileData;
       }
 
       final activeAccountState = await ref.read(activeAccountProvider.future);

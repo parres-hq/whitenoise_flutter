@@ -8,11 +8,10 @@ import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -125,12 +124,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     });
 
     try {
-      final user = await wn_users_api.getUser(pubkey: publicKey.trim());
-      final contactModel = ContactModel.fromUser(user: user);
+      final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+      final userProfileData = await userProfileDataNotifier.getUserProfileData(publicKey.trim());
 
       if (mounted) {
         setState(() {
-          _tempContact = contactModel;
+          _tempContact = userProfileData;
           _isLoadingMetadata = false;
         });
       }
@@ -276,12 +275,13 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             Navigator.pop(context);
 
             try {
-              // Use metadata cache for support contact
-              final metadataCache = ref.read(metadataCacheProvider.notifier);
-              final supportContact = await metadataCache.getContactModel(kSupportNpub);
+              final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+              final supportUserProfileData = await userProfileDataNotifier.getUserProfileData(
+                kSupportNpub,
+              );
 
               if (context.mounted) {
-                _handleContactTap(supportContact);
+                _handleContactTap(supportUserProfileData);
               }
             } catch (e) {
               _logger.warning('Failed to fetch metadata for support contact: $e');
