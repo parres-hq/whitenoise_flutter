@@ -60,7 +60,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
 
   @override
   MetadataCacheState build() {
-    // Listen for active account changes to invalidate cache when metadata changes
+    // Listen for active account changes to keep cache in sync with latest metadata
     ref.listen(activeAccountProvider, (previous, next) {
       next.when(
         data: (activeAccountState) {
@@ -68,13 +68,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
           final metadata = activeAccountState.metadata;
 
           if (account != null && metadata != null) {
-            // Check if this is a metadata update (previous had same account but different metadata)
-            previous?.whenData((prevState) {
-              if (prevState.account?.pubkey == account.pubkey) {
-                // Same account but potentially different metadata - update cache
-                _updateCacheForActiveAccount(account.pubkey, metadata);
-              }
-            });
+            _updateCacheForActiveAccount(account.pubkey, metadata);
           }
         },
         loading: () {},
