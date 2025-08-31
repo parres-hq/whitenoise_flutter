@@ -49,7 +49,7 @@ class ContactInfo extends StatelessWidget {
       );
     }
 
-    return Row(
+    final content = Row(
       children: [
         WnAvatar(
           imageUrl: image!,
@@ -68,5 +68,14 @@ class ContactInfo extends StatelessWidget {
         ),
       ],
     );
+
+    if (onTap != null) {
+      return GestureDetector(
+        onTap: onTap,
+        child: content,
+      );
+    }
+
+    return content;
   }
 }
