@@ -4,8 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/providers/toast_message_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
@@ -247,10 +247,10 @@ class DMInviteHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
+    final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
 
     return FutureBuilder(
-      future: metadataCacheNotifier.getContactModel(welcome.welcomer),
+      future: userProfileDataNotifier.getUserProfileData(welcome.welcomer),
       builder: (context, snapshot) {
         final welcomerContact = snapshot.data;
         final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
@@ -338,10 +338,10 @@ class DMAppBarTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
+    final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
 
     return FutureBuilder(
-      future: metadataCacheNotifier.getContactModel(welcome.welcomer),
+      future: userProfileDataNotifier.getUserProfileData(welcome.welcomer),
       builder: (context, snapshot) {
         final isLoading = snapshot.connectionState == ConnectionState.waiting;
 
