@@ -7,9 +7,7 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/states/group_state.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -1059,17 +1057,6 @@ extension GroupMemberUtils on GroupsNotifier {
     }
 
     return otherMembers.first;
-  }
-
-  Future<ContactModel?> getFirstOtherMember(String? groupId, String? currentUserNpub) async {
-    if (groupId == null || currentUserNpub == null) return null;
-    final members = getGroupMembers(groupId);
-    final member = members?.where((m) => m.publicKey != currentUserNpub).firstOrNull;
-    if (member == null) return null;
-    final hexPubkey = await hexPubkeyFromNpub(npub: member.publicKey);
-    final c = await ref.read(metadataCacheProvider.notifier).getContactModel(hexPubkey);
-
-    return c;
   }
 
   /// Get the display image for a group based on its type
