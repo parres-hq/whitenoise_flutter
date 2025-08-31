@@ -85,13 +85,24 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
       // Get standardized npub for consistent caching
       final standardNpub = await _getStandardizedNpub(pubkey);
 
+      // Check if we already have the same metadata cached to avoid unnecessary rebuilds
+      final existingCached = state.cache[standardNpub];
+      if (existingCached != null && !existingCached.isExpired) {
+        final existing = existingCached.contactModel;
+        if (existing.displayName == metadata.displayName &&
+            existing.about == metadata.about &&
+            existing.nip05 == metadata.nip05) {
+          return;
+        }
+      }
+
       // Create contact model from updated metadata
       final contactModel = ContactModel.fromMetadata(
         publicKey: standardNpub,
         metadata: metadata,
       );
 
-      // Force update the cache
+      // Update the cache
       final newCache = Map<String, CachedMetadata>.from(state.cache);
       newCache[standardNpub] = CachedMetadata(
         contactModel: contactModel,
