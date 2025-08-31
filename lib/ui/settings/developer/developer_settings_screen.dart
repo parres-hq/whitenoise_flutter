@@ -6,7 +6,6 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
@@ -30,21 +29,6 @@ class DeveloperSettingsScreen extends ConsumerStatefulWidget {
 
 class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScreen> {
   bool _isLoading = false;
-
-  Future<void> _clearMetadataCache() async {
-    setState(() => _isLoading = true);
-
-    try {
-      ref.read(metadataCacheProvider.notifier).clearCache();
-      ref.showSuccessToast('Metadata cache cleared successfully');
-    } catch (e) {
-      ref.showErrorToast('Failed to clear cache: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
 
   Future<void> _reloadFollows() async {
     setState(() => _isLoading = true);
@@ -120,15 +104,6 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                           ),
                         ),
                         Gap(12.h),
-
-                        WnFilledButton(
-                          label: 'Clear Cache',
-                          onPressed: _isLoading ? null : _clearMetadataCache,
-                          loading: _isLoading,
-                          visualState: WnButtonVisualState.destructive,
-                        ),
-
-                        Gap(8.h),
 
                         WnFilledButton(
                           label: 'Reload Follows',
