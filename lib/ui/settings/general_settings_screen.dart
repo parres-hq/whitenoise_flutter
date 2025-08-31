@@ -10,10 +10,9 @@ import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts, accountMetadata;
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -65,47 +64,21 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Future<void> _loadAccounts() async {
     try {
       final accounts = await getAccounts();
-      final activeAccountPubkey = ref.read(activePubkeyProvider);
-
-      // Load metadata for all accounts using metadata cache
-      final metadataCache = ref.read(metadataCacheProvider.notifier);
       final contactModels = <String, ContactModel>{};
       for (final account in accounts) {
-        try {
-          // Use metadata cache instead of direct fetchMetadata
-          final contactModel = await metadataCache.getContactModel(account.pubkey);
-          contactModels[account.pubkey] = contactModel;
-        } catch (e) {
-          // Create fallback contact model
-          contactModels[account.pubkey] = ContactModel(
-            displayName: 'Unknown User',
-            publicKey: account.pubkey,
-          );
-        }
+        final metadata = await accountMetadata(pubkey: account.pubkey);
+        contactModels[account.pubkey] = ContactModel.fromMetadata(
+          publicKey: account.pubkey,
+          metadata: metadata,
+        );
       }
 
-      Account? currentAccount;
-      if (activeAccountPubkey != null) {
-        try {
-          currentAccount = accounts.firstWhere(
-            (account) => account.pubkey == activeAccountPubkey,
-          );
-        } catch (e) {
-          // Active account not found, use first account
-          if (accounts.isNotEmpty) {
-            currentAccount = accounts.first;
-            await ref.read(activePubkeyProvider.notifier).setActivePubkey(currentAccount.pubkey);
-          }
-        }
-      } else if (accounts.isNotEmpty) {
-        // No active account set, use first account
-        currentAccount = accounts.first;
-        await ref.read(activePubkeyProvider.notifier).setActivePubkey(currentAccount.pubkey);
-      }
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
 
       setState(() {
         _accounts = accounts;
-        _currentAccount = currentAccount;
+        _currentAccount = activeAccount;
         _accountContactModels = contactModels;
       });
     } catch (e) {
