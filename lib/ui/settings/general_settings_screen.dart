@@ -39,6 +39,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Map<String, ContactModel> _accountContactModels = {}; // Cache for contact models
   ProviderSubscription<AsyncValue<ActiveAccountState>>? _activeAccountSubscription;
   PackageInfo? _packageInfo;
+
   @override
   void initState() {
     super.initState();

@@ -59,7 +59,57 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
   final _logger = Logger('MetadataCacheNotifier');
 
   @override
-  MetadataCacheState build() => const MetadataCacheState();
+  MetadataCacheState build() {
+    // Listen for active account changes to invalidate cache when metadata changes
+    ref.listen(activeAccountProvider, (previous, next) {
+      next.when(
+        data: (activeAccountState) {
+          final account = activeAccountState.account;
+          final metadata = activeAccountState.metadata;
+
+          if (account != null && metadata != null) {
+            // Check if this is a metadata update (previous had same account but different metadata)
+            previous?.whenData((prevState) {
+              if (prevState.account?.pubkey == account.pubkey) {
+                // Same account but potentially different metadata - update cache
+                _updateCacheForActiveAccount(account.pubkey, metadata);
+              }
+            });
+          }
+        },
+        loading: () {},
+        error: (_, __) {},
+      );
+    });
+
+    return const MetadataCacheState();
+  }
+
+  /// Update cache for active account when metadata changes
+  Future<void> _updateCacheForActiveAccount(String pubkey, FlutterMetadata metadata) async {
+    try {
+      // Get standardized npub for consistent caching
+      final standardNpub = await _getStandardizedNpub(pubkey);
+
+      // Create contact model from updated metadata
+      final contactModel = ContactModel.fromMetadata(
+        publicKey: standardNpub,
+        metadata: metadata,
+      );
+
+      // Force update the cache
+      final newCache = Map<String, CachedMetadata>.from(state.cache);
+      newCache[standardNpub] = CachedMetadata(
+        contactModel: contactModel,
+        cachedAt: DateTime.now(),
+      );
+
+      state = state.copyWith(cache: newCache);
+      _logger.info('Updated cache for active account: $standardNpub');
+    } catch (e) {
+      _logger.warning('Failed to update cache for active account $pubkey: $e');
+    }
+  }
 
   /// Normalize a public key string to consistent format
   String _normalizePublicKey(String publicKey) {
