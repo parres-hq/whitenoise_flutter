@@ -78,7 +78,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
           }
         },
         loading: () {},
-        error: (_, __) {},
+        error: (_, _) {},
       );
     });
 
