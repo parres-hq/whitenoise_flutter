@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
@@ -39,66 +41,77 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
-      _loadContacts();
+      _loadFollows();
     });
   }
 
-  Future<void> _loadContacts() async {
+  Future<void> _loadFollows() async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData != null) {
-        await ref.read(contactsProvider.notifier).loadContacts(activeAccountData.pubkey);
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
+      if (activeAccount != null) {
+        await ref.read(followsProvider.notifier).loadFollows();
       }
     } catch (e) {
-      Logger('ChatInfoScreen').warning('Error loading contacts: $e');
+      Logger('ChatInfoScreen').warning('Error loading follows: $e');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final groupDetails = ref.watch(groupsProvider).groupsMap?[widget.groupId];
+    final groupsNotifier = ref.watch(groupsProvider.notifier);
 
     return Scaffold(
-      body: Column(
-        children: [
-          Container(
-            margin: EdgeInsets.only(bottom: 16.h),
-            height: MediaQuery.of(context).padding.top,
-            color: context.colors.appBarBackground,
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  groupDetails?.groupType == GroupType.directMessage
-                      ? 'Chat Information'
-                      : 'Group Information',
-                  style: context.textTheme.bodyMedium?.copyWith(
-                    color: context.colors.mutedForeground,
-                    fontSize: 18.sp,
-                  ),
+      body: FutureBuilder<GroupType>(
+        future: groupsNotifier.getGroupTypeById(widget.groupId),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final groupType = snapshot.data!;
+
+          return Column(
+            children: [
+              Container(
+                margin: EdgeInsets.only(bottom: 16.h),
+                height: MediaQuery.of(context).padding.top,
+                color: context.colors.appBarBackground,
+              ),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      groupType == GroupType.directMessage
+                          ? 'Chat Information'
+                          : 'Group Information',
+                      style: context.textTheme.bodyMedium?.copyWith(
+                        color: context.colors.mutedForeground,
+                        fontSize: 18.sp,
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(
+                        Icons.close,
+                        color: context.colors.primary,
+                        size: 24.sp,
+                      ),
+                      onPressed: () => Navigator.of(context).pop(),
+                    ),
+                  ],
                 ),
-                IconButton(
-                  icon: WnImage(
-                    AssetsPaths.icClose,
-                    size: 24.w,
-                    color: context.colors.primary,
-                  ),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child:
-                groupDetails?.groupType == GroupType.directMessage
-                    ? DMChatInfo(groupId: widget.groupId)
-                    : GroupChatInfo(groupId: widget.groupId),
-          ),
-        ],
+              ),
+              Expanded(
+                child:
+                    groupType == GroupType.directMessage
+                        ? DMChatInfo(groupId: widget.groupId)
+                        : GroupChatInfo(groupId: widget.groupId),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

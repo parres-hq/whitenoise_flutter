@@ -6,8 +6,8 @@ part 'welcome_state.freezed.dart';
 @freezed
 abstract class WelcomesState with _$WelcomesState {
   const factory WelcomesState({
-    List<WelcomeData>? welcomes,
-    Map<String, WelcomeData>? welcomeById,
+    List<Welcome>? welcomes,
+    Map<String, Welcome>? welcomeById,
     @Default(false) bool isLoading,
     String? error,
   }) = _WelcomesState;

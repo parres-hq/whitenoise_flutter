@@ -11,14 +11,15 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 
 import 'api.dart';
 import 'api/accounts.dart';
-import 'api/contacts.dart';
+import 'api/error.dart';
 import 'api/groups.dart';
 import 'api/messages.dart';
+import 'api/metadata.dart';
 import 'api/relays.dart';
+import 'api/users.dart';
 import 'api/utils.dart';
 import 'api/welcomes.dart';
 import 'frb_generated.dart';
-import 'lib.dart';
 
 abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   RustLibApiImplPlatform({
@@ -28,32 +29,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     required super.portManager,
   });
 
-  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_AccountPtr =>
-      wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccountPtr;
-
-  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_ChatMessagePtr =>
-      wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessagePtr;
+  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_AppSettingsPtr =>
+      wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettingsPtr;
 
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_EventPtr =>
       wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerEventPtr;
 
-  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_GroupPtr =>
-      wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupPtr;
-
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_GroupIdPtr =>
       wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupIdPtr;
-
-  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_ImageTypePtr =>
-      wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageTypePtr;
-
-  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MessageWithTokensPtr =>
-      wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokensPtr;
-
-  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MetadataPtr =>
-      wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataPtr;
-
-  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_MetadataDataPtr =>
-      wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataDataPtr;
 
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_PublicKeyPtr =>
       wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKeyPtr;
@@ -67,18 +50,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_TagPtr =>
       wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTagPtr;
 
-  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_WelcomePtr =>
-      wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcomePtr;
-
-  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_WhitenoiseConfigPtr =>
-      wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfigPtr;
-
-  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_WhitenoiseErrorPtr =>
-      wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseErrorPtr;
+  CrossPlatformFinalizerArg get rust_arc_decrement_strong_count_ThemeModePtr =>
+      wire._rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeModePtr;
 
   @protected
-  Account
-  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+  AppSettings
+  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings(
     dynamic raw,
   );
 
@@ -90,30 +67,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   GroupId
   dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
-    dynamic raw,
-  );
-
-  @protected
-  ImageType
-  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
-    dynamic raw,
-  );
-
-  @protected
-  Metadata
-  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-    dynamic raw,
-  );
-
-  @protected
-  MetadataData
-  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    dynamic raw,
-  );
-
-  @protected
-  PublicKey
-  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
     dynamic raw,
   );
 
@@ -135,59 +88,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  WhitenoiseConfig
-  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-    dynamic raw,
-  );
-
-  @protected
-  WhitenoiseError
-  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
-    dynamic raw,
-  );
-
-  @protected
-  MetadataData
-  dco_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    dynamic raw,
-  );
-
-  @protected
-  Account dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
-    dynamic raw,
-  );
-
-  @protected
-  ChatMessage
-  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage(
-    dynamic raw,
-  );
-
-  @protected
-  Group dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
+  ThemeMode
+  dco_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode(
     dynamic raw,
   );
 
   @protected
   GroupId dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
-    dynamic raw,
-  );
-
-  @protected
-  MessageWithTokens
-  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens(
-    dynamic raw,
-  );
-
-  @protected
-  Metadata
-  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-    dynamic raw,
-  );
-
-  @protected
-  MetadataData
-  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
     dynamic raw,
   );
 
@@ -204,38 +111,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  Welcome dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome(
-    dynamic raw,
-  );
-
-  @protected
-  WhitenoiseConfig
-  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-    dynamic raw,
-  );
-
-  @protected
-  WhitenoiseError
-  dco_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
-    dynamic raw,
-  );
-
-  @protected
-  Map<PublicKey, MetadataData?>
-  dco_decode_Map_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData_None(
-    dynamic raw,
-  );
+  DateTime dco_decode_Chrono_Utc(dynamic raw);
 
   @protected
   Map<String, String> dco_decode_Map_String_String_None(dynamic raw);
 
   @protected
-  Account dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
-    dynamic raw,
-  );
-
-  @protected
-  ChatMessage dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage(
+  AppSettings dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings(
     dynamic raw,
   );
 
@@ -245,34 +127,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  Group dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
-    dynamic raw,
-  );
-
-  @protected
   GroupId dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
-    dynamic raw,
-  );
-
-  @protected
-  ImageType dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
-    dynamic raw,
-  );
-
-  @protected
-  MessageWithTokens
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens(
-    dynamic raw,
-  );
-
-  @protected
-  Metadata dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-    dynamic raw,
-  );
-
-  @protected
-  MetadataData
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
     dynamic raw,
   );
 
@@ -297,19 +152,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  Welcome dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome(
-    dynamic raw,
-  );
-
-  @protected
-  WhitenoiseConfig
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-    dynamic raw,
-  );
-
-  @protected
-  WhitenoiseError
-  dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
+  ThemeMode dco_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode(
     dynamic raw,
   );
 
@@ -317,10 +160,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String dco_decode_String(dynamic raw);
 
   @protected
-  AccountData dco_decode_account_data(dynamic raw);
+  Account dco_decode_account(dynamic raw);
 
   @protected
-  AccountSettings dco_decode_account_settings(dynamic raw);
+  ApiError dco_decode_api_error(dynamic raw);
 
   @protected
   bool dco_decode_bool(dynamic raw);
@@ -332,22 +175,34 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  MetadataData
-  dco_decode_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    dynamic raw,
-  );
+  DateTime dco_decode_box_autoadd_Chrono_Utc(dynamic raw);
 
   @protected
-  BigInt dco_decode_box_autoadd_u_64(dynamic raw);
+  ApiError dco_decode_box_autoadd_api_error(dynamic raw);
 
   @protected
-  ChatMessageData dco_decode_chat_message_data(dynamic raw);
+  FlutterMetadata dco_decode_box_autoadd_flutter_metadata(dynamic raw);
 
   @protected
-  EmojiReactionData dco_decode_emoji_reaction_data(dynamic raw);
+  Group dco_decode_box_autoadd_group(dynamic raw);
 
   @protected
-  GroupData dco_decode_group_data(dynamic raw);
+  WhitenoiseConfig dco_decode_box_autoadd_whitenoise_config(dynamic raw);
+
+  @protected
+  ChatMessage dco_decode_chat_message(dynamic raw);
+
+  @protected
+  EmojiReaction dco_decode_emoji_reaction(dynamic raw);
+
+  @protected
+  FlutterMetadata dco_decode_flutter_metadata(dynamic raw);
+
+  @protected
+  Group dco_decode_group(dynamic raw);
+
+  @protected
+  GroupInformation dco_decode_group_information(dynamic raw);
 
   @protected
   GroupState dco_decode_group_state(dynamic raw);
@@ -359,16 +214,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int dco_decode_i_32(dynamic raw);
 
   @protected
-  List<PublicKey>
-  dco_decode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
-    dynamic raw,
-  );
-
-  @protected
-  List<RelayUrl>
-  dco_decode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
-    dynamic raw,
-  );
+  PlatformInt64 dco_decode_i_64(dynamic raw);
 
   @protected
   List<Tag>
@@ -380,47 +226,43 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
-  List<AccountData> dco_decode_list_account_data(dynamic raw);
+  List<Account> dco_decode_list_account(dynamic raw);
 
   @protected
-  List<ChatMessageData> dco_decode_list_chat_message_data(dynamic raw);
+  List<ChatMessage> dco_decode_list_chat_message(dynamic raw);
 
   @protected
-  List<EmojiReactionData> dco_decode_list_emoji_reaction_data(dynamic raw);
+  List<EmojiReaction> dco_decode_list_emoji_reaction(dynamic raw);
 
   @protected
-  List<GroupData> dco_decode_list_group_data(dynamic raw);
+  List<Group> dco_decode_list_group(dynamic raw);
 
   @protected
-  List<MessageWithTokensData> dco_decode_list_message_with_tokens_data(
-    dynamic raw,
-  );
+  List<GroupInformation> dco_decode_list_group_information(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
-  List<(PublicKey, MetadataData?)>
-  dco_decode_list_record_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_public_key_opt_box_autoadd_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_metadata_data(
-    dynamic raw,
-  );
-
-  @protected
   List<(String, String)> dco_decode_list_record_string_string(dynamic raw);
 
   @protected
-  List<SerializableTokenData> dco_decode_list_serializable_token_data(
-    dynamic raw,
-  );
+  List<Relay> dco_decode_list_relay(dynamic raw);
 
   @protected
-  List<UserReactionData> dco_decode_list_user_reaction_data(dynamic raw);
+  List<SerializableToken> dco_decode_list_serializable_token(dynamic raw);
 
   @protected
-  List<WelcomeData> dco_decode_list_welcome_data(dynamic raw);
+  List<User> dco_decode_list_user(dynamic raw);
 
   @protected
-  MessageWithTokensData dco_decode_message_with_tokens_data(dynamic raw);
+  List<UserReaction> dco_decode_list_user_reaction(dynamic raw);
+
+  @protected
+  List<Welcome> dco_decode_list_welcome(dynamic raw);
+
+  @protected
+  MessageWithTokens dco_decode_message_with_tokens(dynamic raw);
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
@@ -432,13 +274,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  MetadataData?
-  dco_decode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    dynamic raw,
-  );
-
-  @protected
-  BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
+  DateTime? dco_decode_opt_box_autoadd_Chrono_Utc(dynamic raw);
 
   @protected
   List<Tag>?
@@ -447,19 +283,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  ReactionSummaryData dco_decode_reaction_summary_data(dynamic raw);
+  Uint8List? dco_decode_opt_list_prim_u_8_strict(dynamic raw);
 
   @protected
-  (PublicKey, MetadataData?)
-  dco_decode_record_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_public_key_opt_box_autoadd_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_metadata_data(
-    dynamic raw,
-  );
+  ReactionSummary dco_decode_reaction_summary(dynamic raw);
 
   @protected
   (String, String) dco_decode_record_string_string(dynamic raw);
 
   @protected
-  SerializableTokenData dco_decode_serializable_token_data(dynamic raw);
+  Relay dco_decode_relay(dynamic raw);
+
+  @protected
+  SerializableToken dco_decode_serializable_token(dynamic raw);
 
   @protected
   int dco_decode_u_16(dynamic raw);
@@ -477,23 +313,26 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void dco_decode_unit(dynamic raw);
 
   @protected
-  UserReactionData dco_decode_user_reaction_data(dynamic raw);
+  User dco_decode_user(dynamic raw);
+
+  @protected
+  UserReaction dco_decode_user_reaction(dynamic raw);
 
   @protected
   BigInt dco_decode_usize(dynamic raw);
 
   @protected
-  WelcomeData dco_decode_welcome_data(dynamic raw);
+  Welcome dco_decode_welcome(dynamic raw);
 
   @protected
   WelcomeState dco_decode_welcome_state(dynamic raw);
 
   @protected
-  WhitenoiseConfigData dco_decode_whitenoise_config_data(dynamic raw);
+  WhitenoiseConfig dco_decode_whitenoise_config(dynamic raw);
 
   @protected
-  Account
-  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+  AppSettings
+  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings(
     SseDeserializer deserializer,
   );
 
@@ -505,30 +344,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   GroupId
   sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  ImageType
-  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  Metadata
-  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  MetadataData
-  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  PublicKey
-  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
     SseDeserializer deserializer,
   );
 
@@ -550,59 +365,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  WhitenoiseConfig
-  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  WhitenoiseError
-  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  MetadataData
-  sse_decode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  Account sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  ChatMessage
-  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  Group sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
+  ThemeMode
+  sse_decode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode(
     SseDeserializer deserializer,
   );
 
   @protected
   GroupId sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  MessageWithTokens
-  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  Metadata
-  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  MetadataData
-  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
     SseDeserializer deserializer,
   );
 
@@ -619,27 +388,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  Welcome sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  WhitenoiseConfig
-  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  WhitenoiseError
-  sse_decode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  Map<PublicKey, MetadataData?>
-  sse_decode_Map_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData_None(
-    SseDeserializer deserializer,
-  );
+  DateTime sse_decode_Chrono_Utc(SseDeserializer deserializer);
 
   @protected
   Map<String, String> sse_decode_Map_String_String_None(
@@ -647,12 +396,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  Account sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  ChatMessage sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage(
+  AppSettings sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings(
     SseDeserializer deserializer,
   );
 
@@ -662,34 +406,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  Group sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
-    SseDeserializer deserializer,
-  );
-
-  @protected
   GroupId sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  ImageType sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  MessageWithTokens
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  Metadata sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  MetadataData
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
     SseDeserializer deserializer,
   );
 
@@ -714,19 +431,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  Welcome sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  WhitenoiseConfig
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  WhitenoiseError
-  sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
+  ThemeMode sse_decode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode(
     SseDeserializer deserializer,
   );
 
@@ -734,10 +439,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
-  AccountData sse_decode_account_data(SseDeserializer deserializer);
+  Account sse_decode_account(SseDeserializer deserializer);
 
   @protected
-  AccountSettings sse_decode_account_settings(SseDeserializer deserializer);
+  ApiError sse_decode_api_error(SseDeserializer deserializer);
 
   @protected
   bool sse_decode_bool(SseDeserializer deserializer);
@@ -749,24 +454,38 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  MetadataData
-  sse_decode_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
+  DateTime sse_decode_box_autoadd_Chrono_Utc(SseDeserializer deserializer);
+
+  @protected
+  ApiError sse_decode_box_autoadd_api_error(SseDeserializer deserializer);
+
+  @protected
+  FlutterMetadata sse_decode_box_autoadd_flutter_metadata(
     SseDeserializer deserializer,
   );
 
   @protected
-  BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
+  Group sse_decode_box_autoadd_group(SseDeserializer deserializer);
 
   @protected
-  ChatMessageData sse_decode_chat_message_data(SseDeserializer deserializer);
-
-  @protected
-  EmojiReactionData sse_decode_emoji_reaction_data(
+  WhitenoiseConfig sse_decode_box_autoadd_whitenoise_config(
     SseDeserializer deserializer,
   );
 
   @protected
-  GroupData sse_decode_group_data(SseDeserializer deserializer);
+  ChatMessage sse_decode_chat_message(SseDeserializer deserializer);
+
+  @protected
+  EmojiReaction sse_decode_emoji_reaction(SseDeserializer deserializer);
+
+  @protected
+  FlutterMetadata sse_decode_flutter_metadata(SseDeserializer deserializer);
+
+  @protected
+  Group sse_decode_group(SseDeserializer deserializer);
+
+  @protected
+  GroupInformation sse_decode_group_information(SseDeserializer deserializer);
 
   @protected
   GroupState sse_decode_group_state(SseDeserializer deserializer);
@@ -778,16 +497,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int sse_decode_i_32(SseDeserializer deserializer);
 
   @protected
-  List<PublicKey>
-  sse_decode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  List<RelayUrl>
-  sse_decode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
-    SseDeserializer deserializer,
-  );
+  PlatformInt64 sse_decode_i_64(SseDeserializer deserializer);
 
   @protected
   List<Tag>
@@ -799,23 +509,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
-  List<AccountData> sse_decode_list_account_data(SseDeserializer deserializer);
+  List<Account> sse_decode_list_account(SseDeserializer deserializer);
 
   @protected
-  List<ChatMessageData> sse_decode_list_chat_message_data(
+  List<ChatMessage> sse_decode_list_chat_message(SseDeserializer deserializer);
+
+  @protected
+  List<EmojiReaction> sse_decode_list_emoji_reaction(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<EmojiReactionData> sse_decode_list_emoji_reaction_data(
-    SseDeserializer deserializer,
-  );
+  List<Group> sse_decode_list_group(SseDeserializer deserializer);
 
   @protected
-  List<GroupData> sse_decode_list_group_data(SseDeserializer deserializer);
-
-  @protected
-  List<MessageWithTokensData> sse_decode_list_message_with_tokens_data(
+  List<GroupInformation> sse_decode_list_group_information(
     SseDeserializer deserializer,
   );
 
@@ -823,31 +531,31 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
-  List<(PublicKey, MetadataData?)>
-  sse_decode_list_record_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_public_key_opt_box_autoadd_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_metadata_data(
-    SseDeserializer deserializer,
-  );
-
-  @protected
   List<(String, String)> sse_decode_list_record_string_string(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<SerializableTokenData> sse_decode_list_serializable_token_data(
+  List<Relay> sse_decode_list_relay(SseDeserializer deserializer);
+
+  @protected
+  List<SerializableToken> sse_decode_list_serializable_token(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<UserReactionData> sse_decode_list_user_reaction_data(
+  List<User> sse_decode_list_user(SseDeserializer deserializer);
+
+  @protected
+  List<UserReaction> sse_decode_list_user_reaction(
     SseDeserializer deserializer,
   );
 
   @protected
-  List<WelcomeData> sse_decode_list_welcome_data(SseDeserializer deserializer);
+  List<Welcome> sse_decode_list_welcome(SseDeserializer deserializer);
 
   @protected
-  MessageWithTokensData sse_decode_message_with_tokens_data(
+  MessageWithTokens sse_decode_message_with_tokens(
     SseDeserializer deserializer,
   );
 
@@ -861,13 +569,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  MetadataData?
-  sse_decode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    SseDeserializer deserializer,
-  );
-
-  @protected
-  BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
+  DateTime? sse_decode_opt_box_autoadd_Chrono_Utc(SseDeserializer deserializer);
 
   @protected
   List<Tag>?
@@ -876,15 +578,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  ReactionSummaryData sse_decode_reaction_summary_data(
-    SseDeserializer deserializer,
-  );
+  Uint8List? sse_decode_opt_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
-  (PublicKey, MetadataData?)
-  sse_decode_record_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_public_key_opt_box_autoadd_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_metadata_data(
-    SseDeserializer deserializer,
-  );
+  ReactionSummary sse_decode_reaction_summary(SseDeserializer deserializer);
 
   @protected
   (String, String) sse_decode_record_string_string(
@@ -892,9 +589,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  SerializableTokenData sse_decode_serializable_token_data(
-    SseDeserializer deserializer,
-  );
+  Relay sse_decode_relay(SseDeserializer deserializer);
+
+  @protected
+  SerializableToken sse_decode_serializable_token(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_16(SseDeserializer deserializer);
@@ -912,25 +610,27 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_decode_unit(SseDeserializer deserializer);
 
   @protected
-  UserReactionData sse_decode_user_reaction_data(SseDeserializer deserializer);
+  User sse_decode_user(SseDeserializer deserializer);
+
+  @protected
+  UserReaction sse_decode_user_reaction(SseDeserializer deserializer);
 
   @protected
   BigInt sse_decode_usize(SseDeserializer deserializer);
 
   @protected
-  WelcomeData sse_decode_welcome_data(SseDeserializer deserializer);
+  Welcome sse_decode_welcome(SseDeserializer deserializer);
 
   @protected
   WelcomeState sse_decode_welcome_state(SseDeserializer deserializer);
 
   @protected
-  WhitenoiseConfigData sse_decode_whitenoise_config_data(
-    SseDeserializer deserializer,
-  );
+  WhitenoiseConfig sse_decode_whitenoise_config(SseDeserializer deserializer);
 
   @protected
-  void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
-    Account self,
+  void
+  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings(
+    AppSettings self,
     SseSerializer serializer,
   );
 
@@ -943,33 +643,6 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
     GroupId self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void
-  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
-    ImageType self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-    Metadata self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void
-  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    MetadataData self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void
-  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
-    PublicKey self,
     SseSerializer serializer,
   );
 
@@ -994,67 +667,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void
-  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-    WhitenoiseConfig self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void
-  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
-    WhitenoiseError self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void
-  sse_encode_Auto_RefMut_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    MetadataData self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
-    Account self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void
-  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage(
-    ChatMessage self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
-    Group self,
+  sse_encode_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode(
+    ThemeMode self,
     SseSerializer serializer,
   );
 
   @protected
   void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
     GroupId self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void
-  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens(
-    MessageWithTokens self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-    Metadata self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void
-  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    MetadataData self,
     SseSerializer serializer,
   );
 
@@ -1071,31 +691,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome(
-    Welcome self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void
-  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-    WhitenoiseConfig self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void
-  sse_encode_Auto_Ref_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
-    WhitenoiseError self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void
-  sse_encode_Map_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData_None(
-    Map<PublicKey, MetadataData?> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_Chrono_Utc(DateTime self, SseSerializer serializer);
 
   @protected
   void sse_encode_Map_String_String_None(
@@ -1104,14 +700,8 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
-    Account self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage(
-    ChatMessage self,
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings(
+    AppSettings self,
     SseSerializer serializer,
   );
 
@@ -1122,38 +712,8 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
-    Group self,
-    SseSerializer serializer,
-  );
-
-  @protected
   void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
     GroupId self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
-    ImageType self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens(
-    MessageWithTokens self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-    Metadata self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    MetadataData self,
     SseSerializer serializer,
   );
 
@@ -1182,20 +742,8 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome(
-    Welcome self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-    WhitenoiseConfig self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
-    WhitenoiseError self,
+  void sse_encode_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode(
+    ThemeMode self,
     SseSerializer serializer,
   );
 
@@ -1203,13 +751,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
-  void sse_encode_account_data(AccountData self, SseSerializer serializer);
+  void sse_encode_account(Account self, SseSerializer serializer);
 
   @protected
-  void sse_encode_account_settings(
-    AccountSettings self,
-    SseSerializer serializer,
-  );
+  void sse_encode_api_error(ApiError self, SseSerializer serializer);
 
   @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
@@ -1222,29 +767,52 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void
-  sse_encode_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    MetadataData self,
+  void sse_encode_box_autoadd_Chrono_Utc(
+    DateTime self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
-
-  @protected
-  void sse_encode_chat_message_data(
-    ChatMessageData self,
+  void sse_encode_box_autoadd_api_error(
+    ApiError self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_emoji_reaction_data(
-    EmojiReactionData self,
+  void sse_encode_box_autoadd_flutter_metadata(
+    FlutterMetadata self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_group_data(GroupData self, SseSerializer serializer);
+  void sse_encode_box_autoadd_group(Group self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_whitenoise_config(
+    WhitenoiseConfig self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_chat_message(ChatMessage self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_emoji_reaction(EmojiReaction self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_flutter_metadata(
+    FlutterMetadata self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_group(Group self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_group_information(
+    GroupInformation self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_group_state(GroupState self, SseSerializer serializer);
@@ -1256,18 +824,7 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_i_32(int self, SseSerializer serializer);
 
   @protected
-  void
-  sse_encode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerPublicKey(
-    List<PublicKey> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void
-  sse_encode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerRelayUrl(
-    List<RelayUrl> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
@@ -1279,32 +836,26 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_account_data(
-    List<AccountData> self,
+  void sse_encode_list_account(List<Account> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_chat_message(
+    List<ChatMessage> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_chat_message_data(
-    List<ChatMessageData> self,
+  void sse_encode_list_emoji_reaction(
+    List<EmojiReaction> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_emoji_reaction_data(
-    List<EmojiReactionData> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_group(List<Group> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_list_group_data(
-    List<GroupData> self,
-    SseSerializer serializer,
-  );
-
-  @protected
-  void sse_encode_list_message_with_tokens_data(
-    List<MessageWithTokensData> self,
+  void sse_encode_list_group_information(
+    List<GroupInformation> self,
     SseSerializer serializer,
   );
 
@@ -1315,39 +866,35 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void
-  sse_encode_list_record_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_public_key_opt_box_autoadd_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_metadata_data(
-    List<(PublicKey, MetadataData?)> self,
-    SseSerializer serializer,
-  );
-
-  @protected
   void sse_encode_list_record_string_string(
     List<(String, String)> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_serializable_token_data(
-    List<SerializableTokenData> self,
+  void sse_encode_list_relay(List<Relay> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_serializable_token(
+    List<SerializableToken> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_user_reaction_data(
-    List<UserReactionData> self,
+  void sse_encode_list_user(List<User> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_user_reaction(
+    List<UserReaction> self,
     SseSerializer serializer,
   );
 
   @protected
-  void sse_encode_list_welcome_data(
-    List<WelcomeData> self,
-    SseSerializer serializer,
-  );
+  void sse_encode_list_welcome(List<Welcome> self, SseSerializer serializer);
 
   @protected
-  void sse_encode_message_with_tokens_data(
-    MessageWithTokensData self,
+  void sse_encode_message_with_tokens(
+    MessageWithTokens self,
     SseSerializer serializer,
   );
 
@@ -1362,14 +909,10 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void
-  sse_encode_opt_box_autoadd_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    MetadataData? self,
+  void sse_encode_opt_box_autoadd_Chrono_Utc(
+    DateTime? self,
     SseSerializer serializer,
   );
-
-  @protected
-  void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
 
   @protected
   void
@@ -1379,15 +922,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void sse_encode_reaction_summary_data(
-    ReactionSummaryData self,
+  void sse_encode_opt_list_prim_u_8_strict(
+    Uint8List? self,
     SseSerializer serializer,
   );
 
   @protected
-  void
-  sse_encode_record_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_public_key_opt_box_autoadd_auto_owned_rust_opaque_flutter_rust_bridgefor_generated_rust_auto_opaque_inner_metadata_data(
-    (PublicKey, MetadataData?) self,
+  void sse_encode_reaction_summary(
+    ReactionSummary self,
     SseSerializer serializer,
   );
 
@@ -1398,8 +940,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
-  void sse_encode_serializable_token_data(
-    SerializableTokenData self,
+  void sse_encode_relay(Relay self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_serializable_token(
+    SerializableToken self,
     SseSerializer serializer,
   );
 
@@ -1419,23 +964,23 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_unit(void self, SseSerializer serializer);
 
   @protected
-  void sse_encode_user_reaction_data(
-    UserReactionData self,
-    SseSerializer serializer,
-  );
+  void sse_encode_user(User self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_user_reaction(UserReaction self, SseSerializer serializer);
 
   @protected
   void sse_encode_usize(BigInt self, SseSerializer serializer);
 
   @protected
-  void sse_encode_welcome_data(WelcomeData self, SseSerializer serializer);
+  void sse_encode_welcome(Welcome self, SseSerializer serializer);
 
   @protected
   void sse_encode_welcome_state(WelcomeState self, SseSerializer serializer);
 
   @protected
-  void sse_encode_whitenoise_config_data(
-    WhitenoiseConfigData self,
+  void sse_encode_whitenoise_config(
+    WhitenoiseConfig self,
     SseSerializer serializer,
   );
 }
@@ -1453,71 +998,37 @@ class RustLibWire implements BaseWire {
   RustLibWire(ffi.DynamicLibrary dynamicLibrary) : _lookup = dynamicLibrary.lookup;
 
   void
-  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings(
     ffi.Pointer<ffi.Void> ptr,
   ) {
-    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings(
       ptr,
     );
   }
 
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccountPtr =
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettingsPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount',
+        'frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings',
       );
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount =
-      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccountPtr
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings =
+      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettingsPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
   void
-  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings(
     ffi.Pointer<ffi.Void> ptr,
   ) {
-    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount(
+    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings(
       ptr,
     );
   }
 
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccountPtr =
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettingsPtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount',
+        'frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings',
       );
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccount =
-      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAccountPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessagePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage',
-      );
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage =
-      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessagePtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessagePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage',
-      );
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessage =
-      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerChatMessagePtr
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettings =
+      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerAppSettingsPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
   void
@@ -1555,40 +1066,6 @@ class RustLibWire implements BaseWire {
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
   void
-  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup',
-      );
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup =
-      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup',
-      );
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroup =
-      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
   rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId(
     ffi.Pointer<ffi.Void> ptr,
   ) {
@@ -1620,142 +1097,6 @@ class RustLibWire implements BaseWire {
       );
   late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupId =
       _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerGroupIdPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageTypePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType',
-      );
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType =
-      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageTypePtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageTypePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType',
-      );
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageType =
-      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerImageTypePtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokensPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens',
-      );
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens =
-      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokensPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokensPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens',
-      );
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokens =
-      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMessageWithTokensPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata',
-      );
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata =
-      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata',
-      );
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadata =
-      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataDataPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData',
-      );
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData =
-      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataDataPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataDataPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData',
-      );
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataData =
-      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerMetadataDataPtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
   void
@@ -1895,104 +1236,36 @@ class RustLibWire implements BaseWire {
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
   void
-  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome(
+  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode(
     ffi.Pointer<ffi.Void> ptr,
   ) {
-    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome(
+    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode(
       ptr,
     );
   }
 
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcomePtr =
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeModePtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome',
+        'frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode',
       );
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome =
-      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcomePtr
+  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode =
+      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeModePtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 
   void
-  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome(
+  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode(
     ffi.Pointer<ffi.Void> ptr,
   ) {
-    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome(
+    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode(
       ptr,
     );
   }
 
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcomePtr =
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeModePtr =
       _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome',
+        'frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode',
       );
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcome =
-      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWelcomePtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfigPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig',
-      );
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig =
-      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfigPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfigPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig',
-      );
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfig =
-      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseConfigPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseErrorPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError',
-      );
-  late final _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError =
-      _rust_arc_increment_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseErrorPtr
-          .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
-
-  void
-  rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
-    ffi.Pointer<ffi.Void> ptr,
-  ) {
-    return _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError(
-      ptr,
-    );
-  }
-
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseErrorPtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>(
-        'frbgen_whitenoise_rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError',
-      );
-  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseError =
-      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerWhitenoiseErrorPtr
+  late final _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeMode =
+      _rust_arc_decrement_strong_count_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerThemeModePtr
           .asFunction<void Function(ffi.Pointer<ffi.Void>)>();
 }

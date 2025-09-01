@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/domain/services/key_package_service.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/ui/contact_list/widgets/share_invite_button.dart';
 import 'package:whitenoise/ui/contact_list/widgets/share_invite_callout.dart';
 import 'package:whitenoise/ui/contact_list/widgets/user_profile.dart';
@@ -22,35 +22,44 @@ import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
+// User API interface for testing
+abstract class WnUsersApi {
+  Future<bool> userHasKeyPackage({required String pubkey});
+}
+
+// Default implementation that uses the real API
+class DefaultWnUsersApi implements WnUsersApi {
+  const DefaultWnUsersApi();
+
+  @override
+  Future<bool> userHasKeyPackage({required String pubkey}) {
+    return wn_users_api.userHasKeyPackage(pubkey: pubkey);
+  }
+}
+
 class StartChatBottomSheet extends ConsumerStatefulWidget {
   final ContactModel contact;
-  final ValueChanged<GroupData?>? onChatCreated;
-  final KeyPackageService? keyPackageService;
+  final ValueChanged<Group?>? onChatCreated;
+  final WnUsersApi? usersApi;
 
   const StartChatBottomSheet({
     super.key,
     required this.contact,
     this.onChatCreated,
-    this.keyPackageService,
+    this.usersApi,
   });
 
   static Future<void> show({
     required BuildContext context,
     required ContactModel contact,
-    ValueChanged<GroupData?>? onChatCreated,
-    KeyPackageService? keyPackageService,
+    ValueChanged<Group?>? onChatCreated,
   }) {
     return WnBottomSheet.show(
       context: context,
       title: 'User Profile',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
-      builder:
-          (context) => StartChatBottomSheet(
-            contact: contact,
-            onChatCreated: onChatCreated,
-            keyPackageService: keyPackageService,
-          ),
+      builder: (context) => StartChatBottomSheet(contact: contact, onChatCreated: onChatCreated),
     );
   }
 
@@ -73,29 +82,25 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
   }
 
   Future<void> _loadKeyPackage() async {
-    final activeAccountData = await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-    if (activeAccountData == null) {
+    final activeAccountState = await ref.read(activeAccountProvider.future);
+    final activeAccount = activeAccountState.account;
+    if (activeAccount == null) {
       ref.showErrorToast('No active account found');
       return;
     }
     try {
-      final keyPackageService =
-          widget.keyPackageService ??
-          KeyPackageService(
-            publicKeyString: widget.contact.publicKey,
-            nip65Relays: activeAccountData.nip65Relays,
-          );
-      final keyPackage = await keyPackageService.fetchWithRetry();
+      final usersApi = widget.usersApi ?? const DefaultWnUsersApi();
+      final userHasKeyPackage = await usersApi.userHasKeyPackage(pubkey: widget.contact.publicKey);
       if (mounted) {
         setState(() {
           _isLoadingKeyPackage = false;
-          _needsInvite = keyPackage == null;
+          _needsInvite = userHasKeyPackage == false;
         });
       }
     } catch (e) {
       String error;
-      if (e is WhitenoiseError) {
-        error = await whitenoiseErrorToString(error: e);
+      if (e is ApiError) {
+        error = await e.messageText();
       } else {
         error = e.toString();
       }
@@ -116,7 +121,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     });
 
     try {
-      final groupData = await ref
+      final group = await ref
           .read(groupsProvider.notifier)
           .createNewGroup(
             groupName: 'DM',
@@ -125,14 +130,14 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
             adminPublicKeyHexs: [widget.contact.publicKey],
           );
 
-      if (groupData != null) {
-        _logger.info('Direct message group created successfully: ${groupData.mlsGroupId}');
+      if (group != null) {
+        _logger.info('Direct message group created successfully: ${group.mlsGroupId}');
 
         if (mounted) {
           Navigator.pop(context);
 
           if (widget.onChatCreated != null) {
-            widget.onChatCreated?.call(groupData);
+            widget.onChatCreated?.call(group);
           }
 
           ref.showSuccessToast(
@@ -156,14 +161,9 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     }
   }
 
-  bool _isContact() {
-    final contactsState = ref.watch(contactsProvider);
-    final contacts = contactsState.contactModels ?? [];
-
-    // Check if the current user's pubkey exists in contacts
-    return contacts.any(
-      (contact) => contact.publicKey.toLowerCase() == widget.contact.publicKey.toLowerCase(),
-    );
+  bool _isFollow() {
+    final followsNotifier = ref.read(followsProvider.notifier);
+    return followsNotifier.isFollowing(widget.contact.publicKey);
   }
 
   Future<void> _toggleContact() async {
@@ -172,18 +172,16 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     });
 
     try {
-      final contactsNotifier = ref.read(contactsProvider.notifier);
-      final isCurrentlyContact = _isContact();
+      final followsNotifier = ref.read(followsProvider.notifier);
+      final isCurrentlyFollow = followsNotifier.isFollowing(widget.contact.publicKey);
 
-      if (isCurrentlyContact) {
-        // Remove contact
-        await contactsNotifier.removeContactByHex(widget.contact.publicKey);
+      if (isCurrentlyFollow) {
+        await followsNotifier.removeFollow(widget.contact.publicKey);
         if (mounted) {
           ref.showSuccessToast('${widget.contact.displayName} removed from contacts');
         }
       } else {
-        // Add contact
-        await contactsNotifier.addContactByHex(widget.contact.publicKey);
+        await followsNotifier.addFollow(widget.contact.publicKey);
         if (mounted) {
           ref.showSuccessToast('${widget.contact.displayName} added to contacts');
         }
@@ -268,11 +266,15 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                         WnFilledButton(
                           visualState: WnButtonVisualState.secondary,
                           onPressed: _isAddingContact ? null : _toggleContact,
-                          label: _isContact() ? 'Remove Contact' : 'Add Contact',
-                          suffixIcon: WnImage(
-                            _isContact() ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
-                            size: 18.w,
-                            color: context.colors.primary,
+                          label: _isFollow() ? 'Remove Contact' : 'Add Contact',
+                          suffixIcon: SvgPicture.asset(
+                            _isFollow() ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+                            width: 18.w,
+                            height: 18.w,
+                            colorFilter: ColorFilter.mode(
+                              context.colors.primary,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
                         Gap(8.h),

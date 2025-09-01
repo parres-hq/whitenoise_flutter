@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -12,28 +13,37 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ChatContactHeader extends ConsumerWidget {
-  final GroupData groupData;
+  final Group group;
 
-  const ChatContactHeader({super.key, required this.groupData});
+  const ChatContactHeader({super.key, required this.group});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isGroupChat = groupData.groupType == GroupType.group;
+    final groupsNotifier = ref.watch(groupsProvider.notifier);
+    final groupType = groupsNotifier.getCachedGroupType(group.mlsGroupId);
+
+    // If group type is not cached yet, show a loading state or default to group
+    if (groupType == null) {
+      // Default to group chat header while group type is loading
+      return GroupChatHeader(group: group);
+    }
+
+    final isGroupChat = groupType == GroupType.group;
 
     if (isGroupChat) {
-      return GroupChatHeader(groupData: groupData);
+      return GroupChatHeader(group: group);
     } else {
-      return DirectMessageHeader(groupData: groupData);
+      return DirectMessageHeader(group: group);
     }
   }
 }
 
 class GroupChatHeader extends ConsumerStatefulWidget {
-  final GroupData groupData;
+  final Group group;
 
   const GroupChatHeader({
     super.key,
-    required this.groupData,
+    required this.group,
   });
 
   @override
@@ -46,14 +56,14 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
   @override
   void initState() {
     super.initState();
-    _groupNpubFuture = npubFromHexPubkey(hexPubkey: widget.groupData.nostrGroupId);
+    _groupNpubFuture = npubFromHexPubkey(hexPubkey: widget.group.nostrGroupId);
   }
 
   @override
   void didUpdateWidget(GroupChatHeader oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.groupData.nostrGroupId != widget.groupData.nostrGroupId) {
-      _groupNpubFuture = npubFromHexPubkey(hexPubkey: widget.groupData.nostrGroupId);
+    if (oldWidget.group.nostrGroupId != widget.group.nostrGroupId) {
+      _groupNpubFuture = npubFromHexPubkey(hexPubkey: widget.group.nostrGroupId);
     }
   }
 
@@ -66,13 +76,13 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
           Gap(32.h),
           WnAvatar(
             imageUrl: '',
-            displayName: widget.groupData.name,
+            displayName: widget.group.name,
             size: 96.r,
             showBorder: true,
           ),
           Gap(12.h),
           Text(
-            widget.groupData.name,
+            widget.group.name,
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
@@ -95,7 +105,7 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
             },
           ),
           Gap(12.h),
-          if (widget.groupData.description.isNotEmpty) ...[
+          if (widget.group.description.isNotEmpty) ...[
             Text(
               'Group Description:',
               style: TextStyle(
@@ -106,7 +116,7 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
             ),
             Gap(4.h),
             Text(
-              widget.groupData.description,
+              widget.group.description,
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14.sp,
@@ -122,9 +132,9 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
 }
 
 class DirectMessageHeader extends ConsumerStatefulWidget {
-  final GroupData groupData;
+  final Group group;
 
-  const DirectMessageHeader({super.key, required this.groupData});
+  const DirectMessageHeader({super.key, required this.group});
 
   @override
   ConsumerState<DirectMessageHeader> createState() => _DirectMessageHeaderState();
@@ -136,14 +146,14 @@ class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
   @override
   void initState() {
     super.initState();
-    _dmChatDataFuture = ref.getDMChatData(widget.groupData.mlsGroupId);
+    _dmChatDataFuture = ref.getDMChatData(widget.group.mlsGroupId);
   }
 
   @override
   void didUpdateWidget(DirectMessageHeader oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.groupData.mlsGroupId != widget.groupData.mlsGroupId) {
-      _dmChatDataFuture = ref.getDMChatData(widget.groupData.mlsGroupId);
+    if (oldWidget.group.mlsGroupId != widget.group.mlsGroupId) {
+      _dmChatDataFuture = ref.getDMChatData(widget.group.mlsGroupId);
     }
   }
 

@@ -1,16 +1,15 @@
 import 'package:logging/logging.dart';
-import 'package:whitenoise/src/rust/api.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 
-/// Utility class for handling WhitenoiseError conversion and providing user-friendly error messages
+/// Utility class for handling ApiError conversion and providing user-friendly error messages
 class ErrorHandlingUtils {
   static final _logger = Logger('ErrorHandlingUtils');
 
-  /// Attempts to convert any error (including WhitenoiseErrorImpl exceptions) to a user-friendly string
+  /// Attempts to convert any error (including ApiErrorImpl exceptions) to a user-friendly string
   ///
   /// This method handles:
-  /// - Direct WhitenoiseError objects
-  /// - WhitenoiseErrorImpl wrapped in generic exceptions (flutter_rust_bridge issue)
+  /// - Direct ApiError objects
+  /// - ApiErrorImpl wrapped in generic exceptions (flutter_rust_bridge issue)
   /// - Generic exceptions with custom error messages
   ///
   /// [error] - The caught exception or error
@@ -26,15 +25,15 @@ class ErrorHandlingUtils {
     final logPrefix = context.isNotEmpty ? '$context: ' : '';
 
     try {
-      if (error is WhitenoiseError) {
+      if (error is ApiError) {
         try {
-          _logger.severe('${logPrefix}Converting WhitenoiseError to string...');
-          final rawErrorMessage = await whitenoiseErrorToString(error: error);
-          _logger.severe('${logPrefix}WhitenoiseError converted to: $rawErrorMessage');
+          _logger.severe('${logPrefix}Converting Whitenoise ApiError to string...');
+          final rawErrorMessage = await error.messageText();
+          _logger.severe('${logPrefix}ApiError converted to: $rawErrorMessage');
           return _parseSpecificErrorPatterns(rawErrorMessage);
         } catch (conversionError) {
           _logger.severe(
-            '${logPrefix}Failed to convert WhitenoiseError to string: $conversionError',
+            '${logPrefix}Failed to convert ApiError to string: $conversionError',
           );
           return fallbackMessage;
         }
@@ -56,7 +55,7 @@ class ErrorHandlingUtils {
     }
   }
 
-  /// Handles exceptions that may wrap WhitenoiseErrorImpl
+  /// Handles exceptions that may wrap ApiErrorImpl
   static String _handleWrappedException({
     required Exception error,
     StackTrace? stackTrace,
@@ -70,9 +69,9 @@ class ErrorHandlingUtils {
       _logger.severe('${logPrefix}Exception string: $exceptionString');
       _logger.severe('${logPrefix}Exception type: ${error.runtimeType}');
 
-      if (exceptionString.contains('WhitenoiseErrorImpl')) {
+      if (exceptionString.contains('ApiErrorImpl')) {
         _logger.severe(
-          '${logPrefix}Detected wrapped WhitenoiseErrorImpl - attempting to extract error details',
+          '${logPrefix}Detected wrapped ApiErrorImpl - attempting to extract error details',
         );
 
         // Try to extract actual error information from the exception string first
@@ -80,13 +79,11 @@ class ErrorHandlingUtils {
         String baseErrorMessage = 'Internal error occurred';
 
         // Attempt to extract meaningful error text from the exception
-        // This is a best-effort approach since WhitenoiseErrorImpl is opaque
-        if (exceptionString.length > 'Exception: Instance of \'WhitenoiseErrorImpl\''.length) {
+        // This is a best-effort approach since ApiErrorImpl is opaque
+        if (exceptionString.length > 'Exception: Instance of \'ApiErrorImpl\''.length) {
           // If there's more text beyond the generic message, try to use it
           final cleanedException =
-              exceptionString
-                  .replaceFirst('Exception: Instance of \'WhitenoiseErrorImpl\'', '')
-                  .trim();
+              exceptionString.replaceFirst('Exception: Instance of \'ApiErrorImpl\'', '').trim();
           if (cleanedException.isNotEmpty) {
             baseErrorMessage = cleanedException;
           }
@@ -105,7 +102,7 @@ class ErrorHandlingUtils {
           return '$baseErrorMessage\n\nThere was an issue with local data storage. Please restart the app.';
         } else {
           // Log full details for debugging but still try to show what we can to the user
-          _logger.severe('${logPrefix}WhitenoiseErrorImpl details: $exceptionString');
+          _logger.severe('${logPrefix}ApiErrorImpl details: $exceptionString');
           _logger.severe('${logPrefix}Raw error object: $error');
           if (stackTrace != null) {
             _logger.severe('${logPrefix}Stack trace: $stackTrace');
@@ -115,8 +112,8 @@ class ErrorHandlingUtils {
           return '$baseErrorMessage\n\n${_getGenericHelpText()}';
         }
       } else {
-        // Non-WhitenoiseError exception
-        _logger.severe('${logPrefix}Non-WhitenoiseError exception type: ${error.runtimeType}');
+        // Non-ApiError exception
+        _logger.severe('${logPrefix}Non-ApiError exception type: ${error.runtimeType}');
         _logger.severe('${logPrefix}Error details: $error');
         if (stackTrace != null) {
           _logger.severe('${logPrefix}Stack trace: $stackTrace');
@@ -130,7 +127,7 @@ class ErrorHandlingUtils {
     }
   }
 
-  /// Parses specific error patterns from converted WhitenoiseError strings
+  /// Parses specific error patterns from converted ApiError strings
   static String _parseSpecificErrorPatterns(String rawErrorMessage) {
     try {
       if (rawErrorMessage.contains('KeyPackage') && rawErrorMessage.contains('Does not exist')) {
@@ -215,7 +212,7 @@ class ErrorHandlingUtils {
         'Please ask the affected user(s) to open WhiteNoise and try again.';
   }
 
-  /// Generic help text for unknown WhitenoiseError types
+  /// Generic help text for unknown ApiError types
   static String _getGenericHelpText() {
     return 'This could be due to:\n'
         '• Invalid user data or public keys\n'

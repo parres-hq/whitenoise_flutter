@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/account_provider.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/create_profile_screen_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -26,24 +27,13 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      // Try to load existing metadata first
-      final currentMetadata = ref.read(accountProvider).metadata;
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final currentMetadata = activeAccountState.metadata;
       if (currentMetadata?.displayName != null && currentMetadata!.displayName!.isNotEmpty) {
         _displayNameController.text = currentMetadata.displayName!;
         setState(() {
           _isLoadingDisplayName = false;
         });
-      } else {
-        // If no metadata, try to load it
-        await ref.read(accountProvider.notifier).loadAccountData();
-        final newMetadata = ref.read(accountProvider).metadata;
-        if (newMetadata?.displayName != null && newMetadata!.displayName!.isNotEmpty) {
-          _displayNameController.text = newMetadata.displayName!;
-          setState(() {
-            _isLoadingDisplayName = false;
-          });
-        }
-        // Keep loading if no displayName is found - don't stop loading
       }
     });
   }
@@ -57,16 +47,18 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Listen to account provider changes and update displayName when metadata is loaded
-    ref.listen<AccountState>(accountProvider, (previous, next) {
-      if (next.metadata?.displayName != null &&
-          next.metadata!.displayName!.isNotEmpty &&
-          _displayNameController.text.isEmpty) {
-        _displayNameController.text = next.metadata!.displayName!;
-        setState(() {
-          _isLoadingDisplayName = false;
-        });
-      }
+    // Listen to active account provider changes and update displayName when metadata is loaded
+    ref.listen<AsyncValue<ActiveAccountState>>(activeAccountProvider, (previous, next) {
+      next.whenData((activeAccountState) {
+        if (activeAccountState.metadata?.displayName != null &&
+            activeAccountState.metadata!.displayName!.isNotEmpty &&
+            _displayNameController.text.isEmpty) {
+          _displayNameController.text = activeAccountState.metadata!.displayName!;
+          setState(() {
+            _isLoadingDisplayName = false;
+          });
+        }
+      });
     });
 
     return Scaffold(
@@ -95,15 +87,17 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                     builder: (context, value, child) {
                       final displayText = value.text.trim();
                       return WnAvatar(
-                        imageUrl: ref.watch(accountProvider).selectedImagePath ?? '',
+                        imageUrl: ref.watch(createProfileScreenProvider).selectedImagePath ?? '',
                         displayName: displayText,
                         size: 96.w,
-                        showBorder: ref.watch(accountProvider).selectedImagePath == null,
+                        showBorder:
+                            ref.watch(createProfileScreenProvider).selectedImagePath == null,
                       );
                     },
                   ),
                   GestureDetector(
-                    onTap: () => ref.read(accountProvider.notifier).pickProfileImage(ref),
+                    onTap:
+                        () => ref.read(createProfileScreenProvider.notifier).pickProfileImage(ref),
                     child: Container(
                       width: 28.w,
                       height: 28.w,
@@ -194,8 +188,8 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
           ).copyWith(bottom: 32.h),
           child: Consumer(
             builder: (context, ref, child) {
-              final accountState = ref.watch(accountProvider);
-              final isButtonDisabled = accountState.isLoading || _isLoadingDisplayName;
+              final createProfileState = ref.watch(createProfileScreenProvider);
+              final isButtonDisabled = createProfileState.isLoading || _isLoadingDisplayName;
 
               return WnFilledButton(
                 label: 'Finish',
@@ -204,8 +198,8 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                     isButtonDisabled
                         ? null
                         : () => ref
-                            .read(accountProvider.notifier)
-                            .updateAccountMetadata(
+                            .read(createProfileScreenProvider.notifier)
+                            .updateProfile(
                               ref,
                               _displayNameController.text.trim(),
                               _bioController.text.trim(),

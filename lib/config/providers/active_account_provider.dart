@@ -1,106 +1,236 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api;
+import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
+import 'package:whitenoise/utils/image_utils.dart';
 
-/// Active Account Provider
-///
-/// Manages the currently active account using Flutter Secure Storage for persistence.
-/// Uses the new getAccount() API for better performance when getting account data.
+final _logger = Logger('ActiveAccountProvider');
 
-class ActiveAccountNotifier extends Notifier<String?> {
-  static const String _activeAccountKey = 'active_account_pubkey';
-  final _logger = Logger('ActiveAccountProvider');
+class ActiveAccountState {
+  final accounts_api.Account? account;
+  final FlutterMetadata? metadata;
+  final bool isLoading;
+  final String? error;
 
-  final _storage = const FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true,
-    ),
-    iOptions: IOSOptions(
-      accessibility: KeychainAccessibility.first_unlock_this_device,
-    ),
+  const ActiveAccountState({
+    this.account,
+    this.metadata,
+    this.isLoading = false,
+    this.error,
+  });
+
+  ActiveAccountState copyWith({
+    accounts_api.Account? account,
+    FlutterMetadata? metadata,
+    bool? isLoading,
+    String? error,
+  }) => ActiveAccountState(
+    account: account ?? this.account,
+    metadata: metadata ?? this.metadata,
+    isLoading: isLoading ?? this.isLoading,
+    error: error ?? this.error,
   );
+}
+
+abstract class WnImageUtils {
+  Future<String?> getMimeTypeFromPath(String filePath);
+}
+
+class DefaultWnImageUtils implements WnImageUtils {
+  const DefaultWnImageUtils();
 
   @override
-  String? build() {
-    loadActiveAccount();
-    return null;
+  Future<String?> getMimeTypeFromPath(String filePath) {
+    return ImageUtils.getMimeTypeFromPath(filePath);
+  }
+}
+
+abstract class WnUtils {
+  Future<String> getDefaultBlossomServerUrl();
+}
+
+class DefaultWnUtils implements WnUtils {
+  const DefaultWnUtils();
+
+  @override
+  Future<String> getDefaultBlossomServerUrl() {
+    // TODO: Replace with the actual implementation (e.g., read from settings).
+    throw UnimplementedError('getDefaultBlossomServerUrl not implemented');
+  }
+}
+
+abstract class WnAccountsApi {
+  Future<accounts_api.Account> getAccount({required String pubkey});
+  Future<FlutterMetadata> getAccountMetadata({required String pubkey});
+  Future<void> updateAccountMetadata({required String pubkey, required FlutterMetadata metadata});
+  Future<String> uploadAccountProfilePicture({
+    required String pubkey,
+    required String serverUrl,
+    required String filePath,
+    required String imageType,
+  });
+}
+
+class DefaultWnAccountsApi implements WnAccountsApi {
+  const DefaultWnAccountsApi();
+
+  @override
+  Future<accounts_api.Account> getAccount({required String pubkey}) {
+    return accounts_api.getAccount(pubkey: pubkey);
   }
 
-  Future<void> loadActiveAccount() async {
+  @override
+  Future<FlutterMetadata> getAccountMetadata({required String pubkey}) {
+    return accounts_api.accountMetadata(pubkey: pubkey);
+  }
+
+  @override
+  Future<void> updateAccountMetadata({required String pubkey, required FlutterMetadata metadata}) {
+    return accounts_api.updateAccountMetadata(pubkey: pubkey, metadata: metadata);
+  }
+
+  @override
+  Future<String> uploadAccountProfilePicture({
+    required String pubkey,
+    required String serverUrl,
+    required String filePath,
+    required String imageType,
+  }) {
+    return accounts_api.uploadAccountProfilePicture(
+      pubkey: pubkey,
+      serverUrl: serverUrl,
+      filePath: filePath,
+      imageType: imageType,
+    );
+  }
+}
+
+final wnAccountsApiProvider = Provider<WnAccountsApi>((ref) => const DefaultWnAccountsApi());
+final wnImageUtilsProvider = Provider<WnImageUtils>((ref) => const DefaultWnImageUtils());
+final wnUtilsProvider = Provider<WnUtils>((ref) => const DefaultWnUtils());
+
+Future<accounts_api.Account> _fetchAccount(WnAccountsApi accountsApi, String pubkey) async {
+  try {
+    _logger.fine('Fetching account for pubkey: $pubkey');
+    final account = await accountsApi.getAccount(pubkey: pubkey);
+    _logger.fine('Successfully fetched account for pubkey: $pubkey');
+    return account;
+  } catch (e) {
+    _logger.warning('Failed to fetch account for pubkey: $pubkey - Error: $e');
+    rethrow;
+  }
+}
+
+Future<FlutterMetadata> _fetchMetadata(WnAccountsApi accountsApi, String pubkey) async {
+  try {
+    _logger.fine('Fetching metadata for pubkey: $pubkey');
+    final metadata = await accountsApi.getAccountMetadata(pubkey: pubkey);
+    _logger.fine('Successfully fetched metadata for pubkey: $pubkey');
+    return metadata;
+  } catch (e) {
+    _logger.warning('Failed to fetch metadata for pubkey: $pubkey - Error: $e');
+    rethrow;
+  }
+}
+
+class ActiveAccountNotifier extends AsyncNotifier<ActiveAccountState> {
+  @override
+  Future<ActiveAccountState> build() async {
+    final activePubkey = ref.watch(activePubkeyProvider);
+    final accountsApi = ref.read(wnAccountsApiProvider);
+
+    if (activePubkey == null || activePubkey.isEmpty) {
+      _logger.fine('No active pubkey set');
+      return const ActiveAccountState();
+    }
+
     try {
-      final activeAccountPubkey = await _storage.read(key: _activeAccountKey);
-      _logger.info('ActiveAccountProvider: Loaded active account: $activeAccountPubkey');
-      state = activeAccountPubkey;
+      final (account, metadata) =
+          await (
+            _fetchAccount(accountsApi, activePubkey),
+            _fetchMetadata(accountsApi, activePubkey),
+          ).wait;
+
+      _logger.fine(
+        'ActiveAccountProvider: Successfully fetched account and metadata for ${account.pubkey}',
+      );
+
+      return ActiveAccountState(
+        account: account,
+        metadata: metadata,
+      );
     } catch (e) {
-      _logger.severe('Error loading active account: $e');
-      state = null;
+      _logger.warning(
+        'ActiveAccountProvider: Error fetching account/metadata for $activePubkey: $e',
+      );
+      return ActiveAccountState(error: e.toString());
     }
   }
 
-  Future<void> setActiveAccount(String pubkey) async {
+  Future<void> updateMetadata({
+    required FlutterMetadata metadata,
+  }) async {
+    final activePubkey = ref.read(activePubkeyProvider);
+
+    if (activePubkey == null || activePubkey.isEmpty) {
+      _logger.fine('No active pubkey set');
+      throw Exception('No active pubkey available');
+    }
+
+    final accountsApi = ref.read(wnAccountsApiProvider);
     try {
-      await _storage.write(key: _activeAccountKey, value: pubkey);
-      _logger.info('ActiveAccountProvider: Set active account: $pubkey');
-      state = pubkey;
+      await accountsApi.updateAccountMetadata(
+        pubkey: activePubkey,
+        metadata: metadata,
+      );
+      ref.invalidateSelf();
     } catch (e) {
-      _logger.severe('Error setting active account: $e');
+      _logger.severe('Failed to update metadata: $e');
+      rethrow;
     }
   }
 
-  Future<void> clearActiveAccount() async {
-    try {
-      await _storage.delete(key: _activeAccountKey);
-      state = null;
-    } catch (e) {
-      _logger.severe('ActiveAccountProvider: Error clearing active account: $e');
-    }
-  }
+  Future<String> uploadProfilePicture({
+    required String filePath,
+  }) async {
+    final activePubkey = ref.read(activePubkeyProvider);
 
-  Future<AccountData?> getActiveAccountData() async {
-    _logger.fine('Getting active account data, state: $state');
-    if (state == null) {
-      _logger.warning('No active account set');
-      return null;
+    if (activePubkey == null || activePubkey.isEmpty) {
+      _logger.fine('No active pubkey set');
+      throw Exception('No active pubkey available');
     }
 
     try {
-      // Use the new getAccount API function for better performance
-      final publicKey = await publicKeyFromString(publicKeyString: state!);
-      final activeAccount = await getAccount(pubkey: publicKey);
-      _logger.fine('Found active account: ${activeAccount.pubkey}');
-      return activeAccount;
-    } catch (e) {
-      _logger.warning('Error with new getAccount API: $e');
-      // Fallback to the old method if the new one fails
-      try {
-        final accounts = await getAccounts();
-        _logger.info('Fallback - Found ${accounts.length} accounts');
-        final activeAccount = accounts.firstWhere(
-          (account) => account.pubkey == state,
-          orElse: () => throw Exception('Active account not found'),
-        );
-        _logger.info('Fallback - Found active account: ${activeAccount.pubkey}');
-        return activeAccount;
-      } catch (fallbackError) {
-        _logger.severe('Fallback method also failed: $fallbackError');
-        return null;
+      _logger.fine('Uploading profile picture for pubkey: $activePubkey');
+
+      final imageUtils = ref.read(wnImageUtilsProvider);
+      final imageType = await imageUtils.getMimeTypeFromPath(filePath);
+      if (imageType == null) {
+        throw Exception('Could not determine image type from file path: $filePath');
       }
-    }
-  }
+      final utils = ref.read(wnUtilsProvider);
+      final serverUrl = await utils.getDefaultBlossomServerUrl();
 
-  /// Clear all secure storage data (useful for debugging or complete reset)
-  Future<void> clearAllSecureStorage() async {
-    try {
-      await _storage.deleteAll();
-      _logger.info('ActiveAccountProvider: Cleared all secure storage data');
+      final accountsApi = ref.read(wnAccountsApiProvider);
+      final profilePictureUrl = await accountsApi.uploadAccountProfilePicture(
+        pubkey: activePubkey,
+        serverUrl: serverUrl,
+        filePath: filePath,
+        imageType: imageType,
+      );
+
+      _logger.fine(
+        'Successfully uploaded profile picture for pubkey: $activePubkey, URL: $profilePictureUrl',
+      );
+      return profilePictureUrl;
     } catch (e) {
-      _logger.severe('ActiveAccountProvider: Error clearing all secure storage: $e');
+      _logger.severe('Failed to upload profile picture: $e');
+      rethrow;
     }
   }
 }
 
-final activeAccountProvider = NotifierProvider<ActiveAccountNotifier, String?>(
+final activeAccountProvider = AsyncNotifierProvider<ActiveAccountNotifier, ActiveAccountState>(
   ActiveAccountNotifier.new,
 );

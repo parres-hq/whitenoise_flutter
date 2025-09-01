@@ -5,167 +5,41 @@
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-import '../api.dart';
 import '../frb_generated.dart';
-import '../lib.dart';
 import 'accounts.dart';
+import 'error.dart';
 
-/// Creates a RelayType::Nostr variant.
-///
-/// This helper function returns the Nostr relay type, used for general
-/// Nostr protocol communication and event publishing/subscription.
-///
-/// # Returns
-/// RelayType::Nostr variant
-Future<RelayType> relayTypeNostr() => RustLib.instance.api.crateApiRelaysRelayTypeNostr();
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `from`
 
-/// Creates a RelayType::Inbox variant.
-///
-/// This helper function returns the Inbox relay type, used specifically
-/// for receiving private messages and notifications in the Whitenoise protocol.
-///
-/// # Returns
-/// RelayType::Inbox variant
+Future<RelayType> relayTypeNip65() => RustLib.instance.api.crateApiRelaysRelayTypeNip65();
+
 Future<RelayType> relayTypeInbox() => RustLib.instance.api.crateApiRelaysRelayTypeInbox();
 
-/// Creates a RelayType::KeyPackage variant.
-///
-/// This helper function returns the KeyPackage relay type, used for
-/// publishing and retrieving MLS key packages required for group membership.
-///
-/// # Returns
-/// RelayType::KeyPackage variant
 Future<RelayType> relayTypeKeyPackage() => RustLib.instance.api.crateApiRelaysRelayTypeKeyPackage();
 
-/// Fetches all relays of a specific type associated with an account.
-///
-/// This function retrieves the relay URLs configured for a specific account
-/// and relay type. Different relay types serve different purposes in the
-/// Whitenoise protocol (Nostr events, inbox messages, key packages).
-///
-/// # Parameters
-/// * `pubkey` - The public key of the account whose relays to fetch
-/// * `relay_type` - The type of relays to retrieve (Nostr, Inbox, or KeyPackage)
-///
-/// # Returns
-/// * `Ok(Vec<RelayUrl>)` - Vector of relay URLs for the specified type
-/// * `Err(WhitenoiseError)` - If there was an error fetching relays or account not found
-Future<List<RelayUrl>> fetchRelaysFrom({
-  required List<RelayUrl> nip65Relays,
-  required PublicKey pubkey,
-  required RelayType relayType,
-}) => RustLib.instance.api.crateApiRelaysFetchRelaysFrom(
-  nip65Relays: nip65Relays,
-  pubkey: pubkey,
-  relayType: relayType,
-);
-
-/// Fetches an account's MLS key package from its configured key package relays.
-///
-/// This function retrieves the key package event for the specified account from
-/// its key package relays. Key packages are required for adding users to MLS groups
-/// and must be available on relays for group membership to work.
-///
-/// # Parameters
-/// * `pubkey` - The public key of the account whose key package to fetch
-///
-/// # Returns
-/// * `Ok(Some(Event))` - The key package event if found
-/// * `Ok(None)` - If no key package was found on the relays
-/// * `Err(WhitenoiseError)` - If there was an error fetching the key package
-///
-/// # Notes
-/// * This function automatically uses the account's configured key package relays
-/// * Key packages have expiration times and may need to be refreshed periodically
-Future<Event?> fetchKeyPackage({
-  required PublicKey pubkey,
-  required List<RelayUrl> nip65Relays,
-}) => RustLib.instance.api.crateApiRelaysFetchKeyPackage(
-  pubkey: pubkey,
-  nip65Relays: nip65Relays,
-);
-
-/// Fetches the connection status of all relays associated with an account.
-///
-/// This function retrieves the current connection status for all relay URLs
-/// configured across all relay types (Nostr, Inbox, and KeyPackage) for the
-/// specified account. This is useful for monitoring relay connectivity and
-/// diagnosing connection issues. Both relay URLs and statuses are converted
-/// to string format for Flutter compatibility.
-///
-/// # Parameters
-/// * `pubkey` - The public key of the account whose relay statuses to check
-///
-/// # Returns
-/// * `Ok(Vec<(String, String)>)` - Vector of tuples containing each relay URL as a string and its current status as a string
-/// * `Err(WhitenoiseError)` - If there was an error fetching relay statuses or account not found
-///
-/// # Notes
-/// * The status reflects the current connection state at the time of the call
-/// * Relay statuses can change frequently due to network conditions
-/// * This function checks all relay types configured for the account
-/// * Possible status values include: "Initialized", "Pending", "Connecting", "Connected", "Disconnected", "Terminated", "Banned", "Sleeping"
-///
-/// # Example
-/// ```rust
-/// let statuses = fetch_relay_status(pubkey).await?;
-/// for (url, status) in statuses {
-///     println!("Relay {} is {}", url, status);
-/// }
-/// ```
-Future<List<(String, String)>> fetchRelayStatus({required PublicKey pubkey}) =>
+Future<List<(String, String)>> fetchRelayStatus({required String pubkey}) =>
     RustLib.instance.api.crateApiRelaysFetchRelayStatus(pubkey: pubkey);
 
-Future<void> addNip65Relay({
-  required PublicKey pubkey,
-  required RelayUrl relay,
-}) => RustLib.instance.api.crateApiRelaysAddNip65Relay(
-  pubkey: pubkey,
-  relay: relay,
-);
+class Relay {
+  final String url;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-Future<void> addInboxRelay({
-  required PublicKey pubkey,
-  required RelayUrl relay,
-}) => RustLib.instance.api.crateApiRelaysAddInboxRelay(
-  pubkey: pubkey,
-  relay: relay,
-);
+  const Relay({
+    required this.url,
+    required this.createdAt,
+    required this.updatedAt,
+  });
 
-Future<void> addKeyPackageRelay({
-  required PublicKey pubkey,
-  required RelayUrl relay,
-}) => RustLib.instance.api.crateApiRelaysAddKeyPackageRelay(
-  pubkey: pubkey,
-  relay: relay,
-);
+  @override
+  int get hashCode => url.hashCode ^ createdAt.hashCode ^ updatedAt.hashCode;
 
-Future<void> removeNip65Relay({
-  required PublicKey pubkey,
-  required RelayUrl relay,
-}) => RustLib.instance.api.crateApiRelaysRemoveNip65Relay(
-  pubkey: pubkey,
-  relay: relay,
-);
-
-Future<void> removeInboxRelay({
-  required PublicKey pubkey,
-  required RelayUrl relay,
-}) => RustLib.instance.api.crateApiRelaysRemoveInboxRelay(
-  pubkey: pubkey,
-  relay: relay,
-);
-
-Future<void> removeKeyPackageRelay({
-  required PublicKey pubkey,
-  required RelayUrl relay,
-}) => RustLib.instance.api.crateApiRelaysRemoveKeyPackageRelay(
-  pubkey: pubkey,
-  relay: relay,
-);
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
-abstract class Event implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayType>>
-abstract class RelayType implements RustOpaqueInterface {}
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Relay &&
+          runtimeType == other.runtimeType &&
+          url == other.url &&
+          createdAt == other.createdAt &&
+          updatedAt == other.updatedAt;
+}

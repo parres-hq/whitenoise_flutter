@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 
 const String _profileReadyCardDismissedKey = 'profile_ready_card_dismissed';
 
@@ -15,7 +15,7 @@ class ProfileReadyCardVisibilityNotifier extends AsyncNotifier<bool> {
   @override
   Future<bool> build() async {
     _sharedPreferences = injectedSharedPreferences ?? await SharedPreferences.getInstance();
-    final activeAccountPubkey = ref.watch(activeAccountProvider);
+    final activeAccountPubkey = ref.watch(activePubkeyProvider);
     _currentPubKey = activeAccountPubkey;
     return await _loadVisibilityState();
   }

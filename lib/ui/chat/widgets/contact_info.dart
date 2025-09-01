@@ -49,27 +49,33 @@ class ContactInfo extends StatelessWidget {
       );
     }
 
-    return GestureDetector(
-      onTap: onTap,
-      child: Row(
-        children: [
-          WnAvatar(
-            imageUrl: image!,
-            displayName: title!,
-            size: 36.r,
-            showBorder: true,
+    final content = Row(
+      children: [
+        WnAvatar(
+          imageUrl: image!,
+          displayName: title!,
+          size: 36.r,
+          showBorder: true,
+        ),
+        Gap(8.w),
+        Text(
+          title!,
+          style: context.textTheme.bodyMedium?.copyWith(
+            color: context.colors.solidPrimary,
+            fontSize: 16.sp,
+            fontWeight: FontWeight.w600,
           ),
-          Gap(8.w),
-          Text(
-            title!,
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colors.solidPrimary,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
+
+    if (onTap != null) {
+      return GestureDetector(
+        onTap: onTap,
+        child: content,
+      );
+    }
+
+    return content;
   }
 }

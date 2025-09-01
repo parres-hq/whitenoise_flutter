@@ -74,49 +74,44 @@ class _RelayExpansionTileState extends ConsumerState<RelayExpansionTile> {
 
   @override
   Widget build(BuildContext context) {
-    return ExpansionTile(
-      initiallyExpanded: true,
-      tilePadding: EdgeInsets.zero,
-      childrenPadding: EdgeInsets.zero,
-      showTrailingIcon: false,
-      shape: const Border(),
-      collapsedShape: const Border(),
-      title: Row(
-        children: [
-          Text(
-            widget.title,
-            style: TextStyle(
-              color: context.colors.mutedForeground,
-              fontWeight: FontWeight.w600,
-              fontSize: 16.w,
-            ),
-          ),
-          Gap(8.w),
-          if (widget.onInfoTap != null)
-            InkWell(
-              key: widget.helpIconKey,
-              onTap: widget.onInfoTap,
-              child: WnImage(
-                AssetsPaths.icHelp,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header row (previously the ExpansionTile title)
+        Row(
+          children: [
+            Text(
+              widget.title,
+              style: TextStyle(
                 color: context.colors.mutedForeground,
-
-                size: 18.w,
+                fontWeight: FontWeight.w600,
+                fontSize: 16.w,
               ),
             ),
-          const Spacer(),
-          InkWell(
-            onTap: _showAddRelayBottomSheet,
-            child: WnImage(
-              AssetsPaths.icAdd,
-              color: context.colors.primary,
-
-              size: 23.w,
+            Gap(8.w),
+            if (widget.onInfoTap != null)
+              InkWell(
+                key: widget.helpIconKey,
+                onTap: widget.onInfoTap,
+                child: WnImage(
+                  AssetsPaths.icHelp,
+                  color: context.colors.mutedForeground,
+                  size: 18.w,
+                ),
+              ),
+            const Spacer(),
+            InkWell(
+              onTap: _showAddRelayBottomSheet,
+              child: WnImage(
+                AssetsPaths.icAdd,
+                color: context.colors.primary,
+                size: 23.w,
+              ),
             ),
-          ),
-        ],
-      ),
-
-      children: [
+          ],
+        ),
+        Gap(12.h), // Add some spacing between header and content
+        // Content (previously the ExpansionTile children)
         if (widget.relayState.isLoading)
           const Center(child: CircularProgressIndicator())
         else if (widget.relayState.error != null)

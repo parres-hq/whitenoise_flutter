@@ -3,17 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
-import 'package:whitenoise/config/providers/profile_provider.dart';
-import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts, accountMetadata;
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -34,20 +33,20 @@ class GeneralSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
-  List<AccountData> _accounts = [];
-  AccountData? _currentAccount;
+  List<Account> _accounts = [];
+  Account? _currentAccount;
   Map<String, ContactModel> _accountContactModels = {}; // Cache for contact models
-  ProviderSubscription<AsyncValue<ProfileState>>? _profileSubscription;
+  ProviderSubscription<AsyncValue<ActiveAccountState>>? _activeAccountSubscription;
+  PackageInfo? _packageInfo;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAccounts();
-      // Listen for profile updates
-      _profileSubscription = ref.listenManual(
-        profileProvider,
+      _loadPackageInfo();
+      _activeAccountSubscription = ref.listenManual(
+        activeAccountProvider,
         (previous, next) {
-          // When profile is updated successfully, refresh the accounts
           if (next is AsyncData) {
             _loadAccounts();
           }
@@ -58,54 +57,28 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   @override
   void dispose() {
-    _profileSubscription?.close();
+    _activeAccountSubscription?.close();
     super.dispose();
   }
 
   Future<void> _loadAccounts() async {
     try {
       final accounts = await getAccounts();
-      final activeAccountPubkey = ref.read(activeAccountProvider);
-
-      // Load metadata for all accounts using metadata cache
-      final metadataCache = ref.read(metadataCacheProvider.notifier);
       final contactModels = <String, ContactModel>{};
       for (final account in accounts) {
-        try {
-          // Use metadata cache instead of direct fetchMetadata
-          final contactModel = await metadataCache.getContactModel(account.pubkey);
-          contactModels[account.pubkey] = contactModel;
-        } catch (e) {
-          // Create fallback contact model
-          contactModels[account.pubkey] = ContactModel(
-            displayName: 'Unknown User',
-            publicKey: account.pubkey,
-          );
-        }
+        final metadata = await accountMetadata(pubkey: account.pubkey);
+        contactModels[account.pubkey] = ContactModel.fromMetadata(
+          publicKey: account.pubkey,
+          metadata: metadata,
+        );
       }
 
-      AccountData? currentAccount;
-      if (activeAccountPubkey != null) {
-        try {
-          currentAccount = accounts.firstWhere(
-            (account) => account.pubkey == activeAccountPubkey,
-          );
-        } catch (e) {
-          // Active account not found, use first account
-          if (accounts.isNotEmpty) {
-            currentAccount = accounts.first;
-            await ref.read(activeAccountProvider.notifier).setActiveAccount(currentAccount.pubkey);
-          }
-        }
-      } else if (accounts.isNotEmpty) {
-        // No active account set, use first account
-        currentAccount = accounts.first;
-        await ref.read(activeAccountProvider.notifier).setActiveAccount(currentAccount.pubkey);
-      }
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
 
       setState(() {
         _accounts = accounts;
-        _currentAccount = currentAccount;
+        _currentAccount = activeAccount;
         _accountContactModels = contactModels;
       });
     } catch (e) {
@@ -115,11 +88,22 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     } finally {}
   }
 
-  Future<void> _switchAccount(AccountData account) async {
+  Future<void> _loadPackageInfo() async {
     try {
-      await ref.read(activeAccountProvider.notifier).setActiveAccount(account.pubkey);
-      await ref.read(profileProvider.notifier).fetchProfileData();
-      await ref.read(contactsProvider.notifier).loadContacts(account.pubkey);
+      final packageInfo = await PackageInfo.fromPlatform();
+      setState(() {
+        _packageInfo = packageInfo;
+      });
+    } catch (e) {
+      // Silently handle error - version info is not critical
+      debugPrint('Failed to load package info: $e');
+    }
+  }
+
+  Future<void> _switchAccount(Account account) async {
+    try {
+      await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
+      await ref.read(followsProvider.notifier).loadFollows();
       await ref.read(groupsProvider.notifier).loadGroups();
       setState(() => _currentAccount = account);
 
@@ -133,7 +117,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     }
   }
 
-  ContactModel _accountToContactModel(AccountData account) {
+  ContactModel _accountToContactModel(Account account) {
     final contactModel = _accountContactModels[account.pubkey];
 
     // Use cached contact model if available, otherwise create fallback
@@ -157,12 +141,12 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       isDismissible: isDismissible,
       showSuccessToast: showSuccessToast,
       onProfileSelected: (selectedProfile) async {
-        // Find the corresponding AccountData
+        // Find the corresponding Account
         // Note: selectedProfile.publicKey is in npub format (from metadata cache)
         // but account.pubkey is in hex format (from getAccounts)
         // So we need to convert npub back to hex for matching
 
-        AccountData? selectedAccount;
+        Account? selectedAccount;
 
         try {
           // Try to convert npub to hex for matching
@@ -407,6 +391,20 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
               ),
             ],
           ),
+          // Version information at the bottom
+          Gap(32.h),
+          if (_packageInfo != null)
+            Center(
+              child: Text(
+                'Version ${_packageInfo!.version}+${_packageInfo!.buildNumber}',
+                style: TextStyle(
+                  fontSize: 10.sp,
+                  fontWeight: FontWeight.w400,
+                  color: context.colors.mutedForeground,
+                ),
+              ),
+            ),
+          Gap(16.h),
         ],
       ),
     );

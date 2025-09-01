@@ -8,14 +8,12 @@ import 'package:whitenoise/src/rust/api/utils.dart';
 class DMChatService {
   static Future<DMChatData?> getDMChatData(String groupId, WidgetRef ref) async {
     try {
-      final activeAccountData =
-          await ref.read(activeAccountProvider.notifier).getActiveAccountData();
-      if (activeAccountData == null) return null;
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
+      if (activeAccount == null) return null;
 
-      final currentUserHexPubkey = activeAccountData.pubkey;
-
-      final currentUserNpub = await npubFromPublicKey(
-        publicKey: await publicKeyFromString(publicKeyString: currentUserHexPubkey),
+      final currentUserNpub = await npubFromHexPubkey(
+        hexPubkey: activeAccount.pubkey,
       );
 
       final otherMember = ref

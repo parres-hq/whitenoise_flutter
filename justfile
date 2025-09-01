@@ -15,6 +15,17 @@ precommit:
     just test-rust
     @echo "✅ All pre-commit checks passed!"
 
+# Pre-commit checks without auto-fixing (for releases)
+precommit-check:
+    just deps-flutter
+    just deps-rust
+    just check-rust-format
+    just check-dart-format
+    just lint
+    just test-flutter
+    just test-rust
+    @echo "✅ All pre-commit checks passed!"
+
 # ==============================================================================
 # CODE GENERATION
 # ==============================================================================
@@ -187,12 +198,45 @@ doctor:
 setup: doctor clean-all deps regenerate build-rust-debug
     @echo "🎉 Setup complete! Run 'just run' to start the app."
 
-# Build APK (for Max)
-build-apk:
-    just regenerate
-    scripts/build_android.sh
+# ==============================================================================
+# BUILDING
+# ==============================================================================
+
+# Build unversioned android release
+android-build:
+    @echo "🔨 Building unversioned android release..."
+    @echo "✔︎ Running a precommit check..."
     just precommit
-    flutter build apk --split-per-abi --release
+    @echo "🎁 Building unversioned android release..."
+    ./scripts/build.sh --full --android
+    @echo "🎉 Unversioned android release built successfully!"
+
+# Check and build versioned release
+release:
+    @echo "🔨 Building versioned release..."
+    @echo "🔍 Verifying working tree is clean..."
+    @if [ -n "$$(git status --porcelain)" ]; then \
+        echo "❌ Working tree is not clean. Please commit or stash changes before release."; \
+        git status --short; \
+        exit 1; \
+    fi
+    @echo "✅ Working tree is clean"
+    @echo "🔍 Verifying build script..."
+    @if [ ! -f "scripts/build.sh" ]; then \
+        echo "❌ Build script not found: scripts/build.sh"; \
+        exit 1; \
+    fi
+    @if [ ! -x "scripts/build.sh" ]; then \
+        echo "❌ Build script is not executable: scripts/build.sh"; \
+        echo "💡 Run: chmod +x scripts/build.sh"; \
+        exit 1; \
+    fi
+    @echo "✅ Build script verified"
+    @echo "✔︎ Running a precommit check..."
+    just precommit-check
+    @echo "🎁 Building versioned release for Android and iOS..."
+    ./scripts/build.sh --full --versioned
+    @echo "🎉 Versioned release built successfully!"
 
 # ==============================================================================
 # LOGS

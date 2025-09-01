@@ -5,17 +5,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/account_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
-import 'package:whitenoise/config/providers/profile_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api.dart' as wn_api;
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
@@ -88,7 +87,7 @@ class AppSettingsScreen extends ConsumerWidget {
 
       // Add timeout to prevent hanging
       _logger.info('🗑️ Calling backend deleteAllData...');
-      await deleteAllData().timeout(
+      await wn_api.deleteAllData().timeout(
         const Duration(seconds: 30),
         onTimeout: () {
           throw Exception('Delete operation timed out after 30 seconds');
@@ -122,31 +121,23 @@ class AppSettingsScreen extends ConsumerWidget {
       }
 
       try {
-        ref.invalidate(profileProvider);
-        _logger.info('✅ Profile provider invalidated');
-      } catch (e) {
-        _logger.warning('⚠️ Error invalidating profile provider: $e');
-      }
-
-      try {
-        ref.invalidate(contactsProvider);
-        _logger.info('✅ Contacts provider invalidated');
-      } catch (e) {
-        _logger.warning('⚠️ Error invalidating contacts provider: $e');
-      }
-
-      try {
-        ref.invalidate(accountProvider);
-        _logger.info('✅ Account provider invalidated');
-      } catch (e) {
-        _logger.warning('⚠️ Error invalidating account provider: $e');
-      }
-
-      try {
         ref.invalidate(activeAccountProvider);
         _logger.info('✅ Active account provider invalidated');
       } catch (e) {
         _logger.warning('⚠️ Error invalidating active account provider: $e');
+      }
+
+      try {
+        ref.invalidate(followsProvider);
+        _logger.info('✅ Follows provider invalidated');
+      } catch (e) {
+        _logger.warning('⚠️ Error invalidating follows provider: $e');
+      }
+      try {
+        ref.invalidate(activePubkeyProvider);
+        _logger.info('✅ Active pubkey provider invalidated');
+      } catch (e) {
+        _logger.warning('⚠️ Error invalidating active pubkey provider: $e');
       }
 
       // Set authentication state to false - this should be last

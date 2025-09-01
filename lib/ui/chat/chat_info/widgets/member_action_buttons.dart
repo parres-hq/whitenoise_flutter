@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/contacts_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
@@ -35,7 +35,7 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
     });
 
     try {
-      final groupData = await ref
+      final group = await ref
           .read(groupsProvider.notifier)
           .createNewGroup(
             groupName: 'DM',
@@ -44,14 +44,14 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
             adminPublicKeyHexs: [widget.user.publicKey],
           );
 
-      if (groupData != null) {
-        _logger.info('Direct message group created successfully: ${groupData.mlsGroupId}');
+      if (group != null) {
+        _logger.info('Direct message group created successfully: ${group.mlsGroupId}');
 
         if (mounted) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted) {
               Navigator.pop(context);
-              context.navigateToGroupChatAndPopToHome(groupData);
+              context.navigateToGroupChatAndPopToHome(group);
             }
           });
 
@@ -106,11 +106,11 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
   bool get _isLoading => _isAddingContact;
 
   bool _isContact() {
-    final contactsState = ref.watch(contactsProvider);
-    final contacts = contactsState.contactModels ?? [];
+    final followsState = ref.watch(followsProvider);
+    final follows = followsState.follows;
 
-    return contacts.any(
-      (contact) => contact.publicKey.toLowerCase() == widget.user.publicKey.toLowerCase(),
+    return follows.any(
+      (follow) => follow.pubkey.toLowerCase() == widget.user.publicKey.toLowerCase(),
     );
   }
 
@@ -120,23 +120,23 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
     });
 
     try {
-      final contactsNotifier = ref.read(contactsProvider.notifier);
-      final isCurrentlyContact = _isContact();
+      final followsNotifier = ref.read(followsProvider.notifier);
+      final isCurrentlyFollow = followsNotifier.isFollowing(widget.user.publicKey);
 
-      if (isCurrentlyContact) {
-        await contactsNotifier.removeContactByHex(widget.user.publicKey);
+      if (isCurrentlyFollow) {
+        await followsNotifier.removeFollow(widget.user.publicKey);
         if (mounted) {
-          ref.showSuccessToast('${widget.user.displayName} removed from contacts');
+          ref.showSuccessToast('${widget.user.displayName} removed from follows');
         }
       } else {
-        await contactsNotifier.addContactByHex(widget.user.publicKey);
+        await followsNotifier.addFollow(widget.user.publicKey);
         if (mounted) {
-          ref.showSuccessToast('${widget.user.displayName} added to contacts');
+          ref.showSuccessToast('${widget.user.displayName} added to follows');
         }
       }
     } catch (e) {
       if (mounted) {
-        ref.showErrorToast('Failed to update contact: $e');
+        ref.showErrorToast('Failed to update follow: $e');
       }
     } finally {
       if (mounted) {

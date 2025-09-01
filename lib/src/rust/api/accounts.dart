@@ -5,303 +5,133 @@
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-import '../api.dart';
 import '../frb_generated.dart';
-import '../lib.dart';
-import 'utils.dart';
+import 'error.dart';
+import 'metadata.dart';
+import 'relays.dart';
+import 'users.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `from`
 
-/// Converts a core `Account` object to a Flutter-compatible `AccountData` structure.
-///
-/// This function bridges the gap between the core Whitenoise library's Account type
-/// and the Flutter-compatible AccountData structure, converting complex types like
-/// timestamps and public keys to their string representations.
-///
-/// # Parameters
-/// * `account` - Reference to a core Account object
-///
-/// # Returns
-/// An AccountData struct with all fields converted for Flutter compatibility
-Future<AccountData> convertAccountToData({required Account account}) =>
-    RustLib.instance.api.crateApiAccountsConvertAccountToData(account: account);
+Future<List<Account>> getAccounts() => RustLib.instance.api.crateApiAccountsGetAccounts();
 
-/// Retrieves all accounts currently stored and logged into the Whitenoise instance.
-///
-/// This function fetches all accounts that have been previously logged in and are
-/// available in the current Whitenoise instance. Each account is converted to a
-/// Flutter-compatible AccountData structure for use in the UI.
-///
-/// # Returns
-/// * `Result<Vec<AccountData>, WhitenoiseError>` - A vector of all available accounts,
-///   or an error if the operation fails
-///
-/// # Errors
-/// * Returns `WhitenoiseError` if the Whitenoise instance cannot be accessed or if
-///   there's an issue fetching the accounts
-Future<List<AccountData>> getAccounts() => RustLib.instance.api.crateApiAccountsGetAccounts();
-
-/// Fetches a specific account by its public key.
-///
-/// This function retrieves account information for a given public key from the
-/// Whitenoise instance and converts it to a Flutter-compatible format.
-///
-/// # Parameters
-/// * `pubkey` - The public key of the account to fetch
-///
-/// # Returns
-/// * `Result<AccountData, WhitenoiseError>` - The account data for the specified
-///   public key, or an error if the operation fails
-///
-/// # Errors
-/// * Returns `WhitenoiseError` if the account doesn't exist, the Whitenoise instance
-///   cannot be accessed, or if there's an issue fetching the account
-Future<AccountData> getAccount({required PublicKey pubkey}) =>
+Future<Account> getAccount({required String pubkey}) =>
     RustLib.instance.api.crateApiAccountsGetAccount(pubkey: pubkey);
 
-Future<AccountData> loadAccount({required PublicKey pubkey}) =>
-    RustLib.instance.api.crateApiAccountsLoadAccount(pubkey: pubkey);
-
-/// Creates a new account identity and prepares it for MLS (Messaging Layer Security) messaging.
-///
-/// This function generates a new cryptographic identity, creates an account, and sets up
-/// all necessary components for secure messaging using the MLS protocol. The account will
-/// be ready for participation in secure group conversations.
-///
-/// # Returns
-/// * `Result<Account, WhitenoiseError>` - The newly created account with full MLS capabilities,
-///   or an error if the creation process fails
-///
-/// # Errors
-/// * Returns `WhitenoiseError` if there's an issue with key generation, MLS setup,
-///   or if the Whitenoise instance cannot be accessed
 Future<Account> createIdentity() => RustLib.instance.api.crateApiAccountsCreateIdentity();
 
-/// Authenticates and logs in a user account using their private key.
-///
-/// This function accepts either a Nostr secret key (nsec) or a hexadecimal private key
-/// and attempts to log the user into their account. Once logged in, the account becomes
-/// available for messaging and other operations.
-///
-/// # Parameters
-/// * `nsec_or_hex_privkey` - The private key in either nsec (bech32) format or hexadecimal format
-///
-/// # Returns
-/// * `Result<Account, WhitenoiseError>` - The successfully logged-in account,
-///   or an error if authentication fails
-///
-/// # Errors
-/// * Returns `WhitenoiseError` if the private key is invalid, malformed, or if there's
-///   an issue with the login process
 Future<Account> login({required String nsecOrHexPrivkey}) =>
     RustLib.instance.api.crateApiAccountsLogin(nsecOrHexPrivkey: nsecOrHexPrivkey);
 
-/// Logs out an account identified by its public key.
-///
-/// This function removes the specified account from the active session, clearing
-/// any cached data and ensuring the account is no longer available for operations
-/// until logged in again.
-///
-/// # Parameters
-/// * `pubkey` - The public key of the account to log out
-///
-/// # Returns
-/// * `Result<(), WhitenoiseError>` - Success (empty result) or an error if logout fails
-///
-/// # Errors
-/// * Returns `WhitenoiseError` if the account doesn't exist, is not currently logged in,
-///   or if there's an issue with the logout process
-Future<void> logout({required PublicKey pubkey}) =>
+Future<void> logout({required String pubkey}) =>
     RustLib.instance.api.crateApiAccountsLogout(pubkey: pubkey);
 
-/// Exports an account's private key in nsec (Nostr secret key) format.
-///
-/// This function retrieves and exports the private key for the specified account
-/// in the standard Nostr nsec format (bech32 encoding). This is useful for backing up
-/// accounts or transferring them to other applications.
-///
-/// # Parameters
-/// * `pubkey` - The public key of the account whose private key should be exported
-///
-/// # Returns
-/// * `Result<String, WhitenoiseError>` - The private key in nsec format,
-///   or an error if the export fails
-///
-/// # Errors
-/// * Returns `WhitenoiseError` if the account doesn't exist, cannot be accessed,
-///   or if there's an issue with the key export process
-///
-/// # Security Note
-/// The exported private key should be handled securely and never exposed in logs or UI
-Future<String> exportAccountNsec({required PublicKey pubkey}) =>
+Future<String> exportAccountNsec({required String pubkey}) =>
     RustLib.instance.api.crateApiAccountsExportAccountNsec(pubkey: pubkey);
 
-/// Exports an account's public key in npub (Nostr public key) format.
-///
-/// This function retrieves and exports the public key for the specified account
-/// in the standard Nostr npub format (bech32 encoding). This is the account's
-/// public identifier that can be safely shared with others.
-///
-/// # Parameters
-/// * `pubkey` - The public key of the account whose npub should be exported
-///
-/// # Returns
-/// * `Result<String, WhitenoiseError>` - The public key in npub format,
-///   or an error if the export fails
-///
-/// # Errors
-/// * Returns `WhitenoiseError` if the account doesn't exist, cannot be accessed,
-///   or if there's an issue with the key export process
-Future<String> exportAccountNpub({required PublicKey pubkey}) =>
-    RustLib.instance.api.crateApiAccountsExportAccountNpub(pubkey: pubkey);
+Future<FlutterMetadata> accountMetadata({required String pubkey}) =>
+    RustLib.instance.api.crateApiAccountsAccountMetadata(pubkey: pubkey);
 
-/// Retrieves metadata information for a specific account.
-///
-/// This function fetches the profile metadata (such as display name, about text,
-/// profile picture, etc.) associated with the given public key. The metadata
-/// is converted to a Flutter-compatible format for use in the UI.
-///
-/// # Parameters
-/// * `pubkey` - The public key of the account whose metadata should be fetched
-///
-/// # Returns
-/// * `Result<Option<MetadataData>, WhitenoiseError>` - The account's metadata if it exists,
-///   None if no metadata is found, or an error if the operation fails
-///
-/// # Errors
-/// * Returns `WhitenoiseError` if there's an issue accessing the Whitenoise instance
-///   or fetching the metadata from the network
-Future<MetadataData?> fetchMetadataFrom({
-  required List<RelayUrl> nip65Relays,
-  required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiAccountsFetchMetadataFrom(
-  nip65Relays: nip65Relays,
+Future<void> updateAccountMetadata({
+  required String pubkey,
+  required FlutterMetadata metadata,
+}) => RustLib.instance.api.crateApiAccountsUpdateAccountMetadata(
   pubkey: pubkey,
-);
-
-/// Updates the metadata for a specific account.
-///
-/// This function publishes updated profile metadata (display name, about text,
-/// profile picture, etc.) for the specified account to the Nostr network.
-/// The metadata will be broadcast to relays and become available to other users.
-///
-/// # Parameters
-/// * `metadata` - The new metadata to publish for the account
-/// * `pubkey` - The public key of the account whose metadata should be updated
-///
-/// # Returns
-/// * `Result<(), WhitenoiseError>` - Success (empty result) or an error if the update fails
-///
-/// # Errors
-/// * Returns `WhitenoiseError` if the account doesn't exist, cannot be accessed,
-///   or if there's an issue publishing the metadata to the network
-Future<void> updateMetadata({
-  required MetadataData metadata,
-  required PublicKey pubkey,
-}) => RustLib.instance.api.crateApiAccountsUpdateMetadata(
   metadata: metadata,
-  pubkey: pubkey,
 );
 
-/// Uploads a profile picture for a specific account to a media server.
-///
-/// This function takes a local image file and uploads it to the specified media server,
-/// making it available as a profile picture for the account. The function supports
-/// different image types and returns the URL where the uploaded image can be accessed.
-///
-/// # Parameters
-/// * `pubkey` - The public key of the account whose profile picture should be updated
-/// * `server_url` - The URL string of the media server where the image will be uploaded
-/// * `file_path` - The local path to the image file that should be uploaded
-/// * `image_type` - The type of image being uploaded (e.g., avatar, banner)
-///
-/// # Returns
-/// * `Result<String, WhitenoiseError>` - The URL of the uploaded image if successful,
-///   or an error if the upload fails
-///
-/// # Errors
-/// * Returns `WhitenoiseError` if the file cannot be read, the server is unreachable,
-///   the upload fails, the URL is invalid, or if there's an issue with the account access
-Future<String> uploadProfilePicture({
-  required PublicKey pubkey,
+Future<String> uploadAccountProfilePicture({
+  required String pubkey,
   required String serverUrl,
   required String filePath,
-  required ImageType imageType,
-}) => RustLib.instance.api.crateApiAccountsUploadProfilePicture(
+  required String imageType,
+}) => RustLib.instance.api.crateApiAccountsUploadAccountProfilePicture(
   pubkey: pubkey,
   serverUrl: serverUrl,
   filePath: filePath,
   imageType: imageType,
 );
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Account>>
-abstract class Account implements RustOpaqueInterface {}
+Future<List<Relay>> accountRelays({
+  required String pubkey,
+  required RelayType relayType,
+}) => RustLib.instance.api.crateApiAccountsAccountRelays(
+  pubkey: pubkey,
+  relayType: relayType,
+);
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<ImageType>>
-abstract class ImageType implements RustOpaqueInterface {}
+Future<void> addAccountRelay({
+  required String pubkey,
+  required String url,
+  required RelayType relayType,
+}) => RustLib.instance.api.crateApiAccountsAddAccountRelay(
+  pubkey: pubkey,
+  url: url,
+  relayType: relayType,
+);
 
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>
-abstract class PublicKey implements RustOpaqueInterface {}
+Future<void> removeAccountRelay({
+  required String pubkey,
+  required String url,
+  required RelayType relayType,
+}) => RustLib.instance.api.crateApiAccountsRemoveAccountRelay(
+  pubkey: pubkey,
+  url: url,
+  relayType: relayType,
+);
 
-class AccountData {
+Future<Event?> accountKeyPackage({required String pubkey}) =>
+    RustLib.instance.api.crateApiAccountsAccountKeyPackage(pubkey: pubkey);
+
+Future<List<User>> accountFollows({required String pubkey}) =>
+    RustLib.instance.api.crateApiAccountsAccountFollows(pubkey: pubkey);
+
+Future<void> followUser({
+  required String accountPubkey,
+  required String userToFollowPubkey,
+}) => RustLib.instance.api.crateApiAccountsFollowUser(
+  accountPubkey: accountPubkey,
+  userToFollowPubkey: userToFollowPubkey,
+);
+
+Future<void> unfollowUser({
+  required String accountPubkey,
+  required String userToUnfollowPubkey,
+}) => RustLib.instance.api.crateApiAccountsUnfollowUser(
+  accountPubkey: accountPubkey,
+  userToUnfollowPubkey: userToUnfollowPubkey,
+);
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
+abstract class Event implements RustOpaqueInterface {}
+
+// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayType>>
+abstract class RelayType implements RustOpaqueInterface {}
+
+class Account {
   final String pubkey;
-  final AccountSettings settings;
-  final List<RelayUrl> nip65Relays;
-  final List<RelayUrl> inboxRelays;
-  final List<RelayUrl> keyPackageRelays;
-  final BigInt lastSynced;
+  final DateTime? lastSyncedAt;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  const AccountData({
+  const Account({
     required this.pubkey,
-    required this.settings,
-    required this.nip65Relays,
-    required this.inboxRelays,
-    required this.keyPackageRelays,
-    required this.lastSynced,
+    this.lastSyncedAt,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   @override
   int get hashCode =>
-      pubkey.hashCode ^
-      settings.hashCode ^
-      nip65Relays.hashCode ^
-      inboxRelays.hashCode ^
-      keyPackageRelays.hashCode ^
-      lastSynced.hashCode;
+      pubkey.hashCode ^ lastSyncedAt.hashCode ^ createdAt.hashCode ^ updatedAt.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is AccountData &&
+      other is Account &&
           runtimeType == other.runtimeType &&
           pubkey == other.pubkey &&
-          settings == other.settings &&
-          nip65Relays == other.nip65Relays &&
-          inboxRelays == other.inboxRelays &&
-          keyPackageRelays == other.keyPackageRelays &&
-          lastSynced == other.lastSynced;
-}
-
-class AccountSettings {
-  final bool darkTheme;
-  final bool devMode;
-  final bool lockdownMode;
-
-  const AccountSettings({
-    required this.darkTheme,
-    required this.devMode,
-    required this.lockdownMode,
-  });
-
-  @override
-  int get hashCode => darkTheme.hashCode ^ devMode.hashCode ^ lockdownMode.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is AccountSettings &&
-          runtimeType == other.runtimeType &&
-          darkTheme == other.darkTheme &&
-          devMode == other.devMode &&
-          lockdownMode == other.lockdownMode;
+          lastSyncedAt == other.lastSyncedAt &&
+          createdAt == other.createdAt &&
+          updatedAt == other.updatedAt;
 }

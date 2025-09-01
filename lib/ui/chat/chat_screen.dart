@@ -5,7 +5,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -41,7 +40,7 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
-
+  double _lastScrollOffset = 0.0;
   Future<DMChatData?>? _dmChatDataFuture;
 
   @override
@@ -84,16 +83,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   void _initializeDMChatData() {
     final groupsNotifier = ref.read(groupsProvider.notifier);
-    final groupData = groupsNotifier.findGroupById(widget.groupId);
-    if (groupData != null) {
-      _dmChatDataFuture = ref.getDMChatData(groupData.mlsGroupId);
+    final group = groupsNotifier.findGroupById(widget.groupId);
+    if (group != null) {
+      _dmChatDataFuture = ref.getDMChatData(group.mlsGroupId);
     }
   }
 
   void _handleScrollToBottom({bool hasAnimation = true}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final double max = _scrollController.position.maxScrollExtent;
       if (!_scrollController.hasClients || !mounted) return;
+      final double max = _scrollController.position.maxScrollExtent;
       if (hasAnimation) {
         _scrollController.animateTo(
           max,
@@ -161,28 +160,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
     final isInviteMode = widget.inviteId != null;
 
-    if (isInviteMode) {
-      return ChatInviteScreen(
-        groupId: widget.groupId,
-        inviteId: widget.inviteId!,
-      );
-    }
-
-    final groupData = groupsNotifier.findGroupById(widget.groupId);
-
-    if (groupData == null) {
-      return Scaffold(
-        backgroundColor: context.colors.neutral,
-        body: const Center(
-          child: Text('Group not found'),
-        ),
-      );
-    }
-
+    // Watch messages first so they're available for listeners
     final messages = ref.watch(
       chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
     );
 
+    // Move ref.listen calls to the main build method
     ref.listen(chatSearchProvider(widget.groupId), (previous, next) {
       if (next.query.isNotEmpty && next.query != previous?.query) {
         searchNotifier.performSearchWithMessages(next.query, messages);
@@ -196,179 +179,235 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       final currentMatch = searchNotifier.currentMatch;
       if (currentMatch != null) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
           _scrollToMessage(currentMatch.messageId);
         });
       }
     });
 
-    return PopScope(
-      onPopInvokedWithResult: (_, _) {
-        if (searchState.isSearchActive) {
-          searchNotifier.deactivateSearch();
-        }
-      },
-      child: Scaffold(
-        resizeToAvoidBottomInset: true,
-        body: GestureDetector(
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          behavior: HitTestBehavior.translucent,
-          child: Column(
-            children: [
-              if (searchState.isSearchActive)
-                ChatSearchWidget(
-                  groupId: widget.groupId,
-                  onClose: searchNotifier.deactivateSearch,
-                ),
-              Expanded(
-                child: Stack(
-                  children: [
-                    CustomScrollView(
-                      controller: _scrollController,
-                      slivers: [
-                        if (!searchState.isSearchActive)
-                          WnAppBar.sliver(
-                            floating: true,
-                            pinned: true,
-                            title: FutureBuilder(
-                              future: _dmChatDataFuture,
-                              builder: (context, snapshot) {
-                                if (snapshot.connectionState == ConnectionState.waiting) {
-                                  return const ContactInfo.loading();
-                                }
-                                final otherUser = snapshot.data;
-                                return ContactInfo(
-                                  title:
-                                      groupData.groupType == GroupType.directMessage
-                                          ? otherUser?.displayName ?? ''
-                                          : groupData.name,
-                                  image:
-                                      groupData.groupType == GroupType.directMessage
-                                          ? otherUser?.displayImage ?? ''
-                                          : '',
-                                  onTap: () => context.push('/chats/${widget.groupId}/info'),
-                                );
-                              },
-                            ),
-                          ),
-                        SliverPadding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 8.w,
-                            vertical: 8.h,
-                          ).copyWith(bottom: 28.h),
-                          sliver: SliverList.builder(
-                            itemCount: messages.length + 1,
-                            itemBuilder: (context, index) {
-                              if (index == 0) {
-                                return ChatContactHeader(groupData: groupData);
-                              }
-                              final int messageIndex = index - 1;
-                              final message = messages[messageIndex];
+    if (isInviteMode) {
+      return ChatInviteScreen(
+        groupId: widget.groupId,
+        inviteId: widget.inviteId!,
+      );
+    }
 
-                              return SwipeToReplyWidget(
-                                message: message,
-                                onReply:
-                                    () => chatNotifier.handleReply(
-                                      message,
-                                      groupId: widget.groupId,
-                                    ),
-                                onLongPress:
-                                    () => ChatDialogService.showReactionDialog(
-                                      context: context,
-                                      ref: ref,
-                                      message: message,
-                                      messageIndex: messageIndex,
-                                    ),
-                                child: Hero(
-                                  tag: message.id,
-                                  child: MessageWidget(
-                                        message: message,
-                                        isGroupMessage: groupData.groupType == GroupType.group,
-                                        isSameSenderAsPrevious: chatNotifier.isSameSender(
-                                          messageIndex,
-                                          groupId: widget.groupId,
-                                        ),
-                                        isSameSenderAsNext:
-                                            messageIndex + 1 < messages.length &&
-                                            chatNotifier.isSameSender(
-                                              messageIndex + 1,
-                                              groupId: widget.groupId,
-                                            ),
-                                        searchMatch:
-                                            searchState.matches.isNotEmpty
-                                                ? _getMessageSearchMatch(
-                                                  searchState.matches,
-                                                  message.id,
-                                                )
-                                                : null,
-                                        isActiveSearchMatch:
-                                            searchNotifier.currentMatch?.messageId == message.id,
-                                        currentActiveMatch:
-                                            searchNotifier.currentMatch?.messageId == message.id
-                                                ? searchNotifier.currentMatch
-                                                : null,
-                                        isSearchActive: searchState.isSearchActive,
-                                        onReactionTap: (reaction) {
-                                          chatNotifier.updateMessageReaction(
-                                            message: message,
-                                            reaction: reaction,
-                                          );
-                                        },
-                                        onReplyTap: (messageId) {
-                                          _scrollToMessage(messageId);
-                                        },
-                                      )
-                                      .animate()
-                                      .fadeIn(duration: const Duration(milliseconds: 200))
-                                      .slide(
-                                        begin: const Offset(0, 0.1),
-                                        duration: const Duration(milliseconds: 200),
-                                      ),
+    final group = groupsNotifier.findGroupById(widget.groupId);
+
+    if (group == null) {
+      return Scaffold(
+        backgroundColor: context.colors.neutral,
+        body: const Center(
+          child: Text('Group not found'),
+        ),
+      );
+    }
+
+    return FutureBuilder<GroupType>(
+      future: groupsNotifier.getGroupTypeById(widget.groupId),
+      builder: (context, groupTypeSnapshot) {
+        if (!groupTypeSnapshot.hasData) {
+          return Scaffold(
+            backgroundColor: context.colors.neutral,
+            body: const Center(child: CircularProgressIndicator()),
+          );
+        }
+
+        final groupType = groupTypeSnapshot.data!;
+
+        return PopScope(
+          onPopInvokedWithResult: (_, _) {
+            if (searchState.isSearchActive) {
+              searchNotifier.deactivateSearch();
+            }
+          },
+          child: Scaffold(
+            resizeToAvoidBottomInset: true,
+            body: NotificationListener<ScrollNotification>(
+              onNotification: (scrollInfo) {
+                if (scrollInfo is ScrollUpdateNotification) {
+                  final currentFocus = FocusManager.instance.primaryFocus;
+                  if (currentFocus != null && currentFocus.hasFocus) {
+                    final currentOffset = scrollInfo.metrics.pixels;
+                    final scrollDelta = currentOffset - _lastScrollOffset;
+                    if (scrollDelta < -20) currentFocus.unfocus();
+                    _lastScrollOffset = currentOffset;
+                  }
+                }
+                return false;
+              },
+              child: GestureDetector(
+                onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                behavior: HitTestBehavior.translucent,
+                child: Column(
+                  children: [
+                    if (searchState.isSearchActive)
+                      ChatSearchWidget(
+                        groupId: widget.groupId,
+                        onClose: searchNotifier.deactivateSearch,
+                      ),
+                    Expanded(
+                      child: Stack(
+                        children: [
+                          CustomScrollView(
+                            controller: _scrollController,
+                            slivers: [
+                              if (!searchState.isSearchActive)
+                                WnAppBar.sliver(
+                                  floating: true,
+                                  pinned: true,
+                                  title: FutureBuilder(
+                                    future: _dmChatDataFuture,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                        return const ContactInfo.loading();
+                                      }
+                                      final otherUser = snapshot.data;
+                                      return ContactInfo(
+                                        title:
+                                            groupType == GroupType.directMessage
+                                                ? otherUser?.displayName ?? ''
+                                                : group.name,
+                                        image:
+                                            groupType == GroupType.directMessage
+                                                ? otherUser?.displayImage ?? ''
+                                                : '',
+                                        onTap: () => context.push('/chats/${widget.groupId}/info'),
+                                      );
+                                    },
+                                  ),
                                 ),
-                              );
-                            },
+                              SliverPadding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 8.w,
+                                  vertical: 8.h,
+                                ).copyWith(bottom: 120.h),
+                                sliver: SliverList.builder(
+                                  itemCount: messages.length + 1,
+                                  itemBuilder: (context, index) {
+                                    if (index == 0) {
+                                      return ChatContactHeader(group: group);
+                                    }
+                                    final int messageIndex = index - 1;
+                                    final message = messages[messageIndex];
+
+                                    return SwipeToReplyWidget(
+                                      message: message,
+                                      onReply:
+                                          () => chatNotifier.handleReply(
+                                            message,
+                                            groupId: widget.groupId,
+                                          ),
+                                      onLongPress:
+                                          () => ChatDialogService.showReactionDialog(
+                                            context: context,
+                                            ref: ref,
+                                            message: message,
+                                            messageIndex: messageIndex,
+                                          ),
+                                      child: Hero(
+                                        tag: message.id,
+                                        child: MessageWidget(
+                                              message: message,
+                                              isGroupMessage: groupType == GroupType.group,
+                                              isSameSenderAsPrevious: chatNotifier.isSameSender(
+                                                messageIndex,
+                                                groupId: widget.groupId,
+                                              ),
+                                              isSameSenderAsNext:
+                                                  messageIndex + 1 < messages.length &&
+                                                  chatNotifier.isSameSender(
+                                                    messageIndex + 1,
+                                                    groupId: widget.groupId,
+                                                  ),
+                                              searchMatch:
+                                                  searchState.matches.isNotEmpty
+                                                      ? _getMessageSearchMatch(
+                                                        searchState.matches,
+                                                        message.id,
+                                                      )
+                                                      : null,
+                                              isActiveSearchMatch:
+                                                  searchNotifier.currentMatch?.messageId ==
+                                                  message.id,
+                                              currentActiveMatch:
+                                                  searchNotifier.currentMatch?.messageId ==
+                                                          message.id
+                                                      ? searchNotifier.currentMatch
+                                                      : null,
+                                              isSearchActive: searchState.isSearchActive,
+                                              onReactionTap: (reaction) {
+                                                chatNotifier.updateMessageReaction(
+                                                  message: message,
+                                                  reaction: reaction,
+                                                );
+                                              },
+                                              onReplyTap: (messageId) {
+                                                _scrollToMessage(messageId);
+                                              },
+                                            )
+                                            .animate()
+                                            .fadeIn(duration: const Duration(milliseconds: 200))
+                                            .slide(
+                                              begin: const Offset(0, 0.1),
+                                              duration: const Duration(milliseconds: 200),
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
+                          if (messages.isNotEmpty)
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              height: 20.h,
+                              child: const WnBottomFade().animate().fadeIn(),
+                            ),
+                          if (messages.isNotEmpty)
+                            Positioned(
+                              bottom: 0,
+                              left: 0,
+                              right: 0,
+                              height: 20.h,
+                              child: const WnBottomFade().animate().fadeIn(),
+                            ),
+                        ],
+                      ),
                     ),
-                    if (messages.isNotEmpty)
-                      Positioned(
-                        bottom: 0,
-                        left: 0,
-                        right: 0,
-                        height: 20.h,
-                        child: const WnBottomFade().animate().fadeIn(),
+                    if (!searchState.isSearchActive)
+                      ChatInput(
+                        groupId: widget.groupId,
+                        onSend: (message, isEditing) async {
+                          final chatState = ref.read(chatProvider);
+                          final replyingTo = chatState.replyingTo[widget.groupId];
+                          if (replyingTo != null) {
+                            await chatNotifier.sendReplyMessage(
+                              groupId: widget.groupId,
+                              replyToMessageId: replyingTo.id,
+                              message: message,
+                              onMessageSent: _handleScrollToBottom,
+                            );
+                          } else {
+                            await chatNotifier.sendMessage(
+                              groupId: widget.groupId,
+                              message: message,
+                              isEditing: isEditing,
+                              onMessageSent: _handleScrollToBottom,
+                            );
+                          }
+                        },
                       ),
                   ],
                 ),
               ),
-              if (!searchState.isSearchActive)
-                ChatInput(
-                  groupId: widget.groupId,
-                  onInputFocused: _handleScrollToBottom,
-                  onSend: (message, isEditing) async {
-                    final chatState = ref.read(chatProvider);
-                    final replyingTo = chatState.replyingTo[widget.groupId];
-                    if (replyingTo != null) {
-                      await chatNotifier.sendReplyMessage(
-                        groupId: widget.groupId,
-                        replyToMessageId: replyingTo.id,
-                        message: message,
-                        onMessageSent: _handleScrollToBottom,
-                      );
-                    } else {
-                      await chatNotifier.sendMessage(
-                        groupId: widget.groupId,
-                        message: message,
-                        isEditing: isEditing,
-                        onMessageSent: _handleScrollToBottom,
-                      );
-                    }
-                  },
-                ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
