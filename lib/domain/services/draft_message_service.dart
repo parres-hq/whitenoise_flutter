@@ -1,50 +1,61 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class DraftMessageService {
-  static const FlutterSecureStorage _storage = FlutterSecureStorage();
+  static const FlutterSecureStorage _defaultStorage = FlutterSecureStorage();
   static const String _draftPrefix = 'draft_message_';
 
   static Future<void> saveDraft({
     required String chatId,
     required String message,
+    FlutterSecureStorage? storage,
   }) async {
+    final secureStorage = storage ?? _defaultStorage;
     try {
       final key = '$_draftPrefix$chatId';
       if (message.trim().isEmpty) {
-        await _storage.delete(key: key);
+        await secureStorage.delete(key: key);
       } else {
-        await _storage.write(key: key, value: message);
+        await secureStorage.write(key: key, value: message);
       }
     } catch (e) {
       return;
     }
   }
 
-  static Future<String?> loadDraft({required String chatId}) async {
+  static Future<String?> loadDraft({
+    required String chatId,
+    FlutterSecureStorage? storage,
+  }) async {
+    final secureStorage = storage ?? _defaultStorage;
     try {
       final key = '$_draftPrefix$chatId';
-      return await _storage.read(key: key);
+      return await secureStorage.read(key: key);
     } catch (e) {
       return null;
     }
   }
 
-  static Future<void> clearDraft({required String chatId}) async {
+  static Future<void> clearDraft({
+    required String chatId,
+    FlutterSecureStorage? storage,
+  }) async {
+    final secureStorage = storage ?? _defaultStorage;
     try {
       final key = '$_draftPrefix$chatId';
-      await _storage.delete(key: key);
+      await secureStorage.delete(key: key);
     } catch (e) {
       return;
     }
   }
 
-  static Future<void> clearAllDrafts() async {
+  static Future<void> clearAllDrafts({FlutterSecureStorage? storage}) async {
+    final secureStorage = storage ?? _defaultStorage;
     try {
-      final allKeys = await _storage.readAll();
+      final allKeys = await secureStorage.readAll();
       final draftKeys = allKeys.keys.where((key) => key.startsWith(_draftPrefix));
 
       for (final key in draftKeys) {
-        await _storage.delete(key: key);
+        await secureStorage.delete(key: key);
       }
     } catch (e) {
       return;
