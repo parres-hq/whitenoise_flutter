@@ -36,7 +36,6 @@ const fallbackColorsExt = AppColorsThemeExt(
   surface: LightAppColors.surface,
   solidNeutralBlack: LightAppColors.solidNeutralBlack,
   solidNeutralWhite: LightAppColors.solidNeutralWhite,
-  primarySolid: LightAppColors.primarySolid,
   toastSurface: LightAppColors.toastSurface,
   toastSuccess: LightAppColors.toastSuccess,
   toastError: LightAppColors.toastError,

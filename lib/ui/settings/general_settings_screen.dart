@@ -275,7 +275,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
             AssetsPaths.icChevronLeft,
             width: 24.w,
             height: 24.w,
-            color: context.colors.primarySolid,
+            color: context.colors.solidPrimary,
           ),
         ),
         title: Row(
@@ -285,7 +285,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
-                color: context.colors.primarySolid,
+                color: context.colors.solidPrimary,
               ),
             ),
           ],

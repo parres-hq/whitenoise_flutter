@@ -40,7 +40,6 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.surface,
     required this.solidNeutralBlack,
     required this.solidNeutralWhite,
-    required this.primarySolid,
     required this.toastSurface,
     required this.toastSuccess,
     required this.toastError,
@@ -84,7 +83,6 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color surface;
   final Color solidNeutralBlack;
   final Color solidNeutralWhite;
-  final Color primarySolid;
   final Color toastSurface;
   final Color toastSuccess;
   final Color toastError;
@@ -129,7 +127,6 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     surface: LightAppColors.surface,
     solidNeutralBlack: LightAppColors.solidNeutralBlack,
     solidNeutralWhite: LightAppColors.solidNeutralWhite,
-    primarySolid: LightAppColors.primarySolid,
     toastSurface: LightAppColors.toastSurface,
     toastSuccess: LightAppColors.toastSuccess,
     toastError: LightAppColors.toastError,
@@ -175,7 +172,6 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     surface: DarkAppColors.surface,
     solidNeutralBlack: DarkAppColors.solidNeutralBlack,
     solidNeutralWhite: DarkAppColors.solidNeutralWhite,
-    primarySolid: DarkAppColors.primarySolid,
     toastSurface: DarkAppColors.toastSurface,
     toastSuccess: DarkAppColors.toastSuccess,
     toastError: DarkAppColors.toastError,
@@ -221,7 +217,6 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? surface,
     Color? solidNeutralBlack,
     Color? solidNeutralWhite,
-    Color? primarySolid,
     Color? toastSurface,
     Color? toastSuccess,
     Color? toastError,
@@ -265,7 +260,6 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       surface: surface ?? this.surface,
       solidNeutralBlack: solidNeutralBlack ?? this.solidNeutralBlack,
       solidNeutralWhite: solidNeutralWhite ?? this.solidNeutralWhite,
-      primarySolid: primarySolid ?? this.primarySolid,
       toastSurface: toastSurface ?? this.toastSurface,
       toastSuccess: toastSuccess ?? this.toastSuccess,
       toastError: toastError ?? this.toastError,
@@ -324,7 +318,6 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       surface: Color.lerp(surface, other.surface, t)!,
       solidNeutralBlack: Color.lerp(solidNeutralBlack, other.solidNeutralBlack, t)!,
       solidNeutralWhite: Color.lerp(solidNeutralWhite, other.solidNeutralWhite, t)!,
-      primarySolid: Color.lerp(primarySolid, other.primarySolid, t)!,
       toastSurface: Color.lerp(toastSurface, other.toastSurface, t)!,
       toastSuccess: Color.lerp(toastSuccess, other.toastSuccess, t)!,
       toastError: Color.lerp(toastError, other.toastError, t)!,
