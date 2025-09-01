@@ -9,6 +9,7 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -134,6 +135,9 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
         _logger.info('Direct message group created successfully: ${group.mlsGroupId}');
 
         if (mounted) {
+          // Dismiss the ProfileReadyCard since user has successfully started a chat
+          ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
+
           Navigator.pop(context);
 
           if (widget.onChatCreated != null) {

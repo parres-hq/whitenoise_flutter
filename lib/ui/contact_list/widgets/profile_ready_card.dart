@@ -93,7 +93,11 @@ class ProfileReadyCard extends ConsumerWidget {
           // Search For Friends button
           WnFilledButton(
             label: 'Search For Friends',
-            onPressed: () => NewChatBottomSheet.show(context),
+            onPressed: () {
+              // Dismiss the card when user takes action to search for friends
+              ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
+              NewChatBottomSheet.show(context);
+            },
             size: WnButtonSize.small,
             suffixIcon: WnImage(
               AssetsPaths.icAddUser,
