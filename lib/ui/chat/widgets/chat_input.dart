@@ -28,7 +28,7 @@ class ChatInput extends ConsumerStatefulWidget {
   ConsumerState<ChatInput> createState() => _ChatInputState();
 }
 
-class _ChatInputState extends ConsumerState<ChatInput> {
+class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserver {
   final _textController = TextEditingController();
   final _focusNode = FocusNode();
   Timer? _draftSaveTimer;
@@ -37,6 +37,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadDraftMessage();
 
     _focusNode.addListener(() {
@@ -53,10 +54,21 @@ class _ChatInputState extends ConsumerState<ChatInput> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _draftSaveTimer?.cancel();
     _textController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // Immediately save draft when app is paused/minimized or becomes inactive
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      _saveDraftImmediately();
+    }
   }
 
   Future<void> _loadDraftMessage() async {
@@ -108,6 +120,26 @@ class _ChatInputState extends ConsumerState<ChatInput> {
       );
     } catch (e) {
       return;
+    }
+  }
+
+  Future<void> _saveDraftImmediately() async {
+    _draftSaveTimer?.cancel();
+
+    if (_isLoadingDraft) return;
+
+    final chatState = ref.read(chatProvider);
+    final isEditing = chatState.editingMessage[widget.groupId] != null;
+
+    if (!isEditing) {
+      try {
+        await DraftMessageService.saveDraft(
+          chatId: widget.groupId,
+          message: _textController.text,
+        );
+      } catch (e) {
+        return;
+      }
     }
   }
 
