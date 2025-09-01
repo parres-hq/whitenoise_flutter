@@ -77,7 +77,7 @@ class WelcomeNotificationService {
         _logger.info('WelcomeNotificationService: Successfully accepted welcome $welcomeId');
 
         // Dismiss the ProfileReadyCard since user has successfully accepted a chat invitation
-        ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
+        await ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
       } else {
         _logger.warning('WelcomeNotificationService: Failed to accept welcome $welcomeId');
       }

@@ -136,9 +136,10 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
 
         if (mounted) {
           // Dismiss the ProfileReadyCard since user has successfully started a chat
-          ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
-
-          Navigator.pop(context);
+          await ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
+          if (mounted) {
+            Navigator.pop(context);
+          }
 
           if (widget.onChatCreated != null) {
             widget.onChatCreated?.call(group);
