@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
@@ -75,6 +76,7 @@ class PollingNotifier extends Notifier<bool> {
       // Load all data fully on first run
       await ref.read(welcomesProvider.notifier).loadWelcomes();
       await ref.read(groupsProvider.notifier).loadGroups();
+      ref.invalidate(activeAccountProvider);
 
       // Load messages for all groups in a build-safe way
       // Schedule this in a microtask to ensure it happens after the current build cycle
@@ -119,6 +121,8 @@ class PollingNotifier extends Notifier<bool> {
         final groupIds = groups.map((g) => g.mlsGroupId).toList();
         await ref.read(chatProvider.notifier).checkForNewMessagesInGroups(groupIds);
       }
+
+      ref.invalidate(activeAccountProvider);
 
       _logger.fine('Incremental polling completed');
     } catch (e) {
