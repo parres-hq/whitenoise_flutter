@@ -116,7 +116,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                           style: TextStyle(
                             fontSize: 18.sp,
                             fontWeight: FontWeight.w600,
-                            color: context.colors.primarySolid,
+                            color: context.colors.solidPrimary,
                           ),
                         ),
                         Gap(12.h),
