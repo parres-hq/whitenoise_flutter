@@ -75,6 +75,7 @@ class _ChatInputState extends ConsumerState<ChatInput> {
         }
       }
     } catch (e) {
+      return;
     } finally {
       if (mounted) {
         setState(() {
@@ -105,13 +106,17 @@ class _ChatInputState extends ConsumerState<ChatInput> {
         chatId: widget.groupId,
         message: _textController.text,
       );
-    } catch (e) {}
+    } catch (e) {
+      return;
+    }
   }
 
   Future<void> _clearDraft() async {
     try {
       await DraftMessageService.clearDraft(chatId: widget.groupId);
-    } catch (e) {}
+    } catch (e) {
+      return;
+    }
   }
 
   void _sendMessage() {

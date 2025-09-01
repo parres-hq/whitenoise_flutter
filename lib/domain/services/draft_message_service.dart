@@ -16,7 +16,7 @@ class DraftMessageService {
         await _storage.write(key: key, value: message);
       }
     } catch (e) {
-      print('Error saving draft message: $e');
+      return;
     }
   }
 
@@ -25,7 +25,6 @@ class DraftMessageService {
       final key = '$_draftPrefix$chatId';
       return await _storage.read(key: key);
     } catch (e) {
-      print('Error loading draft message: $e');
       return null;
     }
   }
@@ -35,7 +34,7 @@ class DraftMessageService {
       final key = '$_draftPrefix$chatId';
       await _storage.delete(key: key);
     } catch (e) {
-      print('Error clearing draft message: $e');
+      return;
     }
   }
 
@@ -48,7 +47,7 @@ class DraftMessageService {
         await _storage.delete(key: key);
       }
     } catch (e) {
-      print('Error clearing all draft messages: $e');
+      return;
     }
   }
 }
