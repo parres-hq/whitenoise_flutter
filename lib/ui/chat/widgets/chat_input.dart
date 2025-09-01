@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 
 class ChatInput extends ConsumerStatefulWidget {
@@ -256,14 +256,11 @@ class ReplyEditHeader extends StatelessWidget {
                 onTap: onCancel,
                 child: Padding(
                   padding: EdgeInsets.all(8.w),
-                  child: SvgPicture.asset(
+                  child: WnImage(
                     AssetsPaths.icClose,
                     width: 16.w,
                     height: 16.w,
-                    colorFilter: ColorFilter.mode(
-                      context.colors.mutedForeground,
-                      BlendMode.srcIn,
-                    ),
+                    color: context.colors.mutedForeground,
                   ),
                 ),
               ),
