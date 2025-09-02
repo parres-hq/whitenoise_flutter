@@ -132,7 +132,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                       AssetsPaths.icChevronUp,
                       height: 16.w,
                       width: 16.w,
-                      color: context.colors.primarySolid,
+                      color: context.colors.solidPrimary,
                     ),
                     padding: EdgeInsets.all(4.w), // Reduce button padding
                     constraints: BoxConstraints(
@@ -165,7 +165,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                       AssetsPaths.icChevronDown,
                       height: 16.w,
                       width: 16.w,
-                      color: context.colors.primarySolid,
+                      color: context.colors.solidPrimary,
                     ),
                     padding: EdgeInsets.all(4.w), // Reduce button padding
                     constraints: BoxConstraints(
