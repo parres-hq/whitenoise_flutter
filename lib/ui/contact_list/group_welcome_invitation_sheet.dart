@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/src/rust/api/utils.dart';
@@ -113,9 +113,8 @@ class GroupMessageInvite extends ConsumerStatefulWidget {
 class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
   Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         ref.showErrorToast('No active account found');
         return null;
       }
@@ -241,9 +240,8 @@ class DirectMessageAvatar extends ConsumerStatefulWidget {
 class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
   Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         ref.showErrorToast('No active account found');
         return null;
       }
@@ -285,9 +283,8 @@ class DirectMessageInviteCard extends ConsumerStatefulWidget {
 class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCard> {
   Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         ref.showErrorToast('No active account found');
         return null;
       }

@@ -64,8 +64,8 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
   }
 
   void _loadCurrentUserNpub() async {
-    final activeAccountPubkey = ref.read(activePubkeyProvider);
-    if (activeAccountPubkey != null) {
+    final activeAccountPubkey = ref.read(activePubkeyProvider) ?? '';
+    if (activeAccountPubkey.isNotEmpty) {
       currentUserNpub = await activeAccountPubkey.toNpub() ?? '';
       setState(() {});
     }

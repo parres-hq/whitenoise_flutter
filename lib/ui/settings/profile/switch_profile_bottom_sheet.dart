@@ -93,8 +93,8 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
   }
 
   Future<void> _getActivePubkeyHex() async {
-    final activeAccountPubkey = ref.read(activePubkeyProvider);
-    if (activeAccountPubkey != null) {
+    final activeAccountPubkey = ref.read(activePubkeyProvider) ?? '';
+    if (activeAccountPubkey.isNotEmpty) {
       setState(() {
         _activeAccountHex = activeAccountPubkey;
       });

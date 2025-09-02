@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -34,10 +34,9 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
     setState(() => _isLoading = true);
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
 
-      if (activeAccount != null) {
+      if (activePubkey.isNotEmpty) {
         await ref.read(followsProvider.notifier).loadFollows();
         ref.showSuccessToast('Follows reloaded successfully');
       } else {

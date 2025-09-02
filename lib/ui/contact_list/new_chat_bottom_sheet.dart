@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -91,11 +91,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
   Future<void> _loadFollows() async {
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
 
-      if (activeAccount != null) {
-        _logger.info('NewChatBottomSheet: Found active account: ${activeAccount.pubkey}');
+      if (activePubkey.isNotEmpty) {
+        _logger.info('NewChatBottomSheet: Found active account: $activePubkey');
         await ref.read(followsProvider.notifier).loadFollows();
         _logger.info('NewChatBottomSheet: Contacts loaded successfully');
       } else {

@@ -5,7 +5,6 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
@@ -47,9 +46,8 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
 
   Future<void> _loadFollows() async {
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount != null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isNotEmpty) {
         await ref.read(followsProvider.notifier).loadFollows();
       }
     } catch (e) {
