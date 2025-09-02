@@ -4,7 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/domain/models/chat_model.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -75,11 +75,10 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
 
   Future<void> _loadContacts() async {
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
+      final activePubkey = ref.read(activePubkeyProvider);
 
-      if (activeAccount != null) {
-        _logger.info('SearchChatBottomSheet: Found active account: ${activeAccount.pubkey}');
+      if (activePubkey != null && activePubkey.isNotEmpty) {
+        _logger.info('SearchChatBottomSheet: Found active account: $activePubkey');
         await ref.read(followsProvider.notifier).loadFollows();
         _logger.info('SearchChatBottomSheet: Contacts loaded successfully');
       } else {

@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/nostr_keys_state.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
@@ -30,10 +30,8 @@ class NostrKeysNotifier extends Notifier<NostrKeysState> {
         return;
       }
 
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider);
+      if (activePubkey == null || activePubkey.isEmpty) {
         _logger.severe('NostrKeysNotifier: No active account found');
         state = state.copyWith(
           isLoading: false,
@@ -42,11 +40,11 @@ class NostrKeysNotifier extends Notifier<NostrKeysState> {
         return;
       }
 
-      _logger.info('NostrKeysNotifier: Loading keys for account: ${activeAccount.pubkey}');
+      _logger.info('NostrKeysNotifier: Loading keys for account: $activePubkey');
 
       // Load npub and nsec directly from hex pubkey string
-      final npubString = await npubFromHexPubkey(hexPubkey: activeAccount.pubkey);
-      final nsecString = await exportAccountNsec(pubkey: activeAccount.pubkey);
+      final npubString = await npubFromHexPubkey(hexPubkey: activePubkey);
+      final nsecString = await exportAccountNsec(pubkey: activePubkey);
 
       state = state.copyWith(
         npub: npubString,
