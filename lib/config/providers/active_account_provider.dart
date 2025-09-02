@@ -3,6 +3,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api;
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
+import 'package:whitenoise/src/rust/api/utils.dart' as rust_utils;
 import 'package:whitenoise/utils/image_utils.dart';
 
 final _logger = Logger('ActiveAccountProvider');
@@ -55,8 +56,7 @@ class DefaultWnUtils implements WnUtils {
 
   @override
   Future<String> getDefaultBlossomServerUrl() {
-    // TODO: Replace with the actual implementation (e.g., read from settings).
-    throw UnimplementedError('getDefaultBlossomServerUrl not implemented');
+    return rust_utils.getDefaultBlossomServerUrl();
   }
 }
 

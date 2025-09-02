@@ -49,7 +49,7 @@ pub fn tag_from_vec(vec: Vec<String>) -> Result<Tag, ApiError> {
 pub fn get_default_blossom_server_url() -> String {
     #[cfg(debug_assertions)]
     {
-        "http://localhost:7777".to_string()
+        "http://localhost:3000".to_string()
     }
     #[cfg(not(debug_assertions))]
     {
