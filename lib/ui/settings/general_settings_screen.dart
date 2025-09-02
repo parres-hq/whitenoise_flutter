@@ -11,6 +11,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts, accountMetadata;
 import 'package:whitenoise/src/rust/api/utils.dart';
@@ -231,6 +232,9 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     final hasMultipleAccounts = accounts.length > 2;
 
     if (!mounted) return;
+
+    // Clear all draft messages before logout
+    await DraftMessageService.clearAllDrafts();
 
     await authNotifier.logoutCurrentAccount();
 

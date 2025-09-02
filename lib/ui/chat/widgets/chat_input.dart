@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
@@ -26,29 +28,127 @@ class ChatInput extends ConsumerStatefulWidget {
   ConsumerState<ChatInput> createState() => _ChatInputState();
 }
 
-class _ChatInputState extends ConsumerState<ChatInput> {
+class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserver {
   final _textController = TextEditingController();
   final _focusNode = FocusNode();
+  Timer? _draftSaveTimer;
+  bool _isLoadingDraft = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _loadDraftMessage();
+
     _focusNode.addListener(() {
       if (_focusNode.hasFocus && widget.onInputFocused != null) {
-        // Trigger scroll to bottom when input gains focus
         Future.delayed(const Duration(milliseconds: 300), () {
           widget.onInputFocused!();
         });
       }
       setState(() {});
     });
+
+    _textController.addListener(_onTextChanged);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _draftSaveTimer?.cancel();
     _textController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
+    // Immediately save draft when app is paused/minimized or becomes inactive
+    if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
+      _saveDraftImmediately();
+    }
+  }
+
+  Future<void> _loadDraftMessage() async {
+    setState(() {
+      _isLoadingDraft = true;
+    });
+
+    try {
+      final chatState = ref.read(chatProvider);
+      final isEditing = chatState.editingMessage[widget.groupId] != null;
+
+      if (!isEditing) {
+        final draft = await DraftMessageService.loadDraft(chatId: widget.groupId);
+        if (draft != null && draft.isNotEmpty && mounted) {
+          _textController.text = draft;
+        }
+      }
+    } catch (e) {
+      return;
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingDraft = false;
+        });
+      }
+    }
+  }
+
+  void _onTextChanged() {
+    _draftSaveTimer?.cancel();
+
+    if (_isLoadingDraft) return;
+
+    final chatState = ref.read(chatProvider);
+    final isEditing = chatState.editingMessage[widget.groupId] != null;
+
+    if (!isEditing) {
+      _draftSaveTimer = Timer(const Duration(milliseconds: 500), () {
+        _saveDraft();
+      });
+    }
+  }
+
+  Future<void> _saveDraft() async {
+    try {
+      await DraftMessageService.saveDraft(
+        chatId: widget.groupId,
+        message: _textController.text,
+      );
+    } catch (e) {
+      return;
+    }
+  }
+
+  Future<void> _saveDraftImmediately() async {
+    _draftSaveTimer?.cancel();
+
+    if (_isLoadingDraft) return;
+
+    final chatState = ref.read(chatProvider);
+    final isEditing = chatState.editingMessage[widget.groupId] != null;
+
+    if (!isEditing) {
+      try {
+        await DraftMessageService.saveDraft(
+          chatId: widget.groupId,
+          message: _textController.text,
+        );
+      } catch (e) {
+        return;
+      }
+    }
+  }
+
+  Future<void> _clearDraft() async {
+    try {
+      await DraftMessageService.clearDraft(chatId: widget.groupId);
+    } catch (e) {
+      return;
+    }
   }
 
   void _sendMessage() {
@@ -61,7 +161,8 @@ class _ChatInputState extends ConsumerState<ChatInput> {
 
     widget.onSend(content, isEditing);
 
-    // Reset input state
+    _clearDraft();
+
     _textController.clear();
     if (chatState.replyingTo[widget.groupId] != null) {
       chatNotifier.cancelReply(groupId: widget.groupId);
