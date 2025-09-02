@@ -41,8 +41,7 @@ class WnAvatar extends StatelessWidget {
           imageUrl,
           size: size,
           fit: BoxFit.cover,
-          fallbackWidget:
-              (context) => FallbackAvatar(displayName: displayName, size: size, context: context),
+          fallbackWidget: (context) => FallbackAvatar(displayName: displayName, size: size),
         ),
       ),
     );
@@ -54,12 +53,10 @@ class FallbackAvatar extends StatelessWidget {
     super.key,
     required this.displayName,
     required this.size,
-    required this.context,
   });
 
   final String? displayName;
   final double size;
-  final BuildContext context;
 
   @override
   Widget build(BuildContext context) {
