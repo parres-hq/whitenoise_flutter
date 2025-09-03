@@ -5,10 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/src/rust/api/error.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -28,6 +30,7 @@ class ShareProfileQrScanScreen extends ConsumerStatefulWidget {
 
 class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScreen>
     with WidgetsBindingObserver {
+  final Logger logger = Logger('ShareProfileQrScanScreen');
   String npub = '';
   late MobileScannerController _controller;
   StreamSubscription<BarcodeCapture>? _subscription;
@@ -187,45 +190,57 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
   Future<void> _handleBarcode(BarcodeCapture capture) async {
     if (capture.barcodes.isEmpty) return;
 
-    final barcode = capture.barcodes.first;
-    if (barcode.rawValue != null && barcode.rawValue!.isNotEmpty) {
-      final npub = barcode.rawValue!;
-      if (!npub.isValidPublicKey) {
-        ref.showWarningToast('Invalid public key format');
+    try {
+      final barcode = capture.barcodes.first;
+      if (barcode.rawValue != null && barcode.rawValue!.isNotEmpty) {
+        final npub = barcode.rawValue!;
+        if (!npub.isValidPublicKey) {
+          ref.showWarningToast('Invalid public key format');
+          _controller.stop();
+          _delayedCameraRestart();
+          return;
+        }
         _controller.stop();
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            _controller.start();
-          }
-        });
-        return;
+        final user = await wn_users_api.getUser(pubkey: npub);
+        final contact = ContactModel.fromUser(user: user);
+        if (mounted) {
+          await StartChatBottomSheet.show(
+            context: context,
+            contact: contact,
+            onChatCreated: (group) {
+              if (group != null && mounted) {
+                // Navigate to home first, then to the group chat
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    context.go(Routes.home);
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        Routes.goToChat(context, group.mlsGroupId);
+                      }
+                    });
+                  }
+                });
+              }
+            },
+          );
+        }
       }
+    } catch (e) {
+      String? errorMessage = 'Something went wrong';
       _controller.stop();
-      final user = await wn_users_api.getUser(pubkey: npub);
-      final contact = ContactModel.fromUser(user: user);
-
-      if (mounted) {
-        await StartChatBottomSheet.show(
-          context: context,
-          contact: contact,
-          onChatCreated: (group) {
-            if (group != null && mounted) {
-              // Navigate to home first, then to the group chat
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  context.go(Routes.home);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) {
-                      Routes.goToChat(context, group.mlsGroupId);
-                    }
-                  });
-                }
-              });
-            }
-          },
-        );
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       }
-      _controller.start();
+      logger.severe(errorMessage, e);
+      ref.showErrorToast(errorMessage);
+    } finally {
+      _delayedCameraRestart();
     }
   }
+
+  void _delayedCameraRestart() => Future.delayed(const Duration(seconds: 4), () {
+    if (mounted) {
+      _controller.start();
+    }
+  });
 }
