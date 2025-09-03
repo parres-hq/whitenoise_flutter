@@ -76,7 +76,6 @@ class LightAppColors {
 
   static const solidNeutralBlack = Color(0xff000000);
   static const solidNeutralWhite = Color(0xffFFFFFF);
-  static const primarySolid = Color(0xfffafafa);
   //
   static const toastSurface = Color(0xffFAFAFA);
   static const toastSuccess = Color(0xff4D7C0F);
