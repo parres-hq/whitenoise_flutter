@@ -69,63 +69,93 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Gap(24.h),
-                Row(
-                  children: [
-                    const BackButton(),
-                    Text(
-                      'Scan QR Code',
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.mutedForeground,
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w),
+                  child: Row(
+                    children: [
+                      const BackButton(),
+                      Expanded(
+                        child: Text(
+                          'Scan QR Code',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: context.colors.mutedForeground,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Spacer(),
-                        Container(
-                          width: 288.w,
-                          height: 288.w,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: context.colors.primary,
-                              width: 1.w,
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              minHeight: constraints.maxHeight,
+                            ),
+                            child: IntrinsicHeight(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  const Spacer(),
+                                  Center(
+                                    child: AspectRatio(
+                                      aspectRatio: 1.0,
+                                      child: Container(
+                                        constraints: BoxConstraints(
+                                          maxWidth: 288.w,
+                                          maxHeight: 288.w,
+                                          minWidth: 200.w,
+                                          minHeight: 200.w,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: context.colors.primary,
+                                            width: 1.w,
+                                          ),
+                                        ),
+                                        child: MobileScanner(controller: _controller),
+                                      ),
+                                    ),
+                                  ),
+                                  Gap(16.h),
+                                  Text(
+                                    'Scan user\'s QR code to connect.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w500,
+                                      color: context.colors.mutedForeground,
+                                    ),
+                                  ),
+                                  const Spacer(),
+                                  if (!widget.hideViewQrButton) ...[
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                      child: WnFilledButton(
+                                        label: 'View QR Code',
+                                        onPressed: () => context.pop(),
+                                        suffixIcon: WnImage(
+                                          AssetsPaths.icQrCode,
+                                          size: 18.w,
+                                          color: context.colors.primaryForeground,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 64.h),
+                                  ] else ...[
+                                    SizedBox(height: 64.h),
+                                  ],
+                                ],
+                              ),
                             ),
                           ),
-                          child: MobileScanner(controller: _controller),
-                        ),
-                        Gap(16.h),
-                        Text(
-                          'Scan user\'s QR code to connect.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
-                            color: context.colors.mutedForeground,
-                          ),
-                        ),
-                        const Spacer(),
-                        if (!widget.hideViewQrButton) ...[
-                          WnFilledButton(
-                            label: 'View QR Code',
-                            onPressed: () => context.pop(),
-                            suffixIcon: WnImage(
-                              AssetsPaths.icQrCode,
-                              size: 18.w,
-                              color: context.colors.primaryForeground,
-                            ),
-                          ),
-                          Gap(64.h),
-                        ] else ...[
-                          Gap(64.h),
-                        ],
-                      ],
+                        );
+                      },
                     ),
                   ),
                 ),
