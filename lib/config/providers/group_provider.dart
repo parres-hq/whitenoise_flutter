@@ -155,8 +155,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) return null;
 
-      final currentUserNpub = await npubFromHexPubkey(hexPubkey: activePubkey);
-      final otherUserNpub = await npubFromHexPubkey(hexPubkey: otherUserPubkeyHex);
+      final currentUserNpub = npubFromHexPubkey(hexPubkey: activePubkey);
+      final otherUserNpub = npubFromHexPubkey(hexPubkey: otherUserPubkeyHex);
 
       final directMessageGroups = await getDirectMessageGroups();
 
@@ -310,7 +310,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final List<User> members = [];
       for (final memberPubkey in memberPubkeys) {
         try {
-          final pubkeyString = await npubFromHexPubkey(hexPubkey: memberPubkey);
+          final pubkeyString = npubFromHexPubkey(hexPubkey: memberPubkey);
 
           try {
             final metadata = await rust_users.userMetadata(pubkey: memberPubkey);
@@ -390,7 +390,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       for (final adminPubkey in adminPubkeys) {
         try {
           // Get pubkey string first to avoid multiple uses of the same PublicKey object
-          final pubkeyString = await npubFromHexPubkey(hexPubkey: adminPubkey);
+          final pubkeyString = npubFromHexPubkey(hexPubkey: adminPubkey);
 
           try {
             final metadata = await rust_users.userMetadata(pubkey: adminPubkey);
@@ -595,7 +595,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
     if (groupInformation.groupType == GroupType.directMessage) {
       try {
-        final currentUserNpub = await npubFromHexPubkey(hexPubkey: currentUserPubkey);
+        final currentUserNpub = npubFromHexPubkey(hexPubkey: currentUserPubkey);
         final otherMember = getOtherGroupMember(group.mlsGroupId, currentUserNpub);
 
         if (otherMember == null) {
@@ -885,7 +885,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       final usersPubkeyHex = await Future.wait(
         membersNpubs.map((userNpub) async {
-          return await hexPubkeyFromNpub(npub: userNpub);
+          return hexPubkeyFromNpub(npub: userNpub);
         }),
       );
 
@@ -940,7 +940,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       final usersPubkeyHex = await Future.wait(
         membersNpubs.map((userNpub) async {
-          return await hexPubkeyFromNpub(npub: userNpub);
+          return hexPubkeyFromNpub(npub: userNpub);
         }),
       );
 

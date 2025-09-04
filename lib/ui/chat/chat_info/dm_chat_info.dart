@@ -35,14 +35,12 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
   Future<void> _loadContact() async {
     final activePubkey = ref.read(activePubkeyProvider) ?? '';
     if (activePubkey.isNotEmpty) {
-      final currentUserNpub = await npubFromHexPubkey(
-        hexPubkey: activePubkey,
-      );
+      final currentUserNpub = activePubkey.toNpub();
       final otherMember = ref
           .read(groupsProvider.notifier)
           .getOtherGroupMember(widget.groupId, currentUserNpub);
       if (otherMember != null && mounted) {
-        otherUserNpub = otherMember.publicKey;
+        otherUserNpub = otherMember.publicKey.toNpub();
         _checkFollowStatus(otherMember.publicKey);
       }
     }

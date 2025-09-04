@@ -293,13 +293,13 @@ class AuthNotifier extends Notifier<AuthState> {
         // Normalize pubkeys to hex then filter
         final activeHex =
             activeAccount.pubkey.startsWith('npub')
-                ? await hexPubkeyFromNpub(npub: activeAccount.pubkey)
+                ? hexPubkeyFromNpub(npub: activeAccount.pubkey)
                 : activeAccount.pubkey.toLowerCase();
         final otherAccounts = <Account>[];
         for (final account in remainingAccounts) {
           final keyHex =
               account.pubkey.startsWith('npub')
-                  ? await hexPubkeyFromNpub(npub: account.pubkey)
+                  ? hexPubkeyFromNpub(npub: account.pubkey)
                   : account.pubkey.toLowerCase();
           if (keyHex != activeHex) otherAccounts.add(account);
         }

@@ -5,6 +5,7 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class DMChatService {
   static Future<DMChatData?> getDMChatData(String groupId, WidgetRef ref) async {
@@ -12,7 +13,7 @@ class DMChatService {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) return null;
 
-      final currentUserNpub = await npubFromHexPubkey(
+      final currentUserNpub = npubFromHexPubkey(
         hexPubkey: activePubkey,
       );
 
@@ -25,8 +26,13 @@ class DMChatService {
 
       if (otherMember != null) {
         final user = await wn_users_api.getUser(pubkey: otherMember.publicKey);
+        final otherMemberPubkey = otherMember.publicKey;
+        String otherMemberNpubPubkey = otherMemberPubkey;
+        if (otherMemberPubkey.isValidHexPublicKey) {
+          otherMemberNpubPubkey = npubFromHexPubkey(hexPubkey: otherMemberPubkey);
+        }
         final contactModel = ContactModel.fromMetadata(
-          publicKey: otherMember.publicKey,
+          pubkey: otherMemberNpubPubkey,
           metadata: user.metadata,
         );
         final displayName = contactModel.displayName;

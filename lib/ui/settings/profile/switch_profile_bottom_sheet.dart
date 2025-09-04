@@ -67,7 +67,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
       if (_pubkeyToHex.containsKey(originalPubKey)) continue;
       try {
         if (originalPubKey.startsWith('npub1')) {
-          final hex = await hexPubkeyFromNpub(npub: originalPubKey);
+          final hex = hexPubkeyFromNpub(npub: originalPubKey);
           _pubkeyToHex[originalPubKey] = hex;
         } else {
           _pubkeyToHex[originalPubKey] = originalPubKey;
@@ -108,7 +108,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
       // Convert profile's npub key to hex for comparison
       String profileHex = profile.publicKey;
       if (profile.publicKey.startsWith('npub1')) {
-        profileHex = await hexPubkeyFromNpub(npub: profile.publicKey);
+        profileHex = hexPubkeyFromNpub(npub: profile.publicKey);
       }
 
       return profileHex == _activeAccountHex;

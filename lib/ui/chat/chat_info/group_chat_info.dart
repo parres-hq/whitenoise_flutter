@@ -30,7 +30,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     final groupDetails = ref.read(groupsProvider).groupsMap?[widget.groupId];
     if (groupDetails?.nostrGroupId != null) {
       try {
-        final npub = await npubFromHexPubkey(
+        final npub = npubFromHexPubkey(
           hexPubkey: groupDetails!.nostrGroupId,
         );
         if (mounted) {
@@ -104,7 +104,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
   Future<void> _loadCurrentUserNpub() async {
     final activeAccount = ref.read(activePubkeyProvider) ?? '';
     if (activeAccount.isNotEmpty) {
-      final currentUserNpub = await npubFromHexPubkey(hexPubkey: activeAccount);
+      final currentUserNpub = npubFromHexPubkey(hexPubkey: activeAccount);
       if (mounted) {
         setState(() {
           this.currentUserNpub = currentUserNpub;

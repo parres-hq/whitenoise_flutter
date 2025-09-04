@@ -152,7 +152,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
           // Try to convert npub to hex for matching
           String hexKey = selectedProfile.publicKey;
           if (selectedProfile.publicKey.isValidNpubPublicKey) {
-            hexKey = await hexPubkeyFromNpub(npub: selectedProfile.publicKey);
+            hexKey = hexPubkeyFromNpub(npub: selectedProfile.publicKey);
           }
 
           selectedAccount = _accounts.where((account) => account.pubkey == hexKey).firstOrNull;

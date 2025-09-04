@@ -132,7 +132,12 @@ class _SearchChatBottomSheetState extends ConsumerState<SearchChatBottomSheet> {
             ? followsState.follows
             : followsNotifier.getFilteredFollows(_searchQuery);
     final filteredContacts =
-        filteredFollows.map((follow) => ContactModel.fromUser(user: follow)).toList();
+        filteredFollows
+            .map(
+              (follow) =>
+                  ContactModel.fromMetadata(pubkey: follow.pubkey, metadata: follow.metadata),
+            )
+            .toList();
     final filteredChats = _getFilteredChats();
 
     return Column(

@@ -126,7 +126,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
 
   Future<String> _getDisplayablePublicKey() async {
     try {
-      final npub = await npubFromHexPubkey(hexPubkey: widget.welcome.nostrGroupId);
+      final npub = npubFromHexPubkey(hexPubkey: widget.welcome.nostrGroupId);
       return npub;
     } catch (e) {
       return widget.welcome.nostrGroupId.formatPublicKey();
@@ -296,7 +296,7 @@ class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCar
 
   Future<String> _getDisplayablePublicKey() async {
     try {
-      final npub = await npubFromHexPubkey(hexPubkey: widget.welcome.welcomer);
+      final npub = npubFromHexPubkey(hexPubkey: widget.welcome.welcomer);
       return npub;
     } catch (e) {
       return widget.welcome.welcomer.formatPublicKey();

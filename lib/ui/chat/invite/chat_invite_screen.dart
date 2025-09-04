@@ -177,19 +177,13 @@ class GroupInviteHeader extends StatelessWidget {
             ),
           ),
           Gap(16.h),
-          FutureBuilder(
-            future: npubFromHexPubkey(hexPubkey: welcome.nostrGroupId),
-            builder: (context, asyncSnapshot) {
-              final groupNpub = asyncSnapshot.data ?? '';
-              return Text(
-                groupNpub.formatPublicKey(),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: context.colors.mutedForeground,
-                ),
-              );
-            },
+          Text(
+            npubFromHexPubkey(hexPubkey: welcome.nostrGroupId).formatPublicKey(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: context.colors.mutedForeground,
+            ),
           ),
           Gap(12.h),
           if (welcome.groupDescription.isNotEmpty) ...[
@@ -285,19 +279,13 @@ class DMInviteHeader extends ConsumerWidget {
                 ),
               ),
               Gap(12.h),
-              FutureBuilder(
-                future: npubFromHexPubkey(hexPubkey: welcome.welcomer),
-                builder: (context, asyncSnapshot) {
-                  final welcomerNpub = asyncSnapshot.data ?? '';
-                  return Text(
-                    welcomerNpub.formatPublicKey(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: context.colors.mutedForeground,
-                    ),
-                  );
-                },
+              Text(
+                npubFromHexPubkey(hexPubkey: welcome.welcomer).formatPublicKey(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: context.colors.mutedForeground,
+                ),
               ),
               Gap(32.h),
               Text.rich(

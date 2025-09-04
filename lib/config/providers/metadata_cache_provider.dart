@@ -68,7 +68,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
   /// Convert hex to npub safely
   Future<String> _safeHexToNpub(String hexPubkey) async {
     try {
-      return await npubFromHexPubkey(hexPubkey: hexPubkey);
+      return npubFromHexPubkey(hexPubkey: hexPubkey);
     } catch (e) {
       _logger.warning('Failed to convert hex to npub for $hexPubkey: $e');
       return hexPubkey;
@@ -78,7 +78,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
   /// Convert npub to hex safely
   Future<String> _safeNpubToHex(String npub) async {
     try {
-      return await hexPubkeyFromNpub(npub: npub);
+      return hexPubkeyFromNpub(npub: npub);
     } catch (e) {
       _logger.warning('Failed to convert npub to hex for $npub: $e');
       return npub;
@@ -121,7 +121,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
 
       // Create contact model
       final contactModel = ContactModel.fromMetadata(
-        publicKey: standardNpub,
+        pubkey: standardNpub,
         metadata: metadata,
       );
 

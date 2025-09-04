@@ -9,25 +9,15 @@ use nostr_mls::prelude::GroupId;
 use nostr_sdk::prelude::*;
 pub use whitenoise::Whitenoise;
 
-#[frb]
-pub fn npub_from_public_key(public_key: &PublicKey) -> Result<String, ApiError> {
-    Whitenoise::npub_from_public_key(public_key).map_err(ApiError::from)
-}
-
-#[frb]
+#[frb(sync)]
 pub fn npub_from_hex_pubkey(hex_pubkey: &str) -> Result<String, ApiError> {
     Whitenoise::npub_from_hex_pubkey(hex_pubkey).map_err(ApiError::from)
 }
 
-#[frb]
+#[frb(sync)]
 pub fn hex_pubkey_from_npub(npub: &str) -> Result<String, ApiError> {
     let pubkey = PublicKey::parse(npub).map_err(ApiError::from)?;
     Ok(pubkey.to_hex())
-}
-
-#[frb]
-pub fn hex_pubkey_from_public_key(public_key: &PublicKey) -> Result<String, ApiError> {
-    Ok(public_key.to_hex())
 }
 
 #[frb]

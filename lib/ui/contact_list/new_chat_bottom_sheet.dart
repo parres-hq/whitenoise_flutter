@@ -278,10 +278,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
               final supportUserProfileData = await userProfileDataNotifier.getUserProfileData(
                 kSupportNpub,
               );
-
-              if (context.mounted) {
-                _handleContactTap(supportUserProfileData);
-              }
+              _handleContactTap(supportUserProfileData);
             } catch (e) {
               _logger.warning('Failed to fetch metadata for support contact: $e');
 
@@ -322,7 +319,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             ? followsState.follows
             : followsNotifier.getFilteredFollows(_searchQuery);
     final filteredContacts =
-        filteredFollows.map((follow) => ContactModel.fromUser(user: follow)).toList();
+        filteredFollows
+            .map(
+              (follow) =>
+                  ContactModel.fromMetadata(pubkey: follow.pubkey, metadata: follow.metadata),
+            )
+            .toList();
 
     final showTempContact =
         _searchQuery.isNotEmpty &&
@@ -409,7 +411,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                 ...followsState.follows.asMap().entries.map((entry) {
                                   final index = entry.key;
                                   final user = entry.value;
-                                  final contact = ContactModel.fromUser(user: user);
+                                  final contact = ContactModel.fromMetadata(
+                                    pubkey: user.pubkey,
+                                    metadata: user.metadata,
+                                  );
                                   return Container(
                                     margin: EdgeInsets.only(bottom: 8.h),
                                     padding: EdgeInsets.all(8.w),

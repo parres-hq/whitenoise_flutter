@@ -4,7 +4,7 @@ import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/nostr_keys_state.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
-import 'package:whitenoise/utils/string_extensions.dart';
+import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 final _logger = Logger('NostrKeysNotifier');
 
@@ -43,7 +43,7 @@ class NostrKeysNotifier extends Notifier<NostrKeysState> {
       _logger.info('NostrKeysNotifier: Loading keys for account: $activePubkey');
 
       // Load npub and nsec directly from hex pubkey string
-      final activeNpub = await activePubkey.toNpub();
+      final activeNpub = activePubkey.toNpub();
       final activeNsec = await exportAccountNsec(pubkey: activePubkey);
 
       state = state.copyWith(
