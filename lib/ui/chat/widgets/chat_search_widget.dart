@@ -139,7 +139,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                       height: 16.w,
                       width: 16.w,
                       colorFilter: ColorFilter.mode(
-                        context.colors.primarySolid,
+                        context.colors.solidPrimary,
                         BlendMode.srcIn,
                       ),
                     ),
@@ -175,7 +175,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                       height: 16.w,
                       width: 16.w,
                       colorFilter: ColorFilter.mode(
-                        context.colors.primarySolid,
+                        context.colors.solidPrimary,
                         BlendMode.srcIn,
                       ),
                     ),
