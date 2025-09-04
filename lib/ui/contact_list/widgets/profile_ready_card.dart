@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
@@ -17,10 +18,20 @@ class ProfileReadyCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
+    final groupsState = ref.watch(groupsProvider);
 
     return visibilityAsync.when(
       data: (isVisible) {
         if (!isVisible) {
+          return const SizedBox.shrink();
+        }
+
+        // Check if there are any groups and automatically dismiss the card
+        final groups = groupsState.groups;
+        if (groups != null && groups.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
+          });
           return const SizedBox.shrink();
         }
 
@@ -94,8 +105,6 @@ class ProfileReadyCard extends ConsumerWidget {
           WnFilledButton(
             label: 'Search For Friends',
             onPressed: () {
-              // Dismiss the card when user takes action to search for friends
-              ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
               NewChatBottomSheet.show(context);
             },
             size: WnButtonSize.small,
