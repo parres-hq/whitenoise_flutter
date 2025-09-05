@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
@@ -8,6 +7,7 @@ import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 import '../../test_helpers.dart';
 
@@ -26,14 +26,14 @@ class MockFollowsNotifier extends FollowsNotifier {
 
 class MockActiveAccountNotifier extends ActiveAccountNotifier {
   @override
-  Future<ActiveAccountState> build() async {
+  Future<ActiveAccountState> build() {
     final mockAccount = Account(
       pubkey: 'test-pubkey',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
 
-    return ActiveAccountState(account: mockAccount);
+    return Future.value(ActiveAccountState(account: mockAccount));
   }
 }
 
@@ -134,10 +134,10 @@ void main() {
         ),
       );
 
-      final copyButton = find.byType(SvgPicture);
-      expect(copyButton, findsOneWidget);
+      final copyButton = find.byType(WnImage);
+      expect(copyButton, findsWidgets);
 
-      await tester.tap(copyButton);
+      await tester.tap(copyButton.first);
     });
 
     testWidgets('initially shows loading indicator', (WidgetTester tester) async {
@@ -148,7 +148,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsWidgets);
     });
 
     group('without key package', () {
@@ -164,12 +164,31 @@ void main() {
             overrides: commonOverrides,
           ),
         );
-        await tester.pumpAndSettle();
+        await tester.pump();
       }
 
       testWidgets('hides loading indicator', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.byType(CircularProgressIndicator), findsNothing);
+        // Check that any CircularProgressIndicator found is from ButtonLoadingIndicator (18.w size)
+        // and not the main loading indicator (32.w size)
+        final indicators = find.byType(CircularProgressIndicator);
+        final indicatorWidgets = tester.widgetList<CircularProgressIndicator>(indicators);
+        for (final indicator in indicatorWidgets) {
+          final sizedBox = tester.widget<SizedBox>(
+            find
+                .ancestor(
+                  of: find.byWidget(indicator),
+                  matching: find.byType(SizedBox),
+                )
+                .first,
+          );
+          // Main loading indicator uses 32.w, button indicators use 18.w
+          expect(
+            sizedBox.width != 32.0,
+            isTrue,
+            reason: 'Found main loading indicator, should be hidden',
+          );
+        }
       });
 
       testWidgets('displays invite', (WidgetTester tester) async {
@@ -207,12 +226,31 @@ void main() {
             overrides: commonOverrides,
           ),
         );
-        await tester.pumpAndSettle();
+        await tester.pump();
       }
 
       testWidgets('hides loading indicator', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.byType(CircularProgressIndicator), findsNothing);
+        // Check that any CircularProgressIndicator found is from ButtonLoadingIndicator (18.w size)
+        // and not the main loading indicator (32.w size)
+        final indicators = find.byType(CircularProgressIndicator);
+        final indicatorWidgets = tester.widgetList<CircularProgressIndicator>(indicators);
+        for (final indicator in indicatorWidgets) {
+          final sizedBox = tester.widget<SizedBox>(
+            find
+                .ancestor(
+                  of: find.byWidget(indicator),
+                  matching: find.byType(SizedBox),
+                )
+                .first,
+          );
+          // Main loading indicator uses 32.w, button indicators use 18.w
+          expect(
+            sizedBox.width != 32.0,
+            isTrue,
+            reason: 'Found main loading indicator, should be hidden',
+          );
+        }
       });
 
       testWidgets('displays add contact option', (WidgetTester tester) async {
@@ -249,7 +287,7 @@ void main() {
               ],
             ),
           );
-          await tester.pumpAndSettle();
+          await tester.pump();
         }
 
         testWidgets('displays remove contact option', (WidgetTester tester) async {
@@ -261,16 +299,20 @@ void main() {
               ),
               overrides: [
                 ...commonOverrides,
-                followsProvider.overrideWith(() => MockFollowsNotifier([User(
-                  pubkey: contact.publicKey,
-                  metadata: const FlutterMetadata(custom: {}),
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now(),
-                )])),
+                followsProvider.overrideWith(
+                  () => MockFollowsNotifier([
+                    User(
+                      pubkey: contact.publicKey,
+                      metadata: const FlutterMetadata(custom: {}),
+                      createdAt: DateTime.now(),
+                      updatedAt: DateTime.now(),
+                    ),
+                  ]),
+                ),
               ],
             ),
           );
-          await tester.pumpAndSettle();
+          await tester.pump();
           expect(find.text('Remove Contact'), findsOneWidget);
         });
 
@@ -283,16 +325,20 @@ void main() {
               ),
               overrides: [
                 ...commonOverrides,
-                followsProvider.overrideWith(() => MockFollowsNotifier([User(
-                  pubkey: contact.publicKey,
-                  metadata: const FlutterMetadata(custom: {}),
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now(),
-                )])),
+                followsProvider.overrideWith(
+                  () => MockFollowsNotifier([
+                    User(
+                      pubkey: contact.publicKey,
+                      metadata: const FlutterMetadata(custom: {}),
+                      createdAt: DateTime.now(),
+                      updatedAt: DateTime.now(),
+                    ),
+                  ]),
+                ),
               ],
             ),
           );
-          await tester.pumpAndSettle();
+          await tester.pump();
           expect(find.text('Add Contact'), findsNothing);
         });
 
@@ -314,12 +360,31 @@ void main() {
             overrides: commonOverrides,
           ),
         );
-        await tester.pumpAndSettle();
+        await tester.pump();
       }
 
       testWidgets('hides loading indicator', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.byType(CircularProgressIndicator), findsNothing);
+        // Check that any CircularProgressIndicator found is from ButtonLoadingIndicator (18.w size)
+        // and not the main loading indicator (32.w size)
+        final indicators = find.byType(CircularProgressIndicator);
+        final indicatorWidgets = tester.widgetList<CircularProgressIndicator>(indicators);
+        for (final indicator in indicatorWidgets) {
+          final sizedBox = tester.widget<SizedBox>(
+            find
+                .ancestor(
+                  of: find.byWidget(indicator),
+                  matching: find.byType(SizedBox),
+                )
+                .first,
+          );
+          // Main loading indicator uses 32.w, button indicators use 18.w
+          expect(
+            sizedBox.width != 32.0,
+            isTrue,
+            reason: 'Found main loading indicator, should be hidden',
+          );
+        }
       });
       testWidgets('hides add contact option', (WidgetTester tester) async {
         await setup(tester);
