@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
@@ -38,49 +37,29 @@ class WnAvatar extends StatelessWidget {
         shape: BoxShape.circle,
       ),
       child: ClipOval(
-        child: _buildChild(context),
+        child: WnImage(
+          imageUrl,
+          size: size,
+          fit: BoxFit.cover,
+          fallbackWidget: (context) => FallbackAvatar(displayName: displayName, size: size),
+        ),
       ),
     );
   }
+}
 
-  Widget _buildChild(BuildContext context) {
-    // First priority: image if URL is not empty (network, local file, or asset)
-    if (imageUrl.isNotEmpty) {
-      // Try network image first
-      if (imageUrl.startsWith('http')) {
-        return Image.network(
-          imageUrl,
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => _buildFallbackAvatar(context),
-        );
-      }
-      // Try local file image
-      if (File(imageUrl).existsSync()) {
-        return Image.file(
-          File(imageUrl),
-          width: size,
-          height: size,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => _buildFallbackAvatar(context),
-        );
-      }
-      // Try asset image
-      return Image.asset(
-        imageUrl,
-        width: size,
-        height: size,
-        fit: BoxFit.cover,
-        color: context.colors.primary,
-        errorBuilder: (context, error, stackTrace) => _buildFallbackAvatar(context),
-      );
-    }
-    // Second priority: fallback to displayName first letter or default avatar
-    return _buildFallbackAvatar(context);
-  }
+class FallbackAvatar extends StatelessWidget {
+  const FallbackAvatar({
+    super.key,
+    required this.displayName,
+    required this.size,
+  });
 
-  Widget _buildFallbackAvatar(BuildContext context) {
+  final String? displayName;
+  final double size;
+
+  @override
+  Widget build(BuildContext context) {
     // Show first letter of displayName if available
     if (displayName != null && displayName!.trim().isNotEmpty) {
       return Center(

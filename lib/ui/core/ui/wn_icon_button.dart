@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 class WnIconButton extends StatelessWidget {
   final void Function()? onTap;
@@ -34,11 +34,10 @@ class WnIconButton extends StatelessWidget {
         ),
         child: Padding(
           padding: EdgeInsets.all(padding ?? 12.w),
-          child: SvgPicture.asset(
+          child: WnImage(
             iconPath,
-            width: 16.w,
-            height: 16.w,
-            colorFilter: ColorFilter.mode(iconColor ?? context.colors.primary, BlendMode.srcIn),
+            size: 16.w,
+            color: iconColor ?? context.colors.primary,
           ),
         ),
       ),

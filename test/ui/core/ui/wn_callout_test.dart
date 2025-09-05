@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/ui/core/ui/wn_callout.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 void main() {
   group('WnCallout Tests', () {
@@ -53,8 +53,8 @@ void main() {
       expect(
         find.byWidgetPredicate(
           (widget) =>
-              widget is SvgPicture &&
-              widget.bytesLoader.toString().contains('assets/svgs/ic_information.svg'),
+              widget is WnImage &&
+              widget.src.contains('assets/svgs/ic_information.svg'),
         ),
         findsOneWidget,
       );
