@@ -3,6 +3,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api;
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
+import 'package:whitenoise/src/rust/api/utils.dart' as rust_utils;
 import 'package:whitenoise/utils/image_utils.dart';
 
 final _logger = Logger('ActiveAccountProvider');
@@ -55,8 +56,7 @@ class DefaultWnUtils implements WnUtils {
 
   @override
   Future<String> getDefaultBlossomServerUrl() {
-    // TODO: Replace with the actual implementation (e.g., read from settings).
-    throw UnimplementedError('getDefaultBlossomServerUrl not implemented');
+    return rust_utils.getDefaultBlossomServerUrl();
   }
 }
 
@@ -137,10 +137,10 @@ Future<FlutterMetadata> _fetchMetadata(WnAccountsApi accountsApi, String pubkey)
 class ActiveAccountNotifier extends AsyncNotifier<ActiveAccountState> {
   @override
   Future<ActiveAccountState> build() async {
-    final activePubkey = ref.watch(activePubkeyProvider);
+    final activePubkey = ref.watch(activePubkeyProvider) ?? '';
     final accountsApi = ref.read(wnAccountsApiProvider);
 
-    if (activePubkey == null || activePubkey.isEmpty) {
+    if (activePubkey.isEmpty) {
       _logger.fine('No active pubkey set');
       return const ActiveAccountState();
     }
@@ -171,9 +171,9 @@ class ActiveAccountNotifier extends AsyncNotifier<ActiveAccountState> {
   Future<void> updateMetadata({
     required FlutterMetadata metadata,
   }) async {
-    final activePubkey = ref.read(activePubkeyProvider);
+    final activePubkey = ref.read(activePubkeyProvider) ?? '';
 
-    if (activePubkey == null || activePubkey.isEmpty) {
+    if (activePubkey.isEmpty) {
       _logger.fine('No active pubkey set');
       throw Exception('No active pubkey available');
     }
@@ -194,9 +194,9 @@ class ActiveAccountNotifier extends AsyncNotifier<ActiveAccountState> {
   Future<String> uploadProfilePicture({
     required String filePath,
   }) async {
-    final activePubkey = ref.read(activePubkeyProvider);
+    final activePubkey = ref.read(activePubkeyProvider) ?? '';
 
-    if (activePubkey == null || activePubkey.isEmpty) {
+    if (activePubkey.isEmpty) {
       _logger.fine('No active pubkey set');
       throw Exception('No active pubkey available');
     }

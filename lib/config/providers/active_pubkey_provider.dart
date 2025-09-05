@@ -26,12 +26,13 @@ class ActivePubkeyNotifier extends Notifier<String?> {
 
   Future<void> loadActivePubkey() async {
     final pubkey = await AccountSecureStorageService.getActivePubkey(storage: storage);
-    state = pubkey;
+    state = pubkey?.trim();
   }
 
   Future<void> setActivePubkey(String pubkey) async {
-    await AccountSecureStorageService.setActivePubkey(pubkey, storage: storage);
-    state = pubkey;
+    final trimmedPubkey = pubkey.trim();
+    await AccountSecureStorageService.setActivePubkey(trimmedPubkey, storage: storage);
+    state = trimmedPubkey;
   }
 
   Future<void> clearActivePubkey() async {
