@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
@@ -102,14 +103,33 @@ class _ReactionItem extends StatelessWidget {
               border: Border.all(color: context.colors.neutral, width: 1.w),
               borderRadius: BorderRadius.circular(20.r),
             ),
-            child: Center(
-              child: Text(
-                isSingle ? emoji : '$emoji $count',
-                style: TextStyle(
-                  fontSize: size.sp,
-                  color: context.colors.mutedForeground,
-                ),
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Platform.isIOS
+                    ? Transform.translate(
+                      offset: const Offset(1, -1),
+                      child: Text(
+                        isSingle ? emoji : '$emoji $count',
+                        style: TextStyle(
+                          fontSize: size.sp,
+                          height: 1.0,
+                          color: context.colors.mutedForeground,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    )
+                    : Text(
+                      isSingle ? emoji : '$emoji $count',
+                      style: TextStyle(
+                        fontSize: size.sp,
+                        height: 1.0,
+                        color: context.colors.mutedForeground,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+              ],
             ),
           ),
         ),
