@@ -51,19 +51,19 @@ class GroupChatHeader extends ConsumerStatefulWidget {
 }
 
 class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
-  Future<String>? _groupNpubFuture;
+  String? _groupNpub;
 
   @override
   void initState() {
     super.initState();
-    _groupNpubFuture = npubFromHexPubkey(hexPubkey: widget.group.nostrGroupId);
+    _groupNpub = npubFromHexPubkey(hexPubkey: widget.group.nostrGroupId);
   }
 
   @override
   void didUpdateWidget(GroupChatHeader oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.group.nostrGroupId != widget.group.nostrGroupId) {
-      _groupNpubFuture = npubFromHexPubkey(hexPubkey: widget.group.nostrGroupId);
+      _groupNpub = npubFromHexPubkey(hexPubkey: widget.group.nostrGroupId);
     }
   }
 
@@ -90,19 +90,13 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
             ),
           ),
           Gap(16.h),
-          FutureBuilder(
-            future: _groupNpubFuture,
-            builder: (context, asyncSnapshot) {
-              final groupNpub = asyncSnapshot.data ?? '';
-              return Text(
-                groupNpub.formatPublicKey(),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: context.colors.mutedForeground,
-                ),
-              );
-            },
+          Text(
+            _groupNpub?.formatPublicKey() ?? '',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: context.colors.mutedForeground,
+            ),
           ),
           Gap(12.h),
           if (widget.group.description.isNotEmpty) ...[

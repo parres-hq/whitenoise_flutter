@@ -146,8 +146,10 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     final followsState = ref.watch(followsProvider);
     final activeAccount = ref.watch(activePubkeyProvider);
     final follows = followsState.follows;
-    final contactModels = follows.map((follow) => ContactModel.fromUser(user: follow)).toList();
-    final filteredContacts = _getFilteredContacts(contactModels, activeAccount);
+    final contactModels = follows.map(
+      (follow) => ContactModel.fromMetadata(pubkey: follow.pubkey, metadata: follow.metadata),
+    );
+    final filteredContacts = _getFilteredContacts(contactModels.toList(), activeAccount);
 
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h),

@@ -120,6 +120,33 @@ void main() {
           expect(wasNotified, isTrue);
         });
       });
+
+      group('when storage has a pubkey string with whitespaces', () {
+        setUp(() async {
+          when(
+            mockStorage.read(key: 'active_account_pubkey'),
+          ).thenAnswer((_) async => ' test_pubkey_123 ');
+        });
+
+        test('sets state to the pubkey string without whitespaces', () async {
+          final notifier = container.read(activePubkeyProvider.notifier);
+          await notifier.loadActivePubkey();
+          final state = container.read(activePubkeyProvider);
+          expect(state, 'test_pubkey_123');
+        });
+
+        test('notifies to listeners', () async {
+          final notifier = container.read(activePubkeyProvider.notifier);
+          bool wasNotified = false;
+
+          container.listen(activePubkeyProvider, (previous, next) {
+            wasNotified = true;
+          });
+
+          await notifier.loadActivePubkey();
+          expect(wasNotified, isTrue);
+        });
+      });
     });
 
     group('setActivePubkey', () {
