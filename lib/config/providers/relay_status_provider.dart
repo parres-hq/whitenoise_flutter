@@ -3,7 +3,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/models/relay_status.dart';
@@ -64,20 +63,19 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
         return;
       }
 
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      _logger.info('RelayStatusNotifier: Active account data: ${activeAccount?.pubkey}');
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      _logger.info('RelayStatusNotifier: Active account data: $activePubkey');
+      if (activePubkey.isEmpty) {
         _logger.warning('RelayStatusNotifier: No active account found');
         state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
 
       _logger.info(
-        'RelayStatusNotifier: Fetching relay statuses for pubkey: ${activeAccount.pubkey}',
+        'RelayStatusNotifier: Fetching relay statuses for pubkey: $activePubkey',
       );
       // Fetch relay statuses using the Rust function
-      final relayStatuses = await fetchRelayStatus(pubkey: activeAccount.pubkey);
+      final relayStatuses = await fetchRelayStatus(pubkey: activePubkey);
       _logger.info('RelayStatusNotifier: Fetched ${relayStatuses.length} relay statuses');
 
       // Convert list of tuples to map
@@ -123,9 +121,8 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
         return false;
       }
 
-      // Read the active account pubkey string
-      final accountPubKey = ref.read(activePubkeyProvider);
-      if (accountPubKey == null) return false;
+      final accountPubKey = ref.read(activePubkeyProvider) ?? '';
+      if (accountPubKey.isEmpty) return false;
 
       // Fetch relay URLs for each type using new bridge methods
       final nip65Type = await relayTypeNip65();

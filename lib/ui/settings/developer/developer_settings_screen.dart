@@ -4,9 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
@@ -31,29 +30,13 @@ class DeveloperSettingsScreen extends ConsumerStatefulWidget {
 class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScreen> {
   bool _isLoading = false;
 
-  Future<void> _clearMetadataCache() async {
-    setState(() => _isLoading = true);
-
-    try {
-      ref.read(metadataCacheProvider.notifier).clearCache();
-      ref.showSuccessToast('Metadata cache cleared successfully');
-    } catch (e) {
-      ref.showErrorToast('Failed to clear cache: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
   Future<void> _reloadFollows() async {
     setState(() => _isLoading = true);
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
 
-      if (activeAccount != null) {
+      if (activePubkey.isNotEmpty) {
         await ref.read(followsProvider.notifier).loadFollows();
         ref.showSuccessToast('Follows reloaded successfully');
       } else {
@@ -120,15 +103,6 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                           ),
                         ),
                         Gap(12.h),
-
-                        WnFilledButton(
-                          label: 'Clear Cache',
-                          onPressed: _isLoading ? null : _clearMetadataCache,
-                          loading: _isLoading,
-                          visualState: WnButtonVisualState.destructive,
-                        ),
-
-                        Gap(8.h),
 
                         WnFilledButton(
                           label: 'Reload Follows',
