@@ -1,5 +1,3 @@
-import 'package:whitenoise/src/rust/api/utils.dart' as wn_utils_api;
-
 extension StringExtensions on String {
   /// Formats the public key by adding a space every 5 characters
   String formatPublicKey() {
@@ -7,16 +5,6 @@ extension StringExtensions on String {
       RegExp(r'.{5}'),
       (match) => '${match.group(0)} ',
     );
-  }
-
-  /// Converts a hex pubkey to npub format
-  /// Returns null if conversion fails
-  Future<String?> toNpub() async {
-    try {
-      return await wn_utils_api.npubFromHexPubkey(hexPubkey: this);
-    } catch (e) {
-      return null;
-    }
   }
 
   /// Capitalizes the first letter of the string

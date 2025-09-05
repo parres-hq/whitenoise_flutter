@@ -9,17 +9,11 @@ import '../frb_generated.dart';
 import 'error.dart';
 import 'messages.dart';
 
-Future<String> npubFromPublicKey({required PublicKey publicKey}) =>
-    RustLib.instance.api.crateApiUtilsNpubFromPublicKey(publicKey: publicKey);
-
-Future<String> npubFromHexPubkey({required String hexPubkey}) =>
+String npubFromHexPubkey({required String hexPubkey}) =>
     RustLib.instance.api.crateApiUtilsNpubFromHexPubkey(hexPubkey: hexPubkey);
 
-Future<String> hexPubkeyFromNpub({required String npub}) =>
+String hexPubkeyFromNpub({required String npub}) =>
     RustLib.instance.api.crateApiUtilsHexPubkeyFromNpub(npub: npub);
-
-Future<String> hexPubkeyFromPublicKey({required PublicKey publicKey}) =>
-    RustLib.instance.api.crateApiUtilsHexPubkeyFromPublicKey(publicKey: publicKey);
 
 Future<RelayUrl> relayUrlFromString({required String url}) =>
     RustLib.instance.api.crateApiUtilsRelayUrlFromString(url: url);
@@ -41,9 +35,6 @@ Future<GroupId> groupIdFromString({required String groupId}) =>
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<GroupId>>
 abstract class GroupId implements RustOpaqueInterface {}
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<PublicKey>>
-abstract class PublicKey implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayUrl>>
 abstract class RelayUrl implements RustOpaqueInterface {}
