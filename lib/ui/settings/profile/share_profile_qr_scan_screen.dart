@@ -218,13 +218,13 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
           );
         }
       }
-    } catch (e) {
+    } catch (e, s) {
       _controller.stop();
       String? errorMessage = 'Something went wrong';
       if (e is ApiError) {
         errorMessage = await e.messageText();
       }
-      logger.severe(errorMessage, e);
+      logger.severe(errorMessage, e, s);
       ref.showErrorToast(errorMessage);
     } finally {
       _delayedCameraRestart();
