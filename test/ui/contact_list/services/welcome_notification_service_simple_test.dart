@@ -6,6 +6,7 @@ import 'package:whitenoise/ui/contact_list/services/welcome_notification_service
 
 void main() {
   group('WelcomeNotificationService Core Tests', () {
+    TestWidgetsFlutterBinding.ensureInitialized();
     late ProviderContainer container;
 
     // Test data

@@ -4,7 +4,7 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
-import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class DMChatService {
@@ -13,10 +13,7 @@ class DMChatService {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) return null;
 
-      final currentUserNpub = npubFromHexPubkey(
-        hexPubkey: activePubkey,
-      );
-
+      final currentUserNpub = PubkeyFormatter(pubkey: activePubkey).toNpub();
       final otherMember = ref
           .read(groupsProvider.notifier)
           .getOtherGroupMember(
@@ -29,7 +26,7 @@ class DMChatService {
         final otherMemberPubkey = otherMember.publicKey;
         String otherMemberNpubPubkey = otherMemberPubkey;
         if (otherMemberPubkey.isValidHexPublicKey) {
-          otherMemberNpubPubkey = npubFromHexPubkey(hexPubkey: otherMemberPubkey);
+          otherMemberNpubPubkey = PubkeyFormatter(pubkey: otherMemberPubkey).toNpub() ?? '';
         }
         final contactModel = ContactModel.fromMetadata(
           pubkey: otherMemberNpubPubkey,
