@@ -233,7 +233,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
     }
   }
 
-  void _delayedCameraRestart() => Future.delayed(const Duration(seconds: 4), () {
+  void _delayedCameraRestart() => Future.delayed(const Duration(seconds: 2), () {
     if (mounted) {
       _controller.start();
     }
