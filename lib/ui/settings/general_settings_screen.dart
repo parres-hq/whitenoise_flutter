@@ -15,7 +15,6 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts;
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -25,6 +24,7 @@ import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class GeneralSettingsScreen extends ConsumerStatefulWidget {
@@ -152,7 +152,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
           // Try to convert npub to hex for matching
           String hexKey = selectedProfile.publicKey;
           if (selectedProfile.publicKey.isValidNpubPublicKey) {
-            hexKey = hexPubkeyFromNpub(npub: selectedProfile.publicKey);
+            hexKey = PubkeyFormatter(pubkey: selectedProfile.publicKey).toHex() ?? '';
           }
 
           selectedAccount = _accounts.where((account) => account.pubkey == hexKey).firstOrNull;
