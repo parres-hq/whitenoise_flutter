@@ -30,7 +30,6 @@ class ShareProfileQrScanScreen extends ConsumerStatefulWidget {
 class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScreen>
     with WidgetsBindingObserver {
   final Logger logger = Logger('ShareProfileQrScanScreen');
-  String npub = '';
   late MobileScannerController _controller;
   StreamSubscription<BarcodeCapture>? _subscription;
 
@@ -187,8 +186,9 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
 
     try {
       final barcode = capture.barcodes.first;
-      if (barcode.rawValue != null && barcode.rawValue!.isNotEmpty) {
-        final npub = barcode.rawValue!;
+      final rawValue = barcode.rawValue ?? '';
+      if (rawValue.isNotEmpty) {
+        final npub = rawValue.trim();
         if (!npub.isValidPublicKey) {
           ref.showWarningToast('Invalid public key format');
           _controller.stop();
