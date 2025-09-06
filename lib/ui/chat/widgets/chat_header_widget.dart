@@ -6,10 +6,10 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ChatContactHeader extends ConsumerWidget {
@@ -56,14 +56,14 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
   @override
   void initState() {
     super.initState();
-    _groupNpub = npubFromHexPubkey(hexPubkey: widget.group.nostrGroupId);
+    _groupNpub = PubkeyFormatter(pubkey: widget.group.nostrGroupId).toNpub();
   }
 
   @override
   void didUpdateWidget(GroupChatHeader oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.group.nostrGroupId != widget.group.nostrGroupId) {
-      _groupNpub = npubFromHexPubkey(hexPubkey: widget.group.nostrGroupId);
+      _groupNpub = PubkeyFormatter(pubkey: widget.group.nostrGroupId).toNpub();
     }
   }
 

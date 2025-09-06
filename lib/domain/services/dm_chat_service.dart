@@ -4,8 +4,7 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
-import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/utils/public_key_validation_extension.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class DMChatService {
   static Future<DMChatData?> getDMChatData(String groupId, WidgetRef ref) async {
@@ -13,10 +12,7 @@ class DMChatService {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) return null;
 
-      final currentUserNpub = npubFromHexPubkey(
-        hexPubkey: activePubkey,
-      );
-
+      final currentUserNpub = PubkeyFormatter(pubkey: activePubkey).toNpub();
       final otherMember = ref
           .read(groupsProvider.notifier)
           .getOtherGroupMember(
@@ -27,10 +23,7 @@ class DMChatService {
       if (otherMember != null) {
         final user = await wn_users_api.getUser(pubkey: otherMember.publicKey);
         final otherMemberPubkey = otherMember.publicKey;
-        String otherMemberNpubPubkey = otherMemberPubkey;
-        if (otherMemberPubkey.isValidHexPublicKey) {
-          otherMemberNpubPubkey = npubFromHexPubkey(hexPubkey: otherMemberPubkey);
-        }
+        final otherMemberNpubPubkey = PubkeyFormatter(pubkey: otherMemberPubkey).toNpub() ?? '';
         final contactModel = ContactModel.fromMetadata(
           pubkey: otherMemberNpubPubkey,
           metadata: user.metadata,

@@ -11,8 +11,8 @@ import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/error_handling.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class GroupsNotifier extends Notifier<GroupsState> {
   final _logger = Logger('GroupsNotifier');
@@ -155,8 +155,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) return null;
 
-      final currentUserNpub = npubFromHexPubkey(hexPubkey: activePubkey);
-      final otherUserNpub = npubFromHexPubkey(hexPubkey: otherUserPubkeyHex);
+      final currentUserNpub = PubkeyFormatter(pubkey: activePubkey).toNpub();
+      final otherUserNpub = PubkeyFormatter(pubkey: otherUserPubkeyHex).toNpub();
 
       final directMessageGroups = await getDirectMessageGroups();
 
@@ -312,11 +312,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final List<User> members = [];
       for (final memberPubkey in memberPubkeys) {
         try {
-          final pubkeyString = npubFromHexPubkey(hexPubkey: memberPubkey);
-
+          final npub = PubkeyFormatter(pubkey: memberPubkey).toNpub() ?? '';
           try {
             final metadata = await rust_users.userMetadata(pubkey: memberPubkey);
-            final user = User.fromMetadata(metadata, pubkeyString);
+            final user = User.fromMetadata(metadata, npub);
             members.add(user);
           } catch (metadataError) {
             // Log the full exception details with proper Whitenoise ApiError unpacking
@@ -330,10 +329,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
             _logger.warning(logMessage, metadataError);
             // Create a fallback user with minimal info
             final fallbackUser = User(
-              id: pubkeyString,
+              id: npub,
               displayName: 'Unknown User',
               nip05: '',
-              publicKey: pubkeyString,
+              publicKey: npub,
             );
             members.add(fallbackUser);
           }
@@ -391,12 +390,11 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final List<User> admins = [];
       for (final adminPubkey in adminPubkeys) {
         try {
-          // Get pubkey string first to avoid multiple uses of the same PublicKey object
-          final pubkeyString = npubFromHexPubkey(hexPubkey: adminPubkey);
+          final npub = PubkeyFormatter(pubkey: adminPubkey).toNpub() ?? '';
 
           try {
             final metadata = await rust_users.userMetadata(pubkey: adminPubkey);
-            final user = User.fromMetadata(metadata, pubkeyString);
+            final user = User.fromMetadata(metadata, npub);
             admins.add(user);
           } catch (metadataError) {
             // Log the full exception details with proper ApiError unpacking
@@ -410,10 +408,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
             _logger.warning(logMessage, metadataError);
             // Create a fallback user with minimal info
             final fallbackUser = User(
-              id: pubkeyString,
+              id: npub,
               displayName: 'Unknown User',
               nip05: '',
-              publicKey: pubkeyString,
+              publicKey: npub,
             );
             admins.add(fallbackUser);
           }
@@ -597,7 +595,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
     if (groupInformation.groupType == GroupType.directMessage) {
       try {
-        final currentUserNpub = npubFromHexPubkey(hexPubkey: currentUserPubkey);
+        final currentUserNpub = PubkeyFormatter(pubkey: currentUserPubkey).toNpub();
         final otherMember = getOtherGroupMember(group.mlsGroupId, currentUserNpub);
 
         if (otherMember == null) {
@@ -885,11 +883,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
         return;
       }
 
-      final usersPubkeyHex = await Future.wait(
-        membersNpubs.map((userNpub) async {
-          return hexPubkeyFromNpub(npub: userNpub);
-        }),
-      );
+      final usersPubkeyHex =
+          membersNpubs.map((userNpub) {
+            return PubkeyFormatter(pubkey: userNpub).toHex() ?? '';
+          }).toList();
 
       await addMembersToGroup(
         pubkey: activePubkey,
@@ -940,11 +937,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
         return;
       }
 
-      final usersPubkeyHex = await Future.wait(
-        membersNpubs.map((userNpub) async {
-          return hexPubkeyFromNpub(npub: userNpub);
-        }),
-      );
+      final usersPubkeyHex =
+          membersNpubs.map((userNpub) {
+            return PubkeyFormatter(pubkey: userNpub).toHex() ?? '';
+          }).toList();
 
       await removeMembersFromGroup(
         pubkey: activePubkey,
