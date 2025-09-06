@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -26,10 +26,10 @@ class WelcomeTile extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
+    final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
 
     return FutureBuilder(
-      future: metadataCacheNotifier.getContactModel(welcome.welcomer),
+      future: userProfileDataNotifier.getUserProfileData(welcome.welcomer),
       builder: (context, snapshot) {
         final welcomerContact = snapshot.data;
         final welcomerName = welcomerContact?.displayName ?? 'Unknown User';

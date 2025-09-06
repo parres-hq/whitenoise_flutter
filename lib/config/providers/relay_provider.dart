@@ -61,19 +61,18 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
         return;
       }
 
-      // Get the active account data directly
-      final pubKeyString = ref.read(activePubkeyProvider);
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
 
-      if (pubKeyString == null) {
+      if (activePubkey.isEmpty) {
         _logger.warning('NormalRelaysNotifier: No active account found');
         state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
-      _logger.info('NormalRelaysNotifier: Active account data: $pubKeyString');
+      _logger.info('NormalRelaysNotifier: Active account data: $activePubkey');
 
       final nip65RelayType = await relayTypeNip65();
       final relayUrls = await accountRelays(
-        pubkey: pubKeyString,
+        pubkey: activePubkey,
         relayType: nip65RelayType,
       ).then((value) => value.map((relay) => relay.url).toList());
 
@@ -117,9 +116,9 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final accountPubKey = ref.read(activePubkeyProvider);
+      final accountPubKey = ref.read(activePubkeyProvider) ?? '';
 
-      if (accountPubKey == null) {
+      if (accountPubKey.isEmpty) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
@@ -135,8 +134,8 @@ class NormalRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      final accountPubKey = ref.read(activePubkeyProvider);
-      if (accountPubKey == null) {
+      final accountPubKey = ref.read(activePubkeyProvider) ?? '';
+      if (accountPubKey.isEmpty) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
@@ -180,10 +179,9 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
         return;
       }
 
-      // Get the active account data directly
-      final accountPubKey = ref.read(activePubkeyProvider);
+      final accountPubKey = ref.read(activePubkeyProvider) ?? '';
 
-      if (accountPubKey == null) {
+      if (accountPubKey.isEmpty) {
         _logger.warning('InboxRelaysNotifier: No active account found');
         state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
@@ -237,8 +235,8 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final accountPubKey = ref.read(activePubkeyProvider);
-      if (accountPubKey == null) {
+      final accountPubKey = ref.read(activePubkeyProvider) ?? '';
+      if (accountPubKey.isEmpty) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
@@ -257,15 +255,15 @@ class InboxRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      final accountPubKeyString = ref.read(activePubkeyProvider);
+      final accountPubkey = ref.read(activePubkeyProvider) ?? '';
 
-      if (accountPubKeyString == null) {
+      if (accountPubkey.isEmpty) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
       final inboxRelayType = await relayTypeInbox();
       await removeAccountRelay(
-        pubkey: accountPubKeyString,
+        pubkey: accountPubkey,
         url: url,
         relayType: inboxRelayType,
       );
@@ -305,19 +303,18 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
         return;
       }
 
-      // Get the active account data directly
-      final pubKeyString = ref.read(activePubkeyProvider);
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
 
-      if (pubKeyString == null) {
+      if (activePubkey.isEmpty) {
         _logger.warning('KeyPackageRelaysNotifier: No active account found');
         state = state.copyWith(isLoading: false, error: 'No active account found');
         return;
       }
-      _logger.info('KeyPackageRelaysNotifier: Active account data: $pubKeyString');
+      _logger.info('KeyPackageRelaysNotifier: Active account data: $activePubkey');
       // Fetch key package relays via new bridge
       final keyPackageType = await relayTypeKeyPackage();
       final relayUrls = await accountRelays(
-        pubkey: pubKeyString,
+        pubkey: activePubkey,
         relayType: keyPackageType,
       ).then((value) => value.map((relay) => relay.url).toList());
 
@@ -359,13 +356,13 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> addRelay(String url) async {
     try {
-      final accountPubKeyString = ref.read(activePubkeyProvider);
-      if (accountPubKeyString == null) {
+      final accountPubkey = ref.read(activePubkeyProvider) ?? '';
+      if (accountPubkey.isEmpty) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
       final keyPackageType = await relayTypeKeyPackage();
-      await addAccountRelay(pubkey: accountPubKeyString, url: url, relayType: keyPackageType);
+      await addAccountRelay(pubkey: accountPubkey, url: url, relayType: keyPackageType);
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to add relay: $e');
@@ -374,14 +371,14 @@ class KeyPackageRelaysNotifier extends Notifier<RelayState> {
 
   Future<void> deleteRelay(String url) async {
     try {
-      final accountPubKeyString = ref.read(activePubkeyProvider);
+      final accountPubkey = ref.read(activePubkeyProvider) ?? '';
 
-      if (accountPubKeyString == null) {
+      if (accountPubkey.isEmpty) {
         _logger.severe('RelayProvider: No active account found for adding relay');
         return;
       }
       final keyPackageType = await relayTypeKeyPackage();
-      await removeAccountRelay(pubkey: accountPubKeyString, url: url, relayType: keyPackageType);
+      await removeAccountRelay(pubkey: accountPubkey, url: url, relayType: keyPackageType);
       await loadRelays();
     } catch (e) {
       state = state.copyWith(error: 'Failed to delete relay: $e');

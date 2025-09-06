@@ -512,7 +512,10 @@ class MessageConverter {
       final follow = followsNotifier.findFollowByPubkey(pubkey);
 
       if (follow != null) {
-        final contactModel = ContactModel.fromUser(user: follow);
+        final contactModel = ContactModel.fromMetadata(
+          pubkey: follow.pubkey,
+          metadata: follow.metadata,
+        );
         return User(
           id: pubkey,
           displayName:
