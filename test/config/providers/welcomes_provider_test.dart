@@ -5,6 +5,7 @@ import 'package:whitenoise/src/rust/api/welcomes.dart';
 
 void main() {
   group('WelcomesProvider Tests', () {
+    TestWidgetsFlutterBinding.ensureInitialized();
     late ProviderContainer container;
 
     // Test data
@@ -820,9 +821,10 @@ void main() {
         );
 
         // Find new pending welcomes and trigger callback for the first one
-        final newPendingWelcomes = newWelcomes
-            .where((w) => w.state == WelcomeState.pending && !previousPendingIds.contains(w.id))
-            .toList();
+        final newPendingWelcomes =
+            newWelcomes
+                .where((w) => w.state == WelcomeState.pending && !previousPendingIds.contains(w.id))
+                .toList();
 
         if (newPendingWelcomes.isNotEmpty) {
           notifier.triggerWelcomeCallback(newPendingWelcomes.first);

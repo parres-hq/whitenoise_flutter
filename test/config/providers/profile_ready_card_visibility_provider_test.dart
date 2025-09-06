@@ -32,6 +32,7 @@ class _MockFailingSharedPreferences implements SharedPreferences {
 
 void main() {
   group('ProfileReadyCardVisibilityProvider Tests', () {
+    TestWidgetsFlutterBinding.ensureInitialized();
     late ProviderContainer container;
     late ProfileReadyCardVisibilityNotifier notifier;
 

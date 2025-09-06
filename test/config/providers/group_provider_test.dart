@@ -6,6 +6,7 @@ import 'package:whitenoise/src/rust/api/groups.dart';
 
 void main() {
   group('GroupsProvider Tests', () {
+    TestWidgetsFlutterBinding.ensureInitialized();
     late ProviderContainer container;
 
     // Test data
@@ -113,7 +114,9 @@ void main() {
           nip05: 'test@example.com',
           publicKey: 'test_pubkey',
         );
-        final testGroupMembers = <String, List<User>>{'group1': [testUser]};
+        final testGroupMembers = <String, List<User>>{
+          'group1': [testUser],
+        };
 
         notifier.state = notifier.state.copyWith(groupMembers: testGroupMembers);
 
@@ -130,7 +133,9 @@ void main() {
           nip05: 'admin@example.com',
           publicKey: 'admin_pubkey',
         );
-        final testGroupAdmins = <String, List<User>>{'group1': [testUser]};
+        final testGroupAdmins = <String, List<User>>{
+          'group1': [testUser],
+        };
 
         notifier.state = notifier.state.copyWith(groupAdmins: testGroupAdmins);
 
@@ -162,38 +167,46 @@ void main() {
         notifier.state = notifier.state.copyWith(groups: testGroups);
       });
 
-      test('getGroupsByType should filter by GroupType.group', () async {
-        final notifier = container.read(groupsProvider.notifier);
+      test(
+        'getGroupsByType should filter by GroupType.group',
+        () async {
+          final notifier = container.read(groupsProvider.notifier);
 
-        // Skip test when rust bridge is not available
-        try {
-          final regularGroups = await notifier.getGroupsByType(GroupType.group);
-          expect(regularGroups.length, 2);
-          expect(regularGroups.map((g) => g.name), contains('Test Group 1'));
-          expect(regularGroups.map((g) => g.name), contains('Inactive Group'));
-        } catch (e) {
-          // Skip test if rust bridge is not initialized
-          if (e.toString().contains('flutter_rust_bridge has not been initialized')) {
-            return;
+          // Skip test when rust bridge is not available
+          try {
+            final regularGroups = await notifier.getGroupsByType(GroupType.group);
+            expect(regularGroups.length, 2);
+            expect(regularGroups.map((g) => g.name), contains('Test Group 1'));
+            expect(regularGroups.map((g) => g.name), contains('Inactive Group'));
+          } catch (e) {
+            // Skip test if rust bridge is not initialized
+            if (e.toString().contains('flutter_rust_bridge has not been initialized')) {
+              return;
+            }
+            rethrow;
           }
-          rethrow;
-        }
-      }, skip: 'Requires rust bridge initialization');
+        },
+        skip: 'Requires rust bridge initialization',
+      );
 
-      test('getGroupsByType should filter by GroupType.directMessage', () async {
-        final notifier = container.read(groupsProvider.notifier);
+      test(
+        'getGroupsByType should filter by GroupType.directMessage',
+        () async {
+          final notifier = container.read(groupsProvider.notifier);
 
-        try {
-          final dmGroups = await notifier.getGroupsByType(GroupType.directMessage);
-          expect(dmGroups.length, 1);
-          expect(dmGroups.first.name, 'Direct Message');
-        } catch (e) {
-          if (e.toString().contains('flutter_rust_bridge has not been initialized')) {
-            return;
+          try {
+            final dmGroups = await notifier.getGroupsByType(GroupType.directMessage);
+            expect(dmGroups.length, 1);
+            expect(dmGroups.first.name, 'Direct Message');
+          } catch (e) {
+            if (e.toString().contains('flutter_rust_bridge has not been initialized')) {
+              return;
+            }
+            rethrow;
           }
-          rethrow;
-        }
-      }, skip: 'Requires rust bridge initialization');
+        },
+        skip: 'Requires rust bridge initialization',
+      );
 
       test('getActiveGroups should filter by GroupState.active', () {
         final notifier = container.read(groupsProvider.notifier);
@@ -205,35 +218,46 @@ void main() {
         expect(activeGroups.map((g) => g.name), contains('Direct Message'));
       });
 
-      test('getDirectMessageGroups should return only direct messages', () async {
-        final notifier = container.read(groupsProvider.notifier);
+      test(
+        'getDirectMessageGroups should return only direct messages',
+        () async {
+          final notifier = container.read(groupsProvider.notifier);
 
-        try {
-          final dmGroups = await notifier.getDirectMessageGroups();
-          expect(dmGroups.length, 1);
-          expect(dmGroups.first.name, 'Direct Message');
-        } catch (e) {
-          if (e.toString().contains('flutter_rust_bridge has not been initialized')) {
-            return;
+          try {
+            final dmGroups = await notifier.getDirectMessageGroups();
+            expect(dmGroups.length, 1);
+            expect(dmGroups.first.name, 'Direct Message');
+          } catch (e) {
+            if (e.toString().contains('flutter_rust_bridge has not been initialized')) {
+              return;
+            }
+            rethrow;
           }
-          rethrow;
-        }
-      }, skip: 'Requires rust bridge initialization');
+        },
+        skip: 'Requires rust bridge initialization',
+      );
 
-      test('getRegularGroups should return only regular groups', () async {
-        final notifier = container.read(groupsProvider.notifier);
+      test(
+        'getRegularGroups should return only regular groups',
+        () async {
+          final notifier = container.read(groupsProvider.notifier);
 
-        try {
-          final regularGroups = await notifier.getRegularGroups();
-          expect(regularGroups.length, 2);
-          expect(regularGroups.map((g) => g.name), containsAll(['Test Group 1', 'Inactive Group']));
-        } catch (e) {
-          if (e.toString().contains('flutter_rust_bridge has not been initialized')) {
-            return;
+          try {
+            final regularGroups = await notifier.getRegularGroups();
+            expect(regularGroups.length, 2);
+            expect(
+              regularGroups.map((g) => g.name),
+              containsAll(['Test Group 1', 'Inactive Group']),
+            );
+          } catch (e) {
+            if (e.toString().contains('flutter_rust_bridge has not been initialized')) {
+              return;
+            }
+            rethrow;
           }
-          rethrow;
-        }
-      }, skip: 'Requires rust bridge initialization');
+        },
+        skip: 'Requires rust bridge initialization',
+      );
 
       test('findGroupById should find group by mlsGroupId', () {
         final notifier = container.read(groupsProvider.notifier);
@@ -268,7 +292,9 @@ void main() {
           nip05: 'member@example.com',
           publicKey: 'member_pubkey',
         );
-        final testGroupMembers = <String, List<User>>{'group1': [testUser]};
+        final testGroupMembers = <String, List<User>>{
+          'group1': [testUser],
+        };
         notifier.state = notifier.state.copyWith(groupMembers: testGroupMembers);
 
         final members = notifier.getGroupMembers('group1');
@@ -289,7 +315,9 @@ void main() {
           nip05: 'admin@example.com',
           publicKey: 'admin_pubkey',
         );
-        final testGroupAdmins = <String, List<User>>{'group1': [testUser]};
+        final testGroupAdmins = <String, List<User>>{
+          'group1': [testUser],
+        };
         notifier.state = notifier.state.copyWith(groupAdmins: testGroupAdmins);
 
         final admins = notifier.getGroupAdmins('group1');
@@ -314,8 +342,12 @@ void main() {
         );
         notifier.state = notifier.state.copyWith(
           groups: testGroups,
-          groupMembers: <String, List<User>>{'test': [testUser]},
-          groupAdmins: <String, List<User>>{'test': [testUser]},
+          groupMembers: <String, List<User>>{
+            'test': [testUser],
+          },
+          groupAdmins: <String, List<User>>{
+            'test': [testUser],
+          },
           groupDisplayNames: <String, String>{'test': 'Test Group'},
           error: 'some error',
         );
@@ -604,7 +636,7 @@ void main() {
     });
 
     group('Data Validation', () {
-            test('should correctly identify group types', () async {
+      test('should correctly identify group types', () async {
         final notifier = container.read(groupsProvider.notifier);
         notifier.state = notifier.state.copyWith(groups: testGroups);
 
