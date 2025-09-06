@@ -8,10 +8,9 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/error.dart';
-import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
@@ -95,67 +94,63 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: LayoutBuilder(
                       builder: (context, constraints) {
-                        return SingleChildScrollView(
-                          child: ConstrainedBox(
-                            constraints: BoxConstraints(
-                              minHeight: constraints.maxHeight,
-                            ),
-                            child: IntrinsicHeight(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  const Spacer(),
-                                  Center(
-                                    child: AspectRatio(
-                                      aspectRatio: 1.0,
-                                      child: Container(
-                                        constraints: BoxConstraints(
-                                          maxWidth: 288.w,
-                                          maxHeight: 288.w,
-                                          minWidth: 200.w,
-                                          minHeight: 200.w,
-                                        ),
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color: context.colors.primary,
-                                            width: 1.w,
-                                          ),
-                                        ),
-                                        child: MobileScanner(controller: _controller),
+                        return ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const Spacer(),
+                              Center(
+                                child: AspectRatio(
+                                  aspectRatio: 1.0,
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                      maxWidth: 288.w,
+                                      maxHeight: 288.w,
+                                      minWidth: 200.w,
+                                      minHeight: 200.w,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: context.colors.primary,
+                                        width: 1.w,
                                       ),
                                     ),
+                                    child: MobileScanner(controller: _controller),
                                   ),
-                                  Gap(16.h),
-                                  Text(
-                                    'Scan user\'s QR code to connect.',
-                                    textAlign: TextAlign.center,
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w500,
-                                      color: context.colors.mutedForeground,
-                                    ),
-                                  ),
-                                  const Spacer(),
-                                  if (!widget.hideViewQrButton) ...[
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 8.w),
-                                      child: WnFilledButton(
-                                        label: 'View QR Code',
-                                        onPressed: () => context.pop(),
-                                        suffixIcon: WnImage(
-                                          AssetsPaths.icQrCode,
-                                          size: 18.w,
-                                          color: context.colors.primaryForeground,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(height: 64.h),
-                                  ] else ...[
-                                    SizedBox(height: 64.h),
-                                  ],
-                                ],
+                                ),
                               ),
-                            ),
+                              Gap(16.h),
+                              Text(
+                                'Scan user\'s QR code to connect.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: context.colors.mutedForeground,
+                                ),
+                              ),
+                              const Spacer(),
+                              if (!widget.hideViewQrButton) ...[
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                  child: WnFilledButton(
+                                    label: 'View QR Code',
+                                    onPressed: () => context.pop(),
+                                    suffixIcon: WnImage(
+                                      AssetsPaths.icQrCode,
+                                      size: 18.w,
+                                      color: context.colors.primaryForeground,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 64.h),
+                              ] else ...[
+                                SizedBox(height: 64.h),
+                              ],
+                            ],
                           ),
                         );
                       },
@@ -201,12 +196,12 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
           return;
         }
         _controller.stop();
-        final user = await wn_users_api.getUser(pubkey: npub);
-        final contact = ContactModel.fromUser(user: user);
+        final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+        final userProfileData = await userProfileDataNotifier.getUserProfileData(npub.trim());
         if (mounted) {
           await StartChatBottomSheet.show(
             context: context,
-            contact: contact,
+            contact: userProfileData,
             onChatCreated: (group) {
               if (group != null && mounted) {
                 // Navigate to home first, then to the group chat

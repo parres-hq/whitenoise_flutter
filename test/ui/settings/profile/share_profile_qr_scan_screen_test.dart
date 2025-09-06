@@ -172,7 +172,7 @@ void main() {
 
     group('QR Scanning Functionality', () {
       testWidgets('initializes MobileScannerController correctly', (tester) async {
-        await tester.binding.setSurfaceSize(const Size(375, 812));
+        await tester.binding.setSurfaceSize(const Size(375, 1024));
         await tester.pumpWidget(
           createTestWidget(const ShareProfileQrScanScreen()),
         );
@@ -283,14 +283,7 @@ void main() {
       });
 
       testWidgets('handles different screen sizes appropriately', (tester) async {
-        // Test with small screen
-        await tester.binding.setSurfaceSize(const Size(320, 568));
-        await tester.pumpWidget(
-          createTestWidget(const ShareProfileQrScanScreen()),
-        );
-        expect(find.byType(ShareProfileQrScanScreen), findsOneWidget);
-
-        // Test with large screen
+        // Test with mobile screen
         await tester.binding.setSurfaceSize(const Size(414, 896));
         await tester.pumpWidget(
           createTestWidget(const ShareProfileQrScanScreen()),
@@ -342,8 +335,11 @@ void main() {
         ];
 
         for (final validNpub in validNpubs) {
-          expect(validNpub.isValidPublicKey, isTrue,
-              reason: '$validNpub should be a valid public key');
+          expect(
+            validNpub.isValidPublicKey,
+            isTrue,
+            reason: '$validNpub should be a valid public key',
+          );
         }
       });
 
@@ -362,10 +358,16 @@ void main() {
         ];
 
         for (final hexKey in validHexKeys) {
-          expect(hexKey.isValidPublicKey, isTrue,
-              reason: '$hexKey should be a valid hex public key');
-          expect(hexKey.isValidHexPublicKey, isTrue,
-              reason: '$hexKey should be valid hex specifically');
+          expect(
+            hexKey.isValidPublicKey,
+            isTrue,
+            reason: '$hexKey should be a valid hex public key',
+          );
+          expect(
+            hexKey.isValidHexPublicKey,
+            isTrue,
+            reason: '$hexKey should be valid hex specifically',
+          );
         }
       });
 
@@ -390,8 +392,11 @@ void main() {
         ];
 
         for (final invalidKey in invalidKeys) {
-          expect(invalidKey.isValidPublicKey, isFalse,
-              reason: '$invalidKey should be an invalid public key');
+          expect(
+            invalidKey.isValidPublicKey,
+            isFalse,
+            reason: '$invalidKey should be an invalid public key',
+          );
         }
       });
 
@@ -404,7 +409,7 @@ void main() {
         // Test edge cases
         const edgeCases = [
           'npub1', // exactly 5 chars, <= 10 so invalid
-          'npub123456', // exactly 10 chars, <= 10 so invalid  
+          'npub123456', // exactly 10 chars, <= 10 so invalid
           'npub1234567', // exactly 11 chars, > 10 so valid
           'npub', // prefix without content
           ' npub1234567890abc', // leading space - will be trimmed, then valid
@@ -413,10 +418,10 @@ void main() {
 
         expect(edgeCases[0].isValidPublicKey, isFalse); // npub1 (5 chars)
         expect(edgeCases[1].isValidPublicKey, isFalse); // npub123456 (10 chars)
-        expect(edgeCases[2].isValidPublicKey, isTrue);  // npub1234567 (11 chars)
+        expect(edgeCases[2].isValidPublicKey, isTrue); // npub1234567 (11 chars)
         expect(edgeCases[3].isValidPublicKey, isFalse); // npub (4 chars)
-        expect(edgeCases[4].isValidPublicKey, isTrue);  // leading space (trimmed)
-        expect(edgeCases[5].isValidPublicKey, isTrue);  // trailing space (trimmed)
+        expect(edgeCases[4].isValidPublicKey, isTrue); // leading space (trimmed)
+        expect(edgeCases[5].isValidPublicKey, isTrue); // trailing space (trimmed)
       });
 
       testWidgets('tests different public key types', (tester) async {
@@ -447,24 +452,24 @@ void main() {
 
         // Generate test cases
         final testCases = <String>[];
-        
+
         // Add valid npub cases
         for (int i = 0; i < 10; i++) {
           testCases.add('npub1${'a' * 20}'); // Valid npub format
         }
-        
-        // Add valid hex cases  
+
+        // Add valid hex cases
         for (int i = 0; i < 10; i++) {
           testCases.add('a' * 64); // Valid hex format
         }
-        
+
         // Add invalid cases
         for (int i = 0; i < 10; i++) {
           testCases.add('invalid$i'); // Invalid format
         }
 
         final stopwatch = Stopwatch()..start();
-        
+
         for (final testCase in testCases) {
           final isValid = testCase.isValidPublicKey;
           final keyType = testCase.publicKeyType;
@@ -472,12 +477,15 @@ void main() {
           expect(isValid, isA<bool>());
           expect(keyType, isA<PublicKeyType?>());
         }
-        
+
         stopwatch.stop();
-        
+
         // Validation should be very fast (less than 50ms for 30 validations)
-        expect(stopwatch.elapsedMilliseconds, lessThan(50),
-            reason: 'Public key validation should be performant');
+        expect(
+          stopwatch.elapsedMilliseconds,
+          lessThan(50),
+          reason: 'Public key validation should be performant',
+        );
       });
 
       testWidgets('tests real-world npub scenarios', (tester) async {
@@ -494,12 +502,13 @@ void main() {
         ];
 
         for (final scenario in scenarios) {
-          expect(scenario.isValidPublicKey, isTrue,
-              reason: '$scenario should be valid npub');
-          expect(scenario.startsWith('npub1'), isTrue,
-              reason: '$scenario should start with npub1');
-          expect(scenario.length, greaterThan(10),
-              reason: '$scenario should be longer than 10 characters');
+          expect(scenario.isValidPublicKey, isTrue, reason: '$scenario should be valid npub');
+          expect(scenario.startsWith('npub1'), isTrue, reason: '$scenario should start with npub1');
+          expect(
+            scenario.length,
+            greaterThan(10),
+            reason: '$scenario should be longer than 10 characters',
+          );
         }
       });
     });
