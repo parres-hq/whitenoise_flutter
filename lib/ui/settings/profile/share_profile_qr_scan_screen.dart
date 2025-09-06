@@ -191,8 +191,6 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
         final npub = rawValue.trim();
         if (!npub.isValidPublicKey) {
           ref.showWarningToast('Invalid public key format');
-          _controller.stop();
-          _delayedCameraRestart();
           return;
         }
         _controller.stop();
@@ -221,8 +219,8 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
         }
       }
     } catch (e) {
-      String? errorMessage = 'Something went wrong';
       _controller.stop();
+      String? errorMessage = 'Something went wrong';
       if (e is ApiError) {
         errorMessage = await e.messageText();
       }
@@ -233,7 +231,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
     }
   }
 
-  void _delayedCameraRestart() => Future.delayed(const Duration(seconds: 2), () {
+  void _delayedCameraRestart() => Future.delayed(const Duration(milliseconds: 300), () {
     if (mounted) {
       _controller.start();
     }
