@@ -42,7 +42,6 @@ class ChatListItemTile extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     final groupType = groupsNotifier.getCachedGroupType(group.mlsGroupId);
-
     // If group type is not cached yet, use FutureBuilder to handle the async loading
     if (groupType == null) {
       return FutureBuilder<GroupType>(
@@ -75,7 +74,6 @@ class ChatListItemTile extends ConsumerWidget {
     GroupType groupType,
   ) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
-
     // For DM chats, get the other member and use metadata cache for better user info
     if (groupType == GroupType.directMessage) {
       return FutureBuilder(
@@ -83,7 +81,8 @@ class ChatListItemTile extends ConsumerWidget {
         builder: (context, AsyncSnapshot<DMChatData?> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Show loading state with basic info
-            return _buildChatTileContent(context, group.name, null, group);
+            final displayName = snapshot.data?.displayName ?? '';
+            return _buildChatTileContent(context, displayName, null, group);
           }
 
           final data = snapshot.data;
