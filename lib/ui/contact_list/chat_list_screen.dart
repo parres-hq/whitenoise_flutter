@@ -6,7 +6,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
@@ -18,12 +17,12 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/services/welcome_notification_service.dart';
+import 'package:whitenoise/ui/contact_list/widgets/chat_list_active_account_avatar.dart';
 import 'package:whitenoise/ui/contact_list/widgets/chat_list_item_tile.dart';
 import 'package:whitenoise/ui/contact_list/widgets/profile_ready_card.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
-import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/wn_heads_up.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
@@ -251,11 +250,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     final welcomesList = ref.watch(welcomesProvider.select((state) => state.welcomes)) ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
 
-    final activeAccountState = ref.watch(activeAccountProvider);
-    final metadata = activeAccountState.value?.metadata;
-    final currentDisplayName = metadata?.displayName ?? '';
-    final profileImagePath = metadata?.picture ?? '';
-
     final chatItems = <ChatListItem>[];
 
     for (final group in groupList) {
@@ -313,17 +307,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                 WnAppBar.sliver(
                   title: Padding(
                     padding: EdgeInsets.only(left: 16.w),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16.r),
+                    child: ChatListActiveAccountAvatar(
                       onTap: () {
                         _unfocusSearchIfNeeded();
                         context.push(Routes.settings);
                       },
-                      child: WnAvatar(
-                        imageUrl: profileImagePath,
-                        displayName: currentDisplayName,
-                        size: 36.r,
-                      ),
                     ),
                   ),
                   actions: [

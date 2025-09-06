@@ -2,7 +2,6 @@
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api;
@@ -79,14 +78,13 @@ class FollowsNotifier extends Notifier<FollowsState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
       }
 
-      final follows = await accounts_api.accountFollows(pubkey: activeAccount.pubkey);
+      final follows = await accounts_api.accountFollows(pubkey: activePubkey);
 
       _logger.info('FollowsProvider: Loaded ${follows.length} follows');
 
@@ -117,15 +115,14 @@ class FollowsNotifier extends Notifier<FollowsState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
       }
 
       await accounts_api.followUser(
-        accountPubkey: activeAccount.pubkey,
+        accountPubkey: activePubkey,
         userToFollowPubkey: userPubkey,
       );
 
@@ -155,15 +152,14 @@ class FollowsNotifier extends Notifier<FollowsState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
       }
 
       await accounts_api.unfollowUser(
-        accountPubkey: activeAccount.pubkey,
+        accountPubkey: activePubkey,
         userToUnfollowPubkey: userPubkey,
       );
 
