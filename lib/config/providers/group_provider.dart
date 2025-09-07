@@ -245,7 +245,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         adminPubkeys: combinedAdminKeys,
         groupName: groupName,
         groupDescription: groupDescription,
-        groupType: isDm ? 'directMessage' : 'group',
+        groupType: isDm ? GroupType.directMessage : GroupType.group,
       );
 
       _logger.info('GroupsProvider: Group created successfully - ${newGroup.name}');

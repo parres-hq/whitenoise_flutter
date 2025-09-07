@@ -20,9 +20,6 @@ sealed class ApiError with _$ApiError implements FrbException {
   const factory ApiError.whitenoise({
     required String message,
   }) = ApiError_Whitenoise;
-  const factory ApiError.invalidGroupType({
-    required String message,
-  }) = ApiError_InvalidGroupType;
   const factory ApiError.invalidKey({
     required String message,
   }) = ApiError_InvalidKey;
@@ -46,14 +43,12 @@ sealed class ApiError with _$ApiError implements FrbException {
   }) = ApiError_Other;
 
   /// Get a user-friendly error type name
-  Future<String> errorType() =>
-      RustLib.instance.api.crateApiErrorApiErrorErrorType(
-        that: this,
-      );
+  Future<String> errorType() => RustLib.instance.api.crateApiErrorApiErrorErrorType(
+    that: this,
+  );
 
   /// Get the error message as a string
-  Future<String> messageText() =>
-      RustLib.instance.api.crateApiErrorApiErrorMessageText(
-        that: this,
-      );
+  Future<String> messageText() => RustLib.instance.api.crateApiErrorApiErrorMessageText(
+    that: this,
+  );
 }

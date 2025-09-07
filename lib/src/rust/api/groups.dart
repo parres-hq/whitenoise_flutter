@@ -35,7 +35,7 @@ Future<Group> createGroup({
   required List<String> adminPubkeys,
   required String groupName,
   required String groupDescription,
-  required String groupType,
+  required GroupType groupType,
 }) => RustLib.instance.api.crateApiGroupsCreateGroup(
   creatorPubkey: creatorPubkey,
   memberPubkeys: memberPubkeys,
@@ -101,20 +101,17 @@ class Group {
     required this.state,
   });
 
-  Future<GroupType> groupType() =>
-      RustLib.instance.api.crateApiGroupsGroupGroupType(
-        that: this,
-      );
+  Future<GroupType> groupType() => RustLib.instance.api.crateApiGroupsGroupGroupType(
+    that: this,
+  );
 
-  Future<bool> isDirectMessageType() =>
-      RustLib.instance.api.crateApiGroupsGroupIsDirectMessageType(
-        that: this,
-      );
+  Future<bool> isDirectMessageType() => RustLib.instance.api.crateApiGroupsGroupIsDirectMessageType(
+    that: this,
+  );
 
-  Future<bool> isGroupType() =>
-      RustLib.instance.api.crateApiGroupsGroupIsGroupType(
-        that: this,
-      );
+  Future<bool> isGroupType() => RustLib.instance.api.crateApiGroupsGroupIsGroupType(
+    that: this,
+  );
 
   @override
   int get hashCode =>
@@ -161,9 +158,7 @@ class GroupInformation {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is GroupInformation &&
-          runtimeType == other.runtimeType &&
-          groupType == other.groupType;
+      other is GroupInformation && runtimeType == other.runtimeType && groupType == other.groupType;
 }
 
 enum GroupState {

@@ -21,7 +21,6 @@ mixin _$ApiError {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String message) whitenoise,
-    required TResult Function(String message) invalidGroupType,
     required TResult Function(String message) invalidKey,
     required TResult Function(String message) nostrUrl,
     required TResult Function(String message) nostrTag,
@@ -33,7 +32,6 @@ mixin _$ApiError {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String message)? whitenoise,
-    TResult? Function(String message)? invalidGroupType,
     TResult? Function(String message)? invalidKey,
     TResult? Function(String message)? nostrUrl,
     TResult? Function(String message)? nostrTag,
@@ -45,7 +43,6 @@ mixin _$ApiError {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String message)? whitenoise,
-    TResult Function(String message)? invalidGroupType,
     TResult Function(String message)? invalidKey,
     TResult Function(String message)? nostrUrl,
     TResult Function(String message)? nostrTag,
@@ -58,7 +55,6 @@ mixin _$ApiError {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ApiError_Whitenoise value) whitenoise,
-    required TResult Function(ApiError_InvalidGroupType value) invalidGroupType,
     required TResult Function(ApiError_InvalidKey value) invalidKey,
     required TResult Function(ApiError_NostrUrl value) nostrUrl,
     required TResult Function(ApiError_NostrTag value) nostrTag,
@@ -70,7 +66,6 @@ mixin _$ApiError {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(ApiError_Whitenoise value)? whitenoise,
-    TResult? Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult? Function(ApiError_InvalidKey value)? invalidKey,
     TResult? Function(ApiError_NostrUrl value)? nostrUrl,
     TResult? Function(ApiError_NostrTag value)? nostrTag,
@@ -82,7 +77,6 @@ mixin _$ApiError {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ApiError_Whitenoise value)? whitenoise,
-    TResult Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult Function(ApiError_InvalidKey value)? invalidKey,
     TResult Function(ApiError_NostrUrl value)? nostrUrl,
     TResult Function(ApiError_NostrTag value)? nostrTag,
@@ -96,8 +90,7 @@ mixin _$ApiError {
   /// Create a copy of ApiError
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ApiErrorCopyWith<ApiError> get copyWith =>
-      throw _privateConstructorUsedError;
+  $ApiErrorCopyWith<ApiError> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -109,8 +102,7 @@ abstract class $ApiErrorCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$ApiErrorCopyWithImpl<$Res, $Val extends ApiError>
-    implements $ApiErrorCopyWith<$Res> {
+class _$ApiErrorCopyWithImpl<$Res, $Val extends ApiError> implements $ApiErrorCopyWith<$Res> {
   _$ApiErrorCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -137,8 +129,7 @@ class _$ApiErrorCopyWithImpl<$Res, $Val extends ApiError>
 }
 
 /// @nodoc
-abstract class _$$ApiError_WhitenoiseImplCopyWith<$Res>
-    implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_WhitenoiseImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_WhitenoiseImplCopyWith(
     _$ApiError_WhitenoiseImpl value,
     $Res Function(_$ApiError_WhitenoiseImpl) then,
@@ -213,7 +204,6 @@ class _$ApiError_WhitenoiseImpl extends ApiError_Whitenoise {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String message) whitenoise,
-    required TResult Function(String message) invalidGroupType,
     required TResult Function(String message) invalidKey,
     required TResult Function(String message) nostrUrl,
     required TResult Function(String message) nostrTag,
@@ -229,7 +219,6 @@ class _$ApiError_WhitenoiseImpl extends ApiError_Whitenoise {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String message)? whitenoise,
-    TResult? Function(String message)? invalidGroupType,
     TResult? Function(String message)? invalidKey,
     TResult? Function(String message)? nostrUrl,
     TResult? Function(String message)? nostrTag,
@@ -245,7 +234,6 @@ class _$ApiError_WhitenoiseImpl extends ApiError_Whitenoise {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String message)? whitenoise,
-    TResult Function(String message)? invalidGroupType,
     TResult Function(String message)? invalidKey,
     TResult Function(String message)? nostrUrl,
     TResult Function(String message)? nostrTag,
@@ -265,7 +253,6 @@ class _$ApiError_WhitenoiseImpl extends ApiError_Whitenoise {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ApiError_Whitenoise value) whitenoise,
-    required TResult Function(ApiError_InvalidGroupType value) invalidGroupType,
     required TResult Function(ApiError_InvalidKey value) invalidKey,
     required TResult Function(ApiError_NostrUrl value) nostrUrl,
     required TResult Function(ApiError_NostrTag value) nostrTag,
@@ -281,7 +268,6 @@ class _$ApiError_WhitenoiseImpl extends ApiError_Whitenoise {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(ApiError_Whitenoise value)? whitenoise,
-    TResult? Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult? Function(ApiError_InvalidKey value)? invalidKey,
     TResult? Function(ApiError_NostrUrl value)? nostrUrl,
     TResult? Function(ApiError_NostrTag value)? nostrTag,
@@ -297,7 +283,6 @@ class _$ApiError_WhitenoiseImpl extends ApiError_Whitenoise {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ApiError_Whitenoise value)? whitenoise,
-    TResult Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult Function(ApiError_InvalidKey value)? invalidKey,
     TResult Function(ApiError_NostrUrl value)? nostrUrl,
     TResult Function(ApiError_NostrTag value)? nostrTag,
@@ -315,8 +300,7 @@ class _$ApiError_WhitenoiseImpl extends ApiError_Whitenoise {
 }
 
 abstract class ApiError_Whitenoise extends ApiError {
-  const factory ApiError_Whitenoise({required final String message}) =
-      _$ApiError_WhitenoiseImpl;
+  const factory ApiError_Whitenoise({required final String message}) = _$ApiError_WhitenoiseImpl;
   const ApiError_Whitenoise._() : super._();
 
   @override
@@ -331,201 +315,7 @@ abstract class ApiError_Whitenoise extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_InvalidGroupTypeImplCopyWith<$Res>
-    implements $ApiErrorCopyWith<$Res> {
-  factory _$$ApiError_InvalidGroupTypeImplCopyWith(
-    _$ApiError_InvalidGroupTypeImpl value,
-    $Res Function(_$ApiError_InvalidGroupTypeImpl) then,
-  ) = __$$ApiError_InvalidGroupTypeImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({String message});
-}
-
-/// @nodoc
-class __$$ApiError_InvalidGroupTypeImplCopyWithImpl<$Res>
-    extends _$ApiErrorCopyWithImpl<$Res, _$ApiError_InvalidGroupTypeImpl>
-    implements _$$ApiError_InvalidGroupTypeImplCopyWith<$Res> {
-  __$$ApiError_InvalidGroupTypeImplCopyWithImpl(
-    _$ApiError_InvalidGroupTypeImpl _value,
-    $Res Function(_$ApiError_InvalidGroupTypeImpl) _then,
-  ) : super(_value, _then);
-
-  /// Create a copy of ApiError
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({Object? message = null}) {
-    return _then(
-      _$ApiError_InvalidGroupTypeImpl(
-        message:
-            null == message
-                ? _value.message
-                : message // ignore: cast_nullable_to_non_nullable
-                    as String,
-      ),
-    );
-  }
-}
-
-/// @nodoc
-
-class _$ApiError_InvalidGroupTypeImpl extends ApiError_InvalidGroupType {
-  const _$ApiError_InvalidGroupTypeImpl({required this.message}) : super._();
-
-  @override
-  final String message;
-
-  @override
-  String toString() {
-    return 'ApiError.invalidGroupType(message: $message)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$ApiError_InvalidGroupTypeImpl &&
-            (identical(other.message, message) || other.message == message));
-  }
-
-  @override
-  int get hashCode => Object.hash(runtimeType, message);
-
-  /// Create a copy of ApiError
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$ApiError_InvalidGroupTypeImplCopyWith<_$ApiError_InvalidGroupTypeImpl>
-  get copyWith => __$$ApiError_InvalidGroupTypeImplCopyWithImpl<
-    _$ApiError_InvalidGroupTypeImpl
-  >(this, _$identity);
-
-  @override
-  @optionalTypeArgs
-  TResult when<TResult extends Object?>({
-    required TResult Function(String message) whitenoise,
-    required TResult Function(String message) invalidGroupType,
-    required TResult Function(String message) invalidKey,
-    required TResult Function(String message) nostrUrl,
-    required TResult Function(String message) nostrTag,
-    required TResult Function(String message) nostrEvent,
-    required TResult Function(String message) nostrParse,
-    required TResult Function(String message) nostrHex,
-    required TResult Function(String message) other,
-  }) {
-    return invalidGroupType(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? whenOrNull<TResult extends Object?>({
-    TResult? Function(String message)? whitenoise,
-    TResult? Function(String message)? invalidGroupType,
-    TResult? Function(String message)? invalidKey,
-    TResult? Function(String message)? nostrUrl,
-    TResult? Function(String message)? nostrTag,
-    TResult? Function(String message)? nostrEvent,
-    TResult? Function(String message)? nostrParse,
-    TResult? Function(String message)? nostrHex,
-    TResult? Function(String message)? other,
-  }) {
-    return invalidGroupType?.call(message);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeWhen<TResult extends Object?>({
-    TResult Function(String message)? whitenoise,
-    TResult Function(String message)? invalidGroupType,
-    TResult Function(String message)? invalidKey,
-    TResult Function(String message)? nostrUrl,
-    TResult Function(String message)? nostrTag,
-    TResult Function(String message)? nostrEvent,
-    TResult Function(String message)? nostrParse,
-    TResult Function(String message)? nostrHex,
-    TResult Function(String message)? other,
-    required TResult orElse(),
-  }) {
-    if (invalidGroupType != null) {
-      return invalidGroupType(message);
-    }
-    return orElse();
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult map<TResult extends Object?>({
-    required TResult Function(ApiError_Whitenoise value) whitenoise,
-    required TResult Function(ApiError_InvalidGroupType value) invalidGroupType,
-    required TResult Function(ApiError_InvalidKey value) invalidKey,
-    required TResult Function(ApiError_NostrUrl value) nostrUrl,
-    required TResult Function(ApiError_NostrTag value) nostrTag,
-    required TResult Function(ApiError_NostrEvent value) nostrEvent,
-    required TResult Function(ApiError_NostrParse value) nostrParse,
-    required TResult Function(ApiError_NostrHex value) nostrHex,
-    required TResult Function(ApiError_Other value) other,
-  }) {
-    return invalidGroupType(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult? mapOrNull<TResult extends Object?>({
-    TResult? Function(ApiError_Whitenoise value)? whitenoise,
-    TResult? Function(ApiError_InvalidGroupType value)? invalidGroupType,
-    TResult? Function(ApiError_InvalidKey value)? invalidKey,
-    TResult? Function(ApiError_NostrUrl value)? nostrUrl,
-    TResult? Function(ApiError_NostrTag value)? nostrTag,
-    TResult? Function(ApiError_NostrEvent value)? nostrEvent,
-    TResult? Function(ApiError_NostrParse value)? nostrParse,
-    TResult? Function(ApiError_NostrHex value)? nostrHex,
-    TResult? Function(ApiError_Other value)? other,
-  }) {
-    return invalidGroupType?.call(this);
-  }
-
-  @override
-  @optionalTypeArgs
-  TResult maybeMap<TResult extends Object?>({
-    TResult Function(ApiError_Whitenoise value)? whitenoise,
-    TResult Function(ApiError_InvalidGroupType value)? invalidGroupType,
-    TResult Function(ApiError_InvalidKey value)? invalidKey,
-    TResult Function(ApiError_NostrUrl value)? nostrUrl,
-    TResult Function(ApiError_NostrTag value)? nostrTag,
-    TResult Function(ApiError_NostrEvent value)? nostrEvent,
-    TResult Function(ApiError_NostrParse value)? nostrParse,
-    TResult Function(ApiError_NostrHex value)? nostrHex,
-    TResult Function(ApiError_Other value)? other,
-    required TResult orElse(),
-  }) {
-    if (invalidGroupType != null) {
-      return invalidGroupType(this);
-    }
-    return orElse();
-  }
-}
-
-abstract class ApiError_InvalidGroupType extends ApiError {
-  const factory ApiError_InvalidGroupType({required final String message}) =
-      _$ApiError_InvalidGroupTypeImpl;
-  const ApiError_InvalidGroupType._() : super._();
-
-  @override
-  String get message;
-
-  /// Create a copy of ApiError
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ApiError_InvalidGroupTypeImplCopyWith<_$ApiError_InvalidGroupTypeImpl>
-  get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class _$$ApiError_InvalidKeyImplCopyWith<$Res>
-    implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_InvalidKeyImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_InvalidKeyImplCopyWith(
     _$ApiError_InvalidKeyImpl value,
     $Res Function(_$ApiError_InvalidKeyImpl) then,
@@ -600,7 +390,6 @@ class _$ApiError_InvalidKeyImpl extends ApiError_InvalidKey {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String message) whitenoise,
-    required TResult Function(String message) invalidGroupType,
     required TResult Function(String message) invalidKey,
     required TResult Function(String message) nostrUrl,
     required TResult Function(String message) nostrTag,
@@ -616,7 +405,6 @@ class _$ApiError_InvalidKeyImpl extends ApiError_InvalidKey {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String message)? whitenoise,
-    TResult? Function(String message)? invalidGroupType,
     TResult? Function(String message)? invalidKey,
     TResult? Function(String message)? nostrUrl,
     TResult? Function(String message)? nostrTag,
@@ -632,7 +420,6 @@ class _$ApiError_InvalidKeyImpl extends ApiError_InvalidKey {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String message)? whitenoise,
-    TResult Function(String message)? invalidGroupType,
     TResult Function(String message)? invalidKey,
     TResult Function(String message)? nostrUrl,
     TResult Function(String message)? nostrTag,
@@ -652,7 +439,6 @@ class _$ApiError_InvalidKeyImpl extends ApiError_InvalidKey {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ApiError_Whitenoise value) whitenoise,
-    required TResult Function(ApiError_InvalidGroupType value) invalidGroupType,
     required TResult Function(ApiError_InvalidKey value) invalidKey,
     required TResult Function(ApiError_NostrUrl value) nostrUrl,
     required TResult Function(ApiError_NostrTag value) nostrTag,
@@ -668,7 +454,6 @@ class _$ApiError_InvalidKeyImpl extends ApiError_InvalidKey {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(ApiError_Whitenoise value)? whitenoise,
-    TResult? Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult? Function(ApiError_InvalidKey value)? invalidKey,
     TResult? Function(ApiError_NostrUrl value)? nostrUrl,
     TResult? Function(ApiError_NostrTag value)? nostrTag,
@@ -684,7 +469,6 @@ class _$ApiError_InvalidKeyImpl extends ApiError_InvalidKey {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ApiError_Whitenoise value)? whitenoise,
-    TResult Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult Function(ApiError_InvalidKey value)? invalidKey,
     TResult Function(ApiError_NostrUrl value)? nostrUrl,
     TResult Function(ApiError_NostrTag value)? nostrTag,
@@ -702,8 +486,7 @@ class _$ApiError_InvalidKeyImpl extends ApiError_InvalidKey {
 }
 
 abstract class ApiError_InvalidKey extends ApiError {
-  const factory ApiError_InvalidKey({required final String message}) =
-      _$ApiError_InvalidKeyImpl;
+  const factory ApiError_InvalidKey({required final String message}) = _$ApiError_InvalidKeyImpl;
   const ApiError_InvalidKey._() : super._();
 
   @override
@@ -718,8 +501,7 @@ abstract class ApiError_InvalidKey extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_NostrUrlImplCopyWith<$Res>
-    implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_NostrUrlImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_NostrUrlImplCopyWith(
     _$ApiError_NostrUrlImpl value,
     $Res Function(_$ApiError_NostrUrlImpl) then,
@@ -794,7 +576,6 @@ class _$ApiError_NostrUrlImpl extends ApiError_NostrUrl {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String message) whitenoise,
-    required TResult Function(String message) invalidGroupType,
     required TResult Function(String message) invalidKey,
     required TResult Function(String message) nostrUrl,
     required TResult Function(String message) nostrTag,
@@ -810,7 +591,6 @@ class _$ApiError_NostrUrlImpl extends ApiError_NostrUrl {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String message)? whitenoise,
-    TResult? Function(String message)? invalidGroupType,
     TResult? Function(String message)? invalidKey,
     TResult? Function(String message)? nostrUrl,
     TResult? Function(String message)? nostrTag,
@@ -826,7 +606,6 @@ class _$ApiError_NostrUrlImpl extends ApiError_NostrUrl {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String message)? whitenoise,
-    TResult Function(String message)? invalidGroupType,
     TResult Function(String message)? invalidKey,
     TResult Function(String message)? nostrUrl,
     TResult Function(String message)? nostrTag,
@@ -846,7 +625,6 @@ class _$ApiError_NostrUrlImpl extends ApiError_NostrUrl {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ApiError_Whitenoise value) whitenoise,
-    required TResult Function(ApiError_InvalidGroupType value) invalidGroupType,
     required TResult Function(ApiError_InvalidKey value) invalidKey,
     required TResult Function(ApiError_NostrUrl value) nostrUrl,
     required TResult Function(ApiError_NostrTag value) nostrTag,
@@ -862,7 +640,6 @@ class _$ApiError_NostrUrlImpl extends ApiError_NostrUrl {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(ApiError_Whitenoise value)? whitenoise,
-    TResult? Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult? Function(ApiError_InvalidKey value)? invalidKey,
     TResult? Function(ApiError_NostrUrl value)? nostrUrl,
     TResult? Function(ApiError_NostrTag value)? nostrTag,
@@ -878,7 +655,6 @@ class _$ApiError_NostrUrlImpl extends ApiError_NostrUrl {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ApiError_Whitenoise value)? whitenoise,
-    TResult Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult Function(ApiError_InvalidKey value)? invalidKey,
     TResult Function(ApiError_NostrUrl value)? nostrUrl,
     TResult Function(ApiError_NostrTag value)? nostrTag,
@@ -896,8 +672,7 @@ class _$ApiError_NostrUrlImpl extends ApiError_NostrUrl {
 }
 
 abstract class ApiError_NostrUrl extends ApiError {
-  const factory ApiError_NostrUrl({required final String message}) =
-      _$ApiError_NostrUrlImpl;
+  const factory ApiError_NostrUrl({required final String message}) = _$ApiError_NostrUrlImpl;
   const ApiError_NostrUrl._() : super._();
 
   @override
@@ -912,8 +687,7 @@ abstract class ApiError_NostrUrl extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_NostrTagImplCopyWith<$Res>
-    implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_NostrTagImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_NostrTagImplCopyWith(
     _$ApiError_NostrTagImpl value,
     $Res Function(_$ApiError_NostrTagImpl) then,
@@ -988,7 +762,6 @@ class _$ApiError_NostrTagImpl extends ApiError_NostrTag {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String message) whitenoise,
-    required TResult Function(String message) invalidGroupType,
     required TResult Function(String message) invalidKey,
     required TResult Function(String message) nostrUrl,
     required TResult Function(String message) nostrTag,
@@ -1004,7 +777,6 @@ class _$ApiError_NostrTagImpl extends ApiError_NostrTag {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String message)? whitenoise,
-    TResult? Function(String message)? invalidGroupType,
     TResult? Function(String message)? invalidKey,
     TResult? Function(String message)? nostrUrl,
     TResult? Function(String message)? nostrTag,
@@ -1020,7 +792,6 @@ class _$ApiError_NostrTagImpl extends ApiError_NostrTag {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String message)? whitenoise,
-    TResult Function(String message)? invalidGroupType,
     TResult Function(String message)? invalidKey,
     TResult Function(String message)? nostrUrl,
     TResult Function(String message)? nostrTag,
@@ -1040,7 +811,6 @@ class _$ApiError_NostrTagImpl extends ApiError_NostrTag {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ApiError_Whitenoise value) whitenoise,
-    required TResult Function(ApiError_InvalidGroupType value) invalidGroupType,
     required TResult Function(ApiError_InvalidKey value) invalidKey,
     required TResult Function(ApiError_NostrUrl value) nostrUrl,
     required TResult Function(ApiError_NostrTag value) nostrTag,
@@ -1056,7 +826,6 @@ class _$ApiError_NostrTagImpl extends ApiError_NostrTag {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(ApiError_Whitenoise value)? whitenoise,
-    TResult? Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult? Function(ApiError_InvalidKey value)? invalidKey,
     TResult? Function(ApiError_NostrUrl value)? nostrUrl,
     TResult? Function(ApiError_NostrTag value)? nostrTag,
@@ -1072,7 +841,6 @@ class _$ApiError_NostrTagImpl extends ApiError_NostrTag {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ApiError_Whitenoise value)? whitenoise,
-    TResult Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult Function(ApiError_InvalidKey value)? invalidKey,
     TResult Function(ApiError_NostrUrl value)? nostrUrl,
     TResult Function(ApiError_NostrTag value)? nostrTag,
@@ -1090,8 +858,7 @@ class _$ApiError_NostrTagImpl extends ApiError_NostrTag {
 }
 
 abstract class ApiError_NostrTag extends ApiError {
-  const factory ApiError_NostrTag({required final String message}) =
-      _$ApiError_NostrTagImpl;
+  const factory ApiError_NostrTag({required final String message}) = _$ApiError_NostrTagImpl;
   const ApiError_NostrTag._() : super._();
 
   @override
@@ -1106,8 +873,7 @@ abstract class ApiError_NostrTag extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_NostrEventImplCopyWith<$Res>
-    implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_NostrEventImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_NostrEventImplCopyWith(
     _$ApiError_NostrEventImpl value,
     $Res Function(_$ApiError_NostrEventImpl) then,
@@ -1182,7 +948,6 @@ class _$ApiError_NostrEventImpl extends ApiError_NostrEvent {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String message) whitenoise,
-    required TResult Function(String message) invalidGroupType,
     required TResult Function(String message) invalidKey,
     required TResult Function(String message) nostrUrl,
     required TResult Function(String message) nostrTag,
@@ -1198,7 +963,6 @@ class _$ApiError_NostrEventImpl extends ApiError_NostrEvent {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String message)? whitenoise,
-    TResult? Function(String message)? invalidGroupType,
     TResult? Function(String message)? invalidKey,
     TResult? Function(String message)? nostrUrl,
     TResult? Function(String message)? nostrTag,
@@ -1214,7 +978,6 @@ class _$ApiError_NostrEventImpl extends ApiError_NostrEvent {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String message)? whitenoise,
-    TResult Function(String message)? invalidGroupType,
     TResult Function(String message)? invalidKey,
     TResult Function(String message)? nostrUrl,
     TResult Function(String message)? nostrTag,
@@ -1234,7 +997,6 @@ class _$ApiError_NostrEventImpl extends ApiError_NostrEvent {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ApiError_Whitenoise value) whitenoise,
-    required TResult Function(ApiError_InvalidGroupType value) invalidGroupType,
     required TResult Function(ApiError_InvalidKey value) invalidKey,
     required TResult Function(ApiError_NostrUrl value) nostrUrl,
     required TResult Function(ApiError_NostrTag value) nostrTag,
@@ -1250,7 +1012,6 @@ class _$ApiError_NostrEventImpl extends ApiError_NostrEvent {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(ApiError_Whitenoise value)? whitenoise,
-    TResult? Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult? Function(ApiError_InvalidKey value)? invalidKey,
     TResult? Function(ApiError_NostrUrl value)? nostrUrl,
     TResult? Function(ApiError_NostrTag value)? nostrTag,
@@ -1266,7 +1027,6 @@ class _$ApiError_NostrEventImpl extends ApiError_NostrEvent {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ApiError_Whitenoise value)? whitenoise,
-    TResult Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult Function(ApiError_InvalidKey value)? invalidKey,
     TResult Function(ApiError_NostrUrl value)? nostrUrl,
     TResult Function(ApiError_NostrTag value)? nostrTag,
@@ -1284,8 +1044,7 @@ class _$ApiError_NostrEventImpl extends ApiError_NostrEvent {
 }
 
 abstract class ApiError_NostrEvent extends ApiError {
-  const factory ApiError_NostrEvent({required final String message}) =
-      _$ApiError_NostrEventImpl;
+  const factory ApiError_NostrEvent({required final String message}) = _$ApiError_NostrEventImpl;
   const ApiError_NostrEvent._() : super._();
 
   @override
@@ -1300,8 +1059,7 @@ abstract class ApiError_NostrEvent extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_NostrParseImplCopyWith<$Res>
-    implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_NostrParseImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_NostrParseImplCopyWith(
     _$ApiError_NostrParseImpl value,
     $Res Function(_$ApiError_NostrParseImpl) then,
@@ -1376,7 +1134,6 @@ class _$ApiError_NostrParseImpl extends ApiError_NostrParse {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String message) whitenoise,
-    required TResult Function(String message) invalidGroupType,
     required TResult Function(String message) invalidKey,
     required TResult Function(String message) nostrUrl,
     required TResult Function(String message) nostrTag,
@@ -1392,7 +1149,6 @@ class _$ApiError_NostrParseImpl extends ApiError_NostrParse {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String message)? whitenoise,
-    TResult? Function(String message)? invalidGroupType,
     TResult? Function(String message)? invalidKey,
     TResult? Function(String message)? nostrUrl,
     TResult? Function(String message)? nostrTag,
@@ -1408,7 +1164,6 @@ class _$ApiError_NostrParseImpl extends ApiError_NostrParse {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String message)? whitenoise,
-    TResult Function(String message)? invalidGroupType,
     TResult Function(String message)? invalidKey,
     TResult Function(String message)? nostrUrl,
     TResult Function(String message)? nostrTag,
@@ -1428,7 +1183,6 @@ class _$ApiError_NostrParseImpl extends ApiError_NostrParse {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ApiError_Whitenoise value) whitenoise,
-    required TResult Function(ApiError_InvalidGroupType value) invalidGroupType,
     required TResult Function(ApiError_InvalidKey value) invalidKey,
     required TResult Function(ApiError_NostrUrl value) nostrUrl,
     required TResult Function(ApiError_NostrTag value) nostrTag,
@@ -1444,7 +1198,6 @@ class _$ApiError_NostrParseImpl extends ApiError_NostrParse {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(ApiError_Whitenoise value)? whitenoise,
-    TResult? Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult? Function(ApiError_InvalidKey value)? invalidKey,
     TResult? Function(ApiError_NostrUrl value)? nostrUrl,
     TResult? Function(ApiError_NostrTag value)? nostrTag,
@@ -1460,7 +1213,6 @@ class _$ApiError_NostrParseImpl extends ApiError_NostrParse {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ApiError_Whitenoise value)? whitenoise,
-    TResult Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult Function(ApiError_InvalidKey value)? invalidKey,
     TResult Function(ApiError_NostrUrl value)? nostrUrl,
     TResult Function(ApiError_NostrTag value)? nostrTag,
@@ -1478,8 +1230,7 @@ class _$ApiError_NostrParseImpl extends ApiError_NostrParse {
 }
 
 abstract class ApiError_NostrParse extends ApiError {
-  const factory ApiError_NostrParse({required final String message}) =
-      _$ApiError_NostrParseImpl;
+  const factory ApiError_NostrParse({required final String message}) = _$ApiError_NostrParseImpl;
   const ApiError_NostrParse._() : super._();
 
   @override
@@ -1494,8 +1245,7 @@ abstract class ApiError_NostrParse extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_NostrHexImplCopyWith<$Res>
-    implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_NostrHexImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_NostrHexImplCopyWith(
     _$ApiError_NostrHexImpl value,
     $Res Function(_$ApiError_NostrHexImpl) then,
@@ -1570,7 +1320,6 @@ class _$ApiError_NostrHexImpl extends ApiError_NostrHex {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String message) whitenoise,
-    required TResult Function(String message) invalidGroupType,
     required TResult Function(String message) invalidKey,
     required TResult Function(String message) nostrUrl,
     required TResult Function(String message) nostrTag,
@@ -1586,7 +1335,6 @@ class _$ApiError_NostrHexImpl extends ApiError_NostrHex {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String message)? whitenoise,
-    TResult? Function(String message)? invalidGroupType,
     TResult? Function(String message)? invalidKey,
     TResult? Function(String message)? nostrUrl,
     TResult? Function(String message)? nostrTag,
@@ -1602,7 +1350,6 @@ class _$ApiError_NostrHexImpl extends ApiError_NostrHex {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String message)? whitenoise,
-    TResult Function(String message)? invalidGroupType,
     TResult Function(String message)? invalidKey,
     TResult Function(String message)? nostrUrl,
     TResult Function(String message)? nostrTag,
@@ -1622,7 +1369,6 @@ class _$ApiError_NostrHexImpl extends ApiError_NostrHex {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ApiError_Whitenoise value) whitenoise,
-    required TResult Function(ApiError_InvalidGroupType value) invalidGroupType,
     required TResult Function(ApiError_InvalidKey value) invalidKey,
     required TResult Function(ApiError_NostrUrl value) nostrUrl,
     required TResult Function(ApiError_NostrTag value) nostrTag,
@@ -1638,7 +1384,6 @@ class _$ApiError_NostrHexImpl extends ApiError_NostrHex {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(ApiError_Whitenoise value)? whitenoise,
-    TResult? Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult? Function(ApiError_InvalidKey value)? invalidKey,
     TResult? Function(ApiError_NostrUrl value)? nostrUrl,
     TResult? Function(ApiError_NostrTag value)? nostrTag,
@@ -1654,7 +1399,6 @@ class _$ApiError_NostrHexImpl extends ApiError_NostrHex {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ApiError_Whitenoise value)? whitenoise,
-    TResult Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult Function(ApiError_InvalidKey value)? invalidKey,
     TResult Function(ApiError_NostrUrl value)? nostrUrl,
     TResult Function(ApiError_NostrTag value)? nostrTag,
@@ -1672,8 +1416,7 @@ class _$ApiError_NostrHexImpl extends ApiError_NostrHex {
 }
 
 abstract class ApiError_NostrHex extends ApiError {
-  const factory ApiError_NostrHex({required final String message}) =
-      _$ApiError_NostrHexImpl;
+  const factory ApiError_NostrHex({required final String message}) = _$ApiError_NostrHexImpl;
   const ApiError_NostrHex._() : super._();
 
   @override
@@ -1688,8 +1431,7 @@ abstract class ApiError_NostrHex extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_OtherImplCopyWith<$Res>
-    implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_OtherImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_OtherImplCopyWith(
     _$ApiError_OtherImpl value,
     $Res Function(_$ApiError_OtherImpl) then,
@@ -1764,7 +1506,6 @@ class _$ApiError_OtherImpl extends ApiError_Other {
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
     required TResult Function(String message) whitenoise,
-    required TResult Function(String message) invalidGroupType,
     required TResult Function(String message) invalidKey,
     required TResult Function(String message) nostrUrl,
     required TResult Function(String message) nostrTag,
@@ -1780,7 +1521,6 @@ class _$ApiError_OtherImpl extends ApiError_Other {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String message)? whitenoise,
-    TResult? Function(String message)? invalidGroupType,
     TResult? Function(String message)? invalidKey,
     TResult? Function(String message)? nostrUrl,
     TResult? Function(String message)? nostrTag,
@@ -1796,7 +1536,6 @@ class _$ApiError_OtherImpl extends ApiError_Other {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String message)? whitenoise,
-    TResult Function(String message)? invalidGroupType,
     TResult Function(String message)? invalidKey,
     TResult Function(String message)? nostrUrl,
     TResult Function(String message)? nostrTag,
@@ -1816,7 +1555,6 @@ class _$ApiError_OtherImpl extends ApiError_Other {
   @optionalTypeArgs
   TResult map<TResult extends Object?>({
     required TResult Function(ApiError_Whitenoise value) whitenoise,
-    required TResult Function(ApiError_InvalidGroupType value) invalidGroupType,
     required TResult Function(ApiError_InvalidKey value) invalidKey,
     required TResult Function(ApiError_NostrUrl value) nostrUrl,
     required TResult Function(ApiError_NostrTag value) nostrTag,
@@ -1832,7 +1570,6 @@ class _$ApiError_OtherImpl extends ApiError_Other {
   @optionalTypeArgs
   TResult? mapOrNull<TResult extends Object?>({
     TResult? Function(ApiError_Whitenoise value)? whitenoise,
-    TResult? Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult? Function(ApiError_InvalidKey value)? invalidKey,
     TResult? Function(ApiError_NostrUrl value)? nostrUrl,
     TResult? Function(ApiError_NostrTag value)? nostrTag,
@@ -1848,7 +1585,6 @@ class _$ApiError_OtherImpl extends ApiError_Other {
   @optionalTypeArgs
   TResult maybeMap<TResult extends Object?>({
     TResult Function(ApiError_Whitenoise value)? whitenoise,
-    TResult Function(ApiError_InvalidGroupType value)? invalidGroupType,
     TResult Function(ApiError_InvalidKey value)? invalidKey,
     TResult Function(ApiError_NostrUrl value)? nostrUrl,
     TResult Function(ApiError_NostrTag value)? nostrTag,
@@ -1866,8 +1602,7 @@ class _$ApiError_OtherImpl extends ApiError_Other {
 }
 
 abstract class ApiError_Other extends ApiError {
-  const factory ApiError_Other({required final String message}) =
-      _$ApiError_OtherImpl;
+  const factory ApiError_Other({required final String message}) = _$ApiError_OtherImpl;
   const ApiError_Other._() : super._();
 
   @override
