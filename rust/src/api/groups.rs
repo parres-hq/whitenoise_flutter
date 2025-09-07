@@ -166,7 +166,18 @@ pub async fn create_group(
     admin_pubkeys: Vec<String>,
     group_name: String,
     group_description: String,
+    group_type: String,
 ) -> Result<Group, ApiError> {
+    let whitenoise_group_type = match group_type.as_str() {
+        "direct_message" => WhitenoiseGroupType::DirectMessage,
+        "group" => WhitenoiseGroupType::Group,
+        _ => {
+            return Err(ApiError::InvalidGroupType {
+                message: "can only be 'direct_message' or 'group'".to_string(),
+            })
+        }
+    };
+
     let whitenoise = Whitenoise::get_instance()?;
     let creator_pubkey = PublicKey::parse(&creator_pubkey)?;
     let creator_account = whitenoise.find_account_by_pubkey(&creator_pubkey).await?;
@@ -194,7 +205,12 @@ pub async fn create_group(
         .collect::<Result<Vec<_>, _>>()?;
 
     let group = whitenoise
-        .create_group(&creator_account, member_pubkeys, nostr_group_config, None)
+        .create_group(
+            &creator_account,
+            member_pubkeys,
+            nostr_group_config,
+            Some(whitenoise_group_type),
+        )
         .await?;
     Ok(group.into())
 }
@@ -266,4 +282,69 @@ pub async fn get_groups_informations(
             .map(|info| info.into())
             .collect(),
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_create_group_invalid_group_type() {
+        let result = create_group(
+            "npub1test".to_string(),
+            vec!["npub1member".to_string()],
+            vec!["npub1admin".to_string()],
+            "Test Group".to_string(),
+            "Test Description".to_string(),
+            "invalid_type".to_string(),
+        )
+        .await;
+
+        assert!(result.is_err());
+        match result.unwrap_err() {
+            ApiError::InvalidGroupType { message } => {
+                assert_eq!(message, "can only be 'direct_message' or 'group'");
+            }
+            _ => panic!("Expected InvalidGroupType error"),
+        }
+    }
+
+    #[tokio::test]
+    async fn test_create_group_valid_group_types() {
+        // Test that valid group types don't immediately fail with InvalidGroupType
+        // Note: These will likely fail with other errors (like invalid pubkeys or missing Whitenoise instance)
+        // but they should NOT fail with InvalidGroupType
+
+        let result_dm = create_group(
+            "npub1test".to_string(),
+            vec!["npub1member".to_string()],
+            vec!["npub1admin".to_string()],
+            "Test DM".to_string(),
+            "Test Description".to_string(),
+            "direct_message".to_string(),
+        )
+        .await;
+
+        let result_group = create_group(
+            "npub1test".to_string(),
+            vec!["npub1member".to_string()],
+            vec!["npub1admin".to_string()],
+            "Test Group".to_string(),
+            "Test Description".to_string(),
+            "group".to_string(),
+        )
+        .await;
+
+        // Both should fail, but NOT with InvalidGroupType
+        assert!(result_dm.is_err());
+        assert!(result_group.is_err());
+
+        // Verify they don't fail with InvalidGroupType
+        if let Err(ApiError::InvalidGroupType { .. }) = result_dm {
+            panic!("direct_message should be a valid group type");
+        }
+        if let Err(ApiError::InvalidGroupType { .. }) = result_group {
+            panic!("group should be a valid group type");
+        }
+    }
 }

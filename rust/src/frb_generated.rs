@@ -453,6 +453,7 @@ fn wire__crate__api__groups__create_group_impl(
             let api_admin_pubkeys = <Vec<String>>::sse_decode(&mut deserializer);
             let api_group_name = <String>::sse_decode(&mut deserializer);
             let api_group_description = <String>::sse_decode(&mut deserializer);
+            let api_group_type = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, crate::api::error::ApiError>(
@@ -463,6 +464,7 @@ fn wire__crate__api__groups__create_group_impl(
                             api_admin_pubkeys,
                             api_group_name,
                             api_group_description,
+                            api_group_type,
                         )
                         .await?;
                         Ok(output_ok)
@@ -2383,41 +2385,47 @@ impl SseDecode for crate::api::error::ApiError {
             }
             1 => {
                 let mut var_message = <String>::sse_decode(deserializer);
-                return crate::api::error::ApiError::InvalidKey {
+                return crate::api::error::ApiError::InvalidGroupType {
                     message: var_message,
                 };
             }
             2 => {
                 let mut var_message = <String>::sse_decode(deserializer);
-                return crate::api::error::ApiError::NostrUrl {
+                return crate::api::error::ApiError::InvalidKey {
                     message: var_message,
                 };
             }
             3 => {
                 let mut var_message = <String>::sse_decode(deserializer);
-                return crate::api::error::ApiError::NostrTag {
+                return crate::api::error::ApiError::NostrUrl {
                     message: var_message,
                 };
             }
             4 => {
                 let mut var_message = <String>::sse_decode(deserializer);
-                return crate::api::error::ApiError::NostrEvent {
+                return crate::api::error::ApiError::NostrTag {
                     message: var_message,
                 };
             }
             5 => {
                 let mut var_message = <String>::sse_decode(deserializer);
-                return crate::api::error::ApiError::NostrParse {
+                return crate::api::error::ApiError::NostrEvent {
                     message: var_message,
                 };
             }
             6 => {
                 let mut var_message = <String>::sse_decode(deserializer);
-                return crate::api::error::ApiError::NostrHex {
+                return crate::api::error::ApiError::NostrParse {
                     message: var_message,
                 };
             }
             7 => {
+                let mut var_message = <String>::sse_decode(deserializer);
+                return crate::api::error::ApiError::NostrHex {
+                    message: var_message,
+                };
+            }
+            8 => {
                 let mut var_message = <String>::sse_decode(deserializer);
                 return crate::api::error::ApiError::Other {
                     message: var_message,
@@ -3294,26 +3302,29 @@ impl flutter_rust_bridge::IntoDart for crate::api::error::ApiError {
             crate::api::error::ApiError::Whitenoise { message } => {
                 [0.into_dart(), message.into_into_dart().into_dart()].into_dart()
             }
-            crate::api::error::ApiError::InvalidKey { message } => {
+            crate::api::error::ApiError::InvalidGroupType { message } => {
                 [1.into_dart(), message.into_into_dart().into_dart()].into_dart()
             }
-            crate::api::error::ApiError::NostrUrl { message } => {
+            crate::api::error::ApiError::InvalidKey { message } => {
                 [2.into_dart(), message.into_into_dart().into_dart()].into_dart()
             }
-            crate::api::error::ApiError::NostrTag { message } => {
+            crate::api::error::ApiError::NostrUrl { message } => {
                 [3.into_dart(), message.into_into_dart().into_dart()].into_dart()
             }
-            crate::api::error::ApiError::NostrEvent { message } => {
+            crate::api::error::ApiError::NostrTag { message } => {
                 [4.into_dart(), message.into_into_dart().into_dart()].into_dart()
             }
-            crate::api::error::ApiError::NostrParse { message } => {
+            crate::api::error::ApiError::NostrEvent { message } => {
                 [5.into_dart(), message.into_into_dart().into_dart()].into_dart()
             }
-            crate::api::error::ApiError::NostrHex { message } => {
+            crate::api::error::ApiError::NostrParse { message } => {
                 [6.into_dart(), message.into_into_dart().into_dart()].into_dart()
             }
-            crate::api::error::ApiError::Other { message } => {
+            crate::api::error::ApiError::NostrHex { message } => {
                 [7.into_dart(), message.into_into_dart().into_dart()].into_dart()
+            }
+            crate::api::error::ApiError::Other { message } => {
+                [8.into_dart(), message.into_into_dart().into_dart()].into_dart()
             }
             _ => {
                 unimplemented!("");
@@ -3850,32 +3861,36 @@ impl SseEncode for crate::api::error::ApiError {
                 <i32>::sse_encode(0, serializer);
                 <String>::sse_encode(message, serializer);
             }
-            crate::api::error::ApiError::InvalidKey { message } => {
+            crate::api::error::ApiError::InvalidGroupType { message } => {
                 <i32>::sse_encode(1, serializer);
                 <String>::sse_encode(message, serializer);
             }
-            crate::api::error::ApiError::NostrUrl { message } => {
+            crate::api::error::ApiError::InvalidKey { message } => {
                 <i32>::sse_encode(2, serializer);
                 <String>::sse_encode(message, serializer);
             }
-            crate::api::error::ApiError::NostrTag { message } => {
+            crate::api::error::ApiError::NostrUrl { message } => {
                 <i32>::sse_encode(3, serializer);
                 <String>::sse_encode(message, serializer);
             }
-            crate::api::error::ApiError::NostrEvent { message } => {
+            crate::api::error::ApiError::NostrTag { message } => {
                 <i32>::sse_encode(4, serializer);
                 <String>::sse_encode(message, serializer);
             }
-            crate::api::error::ApiError::NostrParse { message } => {
+            crate::api::error::ApiError::NostrEvent { message } => {
                 <i32>::sse_encode(5, serializer);
                 <String>::sse_encode(message, serializer);
             }
-            crate::api::error::ApiError::NostrHex { message } => {
+            crate::api::error::ApiError::NostrParse { message } => {
                 <i32>::sse_encode(6, serializer);
                 <String>::sse_encode(message, serializer);
             }
-            crate::api::error::ApiError::Other { message } => {
+            crate::api::error::ApiError::NostrHex { message } => {
                 <i32>::sse_encode(7, serializer);
+                <String>::sse_encode(message, serializer);
+            }
+            crate::api::error::ApiError::Other { message } => {
+                <i32>::sse_encode(8, serializer);
                 <String>::sse_encode(message, serializer);
             }
             _ => {

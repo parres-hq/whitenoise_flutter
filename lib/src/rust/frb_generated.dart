@@ -128,6 +128,7 @@ abstract class RustLibApi extends BaseApi {
     required List<String> adminPubkeys,
     required String groupName,
     required String groupDescription,
+    required String groupType,
   });
 
   Future<Account> crateApiAccountsCreateIdentity();
@@ -664,6 +665,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     required List<String> adminPubkeys,
     required String groupName,
     required String groupDescription,
+    required String groupType,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -674,6 +676,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           sse_encode_list_String(adminPubkeys, serializer);
           sse_encode_String(groupName, serializer);
           sse_encode_String(groupDescription, serializer);
+          sse_encode_String(groupType, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -692,6 +695,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           adminPubkeys,
           groupName,
           groupDescription,
+          groupType,
         ],
         apiImpl: this,
       ),
@@ -706,6 +710,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       'adminPubkeys',
       'groupName',
       'groupDescription',
+      'groupType',
     ],
   );
 
@@ -2367,30 +2372,34 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           message: dco_decode_String(raw[1]),
         );
       case 1:
-        return ApiError_InvalidKey(
+        return ApiError_InvalidGroupType(
           message: dco_decode_String(raw[1]),
         );
       case 2:
-        return ApiError_NostrUrl(
+        return ApiError_InvalidKey(
           message: dco_decode_String(raw[1]),
         );
       case 3:
-        return ApiError_NostrTag(
+        return ApiError_NostrUrl(
           message: dco_decode_String(raw[1]),
         );
       case 4:
-        return ApiError_NostrEvent(
+        return ApiError_NostrTag(
           message: dco_decode_String(raw[1]),
         );
       case 5:
-        return ApiError_NostrParse(
+        return ApiError_NostrEvent(
           message: dco_decode_String(raw[1]),
         );
       case 6:
-        return ApiError_NostrHex(
+        return ApiError_NostrParse(
           message: dco_decode_String(raw[1]),
         );
       case 7:
+        return ApiError_NostrHex(
+          message: dco_decode_String(raw[1]),
+        );
+      case 8:
         return ApiError_Other(
           message: dco_decode_String(raw[1]),
         );
@@ -3079,23 +3088,26 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         return ApiError_Whitenoise(message: var_message);
       case 1:
         final var_message = sse_decode_String(deserializer);
-        return ApiError_InvalidKey(message: var_message);
+        return ApiError_InvalidGroupType(message: var_message);
       case 2:
         final var_message = sse_decode_String(deserializer);
-        return ApiError_NostrUrl(message: var_message);
+        return ApiError_InvalidKey(message: var_message);
       case 3:
         final var_message = sse_decode_String(deserializer);
-        return ApiError_NostrTag(message: var_message);
+        return ApiError_NostrUrl(message: var_message);
       case 4:
         final var_message = sse_decode_String(deserializer);
-        return ApiError_NostrEvent(message: var_message);
+        return ApiError_NostrTag(message: var_message);
       case 5:
         final var_message = sse_decode_String(deserializer);
-        return ApiError_NostrParse(message: var_message);
+        return ApiError_NostrEvent(message: var_message);
       case 6:
         final var_message = sse_decode_String(deserializer);
-        return ApiError_NostrHex(message: var_message);
+        return ApiError_NostrParse(message: var_message);
       case 7:
+        final var_message = sse_decode_String(deserializer);
+        return ApiError_NostrHex(message: var_message);
+      case 8:
         final var_message = sse_decode_String(deserializer);
         return ApiError_Other(message: var_message);
       default:
@@ -3928,26 +3940,29 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       case ApiError_Whitenoise(message: final message):
         sse_encode_i_32(0, serializer);
         sse_encode_String(message, serializer);
-      case ApiError_InvalidKey(message: final message):
+      case ApiError_InvalidGroupType(message: final message):
         sse_encode_i_32(1, serializer);
         sse_encode_String(message, serializer);
-      case ApiError_NostrUrl(message: final message):
+      case ApiError_InvalidKey(message: final message):
         sse_encode_i_32(2, serializer);
         sse_encode_String(message, serializer);
-      case ApiError_NostrTag(message: final message):
+      case ApiError_NostrUrl(message: final message):
         sse_encode_i_32(3, serializer);
         sse_encode_String(message, serializer);
-      case ApiError_NostrEvent(message: final message):
+      case ApiError_NostrTag(message: final message):
         sse_encode_i_32(4, serializer);
         sse_encode_String(message, serializer);
-      case ApiError_NostrParse(message: final message):
+      case ApiError_NostrEvent(message: final message):
         sse_encode_i_32(5, serializer);
         sse_encode_String(message, serializer);
-      case ApiError_NostrHex(message: final message):
+      case ApiError_NostrParse(message: final message):
         sse_encode_i_32(6, serializer);
         sse_encode_String(message, serializer);
-      case ApiError_Other(message: final message):
+      case ApiError_NostrHex(message: final message):
         sse_encode_i_32(7, serializer);
+        sse_encode_String(message, serializer);
+      case ApiError_Other(message: final message):
+        sse_encode_i_32(8, serializer);
         sse_encode_String(message, serializer);
     }
   }

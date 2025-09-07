@@ -20,6 +20,9 @@ sealed class ApiError with _$ApiError implements FrbException {
   const factory ApiError.whitenoise({
     required String message,
   }) = ApiError_Whitenoise;
+  const factory ApiError.invalidGroupType({
+    required String message,
+  }) = ApiError_InvalidGroupType;
   const factory ApiError.invalidKey({
     required String message,
   }) = ApiError_InvalidKey;

@@ -10,6 +10,9 @@ pub enum ApiError {
     #[error("Whitenoise error: {message}")]
     Whitenoise { message: String },
 
+    #[error("Invalid group type: {message}")]
+    InvalidGroupType { message: String },
+
     #[error("Nostr key error: {message}")]
     InvalidKey { message: String },
 
@@ -102,6 +105,7 @@ impl ApiError {
     pub fn error_type(&self) -> String {
         match self {
             ApiError::Whitenoise { .. } => "Whitenoise".to_string(),
+            ApiError::InvalidGroupType { .. } => "InvalidGroupType".to_string(),
             ApiError::InvalidKey { .. } => "InvalidKey".to_string(),
             ApiError::NostrUrl { .. } => "NostrUrl".to_string(),
             ApiError::NostrTag { .. } => "NostrTag".to_string(),
@@ -116,6 +120,7 @@ impl ApiError {
     pub fn message_text(&self) -> String {
         match self {
             ApiError::Whitenoise { message } => message.clone(),
+            ApiError::InvalidGroupType { message } => message.clone(),
             ApiError::InvalidKey { message } => message.clone(),
             ApiError::NostrUrl { message } => message.clone(),
             ApiError::NostrTag { message } => message.clone(),
