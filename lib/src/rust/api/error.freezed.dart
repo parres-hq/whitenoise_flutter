@@ -96,7 +96,8 @@ mixin _$ApiError {
   /// Create a copy of ApiError
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ApiErrorCopyWith<ApiError> get copyWith => throw _privateConstructorUsedError;
+  $ApiErrorCopyWith<ApiError> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -108,7 +109,8 @@ abstract class $ApiErrorCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$ApiErrorCopyWithImpl<$Res, $Val extends ApiError> implements $ApiErrorCopyWith<$Res> {
+class _$ApiErrorCopyWithImpl<$Res, $Val extends ApiError>
+    implements $ApiErrorCopyWith<$Res> {
   _$ApiErrorCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -135,7 +137,8 @@ class _$ApiErrorCopyWithImpl<$Res, $Val extends ApiError> implements $ApiErrorCo
 }
 
 /// @nodoc
-abstract class _$$ApiError_WhitenoiseImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_WhitenoiseImplCopyWith<$Res>
+    implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_WhitenoiseImplCopyWith(
     _$ApiError_WhitenoiseImpl value,
     $Res Function(_$ApiError_WhitenoiseImpl) then,
@@ -312,7 +315,8 @@ class _$ApiError_WhitenoiseImpl extends ApiError_Whitenoise {
 }
 
 abstract class ApiError_Whitenoise extends ApiError {
-  const factory ApiError_Whitenoise({required final String message}) = _$ApiError_WhitenoiseImpl;
+  const factory ApiError_Whitenoise({required final String message}) =
+      _$ApiError_WhitenoiseImpl;
   const ApiError_Whitenoise._() : super._();
 
   @override
@@ -327,7 +331,8 @@ abstract class ApiError_Whitenoise extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_InvalidGroupTypeImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_InvalidGroupTypeImplCopyWith<$Res>
+    implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_InvalidGroupTypeImplCopyWith(
     _$ApiError_InvalidGroupTypeImpl value,
     $Res Function(_$ApiError_InvalidGroupTypeImpl) then,
@@ -392,11 +397,10 @@ class _$ApiError_InvalidGroupTypeImpl extends ApiError_InvalidGroupType {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$ApiError_InvalidGroupTypeImplCopyWith<_$ApiError_InvalidGroupTypeImpl> get copyWith =>
-      __$$ApiError_InvalidGroupTypeImplCopyWithImpl<_$ApiError_InvalidGroupTypeImpl>(
-        this,
-        _$identity,
-      );
+  _$$ApiError_InvalidGroupTypeImplCopyWith<_$ApiError_InvalidGroupTypeImpl>
+  get copyWith => __$$ApiError_InvalidGroupTypeImplCopyWithImpl<
+    _$ApiError_InvalidGroupTypeImpl
+  >(this, _$identity);
 
   @override
   @optionalTypeArgs
@@ -515,12 +519,13 @@ abstract class ApiError_InvalidGroupType extends ApiError {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ApiError_InvalidGroupTypeImplCopyWith<_$ApiError_InvalidGroupTypeImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$ApiError_InvalidGroupTypeImplCopyWith<_$ApiError_InvalidGroupTypeImpl>
+  get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class _$$ApiError_InvalidKeyImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_InvalidKeyImplCopyWith<$Res>
+    implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_InvalidKeyImplCopyWith(
     _$ApiError_InvalidKeyImpl value,
     $Res Function(_$ApiError_InvalidKeyImpl) then,
@@ -697,7 +702,8 @@ class _$ApiError_InvalidKeyImpl extends ApiError_InvalidKey {
 }
 
 abstract class ApiError_InvalidKey extends ApiError {
-  const factory ApiError_InvalidKey({required final String message}) = _$ApiError_InvalidKeyImpl;
+  const factory ApiError_InvalidKey({required final String message}) =
+      _$ApiError_InvalidKeyImpl;
   const ApiError_InvalidKey._() : super._();
 
   @override
@@ -712,7 +718,8 @@ abstract class ApiError_InvalidKey extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_NostrUrlImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_NostrUrlImplCopyWith<$Res>
+    implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_NostrUrlImplCopyWith(
     _$ApiError_NostrUrlImpl value,
     $Res Function(_$ApiError_NostrUrlImpl) then,
@@ -889,7 +896,8 @@ class _$ApiError_NostrUrlImpl extends ApiError_NostrUrl {
 }
 
 abstract class ApiError_NostrUrl extends ApiError {
-  const factory ApiError_NostrUrl({required final String message}) = _$ApiError_NostrUrlImpl;
+  const factory ApiError_NostrUrl({required final String message}) =
+      _$ApiError_NostrUrlImpl;
   const ApiError_NostrUrl._() : super._();
 
   @override
@@ -904,7 +912,8 @@ abstract class ApiError_NostrUrl extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_NostrTagImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_NostrTagImplCopyWith<$Res>
+    implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_NostrTagImplCopyWith(
     _$ApiError_NostrTagImpl value,
     $Res Function(_$ApiError_NostrTagImpl) then,
@@ -1081,7 +1090,8 @@ class _$ApiError_NostrTagImpl extends ApiError_NostrTag {
 }
 
 abstract class ApiError_NostrTag extends ApiError {
-  const factory ApiError_NostrTag({required final String message}) = _$ApiError_NostrTagImpl;
+  const factory ApiError_NostrTag({required final String message}) =
+      _$ApiError_NostrTagImpl;
   const ApiError_NostrTag._() : super._();
 
   @override
@@ -1096,7 +1106,8 @@ abstract class ApiError_NostrTag extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_NostrEventImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_NostrEventImplCopyWith<$Res>
+    implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_NostrEventImplCopyWith(
     _$ApiError_NostrEventImpl value,
     $Res Function(_$ApiError_NostrEventImpl) then,
@@ -1273,7 +1284,8 @@ class _$ApiError_NostrEventImpl extends ApiError_NostrEvent {
 }
 
 abstract class ApiError_NostrEvent extends ApiError {
-  const factory ApiError_NostrEvent({required final String message}) = _$ApiError_NostrEventImpl;
+  const factory ApiError_NostrEvent({required final String message}) =
+      _$ApiError_NostrEventImpl;
   const ApiError_NostrEvent._() : super._();
 
   @override
@@ -1288,7 +1300,8 @@ abstract class ApiError_NostrEvent extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_NostrParseImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_NostrParseImplCopyWith<$Res>
+    implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_NostrParseImplCopyWith(
     _$ApiError_NostrParseImpl value,
     $Res Function(_$ApiError_NostrParseImpl) then,
@@ -1465,7 +1478,8 @@ class _$ApiError_NostrParseImpl extends ApiError_NostrParse {
 }
 
 abstract class ApiError_NostrParse extends ApiError {
-  const factory ApiError_NostrParse({required final String message}) = _$ApiError_NostrParseImpl;
+  const factory ApiError_NostrParse({required final String message}) =
+      _$ApiError_NostrParseImpl;
   const ApiError_NostrParse._() : super._();
 
   @override
@@ -1480,7 +1494,8 @@ abstract class ApiError_NostrParse extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_NostrHexImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_NostrHexImplCopyWith<$Res>
+    implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_NostrHexImplCopyWith(
     _$ApiError_NostrHexImpl value,
     $Res Function(_$ApiError_NostrHexImpl) then,
@@ -1657,7 +1672,8 @@ class _$ApiError_NostrHexImpl extends ApiError_NostrHex {
 }
 
 abstract class ApiError_NostrHex extends ApiError {
-  const factory ApiError_NostrHex({required final String message}) = _$ApiError_NostrHexImpl;
+  const factory ApiError_NostrHex({required final String message}) =
+      _$ApiError_NostrHexImpl;
   const ApiError_NostrHex._() : super._();
 
   @override
@@ -1672,7 +1688,8 @@ abstract class ApiError_NostrHex extends ApiError {
 }
 
 /// @nodoc
-abstract class _$$ApiError_OtherImplCopyWith<$Res> implements $ApiErrorCopyWith<$Res> {
+abstract class _$$ApiError_OtherImplCopyWith<$Res>
+    implements $ApiErrorCopyWith<$Res> {
   factory _$$ApiError_OtherImplCopyWith(
     _$ApiError_OtherImpl value,
     $Res Function(_$ApiError_OtherImpl) then,
@@ -1849,7 +1866,8 @@ class _$ApiError_OtherImpl extends ApiError_Other {
 }
 
 abstract class ApiError_Other extends ApiError {
-  const factory ApiError_Other({required final String message}) = _$ApiError_OtherImpl;
+  const factory ApiError_Other({required final String message}) =
+      _$ApiError_OtherImpl;
   const ApiError_Other._() : super._();
 
   @override

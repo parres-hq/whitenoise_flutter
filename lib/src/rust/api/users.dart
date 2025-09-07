@@ -44,7 +44,11 @@ class User {
   });
 
   @override
-  int get hashCode => pubkey.hashCode ^ metadata.hashCode ^ createdAt.hashCode ^ updatedAt.hashCode;
+  int get hashCode =>
+      pubkey.hashCode ^
+      metadata.hashCode ^
+      createdAt.hashCode ^
+      updatedAt.hashCode;
 
   @override
   bool operator ==(Object other) =>

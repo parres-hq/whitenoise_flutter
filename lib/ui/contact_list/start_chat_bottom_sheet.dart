@@ -127,6 +127,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
           .createNewGroup(
             groupName: '',
             groupDescription: '',
+            isDm: true,
             memberPublicKeyHexs: [widget.contact.publicKey],
             adminPublicKeyHexs: [widget.contact.publicKey],
           );

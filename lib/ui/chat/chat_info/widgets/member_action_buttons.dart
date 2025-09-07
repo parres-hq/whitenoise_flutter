@@ -40,6 +40,7 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
           .createNewGroup(
             groupName: '',
             groupDescription: '',
+            isDm: true,
             memberPublicKeyHexs: [widget.user.publicKey],
             adminPublicKeyHexs: [widget.user.publicKey],
           );

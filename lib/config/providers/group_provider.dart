@@ -183,6 +183,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     required String groupDescription,
     required List<String> memberPublicKeyHexs,
     required List<String> adminPublicKeyHexs,
+    bool isDm = false,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -244,6 +245,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         adminPubkeys: combinedAdminKeys,
         groupName: groupName,
         groupDescription: groupDescription,
+        groupType: isDm ? 'directMessage' : 'group',
       );
 
       _logger.info('GroupsProvider: Group created successfully - ${newGroup.name}');
