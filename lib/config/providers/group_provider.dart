@@ -217,13 +217,11 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final filteredMemberHexs =
           memberPublicKeyHexs.where((hex) => hex.trim() != creatorPubkeyHex).toList();
 
-      // Use hex strings directly instead of converting to PublicKey objects
       final filteredMemberPubkeys = filteredMemberHexs.map((hexKey) => hexKey.trim()).toList();
       _logger.info(
         'GroupsProvider: Members pubkeys loaded (excluding creator) - ${filteredMemberPubkeys.length}',
       );
 
-      // Use hex strings directly instead of converting to PublicKey objects
       final resolvedAdminPublicKeys =
           adminPublicKeyHexs.toSet().map((hexKey) => hexKey.trim()).toList();
       final combinedAdminKeys = {activePubkey, ...resolvedAdminPublicKeys}.toList();

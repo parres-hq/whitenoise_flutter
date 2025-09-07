@@ -13,7 +13,7 @@ import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 /// Auth Provider
 ///
-/// This provider manages authentication using the new PublicKey-based API.
+/// This provider manages authentication.
 class AuthNotifier extends Notifier<AuthState> {
   final _logger = Logger('AuthNotifier');
 
