@@ -1,5 +1,4 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
@@ -9,15 +8,10 @@ import 'package:whitenoise/utils/pubkey_formatter.dart';
 class DMChatService {
   static Future<DMChatData?> getDMChatData(String groupId, WidgetRef ref) async {
     try {
-      final activePubkey = ref.read(activePubkeyProvider) ?? '';
-      if (activePubkey.isEmpty) return null;
-
-      final currentUserNpub = PubkeyFormatter(pubkey: activePubkey).toNpub();
       final otherMember = ref
           .read(groupsProvider.notifier)
           .getOtherGroupMember(
             groupId,
-            currentUserNpub,
           );
 
       if (otherMember != null) {

@@ -72,7 +72,10 @@ class ContactModel {
   bool operator ==(covariant ContactModel other) {
     if (identical(this, other)) return true;
 
-    return other.publicKey == publicKey &&
+    final hexNpub = PubkeyFormatter(pubkey: publicKey).toHex();
+    final otherHexNpub = PubkeyFormatter(pubkey: other.publicKey).toHex();
+
+    return hexNpub == otherHexNpub &&
         other.imagePath == imagePath &&
         other.displayName == displayName &&
         other.about == about &&

@@ -157,9 +157,12 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
           selectedAccount = _accounts.where((account) => account.pubkey == hexKey).firstOrNull;
         } catch (e) {
-          // If conversion fails, try direct matching as fallback
+          final hexProfilePubKey = PubkeyFormatter(pubkey: selectedProfile.publicKey).toHex();
           selectedAccount =
-              _accounts.where((account) => account.pubkey == selectedProfile.publicKey).firstOrNull;
+              _accounts.where((account) {
+                final hexAccountPubkey = PubkeyFormatter(pubkey: account.pubkey).toHex();
+                return hexAccountPubkey == hexProfilePubKey;
+              }).firstOrNull;
         }
 
         if (selectedAccount != null) {

@@ -114,7 +114,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       await _loadGroupTypesForAllGroups(groups);
 
       // Now calculate display names with member data available
-      await _calculateDisplayNames(groups, activePubkey);
+      await _calculateDisplayNames(groups);
 
       // Schedule message loading after the current build cycle completes
       Future.microtask(() async {
@@ -470,13 +470,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   /// Calculate display names for all groups
-  Future<void> _calculateDisplayNames(List<Group> groups, String currentUserPubkey) async {
+  Future<void> _calculateDisplayNames(List<Group> groups) async {
     final Map<String, String> displayNames = Map<String, String>.from(
       state.groupDisplayNames ?? {},
     );
 
     for (final group in groups) {
-      final displayName = await _getDisplayNameForGroup(group, currentUserPubkey);
+      final displayName = await _getDisplayNameForGroup(group);
       displayNames[group.mlsGroupId] = displayName;
     }
 
@@ -492,7 +492,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) return;
 
-      final displayName = await _getDisplayNameForGroup(group, activePubkey);
+      final displayName = await _getDisplayNameForGroup(group);
       final updatedDisplayNames = Map<String, String>.from(state.groupDisplayNames ?? {});
       updatedDisplayNames[groupId] = displayName;
 
@@ -590,13 +590,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   /// Get the appropriate display name for a group
-  Future<String> _getDisplayNameForGroup(Group group, String currentUserPubkey) async {
+  Future<String> _getDisplayNameForGroup(Group group) async {
     // For direct messages, use the other member's name
     final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
     if (groupInformation.groupType == GroupType.directMessage) {
       try {
-        final currentUserNpub = PubkeyFormatter(pubkey: currentUserPubkey).toNpub();
-        final otherMember = getOtherGroupMember(group.mlsGroupId, currentUserNpub);
+        final otherMember = getOtherGroupMember(group.mlsGroupId);
 
         if (otherMember == null) {
           _logger.warning(
@@ -806,7 +805,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         await _loadGroupTypesForAllGroups(actuallyNewGroups);
 
         // Calculate display names for new groups
-        await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups, activePubkey);
+        await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups);
 
         _logger.info('GroupsProvider: Added ${actuallyNewGroups.length} new groups');
       }
@@ -854,14 +853,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Calculate display names for specific groups (used for new groups)
   Future<void> _calculateDisplayNamesForSpecificGroups(
     List<Group> groups,
-    String currentUserPubkey,
   ) async {
     final Map<String, String> displayNames = Map<String, String>.from(
       state.groupDisplayNames ?? {},
     );
 
     for (final group in groups) {
-      final displayName = await _getDisplayNameForGroup(group, currentUserPubkey);
+      final displayName = await _getDisplayNameForGroup(group);
       displayNames[group.mlsGroupId] = displayName;
     }
 
@@ -1027,18 +1025,25 @@ final groupsProvider = NotifierProvider<GroupsNotifier, GroupsState>(
 );
 
 extension GroupMemberUtils on GroupsNotifier {
-  User? getOtherGroupMember(String? groupId, String? currentUserNpub) {
-    if (groupId == null || currentUserNpub == null) return null;
+  User? getOtherGroupMember(String? groupId) {
+    if (groupId == null) return null;
+    final activePubkey = ref.read(activePubkeyProvider);
+    if (activePubkey == null || activePubkey.isEmpty) return null;
     final members = getGroupMembers(groupId);
     if (members == null || members.isEmpty) return null;
 
-    // Use safe filtering - never return the current user as fallback
-    final otherMembers = members.where((member) => member.publicKey != currentUserNpub).toList();
-
+    final hexActivePubkey = PubkeyFormatter(pubkey: activePubkey).toHex();
+    final otherMembers =
+        members
+            .where(
+              (member) => PubkeyFormatter(pubkey: member.publicKey).toHex() != hexActivePubkey,
+            )
+            .toList();
+    final npubActivePubkey = PubkeyFormatter(pubkey: activePubkey).toNpub();
     if (otherMembers.isEmpty) {
       _logger.warning(
         'GroupsProvider: No other members found in DM group $groupId. '
-        'Total members: ${members.length}, Current user: $currentUserNpub',
+        'Total members: ${members.length}, Current user: $npubActivePubkey',
       );
       return null;
     }
@@ -1049,7 +1054,7 @@ extension GroupMemberUtils on GroupsNotifier {
   /// Get the display image for a group based on its type
   /// For direct messages, returns the other member's image
   /// For regular groups, returns null (can be extended for group avatars)
-  String? getGroupDisplayImage(String groupId, String currentUserNpub) {
+  String? getGroupDisplayImage(String groupId) {
     final group = findGroupById(groupId);
     if (group == null) return null;
 
@@ -1065,7 +1070,7 @@ extension GroupMemberUtils on GroupsNotifier {
 
     // For direct messages, use the other member's image
     if (groupType == GroupType.directMessage) {
-      final otherMember = getOtherGroupMember(groupId, currentUserNpub);
+      final otherMember = getOtherGroupMember(groupId);
       return otherMember?.imagePath;
     }
 

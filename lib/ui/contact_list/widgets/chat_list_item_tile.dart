@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
@@ -50,12 +49,8 @@ class ChatListItemTile extends ConsumerWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Show loading state with basic info while determining group type
-            final currentUserNpub = ref.watch(nostrKeysProvider).npub ?? '';
             final displayName = groupsNotifier.getGroupDisplayName(group.mlsGroupId) ?? group.name;
-            final displayImage = groupsNotifier.getGroupDisplayImage(
-              group.mlsGroupId,
-              currentUserNpub,
-            );
+            final displayImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
             return _buildChatTileContent(context, displayName, displayImage, group);
           }
 
@@ -89,12 +84,8 @@ class ChatListItemTile extends ConsumerWidget {
           final data = snapshot.data;
           if (data == null) {
             // Fallback to existing logic if no data
-            final currentUserNpub = ref.watch(nostrKeysProvider).npub ?? '';
             final displayName = groupsNotifier.getGroupDisplayName(group.mlsGroupId) ?? group.name;
-            final displayImage = groupsNotifier.getGroupDisplayImage(
-              group.mlsGroupId,
-              currentUserNpub,
-            );
+            final displayImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
             return _buildChatTileContent(context, displayName, displayImage, group);
           }
 
@@ -103,10 +94,8 @@ class ChatListItemTile extends ConsumerWidget {
       );
     }
 
-    // For regular groups, use existing logic
-    final currentUserNpub = ref.watch(nostrKeysProvider).npub ?? '';
     final displayName = groupsNotifier.getGroupDisplayName(group.mlsGroupId) ?? group.name;
-    final displayImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId, currentUserNpub);
+    final displayImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
 
     return _buildChatTileContent(context, displayName, displayImage, group);
   }
