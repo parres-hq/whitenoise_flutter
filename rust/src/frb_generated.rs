@@ -453,6 +453,7 @@ fn wire__crate__api__groups__create_group_impl(
             let api_admin_pubkeys = <Vec<String>>::sse_decode(&mut deserializer);
             let api_group_name = <String>::sse_decode(&mut deserializer);
             let api_group_description = <String>::sse_decode(&mut deserializer);
+            let api_group_type = <crate::api::groups::GroupType>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, crate::api::error::ApiError>(
@@ -463,6 +464,7 @@ fn wire__crate__api__groups__create_group_impl(
                             api_admin_pubkeys,
                             api_group_name,
                             api_group_description,
+                            api_group_type,
                         )
                         .await?;
                         Ok(output_ok)
