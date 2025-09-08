@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -91,19 +90,6 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
           contact: contact,
           isSelected: isSelected,
           onTap: () => _toggleContactSelection(contact),
-          enableSwipeToDelete: true,
-          onDelete: () async {
-            try {
-              await ref.read(followsProvider.notifier).removeFollow(contact.publicKey);
-              if (context.mounted) {
-                ref.showSuccessToast('Contact removed successfully');
-              }
-            } catch (e) {
-              if (context.mounted) {
-                ref.showErrorToast('Failed to remove contact: $e');
-              }
-            }
-          },
           showCheck: true,
         );
       },
