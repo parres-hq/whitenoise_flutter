@@ -1,5 +1,3 @@
-// ignore_for_file: avoid_redundant_argument_values
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
@@ -71,7 +69,7 @@ class FollowsNotifier extends Notifier<FollowsState> {
   Future<void> loadFollows() async {
     if (state.isLoading) return;
 
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
 
     if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);
@@ -130,6 +128,7 @@ class FollowsNotifier extends Notifier<FollowsState> {
       _logger.info('FollowsProvider: Successfully followed user: $userPubkey');
 
       await loadFollows();
+      state = state.copyWith(isLoading: false);
     } catch (e, st) {
       _logger.severe('FollowsProvider.addFollow - Exception: $e (Type: ${e.runtimeType})', e, st);
 
@@ -167,6 +166,7 @@ class FollowsNotifier extends Notifier<FollowsState> {
       _logger.info('FollowsProvider: Successfully unfollowed user: $userPubkey');
 
       await loadFollows();
+      state = state.copyWith(isLoading: false);
     } catch (e, st) {
       _logger.severe(
         'FollowsProvider.removeFollow - Exception: $e (Type: ${e.runtimeType})',
