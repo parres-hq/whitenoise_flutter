@@ -90,7 +90,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
       final contactsWithoutKeyPackage = filteredContacts['withoutKeyPackage']!;
 
       // If less than 2 contacts have keypackages, only show invite sheet (no group creation)
-      if (contactsWithKeyPackage.length < 2) {
+      if (contactsWithKeyPackage.isEmpty) {
         if (contactsWithoutKeyPackage.isNotEmpty && mounted) {
           await ShareInviteBottomSheet.show(
             context: context,

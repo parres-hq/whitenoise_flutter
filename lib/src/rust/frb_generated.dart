@@ -128,6 +128,7 @@ abstract class RustLibApi extends BaseApi {
     required List<String> adminPubkeys,
     required String groupName,
     required String groupDescription,
+    required GroupType groupType,
   });
 
   Future<Account> crateApiAccountsCreateIdentity();
@@ -664,6 +665,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     required List<String> adminPubkeys,
     required String groupName,
     required String groupDescription,
+    required GroupType groupType,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -674,6 +676,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           sse_encode_list_String(adminPubkeys, serializer);
           sse_encode_String(groupName, serializer);
           sse_encode_String(groupDescription, serializer);
+          sse_encode_group_type(groupType, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -692,6 +695,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           adminPubkeys,
           groupName,
           groupDescription,
+          groupType,
         ],
         apiImpl: this,
       ),
@@ -706,6 +710,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       'adminPubkeys',
       'groupName',
       'groupDescription',
+      'groupType',
     ],
   );
 
