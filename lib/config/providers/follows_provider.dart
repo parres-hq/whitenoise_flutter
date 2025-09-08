@@ -105,86 +105,6 @@ class FollowsNotifier extends Notifier<FollowsState> {
     }
   }
 
-  Future<void> addFollow(String userPubkey) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    if (!_isAuthAvailable()) {
-      state = state.copyWith(isLoading: false);
-      return;
-    }
-
-    try {
-      final activePubkey = ref.read(activePubkeyProvider) ?? '';
-      if (activePubkey.isEmpty) {
-        state = state.copyWith(error: 'No active account found', isLoading: false);
-        return;
-      }
-
-      await accounts_api.followUser(
-        accountPubkey: activePubkey,
-        userToFollowPubkey: userPubkey,
-      );
-
-      _logger.info('FollowsProvider: Successfully followed user: $userPubkey');
-
-      await loadFollows();
-      state = state.copyWith(isLoading: false);
-    } catch (e, st) {
-      _logger.severe('FollowsProvider.addFollow - Exception: $e (Type: ${e.runtimeType})', e, st);
-
-      final errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
-        error: e,
-        stackTrace: st,
-        fallbackMessage: 'Failed to add follow. Please try again.',
-        context: 'addFollow',
-      );
-
-      state = state.copyWith(error: errorMessage, isLoading: false);
-    }
-  }
-
-  Future<void> removeFollow(String userPubkey) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    if (!_isAuthAvailable()) {
-      state = state.copyWith(isLoading: false);
-      return;
-    }
-
-    try {
-      final activePubkey = ref.read(activePubkeyProvider) ?? '';
-      if (activePubkey.isEmpty) {
-        state = state.copyWith(error: 'No active account found', isLoading: false);
-        return;
-      }
-
-      await accounts_api.unfollowUser(
-        accountPubkey: activePubkey,
-        userToUnfollowPubkey: userPubkey,
-      );
-
-      _logger.info('FollowsProvider: Successfully unfollowed user: $userPubkey');
-
-      await loadFollows();
-      state = state.copyWith(isLoading: false);
-    } catch (e, st) {
-      _logger.severe(
-        'FollowsProvider.removeFollow - Exception: $e (Type: ${e.runtimeType})',
-        e,
-        st,
-      );
-
-      final errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
-        error: e,
-        stackTrace: st,
-        fallbackMessage: 'Failed to remove follow. Please try again.',
-        context: 'removeFollow',
-      );
-
-      state = state.copyWith(error: errorMessage, isLoading: false);
-    }
-  }
-
   void clearFollows() {
     state = const FollowsState();
   }
@@ -204,10 +124,6 @@ class FollowsNotifier extends Notifier<FollowsState> {
   }
 
   List<User> get allFollows => state.follows;
-
-  Future<void> refreshFollows() async {
-    await loadFollows();
-  }
 }
 
 final followsProvider = NotifierProvider<FollowsNotifier, FollowsState>(
