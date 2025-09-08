@@ -98,20 +98,11 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
         });
       }
     } catch (e) {
-      String error;
-      if (e is ApiError) {
-        error = await e.messageText();
-      } else {
-        error = e.toString();
-      }
-      _logger.warning('Failed to fetch key package: $error');
-      if (mounted) {
-        setState(() {
-          _isLoadingKeyPackage = false;
-          _isLoadingKeyPackageError = true;
-          ref.showErrorToast('Error loading user key package: $e');
-        });
-      }
+      _logger.warning('Failed to fetch key package: $e');
+      setState(() {
+        _isLoadingKeyPackage = false;
+        _needsInvite = true;
+      });
     }
   }
 

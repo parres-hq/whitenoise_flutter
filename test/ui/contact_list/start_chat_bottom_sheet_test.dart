@@ -306,7 +306,6 @@ void main() {
       testWidgets('hides start chat option', (WidgetTester tester) async {
         await setup(tester);
         expect(find.text('Start Chat'), findsNothing);
-        expect(find.text('Invite to White Noise'), findsNothing);
       });
 
       testWidgets('hides add to group option', (WidgetTester tester) async {
@@ -314,9 +313,9 @@ void main() {
         expect(find.text('Add to Group'), findsNothing);
       });
 
-      testWidgets('hides invite option', (WidgetTester tester) async {
+      testWidgets('shows invite option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Invite to White Noise'), findsNothing);
+        expect(find.text('Invite to White Noise'), findsOneWidget);
       });
     });
   });
