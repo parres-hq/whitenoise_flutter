@@ -9,19 +9,12 @@ class DMChatInfo extends ConsumerStatefulWidget {
 }
 
 class _DMChatInfoState extends ConsumerState<DMChatInfo> {
-  final _logger = Logger('DMChatInfo');
-  String? otherUserNpub;
-  bool isFollow = false;
-  bool isFollowLoading = false;
   Future<DMChatData?>? _dmChatDataFuture;
 
   @override
   void initState() {
     super.initState();
     _dmChatDataFuture = ref.getDMChatData(widget.groupId);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadContact();
-    });
   }
 
   @override
@@ -32,78 +25,34 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     }
   }
 
-  Future<void> _loadContact() async {
-    final activePubkey = ref.read(activePubkeyProvider) ?? '';
-    if (activePubkey.isNotEmpty) {
-      final otherMember = ref.read(groupsProvider.notifier).getOtherGroupMember(widget.groupId);
-      if (otherMember != null && mounted) {
-        otherUserNpub = PubkeyFormatter(pubkey: otherMember.publicKey).toNpub();
-        _checkFollowStatus(otherMember.publicKey);
-      }
+  Future<void> _toggleFollow(String? pubkey) async {
+    if (pubkey == null) return;
+    final dmChatData = await _dmChatDataFuture;
+    final displayName = dmChatData?.displayName ?? 'Unknown';
+
+    final followNotifier = ref.read(followProvider(pubkey).notifier);
+    var currentFollowState = ref.read(followProvider(pubkey));
+    late String successMessage;
+
+    if (currentFollowState.isFollowing) {
+      successMessage = 'Unfollowed $displayName';
+      await followNotifier.removeFollow(pubkey);
+    } else {
+      successMessage = 'Followed $displayName';
+      await followNotifier.addFollow(pubkey);
+    }
+
+    currentFollowState = ref.read(followProvider(pubkey));
+    final errorMessage = currentFollowState.error ?? '';
+    if (errorMessage.isNotEmpty) {
+      ref.showErrorToast(errorMessage);
+    } else {
+      ref.showSuccessToast(successMessage);
     }
   }
 
-  void _checkFollowStatus(String userNpub) {
-    final followsNotifier = ref.read(followsProvider.notifier);
-    final isUserFollow = followsNotifier.isFollowing(userNpub);
-    if (mounted) {
-      setState(() {
-        isFollow = isUserFollow;
-      });
-    }
-  }
-
-  Future<void> _addContact() async {
-    if (otherUserNpub == null) return;
-    setState(() {
-      isFollowLoading = true;
-    });
-
-    try {
-      await ref.read(followsProvider.notifier).addFollow(otherUserNpub!);
-      if (mounted) {
-        setState(() {
-          isFollow = true;
-        });
-      }
-    } catch (e) {
-      _logger.warning('Error adding contact: $e');
-    } finally {
-      if (mounted) {
-        setState(() {
-          isFollowLoading = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _removeContact() async {
-    if (otherUserNpub == null) return;
-
-    setState(() {
-      isFollowLoading = true;
-    });
-
-    try {
-      await ref.read(followsProvider.notifier).removeFollow(otherUserNpub!);
-      if (mounted) {
-        setState(() {
-          isFollow = false;
-        });
-      }
-    } catch (e) {
-      _logger.warning('Error removing contact: $e');
-    } finally {
-      if (mounted) {
-        setState(() {
-          isFollowLoading = false;
-        });
-      }
-    }
-  }
-
-  void _copyToClipboard() {
-    final npub = otherUserNpub ?? '';
+  void _copyToClipboard(String pubkey) {
+    final npub = PubkeyFormatter(pubkey: pubkey).toNpub();
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: npub,
@@ -112,21 +61,22 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     );
   }
 
-  void _openAddToGroup() {
-    if (otherUserNpub == null) {
-      ref.showErrorToast('No user to add to group');
-      return;
-    }
-    context.push('/add_to_group/$otherUserNpub');
+  void _openAddToGroup(String pubkey) {
+    final npub = PubkeyFormatter(pubkey: pubkey).toNpub();
+    context.push('/add_to_group/$npub');
   }
 
   @override
   Widget build(BuildContext context) {
-    ref.listen(followsProvider, (previous, next) {
-      if (otherUserNpub != null) {
-        _checkFollowStatus(otherUserNpub!);
-      }
-    });
+    final activePubkey = ref.read(activePubkeyProvider) ?? '';
+    final otherMember =
+        activePubkey.isNotEmpty
+            ? ref.read(groupsProvider.notifier).getOtherGroupMember(widget.groupId)
+            : null;
+    final otherUserPubkey = otherMember?.publicKey;
+
+    final followState =
+        otherUserPubkey != null ? ref.watch(followProvider(otherUserPubkey)) : const FollowState();
 
     return FutureBuilder(
       future: _dmChatDataFuture,
@@ -176,7 +126,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                   ),
                   Gap(8.w),
                   InkWell(
-                    onTap: _copyToClipboard,
+                    onTap: otherUserPubkey != null ? () => _copyToClipboard(otherUserPubkey) : null,
                     child: WnImage(
                       AssetsPaths.icCopy,
                       width: 24.w,
@@ -204,29 +154,23 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               Gap(12.h),
               WnFilledButton(
                 size: WnButtonSize.small,
-                visualState: isFollow ? WnButtonVisualState.secondary : WnButtonVisualState.primary,
-                label: isFollow ? 'Remove Contact' : 'Add Contact',
-                loading: isFollowLoading,
+                visualState:
+                    followState.isFollowing
+                        ? WnButtonVisualState.secondary
+                        : WnButtonVisualState.primary,
+                label: followState.isFollowing ? 'Unfollow' : 'Follow',
+                loading: followState.isLoading,
                 suffixIcon: SvgPicture.asset(
-                  isFollow ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+                  followState.isFollowing ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
                   width: 14.w,
                   colorFilter: ColorFilter.mode(
-                    isFollow
+                    followState.isFollowing
                         ? context.colors.secondaryForeground
                         : context.colors.primaryForeground,
                     BlendMode.srcIn,
                   ),
                 ),
-                onPressed:
-                    isFollowLoading
-                        ? null
-                        : () {
-                          if (isFollow) {
-                            _removeContact();
-                          } else {
-                            _addContact();
-                          }
-                        },
+                onPressed: followState.isLoading ? null : () => _toggleFollow(otherUserPubkey),
               ),
               Gap(12.h),
               WnFilledButton(
@@ -238,7 +182,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                   width: 14.w,
                   color: context.colors.secondaryForeground,
                 ),
-                onPressed: _openAddToGroup,
+                onPressed: otherUserPubkey != null ? () => _openAddToGroup(otherUserPubkey) : null,
               ),
             ],
           ),
