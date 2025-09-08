@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
-import 'package:whitenoise/utils/public_key_validation_extension.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class ContactModel {
   final String publicKey;
@@ -33,7 +33,7 @@ class ContactModel {
     final nip05 = _sanitizeString(metadata?.nip05);
     final lud16 = _sanitizeString(metadata?.lud16);
     final picture = _sanitizeUrl(metadata?.picture);
-    final npub = pubkey.toNpub() ?? '';
+    final npub = PubkeyFormatter(pubkey: pubkey).toNpub() ?? '';
 
     return ContactModel(
       displayName: displayName.isNotEmpty ? displayName : 'Unknown User',
@@ -72,7 +72,10 @@ class ContactModel {
   bool operator ==(covariant ContactModel other) {
     if (identical(this, other)) return true;
 
-    return other.publicKey == publicKey &&
+    final hexNpub = PubkeyFormatter(pubkey: publicKey).toHex();
+    final otherHexNpub = PubkeyFormatter(pubkey: other.publicKey).toHex();
+
+    return hexNpub == otherHexNpub &&
         other.imagePath == imagePath &&
         other.displayName == displayName &&
         other.about == about &&

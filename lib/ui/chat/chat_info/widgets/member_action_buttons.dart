@@ -11,6 +11,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class SendMessageButton extends ConsumerStatefulWidget {
   const SendMessageButton(this.user, {super.key});
@@ -111,7 +112,12 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
     final follows = followsState.follows;
 
     return follows.any(
-      (follow) => follow.pubkey.toLowerCase() == widget.user.publicKey.toLowerCase(),
+      (follow) {
+        final hexFollowPubkey = PubkeyFormatter(pubkey: follow.pubkey).toHex();
+        final hexUserPubkey = PubkeyFormatter(pubkey: widget.user.publicKey).toHex();
+        if (hexFollowPubkey == null || hexUserPubkey == null) return false;
+        return hexFollowPubkey == hexUserPubkey;
+      },
     );
   }
 

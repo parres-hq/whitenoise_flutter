@@ -12,6 +12,7 @@ import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/message_converter.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class ChatNotifier extends Notifier<ChatState> {
   final _logger = Logger('ChatNotifier');
@@ -426,7 +427,12 @@ class ChatNotifier extends Notifier<ChatState> {
     if (gId == null) return false;
     final groupMessages = state.groupMessages[gId] ?? [];
     if (index <= 0 || index >= groupMessages.length) return false;
-    return groupMessages[index].sender.publicKey == groupMessages[index - 1].sender.publicKey;
+    final currentSenderPubkey = groupMessages[index].sender.publicKey;
+    final currentSenderHexPubkey = PubkeyFormatter(pubkey: currentSenderPubkey).toHex() ?? '';
+    final previousSenderPubkey = groupMessages[index - 1].sender.publicKey;
+    final previousSenderHexPubkey = PubkeyFormatter(pubkey: previousSenderPubkey).toHex() ?? '';
+    if (currentSenderHexPubkey.isEmpty || previousSenderHexPubkey.isEmpty) return false;
+    return currentSenderHexPubkey == previousSenderHexPubkey;
   }
 
   bool isNextSameSender(int index, {String? groupId}) {
@@ -434,7 +440,12 @@ class ChatNotifier extends Notifier<ChatState> {
     if (gId == null) return false;
     final groupMessages = state.groupMessages[gId] ?? [];
     if (index < 0 || index >= groupMessages.length - 1) return false;
-    return groupMessages[index].sender.publicKey == groupMessages[index + 1].sender.publicKey;
+    final currentSenderPubkey = groupMessages[index].sender.publicKey;
+    final currentSenderHexPubkey = PubkeyFormatter(pubkey: currentSenderPubkey).toHex() ?? '';
+    final nextSenderPubkey = groupMessages[index + 1].sender.publicKey;
+    final nextSenderHexPubkey = PubkeyFormatter(pubkey: nextSenderPubkey).toHex() ?? '';
+    if (currentSenderHexPubkey.isEmpty || nextSenderHexPubkey.isEmpty) return false;
+    return currentSenderHexPubkey == nextSenderHexPubkey;
   }
 
   /// Get unread message count for a group
