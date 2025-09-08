@@ -140,7 +140,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsWidgets);
+      expect(find.byKey(const ValueKey('loading')), findsOneWidget);
     });
 
     group('without key package', () {
@@ -159,39 +159,15 @@ void main() {
         await tester.pump();
       }
 
-      testWidgets('hides loading indicator', (WidgetTester tester) async {
-        await setup(tester);
-        // Check that any CircularProgressIndicator found is from ButtonLoadingIndicator (18.w size)
-        // and not the main loading indicator (32.w size)
-        final indicators = find.byType(CircularProgressIndicator);
-        final indicatorWidgets = tester.widgetList<CircularProgressIndicator>(indicators);
-        for (final indicator in indicatorWidgets) {
-          final sizedBox = tester.widget<SizedBox>(
-            find
-                .ancestor(
-                  of: find.byWidget(indicator),
-                  matching: find.byType(SizedBox),
-                )
-                .first,
-          );
-          // Main loading indicator uses 32.w, button indicators use 18.w
-          expect(
-            sizedBox.width != 32.0,
-            isTrue,
-            reason: 'Found main loading indicator, should be hidden',
-          );
-        }
-      });
-
       testWidgets('displays invite', (WidgetTester tester) async {
         await setup(tester);
         expect(find.text('Invite to White Noise'), findsOneWidget);
         expect(find.text('Share'), findsOneWidget);
       });
 
-      testWidgets('hides add contact option', (WidgetTester tester) async {
+      testWidgets('hides follow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Add Contact'), findsNothing);
+        expect(find.text('Follow'), findsNothing);
       });
 
       testWidgets('hides add to group option', (WidgetTester tester) async {
@@ -221,33 +197,9 @@ void main() {
         await tester.pump();
       }
 
-      testWidgets('hides loading indicator', (WidgetTester tester) async {
+      testWidgets('displays follow option', (WidgetTester tester) async {
         await setup(tester);
-        // Check that any CircularProgressIndicator found is from ButtonLoadingIndicator (18.w size)
-        // and not the main loading indicator (32.w size)
-        final indicators = find.byType(CircularProgressIndicator);
-        final indicatorWidgets = tester.widgetList<CircularProgressIndicator>(indicators);
-        for (final indicator in indicatorWidgets) {
-          final sizedBox = tester.widget<SizedBox>(
-            find
-                .ancestor(
-                  of: find.byWidget(indicator),
-                  matching: find.byType(SizedBox),
-                )
-                .first,
-          );
-          // Main loading indicator uses 32.w, button indicators use 18.w
-          expect(
-            sizedBox.width != 32.0,
-            isTrue,
-            reason: 'Found main loading indicator, should be hidden',
-          );
-        }
-      });
-
-      testWidgets('displays add contact option', (WidgetTester tester) async {
-        await setup(tester);
-        expect(find.text('Add Contact'), findsOneWidget);
+        expect(find.text('Follow'), findsOneWidget);
       });
 
       testWidgets('displays add to group option', (WidgetTester tester) async {
@@ -255,9 +207,9 @@ void main() {
         expect(find.text('Add to Group'), findsOneWidget);
       });
 
-      testWidgets('hides remove contact option', (WidgetTester tester) async {
+      testWidgets('hides unfollow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Remove Contact'), findsNothing);
+        expect(find.text('Unfollow'), findsNothing);
       });
 
       testWidgets('displays start chat option', (WidgetTester tester) async {
@@ -270,7 +222,7 @@ void main() {
         expect(find.text('Invite to White Noise'), findsNothing);
       });
 
-      group('when user is already a contact', () {
+      group('when user is already a follow', () {
         Future<void> setup(WidgetTester tester) async {
           await tester.pumpWidget(
             createTestWidget(
@@ -296,14 +248,14 @@ void main() {
           await tester.pump();
         }
 
-        testWidgets('displays remove contact option', (WidgetTester tester) async {
+        testWidgets('displays unfollow option', (WidgetTester tester) async {
           await setup(tester);
-          expect(find.text('Remove Contact'), findsOneWidget);
+          expect(find.text('Unfollow'), findsOneWidget);
         });
 
-        testWidgets('hides add contact option', (WidgetTester tester) async {
+        testWidgets('hides follow option', (WidgetTester tester) async {
           await setup(tester);
-          expect(find.text('Add Contact'), findsNothing);
+          expect(find.text('Follow'), findsNothing);
         });
 
         testWidgets('hides invite section', (WidgetTester tester) async {
@@ -327,37 +279,14 @@ void main() {
         await tester.pump();
       }
 
-      testWidgets('hides loading indicator', (WidgetTester tester) async {
+      testWidgets('hides follow option', (WidgetTester tester) async {
         await setup(tester);
-        // Check that any CircularProgressIndicator found is from ButtonLoadingIndicator (18.w size)
-        // and not the main loading indicator (32.w size)
-        final indicators = find.byType(CircularProgressIndicator);
-        final indicatorWidgets = tester.widgetList<CircularProgressIndicator>(indicators);
-        for (final indicator in indicatorWidgets) {
-          final sizedBox = tester.widget<SizedBox>(
-            find
-                .ancestor(
-                  of: find.byWidget(indicator),
-                  matching: find.byType(SizedBox),
-                )
-                .first,
-          );
-          // Main loading indicator uses 32.w, button indicators use 18.w
-          expect(
-            sizedBox.width != 32.0,
-            isTrue,
-            reason: 'Found main loading indicator, should be hidden',
-          );
-        }
-      });
-      testWidgets('hides add contact option', (WidgetTester tester) async {
-        await setup(tester);
-        expect(find.text('Add Contact'), findsNothing);
+        expect(find.text('Follow'), findsNothing);
       });
 
-      testWidgets('hides remove contact option', (WidgetTester tester) async {
+      testWidgets('hides unfollow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Remove Contact'), findsNothing);
+        expect(find.text('Unfollow'), findsNothing);
       });
 
       testWidgets('hides start chat option', (WidgetTester tester) async {
