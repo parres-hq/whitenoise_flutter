@@ -170,9 +170,9 @@ void main() {
         expect(find.text('Share'), findsOneWidget);
       });
 
-      testWidgets('hides add contact option', (WidgetTester tester) async {
+      testWidgets('hides follow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Add Contact'), findsNothing);
+        expect(find.text('Follow'), findsNothing);
       });
 
       testWidgets('hides add to group option', (WidgetTester tester) async {
@@ -207,9 +207,9 @@ void main() {
         expect(find.byType(CircularProgressIndicator), findsNothing);
       });
 
-      testWidgets('displays add contact option', (WidgetTester tester) async {
+      testWidgets('displays follow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Add Contact'), findsOneWidget);
+        expect(find.text('Follow'), findsOneWidget);
       });
 
       testWidgets('displays add to group option', (WidgetTester tester) async {
@@ -217,9 +217,9 @@ void main() {
         expect(find.text('Add to Group'), findsOneWidget);
       });
 
-      testWidgets('hides remove contact option', (WidgetTester tester) async {
+      testWidgets('hides unfollow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Remove Contact'), findsNothing);
+        expect(find.text('Unfollow'), findsNothing);
       });
 
       testWidgets('displays start chat option', (WidgetTester tester) async {
@@ -232,7 +232,7 @@ void main() {
         expect(find.text('Invite to White Noise'), findsNothing);
       });
 
-      group('when user is already a contact', () {
+      group('when user is already a follow', () {
         Future<void> setup(WidgetTester tester) async {
           await tester.pumpWidget(
             createTestWidget(
@@ -258,14 +258,14 @@ void main() {
           await tester.pumpAndSettle();
         }
 
-        testWidgets('displays remove contact option', (WidgetTester tester) async {
+        testWidgets('displays unfollow option', (WidgetTester tester) async {
           await setup(tester);
-          expect(find.text('Remove Contact'), findsOneWidget);
+          expect(find.text('Unfollow'), findsOneWidget);
         });
 
-        testWidgets('hides add contact option', (WidgetTester tester) async {
+        testWidgets('hides follow option', (WidgetTester tester) async {
           await setup(tester);
-          expect(find.text('Add Contact'), findsNothing);
+          expect(find.text('Follow'), findsNothing);
         });
 
         testWidgets('hides invite section', (WidgetTester tester) async {
@@ -293,14 +293,14 @@ void main() {
         await setup(tester);
         expect(find.byType(CircularProgressIndicator), findsNothing);
       });
-      testWidgets('hides add contact option', (WidgetTester tester) async {
+      testWidgets('hides follow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Add Contact'), findsNothing);
+        expect(find.text('Follow'), findsNothing);
       });
 
-      testWidgets('hides remove contact option', (WidgetTester tester) async {
+      testWidgets('hides unfollow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Remove Contact'), findsNothing);
+        expect(find.text('Unfollow'), findsNothing);
       });
 
       testWidgets('hides start chat option', (WidgetTester tester) async {
