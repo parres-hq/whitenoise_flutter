@@ -7,6 +7,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api;
 import 'package:whitenoise/src/rust/api/users.dart';
 import 'package:whitenoise/utils/error_handling.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/user_utils.dart';
 
 class FollowsState {
@@ -195,7 +196,9 @@ class FollowsNotifier extends Notifier<FollowsState> {
   }
 
   bool isFollowing(String pubkey) {
-    return state.follows.any((user) => user.pubkey == pubkey);
+    final hexPubkey = PubkeyFormatter(pubkey: pubkey).toHex();
+    if (hexPubkey == null) return false;
+    return state.follows.any((user) => PubkeyFormatter(pubkey: user.pubkey).toHex() == hexPubkey);
   }
 
   List<User> get allFollows => state.follows;

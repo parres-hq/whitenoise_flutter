@@ -4,20 +4,48 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 import 'active_pubkey_provider_test.mocks.dart';
 
-@GenerateMocks([FlutterSecureStorage])
+@GenerateMocks([FlutterSecureStorage, PubkeyFormatter])
 void main() {
   group('ActivePubkeyProvider Tests', () {
     late ProviderContainer container;
     late MockFlutterSecureStorage mockStorage;
+    final testNpubPubkey = 'npub1zygjyg3nxdzyg424ven8waug3zvejqqq424thw7venwammhwlllsj2q4yf';
+    final testHexPubkey = '1111222233334444555566667777888899990000aaaabbbbccccddddeeeeffff';
+    final otherTestNpubPubkey = 'npub140x77qfrg4ncnlkuh2v8v4pjzz4ummcpydzk0z07mjafsaj5xggq9d4zqy';
+    final otherTestHexPubkey = 'abcdef0123456789fedcba9876543210abcdef0123456789fedcba9876543210';
 
-    ProviderContainer createContainer({MockFlutterSecureStorage? storage}) {
+    final hexPubkeysMap = {
+      testNpubPubkey: testHexPubkey,
+      otherTestNpubPubkey: otherTestHexPubkey,
+      testHexPubkey: testHexPubkey,
+      otherTestHexPubkey: otherTestHexPubkey,
+      '': '',
+      ' test_pubkey_123 ': 'test_pubkey_123',
+    };
+
+    PubkeyFormatter Function({String? pubkey}) mockPubkeyFormatter() {
+      return ({String? pubkey}) {
+        final mock = MockPubkeyFormatter();
+        when(mock.toHex()).thenReturn(hexPubkeysMap[pubkey]);
+        return mock;
+      };
+    }
+
+    ProviderContainer createContainer({
+      MockFlutterSecureStorage? storage,
+    }) {
       return ProviderContainer(
         overrides: [
-          if (storage != null)
-            activePubkeyProvider.overrideWith(() => ActivePubkeyNotifier(storage: storage)),
+          activePubkeyProvider.overrideWith(
+            () => ActivePubkeyNotifier(
+              storage: storage ?? mockStorage,
+              pubkeyFormatter: mockPubkeyFormatter(),
+            ),
+          ),
         ],
       );
     }
@@ -49,7 +77,7 @@ void main() {
           when(mockStorage.read(key: 'active_account_pubkey')).thenAnswer((_) async => null);
         });
 
-        test('sets state to null', () async {
+        test('sets state to empty string', () async {
           final notifier = container.read(activePubkeyProvider.notifier);
           await notifier.loadActivePubkey();
           final state = container.read(activePubkeyProvider);
@@ -94,18 +122,20 @@ void main() {
         });
       });
 
-      group('when storage has a pubkey string', () {
+      group('when storage has a pubkey string in bech32 format', () {
         setUp(() async {
           when(
             mockStorage.read(key: 'active_account_pubkey'),
-          ).thenAnswer((_) async => 'test_pubkey_123');
+          ).thenAnswer(
+            (_) async => testNpubPubkey,
+          );
         });
 
-        test('sets state to the pubkey string', () async {
+        test('sets state to the pubkey string in hex format', () async {
           final notifier = container.read(activePubkeyProvider.notifier);
           await notifier.loadActivePubkey();
           final state = container.read(activePubkeyProvider);
-          expect(state, 'test_pubkey_123');
+          expect(state, testHexPubkey);
         });
 
         test('notifies to listeners', () async {
@@ -153,26 +183,49 @@ void main() {
       group('when state is null', () {
         setUp(() async {
           when(
-            mockStorage.write(key: 'active_account_pubkey', value: 'test_pubkey_123'),
+            mockStorage.write(key: 'active_account_pubkey', value: testHexPubkey),
           ).thenAnswer((_) async {});
         });
-        test('updates state', () async {
-          final notifier = container.read(activePubkeyProvider.notifier);
-          await notifier.setActivePubkey('test_pubkey_123');
-          final state = container.read(activePubkeyProvider);
-          expect(state, 'test_pubkey_123');
-        });
-
-        test('notifies to listeners', () async {
-          final notifier = container.read(activePubkeyProvider.notifier);
-          bool wasNotified = false;
-
-          container.listen(activePubkeyProvider, (previous, next) {
-            wasNotified = true;
+        group('when pubkey is in npub format', () {
+          test('updates state', () async {
+            final notifier = container.read(activePubkeyProvider.notifier);
+            await notifier.setActivePubkey(testNpubPubkey);
+            final state = container.read(activePubkeyProvider);
+            expect(state, testHexPubkey);
           });
 
-          await notifier.setActivePubkey('test_pubkey_123');
-          expect(wasNotified, isTrue);
+          test('notifies to listeners', () async {
+            final notifier = container.read(activePubkeyProvider.notifier);
+            bool wasNotified = false;
+
+            container.listen(activePubkeyProvider, (previous, next) {
+              wasNotified = true;
+            });
+
+            await notifier.setActivePubkey(testNpubPubkey);
+            expect(wasNotified, isTrue);
+          });
+        });
+
+        group('when pubkey is in hex format', () {
+          test('updates state', () async {
+            final notifier = container.read(activePubkeyProvider.notifier);
+            await notifier.setActivePubkey(testHexPubkey);
+            final state = container.read(activePubkeyProvider);
+            expect(state, testHexPubkey);
+          });
+
+          test('notifies to listeners', () async {
+            final notifier = container.read(activePubkeyProvider.notifier);
+            bool wasNotified = false;
+
+            container.listen(activePubkeyProvider, (previous, next) {
+              wasNotified = true;
+            });
+
+            await notifier.setActivePubkey(testHexPubkey);
+            expect(wasNotified, isTrue);
+          });
         });
       });
 
@@ -181,68 +234,113 @@ void main() {
           when(mockStorage.write(key: 'active_account_pubkey', value: '')).thenAnswer((_) async {});
           await container.read(activePubkeyProvider.notifier).setActivePubkey('');
           when(
-            mockStorage.write(key: 'active_account_pubkey', value: 'test_pubkey_123'),
+            mockStorage.write(key: 'active_account_pubkey', value: testHexPubkey),
           ).thenAnswer((_) async {});
         });
 
-        test('updates state', () async {
-          final notifier = container.read(activePubkeyProvider.notifier);
-          expect(container.read(activePubkeyProvider), '');
-          await notifier.setActivePubkey('test_pubkey_123');
-          expect(container.read(activePubkeyProvider), 'test_pubkey_123');
-        });
-
-        test('notifies to listeners', () async {
-          final notifier = container.read(activePubkeyProvider.notifier);
-          bool wasNotified = false;
-
-          container.listen(activePubkeyProvider, (previous, next) {
-            wasNotified = true;
+        group('when pubkey is in npub format', () {
+          test('updates state', () async {
+            final notifier = container.read(activePubkeyProvider.notifier);
+            expect(container.read(activePubkeyProvider), '');
+            await notifier.setActivePubkey(testNpubPubkey);
+            expect(container.read(activePubkeyProvider), testHexPubkey);
           });
 
-          await notifier.setActivePubkey('test_pubkey_123');
-          expect(wasNotified, isTrue);
+          test('notifies to listeners', () async {
+            final notifier = container.read(activePubkeyProvider.notifier);
+            bool wasNotified = false;
+
+            container.listen(activePubkeyProvider, (previous, next) {
+              wasNotified = true;
+            });
+
+            await notifier.setActivePubkey(testNpubPubkey);
+            expect(wasNotified, isTrue);
+          });
+        });
+        group('when pubkey is in hex format', () {
+          test('updates state', () async {
+            final notifier = container.read(activePubkeyProvider.notifier);
+            expect(container.read(activePubkeyProvider), '');
+            await notifier.setActivePubkey(testHexPubkey);
+            expect(container.read(activePubkeyProvider), testHexPubkey);
+          });
+
+          test('notifies to listeners', () async {
+            final notifier = container.read(activePubkeyProvider.notifier);
+            bool wasNotified = false;
+
+            container.listen(activePubkeyProvider, (previous, next) {
+              wasNotified = true;
+            });
+
+            await notifier.setActivePubkey(testHexPubkey);
+            expect(wasNotified, isTrue);
+          });
         });
       });
 
-      group('when state is a pubkey string', () {
+      group('when state is a valid pubkey', () {
         setUp(() async {
           when(
-            mockStorage.write(key: 'active_account_pubkey', value: 'test_pubkey_123'),
+            mockStorage.write(key: 'active_account_pubkey', value: testHexPubkey),
           ).thenAnswer((_) async {});
-          await container.read(activePubkeyProvider.notifier).setActivePubkey('test_pubkey_123');
+          await container.read(activePubkeyProvider.notifier).setActivePubkey(testHexPubkey);
           when(
-            mockStorage.write(key: 'active_account_pubkey', value: 'test_pubkey_456'),
+            mockStorage.write(key: 'active_account_pubkey', value: otherTestHexPubkey),
           ).thenAnswer((_) async {});
         });
 
-        test('updates state', () async {
-          final notifier = container.read(activePubkeyProvider.notifier);
-          expect(container.read(activePubkeyProvider), 'test_pubkey_123');
-          await notifier.setActivePubkey('test_pubkey_456');
-          expect(container.read(activePubkeyProvider), 'test_pubkey_456');
-        });
-
-        test('notifies to listeners', () async {
-          final notifier = container.read(activePubkeyProvider.notifier);
-          bool wasNotified = false;
-
-          container.listen(activePubkeyProvider, (previous, next) {
-            wasNotified = true;
+        group('when new pubkey is in npub format', () {
+          test('updates state', () async {
+            final notifier = container.read(activePubkeyProvider.notifier);
+            expect(container.read(activePubkeyProvider), testHexPubkey);
+            await notifier.setActivePubkey(otherTestNpubPubkey);
+            expect(container.read(activePubkeyProvider), otherTestHexPubkey);
           });
 
-          await notifier.setActivePubkey('test_pubkey_456');
-          expect(wasNotified, isTrue);
+          test('notifies to listeners', () async {
+            final notifier = container.read(activePubkeyProvider.notifier);
+            bool wasNotified = false;
+
+            container.listen(activePubkeyProvider, (previous, next) {
+              wasNotified = true;
+            });
+
+            await notifier.setActivePubkey(otherTestNpubPubkey);
+            expect(wasNotified, isTrue);
+          });
+        });
+
+        group('when new pubkey is in hex format', () {
+          test('updates state', () async {
+            final notifier = container.read(activePubkeyProvider.notifier);
+            expect(container.read(activePubkeyProvider), testHexPubkey);
+            await notifier.setActivePubkey(otherTestHexPubkey);
+            expect(container.read(activePubkeyProvider), otherTestHexPubkey);
+          });
+
+          test('notifies to listeners', () async {
+            final notifier = container.read(activePubkeyProvider.notifier);
+            bool wasNotified = false;
+
+            container.listen(activePubkeyProvider, (previous, next) {
+              wasNotified = true;
+            });
+
+            await notifier.setActivePubkey(otherTestHexPubkey);
+            expect(wasNotified, isTrue);
+          });
         });
       });
     });
 
     group('clearActivePubkey', () {
-      group('when state is null', () {
+      group('when storage is null', () {
         setUp(() async {
           when(mockStorage.delete(key: 'active_account_pubkey')).thenAnswer((_) async {});
         });
-        test('updates state to null', () async {
+        test('updates state to empty string', () async {
           final notifier = container.read(activePubkeyProvider.notifier);
           await notifier.clearActivePubkey();
           final state = container.read(activePubkeyProvider);
@@ -258,11 +356,11 @@ void main() {
           });
 
           await notifier.clearActivePubkey();
-          expect(wasNotified, isFalse);
+          expect(wasNotified, false);
         });
       });
 
-      group('when state is empty string', () {
+      group('when storage has empty string', () {
         setUp(() async {
           when(mockStorage.write(key: 'active_account_pubkey', value: '')).thenAnswer((_) async {});
           await container.read(activePubkeyProvider.notifier).setActivePubkey('');
@@ -271,7 +369,6 @@ void main() {
 
         test('updates state to null', () async {
           final notifier = container.read(activePubkeyProvider.notifier);
-          expect(container.read(activePubkeyProvider), '');
           await notifier.clearActivePubkey();
           final state = container.read(activePubkeyProvider);
           expect(state, isNull);
@@ -293,15 +390,15 @@ void main() {
       group('when state is a pubkey string', () {
         setUp(() async {
           when(
-            mockStorage.write(key: 'active_account_pubkey', value: 'test_pubkey_123'),
+            mockStorage.write(key: 'active_account_pubkey', value: testHexPubkey),
           ).thenAnswer((_) async {});
-          await container.read(activePubkeyProvider.notifier).setActivePubkey('test_pubkey_123');
+          await container.read(activePubkeyProvider.notifier).setActivePubkey(testHexPubkey);
           when(mockStorage.delete(key: 'active_account_pubkey')).thenAnswer((_) async {});
         });
 
         test('updates state to null', () async {
           final notifier = container.read(activePubkeyProvider.notifier);
-          expect(container.read(activePubkeyProvider), 'test_pubkey_123');
+          expect(container.read(activePubkeyProvider), testHexPubkey);
           await notifier.clearActivePubkey();
           final state = container.read(activePubkeyProvider);
           expect(state, isNull);
@@ -346,7 +443,7 @@ void main() {
         });
       });
 
-      group('when state is empty string', () {
+      group('when storage has empty string', () {
         setUp(() async {
           when(mockStorage.write(key: 'active_account_pubkey', value: '')).thenAnswer((_) async {});
           await container.read(activePubkeyProvider.notifier).setActivePubkey('');
@@ -355,7 +452,6 @@ void main() {
 
         test('updates state to null', () async {
           final notifier = container.read(activePubkeyProvider.notifier);
-          expect(container.read(activePubkeyProvider), '');
           await notifier.clearAllSecureStorage();
           final state = container.read(activePubkeyProvider);
           expect(state, isNull);
@@ -377,15 +473,15 @@ void main() {
       group('when state is a pubkey string', () {
         setUp(() async {
           when(
-            mockStorage.write(key: 'active_account_pubkey', value: 'test_pubkey_123'),
+            mockStorage.write(key: 'active_account_pubkey', value: testHexPubkey),
           ).thenAnswer((_) async {});
-          await container.read(activePubkeyProvider.notifier).setActivePubkey('test_pubkey_123');
+          await container.read(activePubkeyProvider.notifier).setActivePubkey(testHexPubkey);
           when(mockStorage.deleteAll()).thenAnswer((_) async {});
         });
 
         test('updates state to null', () async {
           final notifier = container.read(activePubkeyProvider.notifier);
-          expect(container.read(activePubkeyProvider), 'test_pubkey_123');
+          expect(container.read(activePubkeyProvider), testHexPubkey);
           await notifier.clearAllSecureStorage();
           final state = container.read(activePubkeyProvider);
           expect(state, isNull);

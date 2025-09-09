@@ -9,6 +9,7 @@ import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
+import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -42,6 +43,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   double _lastScrollOffset = 0.0;
   Future<DMChatData?>? _dmChatDataFuture;
+  ProviderSubscription<ChatState>? _chatSubscription;
 
   @override
   void initState() {
@@ -55,7 +57,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       }
     });
 
-    ref.listenManual(chatProvider, (previous, next) {
+    _chatSubscription = ref.listenManual(chatProvider, (previous, next) {
       final currentMessages = next.groupMessages[widget.groupId] ?? [];
       final previousMessages = previous?.groupMessages[widget.groupId] ?? [];
       if (currentMessages.length != previousMessages.length) {
@@ -74,9 +76,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   void dispose() {
-    final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
-    searchNotifier.deactivateSearch();
-
+    _chatSubscription?.close();
     _scrollController.dispose();
     super.dispose();
   }
