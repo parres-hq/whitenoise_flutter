@@ -17,8 +17,8 @@ pub struct Group {
     pub nostr_group_id: String,
     pub name: String,
     pub description: String,
-    pub image_url: Option<String>,
-    pub image_key: Option<Vec<u8>>,
+    pub image_hash: Option<[u8; 32]>,
+    pub image_key: Option<[u8; 32]>,
     pub admin_pubkeys: Vec<String>,
     pub last_message_id: Option<String>,
     pub last_message_at: Option<DateTime<Utc>>,
@@ -33,7 +33,7 @@ impl From<WhitenoiseGroup> for Group {
             nostr_group_id: hex::encode(group.nostr_group_id),
             name: group.name,
             description: group.description,
-            image_url: group.image_url,
+            image_hash: group.image_hash,
             image_key: group.image_key,
             admin_pubkeys: group.admin_pubkeys.iter().map(|pk| pk.to_hex()).collect(),
             last_message_id: group.last_message_id.map(|id| id.to_hex()),
@@ -49,29 +49,35 @@ impl From<WhitenoiseGroup> for Group {
 
 impl Group {
     #[frb]
-    pub async fn group_type(&self) -> Result<GroupType, ApiError> {
+    pub async fn group_type(&self, account_pubkey: String) -> Result<GroupType, ApiError> {
         let whitenoise = Whitenoise::get_instance()?;
         let mls_group_id = group_id_from_string(&self.mls_group_id)?;
-        let group_information =
-            WhitenoiseGroupInformation::get_by_mls_group_id(&mls_group_id, whitenoise).await?;
+        let parsed_pubkey = PublicKey::parse(&account_pubkey)?;
+        let group_information = whitenoise
+            .get_group_information_by_mls_group_id(parsed_pubkey, &mls_group_id)
+            .await?;
         Ok(group_information.group_type.into())
     }
 
     #[frb]
-    pub async fn is_direct_message_type(&self) -> Result<bool, ApiError> {
+    pub async fn is_direct_message_type(&self, account_pubkey: String) -> Result<bool, ApiError> {
         let whitenoise = Whitenoise::get_instance()?;
         let mls_group_id = group_id_from_string(&self.mls_group_id)?;
-        let group_information =
-            WhitenoiseGroupInformation::get_by_mls_group_id(&mls_group_id, whitenoise).await?;
+        let parsed_pubkey = PublicKey::parse(&account_pubkey)?;
+        let group_information = whitenoise
+            .get_group_information_by_mls_group_id(parsed_pubkey, &mls_group_id)
+            .await?;
         Ok(group_information.group_type == WhitenoiseGroupType::DirectMessage)
     }
 
     #[frb]
-    pub async fn is_group_type(&self) -> Result<bool, ApiError> {
+    pub async fn is_group_type(&self, account_pubkey: String) -> Result<bool, ApiError> {
         let whitenoise = Whitenoise::get_instance()?;
         let mls_group_id = group_id_from_string(&self.mls_group_id)?;
-        let group_information =
-            WhitenoiseGroupInformation::get_by_mls_group_id(&mls_group_id, whitenoise).await?;
+        let parsed_pubkey = PublicKey::parse(&account_pubkey)?;
+        let group_information = whitenoise
+            .get_group_information_by_mls_group_id(parsed_pubkey, &mls_group_id)
+            .await?;
         Ok(group_information.group_type == WhitenoiseGroupType::Group)
     }
 }
@@ -188,7 +194,7 @@ pub async fn create_group(
         name: group_name,
         description: group_description,
         image_key: None,
-        image_url: None,
+        image_hash: None,
         image_nonce: None,
         relays: nostr_relays.into_iter().map(|r| r.url).collect(),
         admins: admin_pubkeys,
@@ -251,18 +257,22 @@ pub async fn remove_members_from_group(
 }
 
 #[frb]
-pub async fn get_group_information(group_id: String) -> Result<GroupInformation, ApiError> {
+pub async fn get_group_information(
+    account_pubkey: String,
+    group_id: String,
+) -> Result<GroupInformation, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let group_id = group_id_from_string(&group_id)?;
-    Ok(
-        WhitenoiseGroupInformation::get_by_mls_group_id(&group_id, &whitenoise)
-            .await?
-            .into(),
-    )
+    let parsed_pubkey = PublicKey::parse(&account_pubkey)?;
+    Ok(whitenoise
+        .get_group_information_by_mls_group_id(parsed_pubkey, &group_id)
+        .await?
+        .into())
 }
 
 #[frb]
 pub async fn get_groups_informations(
+    account_pubkey: String,
     group_ids: Vec<String>,
 ) -> Result<Vec<GroupInformation>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
@@ -270,11 +280,11 @@ pub async fn get_groups_informations(
         .into_iter()
         .map(|id| group_id_from_string(&id))
         .collect::<Result<Vec<_>, _>>()?;
-    Ok(
-        WhitenoiseGroupInformation::get_by_mls_group_ids(&group_ids, &whitenoise)
-            .await?
-            .into_iter()
-            .map(|info| info.into())
-            .collect(),
-    )
+    let parsed_pubkey = PublicKey::parse(&account_pubkey)?;
+    Ok(whitenoise
+        .get_group_information_by_mls_group_ids(parsed_pubkey, &group_ids)
+        .await?
+        .into_iter()
+        .map(|info| info.into())
+        .collect())
 }
