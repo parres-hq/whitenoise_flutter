@@ -9,11 +9,11 @@ import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/src/rust/api.dart' show createWhitenoiseConfig, initializeWhitenoise;
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
-import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 /// Auth Provider
 ///
-/// This provider manages authentication using the new PublicKey-based API.
+/// This provider manages authentication.
 class AuthNotifier extends Notifier<AuthState> {
   final _logger = Logger('AuthNotifier');
 
@@ -291,16 +291,10 @@ class AuthNotifier extends Notifier<AuthState> {
         // Check if there are other accounts available
         final remainingAccounts = await getAccounts();
         // Normalize pubkeys to hex then filter
-        final activeHex =
-            activeAccount.pubkey.startsWith('npub')
-                ? hexPubkeyFromNpub(npub: activeAccount.pubkey)
-                : activeAccount.pubkey.toLowerCase();
+        final activeHex = PubkeyFormatter(pubkey: activeAccount.pubkey).toHex();
         final otherAccounts = <Account>[];
         for (final account in remainingAccounts) {
-          final keyHex =
-              account.pubkey.startsWith('npub')
-                  ? hexPubkeyFromNpub(npub: account.pubkey)
-                  : account.pubkey.toLowerCase();
+          final keyHex = PubkeyFormatter(pubkey: account.pubkey).toHex();
           if (keyHex != activeHex) otherAccounts.add(account);
         }
         if (otherAccounts.isNotEmpty) {

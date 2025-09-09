@@ -11,8 +11,8 @@ import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/error_handling.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class GroupsNotifier extends Notifier<GroupsState> {
   final _logger = Logger('GroupsNotifier');
@@ -114,7 +114,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       await _loadGroupTypesForAllGroups(groups);
 
       // Now calculate display names with member data available
-      await _calculateDisplayNames(groups, activePubkey);
+      await _calculateDisplayNames(groups);
 
       // Schedule message loading after the current build cycle completes
       Future.microtask(() async {
@@ -155,8 +155,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) return null;
 
-      final currentUserNpub = npubFromHexPubkey(hexPubkey: activePubkey);
-      final otherUserNpub = npubFromHexPubkey(hexPubkey: otherUserPubkeyHex);
+      final currentUserNpub = PubkeyFormatter(pubkey: activePubkey).toNpub();
+      final otherUserNpub = PubkeyFormatter(pubkey: otherUserPubkeyHex).toNpub();
 
       final directMessageGroups = await getDirectMessageGroups();
 
@@ -217,13 +217,11 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final filteredMemberHexs =
           memberPublicKeyHexs.where((hex) => hex.trim() != creatorPubkeyHex).toList();
 
-      // Use hex strings directly instead of converting to PublicKey objects
       final filteredMemberPubkeys = filteredMemberHexs.map((hexKey) => hexKey.trim()).toList();
       _logger.info(
         'GroupsProvider: Members pubkeys loaded (excluding creator) - ${filteredMemberPubkeys.length}',
       );
 
-      // Use hex strings directly instead of converting to PublicKey objects
       final resolvedAdminPublicKeys =
           adminPublicKeyHexs.toSet().map((hexKey) => hexKey.trim()).toList();
       final combinedAdminKeys = {activePubkey, ...resolvedAdminPublicKeys}.toList();
@@ -312,11 +310,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final List<User> members = [];
       for (final memberPubkey in memberPubkeys) {
         try {
-          final pubkeyString = npubFromHexPubkey(hexPubkey: memberPubkey);
-
+          final npub = PubkeyFormatter(pubkey: memberPubkey).toNpub() ?? '';
           try {
             final metadata = await rust_users.userMetadata(pubkey: memberPubkey);
-            final user = User.fromMetadata(metadata, pubkeyString);
+            final user = User.fromMetadata(metadata, npub);
             members.add(user);
           } catch (metadataError) {
             // Log the full exception details with proper Whitenoise ApiError unpacking
@@ -330,10 +327,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
             _logger.warning(logMessage, metadataError);
             // Create a fallback user with minimal info
             final fallbackUser = User(
-              id: pubkeyString,
+              id: npub,
               displayName: 'Unknown User',
               nip05: '',
-              publicKey: pubkeyString,
+              publicKey: npub,
             );
             members.add(fallbackUser);
           }
@@ -391,12 +388,11 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final List<User> admins = [];
       for (final adminPubkey in adminPubkeys) {
         try {
-          // Get pubkey string first to avoid multiple uses of the same PublicKey object
-          final pubkeyString = npubFromHexPubkey(hexPubkey: adminPubkey);
+          final npub = PubkeyFormatter(pubkey: adminPubkey).toNpub() ?? '';
 
           try {
             final metadata = await rust_users.userMetadata(pubkey: adminPubkey);
-            final user = User.fromMetadata(metadata, pubkeyString);
+            final user = User.fromMetadata(metadata, npub);
             admins.add(user);
           } catch (metadataError) {
             // Log the full exception details with proper ApiError unpacking
@@ -410,10 +406,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
             _logger.warning(logMessage, metadataError);
             // Create a fallback user with minimal info
             final fallbackUser = User(
-              id: pubkeyString,
+              id: npub,
               displayName: 'Unknown User',
               nip05: '',
-              publicKey: pubkeyString,
+              publicKey: npub,
             );
             admins.add(fallbackUser);
           }
@@ -472,13 +468,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   /// Calculate display names for all groups
-  Future<void> _calculateDisplayNames(List<Group> groups, String currentUserPubkey) async {
+  Future<void> _calculateDisplayNames(List<Group> groups) async {
     final Map<String, String> displayNames = Map<String, String>.from(
       state.groupDisplayNames ?? {},
     );
 
     for (final group in groups) {
-      final displayName = await _getDisplayNameForGroup(group, currentUserPubkey);
+      final displayName = await _getDisplayNameForGroup(group);
       displayNames[group.mlsGroupId] = displayName;
     }
 
@@ -494,7 +490,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) return;
 
-      final displayName = await _getDisplayNameForGroup(group, activePubkey);
+      final displayName = await _getDisplayNameForGroup(group);
       final updatedDisplayNames = Map<String, String>.from(state.groupDisplayNames ?? {});
       updatedDisplayNames[groupId] = displayName;
 
@@ -592,13 +588,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   /// Get the appropriate display name for a group
-  Future<String> _getDisplayNameForGroup(Group group, String currentUserPubkey) async {
+  Future<String> _getDisplayNameForGroup(Group group) async {
     // For direct messages, use the other member's name
     final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
     if (groupInformation.groupType == GroupType.directMessage) {
       try {
-        final currentUserNpub = npubFromHexPubkey(hexPubkey: currentUserPubkey);
-        final otherMember = getOtherGroupMember(group.mlsGroupId, currentUserNpub);
+        final otherMember = getOtherGroupMember(group.mlsGroupId);
 
         if (otherMember == null) {
           _logger.warning(
@@ -808,7 +803,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         await _loadGroupTypesForAllGroups(actuallyNewGroups);
 
         // Calculate display names for new groups
-        await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups, activePubkey);
+        await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups);
 
         _logger.info('GroupsProvider: Added ${actuallyNewGroups.length} new groups');
       }
@@ -856,14 +851,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Calculate display names for specific groups (used for new groups)
   Future<void> _calculateDisplayNamesForSpecificGroups(
     List<Group> groups,
-    String currentUserPubkey,
   ) async {
     final Map<String, String> displayNames = Map<String, String>.from(
       state.groupDisplayNames ?? {},
     );
 
     for (final group in groups) {
-      final displayName = await _getDisplayNameForGroup(group, currentUserPubkey);
+      final displayName = await _getDisplayNameForGroup(group);
       displayNames[group.mlsGroupId] = displayName;
     }
 
@@ -885,11 +879,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
         return;
       }
 
-      final usersPubkeyHex = await Future.wait(
-        membersNpubs.map((userNpub) async {
-          return hexPubkeyFromNpub(npub: userNpub);
-        }),
-      );
+      final usersPubkeyHex =
+          membersNpubs.map((userNpub) {
+            return PubkeyFormatter(pubkey: userNpub).toHex() ?? '';
+          }).toList();
 
       await addMembersToGroup(
         pubkey: activePubkey,
@@ -940,11 +933,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
         return;
       }
 
-      final usersPubkeyHex = await Future.wait(
-        membersNpubs.map((userNpub) async {
-          return hexPubkeyFromNpub(npub: userNpub);
-        }),
-      );
+      final usersPubkeyHex =
+          membersNpubs.map((userNpub) {
+            return PubkeyFormatter(pubkey: userNpub).toHex() ?? '';
+          }).toList();
 
       await removeMembersFromGroup(
         pubkey: activePubkey,
@@ -1031,18 +1023,25 @@ final groupsProvider = NotifierProvider<GroupsNotifier, GroupsState>(
 );
 
 extension GroupMemberUtils on GroupsNotifier {
-  User? getOtherGroupMember(String? groupId, String? currentUserNpub) {
-    if (groupId == null || currentUserNpub == null) return null;
+  User? getOtherGroupMember(String? groupId) {
+    if (groupId == null) return null;
+    final activePubkey = ref.read(activePubkeyProvider);
+    if (activePubkey == null || activePubkey.isEmpty) return null;
     final members = getGroupMembers(groupId);
     if (members == null || members.isEmpty) return null;
 
-    // Use safe filtering - never return the current user as fallback
-    final otherMembers = members.where((member) => member.publicKey != currentUserNpub).toList();
-
+    final hexActivePubkey = PubkeyFormatter(pubkey: activePubkey).toHex();
+    final otherMembers =
+        members
+            .where(
+              (member) => PubkeyFormatter(pubkey: member.publicKey).toHex() != hexActivePubkey,
+            )
+            .toList();
+    final npubActivePubkey = PubkeyFormatter(pubkey: activePubkey).toNpub();
     if (otherMembers.isEmpty) {
       _logger.warning(
         'GroupsProvider: No other members found in DM group $groupId. '
-        'Total members: ${members.length}, Current user: $currentUserNpub',
+        'Total members: ${members.length}, Current user: $npubActivePubkey',
       );
       return null;
     }
@@ -1053,7 +1052,7 @@ extension GroupMemberUtils on GroupsNotifier {
   /// Get the display image for a group based on its type
   /// For direct messages, returns the other member's image
   /// For regular groups, returns null (can be extended for group avatars)
-  String? getGroupDisplayImage(String groupId, String currentUserNpub) {
+  String? getGroupDisplayImage(String groupId) {
     final group = findGroupById(groupId);
     if (group == null) return null;
 
@@ -1069,7 +1068,7 @@ extension GroupMemberUtils on GroupsNotifier {
 
     // For direct messages, use the other member's image
     if (groupType == GroupType.directMessage) {
-      final otherMember = getOtherGroupMember(groupId, currentUserNpub);
+      final otherMember = getOtherGroupMember(groupId);
       return otherMember?.imagePath;
     }
 
