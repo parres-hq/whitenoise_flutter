@@ -17,7 +17,7 @@ class DefaultData {
   // The default list of menuItems (for other users' messages - no delete option)
   static const List<MenuItem> menuItems = [reply, copy];
 
-  static const List<MenuItem> myMessageMenuItems = [reply, edit, copy, delete];
+  static const List<MenuItem> myMessageMenuItems = [reply, copy, delete];
 
   static const MenuItem reply = MenuItem(
     label: 'Reply',
@@ -27,11 +27,6 @@ class DefaultData {
   static const MenuItem copy = MenuItem(
     label: 'Copy',
     assetPath: AssetsPaths.icCopy,
-  );
-
-  static const MenuItem edit = MenuItem(
-    label: 'Edit',
-    assetPath: AssetsPaths.icEdit,
   );
 
   static const MenuItem delete = MenuItem(

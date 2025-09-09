@@ -515,11 +515,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
       );
 
       final List<Future<void>> loadTasks = [];
+      final activePubkey = ref.read(activePubkeyProvider);
+      if (activePubkey == null || activePubkey.isEmpty) return;
 
       for (final group in groups) {
         loadTasks.add(
           group
-              .groupType()
+              .groupType(accountPubkey: activePubkey)
               .then((groupType) {
                 groupTypes[group.mlsGroupId] = groupType;
               })
@@ -590,7 +592,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Get the appropriate display name for a group
   Future<String> _getDisplayNameForGroup(Group group) async {
     // For direct messages, use the other member's name
-    final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
+    final activePubkey = ref.read(activePubkeyProvider);
+    if (activePubkey == null || activePubkey.isEmpty) return '';
+    final groupInformation = await getGroupInformation(
+      accountPubkey: activePubkey,
+      groupId: group.mlsGroupId,
+    );
     if (groupInformation.groupType == GroupType.directMessage) {
       try {
         final otherMember = getOtherGroupMember(group.mlsGroupId);
@@ -624,8 +631,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   Future<Map<String, GroupInformation>> _getGroupInformationsMap(List<Group> groups) async {
     final groupIds = groups.map((group) => group.mlsGroupId).toList();
-    final groupInformations = await getGroupsInformations(groupIds: groupIds);
     final groupInformationsMap = <String, GroupInformation>{};
+    final activePubkey = ref.read(activePubkeyProvider);
+    if (activePubkey == null || activePubkey.isEmpty) return groupInformationsMap;
+    final groupInformations = await getGroupsInformations(
+      accountPubkey: activePubkey,
+      groupIds: groupIds,
+    );
     for (int i = 0; i < groupIds.length && i < groupInformations.length; i++) {
       groupInformationsMap[groupIds[i]] = groupInformations[i];
     }
@@ -679,13 +691,21 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   Future<GroupType> getGroupType(Group group) async {
-    final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
+    final activePubkey = ref.read(activePubkeyProvider) ?? '';
+    final groupInformation = await getGroupInformation(
+      accountPubkey: activePubkey,
+      groupId: group.mlsGroupId,
+    );
 
     return groupInformation.groupType;
   }
 
   Future<GroupType> getGroupTypeById(String groupId) async {
-    final groupInformation = await getGroupInformation(groupId: groupId);
+    final activePubkey = ref.read(activePubkeyProvider) ?? '';
+    final groupInformation = await getGroupInformation(
+      accountPubkey: activePubkey,
+      groupId: groupId,
+    );
 
     return groupInformation.groupType;
   }
