@@ -647,7 +647,7 @@ void main() {
           final dmGroups = <Group>[];
 
           for (final group in allGroups) {
-            final groupType = await group.groupType();
+            final groupType = await group.groupType(accountPubkey: 'npubabc');
             if (groupType == GroupType.group) {
               regularGroups.add(group);
             } else if (groupType == GroupType.directMessage) {
