@@ -506,28 +506,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                             ),
                           ),
                         ] else ...[
-                          // Contacts list - all follows as individual widgets in the scroll view
                           ...filteredContacts.map(
                             (contact) => Padding(
                               padding: EdgeInsets.only(bottom: 4.h),
                               child: ContactListTile(
                                 contact: contact,
-                                enableSwipeToDelete: true,
                                 onTap: () => _handleContactTap(contact),
-                                onDelete: () async {
-                                  try {
-                                    await ref
-                                        .read(followsProvider.notifier)
-                                        .removeFollow(contact.publicKey);
-                                    if (context.mounted) {
-                                      ref.showSuccessToast('Contact removed successfully');
-                                    }
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      ref.showErrorToast('Failed to remove contact: $e');
-                                    }
-                                  }
-                                },
                               ),
                             ),
                           ),
