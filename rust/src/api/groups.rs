@@ -166,7 +166,13 @@ pub async fn create_group(
     admin_pubkeys: Vec<String>,
     group_name: String,
     group_description: String,
+    group_type: GroupType,
 ) -> Result<Group, ApiError> {
+    let whitenoise_group_type = match group_type {
+        GroupType::DirectMessage => WhitenoiseGroupType::DirectMessage,
+        GroupType::Group => WhitenoiseGroupType::Group,
+    };
+
     let whitenoise = Whitenoise::get_instance()?;
     let creator_pubkey = PublicKey::parse(&creator_pubkey)?;
     let creator_account = whitenoise.find_account_by_pubkey(&creator_pubkey).await?;
@@ -194,7 +200,12 @@ pub async fn create_group(
         .collect::<Result<Vec<_>, _>>()?;
 
     let group = whitenoise
-        .create_group(&creator_account, member_pubkeys, nostr_group_config, None)
+        .create_group(
+            &creator_account,
+            member_pubkeys,
+            nostr_group_config,
+            Some(whitenoise_group_type),
+        )
         .await?;
     Ok(group.into())
 }

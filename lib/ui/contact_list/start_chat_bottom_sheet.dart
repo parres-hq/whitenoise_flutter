@@ -125,8 +125,9 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
       final group = await ref
           .read(groupsProvider.notifier)
           .createNewGroup(
-            groupName: 'DM',
-            groupDescription: 'Direct message',
+            groupName: '',
+            groupDescription: '',
+            isDm: true,
             memberPublicKeyHexs: [widget.contact.publicKey],
             adminPublicKeyHexs: [widget.contact.publicKey],
           );

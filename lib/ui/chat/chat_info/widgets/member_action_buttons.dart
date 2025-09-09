@@ -38,8 +38,9 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
       final group = await ref
           .read(groupsProvider.notifier)
           .createNewGroup(
-            groupName: 'DM',
-            groupDescription: 'Direct message',
+            groupName: '',
+            groupDescription: '',
+            isDm: true,
             memberPublicKeyHexs: [widget.user.publicKey],
             adminPublicKeyHexs: [widget.user.publicKey],
           );

@@ -35,12 +35,14 @@ Future<Group> createGroup({
   required List<String> adminPubkeys,
   required String groupName,
   required String groupDescription,
+  required GroupType groupType,
 }) => RustLib.instance.api.crateApiGroupsCreateGroup(
   creatorPubkey: creatorPubkey,
   memberPubkeys: memberPubkeys,
   adminPubkeys: adminPubkeys,
   groupName: groupName,
   groupDescription: groupDescription,
+  groupType: groupType,
 );
 
 Future<void> addMembersToGroup({
