@@ -207,15 +207,13 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 visualState: isFollow ? WnButtonVisualState.secondary : WnButtonVisualState.primary,
                 label: isFollow ? 'Remove Contact' : 'Add Contact',
                 loading: isFollowLoading,
-                suffixIcon: SvgPicture.asset(
+                suffixIcon: WnImage(
                   isFollow ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
                   width: 14.w,
-                  colorFilter: ColorFilter.mode(
-                    isFollow
-                        ? context.colors.secondaryForeground
-                        : context.colors.primaryForeground,
-                    BlendMode.srcIn,
-                  ),
+                  color:
+                      isFollow
+                          ? context.colors.secondaryForeground
+                          : context.colors.primaryForeground,
                 ),
                 onPressed:
                     isFollowLoading
