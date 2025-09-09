@@ -72,6 +72,11 @@ class WnImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Guard against empty or null src
+    if (src.isEmpty) {
+      return _buildFallback(context);
+    }
+
     final Widget child;
 
     if (_isNetwork) {

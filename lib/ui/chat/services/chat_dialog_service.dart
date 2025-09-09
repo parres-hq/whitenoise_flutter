@@ -121,8 +121,6 @@ class ChatDialogService {
             onContextMenuTap: (menuItem) {
               if (menuItem.label == 'Reply') {
                 chatNotifier.handleReply(message);
-              } else if (menuItem.label == 'Edit') {
-                chatNotifier.handleEdit(message);
               } else if (menuItem.label == 'Copy') {
                 Clipboard.setData(ClipboardData(text: message.content ?? ''));
                 ScaffoldMessenger.of(context).showSnackBar(
