@@ -6,7 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
-import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 /// Cached metadata with basic expiration
@@ -68,7 +68,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
   /// Convert hex to npub safely
   Future<String> _safeHexToNpub(String hexPubkey) async {
     try {
-      return npubFromHexPubkey(hexPubkey: hexPubkey);
+      return PubkeyFormatter(pubkey: hexPubkey).toNpub() ?? '';
     } catch (e) {
       _logger.warning('Failed to convert hex to npub for $hexPubkey: $e');
       return hexPubkey;
@@ -78,7 +78,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
   /// Convert npub to hex safely
   Future<String> _safeNpubToHex(String npub) async {
     try {
-      return hexPubkeyFromNpub(npub: npub);
+      return PubkeyFormatter(pubkey: npub).toHex() ?? '';
     } catch (e) {
       _logger.warning('Failed to convert npub to hex for $npub: $e');
       return npub;

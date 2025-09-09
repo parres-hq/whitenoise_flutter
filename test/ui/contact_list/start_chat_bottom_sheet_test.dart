@@ -22,6 +22,11 @@ class MockFollowsNotifier extends FollowsNotifier {
       follows: _mockFollows,
     );
   }
+
+  @override
+  bool isFollowing(String pubkey) {
+    return _mockFollows.any((user) => user.pubkey == pubkey);
+  }
 }
 
 class MockActiveAccountNotifier extends ActiveAccountNotifier {
@@ -68,19 +73,6 @@ void main() {
       publicKey: 'abc123def456789012345678901234567890123456789012345678901234567890',
       nip05: 'satoshi@nakamoto.com',
       imagePath: 'https://example.com/satoshi.png',
-    );
-
-    final mockUser = User(
-      pubkey: 'abc123def456789012345678901234567890123456789012345678901234567890',
-      metadata: const FlutterMetadata(
-        name: 'Satoshi Nakamoto',
-        displayName: 'Satoshi Nakamoto',
-        nip05: 'satoshi@nakamoto.com',
-        picture: 'https://example.com/satoshi.png',
-        custom: {},
-      ),
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
     );
 
     // Common provider overrides for all tests
@@ -263,6 +255,11 @@ void main() {
         expect(find.text('Add to Group'), findsOneWidget);
       });
 
+      testWidgets('hides remove contact option', (WidgetTester tester) async {
+        await setup(tester);
+        expect(find.text('Remove Contact'), findsNothing);
+      });
+
       testWidgets('displays start chat option', (WidgetTester tester) async {
         await setup(tester);
         expect(find.text('Start Chat'), findsOneWidget);
@@ -283,7 +280,16 @@ void main() {
               ),
               overrides: [
                 ...commonOverrides,
-                followsProvider.overrideWith(() => MockFollowsNotifier([mockUser])),
+                followsProvider.overrideWith(
+                  () => MockFollowsNotifier([
+                    User(
+                      pubkey: contact.publicKey,
+                      metadata: const FlutterMetadata(custom: {}),
+                      createdAt: DateTime.now(),
+                      updatedAt: DateTime.now(),
+                    ),
+                  ]),
+                ),
               ],
             ),
           );
@@ -291,54 +297,12 @@ void main() {
         }
 
         testWidgets('displays remove contact option', (WidgetTester tester) async {
-          await tester.pumpWidget(
-            createTestWidget(
-              StartChatBottomSheet(
-                contact: contact,
-                usersApi: MockWnUsersApiWithPackage(),
-              ),
-              overrides: [
-                ...commonOverrides,
-                followsProvider.overrideWith(
-                  () => MockFollowsNotifier([
-                    User(
-                      pubkey: contact.publicKey,
-                      metadata: const FlutterMetadata(custom: {}),
-                      createdAt: DateTime.now(),
-                      updatedAt: DateTime.now(),
-                    ),
-                  ]),
-                ),
-              ],
-            ),
-          );
-          await tester.pump();
+          await setup(tester);
           expect(find.text('Remove Contact'), findsOneWidget);
         });
 
         testWidgets('hides add contact option', (WidgetTester tester) async {
-          await tester.pumpWidget(
-            createTestWidget(
-              StartChatBottomSheet(
-                contact: contact,
-                usersApi: MockWnUsersApiWithPackage(),
-              ),
-              overrides: [
-                ...commonOverrides,
-                followsProvider.overrideWith(
-                  () => MockFollowsNotifier([
-                    User(
-                      pubkey: contact.publicKey,
-                      metadata: const FlutterMetadata(custom: {}),
-                      createdAt: DateTime.now(),
-                      updatedAt: DateTime.now(),
-                    ),
-                  ]),
-                ),
-              ],
-            ),
-          );
-          await tester.pump();
+          await setup(tester);
           expect(find.text('Add Contact'), findsNothing);
         });
 
