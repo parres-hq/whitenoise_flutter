@@ -20,6 +20,7 @@ import 'api/utils.dart';
 import 'api/welcomes.dart';
 import 'frb_generated.dart';
 import 'frb_generated.io.dart' if (dart.library.js_interop) 'frb_generated.web.dart';
+import 'lib.dart';
 
 /// Main entrypoint of the Rust API
 class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
@@ -175,10 +176,12 @@ abstract class RustLibApi extends BaseApi {
   Future<String> crateApiUtilsGetDefaultBlossomServerUrl();
 
   Future<GroupInformation> crateApiGroupsGetGroupInformation({
+    required String accountPubkey,
     required String groupId,
   });
 
   Future<List<GroupInformation>> crateApiGroupsGetGroupsInformations({
+    required String accountPubkey,
     required List<String> groupIds,
   });
 
@@ -189,15 +192,24 @@ abstract class RustLibApi extends BaseApi {
     required String groupId,
   });
 
-  Future<GroupType> crateApiGroupsGroupGroupType({required Group that});
+  Future<GroupType> crateApiGroupsGroupGroupType({
+    required Group that,
+    required String accountPubkey,
+  });
 
   Future<GroupId> crateApiUtilsGroupIdFromString({required String groupId});
 
   Future<String> crateApiUtilsGroupIdToString({required GroupId groupId});
 
-  Future<bool> crateApiGroupsGroupIsDirectMessageType({required Group that});
+  Future<bool> crateApiGroupsGroupIsDirectMessageType({
+    required Group that,
+    required String accountPubkey,
+  });
 
-  Future<bool> crateApiGroupsGroupIsGroupType({required Group that});
+  Future<bool> crateApiGroupsGroupIsGroupType({
+    required Group that,
+    required String accountPubkey,
+  });
 
   Future<List<String>> crateApiGroupsGroupMembers({
     required String pubkey,
@@ -1125,12 +1137,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   @override
   Future<GroupInformation> crateApiGroupsGetGroupInformation({
+    required String accountPubkey,
     required String groupId,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(accountPubkey, serializer);
           sse_encode_String(groupId, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
@@ -1144,7 +1158,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_api_error,
         ),
         constMeta: kCrateApiGroupsGetGroupInformationConstMeta,
-        argValues: [groupId],
+        argValues: [accountPubkey, groupId],
         apiImpl: this,
       ),
     );
@@ -1152,17 +1166,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiGroupsGetGroupInformationConstMeta => const TaskConstMeta(
     debugName: 'get_group_information',
-    argNames: ['groupId'],
+    argNames: ['accountPubkey', 'groupId'],
   );
 
   @override
   Future<List<GroupInformation>> crateApiGroupsGetGroupsInformations({
+    required String accountPubkey,
     required List<String> groupIds,
   }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(accountPubkey, serializer);
           sse_encode_list_String(groupIds, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
@@ -1176,7 +1192,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_api_error,
         ),
         constMeta: kCrateApiGroupsGetGroupsInformationsConstMeta,
-        argValues: [groupIds],
+        argValues: [accountPubkey, groupIds],
         apiImpl: this,
       ),
     );
@@ -1184,7 +1200,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiGroupsGetGroupsInformationsConstMeta => const TaskConstMeta(
     debugName: 'get_groups_informations',
-    argNames: ['groupIds'],
+    argNames: ['accountPubkey', 'groupIds'],
   );
 
   @override
@@ -1252,12 +1268,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
-  Future<GroupType> crateApiGroupsGroupGroupType({required Group that}) {
+  Future<GroupType> crateApiGroupsGroupGroupType({
+    required Group that,
+    required String accountPubkey,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_group(that, serializer);
+          sse_encode_String(accountPubkey, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -1270,7 +1290,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_api_error,
         ),
         constMeta: kCrateApiGroupsGroupGroupTypeConstMeta,
-        argValues: [that],
+        argValues: [that, accountPubkey],
         apiImpl: this,
       ),
     );
@@ -1278,7 +1298,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiGroupsGroupGroupTypeConstMeta => const TaskConstMeta(
     debugName: 'group_group_type',
-    argNames: ['that'],
+    argNames: ['that', 'accountPubkey'],
   );
 
   @override
@@ -1346,12 +1366,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
-  Future<bool> crateApiGroupsGroupIsDirectMessageType({required Group that}) {
+  Future<bool> crateApiGroupsGroupIsDirectMessageType({
+    required Group that,
+    required String accountPubkey,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_group(that, serializer);
+          sse_encode_String(accountPubkey, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -1364,7 +1388,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_api_error,
         ),
         constMeta: kCrateApiGroupsGroupIsDirectMessageTypeConstMeta,
-        argValues: [that],
+        argValues: [that, accountPubkey],
         apiImpl: this,
       ),
     );
@@ -1372,16 +1396,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiGroupsGroupIsDirectMessageTypeConstMeta => const TaskConstMeta(
     debugName: 'group_is_direct_message_type',
-    argNames: ['that'],
+    argNames: ['that', 'accountPubkey'],
   );
 
   @override
-  Future<bool> crateApiGroupsGroupIsGroupType({required Group that}) {
+  Future<bool> crateApiGroupsGroupIsGroupType({
+    required Group that,
+    required String accountPubkey,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_box_autoadd_group(that, serializer);
+          sse_encode_String(accountPubkey, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -1394,7 +1422,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_api_error,
         ),
         constMeta: kCrateApiGroupsGroupIsGroupTypeConstMeta,
-        argValues: [that],
+        argValues: [that, accountPubkey],
         apiImpl: this,
       ),
     );
@@ -1402,7 +1430,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiGroupsGroupIsGroupTypeConstMeta => const TaskConstMeta(
     debugName: 'group_is_group_type',
-    argNames: ['that'],
+    argNames: ['that', 'accountPubkey'],
   );
 
   @override
@@ -2512,8 +2540,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       nostrGroupId: dco_decode_String(arr[1]),
       name: dco_decode_String(arr[2]),
       description: dco_decode_String(arr[3]),
-      imageUrl: dco_decode_opt_String(arr[4]),
-      imageKey: dco_decode_opt_list_prim_u_8_strict(arr[5]),
+      imageHash: dco_decode_opt_u_8_array_32(arr[4]),
+      imageKey: dco_decode_opt_u_8_array_32(arr[5]),
       adminPubkeys: dco_decode_list_String(arr[6]),
       lastMessageId: dco_decode_opt_String(arr[7]),
       lastMessageAt: dco_decode_opt_box_autoadd_Chrono_Utc(arr[8]),
@@ -2701,9 +2729,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Uint8List? dco_decode_opt_list_prim_u_8_strict(dynamic raw) {
+  U8Array32? dco_decode_opt_u_8_array_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
-    return raw == null ? null : dco_decode_list_prim_u_8_strict(raw);
+    return raw == null ? null : dco_decode_u_8_array_32(raw);
   }
 
   @protected
@@ -2775,6 +2803,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int dco_decode_u_8(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
+  }
+
+  @protected
+  U8Array32 dco_decode_u_8_array_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return U8Array32(dco_decode_list_prim_u_8_strict(raw));
   }
 
   @protected
@@ -3231,8 +3265,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     final var_nostrGroupId = sse_decode_String(deserializer);
     final var_name = sse_decode_String(deserializer);
     final var_description = sse_decode_String(deserializer);
-    final var_imageUrl = sse_decode_opt_String(deserializer);
-    final var_imageKey = sse_decode_opt_list_prim_u_8_strict(deserializer);
+    final var_imageHash = sse_decode_opt_u_8_array_32(deserializer);
+    final var_imageKey = sse_decode_opt_u_8_array_32(deserializer);
     final var_adminPubkeys = sse_decode_list_String(deserializer);
     final var_lastMessageId = sse_decode_opt_String(deserializer);
     final var_lastMessageAt = sse_decode_opt_box_autoadd_Chrono_Utc(
@@ -3245,7 +3279,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       nostrGroupId: var_nostrGroupId,
       name: var_name,
       description: var_description,
-      imageUrl: var_imageUrl,
+      imageHash: var_imageHash,
       imageKey: var_imageKey,
       adminPubkeys: var_adminPubkeys,
       lastMessageId: var_lastMessageId,
@@ -3546,11 +3580,11 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  Uint8List? sse_decode_opt_list_prim_u_8_strict(SseDeserializer deserializer) {
+  U8Array32? sse_decode_opt_u_8_array_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     if (sse_decode_bool(deserializer)) {
-      return (sse_decode_list_prim_u_8_strict(deserializer));
+      return (sse_decode_u_8_array_32(deserializer));
     } else {
       return null;
     }
@@ -3622,6 +3656,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int sse_decode_u_8(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getUint8();
+  }
+
+  @protected
+  U8Array32 sse_decode_u_8_array_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final inner = sse_decode_list_prim_u_8_strict(deserializer);
+    return U8Array32(inner);
   }
 
   @protected
@@ -4067,8 +4108,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.nostrGroupId, serializer);
     sse_encode_String(self.name, serializer);
     sse_encode_String(self.description, serializer);
-    sse_encode_opt_String(self.imageUrl, serializer);
-    sse_encode_opt_list_prim_u_8_strict(self.imageKey, serializer);
+    sse_encode_opt_u_8_array_32(self.imageHash, serializer);
+    sse_encode_opt_u_8_array_32(self.imageKey, serializer);
     sse_encode_list_String(self.adminPubkeys, serializer);
     sse_encode_opt_String(self.lastMessageId, serializer);
     sse_encode_opt_box_autoadd_Chrono_Utc(self.lastMessageAt, serializer);
@@ -4332,15 +4373,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
-  void sse_encode_opt_list_prim_u_8_strict(
-    Uint8List? self,
-    SseSerializer serializer,
-  ) {
+  void sse_encode_opt_u_8_array_32(U8Array32? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     sse_encode_bool(self != null, serializer);
     if (self != null) {
-      sse_encode_list_prim_u_8_strict(self, serializer);
+      sse_encode_u_8_array_32(self, serializer);
     }
   }
 
@@ -4404,6 +4442,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_u_8(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putUint8(self);
+  }
+
+  @protected
+  void sse_encode_u_8_array_32(U8Array32 self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_prim_u_8_strict(self.inner, serializer);
   }
 
   @protected

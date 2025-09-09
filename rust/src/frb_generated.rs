@@ -978,13 +978,17 @@ fn wire__crate__api__groups__get_group_information_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_account_pubkey = <String>::sse_decode(&mut deserializer);
             let api_group_id = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, crate::api::error::ApiError>(
                     (move || async move {
-                        let output_ok =
-                            crate::api::groups::get_group_information(api_group_id).await?;
+                        let output_ok = crate::api::groups::get_group_information(
+                            api_account_pubkey,
+                            api_group_id,
+                        )
+                        .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1015,13 +1019,17 @@ fn wire__crate__api__groups__get_groups_informations_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_account_pubkey = <String>::sse_decode(&mut deserializer);
             let api_group_ids = <Vec<String>>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, crate::api::error::ApiError>(
                     (move || async move {
-                        let output_ok =
-                            crate::api::groups::get_groups_informations(api_group_ids).await?;
+                        let output_ok = crate::api::groups::get_groups_informations(
+                            api_account_pubkey,
+                            api_group_ids,
+                        )
+                        .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1127,11 +1135,14 @@ fn wire__crate__api__groups__group_group_type_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_that = <crate::api::groups::Group>::sse_decode(&mut deserializer);
+            let api_account_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, crate::api::error::ApiError>(
                     (move || async move {
-                        let output_ok = crate::api::groups::Group::group_type(&api_that).await?;
+                        let output_ok =
+                            crate::api::groups::Group::group_type(&api_that, api_account_pubkey)
+                                .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1249,12 +1260,16 @@ fn wire__crate__api__groups__group_is_direct_message_type_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_that = <crate::api::groups::Group>::sse_decode(&mut deserializer);
+            let api_account_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, crate::api::error::ApiError>(
                     (move || async move {
-                        let output_ok =
-                            crate::api::groups::Group::is_direct_message_type(&api_that).await?;
+                        let output_ok = crate::api::groups::Group::is_direct_message_type(
+                            &api_that,
+                            api_account_pubkey,
+                        )
+                        .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -1286,11 +1301,14 @@ fn wire__crate__api__groups__group_is_group_type_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_that = <crate::api::groups::Group>::sse_decode(&mut deserializer);
+            let api_account_pubkey = <String>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, crate::api::error::ApiError>(
                     (move || async move {
-                        let output_ok = crate::api::groups::Group::is_group_type(&api_that).await?;
+                        let output_ok =
+                            crate::api::groups::Group::is_group_type(&api_that, api_account_pubkey)
+                                .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -2519,8 +2537,8 @@ impl SseDecode for crate::api::groups::Group {
         let mut var_nostrGroupId = <String>::sse_decode(deserializer);
         let mut var_name = <String>::sse_decode(deserializer);
         let mut var_description = <String>::sse_decode(deserializer);
-        let mut var_imageUrl = <Option<String>>::sse_decode(deserializer);
-        let mut var_imageKey = <Option<Vec<u8>>>::sse_decode(deserializer);
+        let mut var_imageHash = <Option<[u8; 32]>>::sse_decode(deserializer);
+        let mut var_imageKey = <Option<[u8; 32]>>::sse_decode(deserializer);
         let mut var_adminPubkeys = <Vec<String>>::sse_decode(deserializer);
         let mut var_lastMessageId = <Option<String>>::sse_decode(deserializer);
         let mut var_lastMessageAt =
@@ -2532,7 +2550,7 @@ impl SseDecode for crate::api::groups::Group {
             nostr_group_id: var_nostrGroupId,
             name: var_name,
             description: var_description,
-            image_url: var_imageUrl,
+            image_hash: var_imageHash,
             image_key: var_imageKey,
             admin_pubkeys: var_adminPubkeys,
             last_message_id: var_lastMessageId,
@@ -2835,11 +2853,11 @@ impl SseDecode for Option<Vec<Tag>> {
     }
 }
 
-impl SseDecode for Option<Vec<u8>> {
+impl SseDecode for Option<[u8; 32]> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
-            return Some(<Vec<u8>>::sse_decode(deserializer));
+            return Some(<[u8; 32]>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -2919,6 +2937,14 @@ impl SseDecode for u8 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         deserializer.cursor.read_u8().unwrap()
+    }
+}
+
+impl SseDecode for [u8; 32] {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <Vec<u8>>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::from_vec_to_array(inner);
     }
 }
 
@@ -3420,7 +3446,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::groups::Group {
             self.nostr_group_id.into_into_dart().into_dart(),
             self.name.into_into_dart().into_dart(),
             self.description.into_into_dart().into_dart(),
-            self.image_url.into_into_dart().into_dart(),
+            self.image_hash.into_into_dart().into_dart(),
             self.image_key.into_into_dart().into_dart(),
             self.admin_pubkeys.into_into_dart().into_dart(),
             self.last_message_id.into_into_dart().into_dart(),
@@ -3943,8 +3969,8 @@ impl SseEncode for crate::api::groups::Group {
         <String>::sse_encode(self.nostr_group_id, serializer);
         <String>::sse_encode(self.name, serializer);
         <String>::sse_encode(self.description, serializer);
-        <Option<String>>::sse_encode(self.image_url, serializer);
-        <Option<Vec<u8>>>::sse_encode(self.image_key, serializer);
+        <Option<[u8; 32]>>::sse_encode(self.image_hash, serializer);
+        <Option<[u8; 32]>>::sse_encode(self.image_key, serializer);
         <Vec<String>>::sse_encode(self.admin_pubkeys, serializer);
         <Option<String>>::sse_encode(self.last_message_id, serializer);
         <Option<chrono::DateTime<chrono::Utc>>>::sse_encode(self.last_message_at, serializer);
@@ -4199,12 +4225,12 @@ impl SseEncode for Option<Vec<Tag>> {
     }
 }
 
-impl SseEncode for Option<Vec<u8>> {
+impl SseEncode for Option<[u8; 32]> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
-            <Vec<u8>>::sse_encode(value, serializer);
+            <[u8; 32]>::sse_encode(value, serializer);
         }
     }
 }
@@ -4267,6 +4293,19 @@ impl SseEncode for u8 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         serializer.cursor.write_u8(self).unwrap();
+    }
+}
+
+impl SseEncode for [u8; 32] {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<u8>>::sse_encode(
+            {
+                let boxed: Box<[_]> = Box::new(self);
+                boxed.into_vec()
+            },
+            serializer,
+        );
     }
 }
 

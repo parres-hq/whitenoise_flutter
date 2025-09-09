@@ -6,6 +6,7 @@
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import '../frb_generated.dart';
+import '../lib.dart';
 import 'error.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`
@@ -65,12 +66,19 @@ Future<void> removeMembersFromGroup({
   memberPubkeys: memberPubkeys,
 );
 
-Future<GroupInformation> getGroupInformation({required String groupId}) =>
-    RustLib.instance.api.crateApiGroupsGetGroupInformation(groupId: groupId);
+Future<GroupInformation> getGroupInformation({
+  required String accountPubkey,
+  required String groupId,
+}) => RustLib.instance.api.crateApiGroupsGetGroupInformation(
+  accountPubkey: accountPubkey,
+  groupId: groupId,
+);
 
 Future<List<GroupInformation>> getGroupsInformations({
+  required String accountPubkey,
   required List<String> groupIds,
 }) => RustLib.instance.api.crateApiGroupsGetGroupsInformations(
+  accountPubkey: accountPubkey,
   groupIds: groupIds,
 );
 
@@ -79,8 +87,8 @@ class Group {
   final String nostrGroupId;
   final String name;
   final String description;
-  final String? imageUrl;
-  final Uint8List? imageKey;
+  final U8Array32? imageHash;
+  final U8Array32? imageKey;
   final List<String> adminPubkeys;
   final String? lastMessageId;
   final DateTime? lastMessageAt;
@@ -92,7 +100,7 @@ class Group {
     required this.nostrGroupId,
     required this.name,
     required this.description,
-    this.imageUrl,
+    this.imageHash,
     this.imageKey,
     required this.adminPubkeys,
     this.lastMessageId,
@@ -101,17 +109,17 @@ class Group {
     required this.state,
   });
 
-  Future<GroupType> groupType() => RustLib.instance.api.crateApiGroupsGroupGroupType(
-    that: this,
-  );
+  Future<GroupType> groupType({required String accountPubkey}) =>
+      RustLib.instance.api.crateApiGroupsGroupGroupType(that: this, accountPubkey: accountPubkey);
 
-  Future<bool> isDirectMessageType() => RustLib.instance.api.crateApiGroupsGroupIsDirectMessageType(
-    that: this,
-  );
+  Future<bool> isDirectMessageType({required String accountPubkey}) =>
+      RustLib.instance.api.crateApiGroupsGroupIsDirectMessageType(
+        that: this,
+        accountPubkey: accountPubkey,
+      );
 
-  Future<bool> isGroupType() => RustLib.instance.api.crateApiGroupsGroupIsGroupType(
-    that: this,
-  );
+  Future<bool> isGroupType({required String accountPubkey}) =>
+      RustLib.instance.api.crateApiGroupsGroupIsGroupType(that: this, accountPubkey: accountPubkey);
 
   @override
   int get hashCode =>
@@ -119,7 +127,7 @@ class Group {
       nostrGroupId.hashCode ^
       name.hashCode ^
       description.hashCode ^
-      imageUrl.hashCode ^
+      imageHash.hashCode ^
       imageKey.hashCode ^
       adminPubkeys.hashCode ^
       lastMessageId.hashCode ^
@@ -136,7 +144,7 @@ class Group {
           nostrGroupId == other.nostrGroupId &&
           name == other.name &&
           description == other.description &&
-          imageUrl == other.imageUrl &&
+          imageHash == other.imageHash &&
           imageKey == other.imageKey &&
           adminPubkeys == other.adminPubkeys &&
           lastMessageId == other.lastMessageId &&
