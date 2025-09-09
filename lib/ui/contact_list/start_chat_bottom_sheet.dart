@@ -1,7 +1,7 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
@@ -273,14 +273,10 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                           visualState: WnButtonVisualState.secondary,
                           onPressed: _isAddingContact ? null : _toggleContact,
                           label: _isFollow() ? 'Remove Contact' : 'Add Contact',
-                          suffixIcon: SvgPicture.asset(
+                          suffixIcon: WnImage(
                             _isFollow() ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
-                            width: 18.w,
-                            height: 18.w,
-                            colorFilter: ColorFilter.mode(
-                              context.colors.primary,
-                              BlendMode.srcIn,
-                            ),
+                            size: 18.w,
+                            color: context.colors.primary,
                           ),
                         ),
                         Gap(8.h),
