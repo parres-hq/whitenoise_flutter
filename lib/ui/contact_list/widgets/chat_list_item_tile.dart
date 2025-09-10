@@ -95,7 +95,8 @@ class ChatListItemTile extends ConsumerWidget {
     if (snapshot.connectionState == ConnectionState.waiting) {
       return fallback.isEmpty ? 'Loading...' : fallback;
     }
-    return data?.displayName.isNotEmpty == true ? data!.displayName : fallback;
+    final String name = data?.displayName ?? '';
+    return name.isNotEmpty ? name : fallback;
   }
 
   String? _getDisplayImage(
