@@ -126,7 +126,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     );
   }
 
-  void _showAccountSwitcher({bool isDismissible = true, bool showSuccessToast = false}) {
+  Future<void> _showAccountSwitcher({
+    bool isDismissible = true,
+    bool showSuccessToast = false,
+  }) async {
+    if (_accounts.isEmpty) {
+      await _loadAccounts();
+    }
+
     final contactModels = _accounts.map(_accountToContactModel).toList();
 
     SwitchProfileBottomSheet.show(
@@ -249,7 +256,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         await _loadAccounts();
 
         if (mounted) {
-          _showAccountSwitcher(isDismissible: false, showSuccessToast: true);
+          await _showAccountSwitcher(isDismissible: false, showSuccessToast: true);
         }
       } else {
         ref.showSuccessToast('Account signed out. Switched to the other available account.');
@@ -306,7 +313,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                       label: 'Switch Account',
                       size: WnButtonSize.small,
                       visualState: WnButtonVisualState.secondary,
-                      onPressed: () => _showAccountSwitcher(),
+                      onPressed: () async => await _showAccountSwitcher(),
                       suffixIcon: WnImage(
                         AssetsPaths.icArrowsVertical,
 
