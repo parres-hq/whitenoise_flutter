@@ -15,7 +15,6 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts;
-import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
@@ -24,6 +23,7 @@ import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
+import 'package:whitenoise/ui/settings/widgets/active_account_tile.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
@@ -36,7 +36,6 @@ class GeneralSettingsScreen extends ConsumerStatefulWidget {
 
 class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   List<Account> _accounts = [];
-  Account? _currentAccount;
   Map<String, ContactModel> _accountContactModels = {}; // Cache for contact models
   ProviderSubscription<AsyncValue<ActiveAccountState>>? _activeAccountSubscription;
   PackageInfo? _packageInfo;
@@ -73,12 +72,8 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         contactModels[account.pubkey] = userProfileData;
       }
 
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-
       setState(() {
         _accounts = accounts;
-        _currentAccount = activeAccount;
         _accountContactModels = contactModels;
       });
     } catch (e) {
@@ -105,7 +100,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
       await ref.read(followsProvider.notifier).loadFollows();
       await ref.read(groupsProvider.notifier).loadGroups();
-      setState(() => _currentAccount = account);
 
       if (mounted) {
         ref.showSuccessToast('Account switched successfully');
@@ -306,18 +300,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Column(
                   children: [
-                    if (_currentAccount != null)
-                      ContactListTile(
-                        contact: _accountToContactModel(_currentAccount!),
-                        trailingIcon: WnImage(
-                          AssetsPaths.icQrCode,
-                          size: 20.w,
-                          color: context.colors.primary,
-                        ),
-                        onTap: () => context.push('${Routes.settings}/share_profile'),
-                      )
-                    else
-                      const Center(child: Text('No accounts found')),
+                    const ActiveAccountTile(),
                     Gap(12.h),
                     WnFilledButton(
                       label: 'Switch Account',
