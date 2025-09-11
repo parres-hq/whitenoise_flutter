@@ -111,7 +111,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     final isLoadingCompleted = wasLoading && !isLoading;
     if (isLoadingCompleted && currentMessages.isNotEmpty) {
       _handleScrollToBottom(hasAnimation: false);
-    } else if (currentMessages.length != previousMessages.length) {
+    } else if (previousMessages.isNotEmpty &&
+        currentMessages.length > previousMessages.length &&
+        currentMessages.last.id != previousMessages.last.id) {
       _handleScrollToBottom();
     }
   }
