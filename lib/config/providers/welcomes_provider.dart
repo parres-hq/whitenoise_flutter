@@ -59,13 +59,18 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      final String activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
       }
 
-      final welcomes = await pendingWelcomes(pubkey: activePubkey);
+      final String requestPubkey = activePubkey;
+      final welcomes = await pendingWelcomes(pubkey: requestPubkey);
+      if (requestPubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
 
       final welcomeByData = <String, Welcome>{};
       for (final welcome in welcomes) {
@@ -111,16 +116,20 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      final String activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found');
         return null;
       }
 
+      final String requestPubkey = activePubkey;
       final welcome = await findWelcomeByEventId(
-        pubkey: activePubkey,
+        pubkey: requestPubkey,
         welcomeEventId: welcomeEventId,
       );
+      if (requestPubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        return null;
+      }
 
       final updatedWelcomeById = Map<String, Welcome>.from(state.welcomeById ?? {});
       updatedWelcomeById[welcome.id] = welcome;
@@ -146,13 +155,17 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      final String activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found');
         return false;
       }
 
-      await acceptWelcome(pubkey: activePubkey, welcomeEventId: welcomeEventId);
+      final String requestPubkey = activePubkey;
+      await acceptWelcome(pubkey: requestPubkey, welcomeEventId: welcomeEventId);
+      if (requestPubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        return false;
+      }
 
       // Update the welcome state to accepted
       await _updateWelcomeState(welcomeEventId, WelcomeState.accepted);
@@ -178,13 +191,17 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      final String activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found');
         return false;
       }
 
-      await declineWelcome(pubkey: activePubkey, welcomeEventId: welcomeEventId);
+      final String requestPubkey = activePubkey;
+      await declineWelcome(pubkey: requestPubkey, welcomeEventId: welcomeEventId);
+      if (requestPubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        return false;
+      }
 
       // Update the welcome state to declined
       await _updateWelcomeState(welcomeEventId, WelcomeState.declined);
@@ -316,9 +333,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return;
       }
 
-      final String capturedPubkey = activePubkey;
-      final newWelcomes = await pendingWelcomes(pubkey: capturedPubkey);
-      if (capturedPubkey != ref.read(activePubkeyProvider)) {
+      final String requestPubkey = activePubkey;
+      final newWelcomes = await pendingWelcomes(pubkey: requestPubkey);
+      if (requestPubkey != ref.read(activePubkeyProvider)) {
         return;
       }
 
