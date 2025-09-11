@@ -267,3 +267,42 @@ pub async fn get_groups_informations(
             .collect(),
     )
 }
+
+#[frb]
+pub async fn update_group_data(
+    pubkey: String,
+    group_id: String,
+    name: Option<String>,
+    description: Option<String>,
+    image_url: Option<String>,
+    image_key: Option<Vec<u8>>,
+    clear_image: bool,
+) -> Result<(), ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&pubkey)?;
+    let group_id = group_id_from_string(&group_id)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+
+    let group_data = nostr_mls::groups::NostrGroupDataUpdate {
+        name,
+        description,
+        image_url: if clear_image {
+            Some(None)
+        } else {
+            image_url.map(Some)
+        },
+        image_key: if clear_image {
+            Some(None)
+        } else {
+            image_key.map(Some)
+        },
+        image_nonce: None, // Not exposed for now
+        relays: None,      // Not exposed for now
+        admins: None,      // Not exposed for now
+    };
+
+    whitenoise
+        .update_group_data(&account, &group_id, group_data)
+        .await
+        .map_err(ApiError::from)
+}

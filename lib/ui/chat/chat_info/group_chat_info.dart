@@ -119,8 +119,11 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     ref.listen(groupsProvider, (previous, next) {
       _loadMembers();
     });
+    final groupDescription = groupDetails?.description ?? '';
+    final isAdmin = groupAdmins.any((admin) => admin.publicKey == currentUserNpub);
 
     return SingleChildScrollView(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
           Gap(64.h),
@@ -138,48 +141,62 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             ),
           ),
           Gap(16.h),
-          Text(
-            'Group Description:',
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colors.mutedForeground,
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
+          if (groupDescription.isNotEmpty) ...[
+            Text(
+              'Group Description:',
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: context.colors.mutedForeground,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+              ),
             ),
-          ),
-          Text(
-            groupDetails?.description ?? '',
-            style: context.textTheme.bodyMedium?.copyWith(
-              color: context.colors.primary,
-              fontSize: 14.sp,
+            Text(
+              groupDetails?.description ?? '',
+              style: context.textTheme.bodyMedium?.copyWith(
+                color: context.colors.primary,
+                fontSize: 14.sp,
+              ),
             ),
-          ),
-          Gap(32.h),
+          ] else ...[
+            GestureDetector(
+              onTap: () {},
+              child: Text(
+                isAdmin ? 'Add Group Description...' : 'No Description',
+                style: context.textTheme.bodyMedium?.copyWith(
+                  color: context.colors.mutedForeground,
+                  fontSize: 16.sp,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+          Gap(36.h),
           // TODO: Reenable when we have a search and mute features
           // Row(
-          //   spacing: 12.w,
+          //   spacing: 8.w,
           //   children: [
           //     Expanded(
-          //       child: WnFilledButton.icon(
-          //         visualState: WnButtonVisualState.secondary,
-          //         icon: SvgPicture.asset(
-          //           AssetsPaths.icSearch,
-          //           width: 14.w,
-          //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-          //         ),
-          //         label: const Text('Search Chat'),
-          //         onPressed: () {},
+          //       child: WnIconButton(
+          //         onTap: () {},
+          //         iconPath: AssetsPaths.icSearch,
+          //         size: 44.w,
+          //         iconColor: context.colors.primary,
           //       ),
           //     ),
           //     Expanded(
-          //       child: WnFilledButton.icon(
-          //         visualState: WnButtonVisualState.secondary,
-          //         icon: SvgPicture.asset(
-          //           AssetsPaths.icMutedNotification,
-          //           width: 14.w,
-          //           colorFilter: ColorFilter.mode(context.colors.primary, BlendMode.srcIn),
-          //         ),
-          //         label: const Text('Mute Chat'),
-          //         onPressed: () {},
+          //       child: WnIconButton(
+          //         onTap: () {},
+          //         iconPath: AssetsPaths.icMutedNotification,
+          //         size: 44.w,
+          //         iconColor: context.colors.primary,
+          //       ),
+          //     ),
+          //     Expanded(
+          //       child: WnIconButton(
+          //         onTap: () {},
+          //         iconPath: AssetsPaths.icGroupSettings,
+          //         size: 44.w,
+          //         iconColor: context.colors.primary,
           //       ),
           //     ),
           //   ],
@@ -191,15 +208,12 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 32.w),
-                  child: Text(
-                    'Members:',
-                    style: context.textTheme.bodyLarge?.copyWith(
-                      color: context.colors.mutedForeground,
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                    ),
+                Text(
+                  'Members:',
+                  style: context.textTheme.bodyLarge?.copyWith(
+                    color: context.colors.mutedForeground,
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
                 Gap(16.h),
@@ -221,8 +235,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     final isAdmin = groupAdmins.any((admin) => admin.publicKey == member.publicKey);
     final isCurrentUser = currentUserNpub != null && currentUserNpub == member.publicKey;
     return ListTile(
-      contentPadding: EdgeInsets.symmetric(horizontal: 32.w),
-
+      contentPadding: EdgeInsets.zero,
       onTap:
           isCurrentUser
               ? null

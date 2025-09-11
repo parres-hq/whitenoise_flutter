@@ -72,6 +72,24 @@ Future<List<GroupInformation>> getGroupsInformations({
   groupIds: groupIds,
 );
 
+Future<void> updateGroupData({
+  required String pubkey,
+  required String groupId,
+  String? name,
+  String? description,
+  String? imageUrl,
+  Uint8List? imageKey,
+  required bool clearImage,
+}) => RustLib.instance.api.crateApiGroupsUpdateGroupData(
+  pubkey: pubkey,
+  groupId: groupId,
+  name: name,
+  description: description,
+  imageUrl: imageUrl,
+  imageKey: imageKey,
+  clearImage: clearImage,
+);
+
 class Group {
   final String mlsGroupId;
   final String nostrGroupId;

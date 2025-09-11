@@ -41,7 +41,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1672298469;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -284666074;
 
 // Section: executor
 
@@ -2090,6 +2090,57 @@ fn wire__crate__api__accounts__update_account_metadata_impl(
         },
     )
 }
+fn wire__crate__api__groups__update_group_data_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "update_group_data",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_group_id = <String>::sse_decode(&mut deserializer);
+            let api_name = <Option<String>>::sse_decode(&mut deserializer);
+            let api_description = <Option<String>>::sse_decode(&mut deserializer);
+            let api_image_url = <Option<String>>::sse_decode(&mut deserializer);
+            let api_image_key = <Option<Vec<u8>>>::sse_decode(&mut deserializer);
+            let api_clear_image = <bool>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, crate::api::error::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::api::groups::update_group_data(
+                            api_pubkey,
+                            api_group_id,
+                            api_name,
+                            api_description,
+                            api_image_url,
+                            api_image_key,
+                            api_clear_image,
+                        )
+                        .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__update_theme_mode_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -3270,16 +3321,17 @@ fn pde_ffi_dispatcher_primary_impl(
             rust_vec_len,
             data_len,
         ),
-        54 => wire__crate__api__update_theme_mode_impl(port, ptr, rust_vec_len, data_len),
-        55 => wire__crate__api__accounts__upload_account_profile_picture_impl(
+        54 => wire__crate__api__groups__update_group_data_impl(port, ptr, rust_vec_len, data_len),
+        55 => wire__crate__api__update_theme_mode_impl(port, ptr, rust_vec_len, data_len),
+        56 => wire__crate__api__accounts__upload_account_profile_picture_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        56 => wire__crate__api__users__user_has_key_package_impl(port, ptr, rust_vec_len, data_len),
-        57 => wire__crate__api__users__user_metadata_impl(port, ptr, rust_vec_len, data_len),
-        58 => wire__crate__api__users__user_relays_impl(port, ptr, rust_vec_len, data_len),
+        57 => wire__crate__api__users__user_has_key_package_impl(port, ptr, rust_vec_len, data_len),
+        58 => wire__crate__api__users__user_metadata_impl(port, ptr, rust_vec_len, data_len),
+        59 => wire__crate__api__users__user_relays_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }

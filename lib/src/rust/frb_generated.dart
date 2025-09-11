@@ -76,7 +76,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => -1672298469;
+  int get rustContentHash => -284666074;
 
   static const kDefaultExternalLibraryLoaderConfig = ExternalLibraryLoaderConfig(
     stem: 'rust_lib_whitenoise',
@@ -263,6 +263,16 @@ abstract class RustLibApi extends BaseApi {
   Future<void> crateApiAccountsUpdateAccountMetadata({
     required String pubkey,
     required FlutterMetadata metadata,
+  });
+
+  Future<void> crateApiGroupsUpdateGroupData({
+    required String pubkey,
+    required String groupId,
+    String? name,
+    String? description,
+    String? imageUrl,
+    Uint8List? imageKey,
+    required bool clearImage,
   });
 
   Future<void> crateApiUpdateThemeMode({required ThemeMode themeMode});
@@ -2072,6 +2082,66 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
+  Future<void> crateApiGroupsUpdateGroupData({
+    required String pubkey,
+    required String groupId,
+    String? name,
+    String? description,
+    String? imageUrl,
+    Uint8List? imageKey,
+    required bool clearImage,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(pubkey, serializer);
+          sse_encode_String(groupId, serializer);
+          sse_encode_opt_String(name, serializer);
+          sse_encode_opt_String(description, serializer);
+          sse_encode_opt_String(imageUrl, serializer);
+          sse_encode_opt_list_prim_u_8_strict(imageKey, serializer);
+          sse_encode_bool(clearImage, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 54,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_api_error,
+        ),
+        constMeta: kCrateApiGroupsUpdateGroupDataConstMeta,
+        argValues: [
+          pubkey,
+          groupId,
+          name,
+          description,
+          imageUrl,
+          imageKey,
+          clearImage,
+        ],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGroupsUpdateGroupDataConstMeta => const TaskConstMeta(
+    debugName: 'update_group_data',
+    argNames: [
+      'pubkey',
+      'groupId',
+      'name',
+      'description',
+      'imageUrl',
+      'imageKey',
+      'clearImage',
+    ],
+  );
+
+  @override
   Future<void> crateApiUpdateThemeMode({required ThemeMode themeMode}) {
     return handler.executeNormal(
       NormalTask(
@@ -2084,7 +2154,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 54,
+            funcId: 55,
             port: port_,
           );
         },
@@ -2122,7 +2192,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 55,
+            funcId: 56,
             port: port_,
           );
         },
@@ -2152,7 +2222,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 56,
+            funcId: 57,
             port: port_,
           );
         },
@@ -2182,7 +2252,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 57,
+            funcId: 58,
             port: port_,
           );
         },
@@ -2219,7 +2289,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 58,
+            funcId: 59,
             port: port_,
           );
         },
