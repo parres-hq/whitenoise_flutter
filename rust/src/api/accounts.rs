@@ -168,6 +168,28 @@ pub async fn account_key_package(pubkey: String) -> Result<Option<Event>, ApiErr
 }
 
 #[frb]
+pub async fn account_key_packages(account_pubkey: String) -> Result<Vec<Event>, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    let key_packages = whitenoise
+        .find_all_key_packages_for_account(&account)
+        .await?;
+    Ok(key_packages)
+}
+
+#[frb]
+pub async fn delete_account_key_packages(account_pubkey: String) -> Result<usize, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    let deleted_count = whitenoise
+        .delete_all_key_packages_for_account(&account, true)
+        .await?;
+    Ok(deleted_count)
+}
+
+#[frb]
 pub async fn account_follows(pubkey: String) -> Result<Vec<User>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::parse(&pubkey)?;

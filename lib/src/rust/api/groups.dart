@@ -109,8 +109,10 @@ class Group {
     required this.state,
   });
 
-  Future<GroupType> groupType({required String accountPubkey}) =>
-      RustLib.instance.api.crateApiGroupsGroupGroupType(that: this, accountPubkey: accountPubkey);
+  Future<GroupType> groupType({required String accountPubkey}) => RustLib
+      .instance
+      .api
+      .crateApiGroupsGroupGroupType(that: this, accountPubkey: accountPubkey);
 
   Future<bool> isDirectMessageType({required String accountPubkey}) =>
       RustLib.instance.api.crateApiGroupsGroupIsDirectMessageType(
@@ -118,8 +120,10 @@ class Group {
         accountPubkey: accountPubkey,
       );
 
-  Future<bool> isGroupType({required String accountPubkey}) =>
-      RustLib.instance.api.crateApiGroupsGroupIsGroupType(that: this, accountPubkey: accountPubkey);
+  Future<bool> isGroupType({required String accountPubkey}) => RustLib
+      .instance
+      .api
+      .crateApiGroupsGroupIsGroupType(that: this, accountPubkey: accountPubkey);
 
   @override
   int get hashCode =>
@@ -166,7 +170,9 @@ class GroupInformation {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is GroupInformation && runtimeType == other.runtimeType && groupType == other.groupType;
+      other is GroupInformation &&
+          runtimeType == other.runtimeType &&
+          groupType == other.groupType;
 }
 
 enum GroupState {

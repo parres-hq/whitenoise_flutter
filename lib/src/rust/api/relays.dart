@@ -11,11 +11,14 @@ import 'error.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `from`
 
-Future<RelayType> relayTypeNip65() => RustLib.instance.api.crateApiRelaysRelayTypeNip65();
+Future<RelayType> relayTypeNip65() =>
+    RustLib.instance.api.crateApiRelaysRelayTypeNip65();
 
-Future<RelayType> relayTypeInbox() => RustLib.instance.api.crateApiRelaysRelayTypeInbox();
+Future<RelayType> relayTypeInbox() =>
+    RustLib.instance.api.crateApiRelaysRelayTypeInbox();
 
-Future<RelayType> relayTypeKeyPackage() => RustLib.instance.api.crateApiRelaysRelayTypeKeyPackage();
+Future<RelayType> relayTypeKeyPackage() =>
+    RustLib.instance.api.crateApiRelaysRelayTypeKeyPackage();
 
 Future<List<(String, String)>> fetchRelayStatus({required String pubkey}) =>
     RustLib.instance.api.crateApiRelaysFetchRelayStatus(pubkey: pubkey);

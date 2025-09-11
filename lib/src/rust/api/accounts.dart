@@ -13,15 +13,19 @@ import 'users.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `from`
 
-Future<List<Account>> getAccounts() => RustLib.instance.api.crateApiAccountsGetAccounts();
+Future<List<Account>> getAccounts() =>
+    RustLib.instance.api.crateApiAccountsGetAccounts();
 
 Future<Account> getAccount({required String pubkey}) =>
     RustLib.instance.api.crateApiAccountsGetAccount(pubkey: pubkey);
 
-Future<Account> createIdentity() => RustLib.instance.api.crateApiAccountsCreateIdentity();
+Future<Account> createIdentity() =>
+    RustLib.instance.api.crateApiAccountsCreateIdentity();
 
-Future<Account> login({required String nsecOrHexPrivkey}) =>
-    RustLib.instance.api.crateApiAccountsLogin(nsecOrHexPrivkey: nsecOrHexPrivkey);
+Future<Account> login({required String nsecOrHexPrivkey}) => RustLib
+    .instance
+    .api
+    .crateApiAccountsLogin(nsecOrHexPrivkey: nsecOrHexPrivkey);
 
 Future<void> logout({required String pubkey}) =>
     RustLib.instance.api.crateApiAccountsLogout(pubkey: pubkey);
@@ -83,6 +87,16 @@ Future<void> removeAccountRelay({
 Future<Event?> accountKeyPackage({required String pubkey}) =>
     RustLib.instance.api.crateApiAccountsAccountKeyPackage(pubkey: pubkey);
 
+Future<List<Event>> accountKeyPackages({required String accountPubkey}) =>
+    RustLib.instance.api.crateApiAccountsAccountKeyPackages(
+      accountPubkey: accountPubkey,
+    );
+
+Future<BigInt> deleteAccountKeyPackages({required String accountPubkey}) =>
+    RustLib.instance.api.crateApiAccountsDeleteAccountKeyPackages(
+      accountPubkey: accountPubkey,
+    );
+
 Future<List<User>> accountFollows({required String pubkey}) =>
     RustLib.instance.api.crateApiAccountsAccountFollows(pubkey: pubkey);
 
@@ -123,7 +137,10 @@ class Account {
 
   @override
   int get hashCode =>
-      pubkey.hashCode ^ lastSyncedAt.hashCode ^ createdAt.hashCode ^ updatedAt.hashCode;
+      pubkey.hashCode ^
+      lastSyncedAt.hashCode ^
+      createdAt.hashCode ^
+      updatedAt.hashCode;
 
   @override
   bool operator ==(Object other) =>
