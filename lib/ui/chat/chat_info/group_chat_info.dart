@@ -119,8 +119,13 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     ref.listen(groupsProvider, (previous, next) {
       _loadMembers();
     });
+    final isAdmin = groupAdmins.any((admin) {
+      final hexAdminKey = PubkeyFormatter(pubkey: admin.publicKey).toHex();
+      final hexCurrentUserKey = PubkeyFormatter(pubkey: currentUserNpub).toHex();
+      return hexAdminKey == hexCurrentUserKey;
+    });
+
     final groupDescription = groupDetails?.description ?? '';
-    final isAdmin = groupAdmins.any((admin) => admin.publicKey == currentUserNpub);
 
     return SingleChildScrollView(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -172,48 +177,95 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
           ],
           Gap(36.h),
           // TODO: Reenable when we have a search and mute features
-          // Row(
-          //   spacing: 8.w,
-          //   children: [
-          //     Expanded(
-          //       child: WnIconButton(
-          //         onTap: () {},
-          //         iconPath: AssetsPaths.icSearch,
-          //         size: 44.w,
-          //         iconColor: context.colors.primary,
-          //       ),
-          //     ),
-          //     Expanded(
-          //       child: WnIconButton(
-          //         onTap: () {},
-          //         iconPath: AssetsPaths.icMutedNotification,
-          //         size: 44.w,
-          //         iconColor: context.colors.primary,
-          //       ),
-          //     ),
-          //     Expanded(
-          //       child: WnIconButton(
-          //         onTap: () {},
-          //         iconPath: AssetsPaths.icGroupSettings,
-          //         size: 44.w,
-          //         iconColor: context.colors.primary,
-          //       ),
-          //     ),
-          //   ],
-          // ),
-          // Gap(32.h),
+          if (isAdmin) ...[
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Column(
+                children: [
+                  Row(
+                    spacing: 8.w,
+                    children: [
+                      Expanded(
+                        child: WnIconButton(
+                          iconPath: AssetsPaths.icSearch,
+                          onTap: () {},
+                        ),
+                      ),
+                      Expanded(
+                        child: WnIconButton(
+                          iconPath: AssetsPaths.icMutedNotification,
+                          onTap: () {},
+                        ),
+                      ),
+                      Expanded(
+                        child: WnIconButton(
+                          iconPath: AssetsPaths.icGroupSettings,
+                          onTap: () {},
+                        ),
+                      ),
+                    ],
+                  ),
+                  Gap(8.h),
+                  WnFilledButton(
+                    size: WnButtonSize.small,
+                    prefixIcon: WnImage(
+                      AssetsPaths.icAddUser,
+                      width: 14.w,
+                      color: context.colors.primaryForeground,
+                    ),
+                    label: 'Add Member',
+                    onPressed: () {},
+                  ),
+                ],
+              ),
+            ),
+          ] else ...[
+            Row(
+              spacing: 12.w,
+              children: [
+                Expanded(
+                  child: WnFilledButton(
+                    visualState: WnButtonVisualState.secondary,
+                    suffixIcon: WnImage(
+                      AssetsPaths.icSearch,
+                      width: 14.w,
+                      color: context.colors.primary,
+                    ),
+                    label: 'Search Chat',
+                    onPressed: () {},
+                  ),
+                ),
+                Expanded(
+                  child: WnFilledButton(
+                    visualState: WnButtonVisualState.secondary,
+                    suffixIcon: WnImage(
+                      AssetsPaths.icMutedNotification,
+                      width: 14.w,
+                      color: context.colors.primary,
+                    ),
+                    label: 'Mute Chat',
+                    onPressed: () {},
+                  ),
+                ),
+              ],
+            ),
+          ],
+          Gap(32.h),
           if (isLoadingMembers)
             const CircularProgressIndicator()
           else if (groupMembers.isNotEmpty) ...[
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Members:',
-                  style: context.textTheme.bodyLarge?.copyWith(
-                    color: context.colors.mutedForeground,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Text(
+                    'Members:',
+                    style: context.textTheme.bodyLarge?.copyWith(
+                      color: context.colors.mutedForeground,
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
                 Gap(16.h),
@@ -235,7 +287,8 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     final isAdmin = groupAdmins.any((admin) => admin.publicKey == member.publicKey);
     final isCurrentUser = currentUserNpub != null && currentUserNpub == member.publicKey;
     return ListTile(
-      contentPadding: EdgeInsets.zero,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
+
       onTap:
           isCurrentUser
               ? null

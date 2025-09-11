@@ -20,6 +20,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
