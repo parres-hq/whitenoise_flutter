@@ -53,16 +53,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
         ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
-        _handleScrollToBottom(hasAnimation: false);
       }
     });
 
     _chatSubscription = ref.listenManual(chatProvider, (previous, next) {
-      final currentMessages = next.groupMessages[widget.groupId] ?? [];
-      final previousMessages = previous?.groupMessages[widget.groupId] ?? [];
-      if (currentMessages.length != previousMessages.length) {
-        _handleScrollToBottom();
-      }
+      _handleScrollOnChatStateChange(previous, next);
     });
   }
 
@@ -103,6 +98,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         _scrollController.jumpTo(max);
       }
     });
+  }
+
+  void _handleScrollOnChatStateChange(
+    ChatState? previous,
+    ChatState next,
+  ) {
+    final currentMessages = next.groupMessages[widget.groupId] ?? [];
+    final previousMessages = previous?.groupMessages[widget.groupId] ?? [];
+    final wasLoading = previous?.isGroupLoading(widget.groupId) ?? false;
+    final isLoading = next.isGroupLoading(widget.groupId);
+    final isLoadingCompleted = wasLoading && !isLoading;
+    if (isLoadingCompleted && currentMessages.isNotEmpty) {
+      _handleScrollToBottom(hasAnimation: false);
+    } else if (previousMessages.isNotEmpty &&
+        currentMessages.length > previousMessages.length &&
+        currentMessages.last.id != previousMessages.last.id) {
+      _handleScrollToBottom();
+    }
   }
 
   void _scrollToMessage(String messageId) {
