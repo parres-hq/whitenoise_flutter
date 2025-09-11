@@ -221,7 +221,7 @@ pub async fn publish_account_key_package(account_pubkey: String) -> Result<(), A
 pub async fn delete_account_key_package(
     account_pubkey: String,
     key_package_id: String,
-) -> Result<(), ApiError> {
+) -> Result<bool, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::parse(&account_pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;

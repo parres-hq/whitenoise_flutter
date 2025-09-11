@@ -44,34 +44,36 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
     final confirmed = await showDialog<bool>(
       context: context,
       barrierColor: Colors.transparent,
-      builder: (dialogContext) => WnDialog(
-        title: 'Delete All Key Packages',
-        content: 'This will delete all key packages for the active account. Other users won\'t be able to invite you to new encrypted conversations until you generate new key packages. This action cannot be undone.',
-        actions: Row(
-          children: [
-            Expanded(
-              child: WnFilledButton(
-                label: 'Cancel',
-                visualState: WnButtonVisualState.secondary,
-                size: WnButtonSize.small,
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-              ),
-            ),
-            Gap(8.w),
-            Expanded(
-              child: WnFilledButton(
-                visualState: WnButtonVisualState.destructive,
-                size: WnButtonSize.small,
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                label: 'Delete',
-                labelTextStyle: WnButtonSize.small.textStyle().copyWith(
-                  color: context.colors.solidNeutralWhite,
+      builder:
+          (dialogContext) => WnDialog(
+            title: 'Delete All Key Packages',
+            content:
+                'This will delete all key packages for the active account. Other users won\'t be able to invite you to new encrypted conversations until you generate new key packages. This action cannot be undone.',
+            actions: Row(
+              children: [
+                Expanded(
+                  child: WnFilledButton(
+                    label: 'Cancel',
+                    visualState: WnButtonVisualState.secondary,
+                    size: WnButtonSize.small,
+                    onPressed: () => Navigator.of(dialogContext).pop(false),
+                  ),
                 ),
-              ),
+                Gap(8.w),
+                Expanded(
+                  child: WnFilledButton(
+                    visualState: WnButtonVisualState.destructive,
+                    size: WnButtonSize.small,
+                    onPressed: () => Navigator.of(dialogContext).pop(true),
+                    label: 'Delete',
+                    labelTextStyle: WnButtonSize.small.textStyle().copyWith(
+                      color: context.colors.solidNeutralWhite,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
 
     if (confirmed != true) return;
@@ -166,34 +168,36 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
     final confirmed = await showDialog<bool>(
       context: context,
       barrierColor: Colors.transparent,
-      builder: (dialogContext) => WnDialog(
-        title: 'Delete Key Package',
-        content: 'This will delete key package #${index + 1}. Other users won\'t be able to use this key package to invite you to new encrypted conversations. This action cannot be undone.',
-        actions: Row(
-          children: [
-            Expanded(
-              child: WnFilledButton(
-                label: 'Cancel',
-                visualState: WnButtonVisualState.secondary,
-                size: WnButtonSize.small,
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-              ),
-            ),
-            Gap(8.w),
-            Expanded(
-              child: WnFilledButton(
-                visualState: WnButtonVisualState.destructive,
-                size: WnButtonSize.small,
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                label: 'Delete',
-                labelTextStyle: WnButtonSize.small.textStyle().copyWith(
-                  color: context.colors.solidNeutralWhite,
+      builder:
+          (dialogContext) => WnDialog(
+            title: 'Delete Key Package',
+            content:
+                'This will delete key package #${index + 1}. Other users won\'t be able to use this key package to invite you to new encrypted conversations. This action cannot be undone.',
+            actions: Row(
+              children: [
+                Expanded(
+                  child: WnFilledButton(
+                    label: 'Cancel',
+                    visualState: WnButtonVisualState.secondary,
+                    size: WnButtonSize.small,
+                    onPressed: () => Navigator.of(dialogContext).pop(false),
+                  ),
                 ),
-              ),
+                Gap(8.w),
+                Expanded(
+                  child: WnFilledButton(
+                    visualState: WnButtonVisualState.destructive,
+                    size: WnButtonSize.small,
+                    onPressed: () => Navigator.of(dialogContext).pop(true),
+                    label: 'Delete',
+                    labelTextStyle: WnButtonSize.small.textStyle().copyWith(
+                      color: context.colors.solidNeutralWhite,
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
     );
 
     if (confirmed != true) return;
@@ -373,16 +377,22 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                               ),
                                             ),
                                             InkWell(
-                                              onTap: _isLoading ? null : () => _deleteKeyPackage(keyPackage.id, index),
+                                              onTap:
+                                                  _isLoading
+                                                      ? null
+                                                      : () =>
+                                                          _deleteKeyPackage(keyPackage.id, index),
                                               borderRadius: BorderRadius.circular(4.r),
                                               child: Padding(
                                                 padding: EdgeInsets.all(4.w),
                                                 child: WnImage(
                                                   AssetsPaths.icDelete,
                                                   size: 16.w,
-                                                  color: _isLoading
-                                                    ? context.colors.mutedForeground.withOpacity(0.5)
-                                                    : context.colors.destructive,
+                                                  color:
+                                                      _isLoading
+                                                          ? context.colors.mutedForeground
+                                                              .withValues(alpha: 0.5)
+                                                          : context.colors.destructive,
                                                 ),
                                               ),
                                             ),
