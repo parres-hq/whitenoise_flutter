@@ -23,8 +23,8 @@ nostr-sdk = { version = "0.43.0", git="https://github.com/rust-nostr/nostr", rev
 
 thiserror = "2.0.12"
 
-# whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "fe2891b9f235be35b84e928018f213382baf0c50" }
-whitenoise = { version = "0.1.0", path = "../../whitenoise" }
+whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "0bff7e76f34901a1a610a187567929dccd3ebac7" }
+# whitenoise = { version = "0.1.0", path = "../../whitenoise" }
 
 [lints.rust]
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }

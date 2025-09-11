@@ -201,7 +201,7 @@ pub async fn account_key_packages(account_pubkey: String) -> Result<Vec<FlutterE
     let pubkey = PublicKey::parse(&account_pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
     let key_packages = whitenoise
-        .find_all_key_packages_for_account(&account)
+        .fetch_all_key_packages_for_account(&account)
         .await?;
     Ok(key_packages.into_iter().map(|e| e.into()).collect())
 }
