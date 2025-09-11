@@ -85,36 +85,27 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
             color: context.colors.neutral,
             child: Column(
               children: [
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Column(
-                    children: [
-                      Gap(24.h),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () => context.pop(),
-                            child: WnImage(
-                              AssetsPaths.icChevronLeft,
-                              color: context.colors.primary,
-
-                              width: 24.w,
-                              height: 24.w,
-                            ),
-                          ),
-                          Gap(16.w),
-                          Text(
-                            'Profile Keys',
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.mutedForeground,
-                            ),
-                          ),
-                        ],
+                Gap(24.h),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => context.pop(),
+                      icon: WnImage(
+                        AssetsPaths.icChevronLeft,
+                        width: 24.w,
+                        height: 24.w,
+                        color: context.colors.primary,
                       ),
-                    ],
-                  ),
+                    ),
+                    Text(
+                      'Profile Keys',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w600,
+                        color: context.colors.mutedForeground,
+                      ),
+                    ),
+                  ],
                 ),
                 Gap(29.h),
                 Expanded(

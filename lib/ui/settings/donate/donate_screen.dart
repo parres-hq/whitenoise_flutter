@@ -39,6 +39,29 @@ class DonateScreen extends ConsumerWidget {
             color: context.colors.neutral,
             child: Column(
               children: [
+                Gap(24.h),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => context.pop(),
+                      icon: WnImage(
+                        AssetsPaths.icChevronLeft,
+                        width: 24.w,
+                        height: 24.w,
+                        color: context.colors.primary,
+                      ),
+                    ),
+                    Text(
+                      'Donate to White Noise',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w600,
+                        color: context.colors.mutedForeground,
+                      ),
+                    ),
+                  ],
+                ),
+                Gap(29.h),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
@@ -50,30 +73,6 @@ class DonateScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Gap(24.h),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () => context.pop(),
-                                child: WnImage(
-                                  AssetsPaths.icChevronLeft,
-                                  width: 24.w,
-                                  height: 24.w,
-                                  color: context.colors.primary,
-                                ),
-                              ),
-                              Gap(16.w),
-                              Text(
-                                'Donate to White Noise',
-                                style: TextStyle(
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: context.colors.mutedForeground,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Gap(32.h),
                           Text(
                             'As a not-for-profit, White Noise exists solely for your privacy and freedom, not for profit. Your support keeps us independent and uncompromised.',
                             style: TextStyle(

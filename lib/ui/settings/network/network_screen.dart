@@ -142,15 +142,16 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                 color: context.colors.neutral,
                 child: Column(
                   children: [
-                    Gap(20.h),
+                    Gap(24.h),
                     Row(
                       children: [
                         IconButton(
                           onPressed: () => Navigator.of(context).pop(),
                           icon: WnImage(
                             AssetsPaths.icChevronLeft,
+                            width: 24.w,
+                            height: 24.w,
                             color: context.colors.primary,
-                            size: 24.w,
                           ),
                         ),
                         Text(

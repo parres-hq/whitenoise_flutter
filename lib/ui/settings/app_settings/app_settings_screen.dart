@@ -188,6 +188,29 @@ class AppSettingsScreen extends ConsumerWidget {
             color: context.colors.neutral,
             child: Column(
               children: [
+                Gap(24.h),
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => context.pop(),
+                      icon: WnImage(
+                        AssetsPaths.icChevronLeft,
+                        width: 24.w,
+                        height: 24.w,
+                        color: context.colors.primary,
+                      ),
+                    ),
+                    Text(
+                      'App Settings',
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w600,
+                        color: context.colors.mutedForeground,
+                      ),
+                    ),
+                  ],
+                ),
+                Gap(29.h),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Padding(
@@ -199,29 +222,6 @@ class AppSettingsScreen extends ConsumerWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Gap(24.h),
-                          Row(
-                            children: [
-                              GestureDetector(
-                                onTap: () => context.pop(),
-                                child: WnImage(
-                                  AssetsPaths.icChevronLeft,
-                                  size: 24.w,
-                                  color: context.colors.primary,
-                                ),
-                              ),
-                              Gap(16.w),
-                              Text(
-                                'App Settings',
-                                style: TextStyle(
-                                  fontSize: 18.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: context.colors.mutedForeground,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Gap(32.h),
                           Text(
                             'Theme',
                             style: TextStyle(
@@ -239,7 +239,7 @@ class AppSettingsScreen extends ConsumerWidget {
                           ),
                           Gap(16.h),
                           Text(
-                            'Delete App Data',
+                            'Danger Zone',
                             style: TextStyle(
                               fontSize: 14.sp,
                               fontWeight: FontWeight.w600,
@@ -254,12 +254,6 @@ class AppSettingsScreen extends ConsumerWidget {
                             ),
                             visualState: WnButtonVisualState.destructive,
                             onPressed: () => _deleteAllData(context, ref),
-                            suffixIcon: WnImage(
-                              AssetsPaths.icDelete,
-                              size: 18.w,
-
-                              color: context.colors.solidNeutralWhite,
-                            ),
                           ),
                         ],
                       ),
