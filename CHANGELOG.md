@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixes pubkeys formatting and pubkeys comparisons in different format
 - Fixes follow/unfollow in start chat sheet
 - Fixes wrong relay status error when switching accounts
+- Fixes scroll to bototm inside of chats
 
 ### Security
 
