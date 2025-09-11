@@ -32,6 +32,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
   final Logger logger = Logger('ShareProfileQrScanScreen');
   late MobileScannerController _controller;
   StreamSubscription<BarcodeCapture>? _subscription;
+  Timer? _cameraRestartDebouncer;
 
   @override
   void initState() {
@@ -48,6 +49,8 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_subscription?.cancel());
     _subscription = null;
+    _cameraRestartDebouncer?.cancel();
+    _cameraRestartDebouncer = null;
     _controller.dispose();
     super.dispose();
   }
@@ -227,13 +230,16 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
       logger.severe(errorMessage, e, s);
       ref.showErrorToast(errorMessage);
     } finally {
-      _delayedCameraRestart();
+      _debouncedCameraRestart();
     }
   }
 
-  void _delayedCameraRestart() => Future.delayed(const Duration(milliseconds: 300), () {
-    if (mounted) {
-      _controller.start();
-    }
-  });
+  void _debouncedCameraRestart() {
+    _cameraRestartDebouncer?.cancel();
+    _cameraRestartDebouncer = Timer(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        _controller.start();
+      }
+    });
+  }
 }
