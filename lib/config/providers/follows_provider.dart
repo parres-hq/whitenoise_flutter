@@ -68,7 +68,6 @@ class FollowsNotifier extends Notifier<FollowsState> {
 
   Future<void> loadFollows() async {
     if (state.isLoading) return;
-
     state = state.copyWith(isLoading: true);
 
     if (!_isAuthAvailable()) {
