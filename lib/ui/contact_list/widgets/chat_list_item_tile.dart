@@ -41,7 +41,6 @@ class ChatListItemTile extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     final groupType = groupsNotifier.getCachedGroupType(group.mlsGroupId);
-
     // If group type is not cached yet, use FutureBuilder to handle the async loading
     if (groupType == null) {
       return FutureBuilder<GroupType>(
@@ -70,34 +69,44 @@ class ChatListItemTile extends ConsumerWidget {
     GroupType groupType,
   ) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
+    final fallbackName = groupsNotifier.getGroupDisplayName(group.mlsGroupId) ?? group.name;
+    final fallbackImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
 
-    // For DM chats, get the other member and use metadata cache for better user info
-    if (groupType == GroupType.directMessage) {
-      return FutureBuilder(
-        future: ref.getDMChatData(group.mlsGroupId),
-        builder: (context, AsyncSnapshot<DMChatData?> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Show loading state with basic info
-            return _buildChatTileContent(context, group.name, null, group);
-          }
-
-          final data = snapshot.data;
-          if (data == null) {
-            // Fallback to existing logic if no data
-            final displayName = groupsNotifier.getGroupDisplayName(group.mlsGroupId) ?? group.name;
-            final displayImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
-            return _buildChatTileContent(context, displayName, displayImage, group);
-          }
-
-          return _buildChatTileContent(context, data.displayName, data.displayImage, group);
-        },
-      );
+    // Non-DM chats use fallback data directly
+    if (groupType != GroupType.directMessage) {
+      return _buildChatTileContent(context, fallbackName, fallbackImage, group);
     }
 
-    final displayName = groupsNotifier.getGroupDisplayName(group.mlsGroupId) ?? group.name;
-    final displayImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
+    // DM chats get enhanced user info
+    return FutureBuilder<DMChatData?>(
+      future: ref.getDMChatData(group.mlsGroupId),
+      builder: (context, snapshot) {
+        final data = snapshot.data;
 
-    return _buildChatTileContent(context, displayName, displayImage, group);
+        final displayName = _getDisplayName(snapshot, data, fallbackName);
+        final displayImage = _getDisplayImage(snapshot, data, fallbackImage);
+
+        return _buildChatTileContent(context, displayName, displayImage, group);
+      },
+    );
+  }
+
+  String _getDisplayName(AsyncSnapshot<DMChatData?> snapshot, DMChatData? data, String fallback) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return fallback.isEmpty ? 'Loading...' : fallback;
+    }
+    final String name = data?.displayName ?? '';
+    return name.isNotEmpty ? name : fallback;
+  }
+
+  String? _getDisplayImage(
+    AsyncSnapshot<DMChatData?> snapshot,
+    DMChatData? data,
+    String? fallback,
+  ) {
+    return snapshot.connectionState == ConnectionState.waiting
+        ? fallback
+        : (data?.displayImage ?? fallback);
   }
 
   Widget _buildChatTileContent(
