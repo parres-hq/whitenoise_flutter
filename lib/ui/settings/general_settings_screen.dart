@@ -37,20 +37,37 @@ class GeneralSettingsScreen extends ConsumerStatefulWidget {
 class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   List<Account> _accounts = [];
   Account? _currentAccount;
-  Map<String, ContactModel> _accountContactModels = {}; // Cache for contact models
+  final Map<String, ContactModel> _accountContactModels = {}; // Cache for contact models
   ProviderSubscription<AsyncValue<ActiveAccountState>>? _activeAccountSubscription;
   PackageInfo? _packageInfo;
+
+  // Loading states
+  bool _isLoadingAccounts = false;
+  String? _loadingError;
+  bool _isLoadingInProgress = false; // Prevent multiple simultaneous loads
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadAccounts();
+      _loadFromProviders();
       _loadPackageInfo();
       _activeAccountSubscription = ref.listenManual(
         activeAccountProvider,
         (previous, next) {
-          if (next is AsyncData) {
-            _loadAccounts();
+          // Reload when account data changes (including metadata updates)
+          if (next is AsyncData && !_isLoadingInProgress) {
+            final newAccount = next.value?.account;
+            final newMetadata = next.value?.metadata;
+
+            // Check if account changed OR metadata updated
+            final accountChanged = newAccount?.pubkey != _currentAccount?.pubkey;
+            final metadataChanged =
+                previous is AsyncData<ActiveAccountState> && previous.value.metadata != newMetadata;
+
+            if (accountChanged || metadataChanged) {
+              _refreshAccountData();
+            }
           }
         },
       );
@@ -63,29 +80,156 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     super.dispose();
   }
 
-  Future<void> _loadAccounts() async {
+  // Load from existing providers instead of making new bridge calls
+  Future<void> _loadFromProviders() async {
+    if (!mounted) return;
+
+    // Get active account from provider (already loaded at app startup)
+    final activeAccountState = ref.read(activeAccountProvider);
+    final activeAccount = activeAccountState.value?.account;
+    final activeMetadata = activeAccountState.value?.metadata;
+
+    if (activeAccount != null) {
+      setState(() {
+        _currentAccount = activeAccount;
+      });
+
+      // If we have metadata, create ContactModel immediately
+      if (activeMetadata != null) {
+        try {
+          final contactModel = ContactModel.fromMetadata(
+            pubkey: activeAccount.pubkey,
+            metadata: activeMetadata,
+          );
+          setState(() {
+            _accountContactModels[activeAccount.pubkey] = contactModel;
+          });
+        } catch (e) {
+          debugPrint('Failed to create ContactModel from metadata: $e');
+        }
+      }
+
+      // Only load additional accounts if we need the full list for switching
+      _loadAccountsLazilyIfNeeded();
+    } else {
+      // Fallback: If no account in provider, load from API
+      _loadAccountsFromApi();
+    }
+  }
+
+  // Lazy load full account list only when needed
+  Future<void> _loadAccountsLazilyIfNeeded() async {
+    if (_accounts.isEmpty) {
+      try {
+        final accounts = await getAccounts();
+        if (mounted) {
+          setState(() {
+            _accounts = accounts;
+          });
+
+          // Load contact models for non-active accounts using userProfileDataProvider
+          _loadContactModelsForOtherAccounts(accounts);
+        }
+      } catch (e) {
+        // Silently handle - account switching might not work but current account will show
+        debugPrint('Failed to load accounts list: $e');
+      }
+    }
+  }
+
+  // Load contact models for accounts that don't have metadata yet
+  Future<void> _loadContactModelsForOtherAccounts(List<Account> accounts) async {
+    final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+
+    for (final account in accounts) {
+      // Skip if we already have this account's contact model
+      if (!_accountContactModels.containsKey(account.pubkey)) {
+        // Load in background, don't wait for all
+        userProfileDataNotifier
+            .getUserProfileData(account.pubkey)
+            .then((contactModel) {
+              if (mounted) {
+                setState(() {
+                  _accountContactModels[account.pubkey] = contactModel;
+                });
+              }
+            })
+            .catchError((e) {
+              debugPrint('Failed to load profile data for ${account.pubkey}: $e');
+              // Will use fallback in _accountToContactModel
+            });
+      }
+    }
+  }
+
+  // Fallback method - only used if providers don't have data
+  Future<void> _loadAccountsFromApi() async {
+    if (!mounted || _isLoadingInProgress) return;
+
+    _isLoadingInProgress = true;
+
+    setState(() {
+      _isLoadingAccounts = true;
+      _loadingError = null;
+    });
+
     try {
       final accounts = await getAccounts();
-      final contactModels = <String, ContactModel>{};
-      final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
-      for (final account in accounts) {
-        final userProfileData = await userProfileDataNotifier.getUserProfileData(account.pubkey);
-        contactModels[account.pubkey] = userProfileData;
+      final activeAccountState = ref.read(activeAccountProvider);
+      final activeAccount = activeAccountState.value?.account;
+
+      if (mounted) {
+        setState(() {
+          _accounts = accounts;
+          _currentAccount = activeAccount;
+          _isLoadingAccounts = false;
+        });
       }
-
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-
-      setState(() {
-        _accounts = accounts;
-        _currentAccount = activeAccount;
-        _accountContactModels = contactModels;
-      });
     } catch (e) {
       if (mounted) {
+        setState(() {
+          _loadingError = e.toString();
+          _isLoadingAccounts = false;
+        });
         ref.showErrorToast('Failed to load accounts: $e');
       }
-    } finally {}
+    } finally {
+      _isLoadingInProgress = false;
+    }
+  }
+
+  // Refresh account data including contact models (for profile updates)
+  void _refreshAccountData() async {
+    if (!mounted || _isLoadingInProgress) return;
+
+    final activeAccountState = ref.read(activeAccountProvider);
+    final activeAccount = activeAccountState.value?.account;
+    final activeMetadata = activeAccountState.value?.metadata;
+
+    if (activeAccount != null) {
+      // Update current account immediately
+      setState(() {
+        _currentAccount = activeAccount;
+      });
+
+      // If provider has fresh metadata, use it immediately
+      if (activeMetadata != null) {
+        try {
+          final contactModel = ContactModel.fromMetadata(
+            pubkey: activeAccount.pubkey,
+            metadata: activeMetadata,
+          );
+          setState(() {
+            _accountContactModels[activeAccount.pubkey] = contactModel;
+          });
+          return;
+        } catch (e) {
+          debugPrint('Failed to create ContactModel from fresh metadata: $e');
+        }
+      }
+
+      // No additional fallback needed - use basic account info
+    }
   }
 
   Future<void> _loadPackageInfo() async {
@@ -169,16 +313,13 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
           await _switchAccount(selectedAccount);
           // Don't close the sheet - stay on settings screen after account switch
         } else {
-          // Account not found, reload accounts and show error
+          // Just show error, don't reload to prevent flickering
           if (mounted) {
             try {
-              ref.showErrorToast('Account not found. Refreshing account list...');
+              ref.showErrorToast('Account not found. Please try switching account again.');
             } catch (e) {
-              // Fallback if toast fails - just reload accounts silently
               debugPrint('Toast error: $e');
             }
-            _loadAccounts();
-            // Don't close the sheet - stay on settings screen
           }
         }
       },
@@ -229,9 +370,8 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
     final authNotifier = ref.read(authProvider.notifier);
 
-    // Check if there are multiple accounts before logout
-    final accounts = await getAccounts();
-    final hasMultipleAccounts = accounts.length > 2;
+    // Use cached accounts instead of making another bridge call
+    final hasMultipleAccounts = _accounts.length > 2;
 
     if (!mounted) return;
 
@@ -252,14 +392,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
     if (finalAuthState.isAuthenticated) {
       if (hasMultipleAccounts) {
-        await _loadAccounts();
+        await _loadFromProviders();
 
         if (mounted) {
           _showAccountSwitcher(isDismissible: false, showSuccessToast: true);
         }
       } else {
         ref.showSuccessToast('Account signed out. Switched to the other available account.');
-        await _loadAccounts();
+        await _loadFromProviders();
       }
     } else {
       ref.showSuccessToast('Signed out successfully.');
@@ -306,7 +446,11 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Column(
                   children: [
-                    if (_currentAccount != null)
+                    if (_isLoadingAccounts)
+                      const Center(child: CircularProgressIndicator())
+                    else if (_loadingError != null)
+                      const Center(child: Text('Error loading account'))
+                    else if (_currentAccount != null)
                       ContactListTile(
                         contact: _accountToContactModel(_currentAccount!),
                         trailingIcon: WnImage(
