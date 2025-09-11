@@ -40,6 +40,18 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
 
   @override
   RelayStatusState build() {
+    ref.listen<String?>(activePubkeyProvider, (prev, next) {
+      if (prev != next) {
+        loadRelayStatuses();
+      }
+    });
+
+    ref.listen<bool>(authProvider.select((s) => s.isAuthenticated), (prev, next) {
+      if (prev != next) {
+        loadRelayStatuses();
+      }
+    });
+
     // Initialize with loading state and trigger load
     Future.microtask(() => loadRelayStatuses());
     return const RelayStatusState(isLoading: true);
