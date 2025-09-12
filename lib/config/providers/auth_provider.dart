@@ -7,8 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
-import 'package:whitenoise/src/rust/api.dart'
-    show createWhitenoiseConfig, initializeWhitenoise, deleteAllData;
+import 'package:whitenoise/src/rust/api.dart' show createWhitenoiseConfig, initializeWhitenoise;
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/utils/pubkey_formatter.dart';
@@ -340,7 +339,6 @@ class AuthNotifier extends Notifier<AuthState> {
   void deleteAccountInBackground() async {
     try {
       await logoutCurrentAccount();
-      unawaited(deleteAllData());
     } catch (e, st) {
       _logger.severe('deleteAccountInBackground', e, st);
       state = state.copyWith(error: e.toString());
