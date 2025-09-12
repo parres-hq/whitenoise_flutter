@@ -20,7 +20,7 @@ class InfoScreen extends ConsumerStatefulWidget {
 
 class _InfoScreenState extends ConsumerState<InfoScreen> {
   bool _isLoading = false;
-
+  bool _didTriggerDelete = false;
   @override
   void initState() {
     super.initState();
@@ -58,6 +58,8 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
   }
 
   void _deleteJustCreatedAccount() {
+    if (_didTriggerDelete) return;
+    _didTriggerDelete = true;
     final authNotifier = ref.read(authProvider.notifier);
     authNotifier.deleteAccountInBackground();
   }
