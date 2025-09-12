@@ -31,6 +31,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     // Navigate immediately to onboarding
     if (!context.mounted) return;
     context.go('/onboarding');
+    setState(() {
+      _isCreatingAccount = false;
+    });
   }
 
   @override

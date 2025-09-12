@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
@@ -56,73 +57,81 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
     context.go('/onboarding/create-profile');
   }
 
+  void _deleteJustCreatedAccount() {
+    final authNotifier = ref.read(authProvider.notifier);
+    authNotifier.deleteAccountInBackground();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.neutral,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 32, 24, 0).w,
-            child: Column(
-              children: [
-                Text(
-                  'Security Without\nCompromise',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 32.sp,
-                    fontWeight: FontWeight.w700,
-                    color: context.colors.mutedForeground,
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) => _deleteJustCreatedAccount(),
+      child: Scaffold(
+        backgroundColor: context.colors.neutral,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 32, 24, 0).w,
+              child: Column(
+                children: [
+                  Text(
+                    'Security Without\nCompromise',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 32.sp,
+                      fontWeight: FontWeight.w700,
+                      color: context.colors.mutedForeground,
+                    ),
                   ),
-                ),
-                Gap(48.h),
-                FeatureItem(
-                  context: context,
-                  imagePath: AssetsPaths.blueHoodie,
-                  title: 'Privacy & Security',
-                  subtitle:
-                      'Keep your conversations private. Even in case of a breach, your messages remain secure.',
-                ),
-                FeatureItem(
-                  context: context,
-                  imagePath: AssetsPaths.purpleWoman,
-                  title: 'Choose Identity',
-                  subtitle:
-                      'Chat without revealing your phone number or email. Choose your identity: real name, pseudonym, or anonymous.',
-                ),
-                FeatureItem(
-                  context: context,
-                  imagePath: AssetsPaths.greenBird,
-                  title: 'Decentralized & Permissionless',
-                  subtitle:
-                      'No central authority controls your communication—no permissions needed, no censorship possible.',
-                ),
-              ],
+                  Gap(48.h),
+                  FeatureItem(
+                    context: context,
+                    imagePath: AssetsPaths.blueHoodie,
+                    title: 'Privacy & Security',
+                    subtitle:
+                        'Keep your conversations private. Even in case of a breach, your messages remain secure.',
+                  ),
+                  FeatureItem(
+                    context: context,
+                    imagePath: AssetsPaths.purpleWoman,
+                    title: 'Choose Identity',
+                    subtitle:
+                        'Chat without revealing your phone number or email. Choose your identity: real name, pseudonym, or anonymous.',
+                  ),
+                  FeatureItem(
+                    context: context,
+                    imagePath: AssetsPaths.greenBird,
+                    title: 'Decentralized & Permissionless',
+                    subtitle:
+                        'No central authority controls your communication—no permissions needed, no censorship possible.',
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 24.w,
-          ).copyWith(bottom: 32.h),
-          child: Consumer(
-            builder: (context, ref, child) {
-              final activeAccountState = ref.watch(activeAccountProvider);
-              final isButtonDisabled = _isLoading || activeAccountState.isLoading;
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 24.w,
+            ).copyWith(bottom: 32.h),
+            child: Consumer(
+              builder: (context, ref, child) {
+                final activeAccountState = ref.watch(activeAccountProvider);
+                final isButtonDisabled = _isLoading || activeAccountState.isLoading;
 
-              return WnFilledButton(
-                loading: isButtonDisabled,
-                onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
-                label: 'Setup Profile',
-                suffixIcon: WnImage(
-                  AssetsPaths.icArrowRight,
-                  color: context.colors.primaryForeground,
-                ),
-              );
-            },
+                return WnFilledButton(
+                  loading: isButtonDisabled,
+                  onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
+                  label: 'Setup Profile',
+                  suffixIcon: WnImage(
+                    AssetsPaths.icArrowRight,
+                    color: context.colors.primaryForeground,
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -6,7 +7,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
-import 'package:whitenoise/src/rust/api.dart' show createWhitenoiseConfig, initializeWhitenoise;
+import 'package:whitenoise/src/rust/api.dart'
+    show createWhitenoiseConfig, initializeWhitenoise, deleteAllData;
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/utils/pubkey_formatter.dart';
@@ -333,6 +335,18 @@ class AuthNotifier extends Notifier<AuthState> {
     // Only reset auth state, don't clear active account info
     // This preserves the active account when going to login screen
     state = const AuthState();
+  }
+
+  void deleteAccountInBackground() async {
+    try {
+      await logoutCurrentAccount();
+      unawaited(deleteAllData());
+    } catch (e, st) {
+      _logger.severe('initialize', e, st);
+      state = state.copyWith(error: e.toString());
+    } finally {
+      setUnAuthenticated();
+    }
   }
 }
 
