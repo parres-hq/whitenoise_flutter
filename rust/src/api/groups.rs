@@ -3,7 +3,7 @@ use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
 use nostr_mls::prelude::group_types::Group as WhitenoiseGroup;
 use nostr_mls::prelude::group_types::GroupState as WhitenoiseGroupState;
-use nostr_mls::prelude::NostrGroupConfigData;
+use nostr_mls::prelude::{NostrGroupConfigData, NostrGroupDataUpdate};
 use nostr_sdk::prelude::*;
 use whitenoise::{
     GroupInformation as WhitenoiseGroupInformation, GroupType as WhitenoiseGroupType, RelayType,
@@ -47,6 +47,41 @@ impl From<WhitenoiseGroup> for Group {
     }
 }
 
+#[frb(non_opaque)]
+#[derive(Debug, Clone)]
+pub struct FlutterGroupDataUpdate {
+    pub name: Option<String>,
+    pub description: Option<String>,
+    pub relays: Option<Vec<String>>,
+    pub admins: Option<Vec<String>>,
+}
+
+impl From<FlutterGroupDataUpdate> for NostrGroupDataUpdate {
+    fn from(group_data: FlutterGroupDataUpdate) -> Self {
+        Self {
+            name: group_data.name,
+            description: group_data.description,
+            image_key: None,   // TODO: Support image updates
+            image_hash: None,  // TODO: Support image updates
+            image_nonce: None, // TODO: Support image updates
+            // Will silently drop invalid relay inputs
+            relays: group_data.relays.map(|relays| {
+                relays
+                    .into_iter()
+                    .filter_map(|r| RelayUrl::parse(&r).ok())
+                    .collect()
+            }),
+            // Will silently drop invalid admin inputs
+            admins: group_data.admins.map(|admins| {
+                admins
+                    .into_iter()
+                    .filter_map(|a| PublicKey::parse(&a).ok())
+                    .collect()
+            }),
+        }
+    }
+}
+
 impl Group {
     #[frb]
     pub async fn group_type(&self, account_pubkey: String) -> Result<GroupType, ApiError> {
@@ -79,6 +114,22 @@ impl Group {
             .get_group_information_by_mls_group_id(parsed_pubkey, &mls_group_id)
             .await?;
         Ok(group_information.group_type == WhitenoiseGroupType::Group)
+    }
+
+    #[frb]
+    pub async fn update_group_data(
+        &self,
+        account_pubkey: String,
+        group_data: FlutterGroupDataUpdate,
+    ) -> Result<(), ApiError> {
+        let whitenoise = Whitenoise::get_instance()?;
+        let mls_group_id = group_id_from_string(&self.mls_group_id)?;
+        let parsed_pubkey = PublicKey::parse(&account_pubkey)?;
+        let account = whitenoise.find_account_by_pubkey(&parsed_pubkey).await?;
+        whitenoise
+            .update_group_data(&account, &mls_group_id, group_data.into())
+            .await
+            .map_err(ApiError::from)
     }
 }
 

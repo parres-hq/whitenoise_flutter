@@ -152,6 +152,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FlutterEvent dco_decode_box_autoadd_flutter_event(dynamic raw);
 
   @protected
+  FlutterGroupDataUpdate dco_decode_box_autoadd_flutter_group_data_update(
+    dynamic raw,
+  );
+
+  @protected
   FlutterMetadata dco_decode_box_autoadd_flutter_metadata(dynamic raw);
 
   @protected
@@ -168,6 +173,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FlutterEvent dco_decode_flutter_event(dynamic raw);
+
+  @protected
+  FlutterGroupDataUpdate dco_decode_flutter_group_data_update(dynamic raw);
 
   @protected
   FlutterMetadata dco_decode_flutter_metadata(dynamic raw);
@@ -255,6 +263,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   dco_decode_opt_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
     dynamic raw,
   );
+
+  @protected
+  List<String>? dco_decode_opt_list_String(dynamic raw);
 
   @protected
   U8Array32? dco_decode_opt_u_8_array_32(dynamic raw);
@@ -415,6 +426,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  FlutterGroupDataUpdate sse_decode_box_autoadd_flutter_group_data_update(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   FlutterMetadata sse_decode_box_autoadd_flutter_metadata(
     SseDeserializer deserializer,
   );
@@ -435,6 +451,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FlutterEvent sse_decode_flutter_event(SseDeserializer deserializer);
+
+  @protected
+  FlutterGroupDataUpdate sse_decode_flutter_group_data_update(
+    SseDeserializer deserializer,
+  );
 
   @protected
   FlutterMetadata sse_decode_flutter_metadata(SseDeserializer deserializer);
@@ -538,6 +559,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   sse_decode_opt_list_Auto_Owned_RustOpaque_flutter_rust_bridgefor_generatedRustAutoOpaqueInnerTag(
     SseDeserializer deserializer,
   );
+
+  @protected
+  List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
 
   @protected
   U8Array32? sse_decode_opt_u_8_array_32(SseDeserializer deserializer);
@@ -719,6 +743,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_flutter_group_data_update(
+    FlutterGroupDataUpdate self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_flutter_metadata(
     FlutterMetadata self,
     SseSerializer serializer,
@@ -741,6 +771,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_flutter_event(FlutterEvent self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_flutter_group_data_update(
+    FlutterGroupDataUpdate self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_flutter_metadata(
@@ -868,6 +904,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     List<Tag>? self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_u_8_array_32(U8Array32? self, SseSerializer serializer);
