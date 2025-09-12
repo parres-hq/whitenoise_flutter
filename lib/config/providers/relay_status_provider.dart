@@ -1,5 +1,6 @@
 // ignore_for_file: avoid_redundant_argument_values
 
+import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 
@@ -40,19 +41,6 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
 
   @override
   RelayStatusState build() {
-    ref.listen<String?>(activePubkeyProvider, (prev, next) {
-      if (prev != next) {
-        loadRelayStatuses();
-      }
-    });
-
-    ref.listen<bool>(authProvider.select((s) => s.isAuthenticated), (prev, next) {
-      if (prev != next) {
-        loadRelayStatuses();
-      }
-    });
-
-    // Initialize with loading state and trigger load
     Future.microtask(() => loadRelayStatuses());
     return const RelayStatusState(isLoading: true);
   }
@@ -191,6 +179,13 @@ final relayStatusProvider = NotifierProvider<RelayStatusNotifier, RelayStatusSta
 
 // Provider for checking if all relay types have at least one connected relay
 final allRelayTypesConnectionProvider = FutureProvider<bool>((ref) async {
+  ref.listen(activePubkeyProvider, (previous, next) {
+    if (previous != next && next != null && next.isNotEmpty) {
+      final relayStatusNotifier = ref.read(relayStatusProvider.notifier);
+      unawaited(relayStatusNotifier.refreshStatuses());
+    }
+  });
+
   // Watch the relay status provider to trigger rebuilds when statuses change
   ref.watch(relayStatusProvider);
 
