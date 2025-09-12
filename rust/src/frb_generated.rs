@@ -2192,57 +2192,6 @@ fn wire__crate__api__accounts__update_account_metadata_impl(
         },
     )
 }
-fn wire__crate__api__groups__update_group_data_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
-        flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "update_group_data",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
-        },
-        move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_pubkey = <String>::sse_decode(&mut deserializer);
-            let api_group_id = <String>::sse_decode(&mut deserializer);
-            let api_name = <Option<String>>::sse_decode(&mut deserializer);
-            let api_description = <Option<String>>::sse_decode(&mut deserializer);
-            let api_image_url = <Option<String>>::sse_decode(&mut deserializer);
-            let api_image_key = <Option<Vec<u8>>>::sse_decode(&mut deserializer);
-            let api_clear_image = <bool>::sse_decode(&mut deserializer);
-            deserializer.end();
-            move |context| async move {
-                transform_result_sse::<_, crate::api::error::ApiError>(
-                    (move || async move {
-                        let output_ok = crate::api::groups::update_group_data(
-                            api_pubkey,
-                            api_group_id,
-                            api_name,
-                            api_description,
-                            api_image_url,
-                            api_image_key,
-                            api_clear_image,
-                        )
-                        .await?;
-                        Ok(output_ok)
-                    })()
-                    .await,
-                )
-            }
-        },
-    )
-}
 fn wire__crate__api__update_theme_mode_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,

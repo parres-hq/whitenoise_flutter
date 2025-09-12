@@ -6,7 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/src/rust/api/groups.dart' as rust_groups;
+import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -29,7 +29,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
   final _logger = Logger('EditGroupScreen');
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
-  
+
   bool _isLoading = false;
   bool _hasChanges = false;
 
@@ -61,9 +61,10 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
   void _onTextChanged() {
     final group = ref.read(groupsProvider).groupsMap?[widget.groupId];
     if (group != null) {
-      final hasChanges = _nameController.text.trim() != group.name ||
+      final hasChanges =
+          _nameController.text.trim() != group.name ||
           _descriptionController.text.trim() != group.description;
-      
+
       if (hasChanges != _hasChanges) {
         setState(() {
           _hasChanges = hasChanges;
@@ -95,12 +96,12 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
       final newName = _nameController.text.trim();
       final newDescription = _descriptionController.text.trim();
 
-      await rust_groups.updateGroupData(
-        pubkey: activeAccount,
-        groupId: widget.groupId,
-        name: newName != group.name ? newName : null,
-        description: newDescription != group.description ? newDescription : null,
-        clearImage: false,
+      await group.updateGroupData(
+        accountPubkey: activeAccount,
+        groupData: FlutterGroupDataUpdate(
+          name: newName != group.name ? newName : null,
+          description: newDescription != group.description ? newDescription : null,
+        ),
       );
 
       // Refresh group data
@@ -167,24 +168,24 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
         actions: [
           TextButton(
             onPressed: _hasChanges && !_isLoading ? _saveChanges : null,
-            child: _isLoading
-                ? SizedBox(
-                    width: 16.w,
-                    height: 16.w,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: context.colors.primary,
+            child:
+                _isLoading
+                    ? SizedBox(
+                      width: 16.w,
+                      height: 16.w,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: context.colors.primary,
+                      ),
+                    )
+                    : Text(
+                      'Save',
+                      style: TextStyle(
+                        color:
+                            _hasChanges ? context.colors.primary : context.colors.mutedForeground,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
-                  )
-                : Text(
-                    'Save',
-                    style: TextStyle(
-                      color: _hasChanges
-                          ? context.colors.primary
-                          : context.colors.mutedForeground,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
           ),
         ],
       ),
@@ -203,7 +204,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
                 child: Stack(
                   children: [
                     WnAvatar(
-                      imageUrl: group.imageUrl ?? '',
+                      imageUrl: '',
                       displayName: group.name,
                       size: 96.w,
                     ),

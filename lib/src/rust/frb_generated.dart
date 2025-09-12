@@ -297,16 +297,6 @@ abstract class RustLibApi extends BaseApi {
     required FlutterMetadata metadata,
   });
 
-  Future<void> crateApiGroupsUpdateGroupData({
-    required String pubkey,
-    required String groupId,
-    String? name,
-    String? description,
-    String? imageUrl,
-    Uint8List? imageKey,
-    required bool clearImage,
-  });
-
   Future<void> crateApiUpdateThemeMode({required ThemeMode themeMode});
 
   Future<String> crateApiAccountsUploadAccountProfilePicture({
@@ -2209,66 +2199,6 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiAccountsUpdateAccountMetadataConstMeta => const TaskConstMeta(
     debugName: 'update_account_metadata',
     argNames: ['pubkey', 'metadata'],
-  );
-
-  @override
-  Future<void> crateApiGroupsUpdateGroupData({
-    required String pubkey,
-    required String groupId,
-    String? name,
-    String? description,
-    String? imageUrl,
-    Uint8List? imageKey,
-    required bool clearImage,
-  }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_String(pubkey, serializer);
-          sse_encode_String(groupId, serializer);
-          sse_encode_opt_String(name, serializer);
-          sse_encode_opt_String(description, serializer);
-          sse_encode_opt_String(imageUrl, serializer);
-          sse_encode_opt_list_prim_u_8_strict(imageKey, serializer);
-          sse_encode_bool(clearImage, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 54,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_unit,
-          decodeErrorData: sse_decode_api_error,
-        ),
-        constMeta: kCrateApiGroupsUpdateGroupDataConstMeta,
-        argValues: [
-          pubkey,
-          groupId,
-          name,
-          description,
-          imageUrl,
-          imageKey,
-          clearImage,
-        ],
-        apiImpl: this,
-      ),
-    );
-  }
-
-  TaskConstMeta get kCrateApiGroupsUpdateGroupDataConstMeta => const TaskConstMeta(
-    debugName: 'update_group_data',
-    argNames: [
-      'pubkey',
-      'groupId',
-      'name',
-      'description',
-      'imageUrl',
-      'imageKey',
-      'clearImage',
-    ],
   );
 
   @override
