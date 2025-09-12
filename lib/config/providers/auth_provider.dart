@@ -342,7 +342,7 @@ class AuthNotifier extends Notifier<AuthState> {
       await logoutCurrentAccount();
       unawaited(deleteAllData());
     } catch (e, st) {
-      _logger.severe('initialize', e, st);
+      _logger.severe('deleteAccountInBackground', e, st);
       state = state.copyWith(error: e.toString());
     } finally {
       setUnAuthenticated();
