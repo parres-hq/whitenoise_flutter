@@ -6,13 +6,12 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
@@ -48,7 +47,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   String _searchQuery = '';
   final _logger = Logger('NewChatBottomSheet');
   ContactModel? _tempContact;
-  bool _isLoadingMetadata = false;
+  bool _isLoadingUserProfileData = false;
 
   @override
   void initState() {
@@ -79,7 +78,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
     // If it's a valid public key, fetch metadata
     if (_isValidPublicKey(_searchQuery)) {
-      _fetchMetadataForPublicKey(_searchQuery);
+      _getUserProfileDataForPublicKey(_searchQuery);
     }
   }
 
@@ -92,11 +91,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
   Future<void> _loadFollows() async {
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
 
-      if (activeAccount != null) {
-        _logger.info('NewChatBottomSheet: Found active account: ${activeAccount.pubkey}');
+      if (activePubkey.isNotEmpty) {
+        _logger.info('NewChatBottomSheet: Found active account: $activePubkey');
         await ref.read(followsProvider.notifier).loadFollows();
         _logger.info('NewChatBottomSheet: Contacts loaded successfully');
       } else {
@@ -117,32 +115,32 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     return input.trim().isValidPublicKey;
   }
 
-  Future<void> _fetchMetadataForPublicKey(String publicKey) async {
-    if (_isLoadingMetadata) return;
+  Future<void> _getUserProfileDataForPublicKey(String publicKey) async {
+    if (_isLoadingUserProfileData) return;
 
     setState(() {
-      _isLoadingMetadata = true;
+      _isLoadingUserProfileData = true;
     });
 
     try {
-      final user = await wn_users_api.getUser(pubkey: publicKey.trim());
-      final contactModel = ContactModel.fromUser(user: user);
+      final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+      final userProfileData = await userProfileDataNotifier.getUserProfileData(publicKey.trim());
 
       if (mounted) {
         setState(() {
-          _tempContact = contactModel;
-          _isLoadingMetadata = false;
+          _tempContact = userProfileData;
+          _isLoadingUserProfileData = false;
         });
       }
     } catch (e) {
-      _logger.warning('Failed to fetch metadata for public key: $e');
+      _logger.warning('Failed to get user profile data for public key: $e');
       if (mounted) {
         setState(() {
           _tempContact = ContactModel(
             displayName: 'Unknown User',
             publicKey: publicKey.trim(),
           );
-          _isLoadingMetadata = false;
+          _isLoadingUserProfileData = false;
         });
       }
     }
@@ -235,7 +233,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Loading metadata...',
+                  'Loading user profile...',
                   style: TextStyle(
                     color: context.colors.mutedForeground,
                     fontSize: 16.sp,
@@ -276,13 +274,11 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             Navigator.pop(context);
 
             try {
-              // Use metadata cache for support contact
-              final metadataCache = ref.read(metadataCacheProvider.notifier);
-              final supportContact = await metadataCache.getContactModel(kSupportNpub);
-
-              if (context.mounted) {
-                _handleContactTap(supportContact);
-              }
+              final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+              final supportUserProfileData = await userProfileDataNotifier.getUserProfileData(
+                kSupportNpub,
+              );
+              _handleContactTap(supportUserProfileData);
             } catch (e) {
               _logger.warning('Failed to fetch metadata for support contact: $e');
 
@@ -323,7 +319,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             ? followsState.follows
             : followsNotifier.getFilteredFollows(_searchQuery);
     final filteredContacts =
-        filteredFollows.map((follow) => ContactModel.fromUser(user: follow)).toList();
+        filteredFollows
+            .map(
+              (follow) =>
+                  ContactModel.fromMetadata(pubkey: follow.pubkey, metadata: follow.metadata),
+            )
+            .toList();
 
     final showTempContact =
         _searchQuery.isNotEmpty &&
@@ -410,7 +411,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                                 ...followsState.follows.asMap().entries.map((entry) {
                                   final index = entry.key;
                                   final user = entry.value;
-                                  final contact = ContactModel.fromUser(user: user);
+                                  final contact = ContactModel.fromMetadata(
+                                    pubkey: user.pubkey,
+                                    metadata: user.metadata,
+                                  );
                                   return Container(
                                     margin: EdgeInsets.only(bottom: 8.h),
                                     padding: EdgeInsets.all(8.w),
@@ -473,9 +477,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                           ),
                           Gap(16.h),
                         ],
-                        // Contacts list - inline with scrollable content
                         if (showTempContact) ...[
-                          _isLoadingMetadata
+                          _isLoadingUserProfileData
                               ? _buildLoadingContactTile()
                               : ContactListTile(
                                 contact: _tempContact!,
@@ -487,7 +490,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                             height: 200.h,
                             child: Center(
                               child:
-                                  _isLoadingMetadata
+                                  _isLoadingUserProfileData
                                       ? const CircularProgressIndicator()
                                       : Text(
                                         _searchQuery.isEmpty
@@ -503,28 +506,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                             ),
                           ),
                         ] else ...[
-                          // Contacts list - all follows as individual widgets in the scroll view
                           ...filteredContacts.map(
                             (contact) => Padding(
                               padding: EdgeInsets.only(bottom: 4.h),
                               child: ContactListTile(
                                 contact: contact,
-                                enableSwipeToDelete: true,
                                 onTap: () => _handleContactTap(contact),
-                                onDelete: () async {
-                                  try {
-                                    await ref
-                                        .read(followsProvider.notifier)
-                                        .removeFollow(contact.publicKey);
-                                    if (context.mounted) {
-                                      ref.showSuccessToast('Contact removed successfully');
-                                    }
-                                  } catch (e) {
-                                    if (context.mounted) {
-                                      ref.showErrorToast('Failed to remove contact: $e');
-                                    }
-                                  }
-                                },
                               ),
                             ),
                           ),

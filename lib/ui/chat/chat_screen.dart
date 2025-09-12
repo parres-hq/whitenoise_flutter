@@ -9,6 +9,7 @@ import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
+import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -42,6 +43,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   final ScrollController _scrollController = ScrollController();
   double _lastScrollOffset = 0.0;
   Future<DMChatData?>? _dmChatDataFuture;
+  ProviderSubscription<ChatState>? _chatSubscription;
 
   @override
   void initState() {
@@ -51,16 +53,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
         ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
-        _handleScrollToBottom(hasAnimation: false);
       }
     });
 
-    ref.listenManual(chatProvider, (previous, next) {
-      final currentMessages = next.groupMessages[widget.groupId] ?? [];
-      final previousMessages = previous?.groupMessages[widget.groupId] ?? [];
-      if (currentMessages.length != previousMessages.length) {
-        _handleScrollToBottom();
-      }
+    _chatSubscription = ref.listenManual(chatProvider, (previous, next) {
+      _handleScrollOnChatStateChange(previous, next);
     });
   }
 
@@ -74,9 +71,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
 
   @override
   void dispose() {
-    final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
-    searchNotifier.deactivateSearch();
-
+    _chatSubscription?.close();
     _scrollController.dispose();
     super.dispose();
   }
@@ -103,6 +98,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
         _scrollController.jumpTo(max);
       }
     });
+  }
+
+  void _handleScrollOnChatStateChange(
+    ChatState? previous,
+    ChatState next,
+  ) {
+    final currentMessages = next.groupMessages[widget.groupId] ?? [];
+    final previousMessages = previous?.groupMessages[widget.groupId] ?? [];
+    final wasLoading = previous?.isGroupLoading(widget.groupId) ?? false;
+    final isLoading = next.isGroupLoading(widget.groupId);
+    final isLoadingCompleted = wasLoading && !isLoading;
+    if (isLoadingCompleted && currentMessages.isNotEmpty) {
+      _handleScrollToBottom(hasAnimation: false);
+    } else if (previousMessages.isNotEmpty &&
+        currentMessages.length > previousMessages.length &&
+        currentMessages.last.id != previousMessages.last.id) {
+      _handleScrollToBottom();
+    }
   }
 
   void _scrollToMessage(String messageId) {

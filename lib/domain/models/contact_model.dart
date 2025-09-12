@@ -1,6 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
-import 'package:whitenoise/src/rust/api/users.dart' show User;
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class ContactModel {
   final String publicKey;
@@ -23,7 +23,7 @@ class ContactModel {
 
   // Create ContactModel from Rust API Metadata with proper sanitization
   factory ContactModel.fromMetadata({
-    required String publicKey,
+    required String pubkey,
     FlutterMetadata? metadata,
   }) {
     // Sanitize and clean data
@@ -33,32 +33,11 @@ class ContactModel {
     final nip05 = _sanitizeString(metadata?.nip05);
     final lud16 = _sanitizeString(metadata?.lud16);
     final picture = _sanitizeUrl(metadata?.picture);
+    final npub = PubkeyFormatter(pubkey: pubkey).toNpub() ?? '';
 
     return ContactModel(
       displayName: displayName.isNotEmpty ? displayName : 'Unknown User',
-      publicKey: publicKey,
-      imagePath: picture,
-      about: about,
-      website: website,
-      nip05: nip05,
-      lud16: lud16,
-    );
-  }
-
-  factory ContactModel.fromUser({
-    required User user,
-  }) {
-    final metadata = user.metadata;
-    final displayName = _sanitizeString(metadata.displayName);
-    final about = _sanitizeString(metadata.about);
-    final website = _sanitizeUrl(metadata.website);
-    final nip05 = _sanitizeString(metadata.nip05);
-    final lud16 = _sanitizeString(metadata.lud16);
-    final picture = _sanitizeUrl(metadata.picture);
-
-    return ContactModel(
-      displayName: displayName.isNotEmpty ? displayName : 'Unknown User',
-      publicKey: user.pubkey,
+      publicKey: npub,
       imagePath: picture,
       about: about,
       website: website,
@@ -93,7 +72,10 @@ class ContactModel {
   bool operator ==(covariant ContactModel other) {
     if (identical(this, other)) return true;
 
-    return other.publicKey == publicKey &&
+    final hexNpub = PubkeyFormatter(pubkey: publicKey).toHex();
+    final otherHexNpub = PubkeyFormatter(pubkey: other.publicKey).toHex();
+
+    return hexNpub == otherHexNpub &&
         other.imagePath == imagePath &&
         other.displayName == displayName &&
         other.about == about &&

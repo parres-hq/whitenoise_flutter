@@ -6,14 +6,14 @@ import 'package:path_provider/path_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
-import 'package:whitenoise/src/rust/api.dart';
+import 'package:whitenoise/src/rust/api.dart' show createWhitenoiseConfig, initializeWhitenoise;
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
-import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 /// Auth Provider
 ///
-/// This provider manages authentication using the new PublicKey-based API.
+/// This provider manages authentication.
 class AuthNotifier extends Notifier<AuthState> {
   final _logger = Logger('AuthNotifier');
 
@@ -50,11 +50,11 @@ class AuthNotifier extends Notifier<AuthState> {
           final activePubkeyNotifier = ref.read(activePubkeyProvider.notifier);
           await activePubkeyNotifier.loadActivePubkey();
 
-          final storedActivePubkey = ref.read(activePubkeyProvider);
+          final storedActivePubkey = ref.read(activePubkeyProvider) ?? '';
           _logger.info('Stored active pubkey: $storedActivePubkey');
 
           // Check if stored active account exists in current accounts
-          if (storedActivePubkey != null &&
+          if (storedActivePubkey.isNotEmpty &&
               accounts.any((account) => account.pubkey == storedActivePubkey)) {
             _logger.info('Found valid stored active account: $storedActivePubkey');
             state = state.copyWith(isAuthenticated: true);
@@ -179,8 +179,8 @@ class AuthNotifier extends Notifier<AuthState> {
         _logger.info('Accounts after login: ${accountsAfterLogin.length}');
 
         // Check that the active account is set correctly
-        final currentActiveAccount = ref.read(activePubkeyProvider);
-        _logger.info('Current active account after login: $currentActiveAccount');
+        final currentActivePubkey = ref.read(activePubkeyProvider);
+        _logger.info('Current active account after login: $currentActivePubkey');
 
         // Warn if previous accounts have been lost
         if (existingAccounts.isNotEmpty &&
@@ -291,16 +291,10 @@ class AuthNotifier extends Notifier<AuthState> {
         // Check if there are other accounts available
         final remainingAccounts = await getAccounts();
         // Normalize pubkeys to hex then filter
-        final activeHex =
-            activeAccount.pubkey.startsWith('npub')
-                ? await hexPubkeyFromNpub(npub: activeAccount.pubkey)
-                : activeAccount.pubkey.toLowerCase();
+        final activeHex = PubkeyFormatter(pubkey: activeAccount.pubkey).toHex();
         final otherAccounts = <Account>[];
         for (final account in remainingAccounts) {
-          final keyHex =
-              account.pubkey.startsWith('npub')
-                  ? await hexPubkeyFromNpub(npub: account.pubkey)
-                  : account.pubkey.toLowerCase();
+          final keyHex = PubkeyFormatter(pubkey: account.pubkey).toHex();
           if (keyHex != activeHex) otherAccounts.add(account);
         }
         if (otherAccounts.isNotEmpty) {

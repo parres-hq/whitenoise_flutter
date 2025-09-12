@@ -6,10 +6,10 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ChatContactHeader extends ConsumerWidget {
@@ -51,19 +51,19 @@ class GroupChatHeader extends ConsumerStatefulWidget {
 }
 
 class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
-  Future<String>? _groupNpubFuture;
+  String? _groupNpub;
 
   @override
   void initState() {
     super.initState();
-    _groupNpubFuture = npubFromHexPubkey(hexPubkey: widget.group.nostrGroupId);
+    _groupNpub = PubkeyFormatter(pubkey: widget.group.nostrGroupId).toNpub();
   }
 
   @override
   void didUpdateWidget(GroupChatHeader oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.group.nostrGroupId != widget.group.nostrGroupId) {
-      _groupNpubFuture = npubFromHexPubkey(hexPubkey: widget.group.nostrGroupId);
+      _groupNpub = PubkeyFormatter(pubkey: widget.group.nostrGroupId).toNpub();
     }
   }
 
@@ -90,19 +90,13 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
             ),
           ),
           Gap(16.h),
-          FutureBuilder(
-            future: _groupNpubFuture,
-            builder: (context, asyncSnapshot) {
-              final groupNpub = asyncSnapshot.data ?? '';
-              return Text(
-                groupNpub.formatPublicKey(),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: context.colors.mutedForeground,
-                ),
-              );
-            },
+          Text(
+            _groupNpub?.formatPublicKey() ?? '',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: context.colors.mutedForeground,
+            ),
           ),
           Gap(12.h),
           if (widget.group.description.isNotEmpty) ...[

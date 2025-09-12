@@ -21,11 +21,13 @@ class WnFilledButton extends WnButton {
                prefixIcon,
                size == WnButtonSize.small ? Gap(8.w) : Gap(12.w),
              ],
-             FittedBox(
-               fit: BoxFit.scaleDown,
-               child: Text(
-                 label,
-                 style: labelTextStyle ?? size.textStyle(),
+             Flexible(
+               child: FittedBox(
+                 fit: BoxFit.scaleDown,
+                 child: Text(
+                   label,
+                   style: labelTextStyle ?? size.textStyle(),
+                 ),
                ),
              ),
              if (suffixIcon != null) ...[

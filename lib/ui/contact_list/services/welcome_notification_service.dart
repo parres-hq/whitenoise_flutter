@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/contact_list/group_welcome_invitation_sheet.dart';
@@ -74,6 +75,9 @@ class WelcomeNotificationService {
       await ref.read(groupsProvider.notifier).loadGroups();
       if (success) {
         _logger.info('WelcomeNotificationService: Successfully accepted welcome $welcomeId');
+
+        // Dismiss the ProfileReadyCard since user has successfully accepted a chat invitation
+        await ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
       } else {
         _logger.warning('WelcomeNotificationService: Failed to accept welcome $welcomeId');
       }

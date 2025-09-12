@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:whitenoise/domain/services/account_secure_storage_service.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 // Default FlutterSecureStorage instance
 const _defaultSecureStorage = FlutterSecureStorage(
@@ -12,11 +13,17 @@ const _defaultSecureStorage = FlutterSecureStorage(
   ),
 );
 
+PubkeyFormatter _defaultPubkeyFormatter({String? pubkey}) => PubkeyFormatter(pubkey: pubkey);
+
 class ActivePubkeyNotifier extends Notifier<String?> {
   final FlutterSecureStorage storage;
+  final PubkeyFormatter Function({String? pubkey}) pubkeyFormatter;
 
-  ActivePubkeyNotifier({FlutterSecureStorage? storage})
-    : storage = storage ?? _defaultSecureStorage;
+  ActivePubkeyNotifier({
+    FlutterSecureStorage? storage,
+    PubkeyFormatter Function({String? pubkey})? pubkeyFormatter,
+  }) : storage = storage ?? _defaultSecureStorage,
+       pubkeyFormatter = pubkeyFormatter ?? _defaultPubkeyFormatter;
 
   @override
   String? build() {
@@ -26,12 +33,18 @@ class ActivePubkeyNotifier extends Notifier<String?> {
 
   Future<void> loadActivePubkey() async {
     final pubkey = await AccountSecureStorageService.getActivePubkey(storage: storage);
-    state = pubkey;
+    final hexPubkey = pubkeyFormatter(pubkey: pubkey).toHex();
+    state = hexPubkey;
   }
 
   Future<void> setActivePubkey(String pubkey) async {
-    await AccountSecureStorageService.setActivePubkey(pubkey, storage: storage);
-    state = pubkey;
+    final hexPubkey = pubkeyFormatter(pubkey: pubkey).toHex();
+    if (hexPubkey == null) {
+      await clearActivePubkey();
+    } else {
+      await AccountSecureStorageService.setActivePubkey(hexPubkey, storage: storage);
+    }
+    state = hexPubkey;
   }
 
   Future<void> clearActivePubkey() async {

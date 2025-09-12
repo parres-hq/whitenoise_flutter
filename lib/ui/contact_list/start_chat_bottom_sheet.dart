@@ -1,14 +1,15 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/follows_provider.dart';
+import 'package:whitenoise/config/providers/follow_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -70,7 +71,6 @@ class StartChatBottomSheet extends ConsumerStatefulWidget {
 class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
   final _logger = Logger('StartChatBottomSheet');
   bool _isCreatingGroup = false;
-  bool _isAddingContact = false;
   bool _isLoadingKeyPackage = true;
   bool _isLoadingKeyPackageError = false;
   bool _needsInvite = false;
@@ -109,7 +109,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
         setState(() {
           _isLoadingKeyPackage = false;
           _isLoadingKeyPackageError = true;
-          ref.showErrorToast('Error loading contact: $e');
+          ref.showErrorToast('Error loading user key package: $e');
         });
       }
     }
@@ -124,8 +124,9 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
       final group = await ref
           .read(groupsProvider.notifier)
           .createNewGroup(
-            groupName: 'DM',
-            groupDescription: 'Direct message',
+            groupName: '',
+            groupDescription: '',
+            isDm: true,
             memberPublicKeyHexs: [widget.contact.publicKey],
             adminPublicKeyHexs: [widget.contact.publicKey],
           );
@@ -134,7 +135,11 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
         _logger.info('Direct message group created successfully: ${group.mlsGroupId}');
 
         if (mounted) {
-          Navigator.pop(context);
+          // Dismiss the ProfileReadyCard since user has successfully started a chat
+          await ref.read(profileReadyCardVisibilityProvider.notifier).dismissCard();
+          if (mounted) {
+            Navigator.pop(context);
+          }
 
           if (widget.onChatCreated != null) {
             widget.onChatCreated?.call(group);
@@ -161,41 +166,24 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     }
   }
 
-  bool _isFollow() {
-    final followsNotifier = ref.read(followsProvider.notifier);
-    return followsNotifier.isFollowing(widget.contact.publicKey);
-  }
+  Future<void> _toggleFollow() async {
+    final followNotifier = ref.read(followProvider(widget.contact.publicKey).notifier);
+    var currentFollowState = ref.read(followProvider(widget.contact.publicKey));
+    late String successMessage;
+    if (currentFollowState.isFollowing) {
+      successMessage = 'Unfollowed ${widget.contact.displayName}';
+      await followNotifier.removeFollow(widget.contact.publicKey);
+    } else {
+      successMessage = 'Followed ${widget.contact.displayName}';
+      await followNotifier.addFollow(widget.contact.publicKey);
+    }
 
-  Future<void> _toggleContact() async {
-    setState(() {
-      _isAddingContact = true;
-    });
-
-    try {
-      final followsNotifier = ref.read(followsProvider.notifier);
-      final isCurrentlyFollow = followsNotifier.isFollowing(widget.contact.publicKey);
-
-      if (isCurrentlyFollow) {
-        await followsNotifier.removeFollow(widget.contact.publicKey);
-        if (mounted) {
-          ref.showSuccessToast('${widget.contact.displayName} removed from contacts');
-        }
-      } else {
-        await followsNotifier.addFollow(widget.contact.publicKey);
-        if (mounted) {
-          ref.showSuccessToast('${widget.contact.displayName} added to contacts');
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ref.showErrorToast('Failed to update contact: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isAddingContact = false;
-        });
-      }
+    currentFollowState = ref.read(followProvider(widget.contact.publicKey));
+    final errorMessage = currentFollowState.error ?? '';
+    if (errorMessage.isNotEmpty) {
+      ref.showErrorToast(errorMessage);
+    } else {
+      ref.showSuccessToast(successMessage);
     }
   }
 
@@ -209,6 +197,8 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final followState = ref.watch(followProvider(widget.contact.publicKey));
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -265,16 +255,14 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                       children: [
                         WnFilledButton(
                           visualState: WnButtonVisualState.secondary,
-                          onPressed: _isAddingContact ? null : _toggleContact,
-                          label: _isFollow() ? 'Remove Contact' : 'Add Contact',
-                          suffixIcon: SvgPicture.asset(
-                            _isFollow() ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
-                            width: 18.w,
-                            height: 18.w,
-                            colorFilter: ColorFilter.mode(
-                              context.colors.primary,
-                              BlendMode.srcIn,
-                            ),
+                          onPressed: followState.isLoading ? null : _toggleFollow,
+                          label: followState.isFollowing ? 'Unfollow' : 'Follow',
+                          suffixIcon: WnImage(
+                            followState.isFollowing
+                                ? AssetsPaths.icRemoveUser
+                                : AssetsPaths.icAddUser,
+                            size: 18.w,
+                            color: context.colors.primary,
                           ),
                         ),
                         Gap(8.h),

@@ -3,15 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class GroupWelcomeInvitationSheet extends StatelessWidget {
@@ -113,9 +113,8 @@ class GroupMessageInvite extends ConsumerStatefulWidget {
 class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
   Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         ref.showErrorToast('No active account found');
         return null;
       }
@@ -127,7 +126,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
 
   Future<String> _getDisplayablePublicKey() async {
     try {
-      final npub = await npubFromHexPubkey(hexPubkey: widget.welcome.nostrGroupId);
+      final npub = PubkeyFormatter(pubkey: widget.welcome.nostrGroupId).toNpub() ?? '';
       return npub;
     } catch (e) {
       return widget.welcome.nostrGroupId.formatPublicKey();
@@ -241,9 +240,8 @@ class DirectMessageAvatar extends ConsumerStatefulWidget {
 class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
   Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         ref.showErrorToast('No active account found');
         return null;
       }
@@ -285,9 +283,8 @@ class DirectMessageInviteCard extends ConsumerStatefulWidget {
 class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCard> {
   Future<FlutterMetadata?> _fetchInviterMetadata() async {
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         ref.showErrorToast('No active account found');
         return null;
       }
@@ -299,7 +296,7 @@ class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCar
 
   Future<String> _getDisplayablePublicKey() async {
     try {
-      final npub = await npubFromHexPubkey(hexPubkey: widget.welcome.welcomer);
+      final npub = PubkeyFormatter(pubkey: widget.welcome.welcomer).toNpub() ?? '';
       return npub;
     } catch (e) {
       return widget.welcome.welcomer.formatPublicKey();

@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ContactListTile extends StatelessWidget {
@@ -33,7 +33,7 @@ class ContactListTile extends StatelessWidget {
 
   Future<String> _getNpub(String publicKeyHex) async {
     try {
-      final npub = await npubFromHexPubkey(hexPubkey: publicKeyHex);
+      final npub = PubkeyFormatter(pubkey: publicKeyHex).toNpub() ?? '';
       return npub.formatPublicKey();
     } catch (e) {
       // Return the full hex key as fallback

@@ -1,13 +1,11 @@
-// ignore_for_file: avoid_redundant_argument_values
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api;
 import 'package:whitenoise/src/rust/api/users.dart';
 import 'package:whitenoise/utils/error_handling.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/user_utils.dart';
 
 class FollowsState {
@@ -70,8 +68,7 @@ class FollowsNotifier extends Notifier<FollowsState> {
 
   Future<void> loadFollows() async {
     if (state.isLoading) return;
-
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(isLoading: true);
 
     if (!_isAuthAvailable()) {
       state = state.copyWith(isLoading: false);
@@ -79,14 +76,13 @@ class FollowsNotifier extends Notifier<FollowsState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
       }
 
-      final follows = await accounts_api.accountFollows(pubkey: activeAccount.pubkey);
+      final follows = await accounts_api.accountFollows(pubkey: activePubkey);
 
       _logger.info('FollowsProvider: Loaded ${follows.length} follows');
 
@@ -108,86 +104,6 @@ class FollowsNotifier extends Notifier<FollowsState> {
     }
   }
 
-  Future<void> addFollow(String userPubkey) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    if (!_isAuthAvailable()) {
-      state = state.copyWith(isLoading: false);
-      return;
-    }
-
-    try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
-        state = state.copyWith(error: 'No active account found', isLoading: false);
-        return;
-      }
-
-      await accounts_api.followUser(
-        accountPubkey: activeAccount.pubkey,
-        userToFollowPubkey: userPubkey,
-      );
-
-      _logger.info('FollowsProvider: Successfully followed user: $userPubkey');
-
-      await loadFollows();
-    } catch (e, st) {
-      _logger.severe('FollowsProvider.addFollow - Exception: $e (Type: ${e.runtimeType})', e, st);
-
-      final errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
-        error: e,
-        stackTrace: st,
-        fallbackMessage: 'Failed to add follow. Please try again.',
-        context: 'addFollow',
-      );
-
-      state = state.copyWith(error: errorMessage, isLoading: false);
-    }
-  }
-
-  Future<void> removeFollow(String userPubkey) async {
-    state = state.copyWith(isLoading: true, error: null);
-
-    if (!_isAuthAvailable()) {
-      state = state.copyWith(isLoading: false);
-      return;
-    }
-
-    try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
-        state = state.copyWith(error: 'No active account found', isLoading: false);
-        return;
-      }
-
-      await accounts_api.unfollowUser(
-        accountPubkey: activeAccount.pubkey,
-        userToUnfollowPubkey: userPubkey,
-      );
-
-      _logger.info('FollowsProvider: Successfully unfollowed user: $userPubkey');
-
-      await loadFollows();
-    } catch (e, st) {
-      _logger.severe(
-        'FollowsProvider.removeFollow - Exception: $e (Type: ${e.runtimeType})',
-        e,
-        st,
-      );
-
-      final errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
-        error: e,
-        stackTrace: st,
-        fallbackMessage: 'Failed to remove follow. Please try again.',
-        context: 'removeFollow',
-      );
-
-      state = state.copyWith(error: errorMessage, isLoading: false);
-    }
-  }
-
   void clearFollows() {
     state = const FollowsState();
   }
@@ -201,14 +117,12 @@ class FollowsNotifier extends Notifier<FollowsState> {
   }
 
   bool isFollowing(String pubkey) {
-    return state.follows.any((user) => user.pubkey == pubkey);
+    final hexPubkey = PubkeyFormatter(pubkey: pubkey).toHex();
+    if (hexPubkey == null) return false;
+    return state.follows.any((user) => PubkeyFormatter(pubkey: user.pubkey).toHex() == hexPubkey);
   }
 
   List<User> get allFollows => state.follows;
-
-  Future<void> refreshFollows() async {
-    await loadFollows();
-  }
 }
 
 final followsProvider = NotifierProvider<FollowsNotifier, FollowsState>(

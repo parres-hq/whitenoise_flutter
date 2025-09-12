@@ -1,5 +1,6 @@
-/// Extension for validating public keys in various formats
-/// Supports both hex format (64 characters) and npub format (bech32)
+// Extension for validating public keys in various formats
+// Supports both hex format (64 characters) and npub format (bech32)
+
 extension PublicKeyValidationExtension on String {
   /// Validates if the string is a valid public key
   ///

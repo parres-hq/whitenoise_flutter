@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -307,36 +308,70 @@ class ReactionsRow extends StatelessWidget {
                     width: 0.5,
                   ),
                 ),
-                child: Transform.translate(
-                  offset: const Offset(1, -2),
-                  child: RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: emoji,
-                          style: TextStyle(
-                            fontSize: 13.sp,
-                            color:
-                                message.isMe
-                                    ? context.colors.meChatBubbleText
-                                    : context.colors.contactChatBubbleText,
-                          ),
-                        ),
-                        if (count > 1)
-                          TextSpan(
-                            text: ' ${count > 99 ? '99+' : count}',
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Platform.isIOS
+                        ? Transform.translate(
+                          offset: const Offset(1, -1),
+                          child: Text(
+                            emoji,
                             style: TextStyle(
-                              fontSize: 11.sp,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 13.sp,
+                              height: 1.0,
                               color:
                                   message.isMe
                                       ? context.colors.meChatBubbleText
                                       : context.colors.contactChatBubbleText,
                             ),
+                            textAlign: TextAlign.center,
                           ),
-                      ],
-                    ),
-                  ),
+                        )
+                        : Text(
+                          emoji,
+                          style: TextStyle(
+                            fontSize: 13.sp,
+                            height: 1.0,
+                            color:
+                                message.isMe
+                                    ? context.colors.meChatBubbleText
+                                    : context.colors.contactChatBubbleText,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                    if (count > 1)
+                      Platform.isIOS
+                          ? Transform.translate(
+                            offset: const Offset(1, -1),
+                            child: Text(
+                              ' ${count > 99 ? '99+' : count}',
+                              style: TextStyle(
+                                fontSize: 11.sp,
+                                fontWeight: FontWeight.w600,
+                                height: 1.0,
+                                color:
+                                    message.isMe
+                                        ? context.colors.meChatBubbleText
+                                        : context.colors.contactChatBubbleText,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          )
+                          : Text(
+                            ' ${count > 99 ? '99+' : count}',
+                            style: TextStyle(
+                              fontSize: 11.sp,
+                              fontWeight: FontWeight.w600,
+                              height: 1.0,
+                              color:
+                                  message.isMe
+                                      ? context.colors.meChatBubbleText
+                                      : context.colors.contactChatBubbleText,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                  ],
                 ),
               ),
             );

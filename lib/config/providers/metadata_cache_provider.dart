@@ -3,11 +3,10 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
-import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 /// Cached metadata with basic expiration
@@ -69,7 +68,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
   /// Convert hex to npub safely
   Future<String> _safeHexToNpub(String hexPubkey) async {
     try {
-      return await npubFromHexPubkey(hexPubkey: hexPubkey);
+      return PubkeyFormatter(pubkey: hexPubkey).toNpub() ?? '';
     } catch (e) {
       _logger.warning('Failed to convert hex to npub for $hexPubkey: $e');
       return hexPubkey;
@@ -79,7 +78,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
   /// Convert npub to hex safely
   Future<String> _safeNpubToHex(String npub) async {
     try {
-      return await hexPubkeyFromNpub(npub: npub);
+      return PubkeyFormatter(pubkey: npub).toHex() ?? '';
     } catch (e) {
       _logger.warning('Failed to convert npub to hex for $npub: $e');
       return npub;
@@ -110,9 +109,8 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
       if (publicKey.startsWith('npub1')) {
         fetchKey = await _safeNpubToHex(publicKey);
       }
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         throw StateError('No active account found');
       }
 
@@ -123,7 +121,7 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
 
       // Create contact model
       final contactModel = ContactModel.fromMetadata(
-        publicKey: standardNpub,
+        pubkey: standardNpub,
         metadata: metadata,
       );
 
@@ -209,136 +207,6 @@ class MetadataCacheNotifier extends Notifier<MetadataCacheState> {
 
       rethrow;
     }
-  }
-
-  /// Bulk populate cache from queryContacts results
-  Future<void> bulkPopulateFromQueryResults(
-    Map<PublicKey, FlutterMetadata?> queryResults,
-  ) async {
-    _logger.info('Bulk populating cache from ${queryResults.length} query results');
-
-    final newCache = Map<String, CachedMetadata>.from(state.cache);
-    int populated = 0;
-    int skipped = 0;
-
-    for (final entry in queryResults.entries) {
-      try {
-        final publicKey = entry.key;
-        final metadata = entry.value;
-
-        // Convert PublicKey to standardized npub format
-        final npub = await npubFromPublicKey(publicKey: publicKey);
-        final standardNpub = _normalizePublicKey(npub);
-
-        // Check if we already have fresh cache data
-        final existing = newCache[standardNpub];
-        if (existing != null && !existing.isExpired) {
-          skipped++;
-          continue;
-        }
-
-        // Create contact model
-        final contactModel = ContactModel.fromMetadata(
-          publicKey: standardNpub,
-          metadata: metadata,
-        );
-
-        // Cache the result
-        newCache[standardNpub] = CachedMetadata(
-          contactModel: contactModel,
-          cachedAt: DateTime.now(),
-        );
-
-        populated++;
-      } catch (e) {
-        _logger.warning('Failed to bulk cache entry: $e');
-      }
-    }
-
-    // Update cache state
-    state = state.copyWith(cache: newCache);
-
-    _logger.info('Bulk population complete - populated: $populated, skipped: $skipped');
-  }
-
-  /// Get multiple contact models efficiently
-  Future<List<ContactModel>> getContactModels(List<String> publicKeys) async {
-    final results = <ContactModel>[];
-
-    for (final publicKey in publicKeys) {
-      try {
-        final contactModel = await getContactModel(publicKey);
-        results.add(contactModel);
-      } catch (e) {
-        _logger.warning('Failed to get contact model for $publicKey: $e');
-        // Add fallback model to maintain list integrity
-        results.add(
-          ContactModel(
-            displayName: 'Unknown User',
-            publicKey: _normalizePublicKey(publicKey),
-          ),
-        );
-      }
-    }
-
-    return results;
-  }
-
-  /// Check if a contact is cached and not expired
-  bool isContactCached(String publicKey) {
-    final normalizedKey = _normalizePublicKey(publicKey);
-    final cached = state.cache[normalizedKey];
-    return cached != null && !cached.isExpired;
-  }
-
-  /// Clear expired entries from cache
-  void cleanExpiredEntries() {
-    final newCache = <String, CachedMetadata>{};
-
-    for (final entry in state.cache.entries) {
-      if (!entry.value.isExpired) {
-        newCache[entry.key] = entry.value;
-      }
-    }
-
-    if (newCache.length != state.cache.length) {
-      _logger.info('Cleaned ${state.cache.length - newCache.length} expired cache entries');
-      state = state.copyWith(cache: newCache);
-    }
-  }
-
-  /// Clear all cached metadata
-  void clearCache() {
-    _logger.info('Clearing all metadata cache');
-    state = state.copyWith(cache: {});
-  }
-
-  /// Update cache with new metadata
-  void updateCachedMetadata(String publicKey, ContactModel contactModel) {
-    final normalizedKey = _normalizePublicKey(publicKey);
-
-    final newCache = Map<String, CachedMetadata>.from(state.cache);
-    newCache[normalizedKey] = CachedMetadata(
-      contactModel: contactModel,
-      cachedAt: DateTime.now(),
-    );
-
-    state = state.copyWith(cache: newCache);
-    _logger.info('Updated cached metadata for $normalizedKey');
-  }
-
-  /// Get cache statistics
-  Map<String, dynamic> getCacheStats() {
-    final total = state.cache.length;
-    final expired = state.cache.values.where((entry) => entry.isExpired).length;
-    final pending = state.pendingFetches.length;
-
-    return {
-      'totalCached': total,
-      'expiredEntries': expired,
-      'validEntries': total - expired,
-      'pendingFetches': pending,
-    };
   }
 }
 

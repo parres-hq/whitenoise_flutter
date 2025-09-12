@@ -14,6 +14,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ShareProfileScreen extends ConsumerStatefulWidget {
@@ -36,8 +37,8 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
 
   Future<void> loadProfile() async {
     try {
-      final activeAccountPubkey = ref.read(activePubkeyProvider);
-      npub = await activeAccountPubkey?.toNpub() ?? '';
+      final activeAccountPubkey = ref.read(activePubkeyProvider) ?? '';
+      npub = PubkeyFormatter(pubkey: activeAccountPubkey).toNpub() ?? '';
       setState(() {});
     } catch (e) {
       if (!mounted) return;
@@ -177,7 +178,6 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                               suffixIcon: WnImage(
                                 AssetsPaths.icScan,
                                 size: 18.w,
-
                                 color: context.colors.primaryForeground,
                               ),
                               onPressed: () => context.push(Routes.settingsShareProfileQrScan),

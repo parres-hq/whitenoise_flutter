@@ -4,16 +4,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/providers/toast_message_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ChatInviteScreen extends ConsumerStatefulWidget {
@@ -177,19 +177,13 @@ class GroupInviteHeader extends StatelessWidget {
             ),
           ),
           Gap(16.h),
-          FutureBuilder(
-            future: npubFromHexPubkey(hexPubkey: welcome.nostrGroupId),
-            builder: (context, asyncSnapshot) {
-              final groupNpub = asyncSnapshot.data ?? '';
-              return Text(
-                groupNpub.formatPublicKey(),
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: context.colors.mutedForeground,
-                ),
-              );
-            },
+          Text(
+            PubkeyFormatter(pubkey: welcome.nostrGroupId).toNpub()?.formatPublicKey() ?? '',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 14.sp,
+              color: context.colors.mutedForeground,
+            ),
           ),
           Gap(12.h),
           if (welcome.groupDescription.isNotEmpty) ...[
@@ -247,10 +241,10 @@ class DMInviteHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
+    final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
 
     return FutureBuilder(
-      future: metadataCacheNotifier.getContactModel(welcome.welcomer),
+      future: userProfileDataNotifier.getUserProfileData(welcome.welcomer),
       builder: (context, snapshot) {
         final welcomerContact = snapshot.data;
         final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
@@ -285,19 +279,13 @@ class DMInviteHeader extends ConsumerWidget {
                 ),
               ),
               Gap(12.h),
-              FutureBuilder(
-                future: npubFromHexPubkey(hexPubkey: welcome.welcomer),
-                builder: (context, asyncSnapshot) {
-                  final welcomerNpub = asyncSnapshot.data ?? '';
-                  return Text(
-                    welcomerNpub.formatPublicKey(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 12.sp,
-                      color: context.colors.mutedForeground,
-                    ),
-                  );
-                },
+              Text(
+                PubkeyFormatter(pubkey: welcome.welcomer).toNpub()?.formatPublicKey() ?? '',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12.sp,
+                  color: context.colors.mutedForeground,
+                ),
               ),
               Gap(32.h),
               Text.rich(
@@ -338,10 +326,10 @@ class DMAppBarTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final metadataCacheNotifier = ref.read(metadataCacheProvider.notifier);
+    final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
 
     return FutureBuilder(
-      future: metadataCacheNotifier.getContactModel(welcome.welcomer),
+      future: userProfileDataNotifier.getUserProfileData(welcome.welcomer),
       builder: (context, snapshot) {
         final isLoading = snapshot.connectionState == ConnectionState.waiting;
 

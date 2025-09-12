@@ -5,10 +5,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/src/rust/api/error.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
@@ -27,9 +29,10 @@ class ShareProfileQrScanScreen extends ConsumerStatefulWidget {
 
 class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScreen>
     with WidgetsBindingObserver {
-  String npub = '';
+  final Logger logger = Logger('ShareProfileQrScanScreen');
   late MobileScannerController _controller;
   StreamSubscription<BarcodeCapture>? _subscription;
+  Timer? _cameraRestartDebouncer;
 
   @override
   void initState() {
@@ -46,6 +49,8 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
     WidgetsBinding.instance.removeObserver(this);
     unawaited(_subscription?.cancel());
     _subscription = null;
+    _cameraRestartDebouncer?.cancel();
+    _cameraRestartDebouncer = null;
     _controller.dispose();
     super.dispose();
   }
@@ -68,63 +73,89 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Gap(24.h),
-                Row(
-                  children: [
-                    const BackButton(),
-                    Text(
-                      'Scan QR Code',
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.mutedForeground,
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.w),
+                  child: Row(
+                    children: [
+                      const BackButton(),
+                      Expanded(
+                        child: Text(
+                          'Scan QR Code',
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: context.colors.mutedForeground,
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        const Spacer(),
-                        Container(
-                          width: 288.w,
-                          height: 288.w,
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: context.colors.primary,
-                              width: 1.w,
-                            ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
                           ),
-                          child: MobileScanner(controller: _controller),
-                        ),
-                        Gap(16.h),
-                        Text(
-                          'Scan user\'s QR code to connect.',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            fontWeight: FontWeight.w500,
-                            color: context.colors.mutedForeground,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const Spacer(),
+                              Center(
+                                child: AspectRatio(
+                                  aspectRatio: 1.0,
+                                  child: Container(
+                                    constraints: BoxConstraints(
+                                      maxWidth: 288.w,
+                                      maxHeight: 288.w,
+                                      minWidth: 200.w,
+                                      minHeight: 200.w,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: context.colors.primary,
+                                        width: 1.w,
+                                      ),
+                                    ),
+                                    child: MobileScanner(controller: _controller),
+                                  ),
+                                ),
+                              ),
+                              Gap(16.h),
+                              Text(
+                                'Scan user\'s QR code to connect.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: context.colors.mutedForeground,
+                                ),
+                              ),
+                              const Spacer(),
+                              if (!widget.hideViewQrButton) ...[
+                                Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                  child: WnFilledButton(
+                                    label: 'View QR Code',
+                                    onPressed: () => context.pop(),
+                                    suffixIcon: WnImage(
+                                      AssetsPaths.icQrCode,
+                                      size: 18.w,
+                                      color: context.colors.primaryForeground,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(height: 64.h),
+                              ] else ...[
+                                SizedBox(height: 64.h),
+                              ],
+                            ],
                           ),
-                        ),
-                        const Spacer(),
-                        if (!widget.hideViewQrButton) ...[
-                          WnFilledButton(
-                            label: 'View QR Code',
-                            onPressed: () => context.pop(),
-                            suffixIcon: WnImage(
-                              AssetsPaths.icQrCode,
-                              size: 18.w,
-                              color: context.colors.primaryForeground,
-                            ),
-                          ),
-                          Gap(64.h),
-                        ] else ...[
-                          Gap(64.h),
-                        ],
-                      ],
+                        );
+                      },
                     ),
                   ),
                 ),
@@ -156,43 +187,59 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
   Future<void> _handleBarcode(BarcodeCapture capture) async {
     if (capture.barcodes.isEmpty) return;
 
-    final barcode = capture.barcodes.first;
-    if (barcode.rawValue != null && barcode.rawValue!.isNotEmpty) {
-      final npub = barcode.rawValue!;
-      if (!npub.isValidPublicKey) {
-        ref.showWarningToast('Invalid public key format');
+    try {
+      final barcode = capture.barcodes.first;
+      final rawValue = barcode.rawValue ?? '';
+      if (rawValue.isNotEmpty) {
+        final npub = rawValue.trim();
+        if (!npub.isValidPublicKey) {
+          ref.showWarningToast('Invalid public key format');
+          return;
+        }
         _controller.stop();
-        Future.delayed(const Duration(seconds: 2), () {
-          if (mounted) {
-            _controller.start();
-          }
-        });
-        return;
+        final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+        final userProfileData = await userProfileDataNotifier.getUserProfileData(npub.trim());
+        if (mounted) {
+          await StartChatBottomSheet.show(
+            context: context,
+            contact: userProfileData,
+            onChatCreated: (group) {
+              if (group != null && mounted) {
+                // Navigate to home first, then to the group chat
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  if (mounted) {
+                    context.go(Routes.home);
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) {
+                        Routes.goToChat(context, group.mlsGroupId);
+                      }
+                    });
+                  }
+                });
+              }
+            },
+          );
+        }
       }
+    } catch (e, s) {
       _controller.stop();
-      final contact = await ref.read(metadataCacheProvider.notifier).getContactModel(npub);
-      if (mounted) {
-        await StartChatBottomSheet.show(
-          context: context,
-          contact: contact,
-          onChatCreated: (group) {
-            if (group != null && mounted) {
-              // Navigate to home first, then to the group chat
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  context.go(Routes.home);
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    if (mounted) {
-                      Routes.goToChat(context, group.mlsGroupId);
-                    }
-                  });
-                }
-              });
-            }
-          },
-        );
+      String? errorMessage = 'Something went wrong';
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
       }
-      _controller.start();
+      logger.severe(errorMessage, e, s);
+      ref.showErrorToast(errorMessage);
+    } finally {
+      _debouncedCameraRestart();
     }
+  }
+
+  void _debouncedCameraRestart() {
+    _cameraRestartDebouncer?.cancel();
+    _cameraRestartDebouncer = Timer(const Duration(milliseconds: 100), () {
+      if (mounted) {
+        _controller.start();
+      }
+    });
   }
 }

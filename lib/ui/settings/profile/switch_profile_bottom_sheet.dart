@@ -5,12 +5,12 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/settings/profile/connect_profile_bottom_sheet.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class SwitchProfileBottomSheet extends ConsumerStatefulWidget {
   final List<ContactModel> profiles;
@@ -65,17 +65,9 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
     for (final profile in widget.profiles) {
       final originalPubKey = profile.publicKey;
       if (_pubkeyToHex.containsKey(originalPubKey)) continue;
-      try {
-        if (originalPubKey.startsWith('npub1')) {
-          final hex = await hexPubkeyFromNpub(npub: originalPubKey);
-          _pubkeyToHex[originalPubKey] = hex;
-        } else {
-          _pubkeyToHex[originalPubKey] = originalPubKey;
-        }
-      } catch (_) {
-        // Fallback to original if conversion fails
-        _pubkeyToHex[originalPubKey] = originalPubKey;
-      }
+      final hexPubkey = PubkeyFormatter(pubkey: originalPubKey).toHex();
+      if (hexPubkey == null) continue;
+      _pubkeyToHex[originalPubKey] = hexPubkey;
     }
     if (mounted) setState(() {});
   }
@@ -93,8 +85,8 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
   }
 
   Future<void> _getActivePubkeyHex() async {
-    final activeAccountPubkey = ref.read(activePubkeyProvider);
-    if (activeAccountPubkey != null) {
+    final activeAccountPubkey = ref.read(activePubkeyProvider) ?? '';
+    if (activeAccountPubkey.isNotEmpty) {
       setState(() {
         _activeAccountHex = activeAccountPubkey;
       });
@@ -105,12 +97,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
     if (_activeAccountHex == null) return false;
 
     try {
-      // Convert profile's npub key to hex for comparison
-      String profileHex = profile.publicKey;
-      if (profile.publicKey.startsWith('npub1')) {
-        profileHex = await hexPubkeyFromNpub(npub: profile.publicKey);
-      }
-
+      final String profileHex = PubkeyFormatter(pubkey: profile.publicKey).toHex() ?? '';
       return profileHex == _activeAccountHex;
     } catch (e) {
       // If conversion fails, try direct comparison as fallback

@@ -3,19 +3,16 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
 import 'package:whitenoise/config/states/group_state.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/error_handling.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class GroupsNotifier extends Notifier<GroupsState> {
   final _logger = Logger('GroupsNotifier');
@@ -80,15 +77,14 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
 
-      if (activeAccount == null) {
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
       }
 
-      final groups = await activeGroups(pubkey: activeAccount.pubkey);
+      final groups = await activeGroups(pubkey: activePubkey);
 
       // Sort groups by lastMessageAt in descending order (newest first)
       final sortedGroups = [...groups]..sort((a, b) {
@@ -118,7 +114,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       await _loadGroupTypesForAllGroups(groups);
 
       // Now calculate display names with member data available
-      await _calculateDisplayNames(groups, activeAccount.pubkey);
+      await _calculateDisplayNames(groups);
 
       // Schedule message loading after the current build cycle completes
       Future.microtask(() async {
@@ -156,12 +152,11 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Find an existing direct message group between the current user and another user
   Future<Group?> _findExistingDirectMessage(String otherUserPubkeyHex) async {
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) return null;
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) return null;
 
-      final currentUserNpub = await npubFromHexPubkey(hexPubkey: activeAccount.pubkey);
-      final otherUserNpub = await npubFromHexPubkey(hexPubkey: otherUserPubkeyHex);
+      final currentUserNpub = PubkeyFormatter(pubkey: activePubkey).toNpub();
+      final otherUserNpub = PubkeyFormatter(pubkey: otherUserPubkeyHex).toNpub();
 
       final directMessageGroups = await getDirectMessageGroups();
 
@@ -188,6 +183,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     required String groupDescription,
     required List<String> memberPublicKeyHexs,
     required List<String> adminPublicKeyHexs,
+    bool isDm = false,
   }) async {
     state = state.copyWith(isLoading: true, error: null);
 
@@ -197,10 +193,9 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
 
-      if (activeAccount == null) {
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return null;
       }
@@ -218,38 +213,37 @@ class GroupsNotifier extends Notifier<GroupsState> {
       }
 
       // Filter out the creator from the members list since they shouldn't be explicitly included
-      final creatorPubkeyHex = activeAccount.pubkey.trim();
+      final creatorPubkeyHex = activePubkey.trim();
       final filteredMemberHexs =
           memberPublicKeyHexs.where((hex) => hex.trim() != creatorPubkeyHex).toList();
 
-      // Use hex strings directly instead of converting to PublicKey objects
       final filteredMemberPubkeys = filteredMemberHexs.map((hexKey) => hexKey.trim()).toList();
       _logger.info(
         'GroupsProvider: Members pubkeys loaded (excluding creator) - ${filteredMemberPubkeys.length}',
       );
 
-      // Use hex strings directly instead of converting to PublicKey objects
       final resolvedAdminPublicKeys =
           adminPublicKeyHexs.toSet().map((hexKey) => hexKey.trim()).toList();
-      final combinedAdminKeys = {activeAccount.pubkey, ...resolvedAdminPublicKeys}.toList();
+      final combinedAdminKeys = {activePubkey, ...resolvedAdminPublicKeys}.toList();
       _logger.info('GroupsProvider: Admin pubkeys loaded - ${combinedAdminKeys.length}');
 
       // Debug logging before the createGroup call
       _logger.info('GroupsProvider: Creating group with the following parameters:');
       _logger.info('  - Group name: "$groupName"');
       _logger.info('  - Group description: "$groupDescription"');
-      _logger.info('  - Creator pubkey: ${activeAccount.pubkey}');
+      _logger.info('  - Creator pubkey: $activePubkey');
       _logger.info('  - Members count (filtered): ${filteredMemberPubkeys.length}');
       _logger.info('  - Admins count: ${combinedAdminKeys.length}');
       _logger.info('  - Member pubkeys (filtered): $filteredMemberHexs');
       _logger.info('  - Admin pubkeys: $adminPublicKeyHexs');
 
       final newGroup = await createGroup(
-        creatorPubkey: activeAccount.pubkey,
+        creatorPubkey: activePubkey,
         memberPubkeys: filteredMemberPubkeys,
         adminPubkeys: combinedAdminKeys,
         groupName: groupName,
         groupDescription: groupDescription,
+        groupType: isDm ? GroupType.directMessage : GroupType.group,
       );
 
       _logger.info('GroupsProvider: Group created successfully - ${newGroup.name}');
@@ -302,14 +296,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found');
         return;
       }
 
-      final memberPubkeys = await groupMembers(pubkey: activeAccount.pubkey, groupId: groupId);
+      final memberPubkeys = await groupMembers(pubkey: activePubkey, groupId: groupId);
 
       _logger.info('GroupsProvider: Loaded ${memberPubkeys.length} members for group $groupId');
 
@@ -317,11 +310,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final List<User> members = [];
       for (final memberPubkey in memberPubkeys) {
         try {
-          final pubkeyString = await npubFromHexPubkey(hexPubkey: memberPubkey);
-
+          final npub = PubkeyFormatter(pubkey: memberPubkey).toNpub() ?? '';
           try {
             final metadata = await rust_users.userMetadata(pubkey: memberPubkey);
-            final user = User.fromMetadata(metadata, pubkeyString);
+            final user = User.fromMetadata(metadata, npub);
             members.add(user);
           } catch (metadataError) {
             // Log the full exception details with proper Whitenoise ApiError unpacking
@@ -335,10 +327,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
             _logger.warning(logMessage, metadataError);
             // Create a fallback user with minimal info
             final fallbackUser = User(
-              id: pubkeyString,
+              id: npub,
               displayName: 'Unknown User',
               nip05: '',
-              publicKey: pubkeyString,
+              publicKey: npub,
             );
             members.add(fallbackUser);
           }
@@ -382,14 +374,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found');
         return;
       }
 
-      final adminPubkeys = await groupAdmins(pubkey: activeAccount.pubkey, groupId: groupId);
+      final adminPubkeys = await groupAdmins(pubkey: activePubkey, groupId: groupId);
 
       _logger.info('GroupsProvider: Loaded ${adminPubkeys.length} admins for group $groupId');
 
@@ -397,12 +388,11 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final List<User> admins = [];
       for (final adminPubkey in adminPubkeys) {
         try {
-          // Get pubkey string first to avoid multiple uses of the same PublicKey object
-          final pubkeyString = await npubFromHexPubkey(hexPubkey: adminPubkey);
+          final npub = PubkeyFormatter(pubkey: adminPubkey).toNpub() ?? '';
 
           try {
             final metadata = await rust_users.userMetadata(pubkey: adminPubkey);
-            final user = User.fromMetadata(metadata, pubkeyString);
+            final user = User.fromMetadata(metadata, npub);
             admins.add(user);
           } catch (metadataError) {
             // Log the full exception details with proper ApiError unpacking
@@ -416,10 +406,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
             _logger.warning(logMessage, metadataError);
             // Create a fallback user with minimal info
             final fallbackUser = User(
-              id: pubkeyString,
+              id: npub,
               displayName: 'Unknown User',
               nip05: '',
-              publicKey: pubkeyString,
+              publicKey: npub,
             );
             admins.add(fallbackUser);
           }
@@ -478,13 +468,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   /// Calculate display names for all groups
-  Future<void> _calculateDisplayNames(List<Group> groups, String currentUserPubkey) async {
+  Future<void> _calculateDisplayNames(List<Group> groups) async {
     final Map<String, String> displayNames = Map<String, String>.from(
       state.groupDisplayNames ?? {},
     );
 
     for (final group in groups) {
-      final displayName = await _getDisplayNameForGroup(group, currentUserPubkey);
+      final displayName = await _getDisplayNameForGroup(group);
       displayNames[group.mlsGroupId] = displayName;
     }
 
@@ -497,11 +487,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
     if (group == null) return;
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) return;
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) return;
 
-      final displayName = await _getDisplayNameForGroup(group, activeAccount.pubkey);
+      final displayName = await _getDisplayNameForGroup(group);
       final updatedDisplayNames = Map<String, String>.from(state.groupDisplayNames ?? {});
       updatedDisplayNames[groupId] = displayName;
 
@@ -526,11 +515,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
       );
 
       final List<Future<void>> loadTasks = [];
+      final activePubkey = ref.read(activePubkeyProvider);
+      if (activePubkey == null || activePubkey.isEmpty) return;
 
       for (final group in groups) {
         loadTasks.add(
           group
-              .groupType()
+              .groupType(accountPubkey: activePubkey)
               .then((groupType) {
                 groupTypes[group.mlsGroupId] = groupType;
               })
@@ -599,13 +590,17 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   /// Get the appropriate display name for a group
-  Future<String> _getDisplayNameForGroup(Group group, String currentUserPubkey) async {
+  Future<String> _getDisplayNameForGroup(Group group) async {
     // For direct messages, use the other member's name
-    final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
+    final activePubkey = ref.read(activePubkeyProvider);
+    if (activePubkey == null || activePubkey.isEmpty) return '';
+    final groupInformation = await getGroupInformation(
+      accountPubkey: activePubkey,
+      groupId: group.mlsGroupId,
+    );
     if (groupInformation.groupType == GroupType.directMessage) {
       try {
-        final currentUserNpub = await npubFromHexPubkey(hexPubkey: currentUserPubkey);
-        final otherMember = getOtherGroupMember(group.mlsGroupId, currentUserNpub);
+        final otherMember = getOtherGroupMember(group.mlsGroupId);
 
         if (otherMember == null) {
           _logger.warning(
@@ -636,8 +631,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   Future<Map<String, GroupInformation>> _getGroupInformationsMap(List<Group> groups) async {
     final groupIds = groups.map((group) => group.mlsGroupId).toList();
-    final groupInformations = await getGroupsInformations(groupIds: groupIds);
     final groupInformationsMap = <String, GroupInformation>{};
+    final activePubkey = ref.read(activePubkeyProvider);
+    if (activePubkey == null || activePubkey.isEmpty) return groupInformationsMap;
+    final groupInformations = await getGroupsInformations(
+      accountPubkey: activePubkey,
+      groupIds: groupIds,
+    );
     for (int i = 0; i < groupIds.length && i < groupInformations.length; i++) {
       groupInformationsMap[groupIds[i]] = groupInformations[i];
     }
@@ -691,13 +691,21 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   Future<GroupType> getGroupType(Group group) async {
-    final groupInformation = await getGroupInformation(groupId: group.mlsGroupId);
+    final activePubkey = ref.read(activePubkeyProvider) ?? '';
+    final groupInformation = await getGroupInformation(
+      accountPubkey: activePubkey,
+      groupId: group.mlsGroupId,
+    );
 
     return groupInformation.groupType;
   }
 
   Future<GroupType> getGroupTypeById(String groupId) async {
-    final groupInformation = await getGroupInformation(groupId: groupId);
+    final activePubkey = ref.read(activePubkeyProvider) ?? '';
+    final groupInformation = await getGroupInformation(
+      accountPubkey: activePubkey,
+      groupId: groupId,
+    );
 
     return groupInformation.groupType;
   }
@@ -726,14 +734,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   Future<bool> isCurrentUserAdmin(String groupId) async {
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) return false;
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) return false;
 
       final group = findGroupById(groupId);
       if (group == null) return false;
 
-      return group.adminPubkeys.contains(activeAccount.pubkey);
+      return group.adminPubkeys.contains(activePubkey);
     } catch (e) {
       // Log the full exception details with proper ApiError unpacking
       String logMessage = 'GroupsProvider: Error checking admin status - Exception: ';
@@ -771,13 +778,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         return;
       }
 
-      final newGroups = await activeGroups(pubkey: activeAccount.pubkey);
+      final newGroups = await activeGroups(pubkey: activePubkey);
 
       final currentGroups = state.groups ?? [];
       final currentGroupIds =
@@ -817,7 +823,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         await _loadGroupTypesForAllGroups(actuallyNewGroups);
 
         // Calculate display names for new groups
-        await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups, activeAccount.pubkey);
+        await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups);
 
         _logger.info('GroupsProvider: Added ${actuallyNewGroups.length} new groups');
       }
@@ -865,14 +871,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Calculate display names for specific groups (used for new groups)
   Future<void> _calculateDisplayNamesForSpecificGroups(
     List<Group> groups,
-    String currentUserPubkey,
   ) async {
     final Map<String, String> displayNames = Map<String, String>.from(
       state.groupDisplayNames ?? {},
     );
 
     for (final group in groups) {
-      final displayName = await _getDisplayNameForGroup(group, currentUserPubkey);
+      final displayName = await _getDisplayNameForGroup(group);
       displayNames[group.mlsGroupId] = displayName;
     }
 
@@ -888,21 +893,19 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found');
         return;
       }
 
-      final usersPubkeyHex = await Future.wait(
-        membersNpubs.map((userNpub) async {
-          return await hexPubkeyFromNpub(npub: userNpub);
-        }),
-      );
+      final usersPubkeyHex =
+          membersNpubs.map((userNpub) {
+            return PubkeyFormatter(pubkey: userNpub).toHex() ?? '';
+          }).toList();
 
       await addMembersToGroup(
-        pubkey: activeAccount.pubkey,
+        pubkey: activePubkey,
         groupId: groupId,
         memberPubkeys: usersPubkeyHex,
       );
@@ -944,21 +947,19 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found');
         return;
       }
 
-      final usersPubkeyHex = await Future.wait(
-        membersNpubs.map((userNpub) async {
-          return await hexPubkeyFromNpub(npub: userNpub);
-        }),
-      );
+      final usersPubkeyHex =
+          membersNpubs.map((userNpub) {
+            return PubkeyFormatter(pubkey: userNpub).toHex() ?? '';
+          }).toList();
 
       await removeMembersFromGroup(
-        pubkey: activeAccount.pubkey,
+        pubkey: activePubkey,
         groupId: groupId,
         memberPubkeys: usersPubkeyHex,
       );
@@ -1042,18 +1043,25 @@ final groupsProvider = NotifierProvider<GroupsNotifier, GroupsState>(
 );
 
 extension GroupMemberUtils on GroupsNotifier {
-  User? getOtherGroupMember(String? groupId, String? currentUserNpub) {
-    if (groupId == null || currentUserNpub == null) return null;
+  User? getOtherGroupMember(String? groupId) {
+    if (groupId == null) return null;
+    final activePubkey = ref.read(activePubkeyProvider);
+    if (activePubkey == null || activePubkey.isEmpty) return null;
     final members = getGroupMembers(groupId);
     if (members == null || members.isEmpty) return null;
 
-    // Use safe filtering - never return the current user as fallback
-    final otherMembers = members.where((member) => member.publicKey != currentUserNpub).toList();
-
+    final hexActivePubkey = PubkeyFormatter(pubkey: activePubkey).toHex();
+    final otherMembers =
+        members
+            .where(
+              (member) => PubkeyFormatter(pubkey: member.publicKey).toHex() != hexActivePubkey,
+            )
+            .toList();
+    final npubActivePubkey = PubkeyFormatter(pubkey: activePubkey).toNpub();
     if (otherMembers.isEmpty) {
       _logger.warning(
         'GroupsProvider: No other members found in DM group $groupId. '
-        'Total members: ${members.length}, Current user: $currentUserNpub',
+        'Total members: ${members.length}, Current user: $npubActivePubkey',
       );
       return null;
     }
@@ -1061,21 +1069,10 @@ extension GroupMemberUtils on GroupsNotifier {
     return otherMembers.first;
   }
 
-  Future<ContactModel?> getFirstOtherMember(String? groupId, String? currentUserNpub) async {
-    if (groupId == null || currentUserNpub == null) return null;
-    final members = getGroupMembers(groupId);
-    final member = members?.where((m) => m.publicKey != currentUserNpub).firstOrNull;
-    if (member == null) return null;
-    final hexPubkey = await hexPubkeyFromNpub(npub: member.publicKey);
-    final c = await ref.read(metadataCacheProvider.notifier).getContactModel(hexPubkey);
-
-    return c;
-  }
-
   /// Get the display image for a group based on its type
   /// For direct messages, returns the other member's image
   /// For regular groups, returns null (can be extended for group avatars)
-  String? getGroupDisplayImage(String groupId, String currentUserNpub) {
+  String? getGroupDisplayImage(String groupId) {
     final group = findGroupById(groupId);
     if (group == null) return null;
 
@@ -1091,7 +1088,7 @@ extension GroupMemberUtils on GroupsNotifier {
 
     // For direct messages, use the other member's image
     if (groupType == GroupType.directMessage) {
-      final otherMember = getOtherGroupMember(groupId, currentUserNpub);
+      final otherMember = getOtherGroupMember(groupId);
       return otherMember?.imagePath;
     }
 

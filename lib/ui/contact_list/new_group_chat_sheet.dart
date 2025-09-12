@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -91,19 +90,6 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
           contact: contact,
           isSelected: isSelected,
           onTap: () => _toggleContactSelection(contact),
-          enableSwipeToDelete: true,
-          onDelete: () async {
-            try {
-              await ref.read(followsProvider.notifier).removeFollow(contact.publicKey);
-              if (context.mounted) {
-                ref.showSuccessToast('Contact removed successfully');
-              }
-            } catch (e) {
-              if (context.mounted) {
-                ref.showErrorToast('Failed to remove contact: $e');
-              }
-            }
-          },
           showCheck: true,
         );
       },
@@ -146,8 +132,10 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     final followsState = ref.watch(followsProvider);
     final activeAccount = ref.watch(activePubkeyProvider);
     final follows = followsState.follows;
-    final contactModels = follows.map((follow) => ContactModel.fromUser(user: follow)).toList();
-    final filteredContacts = _getFilteredContacts(contactModels, activeAccount);
+    final contactModels = follows.map(
+      (follow) => ContactModel.fromMetadata(pubkey: follow.pubkey, metadata: follow.metadata),
+    );
+    final filteredContacts = _getFilteredContacts(contactModels.toList(), activeAccount);
 
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h),

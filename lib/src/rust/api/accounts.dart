@@ -11,7 +11,7 @@ import 'metadata.dart';
 import 'relays.dart';
 import 'users.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `fmt`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `fmt`, `fmt`, `from`, `from`
 
 Future<List<Account>> getAccounts() => RustLib.instance.api.crateApiAccountsGetAccounts();
 
@@ -80,8 +80,32 @@ Future<void> removeAccountRelay({
   relayType: relayType,
 );
 
-Future<Event?> accountKeyPackage({required String pubkey}) =>
+Future<FlutterEvent?> accountKeyPackage({required String pubkey}) =>
     RustLib.instance.api.crateApiAccountsAccountKeyPackage(pubkey: pubkey);
+
+Future<List<FlutterEvent>> accountKeyPackages({
+  required String accountPubkey,
+}) => RustLib.instance.api.crateApiAccountsAccountKeyPackages(
+  accountPubkey: accountPubkey,
+);
+
+Future<void> publishAccountKeyPackage({required String accountPubkey}) =>
+    RustLib.instance.api.crateApiAccountsPublishAccountKeyPackage(
+      accountPubkey: accountPubkey,
+    );
+
+Future<bool> deleteAccountKeyPackage({
+  required String accountPubkey,
+  required String keyPackageId,
+}) => RustLib.instance.api.crateApiAccountsDeleteAccountKeyPackage(
+  accountPubkey: accountPubkey,
+  keyPackageId: keyPackageId,
+);
+
+Future<BigInt> deleteAccountKeyPackages({required String accountPubkey}) =>
+    RustLib.instance.api.crateApiAccountsDeleteAccountKeyPackages(
+      accountPubkey: accountPubkey,
+    );
 
 Future<List<User>> accountFollows({required String pubkey}) =>
     RustLib.instance.api.crateApiAccountsAccountFollows(pubkey: pubkey);
@@ -101,9 +125,6 @@ Future<void> unfollowUser({
   accountPubkey: accountPubkey,
   userToUnfollowPubkey: userToUnfollowPubkey,
 );
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Event>>
-abstract class Event implements RustOpaqueInterface {}
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayType>>
 abstract class RelayType implements RustOpaqueInterface {}
@@ -134,4 +155,43 @@ class Account {
           lastSyncedAt == other.lastSyncedAt &&
           createdAt == other.createdAt &&
           updatedAt == other.updatedAt;
+}
+
+class FlutterEvent {
+  final String id;
+  final String pubkey;
+  final DateTime createdAt;
+  final int kind;
+  final List<String> tags;
+  final String content;
+
+  const FlutterEvent({
+    required this.id,
+    required this.pubkey,
+    required this.createdAt,
+    required this.kind,
+    required this.tags,
+    required this.content,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      pubkey.hashCode ^
+      createdAt.hashCode ^
+      kind.hashCode ^
+      tags.hashCode ^
+      content.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FlutterEvent &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          pubkey == other.pubkey &&
+          createdAt == other.createdAt &&
+          kind == other.kind &&
+          tags == other.tags &&
+          content == other.content;
 }

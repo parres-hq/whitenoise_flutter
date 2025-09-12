@@ -16,6 +16,7 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 import 'member_action_buttons.dart';
@@ -64,9 +65,9 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
   }
 
   void _loadCurrentUserNpub() async {
-    final activeAccountPubkey = ref.read(activePubkeyProvider);
-    if (activeAccountPubkey != null) {
-      currentUserNpub = await activeAccountPubkey.toNpub() ?? '';
+    final activeAccountPubkey = ref.read(activePubkeyProvider) ?? '';
+    if (activeAccountPubkey.isNotEmpty) {
+      currentUserNpub = PubkeyFormatter(pubkey: activeAccountPubkey).toNpub() ?? '';
       setState(() {});
     }
   }

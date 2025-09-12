@@ -8,13 +8,11 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
-import 'package:whitenoise/config/providers/follows_provider.dart';
-import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts, accountMetadata;
-import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts;
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
@@ -23,7 +21,7 @@ import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
-import 'package:whitenoise/utils/public_key_validation_extension.dart';
+import 'package:whitenoise/ui/settings/widgets/active_account_tile.dart';
 
 class GeneralSettingsScreen extends ConsumerStatefulWidget {
   const GeneralSettingsScreen({super.key});
@@ -34,21 +32,20 @@ class GeneralSettingsScreen extends ConsumerStatefulWidget {
 
 class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   List<Account> _accounts = [];
-  Account? _currentAccount;
-  Map<String, ContactModel> _accountContactModels = {}; // Cache for contact models
+  List<ContactModel> _accountsProfileData = [];
   ProviderSubscription<AsyncValue<ActiveAccountState>>? _activeAccountSubscription;
   PackageInfo? _packageInfo;
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadAccounts();
+      _loadAccountsProfileData();
       _loadPackageInfo();
       _activeAccountSubscription = ref.listenManual(
         activeAccountProvider,
         (previous, next) {
           if (next is AsyncData) {
-            _loadAccounts();
+            _loadAccountsProfileData();
           }
         },
       );
@@ -61,36 +58,34 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     super.dispose();
   }
 
-  Future<void> _loadAccounts() async {
+  Future<void> _loadAccountsProfileData() async {
     try {
-      final accounts = await getAccounts();
-      final contactModels = <String, ContactModel>{};
-      for (final account in accounts) {
-        final metadata = await accountMetadata(pubkey: account.pubkey);
-        contactModels[account.pubkey] = ContactModel.fromMetadata(
-          publicKey: account.pubkey,
-          metadata: metadata,
-        );
-      }
+      final List<Account> accounts = await getAccounts();
+      final UserProfileDataNotifier userProfileDataNotifier = ref.read(
+        userProfileDataProvider.notifier,
+      );
+      final List<Future<ContactModel>> accountsProfileDataFutures =
+          accounts
+              .map((account) => userProfileDataNotifier.getUserProfileData(account.pubkey))
+              .toList();
+      final List<ContactModel> accountsProfileData = await Future.wait(accountsProfileDataFutures);
 
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-
+      if (!mounted) return;
       setState(() {
         _accounts = accounts;
-        _currentAccount = activeAccount;
-        _accountContactModels = contactModels;
+        _accountsProfileData = accountsProfileData;
       });
     } catch (e) {
       if (mounted) {
-        ref.showErrorToast('Failed to load accounts: $e');
+        ref.showErrorToast('Failed to load accounts');
       }
-    } finally {}
+    }
   }
 
   Future<void> _loadPackageInfo() async {
     try {
-      final packageInfo = await PackageInfo.fromPlatform();
+      final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+      if (!mounted) return;
       setState(() {
         _packageInfo = packageInfo;
       });
@@ -100,12 +95,9 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     }
   }
 
-  Future<void> _switchAccount(Account account) async {
+  Future<void> _switchAccount(String accountPubkey) async {
     try {
-      await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
-      await ref.read(followsProvider.notifier).loadFollows();
-      await ref.read(groupsProvider.notifier).loadGroups();
-      setState(() => _currentAccount = account);
+      await ref.read(activePubkeyProvider.notifier).setActivePubkey(accountPubkey);
 
       if (mounted) {
         ref.showSuccessToast('Account switched successfully');
@@ -117,67 +109,23 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     }
   }
 
-  ContactModel _accountToContactModel(Account account) {
-    final contactModel = _accountContactModels[account.pubkey];
-
-    // Use cached contact model if available, otherwise create fallback
-    if (contactModel != null) {
-      return contactModel;
+  Future<void> _showAccountSwitcher({
+    bool isDismissible = true,
+    bool showSuccessToast = false,
+  }) async {
+    if (_accounts.isEmpty) {
+      await _loadAccountsProfileData();
     }
 
-    // Fallback contact model
-    return ContactModel(
-      publicKey: account.pubkey,
-      displayName: 'Account ${account.pubkey.substring(0, 8)}',
-    );
-  }
-
-  void _showAccountSwitcher({bool isDismissible = true, bool showSuccessToast = false}) {
-    final contactModels = _accounts.map(_accountToContactModel).toList();
+    if (!mounted) return;
 
     SwitchProfileBottomSheet.show(
       context: context,
-      profiles: contactModels,
+      profiles: _accountsProfileData,
       isDismissible: isDismissible,
       showSuccessToast: showSuccessToast,
       onProfileSelected: (selectedProfile) async {
-        // Find the corresponding Account
-        // Note: selectedProfile.publicKey is in npub format (from metadata cache)
-        // but account.pubkey is in hex format (from getAccounts)
-        // So we need to convert npub back to hex for matching
-
-        Account? selectedAccount;
-
-        try {
-          // Try to convert npub to hex for matching
-          String hexKey = selectedProfile.publicKey;
-          if (selectedProfile.publicKey.isValidNpubPublicKey) {
-            hexKey = await hexPubkeyFromNpub(npub: selectedProfile.publicKey);
-          }
-
-          selectedAccount = _accounts.where((account) => account.pubkey == hexKey).firstOrNull;
-        } catch (e) {
-          // If conversion fails, try direct matching as fallback
-          selectedAccount =
-              _accounts.where((account) => account.pubkey == selectedProfile.publicKey).firstOrNull;
-        }
-
-        if (selectedAccount != null) {
-          await _switchAccount(selectedAccount);
-          // Don't close the sheet - stay on settings screen after account switch
-        } else {
-          // Account not found, reload accounts and show error
-          if (mounted) {
-            try {
-              ref.showErrorToast('Account not found. Refreshing account list...');
-            } catch (e) {
-              // Fallback if toast fails - just reload accounts silently
-              debugPrint('Toast error: $e');
-            }
-            _loadAccounts();
-            // Don't close the sheet - stay on settings screen
-          }
-        }
+        await _switchAccount(selectedProfile.publicKey);
       },
     );
   }
@@ -226,11 +174,12 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
     final authNotifier = ref.read(authProvider.notifier);
 
-    // Check if there are multiple accounts before logout
-    final accounts = await getAccounts();
-    final hasMultipleAccounts = accounts.length > 2;
+    final hasMultipleAccounts = _accounts.length > 2;
 
     if (!mounted) return;
+
+    // Clear all draft messages before logout
+    await DraftMessageService.clearAllDrafts();
 
     await authNotifier.logoutCurrentAccount();
 
@@ -246,14 +195,14 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
     if (finalAuthState.isAuthenticated) {
       if (hasMultipleAccounts) {
-        await _loadAccounts();
+        await _loadAccountsProfileData();
 
         if (mounted) {
-          _showAccountSwitcher(isDismissible: false, showSuccessToast: true);
+          await _showAccountSwitcher(isDismissible: false, showSuccessToast: true);
         }
       } else {
         ref.showSuccessToast('Account signed out. Switched to the other available account.');
-        await _loadAccounts();
+        await _loadAccountsProfileData();
       }
     } else {
       ref.showSuccessToast('Signed out successfully.');
@@ -300,24 +249,13 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 16.w),
                 child: Column(
                   children: [
-                    if (_currentAccount != null)
-                      ContactListTile(
-                        contact: _accountToContactModel(_currentAccount!),
-                        trailingIcon: WnImage(
-                          AssetsPaths.icQrCode,
-                          size: 20.w,
-                          color: context.colors.primary,
-                        ),
-                        onTap: () => context.push('${Routes.settings}/share_profile'),
-                      )
-                    else
-                      const Center(child: Text('No accounts found')),
+                    const ActiveAccountTile(),
                     Gap(12.h),
                     WnFilledButton(
                       label: 'Switch Account',
                       size: WnButtonSize.small,
                       visualState: WnButtonVisualState.secondary,
-                      onPressed: () => _showAccountSwitcher(),
+                      onPressed: () async => await _showAccountSwitcher(),
                       suffixIcon: WnImage(
                         AssetsPaths.icArrowsVertical,
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,6 +10,9 @@ import 'package:flutter_svg/flutter_svg.dart';
 /// - Network (http/https):
 ///   - .svg -> SvgPicture.network
 ///   - others -> CachedNetworkImage
+/// - Local file:
+///   - .svg -> SvgPicture.file
+///   - others -> Image.file
 /// - Asset:
 ///   - .svg -> SvgPicture.asset
 ///   - others -> Image.asset
@@ -24,6 +29,7 @@ class WnImage extends StatelessWidget {
     this.borderRadius,
     this.placeholder,
     this.errorWidget,
+    this.fallbackWidget,
     this.clipBehavior = Clip.hardEdge,
     this.cacheKey,
     this.semanticLabel,
@@ -48,6 +54,7 @@ class WnImage extends StatelessWidget {
   final BorderRadius? borderRadius;
   final WidgetBuilder? placeholder;
   final WidgetBuilder? errorWidget;
+  final WidgetBuilder? fallbackWidget;
   final Clip clipBehavior;
   final String? cacheKey;
   final String? semanticLabel;
@@ -57,10 +64,19 @@ class WnImage extends StatelessWidget {
     return uri != null && uri.hasScheme && (uri.scheme == 'http' || uri.scheme == 'https');
   }
 
+  bool get _isLocalFile {
+    return !_isNetwork && File(src).existsSync();
+  }
+
   bool get _isSvg => src.toLowerCase().endsWith('.svg');
 
   @override
   Widget build(BuildContext context) {
+    // Guard against empty or null src
+    if (src.isEmpty) {
+      return _buildFallback(context);
+    }
+
     final Widget child;
 
     if (_isNetwork) {
@@ -75,6 +91,7 @@ class WnImage extends StatelessWidget {
           colorFilter: color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
           semanticsLabel: semanticLabel,
           placeholderBuilder: (context) => _buildPlaceholder(context),
+          errorBuilder: (context, error, stackTrace) => _buildFallback(context),
         );
       } else {
         final width = size ?? this.width;
@@ -91,7 +108,7 @@ class WnImage extends StatelessWidget {
               height == null ? null : (height * MediaQuery.devicePixelRatioOf(context)).round(),
           cacheKey: cacheKey,
           placeholder: (context, url) => _buildPlaceholder(context),
-          errorWidget: (context, url, error) => _buildError(context),
+          errorWidget: (context, url, error) => _buildFallback(context),
           color: color,
           colorBlendMode: color == null ? null : BlendMode.srcIn,
           imageBuilder:
@@ -104,10 +121,39 @@ class WnImage extends StatelessWidget {
                 color: color,
                 colorBlendMode: color == null ? null : BlendMode.srcIn,
                 semanticLabel: semanticLabel,
+                errorBuilder: (context, error, stackTrace) => _buildFallback(context),
               ),
         );
       }
+    } else if (_isLocalFile) {
+      if (_isSvg) {
+        final color = this.color;
+        child = SvgPicture.file(
+          File(src),
+          width: size ?? width,
+          height: size ?? height,
+          fit: fit ?? BoxFit.contain,
+          alignment: alignment,
+          colorFilter: color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
+          semanticsLabel: semanticLabel,
+          placeholderBuilder: (context) => _buildPlaceholder(context),
+          errorBuilder: (context, error, stackTrace) => _buildFallback(context),
+        );
+      } else {
+        child = Image.file(
+          File(src),
+          width: size ?? width,
+          height: size ?? height,
+          fit: fit,
+          alignment: alignment,
+          color: color,
+          colorBlendMode: color == null ? null : BlendMode.srcIn,
+          semanticLabel: semanticLabel,
+          errorBuilder: (context, error, stackTrace) => _buildFallback(context),
+        );
+      }
     } else {
+      // Try as asset
       if (_isSvg) {
         final color = this.color;
         child = SvgPicture.asset(
@@ -118,6 +164,7 @@ class WnImage extends StatelessWidget {
           alignment: alignment,
           colorFilter: color == null ? null : ColorFilter.mode(color, BlendMode.srcIn),
           semanticsLabel: semanticLabel,
+          errorBuilder: (context, error, stackTrace) => _buildFallback(context),
         );
       } else {
         child = Image.asset(
@@ -129,6 +176,7 @@ class WnImage extends StatelessWidget {
           color: color,
           colorBlendMode: color == null ? null : BlendMode.srcIn,
           semanticLabel: semanticLabel,
+          errorBuilder: (context, error, stackTrace) => _buildFallback(context),
         );
       }
     }
@@ -168,5 +216,18 @@ class WnImage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Widget _buildFallback(BuildContext context) {
+    // First try the custom fallback widget
+    final fallbackWidget = this.fallbackWidget;
+    if (fallbackWidget != null) return fallbackWidget(context);
+
+    // Then try the error widget
+    final errorWidget = this.errorWidget;
+    if (errorWidget != null) return errorWidget(context);
+
+    // Finally use the default error display
+    return _buildError(context);
   }
 }

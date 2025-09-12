@@ -3,7 +3,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -13,6 +12,7 @@ import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/message_converter.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class ChatNotifier extends Notifier<ChatState> {
   final _logger = Logger('ChatNotifier');
@@ -65,9 +65,8 @@ class ChatNotifier extends Notifier<ChatState> {
     );
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         _setGroupError(groupId, 'No active account found');
         return;
       }
@@ -76,7 +75,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Use fetchAggregatedMessagesForGroup which includes all message data including replies
       final aggregatedMessages = await fetchAggregatedMessagesForGroup(
-        pubkey: activeAccount.pubkey,
+        pubkey: activePubkey,
         groupId: groupId,
       );
 
@@ -89,7 +88,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       final messages = await MessageConverter.fromChatMessageList(
         aggregatedMessages,
-        currentUserPublicKey: activeAccount.pubkey,
+        currentUserPublicKey: activePubkey,
         groupId: groupId,
         ref: ref,
       );
@@ -144,9 +143,8 @@ class ChatNotifier extends Notifier<ChatState> {
     );
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         _setGroupError(groupId, 'No active account found');
         return null;
       }
@@ -154,7 +152,7 @@ class ChatNotifier extends Notifier<ChatState> {
       _logger.info('ChatProvider: Sending message to group $groupId');
 
       final sentMessage = await sendMessageToGroup(
-        pubkey: activeAccount.pubkey,
+        pubkey: activePubkey,
         groupId: groupId,
         message: message,
         kind: kind,
@@ -201,7 +199,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       final sentMessageModel = await MessageConverter.fromChatMessage(
         sentChatMessage,
-        currentUserPublicKey: activeAccount.pubkey,
+        currentUserPublicKey: activePubkey,
         groupId: groupId,
         ref: ref,
         messageCache: messageCache,
@@ -287,22 +285,21 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         return;
       }
 
       // Use fetchAggregatedMessagesForGroup for polling as well
       final aggregatedMessages = await fetchAggregatedMessagesForGroup(
-        pubkey: activeAccount.pubkey,
+        pubkey: activePubkey,
         groupId: groupId,
       );
 
       aggregatedMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
       final newMessages = await MessageConverter.fromChatMessageList(
         aggregatedMessages,
-        currentUserPublicKey: activeAccount.pubkey,
+        currentUserPublicKey: activePubkey,
         groupId: groupId,
         ref: ref,
       );
@@ -430,7 +427,12 @@ class ChatNotifier extends Notifier<ChatState> {
     if (gId == null) return false;
     final groupMessages = state.groupMessages[gId] ?? [];
     if (index <= 0 || index >= groupMessages.length) return false;
-    return groupMessages[index].sender.publicKey == groupMessages[index - 1].sender.publicKey;
+    final currentSenderPubkey = groupMessages[index].sender.publicKey;
+    final currentSenderHexPubkey = PubkeyFormatter(pubkey: currentSenderPubkey).toHex() ?? '';
+    final previousSenderPubkey = groupMessages[index - 1].sender.publicKey;
+    final previousSenderHexPubkey = PubkeyFormatter(pubkey: previousSenderPubkey).toHex() ?? '';
+    if (currentSenderHexPubkey.isEmpty || previousSenderHexPubkey.isEmpty) return false;
+    return currentSenderHexPubkey == previousSenderHexPubkey;
   }
 
   bool isNextSameSender(int index, {String? groupId}) {
@@ -438,7 +440,12 @@ class ChatNotifier extends Notifier<ChatState> {
     if (gId == null) return false;
     final groupMessages = state.groupMessages[gId] ?? [];
     if (index < 0 || index >= groupMessages.length - 1) return false;
-    return groupMessages[index].sender.publicKey == groupMessages[index + 1].sender.publicKey;
+    final currentSenderPubkey = groupMessages[index].sender.publicKey;
+    final currentSenderHexPubkey = PubkeyFormatter(pubkey: currentSenderPubkey).toHex() ?? '';
+    final nextSenderPubkey = groupMessages[index + 1].sender.publicKey;
+    final nextSenderHexPubkey = PubkeyFormatter(pubkey: nextSenderPubkey).toHex() ?? '';
+    if (currentSenderHexPubkey.isEmpty || nextSenderHexPubkey.isEmpty) return false;
+    return currentSenderHexPubkey == nextSenderHexPubkey;
   }
 
   /// Get unread message count for a group
@@ -501,9 +508,8 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         _setGroupError(message.groupId ?? '', 'No active account found');
         return false;
       }
@@ -537,7 +543,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Send reaction message (kind 7 for reactions in Nostr)
       await sendMessageToGroup(
-        pubkey: activeAccount.pubkey,
+        pubkey: activePubkey,
         groupId: message.groupId ?? '',
         message: reactionContent,
         kind: 7, // Nostr kind 7 = reaction
@@ -575,9 +581,8 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         _setGroupError(groupId, 'No active account found');
         return null;
       }
@@ -591,7 +596,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Send the reply message using rust API
       final sentMessage = await sendMessageToGroup(
-        pubkey: activeAccount.pubkey,
+        pubkey: activePubkey,
         groupId: groupId,
         message: message,
         kind: 9, // Kind 9 for replies
@@ -638,7 +643,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       final sentMessageModel = await MessageConverter.fromChatMessage(
         sentChatMessage,
-        currentUserPublicKey: activeAccount.pubkey,
+        currentUserPublicKey: activePubkey,
         groupId: groupId,
         ref: ref,
         messageCache: messageCache,
@@ -680,9 +685,8 @@ class ChatNotifier extends Notifier<ChatState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         _setGroupError(groupId, 'No active account found');
         return false;
       }
@@ -698,7 +702,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Send deletion message using rust API
       await sendMessageToGroup(
-        pubkey: activeAccount.pubkey,
+        pubkey: activePubkey,
         groupId: groupId,
         message: '', // Empty content for deletion
         kind: 5, // Nostr kind 5 = deletion

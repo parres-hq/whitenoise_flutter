@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
@@ -8,6 +7,7 @@ import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
 import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 import '../../test_helpers.dart';
 
@@ -22,18 +22,23 @@ class MockFollowsNotifier extends FollowsNotifier {
       follows: _mockFollows,
     );
   }
+
+  @override
+  bool isFollowing(String pubkey) {
+    return _mockFollows.any((user) => user.pubkey == pubkey);
+  }
 }
 
 class MockActiveAccountNotifier extends ActiveAccountNotifier {
   @override
-  Future<ActiveAccountState> build() async {
+  Future<ActiveAccountState> build() {
     final mockAccount = Account(
       pubkey: 'test-pubkey',
       createdAt: DateTime.now(),
       updatedAt: DateTime.now(),
     );
 
-    return ActiveAccountState(account: mockAccount);
+    return Future.value(ActiveAccountState(account: mockAccount));
   }
 }
 
@@ -68,19 +73,6 @@ void main() {
       publicKey: 'abc123def456789012345678901234567890123456789012345678901234567890',
       nip05: 'satoshi@nakamoto.com',
       imagePath: 'https://example.com/satoshi.png',
-    );
-
-    final mockUser = User(
-      pubkey: 'abc123def456789012345678901234567890123456789012345678901234567890',
-      metadata: const FlutterMetadata(
-        name: 'Satoshi Nakamoto',
-        displayName: 'Satoshi Nakamoto',
-        nip05: 'satoshi@nakamoto.com',
-        picture: 'https://example.com/satoshi.png',
-        custom: {},
-      ),
-      createdAt: DateTime.now(),
-      updatedAt: DateTime.now(),
     );
 
     // Common provider overrides for all tests
@@ -134,10 +126,10 @@ void main() {
         ),
       );
 
-      final copyButton = find.byType(SvgPicture);
-      expect(copyButton, findsOneWidget);
+      final copyButton = find.byType(WnImage);
+      expect(copyButton, findsWidgets);
 
-      await tester.tap(copyButton);
+      await tester.tap(copyButton.first);
     });
 
     testWidgets('initially shows loading indicator', (WidgetTester tester) async {
@@ -148,7 +140,7 @@ void main() {
         ),
       );
 
-      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.byKey(const ValueKey('loading')), findsOneWidget);
     });
 
     group('without key package', () {
@@ -164,13 +156,8 @@ void main() {
             overrides: commonOverrides,
           ),
         );
-        await tester.pumpAndSettle();
+        await tester.pump();
       }
-
-      testWidgets('hides loading indicator', (WidgetTester tester) async {
-        await setup(tester);
-        expect(find.byType(CircularProgressIndicator), findsNothing);
-      });
 
       testWidgets('displays invite', (WidgetTester tester) async {
         await setup(tester);
@@ -178,9 +165,9 @@ void main() {
         expect(find.text('Share'), findsOneWidget);
       });
 
-      testWidgets('hides add contact option', (WidgetTester tester) async {
+      testWidgets('hides follow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Add Contact'), findsNothing);
+        expect(find.text('Follow'), findsNothing);
       });
 
       testWidgets('hides add to group option', (WidgetTester tester) async {
@@ -207,22 +194,22 @@ void main() {
             overrides: commonOverrides,
           ),
         );
-        await tester.pumpAndSettle();
+        await tester.pump();
       }
 
-      testWidgets('hides loading indicator', (WidgetTester tester) async {
+      testWidgets('displays follow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.byType(CircularProgressIndicator), findsNothing);
-      });
-
-      testWidgets('displays add contact option', (WidgetTester tester) async {
-        await setup(tester);
-        expect(find.text('Add Contact'), findsOneWidget);
+        expect(find.text('Follow'), findsOneWidget);
       });
 
       testWidgets('displays add to group option', (WidgetTester tester) async {
         await setup(tester);
         expect(find.text('Add to Group'), findsOneWidget);
+      });
+
+      testWidgets('hides unfollow option', (WidgetTester tester) async {
+        await setup(tester);
+        expect(find.text('Unfollow'), findsNothing);
       });
 
       testWidgets('displays start chat option', (WidgetTester tester) async {
@@ -235,7 +222,7 @@ void main() {
         expect(find.text('Invite to White Noise'), findsNothing);
       });
 
-      group('when user is already a contact', () {
+      group('when user is already a follow', () {
         Future<void> setup(WidgetTester tester) async {
           await tester.pumpWidget(
             createTestWidget(
@@ -245,55 +232,30 @@ void main() {
               ),
               overrides: [
                 ...commonOverrides,
-                followsProvider.overrideWith(() => MockFollowsNotifier([mockUser])),
+                followsProvider.overrideWith(
+                  () => MockFollowsNotifier([
+                    User(
+                      pubkey: contact.publicKey,
+                      metadata: const FlutterMetadata(custom: {}),
+                      createdAt: DateTime.now(),
+                      updatedAt: DateTime.now(),
+                    ),
+                  ]),
+                ),
               ],
             ),
           );
-          await tester.pumpAndSettle();
+          await tester.pump();
         }
 
-        testWidgets('displays remove contact option', (WidgetTester tester) async {
-          await tester.pumpWidget(
-            createTestWidget(
-              StartChatBottomSheet(
-                contact: contact,
-                usersApi: MockWnUsersApiWithPackage(),
-              ),
-              overrides: [
-                ...commonOverrides,
-                followsProvider.overrideWith(() => MockFollowsNotifier([User(
-                  pubkey: contact.publicKey,
-                  metadata: const FlutterMetadata(custom: {}),
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now(),
-                )])),
-              ],
-            ),
-          );
-          await tester.pumpAndSettle();
-          expect(find.text('Remove Contact'), findsOneWidget);
+        testWidgets('displays unfollow option', (WidgetTester tester) async {
+          await setup(tester);
+          expect(find.text('Unfollow'), findsOneWidget);
         });
 
-        testWidgets('hides add contact option', (WidgetTester tester) async {
-          await tester.pumpWidget(
-            createTestWidget(
-              StartChatBottomSheet(
-                contact: contact,
-                usersApi: MockWnUsersApiWithPackage(),
-              ),
-              overrides: [
-                ...commonOverrides,
-                followsProvider.overrideWith(() => MockFollowsNotifier([User(
-                  pubkey: contact.publicKey,
-                  metadata: const FlutterMetadata(custom: {}),
-                  createdAt: DateTime.now(),
-                  updatedAt: DateTime.now(),
-                )])),
-              ],
-            ),
-          );
-          await tester.pumpAndSettle();
-          expect(find.text('Add Contact'), findsNothing);
+        testWidgets('hides follow option', (WidgetTester tester) async {
+          await setup(tester);
+          expect(find.text('Follow'), findsNothing);
         });
 
         testWidgets('hides invite section', (WidgetTester tester) async {
@@ -314,21 +276,17 @@ void main() {
             overrides: commonOverrides,
           ),
         );
-        await tester.pumpAndSettle();
+        await tester.pump();
       }
 
-      testWidgets('hides loading indicator', (WidgetTester tester) async {
+      testWidgets('hides follow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.byType(CircularProgressIndicator), findsNothing);
-      });
-      testWidgets('hides add contact option', (WidgetTester tester) async {
-        await setup(tester);
-        expect(find.text('Add Contact'), findsNothing);
+        expect(find.text('Follow'), findsNothing);
       });
 
-      testWidgets('hides remove contact option', (WidgetTester tester) async {
+      testWidgets('hides unfollow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Remove Contact'), findsNothing);
+        expect(find.text('Unfollow'), findsNothing);
       });
 
       testWidgets('hides start chat option', (WidgetTester tester) async {

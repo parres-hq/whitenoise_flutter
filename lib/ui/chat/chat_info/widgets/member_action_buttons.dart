@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/follows_provider.dart';
+import 'package:whitenoise/config/providers/follow_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
@@ -38,8 +38,9 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
       final group = await ref
           .read(groupsProvider.notifier)
           .createNewGroup(
-            groupName: 'DM',
-            groupDescription: 'Direct message',
+            groupName: '',
+            groupDescription: '',
+            isDm: true,
             memberPublicKeyHexs: [widget.user.publicKey],
             adminPublicKeyHexs: [widget.user.publicKey],
           );
@@ -102,62 +103,40 @@ class AddToContactButton extends ConsumerStatefulWidget {
 }
 
 class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
-  bool _isAddingContact = false;
-  bool get _isLoading => _isAddingContact;
+  Future<void> _toggleFollow() async {
+    final followNotifier = ref.read(followProvider(widget.user.publicKey).notifier);
+    var currentFollowState = ref.read(followProvider(widget.user.publicKey));
+    late String successMessage;
 
-  bool _isContact() {
-    final followsState = ref.watch(followsProvider);
-    final follows = followsState.follows;
+    if (currentFollowState.isFollowing) {
+      successMessage = 'Unfollowed ${widget.user.displayName}';
+      await followNotifier.removeFollow(widget.user.publicKey);
+    } else {
+      successMessage = 'Followed ${widget.user.displayName}';
+      await followNotifier.addFollow(widget.user.publicKey);
+    }
 
-    return follows.any(
-      (follow) => follow.pubkey.toLowerCase() == widget.user.publicKey.toLowerCase(),
-    );
-  }
-
-  Future<void> _toggleContact() async {
-    setState(() {
-      _isAddingContact = true;
-    });
-
-    try {
-      final followsNotifier = ref.read(followsProvider.notifier);
-      final isCurrentlyFollow = followsNotifier.isFollowing(widget.user.publicKey);
-
-      if (isCurrentlyFollow) {
-        await followsNotifier.removeFollow(widget.user.publicKey);
-        if (mounted) {
-          ref.showSuccessToast('${widget.user.displayName} removed from follows');
-        }
-      } else {
-        await followsNotifier.addFollow(widget.user.publicKey);
-        if (mounted) {
-          ref.showSuccessToast('${widget.user.displayName} added to follows');
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        ref.showErrorToast('Failed to update follow: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isAddingContact = false;
-        });
-      }
+    currentFollowState = ref.read(followProvider(widget.user.publicKey));
+    final errorMessage = currentFollowState.error ?? '';
+    if (errorMessage.isNotEmpty) {
+      ref.showErrorToast(errorMessage);
+    } else {
+      ref.showSuccessToast(successMessage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final isContact = _isContact();
+    final followState = ref.watch(followProvider(widget.user.publicKey));
+
     return WnFilledButton(
-      onPressed: _toggleContact,
-      loading: _isLoading,
+      onPressed: followState.isLoading ? null : _toggleFollow,
+      loading: followState.isLoading,
       size: WnButtonSize.small,
       visualState: WnButtonVisualState.secondary,
-      label: isContact ? 'Remove Contact' : 'Add Contact',
+      label: followState.isFollowing ? 'Unfollow' : 'Follow',
       suffixIcon: WnImage(
-        isContact ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
+        followState.isFollowing ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
         size: 11.w,
         color: context.colors.primary,
       ),

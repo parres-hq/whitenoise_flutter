@@ -1,7 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/welcome_state.dart';
@@ -60,14 +59,18 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final String activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found', isLoading: false);
         return;
       }
 
-      final welcomes = await pendingWelcomes(pubkey: activeAccount.pubkey);
+      final String requestPubkey = activePubkey;
+      final welcomes = await pendingWelcomes(pubkey: requestPubkey);
+      if (requestPubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        state = state.copyWith(isLoading: false);
+        return;
+      }
 
       final welcomeByData = <String, Welcome>{};
       for (final welcome in welcomes) {
@@ -113,17 +116,20 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final String activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found');
         return null;
       }
 
+      final String requestPubkey = activePubkey;
       final welcome = await findWelcomeByEventId(
-        pubkey: activeAccount.pubkey,
+        pubkey: requestPubkey,
         welcomeEventId: welcomeEventId,
       );
+      if (requestPubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        return null;
+      }
 
       final updatedWelcomeById = Map<String, Welcome>.from(state.welcomeById ?? {});
       updatedWelcomeById[welcome.id] = welcome;
@@ -149,14 +155,17 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final String activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found');
         return false;
       }
 
-      await acceptWelcome(pubkey: activeAccount.pubkey, welcomeEventId: welcomeEventId);
+      final String requestPubkey = activePubkey;
+      await acceptWelcome(pubkey: requestPubkey, welcomeEventId: welcomeEventId);
+      if (requestPubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        return false;
+      }
 
       // Update the welcome state to accepted
       await _updateWelcomeState(welcomeEventId, WelcomeState.accepted);
@@ -182,14 +191,17 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final String activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         state = state.copyWith(error: 'No active account found');
         return false;
       }
 
-      await declineWelcome(pubkey: activeAccount.pubkey, welcomeEventId: welcomeEventId);
+      final String requestPubkey = activePubkey;
+      await declineWelcome(pubkey: requestPubkey, welcomeEventId: welcomeEventId);
+      if (requestPubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        return false;
+      }
 
       // Update the welcome state to declined
       await _updateWelcomeState(welcomeEventId, WelcomeState.declined);
@@ -316,13 +328,16 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
 
     try {
-      final activeAccountState = await ref.read(activeAccountProvider.future);
-      final activeAccount = activeAccountState.account;
-      if (activeAccount == null) {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
         return;
       }
 
-      final newWelcomes = await pendingWelcomes(pubkey: activeAccount.pubkey);
+      final String requestPubkey = activePubkey;
+      final newWelcomes = await pendingWelcomes(pubkey: requestPubkey);
+      if (requestPubkey != ref.read(activePubkeyProvider)) {
+        return;
+      }
 
       final currentWelcomes = state.welcomes ?? [];
       final currentWelcomeIds = currentWelcomes.map((w) => w.id).toSet();
