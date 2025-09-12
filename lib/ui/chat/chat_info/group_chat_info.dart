@@ -146,6 +146,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             imageUrl: '',
             displayName: groupDetails?.name ?? 'Unknown Group',
             size: 96.w,
+            showBorder: true,
           ),
           SizedBox(height: 8.h),
           Text(
@@ -198,18 +199,24 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
                       Expanded(
                         child: WnIconButton(
                           iconPath: AssetsPaths.icSearch,
+                          buttonColor: context.colors.surface,
+                          borderColor: context.colors.secondary,
                           onTap: () {},
                         ),
                       ),
                       Expanded(
                         child: WnIconButton(
                           iconPath: AssetsPaths.icMutedNotification,
+                          buttonColor: context.colors.surface,
+                          borderColor: context.colors.secondary,
                           onTap: () {},
                         ),
                       ),
                       Expanded(
                         child: WnIconButton(
                           iconPath: AssetsPaths.icGroupSettings,
+                          buttonColor: context.colors.surface,
+                          borderColor: context.colors.secondary,
                           onTap: () {},
                         ),
                       ),
@@ -278,7 +285,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
                     ),
                   ),
                 ),
-                Gap(16.h),
+                Gap(8.h),
                 ...groupMembers.map(
                   (member) => _buildMemberListTile(
                     member,
@@ -305,7 +312,6 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             PubkeyFormatter(pubkey: member.publicKey).toHex();
     return ListTile(
       contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
-
       onTap:
           isCurrentUser
               ? null
