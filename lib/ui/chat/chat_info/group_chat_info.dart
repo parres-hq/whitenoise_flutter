@@ -139,7 +139,6 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     final groupDescription = groupDetails?.description ?? '';
 
     return SingleChildScrollView(
-      padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
           Gap(64.h),
