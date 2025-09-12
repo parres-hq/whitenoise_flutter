@@ -9,7 +9,7 @@ import '../frb_generated.dart';
 import '../lib.dart';
 import 'error.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`
 
 Future<List<Group>> activeGroups({required String pubkey}) =>
     RustLib.instance.api.crateApiGroupsActiveGroups(pubkey: pubkey);
@@ -82,6 +82,33 @@ Future<List<GroupInformation>> getGroupsInformations({
   groupIds: groupIds,
 );
 
+class FlutterGroupDataUpdate {
+  final String? name;
+  final String? description;
+  final List<String>? relays;
+  final List<String>? admins;
+
+  const FlutterGroupDataUpdate({
+    this.name,
+    this.description,
+    this.relays,
+    this.admins,
+  });
+
+  @override
+  int get hashCode => name.hashCode ^ description.hashCode ^ relays.hashCode ^ admins.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FlutterGroupDataUpdate &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          description == other.description &&
+          relays == other.relays &&
+          admins == other.admins;
+}
+
 class Group {
   final String mlsGroupId;
   final String nostrGroupId;
@@ -120,6 +147,15 @@ class Group {
 
   Future<bool> isGroupType({required String accountPubkey}) =>
       RustLib.instance.api.crateApiGroupsGroupIsGroupType(that: this, accountPubkey: accountPubkey);
+
+  Future<void> updateGroupData({
+    required String accountPubkey,
+    required FlutterGroupDataUpdate groupData,
+  }) => RustLib.instance.api.crateApiGroupsGroupUpdateGroupData(
+    that: this,
+    accountPubkey: accountPubkey,
+    groupData: groupData,
+  );
 
   @override
   int get hashCode =>

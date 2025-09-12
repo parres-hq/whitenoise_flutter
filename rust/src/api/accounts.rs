@@ -1,5 +1,5 @@
 use crate::api::{error::ApiError, metadata::FlutterMetadata, relays::Relay, users::User};
-use chrono::{DateTime, Utc};
+use chrono::{DateTime, TimeZone, Utc};
 use flutter_rust_bridge::frb;
 use nostr_sdk::prelude::*;
 use whitenoise::{Account as WhitenoiseAccount, ImageType, RelayType, Whitenoise};
@@ -20,6 +20,35 @@ impl From<WhitenoiseAccount> for Account {
             last_synced_at: account.last_synced_at,
             created_at: account.created_at,
             updated_at: account.updated_at,
+        }
+    }
+}
+
+#[frb(non_opaque)]
+#[derive(Debug, Clone)]
+pub struct FlutterEvent {
+    pub id: String,
+    pub pubkey: String,
+    pub created_at: DateTime<Utc>,
+    pub kind: u16,
+    pub tags: Vec<String>,
+    pub content: String,
+}
+
+impl From<Event> for FlutterEvent {
+    fn from(event: Event) -> Self {
+        Self {
+            id: event.id.to_hex(),
+            pubkey: event.pubkey.to_hex(),
+            created_at: {
+                let ts = i64::try_from(event.created_at.as_u64()).unwrap_or(0);
+                Utc.timestamp_opt(ts, 0)
+                    .single()
+                    .unwrap_or_else(|| Utc.timestamp_opt(0, 0).single().unwrap())
+            },
+            kind: event.kind.as_u16(),
+            tags: event.tags.iter().map(|tag| format!("{:?}", tag)).collect(),
+            content: event.content,
         }
     }
 }
@@ -158,13 +187,60 @@ pub async fn remove_account_relay(
 }
 
 #[frb]
-pub async fn account_key_package(pubkey: String) -> Result<Option<Event>, ApiError> {
+pub async fn account_key_package(pubkey: String) -> Result<Option<FlutterEvent>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::parse(&pubkey)?;
     let user = whitenoise.find_user_by_pubkey(&pubkey).await?;
-    user.key_package_event(whitenoise)
+    let event = user.key_package_event(whitenoise).await?;
+    Ok(event.map(|e| e.into()))
+}
+
+#[frb]
+pub async fn account_key_packages(account_pubkey: String) -> Result<Vec<FlutterEvent>, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    let key_packages = whitenoise
+        .fetch_all_key_packages_for_account(&account)
+        .await?;
+    Ok(key_packages.into_iter().map(|e| e.into()).collect())
+}
+
+#[frb]
+pub async fn publish_account_key_package(account_pubkey: String) -> Result<(), ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    whitenoise
+        .publish_key_package_for_account(&account)
         .await
         .map_err(ApiError::from)
+}
+
+#[frb]
+pub async fn delete_account_key_package(
+    account_pubkey: String,
+    key_package_id: String,
+) -> Result<bool, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    let key_package_id = EventId::parse(&key_package_id)?;
+    whitenoise
+        .delete_key_package_for_account(&account, &key_package_id, true)
+        .await
+        .map_err(ApiError::from)
+}
+
+#[frb]
+pub async fn delete_account_key_packages(account_pubkey: String) -> Result<usize, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    let deleted_count = whitenoise
+        .delete_all_key_packages_for_account(&account, true)
+        .await?;
+    Ok(deleted_count)
 }
 
 #[frb]
