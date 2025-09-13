@@ -94,12 +94,14 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
       final newName = _nameController.text.trim();
       final newDescription = _descriptionController.text.trim();
 
-      await ref.read(groupsProvider.notifier).updateGroup(
-        groupId: widget.groupId,
-        accountPubkey: activeAccount,
-        name: newName,
-        description: newDescription,
-      );
+      await ref
+          .read(groupsProvider.notifier)
+          .updateGroup(
+            groupId: widget.groupId,
+            accountPubkey: activeAccount,
+            name: newName,
+            description: newDescription,
+          );
 
       if (mounted) {
         ref.showSuccessToast('Group updated successfully');
@@ -120,7 +122,6 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {

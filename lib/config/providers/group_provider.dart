@@ -1043,25 +1043,26 @@ class GroupsNotifier extends Notifier<GroupsState> {
     final groupsMap = state.groupsMap;
     if (groups == null || groupsMap == null) return;
 
-    final updatedGroups = groups.map((group) {
-      if ((group as Group?)?.mlsGroupId == groupId) {
-        final g = group;
-        return Group(
-          mlsGroupId: g.mlsGroupId,
-          nostrGroupId: g.nostrGroupId,
-          name: name ?? g.name,
-          description: description ?? g.description,
-          imageHash: g.imageHash,
-          imageKey: g.imageKey,
-          adminPubkeys: g.adminPubkeys,
-          lastMessageId: g.lastMessageId,
-          lastMessageAt: g.lastMessageAt,
-          epoch: g.epoch,
-          state: g.state,
-        );
-      }
-      return group;
-    }).toList();
+    final updatedGroups =
+        groups.map((group) {
+          if ((group as Group?)?.mlsGroupId == groupId) {
+            final g = group;
+            return Group(
+              mlsGroupId: g.mlsGroupId,
+              nostrGroupId: g.nostrGroupId,
+              name: name ?? g.name,
+              description: description ?? g.description,
+              imageHash: g.imageHash,
+              imageKey: g.imageKey,
+              adminPubkeys: g.adminPubkeys,
+              lastMessageId: g.lastMessageId,
+              lastMessageAt: g.lastMessageAt,
+              epoch: g.epoch,
+              state: g.state,
+            );
+          }
+          return group;
+        }).toList();
 
     // Update groupsMap with the updated groups
     final updatedGroupsMap = <String, Group>{};
@@ -1104,7 +1105,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         e,
         st,
       );
-      
+
       String errorMessage = 'Failed to update group';
       if (e is ApiError) {
         errorMessage = await e.messageText();
