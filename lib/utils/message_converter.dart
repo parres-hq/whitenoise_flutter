@@ -560,8 +560,9 @@ class MessageConverter {
     return await Future.microtask(() async {
       final userProfileNotifier = ref.read(userProfileDataProvider.notifier);
       final userFutures = uniquePubkeys.map(
-        (pubkey) =>
-            userProfileNotifier.getUserProfileData(pubkey).then((contact) => MapEntry(pubkey, contact)),
+        (pubkey) => userProfileNotifier
+            .getUserProfileData(pubkey)
+            .then((contact) => MapEntry(pubkey, contact)),
       );
       final userResults = await Future.wait(userFutures);
       return Map<String, User>.fromEntries(

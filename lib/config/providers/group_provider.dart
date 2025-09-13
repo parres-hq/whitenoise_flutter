@@ -363,7 +363,9 @@ class GroupsNotifier extends Notifier<GroupsState> {
         }
       }
 
-      final updatedGroupMembers = Map<String, List<domain_user.User>>.from(state.groupMembers ?? {});
+      final updatedGroupMembers = Map<String, List<domain_user.User>>.from(
+        state.groupMembers ?? {},
+      );
       updatedGroupMembers[groupId] = members;
 
       state = state.copyWith(groupMembers: updatedGroupMembers);
