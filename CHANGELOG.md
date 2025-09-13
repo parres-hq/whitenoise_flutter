@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Global No relay indicator
 - [Android] Sensitive clipboard copy for private key (nsec).
+- Group info update functionality (name and description).
 
 ### Changed
 
