@@ -1090,7 +1090,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
     final trimmedDescription = description?.trim();
 
     final nameChanged = trimmedName != null && trimmedName != group.name;
-    final descriptionChanged = trimmedDescription != null && trimmedDescription != group.description;
+    final descriptionChanged =
+        trimmedDescription != null && trimmedDescription != group.description;
 
     if (!nameChanged && !descriptionChanged) {
       return;
