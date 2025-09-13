@@ -131,20 +131,25 @@ class _RelayTileState extends ConsumerState<RelayTile> {
             ),
             SizedBox(width: 8.w),
 
-            RepaintBoundary(
-              child: GestureDetector(
-                onTap: _removeRelay,
-                behavior: HitTestBehavior.opaque, // ✅ Better touch handling
-                child: Padding(
-                  padding: EdgeInsets.all(4.w), // ✅ Larger touch target
-                  child: WnImage(
-                    AssetsPaths.icDelete,
-                    color: context.colors.primary,
-                    size: 20.w, // ✅ Slightly smaller for better balance
+            if (widget.showOptions)
+              RepaintBoundary(
+                child: Semantics(
+                  label: 'Delete relay',
+                  button: true,
+                  child: GestureDetector(
+                    onTap: _removeRelay,
+                    behavior: HitTestBehavior.opaque,
+                    child: Padding(
+                      padding: EdgeInsets.all(4.w),
+                      child: WnImage(
+                        AssetsPaths.icDelete,
+                        color: context.colors.primary,
+                        size: 20.w,
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

@@ -85,7 +85,7 @@ class _RelaySectionState extends ConsumerState<RelaySection> {
                 style: TextStyle(
                   color: context.colors.mutedForeground,
                   fontWeight: FontWeight.w600,
-                  fontSize: 16.w,
+                  fontSize: 16.sp,
                 ),
               ),
               SizedBox(width: 8.w),

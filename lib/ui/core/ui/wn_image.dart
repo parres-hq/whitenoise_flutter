@@ -95,7 +95,16 @@ class _WnImageState extends State<WnImage> {
 
     // For local files, we'll check asynchronously to avoid blocking
     if (!_isNetwork!) {
-      _checkLocalFileAsync();
+      final hasFileScheme = _parsedUri?.scheme == 'file';
+      final isAbsoluteUnix = widget.src.startsWith('/');
+      final isAbsoluteWin = RegExp(r'^[A-Za-z]:[\\/]').hasMatch(widget.src);
+      final looksLikeFile = hasFileScheme || isAbsoluteUnix || isAbsoluteWin;
+      if (looksLikeFile) {
+        _checkLocalFileAsync();
+      } else {
+        // Treat as asset (don't hit the filesystem)
+        _isLocalFile = false;
+      }
     } else {
       _isLocalFile = false;
     }

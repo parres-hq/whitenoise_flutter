@@ -70,7 +70,9 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   Future<void> _loadAccountsProfileDataIfNeeded() async {
     if (_lastAccountsLoadTime != null) {
       final cacheAge = DateTime.now().difference(_lastAccountsLoadTime!);
-      if (cacheAge < _accountsCacheDuration && _accounts.isNotEmpty) {
+      if (cacheAge < _accountsCacheDuration &&
+          _accounts.isNotEmpty &&
+          _accountsProfileData.isNotEmpty) {
         return; // Use cached data
       }
     }

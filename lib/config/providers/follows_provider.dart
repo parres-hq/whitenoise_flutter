@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
@@ -117,10 +118,10 @@ class FollowsNotifier extends Notifier<FollowsState> {
     final hexPubkey = PubkeyFormatter(pubkey: pubkey).toHex();
     if (hexPubkey == null) return null;
 
-    return state.follows.where((user) {
+    return state.follows.firstWhereOrNull((user) {
       final userHexPubkey = PubkeyFormatter(pubkey: user.pubkey).toHex();
       return userHexPubkey == hexPubkey;
-    }).firstOrNull;
+    });
   }
 
   bool isFollowing(String pubkey) {
