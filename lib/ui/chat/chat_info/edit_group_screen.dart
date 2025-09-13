@@ -93,6 +93,11 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
     try {
       final newName = _nameController.text.trim();
       final newDescription = _descriptionController.text.trim();
+      if (newName.isEmpty) {
+        ref.showErrorToast('Group name cannot be empty');
+        setState(() => _isLoading = false);
+        return;
+      }
 
       await ref
           .read(groupsProvider.notifier)
