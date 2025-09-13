@@ -1086,10 +1086,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
       throw Exception('Group not found');
     }
 
+    final trimmedName = name?.trim();
+    final trimmedDescription = description?.trim();
+
+    final nameChanged = trimmedName != null && trimmedName != group.name;
+    final descriptionChanged = trimmedDescription != null && trimmedDescription != group.description;
+
+    if (!nameChanged && !descriptionChanged) {
+      return;
+    }
+
     try {
       final groupData = FlutterGroupDataUpdate(
-        name: name != null && name != group.name ? name : null,
-        description: description != null && description != group.description ? description : null,
+        name: nameChanged ? trimmedName : null,
+        description: descriptionChanged ? trimmedDescription : null,
       );
 
       await group.updateGroupData(
@@ -1098,7 +1108,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       );
 
       // Update provider state optimistically after successful backend call
-      _updateGroupInfo(groupId, name: name, description: description);
+      _updateGroupInfo(groupId, name: trimmedName, description: trimmedDescription);
     } catch (e, st) {
       _logger.severe(
         'GroupsProvider.updateGroup - Exception: $e (Type: ${e.runtimeType})',
