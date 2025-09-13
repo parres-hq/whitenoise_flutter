@@ -189,90 +189,90 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
               ),
             ),
           ],
-          Gap(36.h),
           // TODO: Reenable when we have a search and mute features
-          if (isAdmin) ...[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Column(
-                children: [
-                  Row(
-                    spacing: 8.w,
-                    children: [
-                      Expanded(
-                        child: WnIconButton(
-                          iconPath: AssetsPaths.icSearch,
-                          buttonColor: context.colors.surface,
-                          borderColor: context.colors.secondary,
-                          onTap: () {},
-                        ),
-                      ),
-                      Expanded(
-                        child: WnIconButton(
-                          iconPath: AssetsPaths.icMutedNotification,
-                          buttonColor: context.colors.surface,
-                          borderColor: context.colors.secondary,
-                          onTap: () {},
-                        ),
-                      ),
-                      Expanded(
-                        child: WnIconButton(
-                          iconPath: AssetsPaths.icGroupSettings,
-                          buttonColor: context.colors.surface,
-                          borderColor: context.colors.secondary,
-                          onTap: () => context.push('/chats/${widget.groupId}/info/edit'),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Gap(8.h),
-                  WnFilledButton(
-                    size: WnButtonSize.small,
-                    prefixIcon: WnImage(
-                      AssetsPaths.icAddUser,
-                      width: 14.w,
-                      color: context.colors.primaryForeground,
-                    ),
-                    label: 'Add Member',
-                    onPressed: () {},
-                  ),
-                ],
-              ),
-            ),
-          ] else ...[
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: Row(
-                spacing: 8.w,
-                children: [
-                  Expanded(
-                    child: WnFilledButton(
-                      visualState: WnButtonVisualState.secondary,
-                      prefixIcon: WnImage(
-                        AssetsPaths.icSearch,
-                        width: 14.w,
-                        color: context.colors.primary,
-                      ),
-                      label: 'Search Chat',
-                      onPressed: () {},
-                    ),
-                  ),
-                  Expanded(
-                    child: WnFilledButton(
-                      visualState: WnButtonVisualState.secondary,
-                      prefixIcon: WnImage(
-                        AssetsPaths.icMutedNotification,
-                        width: 14.w,
-                        color: context.colors.primary,
-                      ),
-                      label: 'Mute Chat',
-                      onPressed: () {},
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+          // Gap(36.h),
+          // if (isAdmin) ...[
+          //   Padding(
+          //     padding: EdgeInsets.symmetric(horizontal: 24.w),
+          //     child: Column(
+          //       children: [
+          //         Row(
+          //           spacing: 8.w,
+          //           children: [
+          //             Expanded(
+          //               child: WnIconButton(
+          //                 iconPath: AssetsPaths.icSearch,
+          //                 buttonColor: context.colors.surface,
+          //                 borderColor: context.colors.secondary,
+          //                 onTap: () {},
+          //               ),
+          //             ),
+          //             Expanded(
+          //               child: WnIconButton(
+          //                 iconPath: AssetsPaths.icMutedNotification,
+          //                 buttonColor: context.colors.surface,
+          //                 borderColor: context.colors.secondary,
+          //                 onTap: () {},
+          //               ),
+          //             ),
+          //             Expanded(
+          //               child: WnIconButton(
+          //                 iconPath: AssetsPaths.icGroupSettings,
+          //                 buttonColor: context.colors.surface,
+          //                 borderColor: context.colors.secondary,
+          //                 onTap: () => context.push('/chats/${widget.groupId}/info/edit'),
+          //               ),
+          //             ),
+          //           ],
+          //         ),
+          //         Gap(8.h),
+          //         WnFilledButton(
+          //           size: WnButtonSize.small,
+          //           prefixIcon: WnImage(
+          //             AssetsPaths.icAddUser,
+          //             width: 14.w,
+          //             color: context.colors.primaryForeground,
+          //           ),
+          //           label: 'Add Member',
+          //           onPressed: () {},
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ] else ...[
+          //   Padding(
+          //     padding: EdgeInsets.symmetric(horizontal: 24.w),
+          //     child: Row(
+          //       spacing: 8.w,
+          //       children: [
+          //         Expanded(
+          //           child: WnFilledButton(
+          //             visualState: WnButtonVisualState.secondary,
+          //             prefixIcon: WnImage(
+          //               AssetsPaths.icSearch,
+          //               width: 14.w,
+          //               color: context.colors.primary,
+          //             ),
+          //             label: 'Search Chat',
+          //             onPressed: () {},
+          //           ),
+          //         ),
+          //         Expanded(
+          //           child: WnFilledButton(
+          //             visualState: WnButtonVisualState.secondary,
+          //             prefixIcon: WnImage(
+          //               AssetsPaths.icMutedNotification,
+          //               width: 14.w,
+          //               color: context.colors.primary,
+          //             ),
+          //             label: 'Mute Chat',
+          //             onPressed: () {},
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ],
           Gap(32.h),
           if (isLoadingMembers)
             const CircularProgressIndicator()
