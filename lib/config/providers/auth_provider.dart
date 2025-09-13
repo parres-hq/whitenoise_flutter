@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -333,6 +334,17 @@ class AuthNotifier extends Notifier<AuthState> {
     // Only reset auth state, don't clear active account info
     // This preserves the active account when going to login screen
     state = const AuthState();
+  }
+
+  void deleteAccountInBackground() async {
+    try {
+      await logoutCurrentAccount();
+    } catch (e, st) {
+      _logger.severe('deleteAccountInBackground', e, st);
+      state = state.copyWith(error: e.toString());
+    } finally {
+      setUnAuthenticated();
+    }
   }
 }
 
