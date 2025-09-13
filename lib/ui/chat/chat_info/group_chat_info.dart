@@ -192,6 +192,20 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
               ),
             ),
           ],
+          if (isAdmin) ...[
+            Gap(24.h),
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: WnFilledButton(
+                size: WnButtonSize.small,
+                visualState: WnButtonVisualState.secondary,
+                label: 'Edit Group',
+                onPressed: () {
+                  context.push('/chats/${widget.groupId}/info/edit');
+                },
+              ),
+            ),
+          ],
           // TODO: Reenable when we have a search and mute features
           // Gap(36.h),
           // if (isAdmin) ...[
