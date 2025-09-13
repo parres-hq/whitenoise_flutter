@@ -166,6 +166,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
                 fontWeight: FontWeight.w600,
               ),
             ),
+            Gap(4.h),
             Text(
               groupDetails?.description ?? '',
               style: context.textTheme.bodyMedium?.copyWith(
@@ -177,7 +178,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             GestureDetector(
               onTap: () {},
               child: Text(
-                isAdmin ? 'Add Group Description...' : 'No Description',
+                isAdmin ? 'Add Group Description...' : 'No Group Description',
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: context.colors.mutedForeground,
                   fontSize: 16.sp,
@@ -217,7 +218,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
                           iconPath: AssetsPaths.icGroupSettings,
                           buttonColor: context.colors.surface,
                           borderColor: context.colors.secondary,
-                          onTap: () {},
+                          onTap: () => context.push('/chats/${widget.groupId}/info/edit'),
                         ),
                       ),
                     ],
@@ -237,34 +238,37 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
               ),
             ),
           ] else ...[
-            Row(
-              spacing: 12.w,
-              children: [
-                Expanded(
-                  child: WnFilledButton(
-                    visualState: WnButtonVisualState.secondary,
-                    suffixIcon: WnImage(
-                      AssetsPaths.icSearch,
-                      width: 14.w,
-                      color: context.colors.primary,
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: 24.w),
+              child: Row(
+                spacing: 8.w,
+                children: [
+                  Expanded(
+                    child: WnFilledButton(
+                      visualState: WnButtonVisualState.secondary,
+                      prefixIcon: WnImage(
+                        AssetsPaths.icSearch,
+                        width: 14.w,
+                        color: context.colors.primary,
+                      ),
+                      label: 'Search Chat',
+                      onPressed: () {},
                     ),
-                    label: 'Search Chat',
-                    onPressed: () {},
                   ),
-                ),
-                Expanded(
-                  child: WnFilledButton(
-                    visualState: WnButtonVisualState.secondary,
-                    suffixIcon: WnImage(
-                      AssetsPaths.icMutedNotification,
-                      width: 14.w,
-                      color: context.colors.primary,
+                  Expanded(
+                    child: WnFilledButton(
+                      visualState: WnButtonVisualState.secondary,
+                      prefixIcon: WnImage(
+                        AssetsPaths.icMutedNotification,
+                        width: 14.w,
+                        color: context.colors.primary,
+                      ),
+                      label: 'Mute Chat',
+                      onPressed: () {},
                     ),
-                    label: 'Mute Chat',
-                    onPressed: () {},
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
           Gap(32.h),
