@@ -6,8 +6,9 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/states/group_state.dart';
-import 'package:whitenoise/domain/models/user_model.dart';
+import 'package:whitenoise/domain/models/user_model.dart' as domain_user;
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
@@ -307,13 +308,27 @@ class GroupsNotifier extends Notifier<GroupsState> {
       _logger.info('GroupsProvider: Loaded ${memberPubkeys.length} members for group $groupId');
 
       // Fetch metadata for each member and create User objects
-      final List<User> members = [];
+      final List<domain_user.User> members = [];
       for (final memberPubkey in memberPubkeys) {
         try {
           final npub = PubkeyFormatter(pubkey: memberPubkey).toNpub() ?? '';
+
+          // First try to get from follows (cached contacts)
+          final followsNotifier = ref.read(followsProvider.notifier);
+          final existingFollow = followsNotifier.findFollowByPubkey(memberPubkey);
+
+          if (existingFollow != null) {
+            _logger.info('Found member $npub in follows cache');
+            // Convert Rust User to domain User
+            final domainUser = domain_user.User.fromMetadata(existingFollow.metadata, npub);
+            members.add(domainUser);
+            continue;
+          }
+
+          // If not in follows, fetch directly from API
           try {
             final metadata = await rust_users.userMetadata(pubkey: memberPubkey);
-            final user = User.fromMetadata(metadata, npub);
+            final user = domain_user.User.fromMetadata(metadata, npub);
             members.add(user);
           } catch (metadataError) {
             // Log the full exception details with proper Whitenoise ApiError unpacking
@@ -326,7 +341,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
             }
             _logger.warning(logMessage, metadataError);
             // Create a fallback user with minimal info
-            final fallbackUser = User(
+            final fallbackUser = domain_user.User(
               id: npub,
               displayName: 'Unknown User',
               nip05: '',
@@ -348,7 +363,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         }
       }
 
-      final updatedGroupMembers = Map<String, List<User>>.from(state.groupMembers ?? {});
+      final updatedGroupMembers = Map<String, List<domain_user.User>>.from(state.groupMembers ?? {});
       updatedGroupMembers[groupId] = members;
 
       state = state.copyWith(groupMembers: updatedGroupMembers);
@@ -385,14 +400,14 @@ class GroupsNotifier extends Notifier<GroupsState> {
       _logger.info('GroupsProvider: Loaded ${adminPubkeys.length} admins for group $groupId');
 
       // Fetch metadata for each admin and create User objects
-      final List<User> admins = [];
+      final List<domain_user.User> admins = [];
       for (final adminPubkey in adminPubkeys) {
         try {
           final npub = PubkeyFormatter(pubkey: adminPubkey).toNpub() ?? '';
 
           try {
             final metadata = await rust_users.userMetadata(pubkey: adminPubkey);
-            final user = User.fromMetadata(metadata, npub);
+            final user = domain_user.User.fromMetadata(metadata, npub);
             admins.add(user);
           } catch (metadataError) {
             // Log the full exception details with proper ApiError unpacking
@@ -405,7 +420,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
             }
             _logger.warning(logMessage, metadataError);
             // Create a fallback user with minimal info
-            final fallbackUser = User(
+            final fallbackUser = domain_user.User(
               id: npub,
               displayName: 'Unknown User',
               nip05: '',
@@ -427,7 +442,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         }
       }
 
-      final updatedGroupAdmins = Map<String, List<User>>.from(state.groupAdmins ?? {});
+      final updatedGroupAdmins = Map<String, List<domain_user.User>>.from(state.groupAdmins ?? {});
       updatedGroupAdmins[groupId] = admins;
 
       state = state.copyWith(groupAdmins: updatedGroupAdmins);
@@ -710,11 +725,11 @@ class GroupsNotifier extends Notifier<GroupsState> {
     return groupInformation.groupType;
   }
 
-  List<User>? getGroupMembers(String groupId) {
+  List<domain_user.User>? getGroupMembers(String groupId) {
     return state.groupMembers?[groupId];
   }
 
-  List<User>? getGroupAdmins(String groupId) {
+  List<domain_user.User>? getGroupAdmins(String groupId) {
     return state.groupAdmins?[groupId];
   }
 
@@ -1043,7 +1058,7 @@ final groupsProvider = NotifierProvider<GroupsNotifier, GroupsState>(
 );
 
 extension GroupMemberUtils on GroupsNotifier {
-  User? getOtherGroupMember(String? groupId) {
+  domain_user.User? getOtherGroupMember(String? groupId) {
     if (groupId == null) return null;
     final activePubkey = ref.read(activePubkeyProvider);
     if (activePubkey == null || activePubkey.isEmpty) return null;

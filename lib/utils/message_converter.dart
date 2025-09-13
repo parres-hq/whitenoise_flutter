@@ -1,6 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
-import 'package:whitenoise/config/providers/metadata_cache_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
@@ -526,10 +526,10 @@ class MessageConverter {
         );
       }
 
-      // If not found in contacts, try metadata cache with build-safe scheduling
+      // If not found in contacts, fetch directly from API with build-safe scheduling
       return await Future.microtask(() async {
-        final metadataCache = ref.read(metadataCacheProvider.notifier);
-        final contactModel = await metadataCache.getContactModel(pubkey);
+        final userProfileNotifier = ref.read(userProfileDataProvider.notifier);
+        final contactModel = await userProfileNotifier.getUserProfileData(pubkey);
 
         return User(
           id: pubkey,
@@ -558,10 +558,10 @@ class MessageConverter {
   ) async {
     // Schedule metadata fetching in microtask to avoid build-time modifications
     return await Future.microtask(() async {
-      final metadataCache = ref.read(metadataCacheProvider.notifier);
+      final userProfileNotifier = ref.read(userProfileDataProvider.notifier);
       final userFutures = uniquePubkeys.map(
         (pubkey) =>
-            metadataCache.getContactModel(pubkey).then((contact) => MapEntry(pubkey, contact)),
+            userProfileNotifier.getUserProfileData(pubkey).then((contact) => MapEntry(pubkey, contact)),
       );
       final userResults = await Future.wait(userFutures);
       return Map<String, User>.fromEntries(
