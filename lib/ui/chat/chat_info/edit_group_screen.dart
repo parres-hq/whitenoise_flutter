@@ -8,7 +8,6 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
@@ -87,12 +86,6 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
       return;
     }
 
-    final group = ref.read(groupsProvider).groupsMap?[widget.groupId];
-    if (group == null) {
-      ref.showErrorToast('Group not found');
-      return;
-    }
-
     setState(() {
       _isLoading = true;
     });
@@ -101,20 +94,16 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
       final newName = _nameController.text.trim();
       final newDescription = _descriptionController.text.trim();
 
-      await group.updateGroupData(
+      await ref.read(groupsProvider.notifier).updateGroup(
+        groupId: widget.groupId,
         accountPubkey: activeAccount,
-        groupData: FlutterGroupDataUpdate(
-          name: newName != group.name ? newName : null,
-          description: newDescription != group.description ? newDescription : null,
-        ),
+        name: newName,
+        description: newDescription,
       );
-
-      // Refresh group data
-      await ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
 
       if (mounted) {
         ref.showSuccessToast('Group updated successfully');
-        // Small delay to allow toast to show before navigation
+        //? Small delay to allow toast to show before navigation
         await Future.delayed(const Duration(milliseconds: 500));
         if (mounted) {
           context.pop();

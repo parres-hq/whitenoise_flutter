@@ -176,7 +176,9 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             ),
           ] else ...[
             GestureDetector(
-              onTap: () {},
+              onTap: isAdmin ? () {
+                context.push('/chats/${widget.groupId}/info/edit');
+              } : null,
               child: Text(
                 isAdmin ? 'Add Group Description...' : 'No Group Description',
                 style: context.textTheme.bodyMedium?.copyWith(
