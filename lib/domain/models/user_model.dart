@@ -17,9 +17,17 @@ class User {
   });
 
   factory User.fromMetadata(FlutterMetadata metadata, String publicKey) {
+    // Use display_name first, then fall back to name, then to Unknown
+    String finalDisplayName = 'Unknown';
+    if (metadata.displayName?.isNotEmpty == true) {
+      finalDisplayName = metadata.displayName!;
+    } else if (metadata.name?.isNotEmpty == true) {
+      finalDisplayName = metadata.name!;
+    }
+
     return User(
       id: publicKey,
-      displayName: metadata.displayName ?? 'Unknown',
+      displayName: finalDisplayName,
       nip05: metadata.nip05 ?? '',
       publicKey: publicKey,
       imagePath: metadata.picture,

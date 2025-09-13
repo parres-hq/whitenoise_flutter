@@ -28,6 +28,7 @@ class ContactModel {
   }) {
     // Sanitize and clean data
     final displayName = _sanitizeString(metadata?.displayName);
+    final name = _sanitizeString(metadata?.name);
     final about = _sanitizeString(metadata?.about);
     final website = _sanitizeUrl(metadata?.website);
     final nip05 = _sanitizeString(metadata?.nip05);
@@ -35,8 +36,16 @@ class ContactModel {
     final picture = _sanitizeUrl(metadata?.picture);
     final npub = PubkeyFormatter(pubkey: pubkey).toNpub() ?? '';
 
+    // Use display_name first, then fall back to name, then to Unknown User
+    String finalDisplayName = 'Unknown User';
+    if (displayName.isNotEmpty) {
+      finalDisplayName = displayName;
+    } else if (name.isNotEmpty) {
+      finalDisplayName = name;
+    }
+
     return ContactModel(
-      displayName: displayName.isNotEmpty ? displayName : 'Unknown User',
+      displayName: finalDisplayName,
       publicKey: npub,
       imagePath: picture,
       about: about,
