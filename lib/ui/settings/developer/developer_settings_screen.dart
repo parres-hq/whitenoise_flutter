@@ -231,15 +231,16 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
         statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: context.colors.appBarBackground,
+        backgroundColor: context.colors.neutral,
         body: SafeArea(
           bottom: false,
-          child: ColoredBox(
-            color: context.colors.neutral,
-            child: Column(
-              children: [
-                Gap(24.h),
-                Row(
+
+          child: Column(
+            children: [
+              Gap(24.h),
+
+              RepaintBoundary(
+                child: Row(
                   children: [
                     IconButton(
                       onPressed: () => Navigator.of(context).pop(),
@@ -260,69 +261,83 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                     ),
                   ],
                 ),
-                Gap(29.h),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      left: 16.w,
-                      right: 16.w,
-                      bottom: 24.w,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Key Package Management
+              ),
+              Gap(29.h),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: 16.w,
+                    right: 16.w,
+                    bottom: 24.w,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      RepaintBoundary(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Key Package Management
+                            Text(
+                              'Key Package Management',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.primary,
+                              ),
+                            ),
+                            Gap(10.h),
+
+                            WnFilledButton(
+                              label: 'Publish new key package',
+                              onPressed: _isLoading ? null : _publishKeyPackage,
+                              loading: _isLoading,
+                            ),
+                            Gap(12.h),
+
+                            WnFilledButton(
+                              label: 'Inspect relay key packages',
+                              onPressed: _isLoading ? null : _fetchKeyPackages,
+                              loading: _isLoading && !_showKeyPackages,
+                            ),
+                            Gap(12.h),
+
+                            WnFilledButton(
+                              label: 'Delete all key packages from relays',
+                              visualState: WnButtonVisualState.destructive,
+                              onPressed: _isLoading ? null : _deleteAllKeyPackages,
+                              loading: _isLoading && _showKeyPackages,
+                              labelTextStyle: WnButtonSize.large.textStyle().copyWith(
+                                color: context.colors.solidNeutralWhite,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      if (_showKeyPackages) ...[
+                        Gap(24.h),
                         Text(
-                          'Key Package Management',
+                          'Key Packages (${_keyPackages.length})',
                           style: TextStyle(
-                            fontSize: 14.sp,
+                            fontSize: 16.sp,
                             fontWeight: FontWeight.w600,
                             color: context.colors.primary,
                           ),
                         ),
-                        Gap(10.h),
-
-                        WnFilledButton(
-                          label: 'Publish new key package',
-                          onPressed: _isLoading ? null : _publishKeyPackage,
-                          loading: _isLoading,
-                        ),
                         Gap(12.h),
-
-                        WnFilledButton(
-                          label: 'Inspect relay key packages',
-                          onPressed: _isLoading ? null : _fetchKeyPackages,
-                          loading: _isLoading && !_showKeyPackages,
-                        ),
-                        Gap(12.h),
-
-                        WnFilledButton(
-                          label: 'Delete all key packages from relays',
-                          visualState: WnButtonVisualState.destructive,
-                          onPressed: _isLoading ? null : _deleteAllKeyPackages,
-                          loading: _isLoading && _showKeyPackages,
-                          labelTextStyle: WnButtonSize.large.textStyle().copyWith(
-                            color: context.colors.solidNeutralWhite,
-                          ),
-                        ),
-
-                        if (_showKeyPackages) ...[
-                          Gap(24.h),
-                          Text(
-                            'Key Packages (${_keyPackages.length})',
-                            style: TextStyle(
-                              fontSize: 16.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.primary,
-                            ),
-                          ),
-                          Gap(12.h),
-                          if (_keyPackages.isEmpty)
-                            Container(
+                        if (_keyPackages.isEmpty)
+                          RepaintBoundary(
+                            child: Container(
                               padding: EdgeInsets.all(16.w),
                               decoration: BoxDecoration(
                                 color: context.colors.avatarSurface,
-                                border: Border.all(color: context.colors.border),
+
+                                borderRadius: BorderRadius.circular(8.r),
+                                border: Border.all(
+                                  color: context.colors.border.withValues(alpha: 0.3),
+                                  width: 0.5,
+                                ),
                               ),
                               child: Row(
                                 children: [
@@ -331,7 +346,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                     size: 20.w,
                                     color: context.colors.mutedForeground,
                                   ),
-                                  Gap(12.w),
+                                  SizedBox(width: 12.w),
                                   Text(
                                     'No key packages found',
                                     style: TextStyle(
@@ -341,96 +356,140 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                   ),
                                 ],
                               ),
-                            )
-                          else
-                            Expanded(
+                            ),
+                          )
+                        else
+                          Expanded(
+                            child: RepaintBoundary(
                               child: ListView.separated(
                                 itemCount: _keyPackages.length,
-                                separatorBuilder: (context, index) => Gap(8.h),
+                                separatorBuilder: (context, index) => SizedBox(height: 8.h),
                                 itemBuilder: (context, index) {
                                   final keyPackage = _keyPackages[index];
-                                  return Container(
-                                    padding: EdgeInsets.all(16.w),
-                                    decoration: BoxDecoration(
-                                      color: context.colors.avatarSurface,
-                                      border: Border.all(color: context.colors.border),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            WnImage(
-                                              AssetsPaths.icPassword,
-                                              size: 16.w,
-                                              color: context.colors.primary,
-                                            ),
-                                            Gap(8.w),
-                                            Expanded(
-                                              child: Text(
-                                                'Key Package #${index + 1}',
-                                                style: TextStyle(
-                                                  fontSize: 14.sp,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: context.colors.primary,
-                                                ),
-                                              ),
-                                            ),
-                                            InkWell(
-                                              onTap:
-                                                  _isLoading
-                                                      ? null
-                                                      : () =>
-                                                          _deleteKeyPackage(keyPackage.id, index),
-                                              borderRadius: BorderRadius.circular(4.r),
-                                              child: Padding(
-                                                padding: EdgeInsets.all(4.w),
-                                                child: WnImage(
-                                                  AssetsPaths.icDelete,
-                                                  size: 16.w,
-                                                  color:
-                                                      _isLoading
-                                                          ? context.colors.mutedForeground
-                                                              .withValues(alpha: 0.5)
-                                                          : context.colors.destructive,
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Gap(8.h),
-                                        Text(
-                                          'ID: ${keyPackage.id}',
-                                          style: TextStyle(
-                                            fontSize: 12.sp,
-                                            color: context.colors.mutedForeground,
-                                            fontFamily: 'Courier',
-                                          ),
-                                        ),
-                                        Gap(4.h),
-                                        Text(
-                                          'Created at: ${keyPackage.createdAt.toIso8601String()}',
-                                          style: TextStyle(
-                                            fontSize: 12.sp,
-                                            color: context.colors.mutedForeground,
-                                            fontFamily: 'Courier',
-                                          ),
-                                        ),
-                                      ],
+                                  return RepaintBoundary(
+                                    child: _KeyPackageItem(
+                                      keyPackage: keyPackage,
+                                      index: index,
+                                      isLoading: _isLoading,
+                                      onDelete: () => _deleteKeyPackage(keyPackage.id, index),
                                     ),
                                   );
                                 },
                               ),
                             ),
-                        ],
-                        Gap(MediaQuery.of(context).padding.bottom),
+                          ),
                       ],
+                      Gap(MediaQuery.of(context).padding.bottom),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Optimized key package item widget with reduced rasterization cost
+class _KeyPackageItem extends StatelessWidget {
+  const _KeyPackageItem({
+    required this.keyPackage,
+    required this.index,
+    required this.isLoading,
+    required this.onDelete,
+  });
+
+  final accounts_api.FlutterEvent keyPackage;
+  final int index;
+  final bool isLoading;
+  final VoidCallback onDelete;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: EdgeInsets.all(16.w),
+
+      // This reduces rasterization cost significantly
+      decoration: BoxDecoration(
+        color: context.colors.avatarSurface,
+
+        borderRadius: BorderRadius.circular(8.r),
+      ),
+
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: context.colors.border.withValues(alpha: 0.3),
+            width: 0.5, // Thinner border for better performance
+          ),
+          borderRadius: BorderRadius.circular(6.r),
+        ),
+        padding: EdgeInsets.all(12.w),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                RepaintBoundary(
+                  child: WnImage(
+                    AssetsPaths.icPassword,
+                    size: 16.w,
+                    color: context.colors.primary,
+                  ),
+                ),
+                SizedBox(width: 8.w),
+                Expanded(
+                  child: Text(
+                    'Key Package #${index + 1}',
+                    style: TextStyle(
+                      fontSize: 14.sp,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.primary,
+                    ),
+                  ),
+                ),
+
+                RepaintBoundary(
+                  child: InkWell(
+                    onTap: isLoading ? null : onDelete,
+                    borderRadius: BorderRadius.circular(4.r),
+                    child: Padding(
+                      padding: EdgeInsets.all(4.w),
+                      child: WnImage(
+                        AssetsPaths.icDelete,
+                        size: 16.w,
+                        color:
+                            isLoading
+                                ? context.colors.mutedForeground.withValues(alpha: 0.5)
+                                : context.colors.destructive,
+                      ),
                     ),
                   ),
                 ),
               ],
             ),
-          ),
+            SizedBox(height: 8.h),
+
+            Text(
+              'ID: ${keyPackage.id}',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: context.colors.mutedForeground,
+                fontFamily: 'Courier',
+              ),
+            ),
+            SizedBox(height: 4.h),
+            Text(
+              'Created at: ${keyPackage.createdAt.toIso8601String()}',
+              style: TextStyle(
+                fontSize: 12.sp,
+                color: context.colors.mutedForeground,
+                fontFamily: 'Courier',
+              ),
+            ),
+          ],
         ),
       ),
     );

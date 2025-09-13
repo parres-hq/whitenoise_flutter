@@ -35,6 +35,13 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
   List<ContactModel> _accountsProfileData = [];
   ProviderSubscription<AsyncValue<ActiveAccountState>>? _activeAccountSubscription;
   PackageInfo? _packageInfo;
+
+  bool _isLoadingAccounts = false;
+  bool _isLoadingPackageInfo = false;
+  DateTime? _lastAccountsLoadTime;
+
+  static const Duration _accountsCacheDuration = Duration(minutes: 2);
+
   @override
   void initState() {
     super.initState();
@@ -45,6 +52,8 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         activeAccountProvider,
         (previous, next) {
           if (next is AsyncData) {
+            // This ensures profile updates are reflected immediately
+            _invalidateAccountsCache();
             _loadAccountsProfileData();
           }
         },
@@ -58,7 +67,24 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     super.dispose();
   }
 
+  Future<void> _loadAccountsProfileDataIfNeeded() async {
+    if (_lastAccountsLoadTime != null) {
+      final cacheAge = DateTime.now().difference(_lastAccountsLoadTime!);
+      if (cacheAge < _accountsCacheDuration && _accounts.isNotEmpty) {
+        return; // Use cached data
+      }
+    }
+    await _loadAccountsProfileData();
+  }
+
+  void _invalidateAccountsCache() {
+    _lastAccountsLoadTime = null;
+  }
+
   Future<void> _loadAccountsProfileData() async {
+    if (_isLoadingAccounts) return;
+    _isLoadingAccounts = true;
+
     try {
       final List<Account> accounts = await getAccounts();
       final UserProfileDataNotifier userProfileDataNotifier = ref.read(
@@ -74,15 +100,21 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       setState(() {
         _accounts = accounts;
         _accountsProfileData = accountsProfileData;
+        _lastAccountsLoadTime = DateTime.now();
       });
     } catch (e) {
       if (mounted) {
         ref.showErrorToast('Failed to load accounts');
       }
+    } finally {
+      _isLoadingAccounts = false;
     }
   }
 
   Future<void> _loadPackageInfo() async {
+    if (_isLoadingPackageInfo || _packageInfo != null) return;
+    _isLoadingPackageInfo = true;
+
     try {
       final PackageInfo packageInfo = await PackageInfo.fromPlatform();
       if (!mounted) return;
@@ -92,6 +124,8 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     } catch (e) {
       // Silently handle error - version info is not critical
       debugPrint('Failed to load package info: $e');
+    } finally {
+      _isLoadingPackageInfo = false;
     }
   }
 
@@ -114,7 +148,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     bool showSuccessToast = false,
   }) async {
     if (_accounts.isEmpty) {
-      await _loadAccountsProfileData();
+      await _loadAccountsProfileDataIfNeeded();
     }
 
     if (!mounted) return;
@@ -218,132 +252,168 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       backgroundColor: context.colors.neutral,
       appBar: WnAppBar(
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          onPressed: () => context.pop(),
-          icon: WnImage(
-            AssetsPaths.icChevronLeft,
-            width: 24.w,
-            height: 24.w,
-            color: context.colors.solidPrimary,
+        leading: RepaintBoundary(
+          child: IconButton(
+            onPressed: () => context.pop(),
+            icon: WnImage(
+              AssetsPaths.icChevronLeft,
+              width: 24.w,
+              height: 24.w,
+              color: context.colors.solidPrimary,
+            ),
           ),
         ),
-        title: Row(
-          children: [
-            Text(
-              'Settings',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-                color: context.colors.solidPrimary,
-              ),
+        title: RepaintBoundary(
+          child: Text(
+            'Settings',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+              color: context.colors.solidPrimary,
             ),
-          ],
+          ),
         ),
       ),
       body: ListView(
         padding: EdgeInsets.symmetric(vertical: 24.h),
         children: [
-          Column(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Column(
-                  children: [
-                    const ActiveAccountTile(),
-                    Gap(12.h),
-                    WnFilledButton(
-                      label: 'Switch Account',
-                      size: WnButtonSize.small,
-                      visualState: WnButtonVisualState.secondary,
-                      onPressed: () async => await _showAccountSwitcher(),
-                      suffixIcon: WnImage(
-                        AssetsPaths.icArrowsVertical,
-
-                        color: context.colors.primary,
-                      ),
+          RepaintBoundary(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              child: Column(
+                children: [
+                  const ActiveAccountTile(),
+                  SizedBox(height: 12.h),
+                  WnFilledButton(
+                    label: 'Switch Account',
+                    size: WnButtonSize.small,
+                    visualState: WnButtonVisualState.secondary,
+                    onPressed: () async => await _showAccountSwitcher(),
+                    suffixIcon: WnImage(
+                      AssetsPaths.icArrowsVertical,
+                      color: context.colors.primary,
                     ),
-                    Gap(16.h),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 16.h),
+                ],
               ),
-              Divider(color: context.colors.baseMuted, height: 0.h),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Column(
-                  children: [
-                    Gap(10.h),
-                    SettingsListTile(
-                      assetPath: AssetsPaths.icUser,
-                      text: 'Edit Profile',
-                      onTap: () => context.push('${Routes.settings}/profile'),
-                    ),
-                    SettingsListTile(
-                      assetPath: AssetsPaths.icPassword,
-                      text: 'Profile Keys',
-                      onTap: () => context.push('${Routes.settings}/keys'),
-                    ),
-                    SettingsListTile(
-                      assetPath: AssetsPaths.icDataVis3,
-                      text: 'Network Relays',
-                      onTap: () => context.push('${Routes.settings}/network'),
-                    ),
-                    SettingsListTile(
-                      assetPath: AssetsPaths.icLogout,
-                      text: 'Sign out',
-                      onTap: _handleLogout,
-                    ),
-                  ],
-                ),
-              ),
-              Divider(color: context.colors.baseMuted, height: 24.h),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Column(
-                  children: [
-                    SettingsListTile(
-                      assetPath: AssetsPaths.icSettings,
-                      text: 'App Settings',
-                      onTap: () => context.push('${Routes.settings}/app_settings'),
-                    ),
-                    SettingsListTile(
-                      assetPath: AssetsPaths.icFavorite,
-                      text: 'Donate to White Noise',
-                      onTap: () => context.push(Routes.settingsDonate),
-                    ),
-                  ],
-                ),
-              ),
-              Divider(color: context.colors.baseMuted, height: 24.h),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Column(
-                  children: [
-                    SettingsListTile(
-                      assetPath: AssetsPaths.icDevelopment,
-                      text: 'Developer Settings',
-                      onTap: () => DeveloperSettingsScreen.show(context),
-                      foregroundColor: context.colors.mutedForeground,
-                    ),
-                  ],
-                ),
-              ),
-            ],
+            ),
           ),
-          // Version information at the bottom
-          Gap(32.h),
+
+          Container(
+            height: 1,
+            color: context.colors.baseMuted,
+          ),
+
+          RepaintBoundary(
+            child: _SettingsSection(
+              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+              children: [
+                SettingsListTile(
+                  assetPath: AssetsPaths.icUser,
+                  text: 'Edit Profile',
+                  onTap: () => context.push('${Routes.settings}/profile'),
+                ),
+                SettingsListTile(
+                  assetPath: AssetsPaths.icPassword,
+                  text: 'Profile Keys',
+                  onTap: () => context.push('${Routes.settings}/keys'),
+                ),
+                SettingsListTile(
+                  assetPath: AssetsPaths.icDataVis3,
+                  text: 'Network Relays',
+                  onTap: () => context.push('${Routes.settings}/network'),
+                ),
+                SettingsListTile(
+                  assetPath: AssetsPaths.icLogout,
+                  text: 'Sign out',
+                  onTap: _handleLogout,
+                ),
+              ],
+            ),
+          ),
+
+          Container(
+            height: 1,
+            color: context.colors.baseMuted,
+            margin: EdgeInsets.symmetric(vertical: 12.h),
+          ),
+
+          RepaintBoundary(
+            child: _SettingsSection(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              children: [
+                SettingsListTile(
+                  assetPath: AssetsPaths.icSettings,
+                  text: 'App Settings',
+                  onTap: () => context.push('${Routes.settings}/app_settings'),
+                ),
+                SettingsListTile(
+                  assetPath: AssetsPaths.icFavorite,
+                  text: 'Donate to White Noise',
+                  onTap: () => context.push(Routes.settingsDonate),
+                ),
+              ],
+            ),
+          ),
+
+          Container(
+            height: 1,
+            color: context.colors.baseMuted,
+            margin: EdgeInsets.symmetric(vertical: 12.h),
+          ),
+
+          RepaintBoundary(
+            child: _SettingsSection(
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
+              children: [
+                SettingsListTile(
+                  assetPath: AssetsPaths.icDevelopment,
+                  text: 'Developer Settings',
+                  onTap: () => DeveloperSettingsScreen.show(context),
+                  foregroundColor: context.colors.mutedForeground,
+                ),
+              ],
+            ),
+          ),
+
+          SizedBox(height: 32.h),
           if (_packageInfo != null)
-            Center(
-              child: Text(
-                'Version ${_packageInfo!.version}+${_packageInfo!.buildNumber}',
-                style: TextStyle(
-                  fontSize: 10.sp,
-                  fontWeight: FontWeight.w400,
-                  color: context.colors.mutedForeground,
+            RepaintBoundary(
+              child: Center(
+                child: Text(
+                  'Version ${_packageInfo!.version}+${_packageInfo!.buildNumber}',
+                  style: TextStyle(
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w400,
+                    color: context.colors.mutedForeground,
+                  ),
                 ),
               ),
             ),
-          Gap(16.h),
+          SizedBox(height: 16.h),
         ],
+      ),
+    );
+  }
+}
+
+/// Optimized settings section widget to reduce widget tree depth
+class _SettingsSection extends StatelessWidget {
+  const _SettingsSection({
+    required this.children,
+    this.padding,
+  });
+
+  final List<Widget> children;
+  final EdgeInsetsGeometry? padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: padding ?? EdgeInsets.zero,
+      child: Column(
+        children: children,
       ),
     );
   }
@@ -365,29 +435,34 @@ class SettingsListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Padding(
-        padding: EdgeInsets.symmetric(vertical: 16.h),
-        child: Row(
-          children: [
-            WnImage(
-              assetPath,
-              size: 24.w,
-              color: foregroundColor ?? context.colors.primary,
-            ),
-            Gap(12.w),
-            Expanded(
-              child: Text(
-                text,
-                style: TextStyle(
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
+    return RepaintBoundary(
+      child: GestureDetector(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 16.h),
+          child: Row(
+            children: [
+              RepaintBoundary(
+                child: WnImage(
+                  assetPath,
+                  size: 24.w,
                   color: foregroundColor ?? context.colors.primary,
                 ),
               ),
-            ),
-          ],
+              SizedBox(width: 12.w),
+              Expanded(
+                child: Text(
+                  text,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: foregroundColor ?? context.colors.primary,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
