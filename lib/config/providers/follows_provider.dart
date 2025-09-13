@@ -113,7 +113,14 @@ class FollowsNotifier extends Notifier<FollowsState> {
   }
 
   User? findFollowByPubkey(String pubkey) {
-    return state.follows.where((user) => user.pubkey == pubkey).firstOrNull;
+    // Normalize the input pubkey to hex for consistent comparison
+    final hexPubkey = PubkeyFormatter(pubkey: pubkey).toHex();
+    if (hexPubkey == null) return null;
+
+    return state.follows.where((user) {
+      final userHexPubkey = PubkeyFormatter(pubkey: user.pubkey).toHex();
+      return userHexPubkey == hexPubkey;
+    }).firstOrNull;
   }
 
   bool isFollowing(String pubkey) {

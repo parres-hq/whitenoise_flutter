@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/ui/contact_list/widgets/user_profile.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
 import '../../../test_helpers.dart';
 
@@ -100,8 +100,13 @@ void main() {
         ),
       );
 
-      final copyButton = find.byType(SvgPicture);
+      // Look for the copy button specifically by finding the IconButton containing WnImage
+      final copyButton = find.byType(IconButton);
       expect(copyButton, findsOneWidget);
+
+      // Verify the IconButton contains a WnImage
+      final iconButtonWidget = tester.widget<IconButton>(copyButton);
+      expect(iconButtonWidget.icon, isA<WnImage>());
     });
   });
 }

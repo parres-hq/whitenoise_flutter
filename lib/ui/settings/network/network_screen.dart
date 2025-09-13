@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
@@ -11,7 +10,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_refreshing_indicator.dart';
 import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
-import 'package:whitenoise/ui/settings/network/widgets/relay_expansion_tile.dart';
+import 'package:whitenoise/ui/settings/network/widgets/relay_section.dart';
 
 class NetworkScreen extends ConsumerStatefulWidget {
   const NetworkScreen({super.key});
@@ -142,94 +141,39 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                 color: context.colors.neutral,
                 child: Column(
                   children: [
-                    Gap(24.h),
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () => Navigator.of(context).pop(),
-                          icon: WnImage(
-                            AssetsPaths.icChevronLeft,
-                            width: 24.w,
-                            height: 24.w,
-                            color: context.colors.primary,
-                          ),
-                        ),
-                        Text(
-                          'Network Relays',
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w600,
-                            color: context.colors.mutedForeground,
-                          ),
-                        ),
-                      ],
+                    RepaintBoundary(
+                      child: _NetworkHeader(
+                        onBackPressed: () => Navigator.of(context).pop(),
+                      ),
                     ),
-                    if (_isPulling || _isRefreshing)
-                      AnimatedContainer(
-                        margin: EdgeInsets.only(
-                          top: _isPulling ? 32.h : 0.0,
-                        ),
-                        duration: const Duration(milliseconds: 200),
-                        height:
-                            _isPulling
-                                ? _pullDistance.clamp(
-                                  0.0,
-                                  60.h,
-                                )
-                                : 50.h,
-                        child: Opacity(
-                          opacity: _isPulling ? (_pullDistance / 60.h).clamp(0.0, 1.0) : 1.0,
-                          child: const WnRefreshingIndicator(
-                            message: 'Reconnecting Relays...',
-                            padding: EdgeInsets.zero,
-                          ),
-                        ),
-                      )
-                    else
-                      Gap(16.h),
+
+                    RepaintBoundary(
+                      child: _RefreshIndicator(
+                        isPulling: _isPulling,
+                        isRefreshing: _isRefreshing,
+                        pullDistance: _pullDistance,
+                      ),
+                    ),
                     Expanded(
                       child: Padding(
                         padding: EdgeInsets.symmetric(horizontal: 16.w),
                         child: Column(
                           children: [
                             Expanded(
-                              child: NotificationListener<ScrollNotification>(
-                                onNotification: (ScrollNotification notification) {
-                                  if (notification is ScrollUpdateNotification) {
-                                    if (notification.metrics.pixels < 0) {
-                                      final overscroll = notification.metrics.pixels.abs();
-                                      if (!_isPulling) {
-                                        setState(() {
-                                          _isPulling = true;
-                                          _pullDistance = 0.0;
-                                        });
-                                      }
-                                      setState(() {
-                                        _pullDistance = (overscroll * 0.5).clamp(0.0, 100.0);
-                                      });
-                                    }
+                              child: _OptimizedScrollView(
+                                onPullToRefresh: _refreshData,
+                                onPullStateChanged: (isPulling, distance) {
+                                  if (_isPulling != isPulling ||
+                                      (_pullDistance - distance).abs() > 5.0) {
+                                    setState(() {
+                                      _isPulling = isPulling;
+                                      _pullDistance = distance;
+                                    });
                                   }
-
-                                  if (notification is ScrollEndNotification) {
-                                    if (_isPulling && _pullDistance >= 60.0) {
-                                      _refreshData();
-                                    }
-                                    if (_isPulling) {
-                                      setState(() {
-                                        _isPulling = false;
-                                        _pullDistance = 0.0;
-                                      });
-                                    }
-                                  }
-                                  return false;
                                 },
-                                child: ListView(
-                                  padding: EdgeInsets.zero,
-                                  physics: const BouncingScrollPhysics(
-                                    parent: AlwaysScrollableScrollPhysics(),
-                                  ),
-                                  children: [
-                                    RelayExpansionTile(
+                                children: [
+                                  RepaintBoundary(
+                                    child: RelaySection(
                                       title: 'My Relays',
                                       helpIconKey: _myRelayHelpIconKey,
                                       relayState: normalRelaysState,
@@ -240,8 +184,10 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                                             'Relays you have defined for use across all your Nostr applications.',
                                           ),
                                     ),
-                                    Gap(16.h),
-                                    RelayExpansionTile(
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  RepaintBoundary(
+                                    child: RelaySection(
                                       title: 'Inbox Relays',
                                       helpIconKey: _inboxRelayHelpIconKey,
                                       relayState: inboxRelaysState,
@@ -252,8 +198,10 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                                             'Relays used to receive invitations and start secure conversations with new contacts.',
                                           ),
                                     ),
-                                    Gap(16.h),
-                                    RelayExpansionTile(
+                                  ),
+                                  SizedBox(height: 16.h),
+                                  RepaintBoundary(
+                                    child: RelaySection(
                                       title: 'Key Package Relays',
                                       helpIconKey: _keyPackageRelayHelpIconKey,
                                       relayState: keyPackageRelaysState,
@@ -264,8 +212,8 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                                             'Relays that store your secure key so others can invite you to encrypted conversations.',
                                           ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -278,6 +226,150 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Optimized network header widget
+class _NetworkHeader extends StatelessWidget {
+  const _NetworkHeader({required this.onBackPressed});
+
+  final VoidCallback onBackPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(top: 24.h),
+      child: Row(
+        children: [
+          RepaintBoundary(
+            child: IconButton(
+              onPressed: onBackPressed,
+              icon: WnImage(
+                AssetsPaths.icChevronLeft,
+                width: 24.w,
+                height: 24.w,
+                color: context.colors.primary,
+              ),
+            ),
+          ),
+          Text(
+            'Network Relays',
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+              color: context.colors.mutedForeground,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Optimized refresh indicator widget
+class _RefreshIndicator extends StatelessWidget {
+  const _RefreshIndicator({
+    required this.isPulling,
+    required this.isRefreshing,
+    required this.pullDistance,
+  });
+
+  final bool isPulling;
+  final bool isRefreshing;
+  final double pullDistance;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!isPulling && !isRefreshing) {
+      return SizedBox(height: 16.h);
+    }
+
+    return Container(
+      margin: EdgeInsets.only(top: isPulling ? 32.h : 0.0),
+      height: isPulling ? pullDistance.clamp(0.0, 60.h) : 50.h,
+      child: Opacity(
+        opacity: isPulling ? (pullDistance / 60.h).clamp(0.0, 1.0) : 1.0,
+        child: const WnRefreshingIndicator(
+          message: 'Reconnecting Relays...',
+          padding: EdgeInsets.zero,
+        ),
+      ),
+    );
+  }
+}
+
+/// Optimized scroll view with throttled pull-to-refresh
+class _OptimizedScrollView extends StatefulWidget {
+  const _OptimizedScrollView({
+    required this.children,
+    required this.onPullToRefresh,
+    required this.onPullStateChanged,
+  });
+
+  final List<Widget> children;
+  final VoidCallback onPullToRefresh;
+  final void Function(bool isPulling, double distance) onPullStateChanged;
+
+  @override
+  State<_OptimizedScrollView> createState() => _OptimizedScrollViewState();
+}
+
+class _OptimizedScrollViewState extends State<_OptimizedScrollView> {
+  bool _isPulling = false;
+  double _pullDistance = 0.0;
+
+  DateTime? _lastScrollUpdate;
+  static const Duration _scrollThrottle = Duration(milliseconds: 16); // ~60fps
+
+  bool _shouldUpdateScroll() {
+    final now = DateTime.now();
+    if (_lastScrollUpdate == null || now.difference(_lastScrollUpdate!) > _scrollThrottle) {
+      _lastScrollUpdate = now;
+      return true;
+    }
+    return false;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return NotificationListener<ScrollNotification>(
+      onNotification: (ScrollNotification notification) {
+        if (notification is ScrollUpdateNotification) {
+          if (notification.metrics.pixels < 0) {
+            final overscroll = notification.metrics.pixels.abs();
+            final newDistance = (overscroll * 0.5).clamp(0.0, 100.0);
+
+            if (_shouldUpdateScroll() && (newDistance - _pullDistance).abs() > 2.0) {
+              if (!_isPulling) {
+                _isPulling = true;
+                _pullDistance = 0.0;
+              }
+              _pullDistance = newDistance;
+              widget.onPullStateChanged(_isPulling, _pullDistance);
+            }
+          }
+        }
+
+        if (notification is ScrollEndNotification) {
+          if (_isPulling && _pullDistance >= 60.0) {
+            widget.onPullToRefresh();
+          }
+          if (_isPulling) {
+            _isPulling = false;
+            _pullDistance = 0.0;
+            widget.onPullStateChanged(_isPulling, _pullDistance);
+          }
+        }
+        return false;
+      },
+      child: ListView(
+        padding: EdgeInsets.zero,
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
+        children: widget.children,
       ),
     );
   }
