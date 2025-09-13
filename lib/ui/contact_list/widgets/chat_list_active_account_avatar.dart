@@ -48,24 +48,23 @@ class _ChatListActiveAccountAvatarState extends ConsumerState<ChatListActiveAcco
 
   Future<void> _loadProfileData() async {
     try {
-      final activeAccountState = ref.read(activeAccountProvider);
-      if (activeAccountState.hasValue && activeAccountState.value?.account != null) {
-        final account = activeAccountState.value?.account;
-        final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
-        final profileData = await userProfileDataNotifier.getUserProfileData(account?.pubkey ?? '');
-
-        if (mounted) {
-          setState(() {
-            _profileData = profileData;
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _profileData = null;
-        });
-      }
+      final AsyncValue<ActiveAccountState> activeAccountState = ref.read(activeAccountProvider);
+      final String? pubkey = activeAccountState.valueOrNull?.account?.pubkey;
+      if (pubkey == null || pubkey.isEmpty) return;
+      final ContactModel profileData = await ref
+          .read(userProfileDataProvider.notifier)
+          .getUserProfileData(pubkey);
+      if (!mounted) return;
+      final String? currentPubkey = ref.read(activeAccountProvider).valueOrNull?.account?.pubkey;
+      if (currentPubkey != pubkey) return;
+      setState(() {
+        _profileData = profileData;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        _profileData = null;
+      });
     }
   }
 
