@@ -526,7 +526,7 @@ class MessageConverter {
         );
       }
 
-      // If not found in contacts, try metadata cache with build-safe scheduling
+      // If not found in contacts, fetch try metadata cache with build-safe scheduling
       return await Future.microtask(() async {
         final metadataCache = ref.read(metadataCacheProvider.notifier);
         final contactModel = await metadataCache.getContactModel(pubkey);
