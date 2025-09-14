@@ -179,12 +179,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             ),
           ] else ...[
             GestureDetector(
-              onTap:
-                  isAdmin
-                      ? () {
-                        context.push('/chats/${widget.groupId}/info/edit');
-                      }
-                      : null,
+              onTap: isAdmin ? () => Routes.goToEditGroup(context, widget.groupId) : null,
               child: Text(
                 isAdmin ? 'Add Group Description...' : 'No Group Description',
                 style: context.textTheme.bodyMedium?.copyWith(
@@ -203,9 +198,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,
                 label: 'Edit Group',
-                onPressed: () {
-                  context.push('/chats/${widget.groupId}/info/edit');
-                },
+                onPressed: () => Routes.goToEditGroup(context, widget.groupId),
               ),
             ),
           ],
