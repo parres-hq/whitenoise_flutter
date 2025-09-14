@@ -131,6 +131,9 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
       _loadMembers();
     });
     final isAdmin = groupAdmins.any((admin) {
+      if (currentUserNpub == null) {
+        return false;
+      }
       final hexAdminKey = PubkeyFormatter(pubkey: admin.publicKey).toHex();
       final hexCurrentUserKey = PubkeyFormatter(pubkey: currentUserNpub).toHex();
       return hexAdminKey == hexCurrentUserKey;
