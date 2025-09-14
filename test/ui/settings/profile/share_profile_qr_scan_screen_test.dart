@@ -154,7 +154,7 @@ void main() {
         expect(backButton, findsOneWidget);
 
         await tester.tap(backButton);
-        await tester.pumpAndSettle();
+        await tester.pump();
       });
     });
 
@@ -197,7 +197,7 @@ void main() {
         expect(find.byType(ShareProfileQrScanScreen), findsOneWidget);
 
         // Simulate app lifecycle changes by pumping the widget
-        await tester.pumpAndSettle();
+        await tester.pump();
         expect(find.byType(ShareProfileQrScanScreen), findsOneWidget);
       });
 
@@ -315,7 +315,7 @@ void main() {
 
         // Test that back button responds to tap
         await tester.tap(backButton, warnIfMissed: false);
-        await tester.pumpAndSettle();
+        await tester.pump();
       });
     });
 

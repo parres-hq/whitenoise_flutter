@@ -23,7 +23,7 @@ nostr-sdk = { version = "0.43.0", git="https://github.com/rust-nostr/nostr", rev
 
 thiserror = "2.0.12"
 
-whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "f8b26fabec6d4ffbd689c0ffd91be8cfd82efe25" }
+whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "d31ca23a2a9bf5e1bfc5d1b475797004ec890066" }
 # whitenoise = { version = "0.1.0", path = "../../whitenoise" }
 
 [lints.rust]

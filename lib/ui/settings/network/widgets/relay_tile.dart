@@ -97,36 +97,60 @@ class _RelayTileState extends ConsumerState<RelayTile> {
 
   @override
   Widget build(BuildContext context) {
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: context.colors.surface,
-      ),
-      child: ListTile(
-        contentPadding: EdgeInsets.symmetric(
-          horizontal: 16.w,
-          vertical: 4.h,
-        ),
-        leading: WnImage(
-          widget.relayInfo.status.getIconAsset(),
-          color: widget.relayInfo.status.getColor(context),
-          size: 24.w,
-        ),
-        title: Text(
-          widget.relayInfo.url.sanitizedUrl,
-          style: TextStyle(
-            color: context.colors.primary,
-            fontWeight: FontWeight.w600,
-            fontSize: 12.sp,
-          ),
-        ),
-        trailing: InkWell(
-          onTap: _removeRelay,
-          child: WnImage(
-            AssetsPaths.icDelete,
-            color: context.colors.primary,
+    return RepaintBoundary(
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+        decoration: BoxDecoration(
+          color: context.colors.surface,
 
-            size: 23.w,
-          ),
+          borderRadius: BorderRadius.circular(8.r),
+        ),
+        child: Row(
+          children: [
+            RepaintBoundary(
+              child: WnImage(
+                widget.relayInfo.status.getIconAsset(),
+                color: widget.relayInfo.status.getColor(context),
+                size: 24.w,
+              ),
+            ),
+            SizedBox(width: 12.w),
+
+            Expanded(
+              child: RepaintBoundary(
+                child: Text(
+                  widget.relayInfo.url.sanitizedUrl,
+                  style: TextStyle(
+                    color: context.colors.primary,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12.sp,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+            ),
+            SizedBox(width: 8.w),
+
+            if (widget.showOptions)
+              RepaintBoundary(
+                child: Semantics(
+                  label: 'Delete relay',
+                  button: true,
+                  child: GestureDetector(
+                    onTap: _removeRelay,
+                    behavior: HitTestBehavior.opaque,
+                    child: Padding(
+                      padding: EdgeInsets.all(4.w),
+                      child: WnImage(
+                        AssetsPaths.icDelete,
+                        color: context.colors.primary,
+                        size: 20.w,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
         ),
       ),
     );
