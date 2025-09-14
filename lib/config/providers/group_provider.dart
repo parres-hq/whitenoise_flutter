@@ -1022,6 +1022,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
               nostrGroupId: g.nostrGroupId,
               name: g.name,
               description: g.description,
+              imageHash: g.imageHash,
+              imageKey: g.imageKey,
               adminPubkeys: g.adminPubkeys,
               lastMessageId: g.lastMessageId,
               lastMessageAt: timestamp,
