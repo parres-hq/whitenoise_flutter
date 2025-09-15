@@ -12,6 +12,7 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/chat_info/widgets/group_member_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';

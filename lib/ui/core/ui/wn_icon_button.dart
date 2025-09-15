@@ -10,6 +10,7 @@ class WnIconButton extends StatelessWidget {
   final double? size;
   final Color? buttonColor;
   final Color? iconColor;
+  final Color? borderColor;
 
   const WnIconButton({
     required this.onTap,
@@ -18,6 +19,7 @@ class WnIconButton extends StatelessWidget {
     this.size,
     this.buttonColor,
     this.iconColor,
+    this.borderColor,
     super.key,
   });
 
@@ -29,7 +31,7 @@ class WnIconButton extends StatelessWidget {
         height: size ?? 40.h,
         width: size,
         decoration: BoxDecoration(
-          border: Border.all(color: buttonColor ?? context.colors.input),
+          border: Border.all(color: borderColor ?? buttonColor ?? context.colors.input),
           color: buttonColor ?? Colors.transparent,
         ),
         child: Padding(
