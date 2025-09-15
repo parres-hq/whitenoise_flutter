@@ -22,26 +22,35 @@ class WnAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Use a single ClipOval with decoration instead of Container + ClipOval
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: backgroundColor ?? context.colors.avatarSurface,
-        border:
-            showBorder
-                ? Border.all(
+      decoration:
+          showBorder
+              ? BoxDecoration(
+                border: Border.all(
                   color: borderColor ?? context.colors.border,
                   width: 1.w,
-                )
-                : null,
-        shape: BoxShape.circle,
-      ),
+                ),
+                shape: BoxShape.circle,
+              )
+              : null,
       child: ClipOval(
-        child: WnImage(
-          imageUrl,
-          size: size,
-          fit: BoxFit.cover,
-          fallbackWidget: (context) => FallbackAvatar(displayName: displayName, size: size),
+        child: Container(
+          width: size,
+          height: size,
+          color: backgroundColor ?? context.colors.avatarSurface,
+          child: WnImage(
+            imageUrl,
+            size: size,
+            fit: BoxFit.cover,
+            fallbackWidget:
+                (context) => FallbackAvatar(
+                  displayName: displayName,
+                  size: size,
+                ),
+          ),
         ),
       ),
     );

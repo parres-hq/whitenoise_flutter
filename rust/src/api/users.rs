@@ -40,7 +40,7 @@ pub async fn get_user(pubkey: String) -> Result<User, ApiError> {
 pub async fn user_metadata(pubkey: String) -> Result<FlutterMetadata, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::parse(&pubkey)?;
-    let user = whitenoise.find_user_by_pubkey(&pubkey).await?;
+    let user = whitenoise.find_or_create_user_by_pubkey(&pubkey).await?;
     Ok(user.metadata.into())
 }
 
@@ -48,7 +48,7 @@ pub async fn user_metadata(pubkey: String) -> Result<FlutterMetadata, ApiError> 
 pub async fn user_relays(pubkey: String, relay_type: RelayType) -> Result<Vec<Relay>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::parse(&pubkey)?;
-    let user = whitenoise.find_user_by_pubkey(&pubkey).await?;
+    let user = whitenoise.find_or_create_user_by_pubkey(&pubkey).await?;
     let relays = user.relays_by_type(relay_type, &whitenoise).await?;
     Ok(relays.into_iter().map(|r| r.into()).collect())
 }
@@ -57,6 +57,6 @@ pub async fn user_relays(pubkey: String, relay_type: RelayType) -> Result<Vec<Re
 pub async fn user_has_key_package(pubkey: String) -> Result<bool, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::parse(&pubkey)?;
-    let user = whitenoise.find_user_by_pubkey(&pubkey).await?;
+    let user = whitenoise.find_or_create_user_by_pubkey(&pubkey).await?;
     Ok(user.key_package_event(whitenoise).await?.is_some())
 }
