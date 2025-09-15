@@ -1090,7 +1090,18 @@ class GroupsNotifier extends Notifier<GroupsState> {
       updatedGroupsMap[g.mlsGroupId] = g;
     }
 
-    state = state.copyWith(groups: updatedGroups, groupsMap: updatedGroupsMap);
+    // Update groupDisplayNames if name was changed
+    Map<String, String>? updatedDisplayNames;
+    if (name != null) {
+      updatedDisplayNames = Map<String, String>.from(state.groupDisplayNames ?? {});
+      updatedDisplayNames[groupId] = name;
+    }
+
+    state = state.copyWith(
+      groups: updatedGroups, 
+      groupsMap: updatedGroupsMap,
+      groupDisplayNames: updatedDisplayNames ?? state.groupDisplayNames,
+    );
   }
 
   /// Update group data (name and description) with backend sync
