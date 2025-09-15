@@ -47,7 +47,7 @@ impl From<Event> for FlutterEvent {
                     .unwrap_or_else(|| Utc.timestamp_opt(0, 0).single().unwrap())
             },
             kind: event.kind.as_u16(),
-            tags: event.tags.iter().map(|tag| format!("{tag:?}")).collect(),
+            tags: event.tags.iter().map(|tag| format!("{:?}", tag)).collect(),
             content: event.content,
         }
     }
