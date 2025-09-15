@@ -1098,7 +1098,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     state = state.copyWith(
-      groups: updatedGroups, 
+      groups: updatedGroups,
       groupsMap: updatedGroupsMap,
       groupDisplayNames: updatedDisplayNames ?? state.groupDisplayNames,
     );

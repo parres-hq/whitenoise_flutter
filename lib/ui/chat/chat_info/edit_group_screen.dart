@@ -15,7 +15,6 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
-import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
 
 class EditGroupScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -187,25 +186,11 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
                       children: [
                         Gap(65.h),
                         Center(
-                          child: GestureDetector(
-                            onTap: () {
-                              // TODO: Implement image picker
-                            },
-                            child: Stack(
-                              children: [
-                                WnAvatar(
-                                  imageUrl: '',
-                                  displayName: group.name,
-                                  size: 96.w,
-                                  showBorder: true,
-                                ),
-                                const Positioned(
-                                  bottom: 0,
-                                  right: 0,
-                                  child: EditIconWidget(),
-                                ),
-                              ],
-                            ),
+                          child: WnAvatar(
+                            imageUrl: '',
+                            displayName: group.name,
+                            size: 96.w,
+                            showBorder: true,
                           ),
                         ),
                         Gap(36.h),
