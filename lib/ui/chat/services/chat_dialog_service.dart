@@ -10,6 +10,7 @@ import 'package:whitenoise/ui/chat/widgets/reaction/reaction_default_data.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_hero_dialog_route.dart';
 import 'package:whitenoise/ui/chat/widgets/reaction/reactions_dialog_widget.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 
 class ChatDialogService {
   static void showEmojiBottomSheet({
@@ -17,9 +18,10 @@ class ChatDialogService {
     required WidgetRef ref,
     required MessageModel message,
   }) {
-    showModalBottomSheet(
+    WnBottomSheet.show(
       context: context,
-      backgroundColor: Colors.transparent,
+      showCloseButton: false,
+      useSafeArea: false,
       builder: (context) {
         return Container(
           height: 0.4.sh,
