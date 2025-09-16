@@ -8,10 +8,14 @@ import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/contact_list/group_chat_details_sheet.dart';
 import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
-import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
+import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/clipboard_utils.dart';
 
 class NewGroupChatSheet extends ConsumerStatefulWidget {
   final ValueChanged<Group?>? onGroupCreated;
@@ -157,9 +161,39 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
       padding: EdgeInsets.only(bottom: 16.h),
       child: Column(
         children: [
-          WnTextField(
-            textController: _searchController,
-            hintText: 'Search contact or public key...',
+          Row(
+            children: [
+              Expanded(
+                child: WnTextFormField(
+                  controller: _searchController,
+                  hintText: 'Search contact or public key...',
+                  size: FieldSize.small,
+                  decoration: InputDecoration(
+                    prefixIcon: Padding(
+                      padding: EdgeInsets.all(12.w),
+                      child: WnImage(
+                        AssetsPaths.icSearch,
+                        color: context.colors.primary,
+                        size: 16.w,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              Gap(4.w),
+              WnIconButton(
+                iconPath: AssetsPaths.icPaste,
+                onTap:
+                    () async => await ClipboardUtils.pasteWithToast(
+                      ref: ref,
+                      onPaste: (text) {
+                        _searchController.text = text;
+                      },
+                    ),
+                padding: 14.w,
+                size: 44.h,
+              ),
+            ],
           ),
           Expanded(
             child:
