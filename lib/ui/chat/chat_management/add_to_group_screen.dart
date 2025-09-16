@@ -42,37 +42,48 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
     setState(() {
       _isLoading = true;
     });
-    await ref.read(groupsProvider.notifier).loadGroups();
 
-    final regularGroups = await ref.read(groupsProvider.notifier).getRegularGroups();
-    if (regularGroups.isEmpty) {
+    try {
+      await ref.read(groupsProvider.notifier).loadGroups();
+
+      final regularGroups = await ref.read(groupsProvider.notifier).getRegularGroups();
+      if (regularGroups.isEmpty) {
+        // Show dialog when no groups exist
+        if (mounted) {
+          _showCreateGroupDialog();
+        }
+        return;
+      }
+
+      final loadTasks = <Future<void>>[];
+
+      for (final group in regularGroups) {
+        final existingMembers = ref.read(groupsProvider).groupMembers?[group.mlsGroupId];
+        if (existingMembers == null) {
+          loadTasks.add(ref.read(groupsProvider.notifier).loadGroupMembers(group.mlsGroupId));
+        }
+      }
+
+      if (loadTasks.isNotEmpty) {
+        await Future.wait(loadTasks);
+      }
+
       setState(() {
-        _isLoading = false;
+        _regularGroups = regularGroups;
       });
-      // Show dialog when no groups exist
+    } catch (e) {
+      // Handle any errors during group loading
       if (mounted) {
-        _showCreateGroupDialog();
+        ref.showErrorToast('Failed to load groups: $e');
       }
-      return;
-    }
-
-    final loadTasks = <Future<void>>[];
-
-    for (final group in regularGroups) {
-      final existingMembers = ref.read(groupsProvider).groupMembers?[group.mlsGroupId];
-      if (existingMembers == null) {
-        loadTasks.add(ref.read(groupsProvider.notifier).loadGroupMembers(group.mlsGroupId));
+    } finally {
+      // Always ensure loading state is reset
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
-
-    if (loadTasks.isNotEmpty) {
-      await Future.wait(loadTasks);
-    }
-
-    setState(() {
-      _regularGroups = regularGroups;
-      _isLoading = false;
-    });
   }
 
   Future<void> _addUserToGroups() async {
