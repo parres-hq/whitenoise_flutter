@@ -51,8 +51,18 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
   }
 
   void _onSearchChanged() {
+    final originalText = _searchController.text;
+    final trimmedText = originalText.replaceAll(RegExp(r'\s+'), '');
+    
+    if (originalText != trimmedText) {
+      _searchController.value = _searchController.value.copyWith(
+        text: trimmedText,
+        selection: TextSelection.collapsed(offset: trimmedText.length),
+      );
+    }
+    
     setState(() {
-      _searchQuery = _searchController.text;
+      _searchQuery = trimmedText;
     });
   }
 
