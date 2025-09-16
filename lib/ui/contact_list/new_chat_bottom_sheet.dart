@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -22,6 +21,7 @@ import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class NewChatBottomSheet extends ConsumerStatefulWidget {
@@ -75,14 +75,14 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   void _onSearchChanged() {
     final originalText = _searchController.text;
     final trimmedText = originalText.replaceAll(RegExp(r'\s+'), '');
-    
+
     if (originalText != trimmedText) {
       _searchController.value = _searchController.value.copyWith(
         text: trimmedText,
         selection: TextSelection.collapsed(offset: trimmedText.length),
       );
     }
-    
+
     setState(() {
       _searchQuery = trimmedText;
       _tempContact = null;
@@ -321,20 +321,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     );
   }
 
-  Future<void> _pasteFromClipboard() async {
-    final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
-    if (clipboardData != null && clipboardData.text != null) {
-      _searchController.text = clipboardData.text!;
-      if (mounted) {
-        ref.showSuccessToast('Pasted from clipboard');
-      }
-    } else {
-      if (mounted) {
-        ref.showInfoToast('Nothing to paste from clipboard');
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final followsState = ref.watch(followsProvider);
@@ -393,7 +379,13 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             Gap(4.w),
             WnIconButton(
               iconPath: AssetsPaths.icPaste,
-              onTap: _pasteFromClipboard,
+              onTap:
+                  () async => await ClipboardUtils.pasteWithToast(
+                    ref: ref,
+                    onPaste: (text) {
+                      _searchController.text = text;
+                    },
+                  ),
               padding: 14.w,
               size: 44.h,
             ),
