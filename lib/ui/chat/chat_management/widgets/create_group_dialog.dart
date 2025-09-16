@@ -24,9 +24,7 @@ class CreateGroupDialog extends StatelessWidget {
       filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
       child: AlertDialog(
         backgroundColor: context.colors.surface,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.zero,
-        ),
+        shape: const RoundedRectangleBorder(),
         insetPadding: EdgeInsets.symmetric(horizontal: 24.w, vertical: 24.h),
         contentPadding: EdgeInsets.zero,
         content: SizedBox(
@@ -110,7 +108,6 @@ class CreateGroupDialog extends StatelessWidget {
   }) {
     return showDialog<bool>(
       context: context,
-      barrierDismissible: true,
       builder:
           (context) => CreateGroupDialog(
             onCreateGroup: onCreateGroup,

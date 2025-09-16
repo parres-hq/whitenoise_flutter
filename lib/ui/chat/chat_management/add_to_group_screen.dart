@@ -155,7 +155,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
         if (mounted) {
           NewGroupChatSheet.show(
             context,
-            preSelectedContacts: contactToAdd != null ? [contactToAdd] : null,
+            preSelectedContacts: [contactToAdd],
           );
         }
       },
