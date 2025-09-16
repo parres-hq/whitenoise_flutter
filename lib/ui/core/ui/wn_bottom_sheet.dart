@@ -17,7 +17,7 @@ class _FadeBottomSheetRoute<T> extends PageRoute<T> {
 
   _FadeBottomSheetRoute({
     required this.builder,
-    bool barrierDismissible = false,
+    bool barrierDismissible = true,
     String? barrierLabel,
     Duration transitionDuration = const Duration(milliseconds: 300),
     this.curve = Curves.easeOutCubic,
@@ -132,7 +132,7 @@ class WnBottomSheet {
     String? title,
     bool showCloseButton = true,
     bool showBackButton = false,
-    bool barrierDismissible = false,
+    bool barrierDismissible = true,
     String? barrierLabel,
     bool blurBackground = true,
     double blurSigma = 10.0,
@@ -151,7 +151,7 @@ class WnBottomSheet {
         builder:
             (BuildContext context) => GestureDetector(
               onTap: barrierDismissible ? () => Navigator.of(context).pop() : null,
-              behavior: barrierDismissible ? HitTestBehavior.opaque : HitTestBehavior.deferToChild,
+              behavior: HitTestBehavior.opaque,
               child: Stack(
                 children: [
                   if (blurBackground)
@@ -179,15 +179,13 @@ class WnBottomSheet {
                             constraints: BoxConstraints(
                               // Ensure the bottom sheet stops before the status bar area
                               // Using design system specification: 54 for status bar height
-                              maxHeight: MediaQuery.of(context).size.height - 54.h,
+                              maxHeight: MediaQuery.sizeOf(context).height - MediaQuery.paddingOf(context).top,
                             ),
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
                                 bottom:
-                                    useSafeArea
-                                        ? MediaQuery.viewInsetsOf(context).bottom.h +
-                                            _calculateBottomPadding(context)
-                                        : MediaQuery.viewInsetsOf(context).bottom.h,
+                                    (keyboardAware ? MediaQuery.viewInsetsOf(context).bottom : 0) +
+                                    (useSafeArea ? _calculateBottomPadding(context) : 0),
                                 top: 21.h,
                               ),
                               child: Column(
