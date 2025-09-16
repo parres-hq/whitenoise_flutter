@@ -12,6 +12,7 @@ abstract final class Routes {
   static const chat = '/chats/:id';
   static const newChat = '/chats/new';
   static const chatInfo = '/chats/:id/info';
+  static const editGroup = '/chats/:id/info/edit';
 
   // Contacts
   static const contacts = '/contacts';
@@ -44,5 +45,9 @@ abstract final class Routes {
 
   static void goToOnboarding(BuildContext context) {
     GoRouter.of(context).go('/onboarding');
+  }
+
+  static void goToEditGroup(BuildContext context, String groupId) {
+    GoRouter.of(context).push('/chats/$groupId/info/edit');
   }
 }

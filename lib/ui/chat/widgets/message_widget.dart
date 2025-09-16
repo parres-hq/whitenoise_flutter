@@ -45,7 +45,7 @@ class MessageWidget extends StatelessWidget {
         ChatMessageBubble(
           isSender: message.isMe,
           color: message.isMe ? context.colors.meChatBubble : context.colors.contactChatBubble,
-          tail: !isSameSenderAsNext,
+          tail: !isSameSenderAsPrevious,
           child: _buildMessageContent(context),
         ),
         if (message.reactions.isNotEmpty)
@@ -67,10 +67,8 @@ class MessageWidget extends StatelessWidget {
       onTap: onTap,
       child: Container(
         margin: EdgeInsets.only(
-          bottom:
-              message.reactions.isNotEmpty
-                  ? (isSameSenderAsPrevious ? 16.w : 24.w)
-                  : (isSameSenderAsPrevious ? 4.w : 12.w),
+          top: isSameSenderAsPrevious ? 4.w : 12.w,
+          bottom: message.reactions.isNotEmpty ? 12.w : 0,
         ),
         child: Row(
           mainAxisAlignment: message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,

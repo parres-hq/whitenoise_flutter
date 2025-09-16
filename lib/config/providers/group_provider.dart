@@ -1022,6 +1022,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
               nostrGroupId: g.nostrGroupId,
               name: g.name,
               description: g.description,
+              imageHash: g.imageHash,
+              imageKey: g.imageKey,
               adminPubkeys: g.adminPubkeys,
               lastMessageId: g.lastMessageId,
               lastMessageAt: timestamp,
@@ -1052,6 +1054,108 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
 
     state = state.copyWith(groups: updatedGroups, groupsMap: updatedGroupsMap);
+  }
+
+  /// Update group information (name and description) optimistically
+  void _updateGroupInfo(String groupId, {String? name, String? description}) {
+    final groups = state.groups;
+    final groupsMap = state.groupsMap;
+    if (groups == null || groupsMap == null) return;
+
+    final updatedGroups =
+        groups.map((group) {
+          if ((group as Group?)?.mlsGroupId == groupId) {
+            final g = group;
+            return Group(
+              mlsGroupId: g.mlsGroupId,
+              nostrGroupId: g.nostrGroupId,
+              name: name ?? g.name,
+              description: description ?? g.description,
+              imageHash: g.imageHash,
+              imageKey: g.imageKey,
+              adminPubkeys: g.adminPubkeys,
+              lastMessageId: g.lastMessageId,
+              lastMessageAt: g.lastMessageAt,
+              epoch: g.epoch,
+              state: g.state,
+            );
+          }
+          return group;
+        }).toList();
+
+    // Update groupsMap with the updated groups
+    final updatedGroupsMap = <String, Group>{};
+    for (final group in updatedGroups) {
+      final g = group;
+      updatedGroupsMap[g.mlsGroupId] = g;
+    }
+
+    // Update groupDisplayNames if name was changed
+    Map<String, String>? updatedDisplayNames;
+    if (name != null) {
+      updatedDisplayNames = Map<String, String>.from(state.groupDisplayNames ?? {});
+      updatedDisplayNames[groupId] = name;
+    }
+
+    state = state.copyWith(
+      groups: updatedGroups,
+      groupsMap: updatedGroupsMap,
+      groupDisplayNames: updatedDisplayNames ?? state.groupDisplayNames,
+    );
+  }
+
+  /// Update group data (name and description) with backend sync
+  Future<void> updateGroup({
+    required String groupId,
+    required String accountPubkey,
+    String? name,
+    String? description,
+  }) async {
+    final group = state.groupsMap?[groupId];
+    if (group == null) {
+      throw Exception('Group not found');
+    }
+
+    final trimmedName = name?.trim();
+    final trimmedDescription = description?.trim();
+
+    final nameChanged = trimmedName != null && trimmedName != group.name;
+    final descriptionChanged =
+        trimmedDescription != null && trimmedDescription != group.description;
+
+    if (!nameChanged && !descriptionChanged) {
+      return;
+    }
+
+    try {
+      final groupData = FlutterGroupDataUpdate(
+        name: nameChanged ? trimmedName : null,
+        description: descriptionChanged ? trimmedDescription : null,
+      );
+
+      await group.updateGroupData(
+        accountPubkey: accountPubkey,
+        groupData: groupData,
+      );
+
+      // Update provider state optimistically after successful backend call
+      _updateGroupInfo(groupId, name: trimmedName, description: trimmedDescription);
+    } catch (e, st) {
+      _logger.severe(
+        'GroupsProvider.updateGroup - Exception: $e (Type: ${e.runtimeType})',
+        e,
+        st,
+      );
+
+      String errorMessage = 'Failed to update group';
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
+      } else {
+        errorMessage = e.toString();
+      }
+      state = state.copyWith(error: errorMessage);
+      rethrow;
+    }
   }
 }
 
