@@ -39,7 +39,6 @@ class _FadeBottomSheetRoute<T> extends PageRoute<T> {
   bool get maintainState => true;
 
   @override
-
   Color get barrierColor => Colors.black.withValues(alpha: 0.3);
 
   @override
@@ -56,19 +55,23 @@ class _FadeBottomSheetRoute<T> extends PageRoute<T> {
     final fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: animation,
-      curve: curve,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: animation,
+        curve: curve,
+      ),
+    );
 
     // Slide animation for the bottom sheet content
     final slideAnimation = Tween<Offset>(
       begin: const Offset(0.0, 1.0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: animation,
-      curve: curve,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: animation,
+        curve: curve,
+      ),
+    );
 
     return AnimatedBuilder(
       animation: animation,
@@ -145,71 +148,72 @@ class WnBottomSheet {
         barrierLabel: barrierLabel ?? 'BottomSheet',
         transitionDuration: transitionDuration,
         curve: curve,
-        builder: (BuildContext context) => GestureDetector(
-          onTap: barrierDismissible ? () => Navigator.of(context).pop() : null,
-          behavior: barrierDismissible ? HitTestBehavior.opaque : HitTestBehavior.deferToChild,
-          child: Stack(
-            children: [
-              if (blurBackground)
-                Positioned.fill(
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
-                    child: Container(
-                      color: Colors.transparent,
-                    ),
-                  ),
-                ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: GestureDetector(
-                  onTap: () {}, // Prevent tap from propagating to background
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: context.colors.primaryForeground,
-                      ),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          // Ensure the bottom sheet stops before the status bar area
-                          // Using design system specification: 54 for status bar height
-                          maxHeight: MediaQuery.of(context).size.height - 54.h,
-                        ),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
-                            bottom:
-                                useSafeArea
-                                    ? MediaQuery.viewInsetsOf(context).bottom.h +
-                                        _calculateBottomPadding(context)
-                                    : MediaQuery.viewInsetsOf(context).bottom.h,
-                            top: 21.h,
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              if (title != null || showCloseButton || showBackButton)
-                                _buildBottomSheetHeader(
-                                  showBackButton,
-                                  context,
-                                  title,
-                                  showCloseButton,
-                                ),
-                              Gap(25.h),
-                              Flexible(child: builder(context)),
-                            ],
-                          ),
+        builder:
+            (BuildContext context) => GestureDetector(
+              onTap: barrierDismissible ? () => Navigator.of(context).pop() : null,
+              behavior: barrierDismissible ? HitTestBehavior.opaque : HitTestBehavior.deferToChild,
+              child: Stack(
+                children: [
+                  if (blurBackground)
+                    Positioned.fill(
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: blurSigma, sigmaY: blurSigma),
+                        child: Container(
+                          color: Colors.transparent,
                         ),
                       ),
                     ),
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    child: GestureDetector(
+                      onTap: () {}, // Prevent tap from propagating to background
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: context.colors.primaryForeground,
+                          ),
+                          child: ConstrainedBox(
+                            constraints: BoxConstraints(
+                              // Ensure the bottom sheet stops before the status bar area
+                              // Using design system specification: 54 for status bar height
+                              maxHeight: MediaQuery.of(context).size.height - 54.h,
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
+                                bottom:
+                                    useSafeArea
+                                        ? MediaQuery.viewInsetsOf(context).bottom.h +
+                                            _calculateBottomPadding(context)
+                                        : MediaQuery.viewInsetsOf(context).bottom.h,
+                                top: 21.h,
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (title != null || showCloseButton || showBackButton)
+                                    _buildBottomSheetHeader(
+                                      showBackButton,
+                                      context,
+                                      title,
+                                      showCloseButton,
+                                    ),
+                                  Gap(25.h),
+                                  Flexible(child: builder(context)),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
-          ),
-        ),
+            ),
       ),
     );
   }
