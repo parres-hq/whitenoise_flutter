@@ -139,7 +139,6 @@ class WnBottomSheet {
     Duration transitionDuration = const Duration(milliseconds: 300),
     Curve curve = Curves.easeOutCubic,
     bool keyboardAware = false,
-    bool isScrollControlled = true,
     bool useSafeArea = true,
   }) {
     return Navigator.of(context).push<T>(
