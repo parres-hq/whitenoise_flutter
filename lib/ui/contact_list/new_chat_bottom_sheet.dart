@@ -77,7 +77,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     String processedText = originalText;
 
     // Only remove whitespace if it looks like a public key (starts with npub or is hex-like)
-    if (originalText.startsWith('npub1')) {
+    if (originalText.startsWith('npub')) {
       processedText = originalText.replaceAll(RegExp(r'\s+'), '');
 
       // Update the controller if we removed whitespace
