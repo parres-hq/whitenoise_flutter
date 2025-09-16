@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
+import 'package:whitenoise/ui/chat/chat_management/widgets/create_group_dialog.dart';
+import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -41,6 +46,13 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
 
     final regularGroups = await ref.read(groupsProvider.notifier).getRegularGroups();
     if (regularGroups.isEmpty) {
+      setState(() {
+        _isLoading = false;
+      });
+      // Show dialog when no groups exist
+      if (mounted) {
+        _showCreateGroupDialog();
+      }
       return;
     }
 
@@ -106,6 +118,52 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
     setState(() {
       _isLoading = false;
     });
+  }
+
+  void _showCreateGroupDialog() {
+    CreateGroupDialog.show(
+      context,
+      onCreateGroup: () async {
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+
+        // Get contact information for the user to be added
+        ContactModel? contactToAdd;
+        try {
+          // First try to get from follows (cached contacts)
+          final followsNotifier = ref.read(followsProvider.notifier);
+          final existingFollow = followsNotifier.findFollowByPubkey(widget.contactNpub);
+
+          if (existingFollow != null) {
+            contactToAdd = ContactModel.fromMetadata(
+              pubkey: existingFollow.pubkey,
+              metadata: existingFollow.metadata,
+            );
+          } else {
+            // If not in follows, fetch directly from user profile data provider
+            final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+            contactToAdd = await userProfileDataNotifier.getUserProfileData(widget.contactNpub);
+          }
+        } catch (e) {
+          // Create a basic contact model with just the public key
+          contactToAdd = ContactModel(
+            displayName: 'Unknown User',
+            publicKey: widget.contactNpub,
+          );
+        }
+
+        if (mounted) {
+          NewGroupChatSheet.show(
+            context,
+            preSelectedContacts: contactToAdd != null ? [contactToAdd] : null,
+          );
+        }
+      },
+      onCancel: () {
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      },
+    );
   }
 
   @override
