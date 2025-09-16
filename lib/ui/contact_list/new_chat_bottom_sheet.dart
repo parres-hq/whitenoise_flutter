@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -18,6 +19,7 @@ import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
@@ -31,7 +33,7 @@ class NewChatBottomSheet extends ConsumerStatefulWidget {
   static Future<void> show(BuildContext context) {
     return WnBottomSheet.show(
       context: context,
-      title: 'New chat',
+      title: 'Start New Chat',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       useSafeArea: false,
@@ -266,7 +268,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             NewGroupChatSheet.show(context);
           },
         ),
-        Gap(18.h),
         NewChatTile(
           title: 'Help and Feedback',
           iconPath: AssetsPaths.icFeedback,
@@ -310,6 +311,20 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     );
   }
 
+  Future<void> _pasteFromClipboard() async {
+    final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+    if (clipboardData != null && clipboardData.text != null) {
+      _searchController.text = clipboardData.text!;
+      if (mounted) {
+        ref.showSuccessToast('Pasted from clipboard');
+      }
+    } else {
+      if (mounted) {
+        ref.showInfoToast('Nothing to paste from clipboard');
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final followsState = ref.watch(followsProvider);
@@ -334,35 +349,47 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
     return Column(
       children: [
-        // Search field - not auto-focused
-        WnTextFormField(
-          controller: _searchController,
-          focusNode: _searchFocusNode,
-          hintText: 'Search contact or public key...',
-          decoration: InputDecoration(
-            prefixIcon: Padding(
-              padding: EdgeInsets.all(12.w),
-              child: WnImage(
-                AssetsPaths.icSearch,
-                color: context.colors.primary,
-
-                size: 20.w,
-              ),
-            ),
-            suffixIcon: GestureDetector(
-              onTap: _scanQRCode,
-              child: Padding(
-                padding: EdgeInsets.only(right: 14.w),
-                child: WnImage(
-                  AssetsPaths.icScan,
-                  size: 16.w,
-                  color: context.colors.primary,
+        Row(
+          children: [
+            Expanded(
+              child: WnTextFormField(
+                controller: _searchController,
+                focusNode: _searchFocusNode,
+                size: FieldSize.small,
+                hintText: 'Search contact or public key...',
+                decoration: InputDecoration(
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.all(12.w),
+                    child: WnImage(
+                      AssetsPaths.icSearch,
+                      color: context.colors.primary,
+                      size: 16.w,
+                    ),
+                  ),
+                  suffixIcon: GestureDetector(
+                    onTap: _scanQRCode,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 14.w),
+                      child: WnImage(
+                        AssetsPaths.icScan,
+                        size: 16.w,
+                        color: context.colors.primary,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
+            Gap(4.w),
+            WnIconButton(
+              iconPath: AssetsPaths.icPaste,
+              onTap: _pasteFromClipboard,
+              padding: 14.w,
+              size: 44.h,
+            ),
+          ],
         ),
-        Gap(16.h),
+        Gap(12.h),
         // Scrollable content area that goes to bottom
         Expanded(
           child:
@@ -375,9 +402,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                     child: Column(
                       children: [
                         // Main options (New Group Chat, Help & Feedback) - scrollable with content
-                        Gap(26.h),
                         _buildMainOptions(),
-                        Gap(26.h),
+                        Gap(12.h),
                         // DEBUG: Raw follows section
                         if (_searchQuery.toLowerCase() == 'debug') ...[
                           Gap(16.h),
@@ -543,32 +569,33 @@ class NewChatTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Row(
-        children: [
-          WnImage(
-            iconPath,
-            color: context.colors.primary,
-
-            size: 20.w,
-          ),
-          Gap(10.w),
-          Text(
-            title,
-            style: TextStyle(
+      child: Padding(
+        padding: const EdgeInsets.all(13).w,
+        child: Row(
+          children: [
+            WnImage(
+              iconPath,
               color: context.colors.primary,
-              fontSize: 18.sp,
+              size: 16.w,
             ),
-          ),
-          Gap(8.w),
-
-          WnImage(
-            AssetsPaths.icChevronRight,
-            color: context.colors.primary,
-
-            width: 8.55.w,
-            height: 15.w,
-          ),
-        ],
+            Gap(10.w),
+            Text(
+              title,
+              style: TextStyle(
+                color: context.colors.primary,
+                fontSize: 14.sp,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            Gap(8.w),
+            WnImage(
+              AssetsPaths.icChevronRight,
+              color: context.colors.primary,
+              width: 5.7.w,
+              height: 10.w,
+            ),
+          ],
+        ),
       ),
     );
   }
