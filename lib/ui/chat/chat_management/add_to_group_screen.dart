@@ -135,42 +135,60 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
     CreateGroupDialog.show(
       context,
       onCreateGroup: () async {
-        // Close the dialog only
-        if (Navigator.of(context).canPop()) {
-          Navigator.of(context).pop();
-        }
-
-        // Get contact information for the user to be added
-        ContactModel? contactToAdd;
         try {
-          // First try to get from follows (cached contacts)
-          final followsNotifier = ref.read(followsProvider.notifier);
-          final existingFollow = followsNotifier.findFollowByPubkey(widget.contactNpub);
-
-          if (existingFollow != null) {
-            contactToAdd = ContactModel.fromMetadata(
-              pubkey: existingFollow.pubkey,
-              metadata: existingFollow.metadata,
-            );
-          } else {
-            // If not in follows, fetch from user profile data provider
-            final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
-            contactToAdd = await userProfileDataNotifier.getUserProfileData(widget.contactNpub);
+          // Close the dialog only
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
           }
-        } catch (e) {
-          // Create a basic contact model with just the public key
-          contactToAdd = ContactModel(
+
+          // Get contact information for the user to be added
+          ContactModel? contactToAdd;
+          try {
+            // First try to get from follows (cached contacts)
+            final followsNotifier = ref.read(followsProvider.notifier);
+            final existingFollow = followsNotifier.findFollowByPubkey(widget.contactNpub);
+
+            if (existingFollow != null) {
+              contactToAdd = ContactModel.fromMetadata(
+                pubkey: existingFollow.pubkey,
+                metadata: existingFollow.metadata,
+              );
+            } else {
+              // If not in follows, fetch from user profile data provider
+              final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+              contactToAdd = await userProfileDataNotifier.getUserProfileData(widget.contactNpub);
+            }
+          } catch (e) {
+            // Create a basic contact model with just the public key
+            contactToAdd = ContactModel(
+              displayName: 'Unknown User',
+              publicKey: widget.contactNpub,
+            );
+          }
+
+          // Ensure we always have a contact (in case getUserProfileData returns null)
+          contactToAdd ??= ContactModel(
             displayName: 'Unknown User',
             publicKey: widget.contactNpub,
           );
-        }
 
-        if (!mounted) return;
-        await NewGroupChatSheet.show(
-          context,
-          preSelectedContacts: [contactToAdd],
-        );
-        if (mounted) Navigator.of(context).pop();
+          if (!mounted) return;
+
+          await NewGroupChatSheet.show(
+            context,
+            preSelectedContacts: [contactToAdd],
+            onGroupCreated: (group) {
+              // Only pop the AddToGroupScreen if group was created successfully
+              if (mounted && group != null) {
+                Navigator.of(context).pop();
+              }
+            },
+          );
+        } catch (e) {
+          if (mounted) {
+            ref.showErrorToast('Error creating group: $e');
+          }
+        }
       },
       onCancel: () {
         Navigator.of(context).pop();
