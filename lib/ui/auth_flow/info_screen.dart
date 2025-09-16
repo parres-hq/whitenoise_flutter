@@ -76,14 +76,27 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
               padding: const EdgeInsets.fromLTRB(24, 32, 24, 0).w,
               child: Column(
                 children: [
-                  Text(
-                    'Security Without\nCompromise',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 32.sp,
-                      fontWeight: FontWeight.w700,
-                      color: context.colors.mutedForeground,
-                    ),
+                  Row(
+                    children: [
+                      IconButton(
+                        onPressed: () => context.pop(),
+                        icon: WnImage(
+                          AssetsPaths.icChevronLeft,
+                          size: 18.w,
+                          color: context.colors.primary,
+                        ),
+                      ),
+                      Gap(8.w),
+                      Text(
+                        'Beyond the Noise',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.mutedForeground,
+                        ),
+                      ),
+                    ],
                   ),
                   Gap(48.h),
                   FeatureItem(

@@ -123,18 +123,31 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                 children: [
                   Padding(
                     padding: EdgeInsets.only(top: 24.h),
-                    child: Text(
-                      'Login to White Noise',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 32.sp,
-                        fontWeight: FontWeight.w700,
-                        color: context.colors.mutedForeground,
-                      ),
-                      textHeightBehavior: const TextHeightBehavior(
-                        applyHeightToFirstAscent: false,
-                        applyHeightToLastDescent: false,
-                      ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => context.pop(),
+                          icon: WnImage(
+                            AssetsPaths.icChevronLeft,
+                            size: 18.w,
+                            color: context.colors.primary,
+                          ),
+                        ),
+                        Gap(8.w),
+                        Text(
+                          'Login to White Noise',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: context.colors.mutedForeground,
+                          ),
+                          textHeightBehavior: const TextHeightBehavior(
+                            applyHeightToFirstAscent: false,
+                            applyHeightToLastDescent: false,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                   Gap(79.5.h),
