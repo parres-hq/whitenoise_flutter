@@ -74,17 +74,23 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
   void _onSearchChanged() {
     final originalText = _searchController.text;
-    final trimmedText = originalText.replaceAll(RegExp(r'\s+'), '');
+    String processedText = originalText;
 
-    if (originalText != trimmedText) {
-      _searchController.value = _searchController.value.copyWith(
-        text: trimmedText,
-        selection: TextSelection.collapsed(offset: trimmedText.length),
-      );
+    // Only remove whitespace if it looks like a public key (starts with npub or is hex-like)
+    if (originalText.startsWith('npub1')) {
+      processedText = originalText.replaceAll(RegExp(r'\s+'), '');
+
+      // Update the controller if we removed whitespace
+      if (originalText != processedText) {
+        _searchController.value = _searchController.value.copyWith(
+          text: processedText,
+          selection: TextSelection.collapsed(offset: processedText.length),
+        );
+      }
     }
 
     setState(() {
-      _searchQuery = trimmedText;
+      _searchQuery = processedText;
       _tempContact = null;
     });
 
