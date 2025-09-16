@@ -167,10 +167,6 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
           }
 
           // Ensure we always have a contact (in case getUserProfileData returns null)
-          contactToAdd ??= ContactModel(
-            displayName: 'Unknown User',
-            publicKey: widget.contactNpub,
-          );
 
           if (!mounted) return;
 
