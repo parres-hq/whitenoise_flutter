@@ -124,8 +124,10 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
     CreateGroupDialog.show(
       context,
       onCreateGroup: () async {
-        Navigator.of(context).pop();
-        Navigator.of(context).pop();
+        // Close the dialog only
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
 
         // Get contact information for the user to be added
         ContactModel? contactToAdd;
@@ -140,7 +142,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
               metadata: existingFollow.metadata,
             );
           } else {
-            // If not in follows, fetch directly from user profile data provider
+            // If not in follows, fetch from user profile data provider
             final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
             contactToAdd = await userProfileDataNotifier.getUserProfileData(widget.contactNpub);
           }
@@ -152,12 +154,12 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
           );
         }
 
-        if (mounted) {
-          NewGroupChatSheet.show(
-            context,
-            preSelectedContacts: [contactToAdd],
-          );
-        }
+        if (!mounted) return;
+        await NewGroupChatSheet.show(
+          context,
+          preSelectedContacts: [contactToAdd],
+        );
+        if (mounted) Navigator.of(context).pop();
       },
       onCancel: () {
         Navigator.of(context).pop();
