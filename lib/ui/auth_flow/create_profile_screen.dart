@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/create_profile_screen_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -69,14 +70,27 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
           padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 0),
           child: Column(
             children: [
-              Text(
-                'Setup Profile',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 32.sp,
-                  fontWeight: FontWeight.w700,
-                  color: context.colors.mutedForeground,
-                ),
+              Row(
+                children: [
+                  IconButton(
+                    onPressed: () => context.pop(),
+                    icon: WnImage(
+                      AssetsPaths.icChevronLeft,
+                      size: 18.w,
+                      color: context.colors.primary,
+                    ),
+                  ),
+                  Gap(8.w),
+                  Text(
+                    'Set Up Profile',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 18.sp,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.mutedForeground,
+                    ),
+                  ),
+                ],
               ),
               Gap(48.h),
               Stack(
