@@ -179,7 +179,9 @@ class WnBottomSheet {
                             constraints: BoxConstraints(
                               // Ensure the bottom sheet stops before the status bar area
                               // Using design system specification: 54 for status bar height
-                              maxHeight: MediaQuery.sizeOf(context).height - MediaQuery.paddingOf(context).top,
+                              maxHeight:
+                                  MediaQuery.sizeOf(context).height -
+                                  MediaQuery.paddingOf(context).top,
                             ),
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
