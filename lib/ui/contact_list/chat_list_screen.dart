@@ -61,6 +61,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
   bool _isLoadingData = false;
   bool _isRefreshing = false;
   bool _isSearchVisible = false;
+  final int _loadingSkeletonCount = 8;
 
   @override
   void initState() {
@@ -141,6 +142,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
   }
 
   bool get _canProcessScrollGestures => !_isLoadingData && !_isRefreshing;
+
+  bool get isInLoadingState => _isLoadingData;
 
   void _processScrollGestures(double currentOffset) {
     final pullDistance = -currentOffset;
@@ -440,13 +443,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                     padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
                     sliver: SliverList.separated(
                       itemBuilder: (context, index) {
+                        if (isInLoadingState) {
+                          return const ChatListTileLoading();
+                        }
                         final item = filteredChatItems[index];
                         return ChatListItemTile(
                           item: item,
                           onTap: _unfocusSearchIfNeeded,
                         );
                       },
-                      itemCount: filteredChatItems.length,
+                      itemCount:
+                          isInLoadingState ? _loadingSkeletonCount : filteredChatItems.length,
                       separatorBuilder: (context, index) => Gap(8.w),
                     ),
                   ),

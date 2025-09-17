@@ -12,6 +12,7 @@ import 'package:whitenoise/ui/contact_list/widgets/message_read_status.dart';
 import 'package:whitenoise/ui/contact_list/widgets/welcome_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
+import 'package:whitenoise/ui/core/ui/wn_skeleton_container.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/utils/timeago_formatter.dart';
 
@@ -24,6 +25,7 @@ class ChatListItemTile extends ConsumerWidget {
 
   final ChatListItem item;
   final VoidCallback? onTap;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     switch (item.type) {
@@ -205,5 +207,62 @@ class ChatListItemTile extends ConsumerWidget {
       return 'You: $content';
     }
     return content;
+  }
+}
+
+class ChatListTileLoading extends StatelessWidget {
+  const ChatListTileLoading({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
+      child: Row(
+        children: [
+          WnSkeletonContainer(
+            shape: BoxShape.circle,
+            width: 56.w,
+            height: 56.w,
+          ),
+          Gap(12.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    WnSkeletonContainer(
+                      width: 183.w,
+                      height: 20.h,
+                    ),
+                    WnSkeletonContainer(
+                      width: 30.w,
+                      height: 20.h,
+                    ),
+                  ],
+                ),
+                Gap(6.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    WnSkeletonContainer(
+                      width: 244.w,
+                      height: 32.h,
+                    ),
+                    WnSkeletonContainer(
+                      width: 20.w,
+                      height: 20.w,
+                      shape: BoxShape.circle,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
