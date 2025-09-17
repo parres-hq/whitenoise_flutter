@@ -194,33 +194,29 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
   }
 
   Widget _buildReactionItem(String reaction) {
-    return FadeInLeft(
-      from: 0 + (widget.reactions.indexOf(reaction) * 20).toDouble(),
-      duration: const Duration(milliseconds: 100),
-      child: InkWell(
-        onTap: () {
-          setState(() {
-            reactionClicked = true;
-            clickedReactionIndex = widget.reactions.indexOf(reaction);
-          });
-          Navigator.of(context).pop();
-          widget.onReactionTap(reaction);
-        },
-        child: AnimatedScale(
-          duration: const Duration(milliseconds: 100),
-          scale:
-              reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction)
-                  ? 1.2
-                  : 1.0,
-          child: Container(
-            padding: EdgeInsets.symmetric(vertical: 16.h),
-            child: Text(
-              reaction,
-              style: TextStyle(
-                fontSize: 24.sp,
-                fontWeight: FontWeight.w600,
-                fontFamily: 'Manrope',
-              ),
+    return InkWell(
+      onTap: () {
+        setState(() {
+          reactionClicked = true;
+          clickedReactionIndex = widget.reactions.indexOf(reaction);
+        });
+        Navigator.of(context).pop();
+        widget.onReactionTap(reaction);
+      },
+      child: AnimatedScale(
+        duration: const Duration(milliseconds: 100),
+        scale:
+            reactionClicked && clickedReactionIndex == widget.reactions.indexOf(reaction)
+                ? 1.2
+                : 1.0,
+        child: Container(
+          padding: EdgeInsets.symmetric(vertical: 16.h),
+          child: Text(
+            reaction,
+            style: TextStyle(
+              fontSize: 24.sp,
+              fontWeight: FontWeight.w600,
+              fontFamily: 'Manrope',
             ),
           ),
         ),

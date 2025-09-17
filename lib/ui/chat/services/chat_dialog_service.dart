@@ -38,19 +38,19 @@ class ChatDialogService {
               emojiViewConfig: EmojiViewConfig(
                 backgroundColor: context.colors.primaryForeground,
                 columns: 7,
-                emojiSizeMax: 32.0,
+                emojiSizeMax: 32.sp,
                 noRecents: Text(
                   'No Recents',
                   style: TextStyle(
-                    fontSize: 20,
+                    fontSize: 20.sp,
                     color: context.colors.mutedForeground,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 loadingIndicator: SizedBox.square(
-                  dimension: 20,
+                  dimension: 20.sp,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2,
+                    strokeWidth: 2.sp,
                     color: context.colors.primary,
                   ),
                 ),
