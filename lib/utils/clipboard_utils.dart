@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 
 /// Utility class for clipboard operations with toast notifications
@@ -84,6 +85,46 @@ class ClipboardUtils {
           autoDismiss: true,
         );
       }
+    }
+  }
+
+  /// Reads text from clipboard and shows appropriate toast messages
+  ///
+  /// [ref] - WidgetRef for accessing providers
+  /// [onPaste] - Callback function that receives the pasted text
+  /// [successMessage] - Optional custom message to show (defaults to "Pasted from clipboard")
+  /// [noTextMessage] - Optional custom message to show when clipboard is empty (defaults to "Nothing to paste from clipboard")
+  /// [errorMessage] - Optional custom error message to show when clipboard operation fails (defaults to "Clipboard unavailable")
+  static Future<void> pasteWithToast({
+    required WidgetRef ref,
+    required Function(String) onPaste,
+    String? successMessage,
+    String? noTextMessage,
+    String? errorMessage,
+  }) async {
+    final logger = Logger('ClipboardUtils');
+
+    try {
+      final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+      final clipboardText = clipboardData?.text?.trim() ?? '';
+      if (clipboardText.isNotEmpty) {
+        onPaste(clipboardText);
+        ref.showSuccessToast(
+          successMessage ?? 'Pasted from clipboard',
+          autoDismiss: true,
+        );
+      } else {
+        ref.showInfoToast(
+          noTextMessage ?? 'Nothing to paste from clipboard',
+          autoDismiss: true,
+        );
+      }
+    } on PlatformException catch (e) {
+      logger.warning('Clipboard read failed: $e');
+      ref.showErrorToast(
+        errorMessage ?? 'Clipboard unavailable',
+        autoDismiss: true,
+      );
     }
   }
 }
