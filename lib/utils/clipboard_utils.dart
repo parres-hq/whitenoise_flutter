@@ -106,7 +106,7 @@ class ClipboardUtils {
 
     try {
       final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
-      final clipboardText = clipboardData?.text ?? '';
+      final clipboardText = clipboardData?.text?.trim() ?? '';
       if (clipboardText.isNotEmpty) {
         onPaste(clipboardText);
         ref.showSuccessToast(
