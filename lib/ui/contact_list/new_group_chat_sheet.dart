@@ -19,19 +19,28 @@ import 'package:whitenoise/utils/clipboard_utils.dart';
 
 class NewGroupChatSheet extends ConsumerStatefulWidget {
   final ValueChanged<Group?>? onGroupCreated;
+  final List<ContactModel>? preSelectedContacts;
 
-  const NewGroupChatSheet({super.key, this.onGroupCreated});
+  const NewGroupChatSheet({super.key, this.onGroupCreated, this.preSelectedContacts});
 
   @override
   ConsumerState<NewGroupChatSheet> createState() => _NewGroupChatSheetState();
 
-  static Future<void> show(BuildContext context, {ValueChanged<Group?>? onGroupCreated}) {
+  static Future<void> show(
+    BuildContext context, {
+    ValueChanged<Group?>? onGroupCreated,
+    List<ContactModel>? preSelectedContacts,
+  }) {
     return WnBottomSheet.show(
       context: context,
       title: 'New group chat',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
-      builder: (context) => NewGroupChatSheet(onGroupCreated: onGroupCreated),
+      builder:
+          (context) => NewGroupChatSheet(
+            onGroupCreated: onGroupCreated,
+            preSelectedContacts: preSelectedContacts,
+          ),
     );
   }
 }
@@ -45,6 +54,10 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
+    // Add pre-selected contacts to the selection
+    if (widget.preSelectedContacts != null) {
+      _selectedContacts.addAll(widget.preSelectedContacts!);
+    }
   }
 
   @override
