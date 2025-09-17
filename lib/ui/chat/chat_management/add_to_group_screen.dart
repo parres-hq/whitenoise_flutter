@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
+import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
+import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
+import 'package:whitenoise/ui/chat/chat_management/widgets/create_group_dialog.dart';
+import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -37,30 +42,48 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
     setState(() {
       _isLoading = true;
     });
-    await ref.read(groupsProvider.notifier).loadGroups();
 
-    final regularGroups = await ref.read(groupsProvider.notifier).getRegularGroups();
-    if (regularGroups.isEmpty) {
-      return;
-    }
+    try {
+      await ref.read(groupsProvider.notifier).loadGroups();
 
-    final loadTasks = <Future<void>>[];
+      final regularGroups = await ref.read(groupsProvider.notifier).getRegularGroups();
+      if (regularGroups.isEmpty) {
+        // Show dialog when no groups exist
+        if (mounted) {
+          _showCreateGroupDialog();
+        }
+        return;
+      }
 
-    for (final group in regularGroups) {
-      final existingMembers = ref.read(groupsProvider).groupMembers?[group.mlsGroupId];
-      if (existingMembers == null) {
-        loadTasks.add(ref.read(groupsProvider.notifier).loadGroupMembers(group.mlsGroupId));
+      final loadTasks = <Future<void>>[];
+
+      for (final group in regularGroups) {
+        final existingMembers = ref.read(groupsProvider).groupMembers?[group.mlsGroupId];
+        if (existingMembers == null) {
+          loadTasks.add(ref.read(groupsProvider.notifier).loadGroupMembers(group.mlsGroupId));
+        }
+      }
+
+      if (loadTasks.isNotEmpty) {
+        await Future.wait(loadTasks);
+      }
+
+      setState(() {
+        _regularGroups = regularGroups;
+      });
+    } catch (e) {
+      // Handle any errors during group loading
+      if (mounted) {
+        ref.showErrorToast('Failed to load groups: $e');
+      }
+    } finally {
+      // Always ensure loading state is reset
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
       }
     }
-
-    if (loadTasks.isNotEmpty) {
-      await Future.wait(loadTasks);
-    }
-
-    setState(() {
-      _regularGroups = regularGroups;
-      _isLoading = false;
-    });
   }
 
   Future<void> _addUserToGroups() async {
@@ -106,6 +129,68 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
     setState(() {
       _isLoading = false;
     });
+  }
+
+  void _showCreateGroupDialog() {
+    CreateGroupDialog.show(
+      context,
+      onCreateGroup: () async {
+        try {
+          // Close the dialog only
+          if (Navigator.of(context).canPop()) {
+            Navigator.of(context).pop();
+          }
+
+          // Get contact information for the user to be added
+          ContactModel? contactToAdd;
+          try {
+            // First try to get from follows (cached contacts)
+            final followsNotifier = ref.read(followsProvider.notifier);
+            final existingFollow = followsNotifier.findFollowByPubkey(widget.contactNpub);
+
+            if (existingFollow != null) {
+              contactToAdd = ContactModel.fromMetadata(
+                pubkey: existingFollow.pubkey,
+                metadata: existingFollow.metadata,
+              );
+            } else {
+              // If not in follows, fetch from user profile data provider
+              final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+              contactToAdd = await userProfileDataNotifier.getUserProfileData(widget.contactNpub);
+            }
+          } catch (e) {
+            // Create a basic contact model with just the public key
+            contactToAdd = ContactModel(
+              displayName: 'Unknown User',
+              publicKey: widget.contactNpub,
+            );
+          }
+
+          // Ensure we always have a contact (in case getUserProfileData returns null)
+
+          if (!mounted) return;
+
+          await NewGroupChatSheet.show(
+            context,
+            preSelectedContacts: [contactToAdd],
+            onGroupCreated: (group) {
+              // Only pop the AddToGroupScreen if group was created successfully
+              if (mounted && group != null) {
+                Navigator.of(context).pop();
+              }
+            },
+          );
+        } catch (e) {
+          if (mounted) {
+            ref.showErrorToast('Error creating group: $e');
+          }
+        }
+      },
+      onCancel: () {
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      },
+    );
   }
 
   @override
