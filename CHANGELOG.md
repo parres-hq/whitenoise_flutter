@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Android] Sensitive clipboard copy for private key (nsec).
 - Group info update functionality (name and description).
 - Add back buttons in auth flow screens for easier navigation.
+- Paste from clipboard functionality (cta) in new chat bottom sheet.
 
 ### Changed
 
