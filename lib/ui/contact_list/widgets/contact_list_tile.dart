@@ -6,6 +6,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/core/ui/wn_skeleton_container.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -168,7 +169,9 @@ class ContactListTile extends StatelessWidget {
                     ),
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(true),
-                      style: TextButton.styleFrom(foregroundColor: Colors.red),
+                      style: TextButton.styleFrom(
+                        foregroundColor: context.colors.destructive,
+                      ),
                       child: const Text('Remove'),
                     ),
                   ],
@@ -181,7 +184,7 @@ class ContactListTile extends StatelessWidget {
         background: Container(
           alignment: Alignment.centerRight,
           padding: EdgeInsets.only(right: 24.w),
-          color: Colors.red,
+          color: context.colors.destructive,
           child: WnImage(
             AssetsPaths.icTrashCan,
             color: context.colors.primary,
@@ -196,58 +199,39 @@ class ContactListTile extends StatelessWidget {
   }
 }
 
-class _SkeletonLine extends StatefulWidget {
-  final double width;
-  final double height;
-  final Color color;
-
-  const _SkeletonLine({
-    required this.width,
-    required this.height,
-    required this.color,
-  });
-
-  @override
-  State<_SkeletonLine> createState() => _SkeletonLineState();
-}
-
-class _SkeletonLineState extends State<_SkeletonLine> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(milliseconds: 100),
-      vsync: this,
-    );
-    _animation = Tween<double>(begin: 0.05, end: 0.1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-    _controller.repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+class ContactListTileLoading extends StatelessWidget {
+  const ContactListTileLoading({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _animation,
-      builder: (context, child) {
-        return Container(
-          width: widget.width,
-          height: widget.height,
-          decoration: BoxDecoration(
-            color: widget.color.withValues(alpha: _animation.value),
-            borderRadius: BorderRadius.circular(2.r),
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.h),
+      child: Row(
+        children: [
+          WnSkeletonContainer(
+            shape: BoxShape.circle,
+            width: 56.w,
+            height: 56.w,
           ),
-        );
-      },
+          Gap(8.w),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                WnSkeletonContainer(
+                  width: 183.w,
+                  height: 20.h,
+                ),
+                Gap(6.h),
+                WnSkeletonContainer(
+                  width: 1.sw,
+                  height: 32.h,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

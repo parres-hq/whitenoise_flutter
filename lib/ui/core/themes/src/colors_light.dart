@@ -22,6 +22,9 @@ class LightAppColors {
   /// base/muted, base/input
   static const baseMuted = Color(0xffE2E2E2);
 
+  static const gray100 = Color(0xFFF5F5F5);
+  static const gray200 = Color(0xFFE5E5E5);
+
   /// Text/Default/Secondary
   static const textDefaultSecondary = Color(0xff757575);
 

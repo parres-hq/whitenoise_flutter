@@ -229,50 +229,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     );
   }
 
-  Widget _buildLoadingContactTile() {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.h),
-      child: Row(
-        children: [
-          Container(
-            width: 56.w,
-            height: 56.w,
-            decoration: BoxDecoration(
-              color: context.colors.baseMuted,
-              borderRadius: BorderRadius.circular(30.r),
-            ),
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
-          ),
-          Gap(12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Loading user profile...',
-                  style: TextStyle(
-                    color: context.colors.mutedForeground,
-                    fontSize: 16.sp,
-                  ),
-                ),
-                Gap(2.h),
-                Text(
-                  _searchQuery.length > 20 ? '${_searchQuery.substring(0, 20)}...' : _searchQuery,
-                  style: TextStyle(
-                    color: context.colors.mutedForeground,
-                    fontSize: 12.sp,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildMainOptions() {
     return Column(
       children: [
@@ -311,19 +267,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           },
         ),
       ],
-    );
-  }
-
-  Widget _buildContactsLoadingWidget() {
-    return Center(
-      child: SizedBox(
-        width: 32.w,
-        height: 32.w,
-        child: CircularProgressIndicator(
-          strokeWidth: 4.0,
-          valueColor: AlwaysStoppedAnimation<Color>(context.colorScheme.onSurface),
-        ),
-      ),
     );
   }
 
@@ -401,9 +344,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         // Scrollable content area that goes to bottom
         Expanded(
           child:
-              followsState.isLoading
-                  ? _buildContactsLoadingWidget()
-                  : followsState.error != null
+              followsState.error != null
                   ? _buildErrorWidget(followsState.error!)
                   : SingleChildScrollView(
                     controller: _scrollController,
@@ -411,144 +352,48 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                       children: [
                         // Main options (New Group Chat, Help & Feedback) - scrollable with content
                         _buildMainOptions(),
-                        Gap(12.h),
-                        // DEBUG: Raw follows section
-                        if (_searchQuery.toLowerCase() == 'debug') ...[
-                          Gap(16.h),
-                          Container(
-                            margin: EdgeInsets.symmetric(horizontal: 24.w),
-                            padding: EdgeInsets.all(16.w),
-                            decoration: BoxDecoration(
-                              color: context.colors.baseMuted,
-                              borderRadius: BorderRadius.circular(8.r),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'DEBUG: Raw Contacts Data',
-                                  style: TextStyle(
-                                    color: context.colors.primary,
-                                    fontSize: 16.sp,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                        Gap(26.h),
+                        if (followsState.isLoading)
+                          const _LoadingContactList()
+                        else ...[
+                          if (showTempContact) ...[
+                            _isLoadingUserProfileData
+                                ? const ContactListTileLoading()
+                                : ContactListTile(
+                                  contact: _tempContact!,
+                                  onTap: () => _handleContactTap(_tempContact!),
                                 ),
-                                Gap(8.h),
-                                Text(
-                                  'Total raw follows: ${followsState.follows.length}',
-                                  style: TextStyle(
-                                    color: context.colors.mutedForeground,
-                                    fontSize: 14.sp,
-                                  ),
-                                ),
-                                Gap(8.h),
-                                ...followsState.follows.asMap().entries.map((entry) {
-                                  final index = entry.key;
-                                  final user = entry.value;
-                                  final contact = ContactModel.fromMetadata(
-                                    pubkey: user.pubkey,
-                                    metadata: user.metadata,
-                                  );
-                                  return Container(
-                                    margin: EdgeInsets.only(bottom: 8.h),
-                                    padding: EdgeInsets.all(8.w),
-                                    decoration: BoxDecoration(
-                                      color: context.colors.surface,
-                                      borderRadius: BorderRadius.circular(4.r),
-                                    ),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          'Contact #$index',
-                                          style: TextStyle(
-                                            color: context.colors.primary,
-                                            fontSize: 12.sp,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        Text(
-                                          'name: ${contact.displayName}',
-                                          style: TextStyle(
-                                            color: context.colors.mutedForeground,
-                                            fontSize: 10.sp,
-                                          ),
-                                        ),
-                                        Text(
-                                          'displayName: ${contact.displayName}',
-                                          style: TextStyle(
-                                            color: context.colors.mutedForeground,
-                                            fontSize: 10.sp,
-                                          ),
-                                        ),
-                                        Text(
-                                          'publicKey: ${contact.publicKey}',
-                                          style: TextStyle(
-                                            color: context.colors.mutedForeground,
-                                            fontSize: 10.sp,
-                                          ),
-                                        ),
-                                        Text(
-                                          'nip05: ${contact.nip05 ?? "null"}',
-                                          style: TextStyle(
-                                            color: context.colors.mutedForeground,
-                                            fontSize: 10.sp,
-                                          ),
-                                        ),
-                                        Text(
-                                          'about: ${contact.about ?? "null"}',
-                                          style: TextStyle(
-                                            color: context.colors.mutedForeground,
-                                            fontSize: 10.sp,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                              ],
-                            ),
-                          ),
-                          Gap(16.h),
-                        ],
-                        if (showTempContact) ...[
-                          _isLoadingUserProfileData
-                              ? _buildLoadingContactTile()
-                              : ContactListTile(
-                                contact: _tempContact!,
-                                onTap: () => _handleContactTap(_tempContact!),
-                              ),
-                          Gap(16.h),
-                        ] else if (filteredContacts.isEmpty) ...[
-                          SizedBox(
-                            height: 200.h,
-                            child: Center(
+                            Gap(16.h),
+                          ] else if (filteredContacts.isEmpty) ...[
+                            SizedBox(
                               child:
                                   _isLoadingUserProfileData
-                                      ? const CircularProgressIndicator()
-                                      : Text(
-                                        _searchQuery.isEmpty
-                                            ? 'No follows found'
-                                            : _isValidPublicKey(_searchQuery)
-                                            ? 'Loading metadata...'
-                                            : 'No follows match your search',
-                                        style: TextStyle(
-                                          color: context.colors.mutedForeground,
-                                          fontSize: 16.sp,
+                                      ? const ContactListTileLoading()
+                                      : Center(
+                                        child: Text(
+                                          _searchQuery.isEmpty
+                                              ? 'No follows found'
+                                              : _isValidPublicKey(_searchQuery)
+                                              ? 'Loading metadata...'
+                                              : 'No follows match your search',
+                                          style: TextStyle(
+                                            color: context.colors.mutedForeground,
+                                            fontSize: 16.sp,
+                                          ),
                                         ),
                                       ),
                             ),
-                          ),
-                        ] else ...[
-                          ...filteredContacts.map(
-                            (contact) => Padding(
-                              padding: EdgeInsets.only(bottom: 4.h),
-                              child: ContactListTile(
-                                contact: contact,
-                                onTap: () => _handleContactTap(contact),
+                          ] else ...[
+                            ...filteredContacts.map(
+                              (contact) => Padding(
+                                padding: EdgeInsets.only(bottom: 4.h),
+                                child: ContactListTile(
+                                  contact: contact,
+                                  onTap: () => _handleContactTap(contact),
+                                ),
                               ),
                             ),
-                          ),
+                          ],
                         ],
                         // Add bottom padding to ensure content can scroll past the bottom
                         Gap(60.h),
@@ -603,6 +448,23 @@ class NewChatTile extends StatelessWidget {
               height: 10.w,
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LoadingContactList extends StatelessWidget {
+  const _LoadingContactList();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: List.generate(
+        8,
+        (index) => Padding(
+          padding: EdgeInsets.only(bottom: 12.h),
+          child: const ContactListTileLoading(),
         ),
       ),
     );

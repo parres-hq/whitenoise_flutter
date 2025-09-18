@@ -46,6 +46,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.toastWarning,
     required this.toastIcon,
     required this.info,
+    required this.gray100,
+    required this.gray200,
   });
 
   final Color primary;
@@ -89,6 +91,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color toastWarning;
   final Color toastIcon;
   final Color info;
+  final Color gray100;
+  final Color gray200;
 
   /// Light theme colors
   static AppColorsThemeExt get light => const AppColorsThemeExt(
@@ -133,6 +137,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     toastWarning: LightAppColors.toastWarning,
     toastIcon: LightAppColors.toastIcon,
     info: LightAppColors.info,
+    gray100: LightAppColors.gray100,
+    gray200: LightAppColors.gray200,
   );
 
   /// Dark theme colors
@@ -178,6 +184,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     toastWarning: DarkAppColors.toastWarning,
     toastIcon: DarkAppColors.toastIcon,
     info: DarkAppColors.info,
+    gray100: DarkAppColors.gray100,
+    gray200: DarkAppColors.gray200,
   );
 
   @override
@@ -223,6 +231,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? toastWarning,
     Color? toastIcon,
     Color? info,
+    Color? gray100,
+    Color? gray200,
   }) {
     return AppColorsThemeExt(
       primary: primary ?? this.primary,
@@ -266,6 +276,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       toastWarning: toastWarning ?? this.toastWarning,
       toastIcon: toastIcon ?? this.toastIcon,
       info: info ?? this.info,
+      gray100: gray100 ?? this.gray100,
+      gray200: gray200 ?? this.gray200,
     );
   }
 
@@ -324,6 +336,8 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       toastWarning: Color.lerp(toastWarning, other.toastWarning, t)!,
       toastIcon: Color.lerp(toastIcon, other.toastIcon, t)!,
       info: Color.lerp(info, other.info, t)!,
+      gray100: Color.lerp(gray100, other.gray100, t)!,
+      gray200: Color.lerp(gray200, other.gray200, t)!,
     );
   }
 }

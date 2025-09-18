@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Loading skeleton components for chat and contact lists to improve user experience during data loading
 - Global No relay indicator
 - [Android] Sensitive clipboard copy for private key (nsec).
 - Group info update functionality (name and description).

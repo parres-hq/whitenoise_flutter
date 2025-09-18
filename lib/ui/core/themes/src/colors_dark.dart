@@ -25,6 +25,9 @@ class DarkAppColors {
   /// base/muted, base/input
   static const baseMuted = Color(0xff474C47);
 
+  static const gray100 = Color(0xffF5F5F5);
+  static const gray200 = Color(0xFFE5E5E5);
+
   /// Text/Default/Secondary
   static const textDefaultSecondary = Color(0xffCDCECD);
 
