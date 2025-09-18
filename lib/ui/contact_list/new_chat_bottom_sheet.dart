@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -50,6 +52,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   final _logger = Logger('NewChatBottomSheet');
   ContactModel? _tempContact;
   bool _isLoadingUserProfileData = false;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -64,6 +67,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _searchController.removeListener(_onSearchChanged);
     _scrollController.removeListener(_onScrollChanged);
     _searchController.dispose();
@@ -89,15 +93,21 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       }
     }
 
-    setState(() {
-      _searchQuery = processedText;
-      _tempContact = null;
-    });
+    // Debounce the search to avoid too many filter operations
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        setState(() {
+          _searchQuery = processedText;
+          _tempContact = null;
+        });
 
-    // If it's a valid public key, fetch metadata
-    if (_isValidPublicKey(_searchQuery)) {
-      _getUserProfileDataForPublicKey(_searchQuery);
-    }
+        // If it's a valid public key, fetch metadata
+        if (_isValidPublicKey(_searchQuery)) {
+          _getUserProfileDataForPublicKey(_searchQuery);
+        }
+      }
+    });
   }
 
   void _onScrollChanged() {
@@ -270,6 +280,133 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     );
   }
 
+  Widget _buildContactsList({
+    required FollowsState followsState,
+    required List<ContactModel> filteredContacts,
+    required bool showTempContact,
+  }) {
+    if (followsState.isLoading) {
+      return SingleChildScrollView(
+        controller: _scrollController,
+        child: Column(
+          children: [
+            _buildMainOptions(),
+            Gap(26.h),
+            const _LoadingContactList(),
+            Gap(60.h),
+          ],
+        ),
+      );
+    }
+
+    // Calculate total items in the list
+    int totalItems = 0;
+
+    // Count for main options section
+    totalItems += 1; // main options section
+
+    // Count gap after main options
+    totalItems += 1; // gap
+
+    // Count contact items
+    if (showTempContact) {
+      totalItems += 1; // temp contact
+      totalItems += 1; // gap after temp contact
+    } else if (filteredContacts.isEmpty) {
+      totalItems += 1; // empty state
+    } else {
+      totalItems += filteredContacts.length; // contact items
+    }
+
+    // Count bottom padding
+    totalItems += 1; // bottom gap
+
+    return ListView.builder(
+      controller: _scrollController,
+      itemCount: totalItems,
+      itemBuilder: (context, index) {
+        int currentIndex = 0;
+
+        // Main options section
+        if (index == currentIndex) {
+          return _buildMainOptions();
+        }
+        currentIndex++;
+
+        // Gap after main options
+        if (index == currentIndex) {
+          return Gap(26.h);
+        }
+        currentIndex++;
+
+        if (showTempContact) {
+          // Temp contact
+          if (index == currentIndex) {
+            return _isLoadingUserProfileData
+                ? const ContactListTileLoading()
+                : ContactListTile(
+                  contact: _tempContact!,
+                  onTap: () => _handleContactTap(_tempContact!),
+                  preformattedPublicKey: _tempContact!.formattedPublicKey,
+                );
+          }
+          currentIndex++;
+
+          // Gap after temp contact
+          if (index == currentIndex) {
+            return Gap(16.h);
+          }
+          currentIndex++;
+        } else if (filteredContacts.isEmpty) {
+          // Empty state
+          if (index == currentIndex) {
+            return SizedBox(
+              child:
+                  _isLoadingUserProfileData
+                      ? const ContactListTileLoading()
+                      : Center(
+                        child: Text(
+                          _searchQuery.isEmpty
+                              ? 'No follows found'
+                              : _isValidPublicKey(_searchQuery)
+                              ? 'Loading metadata...'
+                              : 'No follows match your search',
+                          style: TextStyle(
+                            color: context.colors.mutedForeground,
+                            fontSize: 16.sp,
+                          ),
+                        ),
+                      ),
+            );
+          }
+          currentIndex++;
+        } else {
+          // Contact items
+          final contactIndex = index - currentIndex;
+          if (contactIndex < filteredContacts.length) {
+            final contact = filteredContacts[contactIndex];
+            return Padding(
+              padding: EdgeInsets.only(bottom: 4.h),
+              child: ContactListTile(
+                contact: contact,
+                onTap: () => _handleContactTap(contact),
+                preformattedPublicKey: contact.formattedPublicKey,
+              ),
+            );
+          }
+          currentIndex += filteredContacts.length;
+        }
+
+        // Bottom padding
+        if (index == currentIndex) {
+          return Gap(60.h);
+        }
+
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final followsState = ref.watch(followsProvider);
@@ -346,59 +483,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           child:
               followsState.error != null
                   ? _buildErrorWidget(followsState.error!)
-                  : SingleChildScrollView(
-                    controller: _scrollController,
-                    child: Column(
-                      children: [
-                        // Main options (New Group Chat, Help & Feedback) - scrollable with content
-                        _buildMainOptions(),
-                        Gap(26.h),
-                        if (followsState.isLoading)
-                          const _LoadingContactList()
-                        else ...[
-                          if (showTempContact) ...[
-                            _isLoadingUserProfileData
-                                ? const ContactListTileLoading()
-                                : ContactListTile(
-                                  contact: _tempContact!,
-                                  onTap: () => _handleContactTap(_tempContact!),
-                                ),
-                            Gap(16.h),
-                          ] else if (filteredContacts.isEmpty) ...[
-                            SizedBox(
-                              child:
-                                  _isLoadingUserProfileData
-                                      ? const ContactListTileLoading()
-                                      : Center(
-                                        child: Text(
-                                          _searchQuery.isEmpty
-                                              ? 'No follows found'
-                                              : _isValidPublicKey(_searchQuery)
-                                              ? 'Loading metadata...'
-                                              : 'No follows match your search',
-                                          style: TextStyle(
-                                            color: context.colors.mutedForeground,
-                                            fontSize: 16.sp,
-                                          ),
-                                        ),
-                                      ),
-                            ),
-                          ] else ...[
-                            ...filteredContacts.map(
-                              (contact) => Padding(
-                                padding: EdgeInsets.only(bottom: 4.h),
-                                child: ContactListTile(
-                                  contact: contact,
-                                  onTap: () => _handleContactTap(contact),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                        // Add bottom padding to ensure content can scroll past the bottom
-                        Gap(60.h),
-                      ],
-                    ),
+                  : _buildContactsList(
+                    followsState: followsState,
+                    filteredContacts: filteredContacts,
+                    showTempContact: showTempContact,
                   ),
         ),
       ],

@@ -19,6 +19,7 @@ class ContactListTile extends StatelessWidget {
   final bool showExpansionArrow;
   final Widget? trailingIcon;
   final bool enableSwipeToDelete;
+  final String? preformattedPublicKey;
 
   const ContactListTile({
     required this.contact,
@@ -29,22 +30,29 @@ class ContactListTile extends StatelessWidget {
     this.showExpansionArrow = false,
     this.trailingIcon,
     this.enableSwipeToDelete = false,
+    this.preformattedPublicKey,
     super.key,
   });
 
-  Future<String> _getNpub(String publicKeyHex) async {
+  String _getFormattedPublicKey() {
+    if (preformattedPublicKey != null && preformattedPublicKey!.isNotEmpty) {
+      return preformattedPublicKey!;
+    }
+
     try {
-      final npub = PubkeyFormatter(pubkey: publicKeyHex).toNpub() ?? '';
+      final npub = PubkeyFormatter(pubkey: contact.publicKey).toNpub() ?? '';
       return npub.formatPublicKey();
     } catch (e) {
       // Return the full hex key as fallback
-      return publicKeyHex.formatPublicKey();
+      return contact.publicKey.formatPublicKey();
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final contactImagePath = contact.imagePath ?? '';
+    final formattedKey = _getFormattedPublicKey();
+
     final contactTile = GestureDetector(
       onTap: onTap,
       child: Padding(
@@ -78,38 +86,13 @@ class ContactListTile extends StatelessWidget {
                     ],
                   ),
                   Gap(2.h),
-                  FutureBuilder<String>(
-                    future: _getNpub(contact.publicKey),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                        return Text(
-                          snapshot.data!,
-                          style: TextStyle(
-                            color: context.colors.mutedForeground,
-                            fontSize: 12.sp,
-                            fontFamily: 'monospace',
-                          ),
-                        );
-                      } else if (snapshot.hasError) {
-                        return Text(
-                          'Error loading npub',
-                          style: TextStyle(
-                            color: context.colors.mutedForeground.withValues(alpha: 0.6),
-                            fontSize: 12.sp,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        );
-                      }
-                      // Show npub while loading immediately
-                      return Text(
-                        contact.publicKey.formatPublicKey(),
-                        style: TextStyle(
-                          color: context.colors.mutedForeground,
-                          fontSize: 12.sp,
-                          fontFamily: 'monospace',
-                        ),
-                      );
-                    },
+                  Text(
+                    formattedKey,
+                    style: TextStyle(
+                      color: context.colors.mutedForeground,
+                      fontSize: 12.sp,
+                      fontFamily: 'monospace',
+                    ),
                   ),
                 ],
               ),
