@@ -238,8 +238,12 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
       logger.severe(errorMessage, e, s);
       ref.showErrorToast(errorMessage);
     } finally {
-      setState(() {});
       _debouncedCameraRestart();
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
     }
   }
 
