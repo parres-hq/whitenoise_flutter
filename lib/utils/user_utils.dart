@@ -23,14 +23,32 @@ class UserUtils {
     if (searchQuery.isEmpty) return users;
 
     final query = searchQuery.toLowerCase();
+    final results = <User>[];
 
-    return users.where((user) {
+    // Use for loop instead of where().toList() for better performance
+    for (final user in users) {
       final displayName = _getDisplayName(user).toLowerCase();
-      final nip05 = user.metadata.nip05?.toLowerCase() ?? '';
-      final pubkey = user.pubkey.toLowerCase();
 
-      return displayName.contains(query) || nip05.contains(query) || pubkey.contains(query);
-    }).toList();
+      // Check display name first (most common match)
+      if (displayName.contains(query)) {
+        results.add(user);
+        continue;
+      }
+
+      // Only check nip05 if display name doesn't match
+      final nip05 = user.metadata.nip05?.toLowerCase();
+      if (nip05 != null && nip05.contains(query)) {
+        results.add(user);
+        continue;
+      }
+
+      // Only check pubkey if neither display name nor nip05 match
+      if (user.pubkey.toLowerCase().contains(query)) {
+        results.add(user);
+      }
+    }
+
+    return results;
   }
 
   static String _getDisplayName(User user) {

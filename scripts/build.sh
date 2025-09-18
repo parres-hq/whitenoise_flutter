@@ -329,6 +329,10 @@ cd rust
 cargo fmt
 cd ..
 
+# Format dart files so generated output is formatted
+print_step "🔍 Formatting dart files"
+dart format lib/ integration_test/
+
 # Build Android
 if [ "$BUILD_ANDROID" = true ]; then
     print_step "🤖 Building Android"

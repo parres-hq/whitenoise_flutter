@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 import 'package:whitenoise/utils/pubkey_formatter.dart';
+import 'package:whitenoise/utils/string_extensions.dart';
 
 class ContactModel {
   final String publicKey;
@@ -10,6 +11,7 @@ class ContactModel {
   final String? website;
   final String? nip05;
   final String? lud16;
+  final String? _formattedPublicKey; // Cached formatted public key
 
   ContactModel({
     required this.publicKey,
@@ -19,7 +21,22 @@ class ContactModel {
     this.website,
     this.nip05,
     this.lud16,
-  });
+    String? formattedPublicKey,
+  }) : _formattedPublicKey = formattedPublicKey;
+
+  /// Get the formatted public key (precomputed if available, computed on-demand otherwise)
+  String get formattedPublicKey {
+    if (_formattedPublicKey != null && _formattedPublicKey.isNotEmpty) {
+      return _formattedPublicKey;
+    }
+
+    try {
+      final npub = PubkeyFormatter(pubkey: publicKey).toNpub() ?? '';
+      return npub.formatPublicKey();
+    } catch (e) {
+      return publicKey.formatPublicKey();
+    }
+  }
 
   // Create ContactModel from Rust API Metadata with proper sanitization
   factory ContactModel.fromMetadata({
@@ -44,6 +61,14 @@ class ContactModel {
       finalDisplayName = name;
     }
 
+    // Pre-compute formatted public key
+    String formattedKey;
+    try {
+      formattedKey = npub.formatPublicKey();
+    } catch (e) {
+      formattedKey = pubkey.formatPublicKey();
+    }
+
     return ContactModel(
       displayName: finalDisplayName,
       publicKey: npub,
@@ -52,6 +77,7 @@ class ContactModel {
       website: website,
       nip05: nip05,
       lud16: lud16,
+      formattedPublicKey: formattedKey,
     );
   }
 
