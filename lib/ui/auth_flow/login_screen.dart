@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -14,6 +13,7 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/clipboard_utils.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -92,20 +92,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     } else if (authState.error != null) {
       // Error is already shown by the auth provider via toast
       // No need to show additional error here
-    }
-  }
-
-  Future<void> _pasteFromClipboard() async {
-    final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
-    if (clipboardData != null && clipboardData.text != null) {
-      _keyController.text = clipboardData.text!;
-      if (mounted) {
-        ref.showSuccessToast('Pasted from clipboard');
-      }
-    } else {
-      if (mounted) {
-        ref.showInfoToast('Nothing to paste from clipboard');
-      }
     }
   }
 
@@ -224,7 +210,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                             ),
                             child: WnIconButton(
                               iconPath: AssetsPaths.icPaste,
-                              onTap: _pasteFromClipboard,
+                              onTap:
+                                  () async => await ClipboardUtils.pasteWithToast(
+                                    ref: ref,
+                                    onPaste: (text) {
+                                      _keyController.text = text;
+                                    },
+                                  ),
                               padding: 20.w,
                               size: 56.h,
                             ),
