@@ -83,6 +83,7 @@ class _ChatListActiveAccountAvatarState extends ConsumerState<ChatListActiveAcco
         imageUrl: imageUrl,
         displayName: displayName,
         size: 36.r,
+        showBorder: true,
       ),
     );
   }
