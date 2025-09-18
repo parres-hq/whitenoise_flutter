@@ -88,8 +88,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
       ),
       bottomNavigationBar: SafeArea(
         top: false,
+        bottom: false,
         child: Padding(
-          padding: EdgeInsets.only(bottom: 32.h),
+          padding: EdgeInsets.only(bottom: 54.h),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -98,7 +99,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                 visualState: WnButtonVisualState.secondary,
                 onPressed: _isCreatingAccount ? null : () => context.go('/login'),
               ),
-              Gap(12.h),
+              Gap(4.h),
               WnFilledButton(
                 label: 'Sign Up',
                 loading: _isCreatingAccount,
