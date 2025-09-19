@@ -52,7 +52,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _initializeDMChatData();
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
@@ -83,7 +83,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     super.dispose();
   }
 
-
   void _initializeDMChatData() {
     final groupsNotifier = ref.read(groupsProvider.notifier);
     final group = groupsNotifier.findGroupById(widget.groupId);
@@ -96,9 +95,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   void _scrollToBottom({bool animated = true}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients || !mounted) return;
-      
+
       final maxScrollExtent = _scrollController.position.maxScrollExtent;
-      
+
       if (animated) {
         _scrollController.animateTo(
           maxScrollExtent,
@@ -115,10 +114,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   @override
   void didChangeMetrics() {
     super.didChangeMetrics();
-    
+
     final bottomInset = WidgetsBinding.instance.platformDispatcher.views.first.viewInsets.bottom;
-    final keyboardHeight = bottomInset / WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
-    
+    final keyboardHeight =
+        bottomInset / WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
+
     // Simple keyboard state tracking
     if (keyboardHeight > 100) {
       // Keyboard is open
@@ -127,7 +127,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
         // Scroll to bottom when keyboard opens (with delay)
         Future.delayed(const Duration(milliseconds: 300), () {
           if (mounted && _isKeyboardOpen) {
-            _scrollToBottom(animated: true);
+            _scrollToBottom();
           }
         });
       }
@@ -144,24 +144,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     final wasLoading = previous?.isGroupLoading(widget.groupId) ?? false;
     final isLoading = next.isGroupLoading(widget.groupId);
     final isLoadingCompleted = wasLoading && !isLoading;
-    
+
     // Auto-scroll when chat first loads
     if (isLoadingCompleted && currentMessages.isNotEmpty && !_hasInitialScrollCompleted) {
       _hasInitialScrollCompleted = true;
       _scrollToBottom(animated: false);
       return;
     }
-    
+
     // Auto-scroll when new messages arrive (after initial load)
-    if (_hasInitialScrollCompleted && 
+    if (_hasInitialScrollCompleted &&
         previousMessages.isNotEmpty &&
         currentMessages.length > previousMessages.length &&
         currentMessages.last.id != previousMessages.last.id) {
-      _scrollToBottom(animated: true);
+      _scrollToBottom();
     }
   }
-
-
 
   void _scrollToMessage(String messageId) {
     final messages = ref.read(
@@ -456,7 +454,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                             );
                           }
                           // Auto-scroll after sending message
-                          _scrollToBottom(animated: true);
+                          _scrollToBottom();
                         },
                       ),
                   ],
