@@ -348,6 +348,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                     final message = messages[messageIndex];
 
                                     return SwipeToReplyWidget(
+                                      key: ValueKey(message.id),
                                       message: message,
                                       onReply:
                                           () => chatNotifier.handleReply(

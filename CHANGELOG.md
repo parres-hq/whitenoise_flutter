@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 ### Removed
+- Removes metadata cache provider
 
 ### Fixed
 - Fixed get user logic, to show metadata when searching a new npub
