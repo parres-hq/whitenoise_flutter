@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Deprecated
 ### Removed
+- Removes metadata cache provider [#654](https://github.com/parres-hq/whitenoise_flutter/pull/654)
 ### Fixed
 - Fixed 2 users group creation when DM already exists
 - Fixed issue where keyboard covers part of the "introduce yourself" textfield.
@@ -38,7 +39,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimized relay connection error banner with intelligent delay and dismissal on reconnection
 
 ### Removed
-
 - Removed relay pull-to-refresh
 
 ### Fixed
