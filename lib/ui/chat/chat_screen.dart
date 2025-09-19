@@ -39,16 +39,20 @@ class ChatScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _ChatScreenState extends ConsumerState<ChatScreen> {
+class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   double _lastScrollOffset = 0.0;
   Future<DMChatData?>? _dmChatDataFuture;
   ProviderSubscription<ChatState>? _chatSubscription;
+  bool _hasInitialScrollCompleted = false;
+  bool _isKeyboardOpen = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _initializeDMChatData();
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
@@ -56,8 +60,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
       }
     });
 
+    // Listen for chat state changes to handle auto-scroll
     _chatSubscription = ref.listenManual(chatProvider, (previous, next) {
-      _handleScrollOnChatStateChange(previous, next);
+      _handleChatStateChange(previous, next);
     });
   }
 
@@ -65,16 +70,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
   void didUpdateWidget(ChatScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.groupId != widget.groupId) {
+      _hasInitialScrollCompleted = false; // Reset for new chat
       _initializeDMChatData();
     }
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _chatSubscription?.close();
     _scrollController.dispose();
     super.dispose();
   }
+
 
   void _initializeDMChatData() {
     final groupsNotifier = ref.read(groupsProvider.notifier);
@@ -84,39 +92,76 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
     }
   }
 
-  void _handleScrollToBottom({bool hasAnimation = true}) {
+  /// Scroll to the bottom of the chat
+  void _scrollToBottom({bool animated = true}) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!_scrollController.hasClients || !mounted) return;
-      final double max = _scrollController.position.maxScrollExtent;
-      if (hasAnimation) {
+      
+      final maxScrollExtent = _scrollController.position.maxScrollExtent;
+      
+      if (animated) {
         _scrollController.animateTo(
-          max,
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOut,
+          maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOutCubic,
         );
       } else {
-        _scrollController.jumpTo(max);
+        _scrollController.jumpTo(maxScrollExtent);
       }
     });
   }
 
-  void _handleScrollOnChatStateChange(
-    ChatState? previous,
-    ChatState next,
-  ) {
+  /// Handle keyboard visibility changes
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    
+    final bottomInset = WidgetsBinding.instance.platformDispatcher.views.first.viewInsets.bottom;
+    final keyboardHeight = bottomInset / WidgetsBinding.instance.platformDispatcher.views.first.devicePixelRatio;
+    
+    // Simple keyboard state tracking
+    if (keyboardHeight > 100) {
+      // Keyboard is open
+      if (!_isKeyboardOpen) {
+        _isKeyboardOpen = true;
+        // Scroll to bottom when keyboard opens (with delay)
+        Future.delayed(const Duration(milliseconds: 300), () {
+          if (mounted && _isKeyboardOpen) {
+            _scrollToBottom(animated: true);
+          }
+        });
+      }
+    } else {
+      // Keyboard is closed
+      _isKeyboardOpen = false;
+    }
+  }
+
+  /// Handle chat state changes for auto-scroll
+  void _handleChatStateChange(ChatState? previous, ChatState next) {
     final currentMessages = next.groupMessages[widget.groupId] ?? [];
     final previousMessages = previous?.groupMessages[widget.groupId] ?? [];
     final wasLoading = previous?.isGroupLoading(widget.groupId) ?? false;
     final isLoading = next.isGroupLoading(widget.groupId);
     final isLoadingCompleted = wasLoading && !isLoading;
-    if (isLoadingCompleted && currentMessages.isNotEmpty) {
-      _handleScrollToBottom(hasAnimation: false);
-    } else if (previousMessages.isNotEmpty &&
+    
+    // Auto-scroll when chat first loads
+    if (isLoadingCompleted && currentMessages.isNotEmpty && !_hasInitialScrollCompleted) {
+      _hasInitialScrollCompleted = true;
+      _scrollToBottom(animated: false);
+      return;
+    }
+    
+    // Auto-scroll when new messages arrive (after initial load)
+    if (_hasInitialScrollCompleted && 
+        previousMessages.isNotEmpty &&
         currentMessages.length > previousMessages.length &&
         currentMessages.last.id != previousMessages.last.id) {
-      _handleScrollToBottom();
+      _scrollToBottom(animated: true);
     }
   }
+
+
 
   void _scrollToMessage(String messageId) {
     final messages = ref.read(
@@ -240,7 +285,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               onNotification: (scrollInfo) {
                 if (scrollInfo is ScrollUpdateNotification) {
                   final currentFocus = FocusManager.instance.primaryFocus;
-                  if (currentFocus != null && currentFocus.hasFocus) {
+                  if (currentFocus != null && currentFocus.hasFocus && !_isKeyboardOpen) {
                     final currentOffset = scrollInfo.metrics.pixels;
                     final scrollDelta = currentOffset - _lastScrollOffset;
                     if (scrollDelta < -20) currentFocus.unfocus();
@@ -402,16 +447,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                               groupId: widget.groupId,
                               replyToMessageId: replyingTo.id,
                               message: message,
-                              onMessageSent: _handleScrollToBottom,
                             );
                           } else {
                             await chatNotifier.sendMessage(
                               groupId: widget.groupId,
                               message: message,
                               isEditing: isEditing,
-                              onMessageSent: _handleScrollToBottom,
                             );
                           }
+                          // Auto-scroll after sending message
+                          _scrollToBottom(animated: true);
                         },
                       ),
                   ],
