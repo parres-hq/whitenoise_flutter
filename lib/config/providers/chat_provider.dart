@@ -5,13 +5,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/group_messages_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
-import 'package:whitenoise/utils/message_converter.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class ChatNotifier extends Notifier<ChatState> {
@@ -73,25 +73,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
       _logger.info('ChatProvider: Loading messages for group $groupId');
 
-      // Use fetchAggregatedMessagesForGroup which includes all message data including replies
-      final aggregatedMessages = await fetchAggregatedMessagesForGroup(
-        pubkey: activePubkey,
-        groupId: groupId,
-      );
-
-      _logger.info(
-        'ChatProvider: Fetched ${aggregatedMessages.length} aggregated messages',
-      );
-
-      // Sort messages by creation time (oldest first)
-      aggregatedMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-
-      final messages = await MessageConverter.fromChatMessageList(
-        aggregatedMessages,
-        currentUserPublicKey: activePubkey,
-        groupId: groupId,
-        ref: ref,
-      );
+      final messages = await ref.read(groupMessagesProvider(groupId).notifier).fetchMessages();
 
       state = state.copyWith(
         groupMessages: {
@@ -103,8 +85,6 @@ class ChatNotifier extends Notifier<ChatState> {
           groupId: false,
         },
       );
-
-      _logger.info('ChatProvider: Loaded ${aggregatedMessages.length} messages for group $groupId');
     } catch (e, st) {
       _logger.severe('ChatProvider.loadMessagesForGroup', e, st);
       String errorMessage = 'Failed to load messages';
@@ -178,7 +158,7 @@ class ChatNotifier extends Notifier<ChatState> {
       );
 
       // Build message cache from current messages for consistency
-      final messageCache = <String, ChatMessage>{};
+      final chatMessagesMap = <String, ChatMessage>{};
       for (final msg in currentMessages) {
         // Convert existing MessageModel back to ChatMessage for cache
         final chatMessage = ChatMessage(
@@ -194,16 +174,15 @@ class ChatNotifier extends Notifier<ChatState> {
           reactions: const ReactionSummary(byEmoji: [], userReactions: []),
           kind: msg.kind, // Use the actual message kind
         );
-        messageCache[msg.id] = chatMessage;
+        chatMessagesMap[msg.id] = chatMessage;
       }
 
-      final sentMessageModel = await MessageConverter.fromChatMessage(
-        sentChatMessage,
-        currentUserPublicKey: activePubkey,
-        groupId: groupId,
-        ref: ref,
-        messageCache: messageCache,
-      );
+      final sentMessageModel = await ref
+          .read(groupMessagesProvider(groupId).notifier)
+          .toMessageModel(
+            chatMessage: sentChatMessage,
+            chatMessagesMap: chatMessagesMap,
+          );
       final updatedMessages = [...currentMessages, sentMessageModel];
 
       state = state.copyWith(
@@ -290,19 +269,7 @@ class ChatNotifier extends Notifier<ChatState> {
         return;
       }
 
-      // Use fetchAggregatedMessagesForGroup for polling as well
-      final aggregatedMessages = await fetchAggregatedMessagesForGroup(
-        pubkey: activePubkey,
-        groupId: groupId,
-      );
-
-      aggregatedMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-      final newMessages = await MessageConverter.fromChatMessageList(
-        aggregatedMessages,
-        currentUserPublicKey: activePubkey,
-        groupId: groupId,
-        ref: ref,
-      );
+      final newMessages = await ref.read(groupMessagesProvider(groupId).notifier).fetchMessages();
 
       final currentMessages = state.groupMessages[groupId] ?? [];
 
@@ -622,7 +589,7 @@ class ChatNotifier extends Notifier<ChatState> {
       );
 
       // Build message cache from current messages for reply lookup
-      final messageCache = <String, ChatMessage>{};
+      final chatMessagesMap = <String, ChatMessage>{};
       for (final msg in currentMessages) {
         // Convert existing MessageModel back to ChatMessage for cache
         final chatMessage = ChatMessage(
@@ -638,16 +605,15 @@ class ChatNotifier extends Notifier<ChatState> {
           reactions: const ReactionSummary(byEmoji: [], userReactions: []),
           kind: msg.kind, // Use the actual message kind
         );
-        messageCache[msg.id] = chatMessage;
+        chatMessagesMap[msg.id] = chatMessage;
       }
 
-      final sentMessageModel = await MessageConverter.fromChatMessage(
-        sentChatMessage,
-        currentUserPublicKey: activePubkey,
-        groupId: groupId,
-        ref: ref,
-        messageCache: messageCache,
-      );
+      final sentMessageModel = await ref
+          .read(groupMessagesProvider(groupId).notifier)
+          .toMessageModel(
+            chatMessage: sentChatMessage,
+            chatMessagesMap: chatMessagesMap,
+          );
       final updatedMessages = [...currentMessages, sentMessageModel];
 
       state = state.copyWith(
