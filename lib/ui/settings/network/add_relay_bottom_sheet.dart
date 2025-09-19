@@ -34,7 +34,7 @@ class AddRelayBottomSheet extends ConsumerStatefulWidget {
     await WnBottomSheet.show(
       context: context,
       title: 'Add Relay',
-
+      keyboardAware: true,
       builder:
           (context) => AddRelayBottomSheet(
             onRelayAdded: onRelayAdded,
