@@ -312,7 +312,6 @@ void main() {
 
         final messageModel = await notifier.toMessageModel(
           chatMessage: chatMessage,
-          chatMessagesMap: {},
         );
 
         expect(messageModel.id, 'test_message');
@@ -361,7 +360,6 @@ void main() {
 
           messageModel = await notifier.toMessageModel(
             chatMessage: replyMessage,
-            chatMessagesMap: {'original_message': originalMessage},
           );
         });
 

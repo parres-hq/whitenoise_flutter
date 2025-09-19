@@ -23,7 +23,7 @@ class ReactionConverter {
       final reaction = Reaction(
         emoji: userReaction.emoji,
         user: user,
-        createdAt: userReaction.createdAt,
+        createdAt: userReaction.createdAt.toLocal(),
       );
 
       convertedReactions.add(reaction);

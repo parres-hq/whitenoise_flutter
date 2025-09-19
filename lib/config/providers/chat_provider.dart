@@ -12,6 +12,7 @@ import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
+import 'package:whitenoise/utils/message_converter.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class ChatNotifier extends Notifier<ChatState> {
@@ -110,8 +111,28 @@ class ChatNotifier extends Notifier<ChatState> {
       return null;
     }
 
-    // Set sending state for this group
+    final activePubkey = ref.read(activePubkeyProvider) ?? '';
+    if (activePubkey.isEmpty) {
+      _setGroupError(groupId, 'No active account found');
+      return null;
+    }
+
+    // Create optimistic message immediately
+    final optimisticMessageModel = MessageConverter.createOptimisticMessage(
+      content: message,
+      currentUserPublicKey: activePubkey,
+      groupId: groupId,
+      kind: kind,
+    );
+    final optimisticId = optimisticMessageModel.id;
+
+    // Add optimistic message immediately to regular messages
+    final currentMessages = state.groupMessages[groupId] ?? [];
     state = state.copyWith(
+      groupMessages: {
+        ...state.groupMessages,
+        groupId: [...currentMessages, optimisticMessageModel],
+      },
       sendingStates: {
         ...state.sendingStates,
         groupId: true,
@@ -123,12 +144,6 @@ class ChatNotifier extends Notifier<ChatState> {
     );
 
     try {
-      final activePubkey = ref.read(activePubkeyProvider) ?? '';
-      if (activePubkey.isEmpty) {
-        _setGroupError(groupId, 'No active account found');
-        return null;
-      }
-
       _logger.info('ChatProvider: Sending message to group $groupId');
 
       final sentMessage = await sendMessageToGroup(
@@ -139,15 +154,12 @@ class ChatNotifier extends Notifier<ChatState> {
         tags: tags,
       );
 
-      // Convert sent message to MessageModel and add to local state
-      final currentMessages = state.groupMessages[groupId] ?? [];
-
-      // Create ChatMessage from the sent message
-      final sentChatMessage = ChatMessage(
+      // Convert confirmed message
+      final confirmedChatMessage = ChatMessage(
         id: sentMessage.id,
         pubkey: sentMessage.pubkey,
         content: sentMessage.content ?? '',
-        createdAt: sentMessage.createdAt,
+        createdAt: sentMessage.createdAt.toLocal(), // Convert UTC to local time
         tags: const [],
         isReply: false,
         replyToId: null,
@@ -157,33 +169,16 @@ class ChatNotifier extends Notifier<ChatState> {
         kind: sentMessage.kind,
       );
 
-      // Build message cache from current messages for consistency
-      final chatMessagesMap = <String, ChatMessage>{};
-      for (final msg in currentMessages) {
-        // Convert existing MessageModel back to ChatMessage for cache
-        final chatMessage = ChatMessage(
-          id: msg.id,
-          pubkey: msg.sender.publicKey,
-          content: msg.content ?? '',
-          createdAt: msg.createdAt,
-          tags: const [],
-          isReply: msg.replyTo != null,
-          replyToId: msg.replyTo?.id,
-          isDeleted: false,
-          contentTokens: const [],
-          reactions: const ReactionSummary(byEmoji: [], userReactions: []),
-          kind: msg.kind, // Use the actual message kind
-        );
-        chatMessagesMap[msg.id] = chatMessage;
-      }
-
-      final sentMessageModel = await ref
+      final confirmedMessageModel = await ref
           .read(groupMessagesProvider(groupId).notifier)
           .toMessageModel(
-            chatMessage: sentChatMessage,
-            chatMessagesMap: chatMessagesMap,
+            chatMessage: confirmedChatMessage,
+            skipReactions: true,
           );
-      final updatedMessages = [...currentMessages, sentMessageModel];
+      final currentMessages = state.groupMessages[groupId] ?? [];
+      final updatedMessages =
+          currentMessages.where((msg) => msg.id != optimisticId).toList()
+            ..add(confirmedMessageModel);
 
       state = state.copyWith(
         groupMessages: {
@@ -196,7 +191,6 @@ class ChatNotifier extends Notifier<ChatState> {
         },
       );
 
-      // Update group order by triggering a resort based on the new message
       await _updateGroupOrderForNewMessage(groupId);
 
       _logger.info('ChatProvider: Message sent successfully to group $groupId');
@@ -210,16 +204,23 @@ class ChatNotifier extends Notifier<ChatState> {
       } else {
         errorMessage = e.toString();
       }
-      _setGroupError(groupId, errorMessage);
 
-      // Clear sending state
+      // Remove failed optimistic message
+      final updatedOptimistic =
+          (state.groupMessages[groupId] ?? []).where((msg) => msg.id != optimisticId).toList();
+
       state = state.copyWith(
+        groupMessages: {
+          ...state.groupMessages,
+          groupId: updatedOptimistic,
+        },
         sendingStates: {
           ...state.sendingStates,
           groupId: false,
         },
       );
 
+      _setGroupError(groupId, errorMessage);
       return null;
     }
   }
@@ -547,13 +548,40 @@ class ChatNotifier extends Notifier<ChatState> {
       return null;
     }
 
-    try {
-      final activePubkey = ref.read(activePubkeyProvider) ?? '';
-      if (activePubkey.isEmpty) {
-        _setGroupError(groupId, 'No active account found');
-        return null;
-      }
+    final activePubkey = ref.read(activePubkeyProvider) ?? '';
+    if (activePubkey.isEmpty) {
+      _setGroupError(groupId, 'No active account found');
+      return null;
+    }
 
+    // Find the message being replied to
+    final allMessages = getMessagesForGroup(groupId);
+    final replyToMessage = allMessages.firstWhere((msg) => msg.id == replyToMessageId);
+
+    // Create optimistic reply message immediately
+    final optimisticMessageModel = MessageConverter.createOptimisticMessage(
+      content: message,
+      currentUserPublicKey: activePubkey,
+      groupId: groupId,
+      kind: 9,
+      replyToMessage: replyToMessage,
+    );
+    final optimisticId = optimisticMessageModel.id;
+
+    // Add optimistic message immediately
+    final currentOptimistic = state.groupMessages[groupId] ?? [];
+    state = state.copyWith(
+      groupMessages: {
+        ...state.groupMessages,
+        groupId: [...currentOptimistic, optimisticMessageModel],
+      },
+      sendingStates: {
+        ...state.sendingStates,
+        groupId: true,
+      },
+    );
+
+    try {
       _logger.info('ChatProvider: Sending reply to message $replyToMessageId');
 
       // Create tags for reply
@@ -561,24 +589,20 @@ class ChatNotifier extends Notifier<ChatState> {
         await tagFromVec(vec: ['e', replyToMessageId]),
       ];
 
-      // Send the reply message using rust API
       final sentMessage = await sendMessageToGroup(
         pubkey: activePubkey,
         groupId: groupId,
         message: message,
-        kind: 9, // Kind 9 for replies
+        kind: 9,
         tags: replyTags,
       );
 
-      // Convert to MessageModel and add to local state
-      final currentMessages = state.groupMessages[groupId] ?? [];
-
-      // Create ChatMessage for the reply message
-      final sentChatMessage = ChatMessage(
+      // Convert confirmed reply message
+      final confirmedChatMessage = ChatMessage(
         id: sentMessage.id,
         pubkey: sentMessage.pubkey,
         content: sentMessage.content ?? '',
-        createdAt: sentMessage.createdAt,
+        createdAt: sentMessage.createdAt.toLocal(), // Convert UTC to local time
         tags: const [],
         isReply: true,
         replyToId: replyToMessageId,
@@ -588,38 +612,28 @@ class ChatNotifier extends Notifier<ChatState> {
         kind: sentMessage.kind,
       );
 
-      // Build message cache from current messages for reply lookup
-      final chatMessagesMap = <String, ChatMessage>{};
-      for (final msg in currentMessages) {
-        // Convert existing MessageModel back to ChatMessage for cache
-        final chatMessage = ChatMessage(
-          id: msg.id,
-          pubkey: msg.sender.publicKey,
-          content: msg.content ?? '',
-          createdAt: msg.createdAt,
-          tags: const [],
-          isReply: msg.replyTo != null,
-          replyToId: msg.replyTo?.id,
-          isDeleted: false,
-          contentTokens: const [],
-          reactions: const ReactionSummary(byEmoji: [], userReactions: []),
-          kind: msg.kind, // Use the actual message kind
-        );
-        chatMessagesMap[msg.id] = chatMessage;
-      }
-
-      final sentMessageModel = await ref
+      final confirmedMessageModel = await ref
           .read(groupMessagesProvider(groupId).notifier)
           .toMessageModel(
-            chatMessage: sentChatMessage,
-            chatMessagesMap: chatMessagesMap,
+            chatMessage: confirmedChatMessage,
+            replyToMessage: replyToMessage,
+            skipReactions: true,
           );
-      final updatedMessages = [...currentMessages, sentMessageModel];
+
+      // Replace optimistic message with confirmed onex
+      final currentMessages = state.groupMessages[groupId] ?? [];
+      final updatedMessages =
+          currentMessages.where((msg) => msg.id != optimisticId).toList()
+            ..add(confirmedMessageModel);
 
       state = state.copyWith(
         groupMessages: {
           ...state.groupMessages,
           groupId: updatedMessages,
+        },
+        sendingStates: {
+          ...state.sendingStates,
+          groupId: false,
         },
       );
 
@@ -634,6 +648,22 @@ class ChatNotifier extends Notifier<ChatState> {
       } else {
         errorMessage = e.toString();
       }
+
+      // Remove failed optimistic message
+      final updatedOptimistic =
+          (state.groupMessages[groupId] ?? []).where((msg) => msg.id != optimisticId).toList();
+
+      state = state.copyWith(
+        groupMessages: {
+          ...state.groupMessages,
+          groupId: updatedOptimistic,
+        },
+        sendingStates: {
+          ...state.sendingStates,
+          groupId: false,
+        },
+      );
+
       _setGroupError(groupId, errorMessage);
       return null;
     }

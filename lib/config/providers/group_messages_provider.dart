@@ -75,19 +75,21 @@ class GroupMessagesNotifier extends FamilyNotifier<GroupMessagesState, String> {
 
   Future<MessageModel> toMessageModel({
     required ChatMessage chatMessage,
-    required Map<String, ChatMessage> chatMessagesMap,
+    MessageModel? replyToMessage,
+    bool skipReactions = false,
   }) async {
     final activePubkey = ref.read(activePubkeyProvider) ?? '';
     final usersMap = await _fetchMessageUsersMap(
       chatMessage: chatMessage,
-      chatMessagesMap: chatMessagesMap,
+      activePubkey: activePubkey,
     );
     final messageModel = MessageConverter.fromChatMessage(
       chatMessage,
       currentUserPublicKey: activePubkey,
       groupId: state.groupId,
       usersMap: usersMap,
-      chatMessagesMap: chatMessagesMap,
+      replyToMessage: replyToMessage,
+      skipReactions: skipReactions,
     );
     return messageModel;
   }
@@ -108,20 +110,11 @@ class GroupMessagesNotifier extends FamilyNotifier<GroupMessagesState, String> {
 
   Future<Map<String, domain_user.User>> _fetchMessageUsersMap({
     required ChatMessage chatMessage,
-    required Map<String, ChatMessage> chatMessagesMap,
+    required String activePubkey,
   }) async {
+    if (activePubkey.isEmpty) return {};
     return await Future.microtask(() async {
-      final activePubkey = ref.read(activePubkeyProvider);
-      if (activePubkey == null || activePubkey.isEmpty) {
-        return {};
-      }
       final messagePubkeys = [chatMessage.pubkey];
-      if (chatMessage.isReply && chatMessage.replyToId != null) {
-        final original = chatMessagesMap[chatMessage.replyToId!];
-        if (original != null && original.pubkey.isNotEmpty) {
-          messagePubkeys.add(original.pubkey);
-        }
-      }
       final contacts = await _fetchUsersProfileData(messagePubkeys);
       final domainUsersMap = _mapContactModelsToDomainUsers(
         activePubkey: activePubkey,

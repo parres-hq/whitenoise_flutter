@@ -54,7 +54,6 @@ void main() {
             currentUserPublicKey: currentUserPublicKey,
             groupId: groupId,
             usersMap: usersMap,
-            chatMessagesMap: {},
             isMeFn: mockPubkeyUtilsIsMe,
           );
 
@@ -92,7 +91,6 @@ void main() {
             currentUserPublicKey: currentUserPublicKey,
             groupId: groupId,
             usersMap: usersMap,
-            chatMessagesMap: {},
             isMeFn: mockPubkeyUtilsIsMe,
           );
 
@@ -126,7 +124,6 @@ void main() {
             currentUserPublicKey: currentUserPublicKey,
             groupId: groupId,
             usersMap: usersMap,
-            chatMessagesMap: {},
             isMeFn: mockPubkeyUtilsIsMe,
           );
 
@@ -163,7 +160,6 @@ void main() {
             currentUserPublicKey: currentUserPublicKey,
             groupId: groupId,
             usersMap: usersMap,
-            chatMessagesMap: {},
             isMeFn: mockPubkeyUtilsIsMe,
           );
 
@@ -202,17 +198,12 @@ void main() {
           kind: 9,
         );
 
-        final chatMessagesMap = <String, ChatMessage>{
-          'original_msg': originalMessage,
-        };
-
         test('converts reply message with replyTo populated', () {
           final result = MessageConverter.fromChatMessage(
             replyMessage,
             currentUserPublicKey: currentUserPublicKey,
             groupId: groupId,
             usersMap: usersMap,
-            chatMessagesMap: chatMessagesMap,
             isMeFn: mockPubkeyUtilsIsMe,
           );
 
@@ -245,7 +236,6 @@ void main() {
             currentUserPublicKey: currentUserPublicKey,
             groupId: groupId,
             usersMap: usersMap,
-            chatMessagesMap: {},
             isMeFn: mockPubkeyUtilsIsMe,
           );
 

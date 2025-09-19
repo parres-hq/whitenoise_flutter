@@ -11,7 +11,8 @@ class MessageConverter {
     required String currentUserPublicKey,
     required String groupId,
     required Map<String, domain_user.User> usersMap,
-    required Map<String, ChatMessage> chatMessagesMap,
+    MessageModel? replyToMessage,
+    bool skipReactions = false,
     bool Function({required String myPubkey, required String otherPubkey})? isMeFn,
   }) {
     final isMe = (isMeFn ?? PubkeyUtils.isMe)(
@@ -21,26 +22,18 @@ class MessageConverter {
 
     final sender = usersMap[messageData.pubkey] ?? _unknownUser(pubkey: messageData.pubkey);
 
-    final createdAt = messageData.createdAt;
+    final createdAt = messageData.createdAt.toLocal();
 
     final status = isMe ? MessageStatus.sent : MessageStatus.delivered;
 
-    final reactions = ReactionConverter.fromReactionSummary(
-      reactionSummary: messageData.reactions,
-      usersMap: usersMap,
-    );
-
-    MessageModel? replyToMessage;
-    if (messageData.isReply && messageData.replyToId != null) {
-      replyToMessage = _replyToMessage(
-        replyToId: messageData.replyToId!,
-        groupId: groupId,
-        currentUserPublicKey: currentUserPublicKey,
-        usersMap: usersMap,
-        chatMessagesMap: chatMessagesMap,
-        isMeFn: isMeFn,
-      );
-    }
+    final List<Reaction> emptyReactions = [];
+    final reactions =
+        skipReactions
+            ? emptyReactions
+            : ReactionConverter.fromReactionSummary(
+              reactionSummary: messageData.reactions,
+              usersMap: usersMap,
+            );
 
     return MessageModel(
       id: messageData.id,
@@ -64,83 +57,67 @@ class MessageConverter {
     required Map<String, domain_user.User> usersMap,
     bool Function({required String myPubkey, required String otherPubkey})? isMeFn,
   }) async {
-    // Filter valid messages first
     final validMessages =
         chatMessages.where((msg) => !msg.isDeleted && msg.content.isNotEmpty).toList();
-
-    // Build messages map for reply lookups
     final chatMessagesMap = <String, ChatMessage>{};
     for (final msg in validMessages) {
       chatMessagesMap[msg.id] = msg;
     }
 
-    final messages =
-        validMessages
-            .map(
-              (messageData) => fromChatMessage(
-                messageData,
-                currentUserPublicKey: currentUserPublicKey,
-                groupId: groupId,
-                chatMessagesMap: chatMessagesMap,
-                usersMap: usersMap,
-                isMeFn: isMeFn,
-              ),
-            )
-            .toList();
+    final messageModels = <MessageModel>[];
+    final messageModelsMap = <String, MessageModel>{};
+    for (final messageData in validMessages) {
+      MessageModel? replyToMessage;
+      if (messageData.isReply && messageData.replyToId != null) {
+        replyToMessage = messageModelsMap[messageData.replyToId];
+      }
+      final messageModel = fromChatMessage(
+        messageData,
+        currentUserPublicKey: currentUserPublicKey,
+        groupId: groupId,
+        usersMap: usersMap,
+        replyToMessage: replyToMessage,
+        isMeFn: isMeFn,
+      );
+      messageModelsMap[messageModel.id] = messageModel;
+      messageModels.add(messageModel);
+    }
 
-    return messages;
+    return messageModels;
   }
 
-  static MessageModel _replyToMessage({
-    required String replyToId,
-    required String groupId,
+  static MessageModel createOptimisticMessage({
+    required String content,
     required String currentUserPublicKey,
-    required Map<String, domain_user.User> usersMap,
-    required Map<String, ChatMessage> chatMessagesMap,
-    bool Function({required String myPubkey, required String otherPubkey})? isMeFn,
+    required String groupId,
+    int kind = 9,
+    MessageModel? replyToMessage,
   }) {
-    MessageModel? replyToMessage;
-    final originalMessage = chatMessagesMap[replyToId];
-    if (originalMessage != null) {
-      final replyContent =
-          originalMessage.content.isNotEmpty ? originalMessage.content : 'No content available';
+    final messageHash =
+        '${currentUserPublicKey}_${content}_${DateTime.now().millisecondsSinceEpoch}'.hashCode
+            .abs()
+            .toString();
+    final optimisticId = 'temporal_message_$messageHash';
 
-      final replyTimestamp = originalMessage.createdAt;
-      final replySender =
-          usersMap[originalMessage.pubkey] ?? _unknownUser(pubkey: originalMessage.pubkey);
+    final currentUser = domain_user.User(
+      id: currentUserPublicKey,
+      displayName: 'You',
+      nip05: '',
+      publicKey: currentUserPublicKey,
+    );
 
-      replyToMessage = MessageModel(
-        id: replyToId,
-        content: replyContent,
-        type: MessageType.text,
-        createdAt: replyTimestamp,
-        sender: replySender,
-        isMe: (isMeFn ?? PubkeyUtils.isMe)(
-          myPubkey: currentUserPublicKey,
-          otherPubkey: originalMessage.pubkey,
-        ),
-        groupId: groupId,
-        status: MessageStatus.delivered,
-        kind: originalMessage.kind,
-      );
-    } else {
-      replyToMessage = MessageModel(
-        id: replyToId,
-        content: 'Message not found',
-        type: MessageType.text,
-        createdAt: DateTime.now(),
-        sender: domain_user.User(
-          id: 'unknown',
-          displayName: 'Unknown User',
-          nip05: '',
-          publicKey: 'unknown',
-        ),
-        isMe: false,
-        groupId: groupId,
-        status: MessageStatus.delivered,
-      );
-    }
-    return replyToMessage;
+    return MessageModel(
+      id: optimisticId,
+      content: content,
+      type: MessageType.text,
+      createdAt: DateTime.now(),
+      sender: currentUser,
+      isMe: true,
+      groupId: groupId,
+      status: MessageStatus.sending,
+      replyTo: replyToMessage,
+      kind: kind,
+    );
   }
 
   static domain_user.User _unknownUser({required String pubkey}) {
