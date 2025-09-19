@@ -16,6 +16,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/core/ui/wn_skeleton_container.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class ShareProfileQrScanScreen extends ConsumerStatefulWidget {
@@ -33,6 +34,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
   late MobileScannerController _controller;
   StreamSubscription<BarcodeCapture>? _subscription;
   Timer? _cameraRestartDebouncer;
+  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -91,74 +93,76 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
                     ],
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16.w),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) {
-                        return ConstrainedBox(
-                          constraints: BoxConstraints(
-                            minHeight: constraints.maxHeight,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Spacer(),
-                              Center(
-                                child: AspectRatio(
-                                  aspectRatio: 1.0,
-                                  child: Container(
-                                    constraints: BoxConstraints(
-                                      maxWidth: 288.w,
-                                      maxHeight: 288.w,
-                                      minWidth: 200.w,
-                                      minHeight: 200.w,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: context.colors.primary,
-                                        width: 1.w,
+                _isProcessing
+                    ? const Expanded(child: _ProcessingQrSkeleton())
+                    : Expanded(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight: constraints.maxHeight,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  const Spacer(),
+                                  Center(
+                                    child: AspectRatio(
+                                      aspectRatio: 1.0,
+                                      child: Container(
+                                        constraints: BoxConstraints(
+                                          maxWidth: 288.w,
+                                          maxHeight: 288.w,
+                                          minWidth: 200.w,
+                                          minHeight: 200.w,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: context.colors.primary,
+                                            width: 1.w,
+                                          ),
+                                        ),
+                                        child: MobileScanner(controller: _controller),
                                       ),
                                     ),
-                                    child: MobileScanner(controller: _controller),
                                   ),
-                                ),
-                              ),
-                              Gap(16.h),
-                              Text(
-                                'Scan user\'s QR code to connect.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 14.sp,
-                                  fontWeight: FontWeight.w500,
-                                  color: context.colors.mutedForeground,
-                                ),
-                              ),
-                              const Spacer(),
-                              if (!widget.hideViewQrButton) ...[
-                                Padding(
-                                  padding: EdgeInsets.symmetric(horizontal: 8.w),
-                                  child: WnFilledButton(
-                                    label: 'View QR Code',
-                                    onPressed: () => context.pop(),
-                                    suffixIcon: WnImage(
-                                      AssetsPaths.icQrCode,
-                                      size: 18.w,
-                                      color: context.colors.primaryForeground,
+                                  Gap(16.h),
+                                  Text(
+                                    'Scan user\'s QR code to connect.',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w500,
+                                      color: context.colors.mutedForeground,
                                     ),
                                   ),
-                                ),
-                                SizedBox(height: 64.h),
-                              ] else ...[
-                                SizedBox(height: 64.h),
-                              ],
-                            ],
-                          ),
-                        );
-                      },
+                                  const Spacer(),
+                                  if (!widget.hideViewQrButton) ...[
+                                    Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 8.w),
+                                      child: WnFilledButton(
+                                        label: 'View QR Code',
+                                        onPressed: () => context.pop(),
+                                        suffixIcon: WnImage(
+                                          AssetsPaths.icQrCode,
+                                          size: 18.w,
+                                          color: context.colors.primaryForeground,
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 64.h),
+                                  ] else ...[
+                                    SizedBox(height: 64.h),
+                                  ],
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
-                  ),
-                ),
               ],
             ),
           ),
@@ -186,6 +190,10 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
 
   Future<void> _handleBarcode(BarcodeCapture capture) async {
     if (capture.barcodes.isEmpty) return;
+    if (_isProcessing) return;
+    setState(() {
+      _isProcessing = true;
+    });
 
     try {
       final barcode = capture.barcodes.first;
@@ -231,6 +239,11 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
       ref.showErrorToast(errorMessage);
     } finally {
       _debouncedCameraRestart();
+      if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
+      }
     }
   }
 
@@ -241,5 +254,38 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
         _controller.start();
       }
     });
+  }
+}
+
+class _ProcessingQrSkeleton extends StatelessWidget {
+  const _ProcessingQrSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 16.w),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Spacer(),
+
+          WnSkeletonContainer(
+            width: 1.sw,
+            height: 288.h,
+          ),
+          Gap(16.h),
+          WnSkeletonContainer(
+            width: 1.sw,
+            height: 18.w,
+          ),
+          const Spacer(),
+          WnSkeletonContainer(
+            width: 1.sw,
+            height: 56.w,
+          ),
+          SizedBox(height: 64.h),
+        ],
+      ),
+    );
   }
 }
