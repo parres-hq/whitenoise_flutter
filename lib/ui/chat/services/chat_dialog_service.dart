@@ -11,6 +11,7 @@ import 'package:whitenoise/ui/chat/widgets/reaction/reaction_hero_dialog_route.d
 import 'package:whitenoise/ui/chat/widgets/reaction/reactions_dialog_widget.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
+import 'package:whitenoise/utils/clipboard_utils.dart';
 
 class ChatDialogService {
   static void showEmojiBottomSheet({
@@ -124,12 +125,10 @@ class ChatDialogService {
               if (menuItem.label == 'Reply') {
                 chatNotifier.handleReply(message);
               } else if (menuItem.label == 'Copy') {
-                Clipboard.setData(ClipboardData(text: message.content ?? ''));
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Message copied to clipboard'),
-                    duration: Duration(seconds: 2),
-                  ),
+                ClipboardUtils.copyWithToast(
+                  ref: ref,
+                  textToCopy: message.content,
+                  successMessage: 'Message copied to clipboard',
                 );
               } else if (menuItem.label == 'Delete') {
                 chatNotifier.deleteMessage(

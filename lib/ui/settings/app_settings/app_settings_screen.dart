@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
@@ -161,12 +162,7 @@ class AppSettingsScreen extends ConsumerWidget {
       if (!context.mounted) return;
 
       Navigator.of(context).pop(); // Close loading dialog
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to delete data: $e'),
-          duration: const Duration(seconds: 5),
-        ),
-      );
+      ref.showErrorToast('Failed to delete data: $e', durationMs: 5000);
     }
   }
 
