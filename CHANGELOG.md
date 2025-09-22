@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 ### Removed
+- Removed relay pull-to-refresh
 
 ### Fixed
 - Fixed get user logic, to show metadata when searching a new npub
@@ -34,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixes scroll to bototm inside of chats
 - Fixed profile image not showing up chatlist after login
 - Fixes auto-scroll to bottom when keyboard opens
+- Fixed time shown in messages to be in local time instead of UTC
 
 ### Security
 
