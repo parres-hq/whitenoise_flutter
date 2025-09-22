@@ -62,7 +62,7 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
                     }
                   },
         ),
-        Gap(4.h),
+        Gap(8.h),
         WnFilledButton(
           label: 'Create New Profile',
           loading: authState.isLoading,
