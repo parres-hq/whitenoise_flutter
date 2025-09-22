@@ -110,10 +110,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     }
 
     return ListView.builder(
-      padding: EdgeInsets.symmetric(
-        horizontal: 16.w,
-        vertical: 8.h,
-      ),
+      padding: EdgeInsets.zero,
       itemCount: filteredContacts.length,
       itemBuilder: (context, index) {
         final contact = filteredContacts[index];
