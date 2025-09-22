@@ -5,10 +5,8 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
-import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/routing/routes.dart';
@@ -31,86 +29,15 @@ class GeneralSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
-  List<Account> _accounts = [];
-  List<ContactModel> _accountsProfileData = [];
-  ProviderSubscription<AsyncValue<ActiveAccountState>>? _activeAccountSubscription;
   PackageInfo? _packageInfo;
-
-  bool _isLoadingAccounts = false;
   bool _isLoadingPackageInfo = false;
-  DateTime? _lastAccountsLoadTime;
-
-  static const Duration _accountsCacheDuration = Duration(minutes: 2);
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _loadAccountsProfileData();
       _loadPackageInfo();
-      _activeAccountSubscription = ref.listenManual(
-        activeAccountProvider,
-        (previous, next) {
-          if (next is AsyncData) {
-            // This ensures profile updates are reflected immediately
-            _invalidateAccountsCache();
-            _loadAccountsProfileData();
-          }
-        },
-      );
     });
-  }
-
-  @override
-  void dispose() {
-    _activeAccountSubscription?.close();
-    super.dispose();
-  }
-
-  Future<void> _loadAccountsProfileDataIfNeeded() async {
-    if (_lastAccountsLoadTime != null) {
-      final cacheAge = DateTime.now().difference(_lastAccountsLoadTime!);
-      if (cacheAge < _accountsCacheDuration &&
-          _accounts.isNotEmpty &&
-          _accountsProfileData.isNotEmpty) {
-        return; // Use cached data
-      }
-    }
-    await _loadAccountsProfileData();
-  }
-
-  void _invalidateAccountsCache() {
-    _lastAccountsLoadTime = null;
-  }
-
-  Future<void> _loadAccountsProfileData() async {
-    if (_isLoadingAccounts) return;
-    _isLoadingAccounts = true;
-
-    try {
-      final List<Account> accounts = await getAccounts();
-      final UserProfileDataNotifier userProfileDataNotifier = ref.read(
-        userProfileDataProvider.notifier,
-      );
-      final List<Future<ContactModel>> accountsProfileDataFutures =
-          accounts
-              .map((account) => userProfileDataNotifier.getUserProfileData(account.pubkey))
-              .toList();
-      final List<ContactModel> accountsProfileData = await Future.wait(accountsProfileDataFutures);
-
-      if (!mounted) return;
-      setState(() {
-        _accounts = accounts;
-        _accountsProfileData = accountsProfileData;
-        _lastAccountsLoadTime = DateTime.now();
-      });
-    } catch (e) {
-      if (mounted) {
-        ref.showErrorToast('Failed to load accounts');
-      }
-    } finally {
-      _isLoadingAccounts = false;
-    }
   }
 
   Future<void> _loadPackageInfo() async {
@@ -149,18 +76,13 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     bool isDismissible = true,
     bool showSuccessToast = false,
   }) async {
-    if (_accounts.isEmpty) {
-      await _loadAccountsProfileDataIfNeeded();
-    }
-
     if (!mounted) return;
 
     SwitchProfileBottomSheet.show(
       context: context,
-      profiles: _accountsProfileData,
       isDismissible: isDismissible,
       showSuccessToast: showSuccessToast,
-      onProfileSelected: (selectedProfile) async {
+      onProfileSelected: (ContactModel selectedProfile) async {
         await _switchAccount(selectedProfile.publicKey);
       },
     );
@@ -210,8 +132,6 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
     final authNotifier = ref.read(authProvider.notifier);
 
-    final hasMultipleAccounts = _accounts.length > 2;
-
     if (!mounted) return;
 
     // Clear all draft messages before logout
@@ -230,15 +150,19 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     }
 
     if (finalAuthState.isAuthenticated) {
-      if (hasMultipleAccounts) {
-        await _loadAccountsProfileData();
+      try {
+        final List<Account> accounts = await getAccounts();
+        final hasMultipleAccounts = accounts.length > 1;
 
-        if (mounted) {
-          await _showAccountSwitcher(isDismissible: false, showSuccessToast: true);
+        if (hasMultipleAccounts) {
+          if (mounted) {
+            await _showAccountSwitcher(isDismissible: false, showSuccessToast: true);
+          }
+        } else {
+          ref.showSuccessToast('Account signed out. Switched to the other available account.');
         }
-      } else {
-        ref.showSuccessToast('Account signed out. Switched to the other available account.');
-        await _loadAccountsProfileData();
+      } catch (e) {
+        ref.showErrorToast('Failed to check accounts after logout');
       }
     } else {
       ref.showSuccessToast('Signed out successfully.');

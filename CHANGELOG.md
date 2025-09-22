@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed profile image not showing up chatlist after login
 - Fixes auto-scroll to bottom when keyboard opens
 - Fixed time shown in messages to be in local time instead of UTC
+- Fixed account switcher error
 
 ### Security
 
