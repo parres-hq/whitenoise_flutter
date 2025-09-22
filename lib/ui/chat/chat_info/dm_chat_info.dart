@@ -151,7 +151,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                   context.pop();
                 },
               ),
-              Gap(12.h),
+              Gap(8.h),
               WnFilledButton(
                 size: WnButtonSize.small,
                 visualState:
@@ -170,7 +170,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 ),
                 onPressed: followState.isLoading ? null : () => _toggleFollow(otherUserPubkey),
               ),
-              Gap(12.h),
+              Gap(8.h),
               WnFilledButton(
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,

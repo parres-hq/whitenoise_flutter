@@ -99,7 +99,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                 visualState: WnButtonVisualState.secondary,
                 onPressed: _isCreatingAccount ? null : () => context.go('/login'),
               ),
-              Gap(4.h),
+              Gap(8.h),
               WnFilledButton(
                 label: 'Sign Up',
                 loading: _isCreatingAccount,

@@ -234,11 +234,9 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
         backgroundColor: context.colors.neutral,
         body: SafeArea(
           bottom: false,
-
           child: Column(
             children: [
               Gap(24.h),
-
               RepaintBoundary(
                 child: Row(
                   children: [
@@ -287,21 +285,18 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                               ),
                             ),
                             Gap(10.h),
-
                             WnFilledButton(
                               label: 'Publish new key package',
                               onPressed: _isLoading ? null : _publishKeyPackage,
                               loading: _isLoading,
                             ),
-                            Gap(12.h),
-
+                            Gap(8.h),
                             WnFilledButton(
                               label: 'Inspect relay key packages',
                               onPressed: _isLoading ? null : _fetchKeyPackages,
                               loading: _isLoading && !_showKeyPackages,
                             ),
-                            Gap(12.h),
-
+                            Gap(8.h),
                             WnFilledButton(
                               label: 'Delete all key packages from relays',
                               visualState: WnButtonVisualState.destructive,
@@ -314,7 +309,6 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                           ],
                         ),
                       ),
-
                       if (_showKeyPackages) ...[
                         Gap(24.h),
                         Text(
@@ -410,14 +404,11 @@ class _KeyPackageItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(16.w),
-
       // This reduces rasterization cost significantly
       decoration: BoxDecoration(
         color: context.colors.avatarSurface,
-
         borderRadius: BorderRadius.circular(8.r),
       ),
-
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(
@@ -471,7 +462,6 @@ class _KeyPackageItem extends StatelessWidget {
               ],
             ),
             SizedBox(height: 8.h),
-
             Text(
               'ID: ${keyPackage.id}',
               style: TextStyle(
