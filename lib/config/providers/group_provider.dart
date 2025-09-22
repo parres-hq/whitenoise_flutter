@@ -202,7 +202,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
       }
 
       // Check if this is a direct message (2 members only: current user + 1 other)
-      if (memberPublicKeyHexs.length == 1) {
+      // Only check for existing DMs when explicitly creating a DM
+      if (isDm && memberPublicKeyHexs.length == 1) {
         final otherUserPubkeyHex = memberPublicKeyHexs.first.trim();
         final existingDM = await _findExistingDirectMessage(otherUserPubkeyHex);
 
