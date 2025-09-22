@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
@@ -78,229 +79,233 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
         statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: context.colors.appBarBackground,
+        backgroundColor: context.colors.neutral,
+        appBar: WnAppBar(
+          automaticallyImplyLeading: false,
+          leading: RepaintBoundary(
+            child: IconButton(
+              onPressed: () => context.pop(),
+              icon: WnImage(
+                AssetsPaths.icChevronLeft,
+                width: 24.w,
+                height: 24.w,
+                color: context.colors.solidPrimary,
+              ),
+            ),
+          ),
+          title: RepaintBoundary(
+            child: Text(
+              'Profile Keys',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                color: context.colors.solidPrimary,
+              ),
+            ),
+          ),
+        ),
         body: SafeArea(
           bottom: false,
           child: ColoredBox(
             color: context.colors.neutral,
             child: Column(
               children: [
-                Gap(24.h),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => context.pop(),
-                      icon: WnImage(
-                        AssetsPaths.icChevronLeft,
-                        width: 24.w,
-                        height: 24.w,
-                        color: context.colors.primary,
-                      ),
-                    ),
-                    Text(
-                      'Profile Keys',
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.mutedForeground,
-                      ),
-                    ),
-                  ],
-                ),
-                Gap(29.h),
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            'Public Key',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.primary,
-                            ),
-                          ),
-                          Gap(10.h),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: WnTextFormField(
-                                  controller: _publicKeyController,
-                                  readOnly: true,
-                                  size: FieldSize.small,
-                                ),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24.h),
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(
+                              'Public Key',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.primary,
                               ),
-                              Gap(4.w),
-                              WnIconButton(
-                                onTap: _copyPublicKey,
-                                iconPath: AssetsPaths.icCopy,
-                                size: 44.h,
-                                padding: 14.w,
-                              ),
-                            ],
-                          ),
-                          Gap(12.h),
-                          Text(
-                            'Your public key is your unique identifier in the Nostr network, enabling others to verify and recognize your messages. Share it openly!',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.mutedForeground,
                             ),
-                          ),
-                          Gap(36.h),
-                          Text(
-                            'Private Key',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.primary,
-                            ),
-                          ),
-                          Gap(10.h),
-                          if (nostrKeys.isLoading)
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                SizedBox(
-                                  height: 20.h,
-                                  width: 20.w,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      context.colors.mutedForeground,
-                                    ),
-                                  ),
-                                ),
-                                Gap(12.w),
-                                Text(
-                                  'Loading private key...',
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: context.colors.mutedForeground,
-                                  ),
-                                ),
-                              ],
-                            )
-                          else if (nostrKeys.error != null)
-                            Center(
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  WnImage(
-                                    AssetsPaths.icErrorFilled,
-                                    color: context.colors.destructive,
-
-                                    size: 20.w,
-                                  ),
-                                  Gap(12.w),
-                                  Expanded(
-                                    child: Text(
-                                      'Error loading private key: ${nostrKeys.error}',
-                                      style: TextStyle(
-                                        fontSize: 14.sp,
-                                        color: context.colors.destructive,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          else
+                            Gap(10.h),
                             Row(
                               children: [
                                 Expanded(
                                   child: WnTextFormField(
-                                    controller: _privateKeyController,
+                                    controller: _publicKeyController,
                                     readOnly: true,
-                                    obscureText: _obscurePrivateKey,
                                     size: FieldSize.small,
-                                    decoration: InputDecoration(
-                                      suffixIcon: IconButton(
-                                        onPressed: _togglePrivateKeyVisibility,
-                                        icon: WnImage(
-                                          _obscurePrivateKey
-                                              ? AssetsPaths.icEye
-                                              : AssetsPaths.icEyeOff,
-                                          size: _obscurePrivateKey ? 16.w : 19.w,
-                                          color: context.colors.primary,
-                                        ),
-                                      ),
-                                    ),
                                   ),
                                 ),
                                 Gap(4.w),
                                 WnIconButton(
-                                  onTap: _copyPrivateKey,
+                                  onTap: _copyPublicKey,
                                   iconPath: AssetsPaths.icCopy,
                                   size: 44.h,
                                   padding: 14.w,
                                 ),
                               ],
                             ),
-                          Gap(10.h),
-                          Text(
-                            'Private key works like a secret password that grants access to your Nostr identity.',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.mutedForeground,
-                            ),
-                          ),
-                          Gap(12.h),
-                          Container(
-                            padding: EdgeInsets.all(16.w),
-                            decoration: BoxDecoration(
-                              color: context.colors.destructive.withValues(alpha: 0.1),
-                              border: Border.all(
-                                color: context.colors.destructive,
-                                width: 1.w,
+                            Gap(12.h),
+                            Text(
+                              'Your public key is your unique identifier in the Nostr network, enabling others to verify and recognize your messages. Share it openly!',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.mutedForeground,
                               ),
                             ),
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Padding(
-                                  padding: EdgeInsets.only(top: 4.w),
-                                  child: WnImage(
-                                    AssetsPaths.icWarning,
-                                    size: 16.w,
-                                    color: context.colors.destructive,
-                                  ),
-                                ),
-                                Gap(12.w),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Keep your private key safe!',
-                                        style: TextStyle(
-                                          fontSize: 16.sp,
-                                          fontWeight: FontWeight.w600,
-                                          color: context.colors.primary,
-                                        ),
+                            Gap(36.h),
+                            Text(
+                              'Private Key',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.primary,
+                              ),
+                            ),
+                            Gap(10.h),
+                            if (nostrKeys.isLoading)
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SizedBox(
+                                    height: 20.h,
+                                    width: 20.w,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        context.colors.mutedForeground,
                                       ),
-                                      Gap(8.h),
-                                      Text(
-                                        'Don\'t share your private key publicly, and use it only to log in to other Nostr apps.',
+                                    ),
+                                  ),
+                                  Gap(12.w),
+                                  Text(
+                                    'Loading private key...',
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      color: context.colors.mutedForeground,
+                                    ),
+                                  ),
+                                ],
+                              )
+                            else if (nostrKeys.error != null)
+                              Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    WnImage(
+                                      AssetsPaths.icErrorFilled,
+                                      color: context.colors.destructive,
+
+                                      size: 20.w,
+                                    ),
+                                    Gap(12.w),
+                                    Expanded(
+                                      child: Text(
+                                        'Error loading private key: ${nostrKeys.error}',
                                         style: TextStyle(
                                           fontSize: 14.sp,
-                                          fontWeight: FontWeight.w500,
-                                          color: context.colors.primary,
+                                          color: context.colors.destructive,
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              )
+                            else
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: WnTextFormField(
+                                      controller: _privateKeyController,
+                                      readOnly: true,
+                                      obscureText: _obscurePrivateKey,
+                                      size: FieldSize.small,
+                                      decoration: InputDecoration(
+                                        suffixIcon: IconButton(
+                                          onPressed: _togglePrivateKeyVisibility,
+                                          icon: WnImage(
+                                            _obscurePrivateKey
+                                                ? AssetsPaths.icEye
+                                                : AssetsPaths.icEyeOff,
+                                            size: _obscurePrivateKey ? 16.w : 19.w,
+                                            color: context.colors.primary,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Gap(4.w),
+                                  WnIconButton(
+                                    onTap: _copyPrivateKey,
+                                    iconPath: AssetsPaths.icCopy,
+                                    size: 44.h,
+                                    padding: 14.w,
+                                  ),
+                                ],
+                              ),
+                            Gap(10.h),
+                            Text(
+                              'Private key works like a secret password that grants access to your Nostr identity.',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.mutedForeground,
+                              ),
                             ),
-                          ),
-                          Gap(24.h),
-                        ],
+                            Gap(12.h),
+                            Container(
+                              padding: EdgeInsets.all(16.w),
+                              decoration: BoxDecoration(
+                                color: context.colors.destructive.withValues(alpha: 0.1),
+                                border: Border.all(
+                                  color: context.colors.destructive,
+                                  width: 1.w,
+                                ),
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Padding(
+                                    padding: EdgeInsets.only(top: 4.w),
+                                    child: WnImage(
+                                      AssetsPaths.icWarning,
+                                      size: 16.w,
+                                      color: context.colors.destructive,
+                                    ),
+                                  ),
+                                  Gap(12.w),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Keep your private key safe!',
+                                          style: TextStyle(
+                                            fontSize: 16.sp,
+                                            fontWeight: FontWeight.w600,
+                                            color: context.colors.primary,
+                                          ),
+                                        ),
+                                        Gap(8.h),
+                                        Text(
+                                          'Don\'t share your private key publicly, and use it only to log in to other Nostr apps.',
+                                          style: TextStyle(
+                                            fontSize: 14.sp,
+                                            fontWeight: FontWeight.w500,
+                                            color: context.colors.primary,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Gap(24.h),
+                          ],
+                        ),
                       ),
                     ),
                   ),
