@@ -43,9 +43,7 @@ generate_apk_hash() {
 
     # Check if apksigner is available
     if ! command -v apksigner &> /dev/null; then
-        print_warning "apksigner not found - trying to locate in Android SDK"
-
-        # Try to find apksigner in Android SDK
+        # Try to find apksigner in Android SDK (quietly)
         if [ -n "$ANDROID_HOME" ]; then
             # Find the latest build-tools version
             BUILD_TOOLS_DIR="$ANDROID_HOME/build-tools"
@@ -53,25 +51,18 @@ generate_apk_hash() {
                 LATEST_BUILD_TOOLS=$(ls "$BUILD_TOOLS_DIR" | sort -V | tail -n 1)
                 if [ -n "$LATEST_BUILD_TOOLS" ] && [ -f "$BUILD_TOOLS_DIR/$LATEST_BUILD_TOOLS/apksigner" ]; then
                     APKSIGNER="$BUILD_TOOLS_DIR/$LATEST_BUILD_TOOLS/apksigner"
-                    print_info "Found apksigner at: $APKSIGNER"
                 else
-                    print_warning "apksigner not found in Android SDK build-tools. Skipping hash generation for $apk_name"
                     return 1
                 fi
             else
-                print_warning "Android SDK build-tools not found. Skipping hash generation for $apk_name"
                 return 1
             fi
         else
-            print_warning "ANDROID_HOME not set. Skipping hash generation for $apk_name"
             return 1
         fi
     else
         APKSIGNER="apksigner"
     fi
-
-    # Generate hash using apksigner
-    print_info "Generating SHA-256 hash for $apk_name..."
 
     # Use apksigner to verify and get certificate fingerprint
     local hash_output
@@ -80,14 +71,11 @@ generate_apk_hash() {
     if [ -n "$hash_output" ]; then
         # Extract just the hash value
         local hash_value=$(echo "$hash_output" | sed 's/.*SHA-256 digest: //' | tr -d ' ')
-        print_success "SHA-256: $hash_value"
         echo "$hash_value"
         return 0
     else
-        print_warning "Could not generate SHA-256 hash for $apk_name (APK may be unsigned)"
         # Fallback to file hash if apksigner fails
         local file_hash=$(shasum -a 256 "$apk_path" | cut -d' ' -f1)
-        print_info "File SHA-256: $file_hash"
         echo "$file_hash"
         return 0
     fi
@@ -358,11 +346,19 @@ if [ "$BUILD_ANDROID" = true ]; then
         ARMV7_HASH=""
 
         if [ -f "$ARM64_APK_PATH" ]; then
+            print_info "Generating SHA-256 hash for arm64-v8a..."
             ARM64_HASH=$(generate_apk_hash "$ARM64_APK_PATH" "arm64-v8a")
+            if [ -n "$ARM64_HASH" ]; then
+                print_success "SHA-256: $ARM64_HASH"
+            fi
         fi
 
         if [ -f "$ARMV7_APK_PATH" ]; then
+            print_info "Generating SHA-256 hash for armeabi-v7a..."
             ARMV7_HASH=$(generate_apk_hash "$ARMV7_APK_PATH" "armeabi-v7a")
+            if [ -n "$ARMV7_HASH" ]; then
+                print_success "SHA-256: $ARMV7_HASH"
+            fi
         fi
 
 
@@ -429,11 +425,19 @@ if [ "$BUILD_ANDROID" = true ]; then
         ARMV7_DEBUG_HASH=""
 
         if [ -f "$ARM64_DEBUG_APK" ]; then
+            print_info "Generating SHA-256 hash for arm64-v8a-debug..."
             ARM64_DEBUG_HASH=$(generate_apk_hash "$ARM64_DEBUG_APK" "arm64-v8a-debug")
+            if [ -n "$ARM64_DEBUG_HASH" ]; then
+                print_success "SHA-256: $ARM64_DEBUG_HASH"
+            fi
         fi
 
         if [ -f "$ARMV7_DEBUG_APK" ]; then
+            print_info "Generating SHA-256 hash for armeabi-v7a-debug..."
             ARMV7_DEBUG_HASH=$(generate_apk_hash "$ARMV7_DEBUG_APK" "armeabi-v7a-debug")
+            if [ -n "$ARMV7_DEBUG_HASH" ]; then
+                print_success "SHA-256: $ARMV7_DEBUG_HASH"
+            fi
         fi
 
         if [ "$VERSIONED_OUTPUT" = true ]; then
@@ -491,15 +495,32 @@ if [ "$BUILD_IOS" = true ]; then
 
         if [ "$BUILD_TYPE" = "release" ]; then
             # Try to build IPA, fall back to app bundle
-            if flutter build ipa --release --verbose 2>/dev/null; then
-                IPA_PATH=$(find build/ios/archive -name "*.ipa" -type f | head -n 1)
-                if [ -n "$IPA_PATH" ] && [ "$VERSIONED_OUTPUT" = true ]; then
-                    cp "$IPA_PATH" "$OUTPUT_DIR/whitenoise-${VERSION_NAME}.ipa"
-                    print_success "iOS IPA: $OUTPUT_DIR/whitenoise-${VERSION_NAME}.ipa"
-                elif [ -n "$IPA_PATH" ]; then
-                    print_success "iOS IPA: $IPA_PATH"
+            print_info "Building iOS IPA..."
+            if flutter build ipa --release --verbose; then
+                print_info "IPA build completed, searching for IPA file..."
+                # Look for IPA file in multiple possible locations
+                IPA_SEARCH_DIRS=("build/ios/archive" "build/ios/ipa" "build/ios")
+                IPA_PATH=""
+
+                for search_dir in "${IPA_SEARCH_DIRS[@]}"; do
+                    if [ -d "$search_dir" ]; then
+                        IPA_PATH=$(find "$search_dir" -name "*.ipa" -type f | head -n 1)
+                        if [ -n "$IPA_PATH" ]; then
+                            print_info "Found IPA at: $IPA_PATH"
+                            break
+                        fi
+                    fi
+                done
+
+                if [ -n "$IPA_PATH" ]; then
+                    if [ "$VERSIONED_OUTPUT" = true ]; then
+                        cp "$IPA_PATH" "$OUTPUT_DIR/whitenoise-${VERSION_NAME}+${BUILD_NUMBER}.ipa"
+                        print_success "iOS IPA: $OUTPUT_DIR/whitenoise-${VERSION_NAME}+${BUILD_NUMBER}.ipa"
+                    else
+                        print_success "iOS IPA: $IPA_PATH"
+                    fi
                 else
-                    print_warning "IPA creation failed, building app bundle instead"
+                    print_warning "IPA file not found after successful build, falling back to app bundle"
                     flutter build ios --release --verbose
                     print_success "iOS app bundle: build/ios/iphoneos/Runner.app"
                 fi
@@ -579,8 +600,8 @@ EOF
     fi
 
     if [ "$BUILD_IOS" = true ] && [[ "$OSTYPE" == "darwin"* ]]; then
-        if [ -f "$OUTPUT_DIR/whitenoise-${VERSION_NAME}.ipa" ]; then
-            echo "- whitenoise-${VERSION_NAME}.ipa" >> "$OUTPUT_DIR/build_info.txt"
+        if [ -f "$OUTPUT_DIR/whitenoise-${VERSION_NAME}+${BUILD_NUMBER}.ipa" ]; then
+            echo "- whitenoise-${VERSION_NAME}+${BUILD_NUMBER}.ipa" >> "$OUTPUT_DIR/build_info.txt"
         fi
     fi
 fi
