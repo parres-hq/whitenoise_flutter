@@ -246,7 +246,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
                         label: 'Discard Changes',
                         visualState: WnButtonVisualState.secondary,
                       ),
-                      Gap(4.h),
+                      Gap(8.h),
                       WnFilledButton(
                         onPressed: _hasChanges && !_isLoading ? _saveChanges : null,
                         loading: _isLoading,
