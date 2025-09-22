@@ -323,6 +323,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
     return ListView.builder(
       controller: _scrollController,
+      padding: EdgeInsets.zero,
       itemCount: totalItems,
       itemBuilder: (context, index) {
         int currentIndex = 0;
@@ -517,23 +518,22 @@ class NewChatTile extends StatelessWidget {
             WnImage(
               iconPath,
               color: context.colors.primary,
-              size: 16.w,
+              size: 20.w,
             ),
-            Gap(10.w),
+            Gap(12.w),
             Text(
               title,
               style: TextStyle(
                 color: context.colors.primary,
-                fontSize: 14.sp,
-                fontWeight: FontWeight.w600,
+                fontSize: 16.sp,
               ),
             ),
-            Gap(8.w),
+            Gap(12.w),
             WnImage(
               AssetsPaths.icChevronRight,
               color: context.colors.primary,
-              width: 5.7.w,
-              height: 10.w,
+              width: 6.w,
+              height: 12.w,
             ),
           ],
         ),
