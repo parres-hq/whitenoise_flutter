@@ -7,6 +7,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
+import 'package:whitenoise/config/providers/delayed_relay_error_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
@@ -289,12 +290,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                   (item.lastMessage?.content?.toLowerCase().contains(searchLower) ?? false);
             }).toList();
 
-    final allRelayTypesConnectionAsync = ref.watch(allRelayTypesConnectionProvider);
-    final notAllRelayTypesConnected = allRelayTypesConnectionAsync.when(
-      data: (allConnected) => !allConnected,
-      loading: () => true,
-      error: (_, _) => true,
-    );
+    final delayedRelayErrorState = ref.watch(delayedRelayErrorProvider);
+    final shouldShowRelayError = delayedRelayErrorState.shouldShowBanner;
 
     return GestureDetector(
       onTap: _unfocusSearchIfNeeded,
@@ -320,19 +317,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                   actions: [
                     IconButton(
                       onPressed:
-                          notAllRelayTypesConnected
+                          shouldShowRelayError
                               ? null
                               : () {
                                 _unfocusSearchIfNeeded();
                                 NewChatBottomSheet.show(context);
                               },
                       icon: WnImage(
-                        notAllRelayTypesConnected
-                            ? AssetsPaths.icOffChat
-                            : AssetsPaths.icAddNewChat,
+                        shouldShowRelayError ? AssetsPaths.icOffChat : AssetsPaths.icAddNewChat,
                         size: 21.w,
                         color: context.colors.solidNeutralWhite.withValues(
-                          alpha: notAllRelayTypesConnected ? 0.5 : 1.0,
+                          alpha: shouldShowRelayError ? 0.5 : 1.0,
                         ),
                       ),
                     ),
@@ -341,7 +336,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                   pinned: true,
                 ),
 
-                if (notAllRelayTypesConnected)
+                if (shouldShowRelayError)
                   SliverToBoxAdapter(
                     child: SizedBox(height: 100.h),
                   ),
@@ -438,7 +433,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                             ).animate().fade(),
                       ),
                     ),
-
                   SliverPadding(
                     padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
                     sliver: SliverList.separated(
@@ -461,7 +455,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
               ],
             ),
 
-            if (notAllRelayTypesConnected)
+            if (shouldShowRelayError)
               Positioned(
                 top: 64.h + kToolbarHeight,
                 left: 0,
