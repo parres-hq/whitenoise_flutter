@@ -223,43 +223,43 @@ class AppSettingsScreen extends ConsumerWidget {
                           right: 16.w,
                           bottom: 24.w,
                         ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Theme',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.primary,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Theme',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.primary,
+                              ),
                             ),
-                          ),
-                          Gap(10.h),
-                          _ThemeDropdown(
-                            currentTheme: themeMode,
-                            onThemeChanged: (newMode) {
-                              ref.read(themeProvider.notifier).setThemeMode(newMode);
-                            },
-                          ),
-                          Gap(16.h),
-                          Text(
-                            'Danger Zone',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.primary,
+                            Gap(10.h),
+                            _ThemeDropdown(
+                              currentTheme: themeMode,
+                              onThemeChanged: (newMode) {
+                                ref.read(themeProvider.notifier).setThemeMode(newMode);
+                              },
                             ),
-                          ),
-                          Gap(10.h),
-                          WnFilledButton(
-                            label: 'Delete All Data',
-                            labelTextStyle: WnButtonSize.large.textStyle().copyWith(
-                              color: context.colors.solidNeutralWhite,
+                            Gap(16.h),
+                            Text(
+                              'Danger Zone',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.primary,
+                              ),
                             ),
-                            visualState: WnButtonVisualState.destructive,
-                            onPressed: () => _deleteAllData(context, ref),
-                          ),
-                        ],
+                            Gap(10.h),
+                            WnFilledButton(
+                              label: 'Delete All Data',
+                              labelTextStyle: WnButtonSize.large.textStyle().copyWith(
+                                color: context.colors.solidNeutralWhite,
+                              ),
+                              visualState: WnButtonVisualState.destructive,
+                              onPressed: () => _deleteAllData(context, ref),
+                            ),
+                          ],
                         ),
                       ),
                     ),
