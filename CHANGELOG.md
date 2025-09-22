@@ -19,10 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Improved chat title tap area for easier navigation to contact info
+- Optimized relay connection error banner with intelligent 30-second delay and immediate dismissal on reconnection
 
 ### Deprecated
 
 ### Removed
+- Removed relay pull-to-refresh
 
 ### Fixed
 - Fixed get user logic, to show metadata when searching a new npub

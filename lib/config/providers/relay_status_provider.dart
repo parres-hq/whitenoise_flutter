@@ -189,9 +189,7 @@ final relayStatusProvider = NotifierProvider<RelayStatusNotifier, RelayStatusSta
   RelayStatusNotifier.new,
 );
 
-// Provider for checking if all relay types have at least one connected relay
 final allRelayTypesConnectionProvider = FutureProvider<bool>((ref) async {
-  // Watch the relay status provider to trigger rebuilds when statuses change
   ref.watch(relayStatusProvider);
 
   final notifier = ref.read(relayStatusProvider.notifier);

@@ -448,7 +448,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                             ).animate().fade(),
                       ),
                     ),
-
                   SliverPadding(
                     padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
                     sliver: SliverList.separated(
@@ -470,7 +469,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                 ],
               ],
             ),
-
             if (chatItems.isNotEmpty)
               Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const WnBottomFade()),
           ],
