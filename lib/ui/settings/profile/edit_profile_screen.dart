@@ -9,6 +9,7 @@ import 'package:whitenoise/config/providers/edit_profile_screen_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
@@ -93,7 +94,31 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
         statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: context.colors.appBarBackground,
+        backgroundColor: context.colors.neutral,
+        appBar: WnAppBar(
+          automaticallyImplyLeading: false,
+          leading: RepaintBoundary(
+            child: IconButton(
+              onPressed: () => context.pop(),
+              icon: WnImage(
+                AssetsPaths.icChevronLeft,
+                width: 24.w,
+                height: 24.w,
+                color: context.colors.solidPrimary,
+              ),
+            ),
+          ),
+          title: RepaintBoundary(
+            child: Text(
+              'Edit Profile',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                color: context.colors.solidPrimary,
+              ),
+            ),
+          ),
+        ),
         body: SafeArea(
           bottom: false,
           child: ColoredBox(
@@ -110,33 +135,12 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
               data:
                   (profile) => Column(
                     children: [
-                      Gap(24.h),
-                      Row(
-                        children: [
-                          IconButton(
-                            onPressed: () => context.pop(),
-                            icon: WnImage(
-                              AssetsPaths.icChevronLeft,
-                              width: 24.w,
-                              height: 24.w,
-                              color: context.colors.primary,
-                            ),
-                          ),
-                          Text(
-                            'Edit Profile',
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.mutedForeground,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Gap(29.h),
                       Expanded(
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24.h),
+                          child: SingleChildScrollView(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
@@ -238,6 +242,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                 ),
                                 Gap(16.h),
                               ],
+                              ),
                             ),
                           ),
                         ),

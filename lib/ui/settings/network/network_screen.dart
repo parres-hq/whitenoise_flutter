@@ -7,6 +7,7 @@ import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_section.dart';
@@ -125,22 +126,40 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
             });
           },
           child: Scaffold(
-            backgroundColor: context.colors.appBarBackground,
+            backgroundColor: context.colors.neutral,
+            appBar: WnAppBar(
+              automaticallyImplyLeading: false,
+              leading: RepaintBoundary(
+                child: IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: WnImage(
+                    AssetsPaths.icChevronLeft,
+                    width: 24.w,
+                    height: 24.w,
+                    color: context.colors.solidPrimary,
+                  ),
+                ),
+              ),
+              title: RepaintBoundary(
+                child: Text(
+                  'Network Relays',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.solidPrimary,
+                  ),
+                ),
+              ),
+            ),
             body: SafeArea(
               bottom: false,
               child: ColoredBox(
                 color: context.colors.neutral,
                 child: Column(
                   children: [
-                    RepaintBoundary(
-                      child: _NetworkHeader(
-                        onBackPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ),
-                    SizedBox(height: 16.h),
                     Expanded(
                       child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w),
                         child: ListView(
                           padding: EdgeInsets.zero,
                           children: [
@@ -195,43 +214,6 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-/// Network header widget
-class _NetworkHeader extends StatelessWidget {
-  const _NetworkHeader({required this.onBackPressed});
-
-  final VoidCallback onBackPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(top: 24.h),
-      child: Row(
-        children: [
-          RepaintBoundary(
-            child: IconButton(
-              onPressed: onBackPressed,
-              icon: WnImage(
-                AssetsPaths.icChevronLeft,
-                width: 24.w,
-                height: 24.w,
-                color: context.colors.primary,
-              ),
-            ),
-          ),
-          Text(
-            'Network Relays',
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-              color: context.colors.mutedForeground,
-            ),
-          ),
-        ],
       ),
     );
   }

@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
@@ -78,40 +79,43 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
         statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: context.colors.appBarBackground,
+        backgroundColor: context.colors.neutral,
+        appBar: WnAppBar(
+          automaticallyImplyLeading: false,
+          leading: RepaintBoundary(
+            child: IconButton(
+              onPressed: () => context.pop(),
+              icon: WnImage(
+                AssetsPaths.icChevronLeft,
+                width: 24.w,
+                height: 24.w,
+                color: context.colors.solidPrimary,
+              ),
+            ),
+          ),
+          title: RepaintBoundary(
+            child: Text(
+              'Profile Keys',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                color: context.colors.solidPrimary,
+              ),
+            ),
+          ),
+        ),
         body: SafeArea(
           bottom: false,
           child: ColoredBox(
             color: context.colors.neutral,
             child: Column(
               children: [
-                Gap(24.h),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => context.pop(),
-                      icon: WnImage(
-                        AssetsPaths.icChevronLeft,
-                        width: 24.w,
-                        height: 24.w,
-                        color: context.colors.primary,
-                      ),
-                    ),
-                    Text(
-                      'Profile Keys',
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.mutedForeground,
-                      ),
-                    ),
-                  ],
-                ),
-                Gap(29.h),
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24.h),
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: <Widget>[
@@ -301,6 +305,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                           ),
                           Gap(24.h),
                         ],
+                        ),
                       ),
                     ),
                   ),
