@@ -9,6 +9,7 @@ import 'package:whitenoise/config/providers/edit_profile_screen_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
@@ -93,7 +94,31 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
         statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: context.colors.appBarBackground,
+        backgroundColor: context.colors.neutral,
+        appBar: WnAppBar(
+          automaticallyImplyLeading: false,
+          leading: RepaintBoundary(
+            child: IconButton(
+              onPressed: () => context.pop(),
+              icon: WnImage(
+                AssetsPaths.icChevronLeft,
+                width: 24.w,
+                height: 24.w,
+                color: context.colors.solidPrimary,
+              ),
+            ),
+          ),
+          title: RepaintBoundary(
+            child: Text(
+              'Edit Profile',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                color: context.colors.solidPrimary,
+              ),
+            ),
+          ),
+        ),
         body: SafeArea(
           bottom: false,
           child: ColoredBox(
@@ -110,134 +135,114 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
               data:
                   (profile) => Column(
                     children: [
-                      Gap(24.h),
-                      Row(
-                        children: [
-                          IconButton(
-                            onPressed: () => context.pop(),
-                            icon: WnImage(
-                              AssetsPaths.icChevronLeft,
-                              width: 24.w,
-                              height: 24.w,
-                              color: context.colors.primary,
-                            ),
-                          ),
-                          Text(
-                            'Edit Profile',
-                            style: TextStyle(
-                              fontSize: 18.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.mutedForeground,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Gap(29.h),
                       Expanded(
-                        child: SingleChildScrollView(
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Stack(
-                                  alignment: Alignment.bottomCenter,
-                                  children: [
-                                    ValueListenableBuilder<TextEditingValue>(
-                                      valueListenable: _displayNameController,
-                                      builder: (context, value, child) {
-                                        final imageUrl = _getProfileImageUrl(profile);
-                                        final displayName = value.text.trim();
-                                        return WnAvatar(
-                                          imageUrl: imageUrl,
-                                          displayName: displayName,
-                                          size: 96.w,
-                                          showBorder: imageUrl.isEmpty,
-                                        );
-                                      },
-                                    ),
-                                    Positioned(
-                                      left: 1.sw * 0.5,
-                                      bottom: 4.h,
-                                      width: 28.w,
-                                      child: EditIconWidget(
-                                        onTap: () async {
-                                          try {
-                                            await ref
-                                                .read(editProfileScreenProvider.notifier)
-                                                .pickProfileImage();
-                                          } catch (e) {
-                                            if (context.mounted) {
-                                              ref.showErrorToast('Failed to pick profile image');
-                                            }
-                                          }
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24.h),
+                          child: SingleChildScrollView(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: 16.w),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  Stack(
+                                    alignment: Alignment.bottomCenter,
+                                    children: [
+                                      ValueListenableBuilder<TextEditingValue>(
+                                        valueListenable: _displayNameController,
+                                        builder: (context, value, child) {
+                                          final imageUrl = _getProfileImageUrl(profile);
+                                          final displayName = value.text.trim();
+                                          return WnAvatar(
+                                            imageUrl: imageUrl,
+                                            displayName: displayName,
+                                            size: 96.w,
+                                            showBorder: imageUrl.isEmpty,
+                                          );
                                         },
                                       ),
+                                      Positioned(
+                                        left: 1.sw * 0.5,
+                                        bottom: 4.h,
+                                        width: 28.w,
+                                        child: EditIconWidget(
+                                          onTap: () async {
+                                            try {
+                                              await ref
+                                                  .read(editProfileScreenProvider.notifier)
+                                                  .pickProfileImage();
+                                            } catch (e) {
+                                              if (context.mounted) {
+                                                ref.showErrorToast('Failed to pick profile image');
+                                              }
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Gap(36.h),
+                                  Text(
+                                    'Profile Name',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14.sp,
+                                      color: context.colors.primary,
                                     ),
-                                  ],
-                                ),
-                                Gap(36.h),
-                                Text(
-                                  'Profile Name',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14.sp,
-                                    color: context.colors.primary,
                                   ),
-                                ),
-                                Gap(10.h),
-                                WnTextFormField(
-                                  controller: _displayNameController,
-                                  hintText: 'Trent Reznor',
-                                  onChanged: (value) {
-                                    ref
-                                        .read(editProfileScreenProvider.notifier)
-                                        .updateLocalProfile(displayName: value);
-                                  },
-                                ),
-                                Gap(36.h),
-                                Text(
-                                  'Nostr Address (NIP-05)',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14.sp,
-                                    color: context.colors.primary,
+                                  Gap(10.h),
+                                  WnTextFormField(
+                                    controller: _displayNameController,
+                                    hintText: 'Trent Reznor',
+                                    onChanged: (value) {
+                                      ref
+                                          .read(editProfileScreenProvider.notifier)
+                                          .updateLocalProfile(displayName: value);
+                                    },
                                   ),
-                                ),
-                                Gap(10.h),
-                                WnTextFormField(
-                                  controller: _nostrAddressController,
-                                  hintText: 'example@whitenoise.chat',
-                                  onChanged: (value) {
-                                    ref
-                                        .read(editProfileScreenProvider.notifier)
-                                        .updateLocalProfile(nip05: value);
-                                  },
-                                ),
-                                Gap(36.h),
-                                Text(
-                                  'About You',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14.sp,
-                                    color: context.colors.primary,
+                                  Gap(36.h),
+                                  Text(
+                                    'Nostr Address (NIP-05)',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14.sp,
+                                      color: context.colors.primary,
+                                    ),
                                   ),
-                                ),
-                                Gap(10.h),
-                                WnTextFormField(
-                                  controller: _aboutController,
-                                  hintText: 'Write something about yourself.',
-                                  minLines: 3,
-                                  maxLines: 3,
-                                  keyboardType: TextInputType.multiline,
-                                  onChanged: (value) {
-                                    ref
-                                        .read(editProfileScreenProvider.notifier)
-                                        .updateLocalProfile(about: value);
-                                  },
-                                ),
-                                Gap(16.h),
-                              ],
+                                  Gap(10.h),
+                                  WnTextFormField(
+                                    controller: _nostrAddressController,
+                                    hintText: 'example@whitenoise.chat',
+                                    onChanged: (value) {
+                                      ref
+                                          .read(editProfileScreenProvider.notifier)
+                                          .updateLocalProfile(nip05: value);
+                                    },
+                                  ),
+                                  Gap(36.h),
+                                  Text(
+                                    'About You',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14.sp,
+                                      color: context.colors.primary,
+                                    ),
+                                  ),
+                                  Gap(10.h),
+                                  WnTextFormField(
+                                    controller: _aboutController,
+                                    hintText: 'Write something about yourself.',
+                                    minLines: 3,
+                                    maxLines: 3,
+                                    keyboardType: TextInputType.multiline,
+                                    onChanged: (value) {
+                                      ref
+                                          .read(editProfileScreenProvider.notifier)
+                                          .updateLocalProfile(about: value);
+                                    },
+                                  ),
+                                  Gap(16.h),
+                                ],
+                              ),
                             ),
                           ),
                         ),
