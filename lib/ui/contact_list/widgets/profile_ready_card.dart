@@ -88,7 +88,6 @@ class ProfileReadyCard extends ConsumerWidget {
             ),
           ),
           Gap(24.h),
-          // Share Your Profile button
           WnFilledButton(
             label: 'Share Your Profile',
             onPressed: () => context.push('${Routes.settings}/share_profile'),
@@ -100,8 +99,7 @@ class ProfileReadyCard extends ConsumerWidget {
               color: context.colors.primary,
             ),
           ),
-          Gap(12.h),
-          // Search For Friends button
+          Gap(8.h),
           WnFilledButton(
             label: 'Search For Friends',
             onPressed: () {

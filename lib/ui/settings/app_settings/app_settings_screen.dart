@@ -5,6 +5,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
@@ -17,6 +18,7 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api.dart' as wn_api;
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
@@ -161,12 +163,7 @@ class AppSettingsScreen extends ConsumerWidget {
       if (!context.mounted) return;
 
       Navigator.of(context).pop(); // Close loading dialog
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Failed to delete data: $e'),
-          duration: const Duration(seconds: 5),
-        ),
-      );
+      ref.showErrorToast('Failed to delete data: $e', durationMs: 5000);
     }
   }
 
@@ -181,81 +178,85 @@ class AppSettingsScreen extends ConsumerWidget {
         statusBarBrightness: Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: context.colors.appBarBackground,
+        backgroundColor: context.colors.neutral,
+        appBar: WnAppBar(
+          automaticallyImplyLeading: false,
+          leading: RepaintBoundary(
+            child: IconButton(
+              onPressed: () => context.pop(),
+              icon: WnImage(
+                AssetsPaths.icChevronLeft,
+                width: 24.w,
+                height: 24.w,
+                color: context.colors.solidPrimary,
+              ),
+            ),
+          ),
+          title: RepaintBoundary(
+            child: Text(
+              'App Settings',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                color: context.colors.solidPrimary,
+              ),
+            ),
+          ),
+        ),
         body: SafeArea(
           bottom: false,
           child: ColoredBox(
             color: context.colors.neutral,
             child: Column(
               children: [
-                Gap(24.h),
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () => context.pop(),
-                      icon: WnImage(
-                        AssetsPaths.icChevronLeft,
-                        width: 24.w,
-                        height: 24.w,
-                        color: context.colors.primary,
-                      ),
-                    ),
-                    Text(
-                      'App Settings',
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.mutedForeground,
-                      ),
-                    ),
-                  ],
-                ),
-                Gap(29.h),
                 Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: EdgeInsets.only(
-                        left: 16.w,
-                        right: 16.w,
-                        bottom: 24.w,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Theme',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.primary,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24.h),
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          left: 16.w,
+                          right: 16.w,
+                          bottom: 24.w,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Theme',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.primary,
+                              ),
                             ),
-                          ),
-                          Gap(10.h),
-                          _ThemeDropdown(
-                            currentTheme: themeMode,
-                            onThemeChanged: (newMode) {
-                              ref.read(themeProvider.notifier).setThemeMode(newMode);
-                            },
-                          ),
-                          Gap(16.h),
-                          Text(
-                            'Danger Zone',
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.primary,
+                            Gap(10.h),
+                            _ThemeDropdown(
+                              currentTheme: themeMode,
+                              onThemeChanged: (newMode) {
+                                ref.read(themeProvider.notifier).setThemeMode(newMode);
+                              },
                             ),
-                          ),
-                          Gap(10.h),
-                          WnFilledButton(
-                            label: 'Delete All Data',
-                            labelTextStyle: WnButtonSize.large.textStyle().copyWith(
-                              color: context.colors.solidNeutralWhite,
+                            Gap(16.h),
+                            Text(
+                              'Danger Zone',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.primary,
+                              ),
                             ),
-                            visualState: WnButtonVisualState.destructive,
-                            onPressed: () => _deleteAllData(context, ref),
-                          ),
-                        ],
+                            Gap(10.h),
+                            WnFilledButton(
+                              label: 'Delete All Data',
+                              labelTextStyle: WnButtonSize.large.textStyle().copyWith(
+                                color: context.colors.solidNeutralWhite,
+                              ),
+                              visualState: WnButtonVisualState.destructive,
+                              onPressed: () => _deleteAllData(context, ref),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
