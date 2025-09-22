@@ -335,10 +335,25 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                   ],
                   pinned: true,
                 ),
-
                 if (shouldShowRelayError)
                   SliverToBoxAdapter(
-                    child: SizedBox(height: 100.h),
+                    child:
+                        WnHeadsUp(
+                          title: 'No Relays Connected',
+                          subtitle: 'The app won\'t work until you add at least one.',
+                          action: InkWell(
+                            child: Text(
+                              'Connect Relays',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: context.colors.primary,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
+                              ),
+                            ),
+                            onTap: () => context.push(Routes.settingsNetwork),
+                          ),
+                        ).animate().fadeIn(),
                   ),
 
                 if (chatItems.isEmpty)
@@ -454,31 +469,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                 ],
               ],
             ),
-
-            if (shouldShowRelayError)
-              Positioned(
-                top: 64.h + kToolbarHeight,
-                left: 0,
-                right: 0,
-                child:
-                    WnHeadsUp(
-                      title: 'No Relays Connected',
-                      subtitle: 'The app won\'t work until you add at least one.',
-                      action: InkWell(
-                        child: Text(
-                          'Connect Relays',
-                          style: TextStyle(
-                            fontSize: 14.sp,
-                            color: context.colors.primary,
-                            fontWeight: FontWeight.w600,
-                            decoration: TextDecoration.underline,
-                          ),
-                        ),
-                        onTap: () => context.push(Routes.settingsNetwork),
-                      ),
-                    ).animate().fadeIn(),
-              ),
-
             if (chatItems.isNotEmpty)
               Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const WnBottomFade()),
           ],
