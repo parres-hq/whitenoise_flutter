@@ -230,7 +230,7 @@ if [ "$VERSIONED_OUTPUT" = true ]; then
     if [ -n "$CUSTOM_OUTPUT_DIR" ]; then
         OUTPUT_DIR="$CUSTOM_OUTPUT_DIR"
     else
-        OUTPUT_DIR="build/releases/v$VERSION_NAME"
+        OUTPUT_DIR="build/releases/v$VERSION_NAME+$BUILD_NUMBER"
     fi
     print_info "Output Directory: $OUTPUT_DIR"
 fi
@@ -345,10 +345,10 @@ if [ "$BUILD_ANDROID" = true ]; then
     if [ "$BUILD_TYPE" = "release" ]; then
         flutter build apk --split-per-abi --release
 
-        # Handle output files
-        ARM64_APK_PATH="build/app/outputs/flutter-apk/whitenoise-arm64-v8a-release.apk"
-        ARMV7_APK_PATH="build/app/outputs/flutter-apk/whitenoise-armeabi-v7a-release.apk"
-        X86_64_APK_PATH="build/app/outputs/flutter-apk/whitenoise-x86_64-release.apk"
+        # Handle output files - Find APK files dynamically
+        APK_DIR="build/app/outputs/flutter-apk"
+        ARM64_APK_PATH=$(find "$APK_DIR" -name "*arm64-v8a-release.apk" -type f | head -n 1)
+        ARMV7_APK_PATH=$(find "$APK_DIR" -name "*armeabi-v7a-release.apk" -type f | head -n 1)
 
         # Generate SHA-256 hashes
         print_step "🔐 Generating SHA-256 hashes"
@@ -356,7 +356,6 @@ if [ "$BUILD_ANDROID" = true ]; then
         # Store hashes for build_info.txt
         ARM64_HASH=""
         ARMV7_HASH=""
-        X86_64_HASH=""
 
         if [ -f "$ARM64_APK_PATH" ]; then
             ARM64_HASH=$(generate_apk_hash "$ARM64_APK_PATH" "arm64-v8a")
@@ -366,9 +365,6 @@ if [ "$BUILD_ANDROID" = true ]; then
             ARMV7_HASH=$(generate_apk_hash "$ARMV7_APK_PATH" "armeabi-v7a")
         fi
 
-        if [ -f "$X86_64_APK_PATH" ]; then
-            X86_64_HASH=$(generate_apk_hash "$X86_64_APK_PATH" "x86_64")
-        fi
 
         if [ "$VERSIONED_OUTPUT" = true ]; then
             # Copy with versioned names and create hash files
@@ -382,7 +378,7 @@ if [ "$BUILD_ANDROID" = true ]; then
                     print_info "  Hash file: $OUTPUT_DIR/whitenoise-${VERSION_NAME}-arm64-v8a.apk.sha256"
                 fi
             else
-                print_error "ARM64 APK not found at: $ARM64_APK_PATH"
+                print_error "ARM64 APK not found in: $APK_DIR"
             fi
 
             if [ -f "$ARMV7_APK_PATH" ]; then
@@ -398,18 +394,6 @@ if [ "$BUILD_ANDROID" = true ]; then
                 print_warning "ARMv7 APK not found (normal for newer devices)"
             fi
 
-            if [ -f "$X86_64_APK_PATH" ]; then
-                cp "$X86_64_APK_PATH" "$OUTPUT_DIR/whitenoise-${VERSION_NAME}-x86_64.apk"
-                print_success "x86_64 APK: $OUTPUT_DIR/whitenoise-${VERSION_NAME}-x86_64.apk"
-                if [ -n "$X86_64_HASH" ]; then
-                    print_info "  SHA-256: $X86_64_HASH"
-                    # Create hash file
-                    echo "$X86_64_HASH  whitenoise-${VERSION_NAME}-x86_64.apk" > "$OUTPUT_DIR/whitenoise-${VERSION_NAME}-x86_64.apk.sha256"
-                    print_info "  Hash file: $OUTPUT_DIR/whitenoise-${VERSION_NAME}-x86_64.apk.sha256"
-                fi
-            else
-                print_warning "x86_64 APK not found (normal if not building for emulators)"
-            fi
         else
             # Show default locations
             if [ -f "$ARM64_APK_PATH" ]; then
@@ -418,7 +402,7 @@ if [ "$BUILD_ANDROID" = true ]; then
                     print_info "  SHA-256: $ARM64_HASH"
                 fi
             else
-                print_error "ARM64 APK not found at: $ARM64_APK_PATH"
+                print_error "ARM64 APK not found in: $APK_DIR"
             fi
 
             if [ -f "$ARMV7_APK_PATH" ]; then
@@ -430,20 +414,13 @@ if [ "$BUILD_ANDROID" = true ]; then
                 print_warning "ARMv7 APK not found (normal for newer devices)"
             fi
 
-            if [ -f "$X86_64_APK_PATH" ]; then
-                print_success "x86_64 APK (Emulator): $X86_64_APK_PATH"
-                if [ -n "$X86_64_HASH" ]; then
-                    print_info "  SHA-256: $X86_64_HASH"
-                fi
-            else
-                print_warning "x86_64 APK not found (normal if not building for emulators)"
-            fi
         fi
     else
         flutter build apk --split-per-abi --debug --verbose
 
-        ARM64_DEBUG_APK="build/app/outputs/flutter-apk/whitenoise-arm64-v8a-debug.apk"
-        ARMV7_DEBUG_APK="build/app/outputs/flutter-apk/whitenoise-armeabi-v7a-debug.apk"
+        # Find debug APK files dynamically
+        ARM64_DEBUG_APK=$(find "$APK_DIR" -name "*arm64-v8a-debug.apk" -type f | head -n 1)
+        ARMV7_DEBUG_APK=$(find "$APK_DIR" -name "*armeabi-v7a-debug.apk" -type f | head -n 1)
 
         # Generate SHA-256 hashes for debug builds
         print_step "🔐 Generating SHA-256 hashes for debug builds"
@@ -470,7 +447,7 @@ if [ "$BUILD_ANDROID" = true ]; then
                     print_info "  Hash file: $OUTPUT_DIR/whitenoise-${VERSION_NAME}-arm64-v8a-debug.apk.sha256"
                 fi
             else
-                print_error "ARM64 debug APK not found"
+                print_error "ARM64 debug APK not found in: $APK_DIR"
             fi
 
             if [ -f "$ARMV7_DEBUG_APK" ]; then
@@ -492,7 +469,7 @@ if [ "$BUILD_ANDROID" = true ]; then
                     print_info "  SHA-256: $ARM64_DEBUG_HASH"
                 fi
             else
-                print_error "ARM64 debug APK not found"
+                print_error "ARM64 debug APK not found in: $APK_DIR"
             fi
 
             if [ -f "$ARMV7_DEBUG_APK" ]; then
@@ -551,7 +528,7 @@ Version: $VERSION_NAME
 Build Number: $BUILD_NUMBER
 Full Version: $FULL_VERSION
 Build Type: $BUILD_TYPE
-Build Date: $(date)
+Build Date: $(date -u '+%Y-%m-%d %H:%M:%S UTC')
 Git Commit: $(git rev-parse --short HEAD 2>/dev/null || echo "Unknown")
 Git Branch: $(git branch --show-current 2>/dev/null || echo "Unknown")
 
@@ -576,15 +553,6 @@ EOF
                     echo "  SHA-256: $ARMV7_HASH" >> "$OUTPUT_DIR/build_info.txt"
                     if [ -f "$OUTPUT_DIR/whitenoise-${VERSION_NAME}-armeabi-v7a.apk.sha256" ]; then
                         echo "  Hash file: whitenoise-${VERSION_NAME}-armeabi-v7a.apk.sha256" >> "$OUTPUT_DIR/build_info.txt"
-                    fi
-                fi
-            fi
-            if [ -f "$OUTPUT_DIR/whitenoise-${VERSION_NAME}-x86_64.apk" ]; then
-                echo "- whitenoise-${VERSION_NAME}-x86_64.apk (Emulator)" >> "$OUTPUT_DIR/build_info.txt"
-                if [ -n "$X86_64_HASH" ]; then
-                    echo "  SHA-256: $X86_64_HASH" >> "$OUTPUT_DIR/build_info.txt"
-                    if [ -f "$OUTPUT_DIR/whitenoise-${VERSION_NAME}-x86_64.apk.sha256" ]; then
-                        echo "  Hash file: whitenoise-${VERSION_NAME}-x86_64.apk.sha256" >> "$OUTPUT_DIR/build_info.txt"
                     fi
                 fi
             fi
