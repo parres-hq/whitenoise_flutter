@@ -127,7 +127,7 @@ class ChatDialogService {
               } else if (menuItem.label == 'Copy') {
                 ClipboardUtils.copyWithToast(
                   ref: ref,
-                  textToCopy: message.content,
+                  textToCopy: message.content ?? '',
                   successMessage: 'Message copied to clipboard',
                 );
               } else if (menuItem.label == 'Delete') {
