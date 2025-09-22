@@ -383,7 +383,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         } else {
           // Contact items
           final contactIndex = index - currentIndex;
-          if (contactIndex < filteredContacts.length) {
+          if (contactIndex >= 0 && contactIndex < filteredContacts.length) {
             final contact = filteredContacts[contactIndex];
             return Padding(
               padding: EdgeInsets.only(bottom: 4.h),
