@@ -212,7 +212,7 @@ android-build:
 release:
     @echo "🔨 Building versioned release..."
     @echo "🔍 Verifying working tree is clean..."
-    @if [ -n "$$(git status --porcelain)" ]; then \
+    @if ! git diff-index --quiet HEAD --; then \
         echo "❌ Working tree is not clean. Please commit or stash changes before release."; \
         git status --short; \
         exit 1; \
