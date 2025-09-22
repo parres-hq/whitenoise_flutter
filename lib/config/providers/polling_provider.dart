@@ -5,6 +5,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 
 class PollingNotifier extends Notifier<bool> {
@@ -76,6 +77,7 @@ class PollingNotifier extends Notifier<bool> {
       // Load all data fully on first run
       await ref.read(welcomesProvider.notifier).loadWelcomes();
       await ref.read(groupsProvider.notifier).loadGroups();
+      await ref.read(relayStatusProvider.notifier).refreshStatuses();
       ref.invalidate(activeAccountProvider);
 
       // Load messages for all groups in a build-safe way
@@ -114,6 +116,9 @@ class PollingNotifier extends Notifier<bool> {
 
       // Check for new groups incrementally
       await ref.read(groupsProvider.notifier).checkForNewGroups();
+
+      // Check relay status regularly
+      await ref.read(relayStatusProvider.notifier).refreshStatuses();
 
       // Check for new messages incrementally
       final groups = ref.read(groupsProvider).groups;
