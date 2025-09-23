@@ -6,7 +6,7 @@
 1. Update the version number in Cargo.toml
     1. This is the flutter rust bridge crate. We keep this in sync with the flutter app's version.
     1. Needs to match the version in the pubspec (without the build number)
-1. Update the version number manually in Xcode to match pubspect.yaml
+1. Update the version number manually in Xcode to match pubspec.yaml
     1. Flutter tries to keep this up to date but in my experience it doesn't always work. I prefer to set the version manually.
 1. Update the changelog
     1. Change `Unreleased` to version number with date
