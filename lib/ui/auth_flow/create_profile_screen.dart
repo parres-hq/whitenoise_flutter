@@ -62,11 +62,12 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
   @override
   void didChangeMetrics() {
     super.didChangeMetrics();
-    final bottomInset = WidgetsBinding.instance.platformDispatcher.views.first.viewInsets.bottom;
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
 
     // If keyboard is opening (height increase > 50px), scroll to end
     if (bottomInset > 50) {
       Future.delayed(const Duration(milliseconds: 400), () {
+        if (!mounted) return;
         _scrollToEnd(forceScroll: true);
       });
     }
@@ -83,13 +84,12 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
       // Use double frame callback for better layout completion detection
       WidgetsBinding.instance.addPostFrameCallback((_) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_scrollController.hasClients) {
-            _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
-            );
-          }
+          if (!mounted || !_scrollController.hasClients) return;
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+          );
         });
       });
     }
