@@ -3492,7 +3492,7 @@ dependencies = [
 
 [[package]]
 name = "rust_lib_whitenoise"
-version = "0.1.3"
+version = "0.1.4"
 dependencies = [
  "anyhow",
  "chrono",

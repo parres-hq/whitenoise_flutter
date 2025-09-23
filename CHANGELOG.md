@@ -8,37 +8,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+### Changed
+### Deprecated
+### Removed
+### Fixed
+### Security
+
+
+## [0.1.4] - 2025-09-22
+
+### Added
 
 - Loading skeleton components for chat and contact lists to improve user experience during data loading
-- Global No relay indicator
-- [Android] Sensitive clipboard copy for private key (nsec).
-- Group info update functionality (name and description).
-- Add back buttons in auth flow screens for easier navigation.
-- Paste from clipboard functionality (cta) in new chat bottom sheet.
+- No connected relays warning when not connected to relays
+- [Android] Sensitive clipboard copy for private key (nsec)
+- Update group name and description from group details screen
+- Add back buttons in auth flow screens for easier navigation
+- Paste from clipboard functionality in new chat bottom sheet.
 
 ### Changed
 
 - Improved chat title tap area for easier navigation to contact info
-- Optimized relay connection error banner with intelligent 30-second delay and immediate dismissal on reconnection
-
-### Deprecated
+- Optimized relay connection error banner with intelligent delay and dismissal on reconnection
 
 ### Removed
+
 - Removed relay pull-to-refresh
 
 ### Fixed
-- Fixed get user logic, to show metadata when searching a new npub
-- Fixes profile edition with outdated metadata
+
+- Large backend refactor to improve stability and performance of the app
+- Improved fetching and loading of user profiles throughout the app
 - Fixes pubkeys formatting and pubkeys comparisons in different format
 - Fixes follow/unfollow in start chat sheet
 - Fixes wrong relay status error when switching accounts
 - Fixes scroll to bototm inside of chats
-- Fixed profile image not showing up chatlist after login
-- Fixes auto-scroll to bottom when keyboard opens
+- Fixed profile image not showing up after login
+- Improved scroll to bottom of chat when opening chat screen
 - Fixed time shown in messages to be in local time instead of UTC
 - Fixed account switcher error
+- Show updated user profile after publishing new metadata
+- Fixed loading and scroll performance of large follow lists
+- Lots of UI polish
 
-### Security
 
 ## [0.1.3] - 2025-08-09
 
