@@ -32,10 +32,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimized relay connection error banner with intelligent delay and dismissal on reconnection
 
 ### Removed
+
 - Removed relay pull-to-refresh
 
 ### Fixed
--
+
 - Large backend refactor to improve stability and performance of the app
 - Improved fetching and loading of user profiles throughout the app
 - Fixes pubkeys formatting and pubkeys comparisons in different format
