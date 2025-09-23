@@ -19,7 +19,8 @@ class CreateProfileScreen extends ConsumerStatefulWidget {
   ConsumerState<CreateProfileScreen> createState() => _CreateProfileScreenState();
 }
 
-class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> with WidgetsBindingObserver {
+class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
+    with WidgetsBindingObserver {
   final TextEditingController _displayNameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
@@ -35,7 +36,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> with 
         _scrollToEnd();
       }
     });
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final activeAccountState = await ref.read(activeAccountProvider.future);
       final currentMetadata = activeAccountState.metadata;
@@ -62,7 +63,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> with 
   void didChangeMetrics() {
     super.didChangeMetrics();
     final bottomInset = WidgetsBinding.instance.platformDispatcher.views.first.viewInsets.bottom;
-    
+
     // If keyboard is opening (height increase > 50px), scroll to end
     if (bottomInset > 50) {
       Future.delayed(const Duration(milliseconds: 400), () {
@@ -73,10 +74,10 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> with 
 
   void _scrollToEnd({bool forceScroll = false}) {
     if (!_scrollController.hasClients) return;
-    
+
     final maxScrollExtent = _scrollController.position.maxScrollExtent;
     final currentScrollOffset = _scrollController.offset;
-    
+
     // Only scroll if we're not already at the bottom (unless forced)
     if (forceScroll || (maxScrollExtent - currentScrollOffset) > 50) {
       // Use double frame callback for better layout completion detection
