@@ -194,12 +194,15 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 24.w,
-          ).copyWith(bottom: 32.h),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.only(
+          left: 24.w,
+          right: 24.w,
+          top: 16.h,
+          bottom: 32.h + MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: SafeArea(
+          top: false,
           child: Consumer(
             builder: (context, ref, child) {
               final createProfileState = ref.watch(createProfileScreenProvider);
