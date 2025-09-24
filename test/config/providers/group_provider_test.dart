@@ -1,15 +1,45 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mockito/annotations.dart';
+import 'package:mockito/mockito.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
+import 'group_provider_test.mocks.dart';
+
+class MockActivePubkeyNotifier extends ActivePubkeyNotifier {
+  final String? _mockValue;
+
+  MockActivePubkeyNotifier(this._mockValue);
+
+  @override
+  String? build() {
+    return _mockValue;
+  }
+}
+
+class MockAuthNotifier extends AuthNotifier {
+  final AuthState _mockState;
+
+  MockAuthNotifier(this._mockState);
+
+  @override
+  AuthState build() {
+    return _mockState;
+  }
+}
+
+@GenerateMocks([PubkeyFormatter])
 void main() {
   group('GroupsProvider Tests', () {
     TestWidgetsFlutterBinding.ensureInitialized();
     late ProviderContainer container;
 
-    // Test data
     final testGroup1 = Group(
       mlsGroupId: 'mls_group_1',
       nostrGroupId: 'nostr_group_1',
@@ -43,6 +73,16 @@ void main() {
     );
 
     final testGroups = [testGroup1, testGroup2, testGroup3];
+
+    PubkeyFormatter Function({String? pubkey}) mockPubkeyFormatter() {
+      return ({String? pubkey}) {
+        final mock = MockPubkeyFormatter();
+        // Return the original value as fallback to prevent nulls
+        when(mock.toHex()).thenReturn(pubkey);
+        when(mock.toNpub()).thenReturn(pubkey);
+        return mock;
+      };
+    }
 
     setUp(() {
       container = ProviderContainer();
@@ -162,7 +202,6 @@ void main() {
 
     group('Utility Methods', () {
       setUp(() {
-        // Set up test data for utility method tests
         final notifier = container.read(groupsProvider.notifier);
         notifier.state = notifier.state.copyWith(groups: testGroups);
       });
@@ -537,6 +576,114 @@ void main() {
             adminPublicKeyHexs: ['admin2'],
           );
         }, returnsNormally);
+      });
+
+      group('when DM already exists', () {
+        late GroupsNotifier notifier;
+
+        setUp(() async {
+          Future<Group> mockCreateGroup({
+            required String creatorPubkey,
+            required List<String> memberPubkeys,
+            required List<String> adminPubkeys,
+            required String groupName,
+            required String groupDescription,
+            required GroupType groupType,
+          }) async {
+            return Group(
+              mlsGroupId: 'test_group_123',
+              nostrGroupId: 'nostr_test_123',
+              name: groupName,
+              description: groupDescription,
+              adminPubkeys: ['test_active_pubkey_123'],
+              epoch: BigInt.from(1234567),
+              state: GroupState.active,
+            );
+          }
+
+          Future<List<Group>> mockGetGroupsByType(GroupType groupType) async {
+            if (groupType == GroupType.directMessage) {
+              // Return existing DM group to simulate DM already exists
+              return [
+                Group(
+                  mlsGroupId: 'existing_dm_123',
+                  nostrGroupId: 'existing_nostr_dm_123',
+                  name: 'Existing DM',
+                  description: '',
+                  adminPubkeys: ['test_active_pubkey_123'],
+                  epoch: BigInt.from(1),
+                  state: GroupState.active,
+                ),
+              ];
+            }
+            return [];
+          }
+
+          List<User>? mockGetGroupMembers(String groupId) {
+            if (groupId == 'existing_dm_123') {
+              return [
+                User(
+                  id: 'test_active_pubkey_123',
+                  publicKey: 'test_active_pubkey_123',
+                  displayName: 'Active User',
+                  nip05: '',
+                ),
+                User(
+                  id: 'other_user_pubkey',
+                  publicKey: 'other_user_pubkey',
+                  displayName: 'Other User',
+                  nip05: '',
+                ),
+              ];
+            }
+            return null;
+          }
+
+          final testContainer = ProviderContainer(
+            overrides: [
+              activePubkeyProvider.overrideWith(
+                () => MockActivePubkeyNotifier('test_active_pubkey_123'),
+              ),
+              authProvider.overrideWith(
+                () => MockAuthNotifier(const AuthState(isAuthenticated: true)),
+              ),
+              groupsProvider.overrideWith(
+                () => GroupsNotifier(
+                  createGroupFn: mockCreateGroup,
+                  pubkeyFormatter: mockPubkeyFormatter(),
+                  getGroupsByTypeFn: mockGetGroupsByType,
+                  getGroupMembersFn: mockGetGroupMembers,
+                ),
+              ),
+            ],
+          );
+          notifier = testContainer.read(groupsProvider.notifier);
+        });
+        test('creates new 2 user group', () async {
+          final regularGroup = await notifier.createNewGroup(
+            groupName: 'Two Person Regular Group',
+            groupDescription: 'Not a DM',
+            memberPublicKeyHexs: ['other_user_pubkey'],
+            adminPublicKeyHexs: ['test_active_pubkey_123'],
+          );
+
+          expect(regularGroup, isA<Group>());
+          expect(regularGroup?.name, 'Two Person Regular Group');
+        });
+
+        test('returns existing DM group', () async {
+          final dmGroup = await notifier.createNewGroup(
+            groupName: 'New DM Group',
+            groupDescription: 'Attempt to create a new DM group',
+            memberPublicKeyHexs: ['other_user_pubkey'],
+            adminPublicKeyHexs: ['test_active_pubkey_123'],
+            isDm: true,
+          );
+
+          expect(dmGroup, isA<Group>());
+          expect(dmGroup?.mlsGroupId, 'existing_dm_123');
+          expect(dmGroup?.name, 'Existing DM');
+        });
       });
     });
 

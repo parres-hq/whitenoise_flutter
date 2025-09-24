@@ -9,13 +9,62 @@ import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/states/group_state.dart';
 import 'package:whitenoise/domain/models/user_model.dart' as domain_user;
+import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
 import 'package:whitenoise/utils/error_handling.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
+PubkeyFormatter _defaultPubkeyFormatter({String? pubkey}) => PubkeyFormatter(pubkey: pubkey);
+
 class GroupsNotifier extends Notifier<GroupsState> {
+  GroupsNotifier({
+    Future<Group> Function({
+      required String creatorPubkey,
+      required List<String> memberPubkeys,
+      required List<String> adminPubkeys,
+      required String groupName,
+      required String groupDescription,
+      required GroupType groupType,
+    })?
+    createGroupFn,
+    PubkeyFormatter Function({String? pubkey})? pubkeyFormatter,
+    Future<List<GroupInformation>> Function({
+      required String accountPubkey,
+      required List<String> groupIds,
+    })?
+    getGroupsInformationFn,
+    Future<List<Group>> Function(GroupType)? getGroupsByTypeFn,
+    List<User>? Function(String)? getGroupMembersFn,
+  }) : _createGroupFn = createGroupFn ?? createGroup,
+       _pubkeyFormatter = pubkeyFormatter ?? _defaultPubkeyFormatter,
+       _getGroupsInformationFn = getGroupsInformationFn ?? getGroupsInformations,
+       _getGroupsByTypeFn = getGroupsByTypeFn,
+       _getGroupMembersFn = getGroupMembersFn;
+
+  final Future<Group> Function({
+    required String creatorPubkey,
+    required List<String> memberPubkeys,
+    required List<String> adminPubkeys,
+    required String groupName,
+    required String groupDescription,
+    required GroupType groupType,
+  })
+  _createGroupFn;
+
+  final PubkeyFormatter Function({String? pubkey}) _pubkeyFormatter;
+
+  final Future<List<GroupInformation>> Function({
+    required String accountPubkey,
+    required List<String> groupIds,
+  })
+  _getGroupsInformationFn;
+
+  final Future<List<Group>> Function(GroupType)? _getGroupsByTypeFn;
+
+  final List<User>? Function(String)? _getGroupMembersFn;
+
   final _logger = Logger('GroupsNotifier');
 
   /// Helper function to log Whitenoise ApiError details synchronously
@@ -156,13 +205,14 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) return null;
 
-      final currentUserNpub = PubkeyFormatter(pubkey: activePubkey).toNpub();
-      final otherUserNpub = PubkeyFormatter(pubkey: otherUserPubkeyHex).toNpub();
+      final currentUserNpub = _pubkeyFormatter(pubkey: activePubkey).toNpub();
+      final otherUserNpub = _pubkeyFormatter(pubkey: otherUserPubkeyHex).toNpub();
 
       final directMessageGroups = await getDirectMessageGroups();
 
       for (final group in directMessageGroups) {
-        final members = getGroupMembers(group.mlsGroupId);
+        final members =
+            _getGroupMembersFn?.call(group.mlsGroupId) ?? getGroupMembers(group.mlsGroupId);
         if (members != null && members.length == 2) {
           final memberPubkeys = members.map((m) => m.publicKey).toSet();
           if (memberPubkeys.contains(currentUserNpub) && memberPubkeys.contains(otherUserNpub)) {
@@ -202,7 +252,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
       }
 
       // Check if this is a direct message (2 members only: current user + 1 other)
-      if (memberPublicKeyHexs.length == 1) {
+      // Only check for existing DMs when explicitly creating a DM
+      if (isDm && memberPublicKeyHexs.length == 1) {
         final otherUserPubkeyHex = memberPublicKeyHexs.first.trim();
         final existingDM = await _findExistingDirectMessage(otherUserPubkeyHex);
 
@@ -222,7 +273,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
       _logger.info(
         'GroupsProvider: Members pubkeys loaded (excluding creator) - ${filteredMemberPubkeys.length}',
       );
-
       final resolvedAdminPublicKeys =
           adminPublicKeyHexs.toSet().map((hexKey) => hexKey.trim()).toList();
       final combinedAdminKeys = {activePubkey, ...resolvedAdminPublicKeys}.toList();
@@ -238,7 +288,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       _logger.info('  - Member pubkeys (filtered): $filteredMemberHexs');
       _logger.info('  - Admin pubkeys: $adminPublicKeyHexs');
 
-      final newGroup = await createGroup(
+      final newGroup = await _createGroupFn(
         creatorPubkey: activePubkey,
         memberPubkeys: filteredMemberPubkeys,
         adminPubkeys: combinedAdminKeys,
@@ -311,7 +361,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final List<domain_user.User> members = [];
       for (final memberPubkey in memberPubkeys) {
         try {
-          final npub = PubkeyFormatter(pubkey: memberPubkey).toNpub() ?? '';
+          final npub = _pubkeyFormatter(pubkey: memberPubkey).toNpub() ?? '';
 
           // First try to get from follows (cached contacts)
           final followsNotifier = ref.read(followsProvider.notifier);
@@ -405,7 +455,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final List<domain_user.User> admins = [];
       for (final adminPubkey in adminPubkeys) {
         try {
-          final npub = PubkeyFormatter(pubkey: adminPubkey).toNpub() ?? '';
+          final npub = _pubkeyFormatter(pubkey: adminPubkey).toNpub() ?? '';
 
           try {
             final metadata = await rust_users.userMetadata(pubkey: adminPubkey);
@@ -651,7 +701,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     final groupInformationsMap = <String, GroupInformation>{};
     final activePubkey = ref.read(activePubkeyProvider);
     if (activePubkey == null || activePubkey.isEmpty) return groupInformationsMap;
-    final groupInformations = await getGroupsInformations(
+    final groupInformations = await _getGroupsInformationFn(
       accountPubkey: activePubkey,
       groupIds: groupIds,
     );
@@ -679,6 +729,9 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   Future<List<Group>> getDirectMessageGroups() async {
+    if (_getGroupsByTypeFn != null) {
+      return await _getGroupsByTypeFn(GroupType.directMessage);
+    }
     return await getGroupsByType(GroupType.directMessage);
   }
 
@@ -918,7 +971,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       final usersPubkeyHex =
           membersNpubs.map((userNpub) {
-            return PubkeyFormatter(pubkey: userNpub).toHex() ?? '';
+            return _pubkeyFormatter(pubkey: userNpub).toHex() ?? '';
           }).toList();
 
       await addMembersToGroup(
@@ -972,7 +1025,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       final usersPubkeyHex =
           membersNpubs.map((userNpub) {
-            return PubkeyFormatter(pubkey: userNpub).toHex() ?? '';
+            return _pubkeyFormatter(pubkey: userNpub).toHex() ?? '';
           }).toList();
 
       await removeMembersFromGroup(
@@ -1171,14 +1224,14 @@ extension GroupMemberUtils on GroupsNotifier {
     final members = getGroupMembers(groupId);
     if (members == null || members.isEmpty) return null;
 
-    final hexActivePubkey = PubkeyFormatter(pubkey: activePubkey).toHex();
+    final hexActivePubkey = _pubkeyFormatter(pubkey: activePubkey).toHex();
     final otherMembers =
         members
             .where(
-              (member) => PubkeyFormatter(pubkey: member.publicKey).toHex() != hexActivePubkey,
+              (member) => _pubkeyFormatter(pubkey: member.publicKey).toHex() != hexActivePubkey,
             )
             .toList();
-    final npubActivePubkey = PubkeyFormatter(pubkey: activePubkey).toNpub();
+    final npubActivePubkey = _pubkeyFormatter(pubkey: activePubkey).toNpub();
     if (otherMembers.isEmpty) {
       _logger.warning(
         'GroupsProvider: No other members found in DM group $groupId. '
