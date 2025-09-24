@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update group name and description from group details screen
 - Add back buttons in auth flow screens for easier navigation
 - Paste from clipboard functionality in new chat bottom sheet.
+- Pin chats to the top on the chat list screen
 
 ### Changed
 
