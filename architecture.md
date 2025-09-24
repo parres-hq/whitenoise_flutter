@@ -46,19 +46,10 @@ Holds all **global app setup** that is not tied to a single feature.
 
 - **providers/** → Global providers for things like authentication, relay configuration, or environment state. These are not directly linked to UI changes but configure the app.  
 - **extensions/** → Dart extension methods on core types (e.g., `StringX`, `DateX`, `BuildContextX`).  
-- **theme/** → App-wide theming such as `app_theme.dart`, `colors.dart`, and `typography.dart`.  
-
-Think of `config` as the **environment and wiring** of the app.
-
----
-
-## 📂 lib/core
-Contains only **foundational building blocks** of the app.  
-It should remain **minimal and stable**.
-
+- **theme/** → App-wide theming such as `app_theme.dart`, `colors.dart`, and `typography.dart`.
 - **constants/** → Global constants like storage keys, regex patterns, or environment values.  
 
-`core` is the **skeleton** of the app — fundamental, but not feature-specific.
+Think of `config` as the **environment and wiring** of the app.
 
 ---
 
@@ -116,8 +107,7 @@ Sets up providers, runs the app, and wires the router + theme.
 2. **Controllers handle orchestration** → Complex logic lives in controllers, not providers.  
 3. **Providers own state** → Providers manage and expose immutable state to the UI.  
 4. **FRB isolation** → All Rust/FFI bindings are wrapped in datasources so the rest of the app is unaware of low-level details.  
-5. **Minimal core** → Only constants live here; no bloated utils or network layers.  
-6. **Shared and Config separation** →  
+5. **Shared and Config separation** →  
    - `shared/` = reusable widgets and utilities.  
    - `config/` = global setup (providers, extensions, theme).  
 
