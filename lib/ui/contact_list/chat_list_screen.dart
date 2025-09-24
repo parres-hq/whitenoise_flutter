@@ -9,6 +9,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/delayed_relay_error_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/pinned_chats_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
@@ -253,6 +254,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     final groupList = ref.watch(groupsProvider.select((state) => state.groups)) ?? [];
     final welcomesList = ref.watch(welcomesProvider.select((state) => state.welcomes)) ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
+    final pinnedChats = ref.watch(pinnedChatsProvider);
+    ref.watch(pinnedChatsProvider.notifier);
 
     final chatItems = <ChatListItem>[];
 
@@ -262,10 +265,12 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
           (state) => state.getLatestMessageForGroup(group.mlsGroupId),
         ),
       );
+      final isPinned = pinnedChats.contains(group.mlsGroupId);
       chatItems.add(
         ChatListItem.fromGroup(
           group: group,
           lastMessage: lastMessage,
+          isPinned: isPinned,
         ),
       );
     }
@@ -276,8 +281,15 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
       chatItems.add(ChatListItem.fromWelcome(welcome: welcome));
     }
 
-    // Sort by date created (most recent first)
-    chatItems.sort((a, b) => b.dateCreated.compareTo(a.dateCreated));
+    // Sort by pin status first (pinned items at top), then by date created (most recent first)
+    chatItems.sort((a, b) {
+      // First compare pin status - pinned items come first
+      if (a.isPinned != b.isPinned) {
+        return a.isPinned ? -1 : 1;
+      }
+      // If both have same pin status, sort by date created (most recent first)
+      return b.dateCreated.compareTo(a.dateCreated);
+    });
 
     // Filter chat items based on search query
     final filteredChatItems =
@@ -449,7 +461,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                       ),
                     ),
                   SliverPadding(
-                    padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
+                    padding: EdgeInsets.only(bottom: 32.h),
                     sliver: SliverList.separated(
                       itemBuilder: (context, index) {
                         if (isInLoadingState) {
@@ -463,7 +475,30 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                       },
                       itemCount:
                           isInLoadingState ? _loadingSkeletonCount : filteredChatItems.length,
-                      separatorBuilder: (context, index) => Gap(8.w),
+                      separatorBuilder: (context, index) {
+                        if (isInLoadingState) {
+                          return Gap(8.w);
+                        }
+
+                        // Check if this separator should be between pinned and unpinned items
+                        final currentItem = filteredChatItems[index];
+                        final nextItem =
+                            index + 1 < filteredChatItems.length
+                                ? filteredChatItems[index + 1]
+                                : null;
+
+                        // If current item is pinned and next item is not pinned, add divider
+                        if (currentItem.isPinned && nextItem != null && !nextItem.isPinned) {
+                          return Container(
+                            height: 2.h,
+                            decoration: BoxDecoration(
+                              color: context.colors.primary,
+                            ),
+                          );
+                        }
+
+                        return Gap(8.w);
+                      },
                     ),
                   ),
                 ],
