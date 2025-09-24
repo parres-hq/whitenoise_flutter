@@ -66,6 +66,8 @@ dependencies:
     collection: ^1.19.1
     mime: ^1.0.6
     package_info_plus: ^8.0.2
+    flutter_local_notifications: ^18.0.1
+    timezone: ^0.9.4
 
 dev_dependencies:
     flutter_test:

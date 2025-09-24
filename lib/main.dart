@@ -4,9 +4,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
+import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/router_provider.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 import 'package:whitenoise/ui/core/ui/wn_toast.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 import 'ui/core/themes/src/app_theme.dart';
 
@@ -22,6 +24,9 @@ Future<void> main() async {
   Logger.root.level = Level.ALL;
   final log = Logger('Whitenoise');
 
+  // Initialize timezone database
+  tz.initializeTimeZones();
+
   // Initialize Rust library first
   try {
     await RustLib.init();
@@ -29,6 +34,14 @@ Future<void> main() async {
   } catch (e) {
     log.severe('Failed to initialize Rust library: $e');
     rethrow;
+  }
+
+  // Initialize notification service
+  try {
+    await NotificationService.initialize();
+    log.info('Notification service initialized successfully');
+  } catch (e) {
+    log.severe('Failed to initialize notification service: $e');
   }
 
   final container = ProviderContainer();
