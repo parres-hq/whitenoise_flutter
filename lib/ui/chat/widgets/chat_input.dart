@@ -355,8 +355,10 @@ class ReplyEditHeader extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: onCancel,
-                child: Padding(
-                  padding: EdgeInsets.all(8.w),
+                child: Container(
+                  width: 24.w,
+                  height: 24.w,
+                  alignment: Alignment.center,
                   child: WnImage(
                     AssetsPaths.icClose,
                     width: 16.w,
