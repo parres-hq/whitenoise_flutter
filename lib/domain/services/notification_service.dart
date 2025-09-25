@@ -73,8 +73,9 @@ class NotificationService {
   static Future<bool> requestPermissions() async {
     try {
       // Request Android permissions
-      final androidPlugin = _flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final androidPlugin =
+          _flutterLocalNotificationsPlugin
+              .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
 
       if (androidPlugin != null) {
         final granted = await androidPlugin.requestNotificationsPermission();
@@ -83,8 +84,9 @@ class NotificationService {
       }
 
       // Request iOS permissions
-      final iosPlugin = _flutterLocalNotificationsPlugin
-          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+      final iosPlugin =
+          _flutterLocalNotificationsPlugin
+              .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
 
       if (iosPlugin != null) {
         final granted = await iosPlugin.requestPermissions(
