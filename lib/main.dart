@@ -93,7 +93,7 @@ class MyApp extends ConsumerWidget {
 Future<void> _initializeTimeZone() async {
   tz.initializeTimeZones();
   try {
-    final timezoneName = (await FlutterTimezone.getLocalTimezone()).localizedName?.locale ?? '';
+    final timezoneName = (await FlutterTimezone.getLocalTimezone()).localizedName?.name ?? '';
     if (timezoneName.isEmpty) throw Exception('Empty timezone name');
     setLocalLocation(getLocation(timezoneName));
   } catch (e) {
