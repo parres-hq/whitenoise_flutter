@@ -146,17 +146,22 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     final isLoadingCompleted = wasLoading && !isLoading;
 
     // Auto-scroll when chat first loads
-    if (isLoadingCompleted && currentMessages.isNotEmpty && !_hasInitialScrollCompleted) {
+    if (isLoadingCompleted &&
+        currentMessages.isNotEmpty &&
+        !_hasInitialScrollCompleted &&
+        !_isKeyboardOpen) {
       _hasInitialScrollCompleted = true;
       _scrollToBottom(animated: false);
       return;
     }
 
     // Auto-scroll when new messages arrive (after initial load)
+    // Only auto-scroll if keyboard is not open to avoid disrupting user's reading
     if (_hasInitialScrollCompleted &&
         previousMessages.isNotEmpty &&
         currentMessages.length > previousMessages.length &&
-        currentMessages.last.id != previousMessages.last.id) {
+        currentMessages.last.id != previousMessages.last.id &&
+        !_isKeyboardOpen) {
       _scrollToBottom();
     }
   }
@@ -348,6 +353,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                     final message = messages[messageIndex];
 
                                     return SwipeToReplyWidget(
+                                      key: ValueKey(message.id),
                                       message: message,
                                       onReply:
                                           () => chatNotifier.handleReply(

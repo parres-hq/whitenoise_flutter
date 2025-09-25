@@ -240,6 +240,57 @@ class MessageModel {
     ];
     return '${months[createdAt.month - 1]} ${createdAt.day}, ${createdAt.year}';
   }
+
+  @override
+  bool operator ==(covariant MessageModel other) {
+    if (identical(this, other)) return true;
+
+    return other.id == id &&
+        other.content == content &&
+        other.type == type &&
+        other.createdAt == createdAt &&
+        other.updatedAt == updatedAt &&
+        other.sender == sender &&
+        other.isMe == isMe &&
+        other.audioPath == audioPath &&
+        other.imageUrl == imageUrl &&
+        other.replyTo == replyTo &&
+        _listEquals(other.reactions, reactions) &&
+        other.groupId == groupId &&
+        other.status == status &&
+        other.kind == kind;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(
+      id,
+      content,
+      type,
+      createdAt,
+      updatedAt,
+      sender,
+      isMe,
+      audioPath,
+      imageUrl,
+      replyTo,
+      Object.hashAll(reactions),
+      groupId,
+      status,
+      kind,
+    );
+  }
+
+  /// Helper method to compare lists of reactions
+  bool _listEquals<T>(List<T>? a, List<T>? b) {
+    if (a == null) return b == null;
+    if (b == null || a.length != b.length) return false;
+    if (identical(a, b)) return true;
+    for (int index = 0; index < a.length; index += 1) {
+      if (a[index] != b[index]) return false;
+    }
+    return true;
+  }
 }
 
 class Reaction {
