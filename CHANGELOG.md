@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Fixed
 - Fixed 2 users group creation when DM already exists
+- Fixed issue where keyboard covers part of the "introduce yourself" textfield.
+- Improved close reply tap area/response.
 ### Security
 
 
