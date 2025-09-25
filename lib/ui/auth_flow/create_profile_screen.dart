@@ -199,7 +199,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
           left: 24.w,
           right: 24.w,
           top: 16.h,
-          bottom: 32.h + MediaQuery.of(context).viewInsets.bottom,
+          bottom: 16.h + MediaQuery.of(context).viewInsets.bottom,
         ),
         child: SafeArea(
           top: false,
