@@ -1,14 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:logging/logging.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/router_provider.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 import 'package:whitenoise/ui/core/ui/wn_toast.dart';
-import 'package:timezone/data/latest.dart' as tz;
 
 import 'ui/core/themes/src/app_theme.dart';
 
@@ -25,7 +27,7 @@ Future<void> main() async {
   final log = Logger('Whitenoise');
 
   // Initialize timezone database
-  tz.initializeTimeZones();
+  _initializeTimeZone();
 
   // Initialize Rust library first
   try {
@@ -85,5 +87,16 @@ class MyApp extends ConsumerWidget {
         );
       },
     );
+  }
+}
+
+Future<void> _initializeTimeZone() async {
+  tz.initializeTimeZones();
+  try {
+    final timezoneName = (await FlutterTimezone.getLocalTimezone()).localizedName?.locale ?? '';
+    if (timezoneName.isEmpty) throw Exception('Empty timezone name');
+    setLocalLocation(getLocation(timezoneName));
+  } catch (e) {
+    Logger('Whitenoise').warning('Failed to set local timezone, defaulting to UTC: $e');
   }
 }
