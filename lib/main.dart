@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:logging/logging.dart';
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
+import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/router_provider.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 import 'package:whitenoise/ui/core/ui/wn_toast.dart';
@@ -22,6 +26,9 @@ Future<void> main() async {
   Logger.root.level = Level.ALL;
   final log = Logger('Whitenoise');
 
+  // Initialize timezone database
+  await _initializeTimeZone();
+
   // Initialize Rust library first
   try {
     await RustLib.init();
@@ -29,6 +36,14 @@ Future<void> main() async {
   } catch (e) {
     log.severe('Failed to initialize Rust library: $e');
     rethrow;
+  }
+
+  // Initialize notification service
+  try {
+    await NotificationService.initialize();
+    log.info('Notification service initialized successfully');
+  } catch (e) {
+    log.severe('Failed to initialize notification service: $e');
   }
 
   final container = ProviderContainer();
@@ -72,5 +87,16 @@ class MyApp extends ConsumerWidget {
         );
       },
     );
+  }
+}
+
+Future<void> _initializeTimeZone() async {
+  tz.initializeTimeZones();
+  try {
+    final timezoneName = (await FlutterTimezone.getLocalTimezone()).localizedName?.name ?? '';
+    if (timezoneName.isEmpty) throw Exception('Empty timezone name');
+    setLocalLocation(getLocation(timezoneName));
+  } catch (e) {
+    Logger('Whitenoise').warning('Failed to set local timezone, defaulting to UTC: $e');
   }
 }
