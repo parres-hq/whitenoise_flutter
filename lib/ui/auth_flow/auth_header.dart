@@ -12,37 +12,35 @@ class AuthHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        top: MediaQuery.of(context).padding.top + 16.h,
-        left: 24.w,
-        right: 24.w,
-      ),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () => context.pop(),
-            icon: WnImage(
-              AssetsPaths.icChevronLeft,
-              size: 18.w,
-              color: context.colors.primary,
+    return SafeArea(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 24.w),
+        child: Row(
+          children: [
+            IconButton(
+              onPressed: () => context.pop(),
+              icon: WnImage(
+                AssetsPaths.icChevronLeft,
+                size: 18.w,
+                color: context.colors.primary,
+              ),
             ),
-          ),
-          Gap(8.w),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-              color: context.colors.mutedForeground,
+            Gap(8.w),
+            Text(
+              title,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                color: context.colors.mutedForeground,
+              ),
+              textHeightBehavior: const TextHeightBehavior(
+                applyHeightToFirstAscent: false,
+                applyHeightToLastDescent: false,
+              ),
             ),
-            textHeightBehavior: const TextHeightBehavior(
-              applyHeightToFirstAscent: false,
-              applyHeightToLastDescent: false,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
