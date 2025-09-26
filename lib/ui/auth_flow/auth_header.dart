@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
@@ -6,7 +5,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
-class AuthHeader extends StatelessWidget implements PreferredSizeWidget{
+class AuthHeader extends StatelessWidget implements PreferredSizeWidget {
   const AuthHeader({super.key, required this.title});
 
   final String title;
@@ -14,7 +13,11 @@ class AuthHeader extends StatelessWidget implements PreferredSizeWidget{
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top+ 16.h, left: 24.w, right: 24.w),
+      padding: EdgeInsets.only(
+        top: MediaQuery.of(context).padding.top + 16.h,
+        left: 24.w,
+        right: 24.w,
+      ),
       child: Row(
         children: [
           IconButton(
@@ -45,5 +48,5 @@ class AuthHeader extends StatelessWidget implements PreferredSizeWidget{
   }
 
   @override
-  Size get preferredSize =>  Size.fromHeight(56.h);
+  Size get preferredSize => Size.fromHeight(56.h);
 }

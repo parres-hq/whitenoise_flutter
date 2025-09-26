@@ -123,14 +123,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
             child: Column(
               children: [
                 const Spacer(),
-                 Center(
-                   child: WnImage(
-                     AssetsPaths.login,
-                     fit: BoxFit.contain,
-                     width: double.infinity,
-                     height: 345.h,
-                   ),
-                 ),
+                Center(
+                  child: WnImage(
+                    AssetsPaths.login,
+                    fit: BoxFit.contain,
+                    width: double.infinity,
+                    height: 345.h,
+                  ),
+                ),
                 const Spacer(),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
