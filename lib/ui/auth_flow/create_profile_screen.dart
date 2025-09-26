@@ -19,14 +19,24 @@ class CreateProfileScreen extends ConsumerStatefulWidget {
   ConsumerState<CreateProfileScreen> createState() => _CreateProfileScreenState();
 }
 
-class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
+class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
+    with WidgetsBindingObserver {
   final TextEditingController _displayNameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _bioFocusNode = FocusNode();
   bool _isLoadingDisplayName = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _bioFocusNode.addListener(() {
+      if (_bioFocusNode.hasFocus) {
+        _scrollToEnd();
+      }
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final activeAccountState = await ref.read(activeAccountProvider.future);
       final currentMetadata = activeAccountState.metadata;
@@ -41,9 +51,48 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _displayNameController.dispose();
     _bioController.dispose();
+    _scrollController.dispose();
+    _bioFocusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+
+    // If keyboard is opening (height increase > 50px), scroll to end
+    if (bottomInset > 50) {
+      Future.delayed(const Duration(milliseconds: 400), () {
+        if (!mounted) return;
+        _scrollToEnd(forceScroll: true);
+      });
+    }
+  }
+
+  void _scrollToEnd({bool forceScroll = false}) {
+    if (!_scrollController.hasClients) return;
+
+    final maxScrollExtent = _scrollController.position.maxScrollExtent;
+    final currentScrollOffset = _scrollController.offset;
+
+    // Only scroll if we're not already at the bottom (unless forced)
+    if (forceScroll || (maxScrollExtent - currentScrollOffset) > 50) {
+      // Use double frame callback for better layout completion detection
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted || !_scrollController.hasClients) return;
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+          );
+        });
+      });
+    }
   }
 
   @override
@@ -67,6 +116,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
       resizeToAvoidBottomInset: true,
       body: SafeArea(
         child: SingleChildScrollView(
+          controller: _scrollController,
           padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 0),
           child: Column(
             children: [
@@ -185,6 +235,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                 hintText: 'Write something about yourself',
                 obscureText: false,
                 controller: _bioController,
+                focusNode: _bioFocusNode,
                 maxLines: 3,
                 minLines: 3,
                 keyboardType: TextInputType.multiline,
