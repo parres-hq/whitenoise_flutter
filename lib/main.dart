@@ -27,7 +27,7 @@ Future<void> main() async {
   final log = Logger('Whitenoise');
 
   // Initialize timezone database
-  _initializeTimeZone();
+  await _initializeTimeZone();
 
   // Initialize Rust library first
   try {
