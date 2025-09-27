@@ -35,9 +35,11 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
   bool _hapticTriggered = false;
   bool _canUndo = false;
   Timer? _longPressTimer;
+  Timer? _longPressHapticTimer;
 
   void _handleDragStart(DragStartDetails details) {
     _longPressTimer?.cancel();
+    _longPressHapticTimer?.cancel();
     setState(() {
       _showReplyIcon = true;
       _canUndo = false;
@@ -83,22 +85,33 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
   }
 
   void _onTapDown(TapDownDetails details) {
-    _longPressTimer = Timer(const Duration(milliseconds: 200), () {
+    _longPressTimer?.cancel();
+    _longPressHapticTimer?.cancel();
+
+    _longPressHapticTimer = Timer(const Duration(milliseconds: 100), () {
+      HapticFeedback.mediumImpact();
+    });
+
+    _longPressTimer = Timer(const Duration(milliseconds: 250), () {
+      _longPressHapticTimer?.cancel();
       widget.onLongPress();
     });
   }
 
   void _onTapUp(TapUpDetails details) {
     _longPressTimer?.cancel();
+    _longPressHapticTimer?.cancel();
   }
 
   void _onTapCancel() {
     _longPressTimer?.cancel();
+    _longPressHapticTimer?.cancel();
   }
 
   @override
   void dispose() {
     _longPressTimer?.cancel();
+    _longPressHapticTimer?.cancel();
     super.dispose();
   }
 

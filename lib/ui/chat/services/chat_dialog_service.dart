@@ -90,7 +90,6 @@ class ChatDialogService {
     required int messageIndex,
   }) {
     final chatNotifier = ref.read(chatProvider.notifier);
-    HapticFeedback.mediumImpact();
 
     Navigator.of(context).push(
       HeroDialogRoute(
