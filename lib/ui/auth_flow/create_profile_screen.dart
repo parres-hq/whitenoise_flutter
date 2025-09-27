@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/create_profile_screen_provider.dart';
+import 'package:whitenoise/ui/auth_flow/auth_header.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -114,34 +114,13 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
     return Scaffold(
       backgroundColor: context.colors.neutral,
       resizeToAvoidBottomInset: true,
+      appBar: const AuthHeader(title: 'Set Up Profile'),
       body: SafeArea(
         child: SingleChildScrollView(
           controller: _scrollController,
-          padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 0),
+          padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 0),
           child: Column(
             children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => context.pop(),
-                    icon: WnImage(
-                      AssetsPaths.icChevronLeft,
-                      size: 18.w,
-                      color: context.colors.primary,
-                    ),
-                  ),
-                  Gap(8.w),
-                  Text(
-                    'Set Up Profile',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.mutedForeground,
-                    ),
-                  ),
-                ],
-              ),
               Gap(48.h),
               Stack(
                 alignment: Alignment.bottomRight,
