@@ -15,6 +15,7 @@ class AuthHeader extends StatelessWidget implements PreferredSizeWidget {
     final fadeHeight = 48.h;
 
     return SafeArea(
+      bottom: false,
       child: SizedBox(
         height: preferredSize.height,
         child: Stack(
@@ -35,17 +36,19 @@ class AuthHeader extends StatelessWidget implements PreferredSizeWidget {
                       ),
                     ),
                     Gap(8.w),
-                    Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.mutedForeground,
-                      ),
-                      textHeightBehavior: const TextHeightBehavior(
-                        applyHeightToFirstAscent: false,
-                        applyHeightToLastDescent: false,
+                    Flexible(
+                      child: Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 18.sp,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.mutedForeground,
+                        ),
+                        textHeightBehavior: const TextHeightBehavior(
+                          applyHeightToFirstAscent: false,
+                          applyHeightToLastDescent: false,
+                        ),
                       ),
                     ),
                   ],
@@ -66,7 +69,7 @@ class AuthHeader extends StatelessWidget implements PreferredSizeWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        context.colors.neutral.withValues(alpha: 0.99),                      
+                        context.colors.neutral.withValues(alpha: 0.99),
                         context.colors.neutral.withValues(alpha: 0.9),
                         context.colors.neutral.withValues(alpha: 0.79),
                         context.colors.neutral.withValues(alpha: 0.7),
@@ -78,7 +81,6 @@ class AuthHeader extends StatelessWidget implements PreferredSizeWidget {
                         context.colors.neutral.withValues(alpha: 0.09),
                         context.colors.neutral.withValues(alpha: 0.05),
                         context.colors.neutral.withValues(alpha: 0.01),
-                        
                       ],
                     ),
                   ),
