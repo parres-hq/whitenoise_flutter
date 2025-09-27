@@ -244,6 +244,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                 textInputAction: TextInputAction.newline,
                                 keyboardType: TextInputType.multiline,
                                 textCapitalization: TextCapitalization.sentences,
+                                size: FieldSize.small,
                                 decoration:
                                     isReplying
                                         ? const InputDecoration(
@@ -269,8 +270,8 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                     //TODO @Quwaysim ... This will come in PR for issue #511
                                     WnIconButton(
                                           iconPath: AssetsPaths.icArrowUp,
-                                          padding: 18.w,
-                                          size: 56.h,
+                                          padding: 14.w,
+                                          size: 44.h,
                                           onTap: _sendMessage,
                                           buttonColor: context.colors.primary,
                                           iconColor: context.colors.primaryForeground,
