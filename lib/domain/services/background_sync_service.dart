@@ -328,7 +328,7 @@ Future<bool> _handleMessagesSync() async {
           for (final message in newMessages) {
             try {
               await NotificationService.showMessageNotification(
-                id: message.id.hashCode,
+                id: DateTime.now().millisecondsSinceEpoch ~/ 1000 + 1,
                 title: groupDisplayName,
                 body: message.content,
                 payload: jsonEncode({

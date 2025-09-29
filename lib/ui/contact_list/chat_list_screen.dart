@@ -14,6 +14,7 @@ import 'package:whitenoise/config/providers/profile_ready_card_visibility_provid
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
+import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
@@ -71,6 +72,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     _initializeControllers();
     _setupScrollListener();
     _scheduleInitialSetup();
+    // TODO: for now, request permissions, we can later manage what hapens if permissions are not granted
+    NotificationService.requestPermissions();
   }
 
   void _initializeControllers() {
