@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Added notification permissions request to contact list screen
+- Added background sync service to fetch new messages and invites and show notifications for them
+
 ### Changed
 
 ### Deprecated
@@ -20,8 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed 2 users group creation when DM already exists
 - Fixed issue where keyboard covers part of the "introduce yourself" textfield.
 - Improved close reply tap area/response.
-- Added notification permissions request to contact list screen
-- Added background sync service to fetch new messages and invites and show notifications for them
 
 ### Security
 

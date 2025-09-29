@@ -41,19 +41,6 @@ class BackgroundSyncService {
 
   static bool _isInitialized = false;
 
-  // Helper methods for error handling
-  static void _logError(String context, dynamic error, [StackTrace? stackTrace]) {
-    if (stackTrace != null) {
-      _logger.severe('$context failed', error, stackTrace);
-    } else {
-      _logger.severe('$context failed: $error');
-    }
-  }
-
-  static void _logWarning(String context, dynamic error) {
-    _logger.warning('$context: $error');
-  }
-
   static Future<void> initialize() async {
     if (_isInitialized) {
       _logger.fine('BackgroundSyncService already initialized');
@@ -68,7 +55,7 @@ class BackgroundSyncService {
       _isInitialized = true;
       _logger.info('BackgroundSyncService initialized successfully');
     } catch (e) {
-      _logError('BackgroundSyncService initialization', e);
+      _logger.severe('BackgroundSyncService initialization', e);
       rethrow;
     }
   }
@@ -111,7 +98,7 @@ class BackgroundSyncService {
 
       _logger.info('All background tasks registered successfully');
     } catch (e) {
-      _logError('Background tasks registration', e);
+      _logger.severe('Background tasks registration', e);
       rethrow;
     }
   }
@@ -121,7 +108,7 @@ class BackgroundSyncService {
       await Workmanager().cancelAll();
       _logger.info('All background tasks cancelled');
     } catch (e) {
-      _logError('Background tasks cancellation', e);
+      _logger.severe('Background tasks cancellation', e);
     }
   }
 
@@ -129,7 +116,7 @@ class BackgroundSyncService {
     try {
       return [messagesSyncTask, invitesSyncTask, metadataRefreshTask];
     } catch (e) {
-      _logError('Get registered tasks', e);
+      _logger.severe('Get registered tasks', e);
       return [];
     }
   }
@@ -142,7 +129,7 @@ class BackgroundSyncService {
         return DateTime.fromMillisecondsSinceEpoch(timestamp);
       }
     } catch (e) {
-      _logWarning('Get last sync time for group $groupId', e);
+      _logger.warning('Get last sync time for group $groupId', e);
     }
     return null;
   }
@@ -152,7 +139,7 @@ class BackgroundSyncService {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setInt('background_sync_group_$groupId', time.millisecondsSinceEpoch);
     } catch (e) {
-      _logWarning('Set last sync time for group $groupId', e);
+      _logger.warning('Set last sync time for group $groupId', e);
     }
   }
 
@@ -193,7 +180,7 @@ class BackgroundSyncService {
               return metadata.displayName!;
             }
           } catch (e) {
-            _logWarning('Get user metadata for $otherMemberPubkey', e);
+            _logger.warning('Get user metadata for $otherMemberPubkey', e);
           }
           return otherMemberPubkey.substring(0, _pubkeyDisplayLength);
         }
@@ -202,7 +189,7 @@ class BackgroundSyncService {
         return group.name.isNotEmpty ? group.name : _notificationTitleUnknownGroup;
       }
     } catch (e) {
-      _logWarning('Get group name for $groupId', e);
+      _logger.warning('Get group name for $groupId', e);
       return _notificationTitleGroupChat;
     }
   }
@@ -235,7 +222,7 @@ class BackgroundSyncService {
 
       _logger.info('Task $taskName executed immediately and scheduled for background execution');
     } catch (e) {
-      _logError('Trigger task $taskName', e);
+      _logger.severe('Trigger task $taskName', e);
     }
   }
 }
