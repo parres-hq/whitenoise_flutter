@@ -8,15 +8,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 ### Changed
+
 ### Deprecated
+
 ### Removed
+
 ### Fixed
+
 - Fixed 2 users group creation when DM already exists
 - Fixed issue where keyboard covers part of the "introduce yourself" textfield.
 - Improved close reply tap area/response.
-### Security
+- Added notification permissions request to contact list screen
+- Added background sync service to fetch new messages and invites and show notifications for them
 
+### Security
 
 ## [0.1.4] - 2025-09-22
 
@@ -53,7 +60,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show updated user profile after publishing new metadata
 - Fixed loading and scroll performance of large follow lists
 - Lots of UI polish
-
 
 ## [0.1.3] - 2025-08-09
 
