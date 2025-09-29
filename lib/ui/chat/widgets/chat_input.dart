@@ -60,11 +60,14 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
   }
 
   void _measureSingleLineHeight() {
-    if (_inputKey.currentContext != null) {
-      final RenderBox renderBox = _inputKey.currentContext!.findRenderObject() as RenderBox;
-      setState(() {
-        _singleLineHeight = renderBox.size.height;
-      });
+    final context = _inputKey.currentContext;
+    if (!mounted || context == null) return;
+    final renderObject = context.findRenderObject();
+    if (renderObject is RenderBox) {
+      final h = renderObject.size.height;
+      if (_singleLineHeight != h) {
+        setState(() => _singleLineHeight = h);
+      }
     }
   }
 
