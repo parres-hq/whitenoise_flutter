@@ -7,6 +7,7 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
+import 'package:whitenoise/domain/services/background_sync_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/router_provider.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
@@ -46,6 +47,13 @@ Future<void> main() async {
     log.severe('Failed to initialize notification service: $e');
   }
 
+  try {
+    await BackgroundSyncService.initialize();
+    log.info('Background sync service initialized successfully');
+  } catch (e) {
+    log.severe('Failed to initialize background sync service: $e');
+  }
+
   final container = ProviderContainer();
   final authNotifier = container.read(authProvider.notifier);
   container.read(themeProvider.notifier);
@@ -53,6 +61,13 @@ Future<void> main() async {
   try {
     await authNotifier.initialize();
     log.info('Whitenoise initialized via authProvider');
+
+    try {
+      await BackgroundSyncService.registerAllTasks();
+      log.info('Background tasks registered successfully');
+    } catch (e) {
+      log.severe('Failed to register background tasks: $e');
+    }
   } catch (e) {
     log.severe('Initialization failed: $e');
   }

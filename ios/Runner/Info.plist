@@ -53,5 +53,15 @@
 		<string>This app needs camera access to scan QR codes</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>This app needs photos access to get QR code from photo library</string>
+		<key>UIBackgroundModes</key>
+		<array>
+			<string>processing</string>
+		</array>
+		<key>BGTaskSchedulerPermittedIdentifiers</key>
+		<array>
+			<string>com.whitenoise.messages_sync</string>
+			<string>com.whitenoise.invites_sync</string>
+			<string>com.whitenoise.metadata_refresh</string>
+		</array>
 	</dict>
 </plist>
