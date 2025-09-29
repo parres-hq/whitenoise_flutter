@@ -43,7 +43,7 @@ pub fn get_default_blossom_server_url() -> String {
     }
     #[cfg(not(debug_assertions))]
     {
-        "https://uploads.primal.net".to_string()
+        "https://blossom.primal.net".to_string()
     }
 }
 
