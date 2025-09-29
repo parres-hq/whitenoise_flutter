@@ -328,7 +328,12 @@ Future<bool> _handleMessagesSync() async {
           for (final message in newMessages) {
             try {
               await NotificationService.showMessageNotification(
-                id: DateTime.now().millisecondsSinceEpoch ~/ 1000 + 1,
+                id:
+                    Object.hash(
+                      BackgroundSyncService._notificationTypeNewMessage,
+                      DateTime.now().microsecondsSinceEpoch,
+                    ) &
+                    0x7fffffff,
                 title: groupDisplayName,
                 body: message.content,
                 payload: jsonEncode({
@@ -386,7 +391,12 @@ Future<bool> _handleInvitesSync() async {
 
     if (newWelcomes.isNotEmpty) {
       await NotificationService.showMessageNotification(
-        id: DateTime.now().millisecondsSinceEpoch ~/ 1000 + 1,
+        id:
+            Object.hash(
+              BackgroundSyncService._notificationTypeInvitesSync,
+              DateTime.now().microsecondsSinceEpoch,
+            ) &
+            0x7fffffff,
         title: BackgroundSyncService._notificationTitleNewInvitations,
         body: '${newWelcomes.length} new group invitation${newWelcomes.length > 1 ? 's' : ''}',
         payload: jsonEncode({
