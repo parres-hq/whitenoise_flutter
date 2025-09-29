@@ -33,6 +33,8 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
   final _focusNode = FocusNode();
   Timer? _draftSaveTimer;
   bool _isLoadingDraft = false;
+  double? _singleLineHeight;
+  final _inputKey = GlobalKey();
 
   @override
   void initState() {
@@ -50,6 +52,20 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
     });
 
     _textController.addListener(_onTextChanged);
+
+    // Measure single line height after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _measureSingleLineHeight();
+    });
+  }
+
+  void _measureSingleLineHeight() {
+    if (_inputKey.currentContext != null) {
+      final RenderBox renderBox = _inputKey.currentContext!.findRenderObject() as RenderBox;
+      setState(() {
+        _singleLineHeight = renderBox.size.height;
+      });
+    }
   }
 
   @override
@@ -236,6 +252,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                 },
                               ),
                               WnTextFormField(
+                                key: _inputKey,
                                 controller: _textController,
                                 focusNode: _focusNode,
                                 onChanged: (_) => setState(() {}),
@@ -271,7 +288,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                     WnIconButton(
                                           iconPath: AssetsPaths.icArrowUp,
                                           padding: 14.w,
-                                          size: 44.h,
+                                          size: _singleLineHeight ?? 44.h,
                                           onTap: _sendMessage,
                                           buttonColor: context.colors.primary,
                                           iconColor: context.colors.primaryForeground,
