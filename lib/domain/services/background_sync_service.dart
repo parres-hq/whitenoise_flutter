@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:logging/logging.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:whitenoise/domain/services/account_secure_storage_service.dart';
+import 'package:whitenoise/domain/services/last_read_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
@@ -19,8 +19,8 @@ class BackgroundSyncService {
   static const String invitesSyncTask = 'com.whitenoise.invites_sync';
   static const String metadataRefreshTask = 'com.whitenoise.metadata_refresh';
 
-  static const Duration _messagesSyncFrequency = Duration(minutes: 15);
-  static const Duration _invitesSyncFrequency = Duration(minutes: 15);
+  static const Duration _messagesSyncFrequency = Duration(minutes: 5);
+  static const Duration _invitesSyncFrequency = Duration(minutes: 5);
   static const Duration _metadataRefreshFrequency = Duration(hours: 24);
 
   // Notification constants
@@ -32,7 +32,6 @@ class BackgroundSyncService {
   static const String _notificationTitleGroupChat = 'Group Chat';
 
   // Sync time constants
-  static const Duration _defaultSyncCutoffHours = Duration(hours: 24);
   static const Duration _messageFilterBufferSeconds = Duration(seconds: 1);
   static const Duration _taskDelaySeconds = Duration(seconds: 1);
 
@@ -121,41 +120,22 @@ class BackgroundSyncService {
     }
   }
 
-  static Future<DateTime?> _getLastGroupSyncTime(String groupId) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final timestamp = prefs.getInt('background_sync_group_$groupId');
-      if (timestamp != null) {
-        return DateTime.fromMillisecondsSinceEpoch(timestamp);
-      }
-    } catch (e) {
-      _logger.warning('Get last sync time for group $groupId', e);
-    }
-    return null;
-  }
-
-  static Future<void> _setLastGroupSyncTime(String groupId, DateTime time) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('background_sync_group_$groupId', time.millisecondsSinceEpoch);
-    } catch (e) {
-      _logger.warning('Set last sync time for group $groupId', e);
-    }
-  }
-
   static List<ChatMessage> _filterNewMessages(
     List<ChatMessage> messages,
     String currentUserPubkey,
-    DateTime? lastSyncTime,
+    DateTime? lastReadTime,
   ) {
     final now = DateTime.now();
-    final cutoffTime = lastSyncTime ?? now.subtract(_defaultSyncCutoffHours);
+    final bufferCutoff = now.subtract(_messageFilterBufferSeconds);
+
+    // If no last read time, only show very recent messages (1 hour) for new groups
+    final cutoffTime = lastReadTime ?? now.subtract(const Duration(hours: 1));
 
     return messages.where((message) {
       if (message.pubkey == currentUserPubkey) return false;
       if (message.isDeleted) return false;
       if (message.createdAt.isBefore(cutoffTime)) return false;
-      if (message.createdAt.isAfter(now.subtract(_messageFilterBufferSeconds))) return false;
+      if (message.createdAt.isAfter(bufferCutoff)) return false;
       return true;
     }).toList();
   }
@@ -254,14 +234,11 @@ Future<bool> _handleMessagesSync() async {
   try {
     logger.info('Starting messages sync background task');
 
-    final accounts = await getAccounts();
-    if (accounts.isEmpty) {
-      logger.info('No accounts found, skipping messages sync');
+    final activePubkey = await AccountSecureStorageService.getActivePubkey();
+    if (activePubkey == null) {
+      logger.info('No active account found, skipping messages sync');
       return true;
     }
-
-    final activeAccount = accounts.first;
-    final activePubkey = activeAccount.pubkey;
 
     final groups = await activeGroups(pubkey: activePubkey);
     if (groups.isEmpty) {
@@ -270,11 +247,10 @@ Future<bool> _handleMessagesSync() async {
     }
 
     int totalNewMessages = 0;
-    final syncTime = DateTime.now();
 
     for (final group in groups) {
       try {
-        final lastSyncTime = await BackgroundSyncService._getLastGroupSyncTime(group.mlsGroupId);
+        final lastReadTime = await LastReadService.getLastRead(groupId: group.mlsGroupId);
 
         final aggregatedMessages = await fetchAggregatedMessagesForGroup(
           pubkey: activePubkey,
@@ -284,11 +260,11 @@ Future<bool> _handleMessagesSync() async {
         final newMessages = BackgroundSyncService._filterNewMessages(
           aggregatedMessages,
           activePubkey,
-          lastSyncTime,
+          lastReadTime,
         );
 
         logger.info(
-          'Messages sync: Group ${group.mlsGroupId} - Found ${aggregatedMessages.length} total messages, ${newMessages.length} new messages',
+          'Messages sync: Group ${group.mlsGroupId} - Found ${aggregatedMessages.length} total messages, ${newMessages.length} unread messages',
         );
 
         if (newMessages.isNotEmpty) {
@@ -303,7 +279,7 @@ Future<bool> _handleMessagesSync() async {
                 id:
                     Object.hash(
                       BackgroundSyncService._notificationTypeNewMessage,
-                      DateTime.now().microsecondsSinceEpoch,
+                      message.id,
                     ) &
                     0x7fffffff,
                 title: groupDisplayName,
@@ -322,8 +298,6 @@ Future<bool> _handleMessagesSync() async {
             }
           }
         }
-
-        await BackgroundSyncService._setLastGroupSyncTime(group.mlsGroupId, syncTime);
       } catch (e) {
         logger.warning('Fetch messages for group ${group.mlsGroupId}: $e');
       }
@@ -349,36 +323,59 @@ Future<bool> _handleInvitesSync() async {
   try {
     logger.info('Starting invites sync background task');
 
-    final accounts = await getAccounts();
-    if (accounts.isEmpty) {
-      logger.info('No accounts found, skipping invites sync');
+    final activePubkey = await AccountSecureStorageService.getActivePubkey();
+    if (activePubkey == null) {
+      logger.info('No active account found, skipping invites sync');
       return true;
     }
 
-    final activeAccount = accounts.first;
-    final activePubkey = activeAccount.pubkey;
+    final lastReadTime = await LastReadService.getLastRead(groupId: 'invites');
+    final now = DateTime.now();
+    final bufferCutoff = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
+    final cutoffTime = lastReadTime ?? now.subtract(const Duration(hours: 12));
 
     final welcomes = await pendingWelcomes(pubkey: activePubkey);
-    final newWelcomes = welcomes.where((w) => w.state == WelcomeState.pending).toList();
+    final newWelcomes =
+        welcomes.where((w) {
+          if (w.state != WelcomeState.pending) return false;
+          final welcomeTime = DateTime.fromMillisecondsSinceEpoch(w.createdAt.toInt() * 1000);
+          if (welcomeTime.isBefore(cutoffTime)) return false;
+          if (welcomeTime.isAfter(bufferCutoff)) return false;
+          return true;
+        }).toList();
 
-    if (newWelcomes.isNotEmpty) {
-      await NotificationService.showMessageNotification(
-        id:
-            Object.hash(
-              BackgroundSyncService._notificationTypeInvitesSync,
-              DateTime.now().microsecondsSinceEpoch,
-            ) &
-            0x7fffffff,
-        title: BackgroundSyncService._notificationTitleNewInvitations,
-        body: '${newWelcomes.length} new group invitation${newWelcomes.length > 1 ? 's' : ''}',
-        payload: jsonEncode({
-          'type': BackgroundSyncService._notificationTypeInvitesSync,
-          'count': newWelcomes.length,
-        }),
-      );
+    logger.info(
+      'Invites sync: Found ${welcomes.length} total pending welcomes, ${newWelcomes.length} new welcomes',
+    );
+
+    for (final welcome in newWelcomes) {
+      try {
+        await NotificationService.showMessageNotification(
+          id:
+              Object.hash(
+                BackgroundSyncService._notificationTypeInvitesSync,
+                welcome.id,
+              ) &
+              0x7fffffff,
+          title: BackgroundSyncService._notificationTitleNewInvitations,
+          body: 'New group invitation',
+          payload: jsonEncode({
+            'type': BackgroundSyncService._notificationTypeInvitesSync,
+            'welcomeId': welcome.id,
+          }),
+        );
+      } catch (e) {
+        logger.warning('Show notification for welcome ${welcome.id}: $e');
+      }
     }
 
-    logger.info('Invites sync completed. Found ${newWelcomes.length} new invites');
+    if (newWelcomes.isNotEmpty) {
+      logger.info(
+        'Invites sync completed successfully: Found ${newWelcomes.length} new invites and sent notifications',
+      );
+    } else {
+      logger.info('Invites sync completed successfully: No new invites found');
+    }
     return true;
   } catch (e, stackTrace) {
     logger.severe('Invites sync task failed', e, stackTrace);
@@ -392,14 +389,11 @@ Future<bool> _handleMetadataRefresh() async {
   try {
     logger.info('Starting metadata refresh background task');
 
-    final accounts = await getAccounts();
-    if (accounts.isEmpty) {
-      logger.info('No accounts found, skipping metadata refresh');
+    final activePubkey = await AccountSecureStorageService.getActivePubkey();
+    if (activePubkey == null) {
+      logger.info('No active account found, skipping metadata refresh');
       return true;
     }
-
-    final activeAccount = accounts.first;
-    final activePubkey = activeAccount.pubkey;
 
     final groups = await activeGroups(pubkey: activePubkey);
     int refreshedCount = 0;

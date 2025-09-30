@@ -14,6 +14,7 @@ import 'package:whitenoise/config/providers/profile_ready_card_visibility_provid
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
+import 'package:whitenoise/domain/services/last_read_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
@@ -277,6 +278,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     final pendingWelcomes = welcomesList.where((welcome) => welcome.state == WelcomeState.pending);
     for (final welcome in pendingWelcomes) {
       chatItems.add(ChatListItem.fromWelcome(welcome: welcome));
+    }
+
+    // Set last read time for invites when they are displayed
+    if (pendingWelcomes.isNotEmpty) {
+      LastReadService.setLastRead(groupId: 'invites');
     }
 
     // Sort by date created (most recent first)

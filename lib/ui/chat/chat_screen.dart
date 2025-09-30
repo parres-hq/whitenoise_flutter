@@ -12,6 +12,7 @@ import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
+import 'package:whitenoise/domain/services/last_read_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/invite/chat_invite_screen.dart';
 import 'package:whitenoise/ui/chat/services/chat_dialog_service.dart';
@@ -107,6 +108,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
       } else {
         _scrollController.jumpTo(maxScrollExtent);
       }
+      LastReadService.setLastRead(groupId: widget.groupId);
     });
   }
 
@@ -149,6 +151,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     if (isLoadingCompleted && currentMessages.isNotEmpty && !_hasInitialScrollCompleted) {
       _hasInitialScrollCompleted = true;
       _scrollToBottom(animated: false);
+      LastReadService.setLastRead(groupId: widget.groupId);
       return;
     }
 
@@ -288,6 +291,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                     final scrollDelta = currentOffset - _lastScrollOffset;
                     if (scrollDelta < -20) currentFocus.unfocus();
                     _lastScrollOffset = currentOffset;
+                  }
+
+                  final maxScrollExtent = scrollInfo.metrics.maxScrollExtent;
+                  final currentPixels = scrollInfo.metrics.pixels;
+                  final isAtBottom = currentPixels >= maxScrollExtent - 50;
+
+                  if (isAtBottom) {
+                    LastReadService.setLastRead(groupId: widget.groupId);
                   }
                 }
                 return false;
