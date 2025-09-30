@@ -409,103 +409,127 @@ void callbackDispatcher() {
 
 Future<bool> _handleMessagesSync() async {
   final logger = Logger('MessagesSyncTask');
-
   try {
     logger.info('Starting messages sync background task');
-
-    final activePubkey = await AccountSecureStorageService.getActivePubkey();
+    final String? activePubkey = await AccountSecureStorageService.getActivePubkey();
     if (activePubkey == null) {
       logger.info('No active account found, skipping messages sync');
       return true;
     }
-
-    final groups = await activeGroups(pubkey: activePubkey);
+    final List<dynamic> groups = await activeGroups(pubkey: activePubkey);
     if (groups.isEmpty) {
       logger.info('No groups found, skipping messages sync');
       return true;
     }
-
     int totalNewMessages = 0;
-
     for (final group in groups) {
       try {
-        final lastSyncTime = await BackgroundSyncService._getLastSyncTime(group.mlsGroupId);
-
-        final aggregatedMessages = await fetchAggregatedMessagesForGroup(
-          pubkey: activePubkey,
+        final int newCount = await _syncMessagesForGroup(
           groupId: group.mlsGroupId,
+          activePubkey: activePubkey,
+          logger: logger,
         );
-
-        final lastReadTime = await LastReadService.getLastRead(groupId: group.mlsGroupId);
-
-        final newMessages = BackgroundSyncService._filterNewMessages(
-          aggregatedMessages,
-          activePubkey,
-          lastSyncTime,
-          lastReadTime,
-        );
-
-        logger.info(
-          'Messages sync: Group ${group.mlsGroupId} - Found ${aggregatedMessages.length} total messages, ${newMessages.length} unread messages',
-        );
-
-        if (newMessages.isNotEmpty) {
-          final groupDisplayName = await BackgroundSyncService._getGroupDisplayName(
-            group.mlsGroupId,
-            activePubkey,
-          );
-
-          for (final message in newMessages) {
-            try {
-              await NotificationService.showMessageNotification(
-                id: await NotificationIdService.getIdFor(
-                  key:
-                      '${BackgroundSyncService._notificationTypeNewMessage}:${group.mlsGroupId}:${message.id}',
-                ),
-                title: groupDisplayName,
-                body: message.content,
-                payload: jsonEncode({
-                  'type': BackgroundSyncService._notificationTypeNewMessage,
-                  'groupId': group.mlsGroupId,
-                  'messageId': message.id,
-                  'sender': message.pubkey,
-                }),
-              );
-
-              totalNewMessages++;
-            } catch (e) {
-              logger.warning('Show notification for message ${message.id}: $e');
-            }
-          }
-
-          final latestProcessed = newMessages
-              .map((m) => m.createdAt)
-              .reduce((a, b) => a.isAfter(b) ? a : b);
-          await BackgroundSyncService._setLastSyncTime(group.mlsGroupId, latestProcessed);
-        } else {
-          final now = DateTime.now();
-          final bufferCutoff = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
-          if (lastSyncTime == null || lastSyncTime.isBefore(bufferCutoff)) {
-            await BackgroundSyncService._setLastSyncTime(group.mlsGroupId, bufferCutoff);
-          }
-        }
+        totalNewMessages += newCount;
       } catch (e) {
-        logger.warning('Fetch messages for group ${group.mlsGroupId}: $e');
+        logger.warning('Sync group ${group.mlsGroupId}: $e');
       }
     }
-
-    if (totalNewMessages > 0) {
-      logger.info(
-        'Messages sync completed successfully: Found $totalNewMessages new messages and sent notifications',
-      );
-    } else {
-      logger.info('Messages sync completed successfully: No new messages found');
-    }
+    logger.info(
+      totalNewMessages > 0
+          ? 'Messages sync completed: $totalNewMessages new messages notified'
+          : 'Messages sync completed: No new messages',
+    );
     return true;
   } catch (e, stackTrace) {
     logger.severe('Messages sync task failed', e, stackTrace);
     return false;
   }
+}
+
+Future<int> _syncMessagesForGroup({
+  required String groupId,
+  required String activePubkey,
+  required Logger logger,
+}) async {
+  final DateTime? lastSyncTime = await BackgroundSyncService._getLastSyncTime(groupId);
+  final List<ChatMessage> aggregatedMessages = await fetchAggregatedMessagesForGroup(
+    pubkey: activePubkey,
+    groupId: groupId,
+  );
+  final DateTime? lastReadTime = await LastReadService.getLastRead(groupId: groupId);
+  final List<ChatMessage> newMessages = BackgroundSyncService._filterNewMessages(
+    aggregatedMessages,
+    activePubkey,
+    lastSyncTime,
+    lastReadTime,
+  );
+  logger.info(
+    'Messages sync: Group $groupId - Found ${aggregatedMessages.length} total messages, ${newMessages.length} unread messages',
+  );
+  if (newMessages.isEmpty) {
+    await _updateCheckpointNoNewMessages(groupId: groupId, lastSyncTime: lastSyncTime);
+    return 0;
+  }
+  await _notifyNewMessages(
+    groupId: groupId,
+    activePubkey: activePubkey,
+    newMessages: newMessages,
+    logger: logger,
+  );
+  await _updateCheckpointWithNewMessages(groupId: groupId, newMessages: newMessages);
+  return newMessages.length;
+}
+
+Future<void> _notifyNewMessages({
+  required String groupId,
+  required String activePubkey,
+  required List<ChatMessage> newMessages,
+  required Logger logger,
+}) async {
+  final String groupDisplayName = await BackgroundSyncService._getGroupDisplayName(
+    groupId,
+    activePubkey,
+  );
+  for (final ChatMessage message in newMessages) {
+    try {
+      await NotificationService.showMessageNotification(
+        id: await NotificationIdService.getIdFor(
+          key: '${BackgroundSyncService._notificationTypeNewMessage}:$groupId:${message.id}',
+        ),
+        title: groupDisplayName,
+        body: message.content,
+        payload: jsonEncode({
+          'type': BackgroundSyncService._notificationTypeNewMessage,
+          'groupId': groupId,
+          'messageId': message.id,
+          'sender': message.pubkey,
+        }),
+      );
+    } catch (e) {
+      logger.warning('Show notification for message ${message.id}: $e');
+    }
+  }
+}
+
+Future<void> _updateCheckpointNoNewMessages({
+  required String groupId,
+  required DateTime? lastSyncTime,
+}) async {
+  final DateTime now = DateTime.now();
+  final DateTime bufferCutoff = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
+  if (lastSyncTime == null || lastSyncTime.isBefore(bufferCutoff)) {
+    await BackgroundSyncService._setLastSyncTime(groupId, bufferCutoff);
+  }
+}
+
+Future<void> _updateCheckpointWithNewMessages({
+  required String groupId,
+  required List<ChatMessage> newMessages,
+}) async {
+  final DateTime latestProcessed = newMessages
+      .map((m) => m.createdAt)
+      .reduce((a, b) => a.isAfter(b) ? a : b);
+  await BackgroundSyncService._setLastSyncTime(groupId, latestProcessed);
 }
 
 Future<bool> _handleInvitesSync() async {

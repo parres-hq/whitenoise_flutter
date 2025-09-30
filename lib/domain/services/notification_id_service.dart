@@ -1,23 +1,27 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:synchronized/synchronized.dart';
 
 class NotificationIdService {
   static const String _mapPrefix = 'notif_id_';
   static const String _reverseMapPrefix = 'notif_id_rev_';
   static const int _minId = 1;
   static const int _maxId = 0x7fffffff;
+  static final Lock _lock = Lock();
 
   static Future<int> getIdFor({required String key}) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    final String storageKey = '$_mapPrefix$key';
-    final int? existingId = prefs.getInt(storageKey);
-    if (existingId != null) {
-      return existingId;
-    }
-    // Generate a deterministic, process-safe ID without relying on a shared counter
-    final int preferredId = _stableHashToId(key);
-    final int allocated = await _allocateId(prefs: prefs, key: key, preferredId: preferredId);
-    await prefs.setInt(storageKey, allocated);
-    return allocated;
+    return await _lock.synchronized(() async {
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final String storageKey = '$_mapPrefix$key';
+      final int? existingId = prefs.getInt(storageKey);
+      if (existingId != null) {
+        return existingId;
+      }
+      // Generate a deterministic, process-safe ID without relying on a shared counter
+      final int preferredId = _stableHashToId(key);
+      final int allocated = await _allocateId(prefs: prefs, key: key, preferredId: preferredId);
+      await prefs.setInt(storageKey, allocated);
+      return allocated;
+    });
   }
 
   static int _stableHashToId(String input) {
