@@ -1,9 +1,9 @@
 use crate::api::{error::ApiError, group_id_from_string, group_id_to_string};
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
-use nostr_mls::prelude::group_types::Group as WhitenoiseGroup;
-use nostr_mls::prelude::group_types::GroupState as WhitenoiseGroupState;
-use nostr_mls::prelude::{NostrGroupConfigData, NostrGroupDataUpdate};
+use mdk_core::prelude::group_types::Group as WhitenoiseGroup;
+use mdk_core::prelude::group_types::GroupState as WhitenoiseGroupState;
+use mdk_core::prelude::{NostrGroupConfigData, NostrGroupDataUpdate};
 use nostr_sdk::prelude::*;
 use whitenoise::{
     GroupInformation as WhitenoiseGroupInformation, GroupType as WhitenoiseGroupType, RelayType,

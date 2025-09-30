@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed issue where keyboard covers part of the "introduce yourself" textfield.
 - Improved close reply tap area/response.
 - Improved haptic feedback for chat context menus.
+- Fixed broken profile image upload [#701](https://github.com/parres-hq/whitenoise_flutter/pull/701)
 ### Security
 
 
