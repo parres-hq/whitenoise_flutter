@@ -114,7 +114,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
     return Scaffold(
       backgroundColor: context.colors.neutral,
       resizeToAvoidBottomInset: true,
-      appBar: const AuthHeader(title: 'Set Up Profile'),
+      appBar: const AuthAppBar(title: 'Set Up Profile'),
       body: SafeArea(
         child: SingleChildScrollView(
           controller: _scrollController,

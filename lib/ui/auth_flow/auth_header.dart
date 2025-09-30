@@ -5,8 +5,8 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
-class AuthHeader extends StatelessWidget implements PreferredSizeWidget {
-  const AuthHeader({super.key, required this.title});
+class AuthAppBar extends StatelessWidget implements PreferredSizeWidget {
+  const AuthAppBar({super.key, required this.title});
 
   final String title;
 

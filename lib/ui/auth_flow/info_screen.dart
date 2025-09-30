@@ -70,7 +70,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
       onPopInvokedWithResult: (didPop, result) => _deleteJustCreatedAccount(),
       child: Scaffold(
         backgroundColor: context.colors.neutral,
-        appBar: const AuthHeader(title: 'Beyond the Noise'),
+        appBar: const AuthAppBar(title: 'Beyond the Noise'),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Padding(

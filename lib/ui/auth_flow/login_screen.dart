@@ -111,7 +111,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: context.colors.neutral,
-      appBar: const AuthHeader(title: 'Login to White Noise'),
+      appBar: const AuthAppBar(title: 'Login to White Noise'),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24).w,
