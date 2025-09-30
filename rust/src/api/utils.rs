@@ -5,7 +5,7 @@
 
 use crate::api::error::ApiError;
 use flutter_rust_bridge::frb;
-use nostr_mls::prelude::GroupId;
+use mdk_core::prelude::GroupId;
 use nostr_sdk::prelude::*;
 pub use whitenoise::Whitenoise;
 
@@ -43,17 +43,17 @@ pub fn get_default_blossom_server_url() -> String {
     }
     #[cfg(not(debug_assertions))]
     {
-        "https://uploads.primal.net".to_string()
+        "https://blossom.primal.net".to_string()
     }
 }
 
 #[frb]
 pub fn group_id_to_string(group_id: &GroupId) -> String {
-    hex::encode(group_id.as_slice())
+    ::hex::encode(group_id.as_slice())
 }
 
 #[frb]
 pub fn group_id_from_string(group_id: &str) -> Result<GroupId, ApiError> {
-    let bytes = hex::decode(group_id)?;
+    let bytes = ::hex::decode(group_id)?;
     Ok(GroupId::from_slice(&bytes))
 }
