@@ -225,7 +225,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
     }
   }
 
-  Future<void> _testBackgroundTask(String taskName) async {
+  Future<void> _triggerBackgroundTask(String taskName) async {
     setState(() => _isLoading = true);
     try {
       await BackgroundSyncService.triggerTask(taskName);
@@ -466,7 +466,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                           onPressed:
                                               _isLoading
                                                   ? null
-                                                  : () => _testBackgroundTask(
+                                                  : () => _triggerBackgroundTask(
                                                     BackgroundSyncService.messagesSyncTask,
                                                   ),
                                           loading: _isLoading,
@@ -480,7 +480,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                           onPressed:
                                               _isLoading
                                                   ? null
-                                                  : () => _testBackgroundTask(
+                                                  : () => _triggerBackgroundTask(
                                                     BackgroundSyncService.invitesSyncTask,
                                                   ),
                                           loading: _isLoading,
@@ -495,7 +495,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                     onPressed:
                                         _isLoading
                                             ? null
-                                            : () => _testBackgroundTask(
+                                            : () => _triggerBackgroundTask(
                                               BackgroundSyncService.metadataRefreshTask,
                                             ),
                                     loading: _isLoading,

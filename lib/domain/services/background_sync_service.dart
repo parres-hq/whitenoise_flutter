@@ -198,21 +198,6 @@ class BackgroundSyncService {
     try {
       _logger.info('Manually triggering task: $taskName');
 
-      switch (taskName) {
-        case messagesSyncTask:
-          await _handleMessagesSync();
-          break;
-        case invitesSyncTask:
-          await _handleInvitesSync();
-          break;
-        case metadataRefreshTask:
-          await _handleMetadataRefresh();
-          break;
-        default:
-          _logger.warning('Unknown task for immediate execution: $taskName');
-          return;
-      }
-
       await Workmanager().registerOneOffTask(
         taskName,
         taskName,
@@ -220,7 +205,7 @@ class BackgroundSyncService {
         existingWorkPolicy: ExistingWorkPolicy.replace,
       );
 
-      _logger.info('Task $taskName executed immediately and scheduled for background execution');
+      _logger.info('Task $taskName scheduled for background execution');
     } catch (e) {
       _logger.severe('Trigger task $taskName', e);
     }
