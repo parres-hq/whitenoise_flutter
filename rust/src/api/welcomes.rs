@@ -1,7 +1,7 @@
 use crate::api::{error::ApiError, utils::group_id_to_string};
 use flutter_rust_bridge::frb;
-use nostr_mls::prelude::welcome_types::Welcome as WhitenoiseWelcome;
-use nostr_mls::prelude::welcome_types::WelcomeState as WhitenoiseWelcomeState;
+use mdk_core::prelude::welcome_types::Welcome as WhitenoiseWelcome;
+use mdk_core::prelude::welcome_types::WelcomeState as WhitenoiseWelcomeState;
 use nostr_sdk::prelude::*;
 use whitenoise::Whitenoise;
 
