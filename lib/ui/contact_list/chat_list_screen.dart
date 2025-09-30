@@ -273,7 +273,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _requestPermissionsAndRegisterBackgroundTasksOnce();
+      // On resume, ensure registration is still valid and not stale
+      BackgroundSyncService.ensureRegistered();
     }
   }
 

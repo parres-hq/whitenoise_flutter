@@ -2,6 +2,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class NotificationIdService {
   static const String _mapPrefix = 'notif_id_';
+  static const String _reverseMapPrefix = 'notif_id_rev_';
   static const int _minId = 1;
   static const int _maxId = 0x7fffffff;
 
@@ -13,9 +14,10 @@ class NotificationIdService {
       return existingId;
     }
     // Generate a deterministic, process-safe ID without relying on a shared counter
-    final int hashedId = _stableHashToId(key);
-    await prefs.setInt(storageKey, hashedId);
-    return hashedId;
+    final int preferredId = _stableHashToId(key);
+    final int allocated = await _allocateId(prefs: prefs, key: key, preferredId: preferredId);
+    await prefs.setInt(storageKey, allocated);
+    return allocated;
   }
 
   static int _stableHashToId(String input) {
@@ -33,5 +35,56 @@ class NotificationIdService {
     final int range = _maxId - _minId;
     final int mapped = _minId + (positive % range);
     return mapped;
+  }
+
+  static Future<int> _allocateId({
+    required SharedPreferences prefs,
+    required String key,
+    required int preferredId,
+  }) async {
+    // If preferredId is unused or already mapped to this key, claim it
+    final String revKeyPreferred = '$_reverseMapPrefix$preferredId';
+    final String? existingKeyForPreferred = prefs.getString(revKeyPreferred);
+    if (existingKeyForPreferred == null || existingKeyForPreferred == key) {
+      await _setReverseMapping(prefs: prefs, id: preferredId, key: key);
+      return preferredId;
+    }
+
+    // Collision: probe deterministically to find a free ID
+    // Linear probing within the allowed range to avoid requiring randomness
+    final int range = _maxId - _minId;
+    for (int i = 1; i <= 1024; i++) {
+      final int candidate = _minId + (((preferredId - _minId) + i) % range);
+      final String revKey = '$_reverseMapPrefix$candidate';
+      final String? existingKey = prefs.getString(revKey);
+      if (existingKey == null || existingKey == key) {
+        await _setReverseMapping(prefs: prefs, id: candidate, key: key);
+        return candidate;
+      }
+    }
+
+    // Fallback: last resort, overwrite own mapping using a salted hash
+    // This reduces the likelihood of repeated collisions across sessions
+    for (int salt = 1; salt <= 5; salt++) {
+      final int salted = _stableHashToId('$key#$salt');
+      final String revKey = '$_reverseMapPrefix$salted';
+      final String? existingKey = prefs.getString(revKey);
+      if (existingKey == null || existingKey == key) {
+        await _setReverseMapping(prefs: prefs, id: salted, key: key);
+        return salted;
+      }
+    }
+
+    // If everything else fails (extremely unlikely), claim preferredId for this key
+    await _setReverseMapping(prefs: prefs, id: preferredId, key: key);
+    return preferredId;
+  }
+
+  static Future<void> _setReverseMapping({
+    required SharedPreferences prefs,
+    required int id,
+    required String key,
+  }) async {
+    await prefs.setString('$_reverseMapPrefix$id', key);
   }
 }

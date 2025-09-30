@@ -22,6 +22,7 @@ class BackgroundSyncService {
   static const String metadataRefreshTask = 'com.whitenoise.metadata_refresh';
   static const String _bgTasksRegisteredKey = 'bg_tasks_registered';
   static const String _taskFlagPrefix = 'bg_task_registered';
+  static const String _lastRegisteredPrefix = 'bg_last_registered_ts';
 
   static const Duration _messagesSyncFrequency = Duration(minutes: 15);
   static const Duration _invitesSyncFrequency = Duration(minutes: 15);
@@ -132,6 +133,10 @@ class BackgroundSyncService {
         final prefs = await SharedPreferences.getInstance();
         final bool allRegistered = messagesRegistered && invitesRegistered && metadataRegistered;
         await prefs.setBool('$_bgTasksRegisteredKey:$activePubkey', allRegistered);
+        await prefs.setInt(
+          '$_lastRegisteredPrefix:$activePubkey',
+          DateTime.now().millisecondsSinceEpoch,
+        );
         // Clear legacy/global flag to avoid misleading state from prior versions
         await prefs.remove(_bgTasksRegisteredKey);
       } catch (e) {
@@ -159,6 +164,7 @@ class BackgroundSyncService {
             value: false,
           );
           await prefs.setBool('$_bgTasksRegisteredKey:$activePubkey', false);
+          await prefs.remove('$_lastRegisteredPrefix:$activePubkey');
         }
         await prefs.setBool(_bgTasksRegisteredKey, false);
       } catch (e) {
@@ -227,6 +233,25 @@ class BackgroundSyncService {
     } catch (e) {
       _logger.warning('Read per-account bg tasks registered flag', e);
       return false;
+    }
+  }
+
+  static Future<void> ensureRegistered({Duration maxAge = const Duration(hours: 6)}) async {
+    try {
+      final String? activePubkey = await AccountSecureStorageService.getActivePubkey();
+      if (activePubkey == null || activePubkey.isEmpty) return;
+      final SharedPreferences prefs = await SharedPreferences.getInstance();
+      final int? lastTs = prefs.getInt('$_lastRegisteredPrefix:$activePubkey');
+      final bool allFlags = await isRegisteredForActiveAccount();
+      final bool stale =
+          lastTs == null
+              ? true
+              : DateTime.now().difference(DateTime.fromMillisecondsSinceEpoch(lastTs)) > maxAge;
+      if (!allFlags || stale) {
+        await registerAllTasks();
+      }
+    } catch (e) {
+      _logger.warning('Ensure background tasks registered', e);
     }
   }
 
