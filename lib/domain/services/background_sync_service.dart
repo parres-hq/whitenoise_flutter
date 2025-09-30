@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:logging/logging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/domain/services/account_secure_storage_service.dart';
 import 'package:whitenoise/domain/services/last_read_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
@@ -19,8 +20,8 @@ class BackgroundSyncService {
   static const String invitesSyncTask = 'com.whitenoise.invites_sync';
   static const String metadataRefreshTask = 'com.whitenoise.metadata_refresh';
 
-  static const Duration _messagesSyncFrequency = Duration(minutes: 5);
-  static const Duration _invitesSyncFrequency = Duration(minutes: 5);
+  static const Duration _messagesSyncFrequency = Duration(minutes: 15);
+  static const Duration _invitesSyncFrequency = Duration(minutes: 15);
   static const Duration _metadataRefreshFrequency = Duration(hours: 24);
 
   // Notification constants
@@ -123,13 +124,21 @@ class BackgroundSyncService {
   static List<ChatMessage> _filterNewMessages(
     List<ChatMessage> messages,
     String currentUserPubkey,
+    DateTime? lastSyncTime,
     DateTime? lastReadTime,
   ) {
     final now = DateTime.now();
     final bufferCutoff = now.subtract(_messageFilterBufferSeconds);
 
-    // If no last read time, only show very recent messages (1 hour) for new groups
-    final cutoffTime = lastReadTime ?? now.subtract(const Duration(hours: 1));
+    // Use the most conservative cutoff: the max of lastSyncTime and lastReadTime.
+    // If neither exists, only show very recent messages (1 hour) for new groups
+    DateTime? effectiveCutoff;
+    if (lastSyncTime != null && lastReadTime != null) {
+      effectiveCutoff = lastSyncTime.isAfter(lastReadTime) ? lastSyncTime : lastReadTime;
+    } else {
+      effectiveCutoff = lastSyncTime ?? lastReadTime;
+    }
+    final cutoffTime = effectiveCutoff ?? now.subtract(const Duration(hours: 1));
 
     return messages.where((message) {
       if (message.pubkey == currentUserPubkey) return false;
@@ -188,6 +197,28 @@ class BackgroundSyncService {
       _logger.info('Task $taskName scheduled for background execution');
     } catch (e) {
       _logger.severe('Trigger task $taskName', e);
+    }
+  }
+
+  /// Gets the last sync time for a specific group from SharedPreferences
+  static Future<DateTime?> _getLastSyncTime(String groupId) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final timestamp = prefs.getInt('bg_sync_last_$groupId');
+      return timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
+    } catch (e) {
+      _logger.warning('Get last sync time for group $groupId', e);
+      return null;
+    }
+  }
+
+  /// Sets the last sync time for a specific group in SharedPreferences
+  static Future<void> _setLastSyncTime(String groupId, DateTime time) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('bg_sync_last_$groupId', time.millisecondsSinceEpoch);
+    } catch (e) {
+      _logger.warning('Set last sync time for group $groupId', e);
     }
   }
 }
@@ -250,16 +281,19 @@ Future<bool> _handleMessagesSync() async {
 
     for (final group in groups) {
       try {
-        final lastReadTime = await LastReadService.getLastRead(groupId: group.mlsGroupId);
+        final lastSyncTime = await BackgroundSyncService._getLastSyncTime(group.mlsGroupId);
 
         final aggregatedMessages = await fetchAggregatedMessagesForGroup(
           pubkey: activePubkey,
           groupId: group.mlsGroupId,
         );
 
+        final lastReadTime = await LastReadService.getLastRead(groupId: group.mlsGroupId);
+
         final newMessages = BackgroundSyncService._filterNewMessages(
           aggregatedMessages,
           activePubkey,
+          lastSyncTime,
           lastReadTime,
         );
 
@@ -297,6 +331,19 @@ Future<bool> _handleMessagesSync() async {
               logger.warning('Show notification for message ${message.id}: $e');
             }
           }
+
+          // Update checkpoint to just before the buffer so buffered messages are retried
+          final now = DateTime.now();
+          final nextCheckpoint = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
+          await BackgroundSyncService._setLastSyncTime(group.mlsGroupId, nextCheckpoint);
+        } else {
+          // No new messages: advance checkpoint to avoid reprocessing the same window
+          // but never move it earlier than the user's lastReadTime.
+          final now = DateTime.now();
+          final proposed = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
+          final safeCheckpoint =
+              (lastReadTime != null && proposed.isBefore(lastReadTime)) ? lastReadTime : proposed;
+          await BackgroundSyncService._setLastSyncTime(group.mlsGroupId, safeCheckpoint);
         }
       } catch (e) {
         logger.warning('Fetch messages for group ${group.mlsGroupId}: $e');
