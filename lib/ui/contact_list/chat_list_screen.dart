@@ -38,9 +38,9 @@ class ChatListScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatListScreen> createState() => _ChatListScreenState();
 }
 
-class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProviderStateMixin {
+class _ChatListScreenState extends ConsumerState<ChatListScreen>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   static final Logger _log = Logger('ChatListScreen');
-  static bool _hasRegisteredBackgroundTasks = false;
   String _searchQuery = '';
 
   static const double _searchThresholdIOS = 0.1;
@@ -70,6 +70,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _pollingNotifier = ref.read(pollingProvider.notifier);
     _initializeControllers();
     _setupScrollListener();
@@ -78,14 +79,19 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
   }
 
   Future<void> _requestPermissionsAndRegisterBackgroundTasksOnce() async {
-    if (_hasRegisteredBackgroundTasks) return;
     try {
+      final bool alreadyRegistered = await BackgroundSyncService.isRegisteredForActiveAccount();
+      if (alreadyRegistered) return;
       final bool granted = await NotificationService.requestPermissions();
       if (!granted) return;
       await BackgroundSyncService.registerAllTasks();
-      _hasRegisteredBackgroundTasks = true;
+      final tasks = await BackgroundSyncService.getRegisteredTasks();
+      if (tasks.isEmpty) {
+        throw Exception('Background task registration succeeded but no tasks are registered');
+      }
     } catch (e, st) {
-      _log.warning('Failed to register background tasks: $e $st');
+      _log.severe('Failed to register background tasks: $e $st');
+      // TODO: Consider scheduling a retry/backoff or surfacing to the user if persistent
     }
   }
 
@@ -260,7 +266,15 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     _scrollController.dispose();
     _loadingAnimationController.dispose();
     WelcomeNotificationService.clearContext();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _requestPermissionsAndRegisterBackgroundTasksOnce();
+    }
   }
 
   @override

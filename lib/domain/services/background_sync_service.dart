@@ -20,6 +20,8 @@ class BackgroundSyncService {
   static const String messagesSyncTask = 'com.whitenoise.messages_sync';
   static const String invitesSyncTask = 'com.whitenoise.invites_sync';
   static const String metadataRefreshTask = 'com.whitenoise.metadata_refresh';
+  static const String _bgTasksRegisteredKey = 'bg_tasks_registered';
+  static const String _taskFlagPrefix = 'bg_task_registered';
 
   static const Duration _messagesSyncFrequency = Duration(minutes: 15);
   static const Duration _invitesSyncFrequency = Duration(minutes: 15);
@@ -67,6 +69,16 @@ class BackgroundSyncService {
     }
 
     try {
+      final String? activePubkey = await AccountSecureStorageService.getActivePubkey();
+      if (activePubkey == null || activePubkey.isEmpty) {
+        _logger.warning('Background tasks registration skipped: no active account');
+        return;
+      }
+
+      bool messagesRegistered = false;
+      bool invitesRegistered = false;
+      bool metadataRegistered = false;
+
       await Workmanager().registerPeriodicTask(
         'messages_sync',
         messagesSyncTask,
@@ -76,28 +88,55 @@ class BackgroundSyncService {
           requiresBatteryNotLow: true,
         ),
       );
+      messagesRegistered = true;
+      await _setTaskFlag(activePubkey: activePubkey, taskName: messagesSyncTask, value: true);
 
-      await Workmanager().registerPeriodicTask(
-        'invites_sync',
-        invitesSyncTask,
-        frequency: _invitesSyncFrequency,
-        constraints: Constraints(
-          networkType: NetworkType.connected,
-          requiresBatteryNotLow: true,
-        ),
-      );
+      try {
+        await Workmanager().registerPeriodicTask(
+          'invites_sync',
+          invitesSyncTask,
+          frequency: _invitesSyncFrequency,
+          constraints: Constraints(
+            networkType: NetworkType.connected,
+            requiresBatteryNotLow: true,
+          ),
+        );
+        invitesRegistered = true;
+        await _setTaskFlag(activePubkey: activePubkey, taskName: invitesSyncTask, value: true);
+      } catch (e) {
+        _logger.severe('Register invites sync task', e);
+      }
 
-      await Workmanager().registerPeriodicTask(
-        'metadata_refresh',
-        metadataRefreshTask,
-        frequency: _metadataRefreshFrequency,
-        constraints: Constraints(
-          networkType: NetworkType.connected,
-          requiresBatteryNotLow: true,
-        ),
-      );
+      try {
+        await Workmanager().registerPeriodicTask(
+          'metadata_refresh',
+          metadataRefreshTask,
+          frequency: _metadataRefreshFrequency,
+          constraints: Constraints(
+            networkType: NetworkType.connected,
+            requiresBatteryNotLow: true,
+          ),
+        );
+        metadataRegistered = true;
+        await _setTaskFlag(
+          activePubkey: activePubkey,
+          taskName: metadataRefreshTask,
+          value: true,
+        );
+      } catch (e) {
+        _logger.severe('Register metadata refresh task', e);
+      }
 
       _logger.info('All background tasks registered successfully');
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final bool allRegistered = messagesRegistered && invitesRegistered && metadataRegistered;
+        await prefs.setBool('$_bgTasksRegisteredKey:$activePubkey', allRegistered);
+        // Clear legacy/global flag to avoid misleading state from prior versions
+        await prefs.remove(_bgTasksRegisteredKey);
+      } catch (e) {
+        _logger.warning('Persist bg tasks registered flag', e);
+      }
     } catch (e) {
       _logger.severe('Background tasks registration', e);
       rethrow;
@@ -108,6 +147,23 @@ class BackgroundSyncService {
     try {
       await Workmanager().cancelAll();
       _logger.info('All background tasks cancelled');
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        final String? activePubkey = await AccountSecureStorageService.getActivePubkey();
+        if (activePubkey != null && activePubkey.isNotEmpty) {
+          await _setTaskFlag(activePubkey: activePubkey, taskName: messagesSyncTask, value: false);
+          await _setTaskFlag(activePubkey: activePubkey, taskName: invitesSyncTask, value: false);
+          await _setTaskFlag(
+            activePubkey: activePubkey,
+            taskName: metadataRefreshTask,
+            value: false,
+          );
+          await prefs.setBool('$_bgTasksRegisteredKey:$activePubkey', false);
+        }
+        await prefs.setBool(_bgTasksRegisteredKey, false);
+      } catch (e) {
+        _logger.warning('Clear bg tasks registered flag', e);
+      }
     } catch (e) {
       _logger.severe('Background tasks cancellation', e);
     }
@@ -115,11 +171,76 @@ class BackgroundSyncService {
 
   static Future<List<String>> getRegisteredTasks() async {
     try {
-      return [messagesSyncTask, invitesSyncTask, metadataRefreshTask];
+      final String? activePubkey = await AccountSecureStorageService.getActivePubkey();
+      if (activePubkey == null || activePubkey.isEmpty) return [];
+      final prefs = await SharedPreferences.getInstance();
+      final List<String> registered = [];
+      if (prefs.getBool(_taskFlagKey(activePubkey: activePubkey, taskName: messagesSyncTask)) ==
+          true) {
+        registered.add(messagesSyncTask);
+      }
+      if (prefs.getBool(_taskFlagKey(activePubkey: activePubkey, taskName: invitesSyncTask)) ==
+          true) {
+        registered.add(invitesSyncTask);
+      }
+      if (prefs.getBool(_taskFlagKey(activePubkey: activePubkey, taskName: metadataRefreshTask)) ==
+          true) {
+        registered.add(metadataRefreshTask);
+      }
+      return registered;
     } catch (e) {
       _logger.severe('Get registered tasks', e);
       return [];
     }
+  }
+
+  static Future<bool> isRegistered() async {
+    // Legacy/global check retained for backward compatibility
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final bool legacy = prefs.getBool(_bgTasksRegisteredKey) ?? false;
+      if (legacy) return true;
+      final String? activePubkey = await AccountSecureStorageService.getActivePubkey();
+      if (activePubkey == null || activePubkey.isEmpty) return false;
+      return prefs.getBool('$_bgTasksRegisteredKey:$activePubkey') ?? false;
+    } catch (e) {
+      _logger.warning('Read bg tasks registered flag', e);
+      return false;
+    }
+  }
+
+  static Future<bool> isRegisteredForActiveAccount() async {
+    try {
+      final String? activePubkey = await AccountSecureStorageService.getActivePubkey();
+      if (activePubkey == null || activePubkey.isEmpty) return false;
+      final prefs = await SharedPreferences.getInstance();
+      final bool messages =
+          prefs.getBool(_taskFlagKey(activePubkey: activePubkey, taskName: messagesSyncTask)) ??
+          false;
+      final bool invites =
+          prefs.getBool(_taskFlagKey(activePubkey: activePubkey, taskName: invitesSyncTask)) ??
+          false;
+      final bool metadata =
+          prefs.getBool(_taskFlagKey(activePubkey: activePubkey, taskName: metadataRefreshTask)) ??
+          false;
+      return messages && invites && metadata;
+    } catch (e) {
+      _logger.warning('Read per-account bg tasks registered flag', e);
+      return false;
+    }
+  }
+
+  static Future<void> _setTaskFlag({
+    required String activePubkey,
+    required String taskName,
+    required bool value,
+  }) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_taskFlagKey(activePubkey: activePubkey, taskName: taskName), value);
+  }
+
+  static String _taskFlagKey({required String activePubkey, required String taskName}) {
+    return '$_taskFlagPrefix:$activePubkey:$taskName';
   }
 
   static List<ChatMessage> _filterNewMessages(
@@ -377,7 +498,7 @@ Future<bool> _handleInvitesSync() async {
     final lastReadTime = await LastReadService.getLastRead(groupId: 'invites');
     final now = DateTime.now();
     final bufferCutoff = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
-    final cutoffTime = lastReadTime ?? now.subtract(const Duration(hours: 12));
+    final cutoffTime = lastReadTime ?? now.subtract(const Duration(hours: 1));
 
     final welcomes = await pendingWelcomes(pubkey: activePubkey);
     final newWelcomes =
