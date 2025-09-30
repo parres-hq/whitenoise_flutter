@@ -40,6 +40,7 @@ class ChatListScreen extends ConsumerStatefulWidget {
 
 class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProviderStateMixin {
   static final Logger _log = Logger('ChatListScreen');
+  static bool _hasRegisteredBackgroundTasks = false;
   String _searchQuery = '';
 
   static const double _searchThresholdIOS = 0.1;
@@ -73,17 +74,18 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     _initializeControllers();
     _setupScrollListener();
     _scheduleInitialSetup();
-    _requestPermissionsAndRegisterBackgroundTasks();
+    _requestPermissionsAndRegisterBackgroundTasksOnce();
   }
 
-  Future<void> _requestPermissionsAndRegisterBackgroundTasks() async {
+  Future<void> _requestPermissionsAndRegisterBackgroundTasksOnce() async {
+    if (_hasRegisteredBackgroundTasks) return;
     try {
       final bool granted = await NotificationService.requestPermissions();
-      if (granted) {
-        await BackgroundSyncService.registerAllTasks();
-      }
-    } catch (_) {
-      _log.warning('Error requesting permissions and registering background tasks');
+      if (!granted) return;
+      await BackgroundSyncService.registerAllTasks();
+      _hasRegisteredBackgroundTasks = true;
+    } catch (e, st) {
+      _log.warning('Failed to register background tasks: $e $st');
     }
   }
 

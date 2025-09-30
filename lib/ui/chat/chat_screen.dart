@@ -47,6 +47,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   ProviderSubscription<ChatState>? _chatSubscription;
   bool _hasInitialScrollCompleted = false;
   bool _isKeyboardOpen = false;
+  bool _hasMarkedLastReadAtBottom = false;
 
   @override
   void initState() {
@@ -298,7 +299,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                   final isAtBottom = currentPixels >= maxScrollExtent - 50;
 
                   if (isAtBottom) {
-                    LastReadService.setLastRead(groupId: widget.groupId);
+                    if (!_hasMarkedLastReadAtBottom) {
+                      _hasMarkedLastReadAtBottom = true;
+                      LastReadService.setLastRead(groupId: widget.groupId);
+                    }
+                  } else {
+                    _hasMarkedLastReadAtBottom = false;
                   }
                 }
                 return false;

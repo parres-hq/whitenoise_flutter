@@ -47,13 +47,6 @@ Future<void> main() async {
     log.severe('Failed to initialize notification service: $e');
   }
 
-  try {
-    await BackgroundSyncService.initialize();
-    log.info('Background sync service initialized successfully');
-  } catch (e) {
-    log.severe('Failed to initialize background sync service: $e');
-  }
-
   final container = ProviderContainer();
   final authNotifier = container.read(authProvider.notifier);
   container.read(themeProvider.notifier);
@@ -63,10 +56,10 @@ Future<void> main() async {
     log.info('Whitenoise initialized via authProvider');
 
     try {
-      await BackgroundSyncService.registerAllTasks();
-      log.info('Background tasks registered successfully');
+      await BackgroundSyncService.initialize();
+      log.info('Background sync service initialized successfully');
     } catch (e) {
-      log.severe('Failed to register background tasks: $e');
+      log.severe('Failed to initialize background sync service: $e');
     }
   } catch (e) {
     log.severe('Initialization failed: $e');

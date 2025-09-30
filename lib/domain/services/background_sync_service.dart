@@ -5,6 +5,7 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/domain/services/account_secure_storage_service.dart';
 import 'package:whitenoise/domain/services/last_read_service.dart';
+import 'package:whitenoise/domain/services/notification_id_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
@@ -130,11 +131,12 @@ class BackgroundSyncService {
     final now = DateTime.now();
     final bufferCutoff = now.subtract(_messageFilterBufferSeconds);
 
-    // Use the most conservative cutoff: the max of lastSyncTime and lastReadTime.
+    // Use the earliest cutoff between lastSyncTime and lastReadTime to avoid
+    // missing messages that were published between these two times.
     // If neither exists, only show very recent messages (1 hour) for new groups
     DateTime? effectiveCutoff;
     if (lastSyncTime != null && lastReadTime != null) {
-      effectiveCutoff = lastSyncTime.isAfter(lastReadTime) ? lastSyncTime : lastReadTime;
+      effectiveCutoff = lastSyncTime.isBefore(lastReadTime) ? lastSyncTime : lastReadTime;
     } else {
       effectiveCutoff = lastSyncTime ?? lastReadTime;
     }
@@ -310,12 +312,10 @@ Future<bool> _handleMessagesSync() async {
           for (final message in newMessages) {
             try {
               await NotificationService.showMessageNotification(
-                id:
-                    Object.hash(
-                      BackgroundSyncService._notificationTypeNewMessage,
-                      message.id,
-                    ) &
-                    0x7fffffff,
+                id: await NotificationIdService.getIdFor(
+                  key:
+                      '${BackgroundSyncService._notificationTypeNewMessage}:${group.mlsGroupId}:${message.id}',
+                ),
                 title: groupDisplayName,
                 body: message.content,
                 payload: jsonEncode({
@@ -332,18 +332,16 @@ Future<bool> _handleMessagesSync() async {
             }
           }
 
-          // Update checkpoint to just before the buffer so buffered messages are retried
-          final now = DateTime.now();
-          final nextCheckpoint = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
-          await BackgroundSyncService._setLastSyncTime(group.mlsGroupId, nextCheckpoint);
+          final latestProcessed = newMessages
+              .map((m) => m.createdAt)
+              .reduce((a, b) => a.isAfter(b) ? a : b);
+          await BackgroundSyncService._setLastSyncTime(group.mlsGroupId, latestProcessed);
         } else {
-          // No new messages: advance checkpoint to avoid reprocessing the same window
-          // but never move it earlier than the user's lastReadTime.
           final now = DateTime.now();
-          final proposed = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
-          final safeCheckpoint =
-              (lastReadTime != null && proposed.isBefore(lastReadTime)) ? lastReadTime : proposed;
-          await BackgroundSyncService._setLastSyncTime(group.mlsGroupId, safeCheckpoint);
+          final bufferCutoff = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
+          if (lastSyncTime == null || lastSyncTime.isBefore(bufferCutoff)) {
+            await BackgroundSyncService._setLastSyncTime(group.mlsGroupId, bufferCutoff);
+          }
         }
       } catch (e) {
         logger.warning('Fetch messages for group ${group.mlsGroupId}: $e');
@@ -398,12 +396,9 @@ Future<bool> _handleInvitesSync() async {
     for (final welcome in newWelcomes) {
       try {
         await NotificationService.showMessageNotification(
-          id:
-              Object.hash(
-                BackgroundSyncService._notificationTypeInvitesSync,
-                welcome.id,
-              ) &
-              0x7fffffff,
+          id: await NotificationIdService.getIdFor(
+            key: '${BackgroundSyncService._notificationTypeInvitesSync}:${welcome.id}',
+          ),
           title: BackgroundSyncService._notificationTitleNewInvitations,
           body: 'New group invitation',
           payload: jsonEncode({
