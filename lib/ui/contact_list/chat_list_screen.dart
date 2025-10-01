@@ -75,17 +75,15 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
     _initializeControllers();
     _setupScrollListener();
     _scheduleInitialSetup();
-    _requestPermissionsAndRegisterBackgroundTasksOnce();
+    _requestNotificationsPermission();
+    BackgroundSyncService.registerAllTasks();
   }
 
-  Future<void> _requestPermissionsAndRegisterBackgroundTasksOnce() async {
+  Future<void> _requestNotificationsPermission() async {
     try {
-      final bool granted = await NotificationService.requestPermissions();
-      if (!granted) return;
-      await BackgroundSyncService.ensureRegistered();
+      await NotificationService.requestPermissions();
     } catch (e, st) {
-      _log.severe('Failed to register background tasks: $e $st');
-      // TODO: Consider scheduling a retry/backoff or surfacing to the user if persistent
+      _log.severe('Failed to get notifications permission: $e $st');
     }
   }
 
@@ -267,8 +265,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // On resume, ensure registration is still valid and not stale
-      BackgroundSyncService.ensureRegistered();
+      // On resume, re register all tasks with update policy
+      BackgroundSyncService.registerAllTasks();
     }
   }
 
