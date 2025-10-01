@@ -295,7 +295,12 @@ class BackgroundSyncService {
   static Future<String> _getGroupDisplayName(String groupId, String activePubkey) async {
     try {
       final groups = await activeGroups(pubkey: activePubkey);
-      final group = groups.firstWhere((g) => g.mlsGroupId == groupId);
+      final matching = groups.where((g) => g.mlsGroupId == groupId);
+      if (matching.isEmpty) {
+        _logger.warning('Group not found for $groupId');
+        return _notificationTitleGroupChat;
+      }
+      final group = matching.first;
 
       final isDM = await group.isDirectMessageType(accountPubkey: activePubkey);
 
@@ -576,7 +581,16 @@ Future<bool> _handleInvitesSync() async {
     }
 
     // Update checkpoint after processing
-    await BackgroundSyncService._setLastSyncTime('invites', now);
+    if (newWelcomes.isEmpty) {
+      if (lastSyncTime == null || lastSyncTime.isBefore(bufferCutoff)) {
+        await BackgroundSyncService._setLastSyncTime('invites', bufferCutoff);
+      }
+    } else {
+      final DateTime latestWelcome = newWelcomes
+          .map((w) => DateTime.fromMillisecondsSinceEpoch(w.createdAt.toInt() * 1000))
+          .reduce((a, b) => a.isAfter(b) ? a : b);
+      await BackgroundSyncService._setLastSyncTime('invites', latestWelcome);
+    }
 
     if (newWelcomes.isNotEmpty) {
       logger.info(
