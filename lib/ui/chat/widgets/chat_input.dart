@@ -33,6 +33,8 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
   final _focusNode = FocusNode();
   Timer? _draftSaveTimer;
   bool _isLoadingDraft = false;
+  double? _singleLineHeight;
+  final _inputKey = GlobalKey();
 
   @override
   void initState() {
@@ -50,6 +52,23 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
     });
 
     _textController.addListener(_onTextChanged);
+
+    // Measure single line height after first frame
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _measureSingleLineHeight();
+    });
+  }
+
+  void _measureSingleLineHeight() {
+    final context = _inputKey.currentContext;
+    if (!mounted || context == null) return;
+    final renderObject = context.findRenderObject();
+    if (renderObject is RenderBox) {
+      final h = renderObject.size.height;
+      if (_singleLineHeight != h) {
+        setState(() => _singleLineHeight = h);
+      }
+    }
   }
 
   @override
@@ -236,6 +255,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                 },
                               ),
                               WnTextFormField(
+                                key: _inputKey,
                                 controller: _textController,
                                 focusNode: _focusNode,
                                 onChanged: (_) => setState(() {}),
@@ -244,6 +264,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                 textInputAction: TextInputAction.newline,
                                 keyboardType: TextInputType.multiline,
                                 textCapitalization: TextCapitalization.sentences,
+                                size: FieldSize.small,
                                 decoration:
                                     isReplying
                                         ? const InputDecoration(
@@ -269,8 +290,8 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                     //TODO @Quwaysim ... This will come in PR for issue #511
                                     WnIconButton(
                                           iconPath: AssetsPaths.icArrowUp,
-                                          padding: 18.w,
-                                          size: 56.h,
+                                          padding: 14.w,
+                                          size: _singleLineHeight ?? 44.h,
                                           onTap: _sendMessage,
                                           buttonColor: context.colors.primary,
                                           iconColor: context.colors.primaryForeground,
