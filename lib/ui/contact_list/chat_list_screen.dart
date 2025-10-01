@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/chat_list_sorting_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/delayed_relay_error_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -255,6 +256,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     final welcomesList = ref.watch(welcomesProvider.select((state) => state.welcomes)) ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
     final pinnedChats = ref.watch(pinnedChatsProvider);
+    final chatListSorting = ref.watch(chatListSortingProvider.notifier);
     ref.watch(pinnedChatsProvider.notifier);
 
     final chatItems = <ChatListItem>[];
@@ -281,26 +283,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
       chatItems.add(ChatListItem.fromWelcome(welcome: welcome));
     }
 
-    // Sort by pin status first (pinned items at top), then by date created (most recent first)
-    chatItems.sort((a, b) {
-      // First compare pin status - pinned items come first
-      if (a.isPinned != b.isPinned) {
-        return a.isPinned ? -1 : 1;
-      }
-      // If both have same pin status, sort by date created (most recent first)
-      return b.dateCreated.compareTo(a.dateCreated);
-    });
-
-    // Filter chat items based on search query
-    final filteredChatItems =
-        _searchQuery.isEmpty
-            ? chatItems
-            : chatItems.where((item) {
-              final searchLower = _searchQuery.toLowerCase();
-              return item.displayName.toLowerCase().contains(searchLower) ||
-                  item.subtitle.toLowerCase().contains(searchLower) ||
-                  (item.lastMessage?.content?.toLowerCase().contains(searchLower) ?? false);
-            }).toList();
+    // Use the sorting provider to process chat items
+    final filteredChatItems = chatListSorting.processChatsForDisplay(chatItems, _searchQuery);
 
     final delayedRelayErrorState = ref.watch(delayedRelayErrorProvider);
     final shouldShowRelayError = delayedRelayErrorState.shouldShowBanner;
