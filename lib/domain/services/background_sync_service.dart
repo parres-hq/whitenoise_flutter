@@ -286,7 +286,7 @@ class BackgroundSyncService {
     return messages.where((message) {
       if (message.pubkey == currentUserPubkey) return false;
       if (message.isDeleted) return false;
-      if (message.createdAt.isBefore(cutoffTime)) return false;
+      if (!message.createdAt.isAfter(cutoffTime)) return false;
       if (message.createdAt.isAfter(bufferCutoff)) return false;
       return true;
     }).toList();
@@ -349,10 +349,13 @@ class BackgroundSyncService {
   }
 
   /// Gets the last sync time for a specific group from SharedPreferences
-  static Future<DateTime?> _getLastSyncTime(String groupId) async {
+  static Future<DateTime?> _getLastSyncTime({
+    required String activePubkey,
+    required String groupId,
+  }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final timestamp = prefs.getInt('bg_sync_last_$groupId');
+      final timestamp = prefs.getInt('bg_sync_last_${activePubkey}_$groupId');
       return timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
     } catch (e) {
       _logger.warning('Get last sync time for group $groupId', e);
@@ -361,10 +364,17 @@ class BackgroundSyncService {
   }
 
   /// Sets the last sync time for a specific group in SharedPreferences
-  static Future<void> _setLastSyncTime(String groupId, DateTime time) async {
+  static Future<void> _setLastSyncTime({
+    required String activePubkey,
+    required String groupId,
+    required DateTime time,
+  }) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt('bg_sync_last_$groupId', time.millisecondsSinceEpoch);
+      await prefs.setInt(
+        'bg_sync_last_${activePubkey}_$groupId',
+        time.millisecondsSinceEpoch,
+      );
     } catch (e) {
       _logger.warning('Set last sync time for group $groupId', e);
     }
@@ -451,7 +461,10 @@ Future<int> _syncMessagesForGroup({
   required String activePubkey,
   required Logger logger,
 }) async {
-  final DateTime? lastSyncTime = await BackgroundSyncService._getLastSyncTime(groupId);
+  final DateTime? lastSyncTime = await BackgroundSyncService._getLastSyncTime(
+    activePubkey: activePubkey,
+    groupId: groupId,
+  );
   final List<ChatMessage> aggregatedMessages = await fetchAggregatedMessagesForGroup(
     pubkey: activePubkey,
     groupId: groupId,
@@ -465,7 +478,11 @@ Future<int> _syncMessagesForGroup({
     'Messages sync: Group $groupId - Found ${aggregatedMessages.length} total messages, ${newMessages.length} unread messages',
   );
   if (newMessages.isEmpty) {
-    await _updateCheckpointNoNewMessages(groupId: groupId, lastSyncTime: lastSyncTime);
+    await _updateCheckpointNoNewMessages(
+      activePubkey: activePubkey,
+      groupId: groupId,
+      lastSyncTime: lastSyncTime,
+    );
     return 0;
   }
   await _notifyNewMessages(
@@ -474,7 +491,11 @@ Future<int> _syncMessagesForGroup({
     newMessages: newMessages,
     logger: logger,
   );
-  await _updateCheckpointWithNewMessages(groupId: groupId, newMessages: newMessages);
+  await _updateCheckpointWithNewMessages(
+    activePubkey: activePubkey,
+    groupId: groupId,
+    newMessages: newMessages,
+  );
   return newMessages.length;
 }
 
@@ -510,24 +531,34 @@ Future<void> _notifyNewMessages({
 }
 
 Future<void> _updateCheckpointNoNewMessages({
+  required String activePubkey,
   required String groupId,
   required DateTime? lastSyncTime,
 }) async {
   final DateTime now = DateTime.now();
   final DateTime bufferCutoff = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
   if (lastSyncTime == null || lastSyncTime.isBefore(bufferCutoff)) {
-    await BackgroundSyncService._setLastSyncTime(groupId, bufferCutoff);
+    await BackgroundSyncService._setLastSyncTime(
+      activePubkey: activePubkey,
+      groupId: groupId,
+      time: bufferCutoff,
+    );
   }
 }
 
 Future<void> _updateCheckpointWithNewMessages({
+  required String activePubkey,
   required String groupId,
   required List<ChatMessage> newMessages,
 }) async {
   final DateTime latestProcessed = newMessages
       .map((m) => m.createdAt)
       .reduce((a, b) => a.isAfter(b) ? a : b);
-  await BackgroundSyncService._setLastSyncTime(groupId, latestProcessed);
+  await BackgroundSyncService._setLastSyncTime(
+    activePubkey: activePubkey,
+    groupId: groupId,
+    time: latestProcessed,
+  );
 }
 
 Future<bool> _handleInvitesSync() async {
@@ -543,7 +574,10 @@ Future<bool> _handleInvitesSync() async {
     }
 
     // Use checkpoint tracking for invites like we do for messages
-    final DateTime? lastSyncTime = await BackgroundSyncService._getLastSyncTime('invites');
+    final DateTime? lastSyncTime = await BackgroundSyncService._getLastSyncTime(
+      activePubkey: activePubkey,
+      groupId: 'invites',
+    );
     final now = DateTime.now();
     final bufferCutoff = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
     final cutoffTime = lastSyncTime ?? now.subtract(const Duration(hours: 1));
@@ -553,7 +587,7 @@ Future<bool> _handleInvitesSync() async {
         welcomes.where((w) {
           if (w.state != WelcomeState.pending) return false;
           final welcomeTime = DateTime.fromMillisecondsSinceEpoch(w.createdAt.toInt() * 1000);
-          if (welcomeTime.isBefore(cutoffTime)) return false;
+          if (!welcomeTime.isAfter(cutoffTime)) return false;
           if (welcomeTime.isAfter(bufferCutoff)) return false;
           return true;
         }).toList();
@@ -583,13 +617,21 @@ Future<bool> _handleInvitesSync() async {
     // Update checkpoint after processing
     if (newWelcomes.isEmpty) {
       if (lastSyncTime == null || lastSyncTime.isBefore(bufferCutoff)) {
-        await BackgroundSyncService._setLastSyncTime('invites', bufferCutoff);
+        await BackgroundSyncService._setLastSyncTime(
+          activePubkey: activePubkey,
+          groupId: 'invites',
+          time: bufferCutoff,
+        );
       }
     } else {
       final DateTime latestWelcome = newWelcomes
           .map((w) => DateTime.fromMillisecondsSinceEpoch(w.createdAt.toInt() * 1000))
           .reduce((a, b) => a.isAfter(b) ? a : b);
-      await BackgroundSyncService._setLastSyncTime('invites', latestWelcome);
+      await BackgroundSyncService._setLastSyncTime(
+        activePubkey: activePubkey,
+        groupId: 'invites',
+        time: latestWelcome,
+      );
     }
 
     if (newWelcomes.isNotEmpty) {
