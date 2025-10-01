@@ -25,7 +25,6 @@ void main() {
         final unpinnedItem = ChatListItem(
           type: ChatListItemType.chat,
           dateCreated: DateTime.now(),
-          isPinned: false,
         );
         final pinnedItem = ChatListItem(
           type: ChatListItemType.chat,
@@ -47,12 +46,10 @@ void main() {
         final olderItem = ChatListItem(
           type: ChatListItemType.chat,
           dateCreated: older,
-          isPinned: false,
         );
         final newerItem = ChatListItem(
           type: ChatListItemType.chat,
           dateCreated: newer,
-          isPinned: false,
         );
 
         final items = [olderItem, newerItem];
@@ -88,7 +85,6 @@ void main() {
         final item1 = ChatListItem(
           type: ChatListItemType.chat,
           dateCreated: DateTime.now(),
-          isPinned: false,
         );
         final item2 = ChatListItem(
           type: ChatListItemType.chat,
@@ -120,7 +116,6 @@ void main() {
         final unpinnedItem = ChatListItem(
           type: ChatListItemType.chat,
           dateCreated: DateTime.now(),
-          isPinned: false,
         );
 
         final items = [unpinnedItem, pinnedItem];
@@ -149,12 +144,10 @@ void main() {
         final olderUnpinned = ChatListItem(
           type: ChatListItemType.chat,
           dateCreated: older,
-          isPinned: false,
         );
         final newerUnpinned = ChatListItem(
           type: ChatListItemType.chat,
           dateCreated: newer,
-          isPinned: false,
         );
 
         final items = [olderPinned, olderUnpinned, newerPinned, newerUnpinned];
@@ -189,12 +182,10 @@ void main() {
         final unpinnedItem1 = ChatListItem(
           type: ChatListItemType.chat,
           dateCreated: DateTime.now(),
-          isPinned: false,
         );
         final unpinnedItem2 = ChatListItem(
           type: ChatListItemType.chat,
           dateCreated: DateTime.now(),
-          isPinned: false,
         );
 
         final items = [unpinnedItem1, unpinnedItem2];
@@ -261,7 +252,6 @@ void main() {
           createdAt: DateTime.now(),
           sender: sender,
           groupId: 'group1',
-          kind: 9,
           isMe: false,
         );
 
@@ -306,7 +296,6 @@ void main() {
           createdAt: DateTime.now(),
           sender: sender,
           groupId: 'group1',
-          kind: 9,
           isMe: false,
         );
 
@@ -364,7 +353,6 @@ void main() {
           createdAt: DateTime.now(),
           sender: sender,
           groupId: 'group1',
-          kind: 9,
           isMe: false,
         );
 
@@ -391,7 +379,6 @@ void main() {
         final matchingUnpinned = ChatListItem.fromGroup(
           group: group1,
           lastMessage: message,
-          isPinned: false,
         );
         final matchingPinned = ChatListItem.fromGroup(
           group: group1,
@@ -411,7 +398,6 @@ void main() {
         final unpinnedItem = ChatListItem(
           type: ChatListItemType.chat,
           dateCreated: DateTime.now(),
-          isPinned: false,
         );
         final pinnedItem = ChatListItem(
           type: ChatListItemType.chat,
