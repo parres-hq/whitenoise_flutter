@@ -92,7 +92,7 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
       HapticFeedback.mediumImpact();
     });
 
-    _longPressTimer = Timer(const Duration(milliseconds: 250), () {
+    _longPressTimer = Timer(const Duration(milliseconds: 350), () {
       _longPressHapticTimer?.cancel();
       widget.onLongPress();
     });
