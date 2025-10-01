@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/create_profile_screen_provider.dart';
+import 'package:whitenoise/ui/auth_flow/auth_header.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -19,14 +19,24 @@ class CreateProfileScreen extends ConsumerStatefulWidget {
   ConsumerState<CreateProfileScreen> createState() => _CreateProfileScreenState();
 }
 
-class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
+class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
+    with WidgetsBindingObserver {
   final TextEditingController _displayNameController = TextEditingController();
   final TextEditingController _bioController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  final FocusNode _bioFocusNode = FocusNode();
   bool _isLoadingDisplayName = true;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _bioFocusNode.addListener(() {
+      if (_bioFocusNode.hasFocus) {
+        _scrollToEnd();
+      }
+    });
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       final activeAccountState = await ref.read(activeAccountProvider.future);
       final currentMetadata = activeAccountState.metadata;
@@ -41,9 +51,48 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _displayNameController.dispose();
     _bioController.dispose();
+    _scrollController.dispose();
+    _bioFocusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeMetrics() {
+    super.didChangeMetrics();
+    final bottomInset = MediaQuery.viewInsetsOf(context).bottom;
+
+    // If keyboard is opening (height increase > 50px), scroll to end
+    if (bottomInset > 50) {
+      Future.delayed(const Duration(milliseconds: 400), () {
+        if (!mounted) return;
+        _scrollToEnd(forceScroll: true);
+      });
+    }
+  }
+
+  void _scrollToEnd({bool forceScroll = false}) {
+    if (!_scrollController.hasClients) return;
+
+    final maxScrollExtent = _scrollController.position.maxScrollExtent;
+    final currentScrollOffset = _scrollController.offset;
+
+    // Only scroll if we're not already at the bottom (unless forced)
+    if (forceScroll || (maxScrollExtent - currentScrollOffset) > 50) {
+      // Use double frame callback for better layout completion detection
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted || !_scrollController.hasClients) return;
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeOutCubic,
+          );
+        });
+      });
+    }
   }
 
   @override
@@ -65,33 +114,13 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
     return Scaffold(
       backgroundColor: context.colors.neutral,
       resizeToAvoidBottomInset: true,
+      appBar: const AuthAppBar(title: 'Set Up Profile'),
       body: SafeArea(
         child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 0),
+          controller: _scrollController,
+          padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 0),
           child: Column(
             children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => context.pop(),
-                    icon: WnImage(
-                      AssetsPaths.icChevronLeft,
-                      size: 18.w,
-                      color: context.colors.primary,
-                    ),
-                  ),
-                  Gap(8.w),
-                  Text(
-                    'Set Up Profile',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.mutedForeground,
-                    ),
-                  ),
-                ],
-              ),
               Gap(48.h),
               Stack(
                 alignment: Alignment.bottomRight,
@@ -185,6 +214,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
                 hintText: 'Write something about yourself',
                 obscureText: false,
                 controller: _bioController,
+                focusNode: _bioFocusNode,
                 maxLines: 3,
                 minLines: 3,
                 keyboardType: TextInputType.multiline,
@@ -194,12 +224,15 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 24.w,
-          ).copyWith(bottom: 32.h),
+      bottomNavigationBar: Container(
+        padding: EdgeInsets.only(
+          left: 24.w,
+          right: 24.w,
+          top: 16.h,
+          bottom: 16.h + MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: SafeArea(
+          top: false,
           child: Consumer(
             builder: (context, ref, child) {
               final createProfileState = ref.watch(createProfileScreenProvider);

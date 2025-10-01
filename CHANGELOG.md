@@ -11,8 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 ### Deprecated
 ### Removed
+- Removes metadata cache provider [#654](https://github.com/parres-hq/whitenoise_flutter/pull/654)
 ### Fixed
 - Fixed 2 users group creation when DM already exists
+- Fixed issue where keyboard covers part of the "introduce yourself" textfield.
+- Improved close reply tap area/response.
+
+- Improved haptic feedback for chat context menus.
+- Pinned the header in auth flow screens when keyboard is open for easier back navigation.
+- Fixed broken profile image upload [#701](https://github.com/parres-hq/whitenoise_flutter/pull/701)
+- Fixed double rendering issue for some messages [#654](https://github.com/parres-hq/whitenoise_flutter/pull/654)
 ### Security
 
 
@@ -34,7 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimized relay connection error banner with intelligent delay and dismissal on reconnection
 
 ### Removed
-
 - Removed relay pull-to-refresh
 
 ### Fixed
