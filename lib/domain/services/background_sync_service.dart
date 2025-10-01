@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/domain/services/account_secure_storage_service.dart';
-import 'package:whitenoise/domain/services/last_read_service.dart';
 import 'package:whitenoise/domain/services/notification_id_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -272,21 +271,13 @@ class BackgroundSyncService {
     List<ChatMessage> messages,
     String currentUserPubkey,
     DateTime? lastSyncTime,
-    DateTime? lastReadTime,
   ) {
     final now = DateTime.now();
     final bufferCutoff = now.subtract(_messageFilterBufferSeconds);
 
-    // Use the earliest cutoff between lastSyncTime and lastReadTime to avoid
-    // missing messages that were published between these two times.
-    // If neither exists, only show very recent messages (1 hour) for new groups
-    DateTime? effectiveCutoff;
-    if (lastSyncTime != null && lastReadTime != null) {
-      effectiveCutoff = lastSyncTime.isBefore(lastReadTime) ? lastSyncTime : lastReadTime;
-    } else {
-      effectiveCutoff = lastSyncTime ?? lastReadTime;
-    }
-    final cutoffTime = effectiveCutoff ?? now.subtract(const Duration(hours: 1));
+    // Use only lastSyncTime for background sync - we want to notify about ALL new messages
+    // since the last background sync, regardless of whether the user has read them in the app
+    final cutoffTime = lastSyncTime ?? now.subtract(const Duration(hours: 1));
 
     return messages.where((message) {
       if (message.pubkey == currentUserPubkey) return false;
@@ -456,12 +447,10 @@ Future<int> _syncMessagesForGroup({
     pubkey: activePubkey,
     groupId: groupId,
   );
-  final DateTime? lastReadTime = await LastReadService.getLastRead(groupId: groupId);
   final List<ChatMessage> newMessages = BackgroundSyncService._filterNewMessages(
     aggregatedMessages,
     activePubkey,
     lastSyncTime,
-    lastReadTime,
   );
   logger.info(
     'Messages sync: Group $groupId - Found ${aggregatedMessages.length} total messages, ${newMessages.length} unread messages',
@@ -544,10 +533,10 @@ Future<bool> _handleInvitesSync() async {
       return true;
     }
 
-    final lastReadTime = await LastReadService.getLastRead(groupId: 'invites');
+    // For invites, use a simple time-based cutoff since we don't track "read" state for invites
     final now = DateTime.now();
     final bufferCutoff = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
-    final cutoffTime = lastReadTime ?? now.subtract(const Duration(hours: 1));
+    final cutoffTime = now.subtract(const Duration(hours: 1));
 
     final welcomes = await pendingWelcomes(pubkey: activePubkey);
     final newWelcomes =

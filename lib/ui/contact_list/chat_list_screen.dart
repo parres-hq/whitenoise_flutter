@@ -80,15 +80,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
 
   Future<void> _requestPermissionsAndRegisterBackgroundTasksOnce() async {
     try {
-      final bool alreadyRegistered = await BackgroundSyncService.isRegisteredForActiveAccount();
-      if (alreadyRegistered) return;
       final bool granted = await NotificationService.requestPermissions();
       if (!granted) return;
-      await BackgroundSyncService.registerAllTasks();
-      final tasks = await BackgroundSyncService.getRegisteredTasks();
-      if (tasks.isEmpty) {
-        throw Exception('Background task registration succeeded but no tasks are registered');
-      }
+      await BackgroundSyncService.ensureRegistered();
     } catch (e, st) {
       _log.severe('Failed to register background tasks: $e $st');
       // TODO: Consider scheduling a retry/backoff or surfacing to the user if persistent
