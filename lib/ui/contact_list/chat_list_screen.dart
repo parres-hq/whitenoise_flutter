@@ -9,6 +9,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/delayed_relay_error_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/pinned_chats_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
@@ -285,6 +286,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
     final groupList = ref.watch(groupsProvider.select((state) => state.groups)) ?? [];
     final welcomesList = ref.watch(welcomesProvider.select((state) => state.welcomes)) ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
+    final pinnedChats = ref.watch(pinnedChatsProvider);
+    final pinnedChatsNotifier = ref.watch(pinnedChatsProvider.notifier);
 
     final chatItems = <ChatListItem>[];
 
@@ -294,10 +297,12 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
           (state) => state.getLatestMessageForGroup(group.mlsGroupId),
         ),
       );
+      final isPinned = pinnedChats.contains(group.mlsGroupId);
       chatItems.add(
         ChatListItem.fromGroup(
           group: group,
           lastMessage: lastMessage,
+          isPinned: isPinned,
         ),
       );
     }
@@ -308,19 +313,12 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
       chatItems.add(ChatListItem.fromWelcome(welcome: welcome));
     }
 
-    // Sort by date created (most recent first)
-    chatItems.sort((a, b) => b.dateCreated.compareTo(a.dateCreated));
-
-    // Filter chat items based on search query
-    final filteredChatItems =
-        _searchQuery.isEmpty
-            ? chatItems
-            : chatItems.where((item) {
-              final searchLower = _searchQuery.toLowerCase();
-              return item.displayName.toLowerCase().contains(searchLower) ||
-                  item.subtitle.toLowerCase().contains(searchLower) ||
-                  (item.lastMessage?.content?.toLowerCase().contains(searchLower) ?? false);
-            }).toList();
+    // Use the separatePinnedChats method with search filtering
+    final separatedChats = pinnedChatsNotifier.separatePinnedChats(
+      chatItems,
+      searchQuery: _searchQuery,
+    );
+    final filteredChatItems = [...separatedChats.pinned, ...separatedChats.unpinned];
 
     final delayedRelayErrorState = ref.watch(delayedRelayErrorProvider);
     final shouldShowRelayError = delayedRelayErrorState.shouldShowBanner;
@@ -481,7 +479,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
                       ),
                     ),
                   SliverPadding(
-                    padding: EdgeInsets.only(top: 8.h, bottom: 32.h),
+                    padding: EdgeInsets.only(bottom: 32.h),
                     sliver: SliverList.separated(
                       itemBuilder: (context, index) {
                         if (isInLoadingState) {
@@ -495,7 +493,24 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
                       },
                       itemCount:
                           isInLoadingState ? _loadingSkeletonCount : filteredChatItems.length,
-                      separatorBuilder: (context, index) => Gap(8.w),
+                      separatorBuilder: (context, index) {
+                        if (isInLoadingState) {
+                          return Gap(8.w);
+                        }
+
+                        // Add divider between pinned and unpinned sections
+                        if (index == separatedChats.pinned.length - 1 &&
+                            separatedChats.unpinned.isNotEmpty) {
+                          return Container(
+                            height: 2.h,
+                            decoration: BoxDecoration(
+                              color: context.colors.primary,
+                            ),
+                          );
+                        }
+
+                        return Gap(8.w);
+                      },
                     ),
                   ),
                 ],

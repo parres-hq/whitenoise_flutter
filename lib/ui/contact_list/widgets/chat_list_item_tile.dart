@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/pinned_chats_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
@@ -10,8 +12,10 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/contact_list/widgets/message_read_status.dart';
 import 'package:whitenoise/ui/contact_list/widgets/welcome_tile.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
+import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_skeleton_container.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/utils/timeago_formatter.dart';
@@ -118,85 +122,122 @@ class ChatListItemTile extends ConsumerWidget {
     Group group,
   ) {
     final displayImageUrl = displayImage ?? '';
-    return InkWell(
-      onTap: () {
-        if (onTap != null) {
-          onTap!();
-        }
-        Routes.goToChat(context, group.mlsGroupId);
-      },
-      child: Padding(
-        padding: EdgeInsets.only(left: 8.w, right: 16.w, top: 8.h, bottom: 8.h),
-        child: Row(
-          children: [
-            WnAvatar(
-              imageUrl: displayImageUrl,
-              displayName: displayName,
-              size: 56.r,
-              showBorder: displayImageUrl.isEmpty,
-            ),
-            Gap(8.w),
-            Expanded(
-              flex: 5,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment:
-                    item.lastMessage != null ? MainAxisAlignment.start : MainAxisAlignment.center,
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        child: Text(
-                          displayName,
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w500,
-                            color: context.colors.primary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                      Text(
-                        item.lastMessage?.createdAt.timeago().capitalizeFirst ?? '',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          color: context.colors.mutedForeground,
-                        ),
-                      ),
-                    ],
+    return Consumer(
+      builder: (context, ref, child) {
+        final pinnedChats = ref.watch(pinnedChatsProvider);
+        final pinnedChatsNotifier = ref.watch(pinnedChatsProvider.notifier);
+        final isPinned = pinnedChats.contains(group.mlsGroupId);
+
+        return Slidable(
+          key: ValueKey(group.mlsGroupId),
+          startActionPane: ActionPane(
+            motion: const DrawerMotion(),
+            extentRatio: 80.w / MediaQuery.of(context).size.width,
+            children: [
+              CustomSlidableAction(
+                onPressed: (context) {
+                  pinnedChatsNotifier.togglePin(group.mlsGroupId);
+                },
+                backgroundColor: context.colors.secondary,
+                child: Container(
+                  width: 80.w,
+                  height: 80.w,
+                  color: context.colors.secondary,
+                  child: Center(
+                    child: WnImage(
+                      isPinned ? AssetsPaths.icUnpin : AssetsPaths.icPin,
+                      size: 18.w,
+                      color: context.colors.primary,
+                    ),
                   ),
-                  if (item.lastMessage != null) ...[
-                    Gap(4.h),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      spacing: 32.w,
+                ),
+              ),
+            ],
+          ),
+          child: InkWell(
+            onTap: () {
+              if (onTap != null) {
+                onTap!();
+              }
+              Routes.goToChat(context, group.mlsGroupId);
+            },
+            child: Container(
+              padding: EdgeInsets.only(left: 8.w, right: 16.w, top: 12.h, bottom: 12.h),
+              child: Row(
+                children: [
+                  WnAvatar(
+                    imageUrl: displayImageUrl,
+                    displayName: displayName,
+                    size: 56.r,
+                    showBorder: displayImageUrl.isEmpty,
+                  ),
+                  Gap(8.w),
+                  Expanded(
+                    flex: 5,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment:
+                          item.lastMessage != null
+                              ? MainAxisAlignment.start
+                              : MainAxisAlignment.center,
                       children: [
-                        Expanded(
-                          child: Text(
-                            _getMessagePreview(item.lastMessage!),
-                            style: TextStyle(
-                              fontSize: 14.sp,
-                              color: context.colors.mutedForeground,
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                displayName,
+                                style: TextStyle(
+                                  fontSize: 16.sp,
+                                  fontWeight: FontWeight.w500,
+                                  color: context.colors.primary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                            Text(
+                              item.lastMessage?.createdAt.timeago().capitalizeFirst ?? '',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: context.colors.mutedForeground,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (item.lastMessage != null) ...[
+                          Gap(4.h),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            spacing: 32.w,
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  _getMessagePreview(item.lastMessage!),
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    color: context.colors.mutedForeground,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                              const MessageReadStatus(
+                                unreadCount: 0,
+                              ),
+                            ],
                           ),
-                        ),
-                        const MessageReadStatus(
-                          unreadCount: 0,
-                        ),
+                        ],
                       ],
                     ),
-                  ],
+                  ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 
