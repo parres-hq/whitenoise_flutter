@@ -79,9 +79,7 @@ class NotificationIdService {
       }
     }
 
-    // If everything else fails (extremely unlikely), claim preferredId for this key
-    await _setReverseMapping(prefs: prefs, id: preferredId, key: key);
-    return preferredId;
+    throw Exception('Unable to allocate unique notification ID for key: $key');
   }
 
   static Future<void> _setReverseMapping({

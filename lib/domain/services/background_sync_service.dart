@@ -533,10 +533,11 @@ Future<bool> _handleInvitesSync() async {
       return true;
     }
 
-    // For invites, use a simple time-based cutoff since we don't track "read" state for invites
+    // Use checkpoint tracking for invites like we do for messages
+    final DateTime? lastSyncTime = await BackgroundSyncService._getLastSyncTime('invites');
     final now = DateTime.now();
     final bufferCutoff = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
-    final cutoffTime = now.subtract(const Duration(hours: 1));
+    final cutoffTime = lastSyncTime ?? now.subtract(const Duration(hours: 1));
 
     final welcomes = await pendingWelcomes(pubkey: activePubkey);
     final newWelcomes =
@@ -569,6 +570,9 @@ Future<bool> _handleInvitesSync() async {
         logger.warning('Show notification for welcome ${welcome.id}: $e');
       }
     }
+
+    // Update checkpoint after processing
+    await BackgroundSyncService._setLastSyncTime('invites', now);
 
     if (newWelcomes.isNotEmpty) {
       logger.info(
