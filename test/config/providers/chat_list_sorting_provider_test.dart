@@ -5,7 +5,6 @@ import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/src/rust/api/welcomes.dart';
 
 void main() {
   group('ChatListSortingProvider Tests', () {
