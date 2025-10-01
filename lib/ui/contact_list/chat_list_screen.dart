@@ -6,7 +6,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/chat_list_sorting_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/delayed_relay_error_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -256,8 +255,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     final welcomesList = ref.watch(welcomesProvider.select((state) => state.welcomes)) ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
     final pinnedChats = ref.watch(pinnedChatsProvider);
-    final chatListSorting = ref.watch(chatListSortingProvider.notifier);
-    ref.watch(pinnedChatsProvider.notifier);
+    final pinnedChatsNotifier = ref.watch(pinnedChatsProvider.notifier);
 
     final chatItems = <ChatListItem>[];
 
@@ -283,8 +281,12 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
       chatItems.add(ChatListItem.fromWelcome(welcome: welcome));
     }
 
-    // Use the sorting provider to process chat items
-    final filteredChatItems = chatListSorting.processChatsForDisplay(chatItems, _searchQuery);
+    // Use the separatePinnedChats method with search filtering
+    final separatedChats = pinnedChatsNotifier.separatePinnedChats(
+      chatItems,
+      searchQuery: _searchQuery,
+    );
+    final filteredChatItems = [...separatedChats.pinned, ...separatedChats.unpinned];
 
     final delayedRelayErrorState = ref.watch(delayedRelayErrorProvider);
     final shouldShowRelayError = delayedRelayErrorState.shouldShowBanner;
@@ -464,15 +466,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                           return Gap(8.w);
                         }
 
-                        // Check if this separator should be between pinned and unpinned items
-                        final currentItem = filteredChatItems[index];
-                        final nextItem =
-                            index + 1 < filteredChatItems.length
-                                ? filteredChatItems[index + 1]
-                                : null;
-
-                        // If current item is pinned and next item is not pinned, add divider
-                        if (currentItem.isPinned && nextItem != null && !nextItem.isPinned) {
+                        // Add divider between pinned and unpinned sections
+                        if (index == separatedChats.pinned.length - 1 &&
+                            separatedChats.unpinned.isNotEmpty) {
                           return Container(
                             height: 2.h,
                             decoration: BoxDecoration(

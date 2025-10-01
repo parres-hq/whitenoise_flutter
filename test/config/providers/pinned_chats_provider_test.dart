@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/pinned_chats_provider.dart';
+import 'package:whitenoise/domain/models/chat_list_item.dart';
 
 void main() {
   group('PinnedChatsProvider Tests', () {
@@ -190,5 +191,157 @@ void main() {
         listener.close();
       });
     });
+
+    group('filterChatItems', () {
+      test('returns all items when search query is empty', () {
+        final item1 = ChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: DateTime.now(),
+        );
+        final item2 = ChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: DateTime.now(),
+        );
+
+        final items = [item1, item2];
+        final filtered = notifier.filterChatItems(items, '');
+
+        expect(filtered.length, equals(2));
+      });
+
+      test('filters by display name (case insensitive)', () {
+        // Create a mock ChatListItem with a custom displayName for testing
+        final matchingItem = MockChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: DateTime.now(),
+          mockDisplayName: 'Test Group',
+        );
+
+        final nonMatchingItem = MockChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: DateTime.now(),
+          mockDisplayName: 'Other Group',
+        );
+
+        final items = [matchingItem, nonMatchingItem];
+        final filtered = notifier.filterChatItems(items, 'test');
+
+        expect(filtered.length, equals(1));
+        expect(filtered.first.displayName.toLowerCase(), contains('test'));
+      });
+    });
+
+    group('separatePinnedChats', () {
+      test('separates pinned and unpinned chats correctly', () {
+        final pinnedItem = ChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: DateTime.now(),
+          isPinned: true,
+        );
+        final unpinnedItem = ChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: DateTime.now(),
+        );
+
+        final items = [unpinnedItem, pinnedItem];
+        final separated = notifier.separatePinnedChats(items);
+
+        expect(separated.pinned.length, equals(1));
+        expect(separated.unpinned.length, equals(1));
+        expect(separated.pinned.first.isPinned, isTrue);
+        expect(separated.unpinned.first.isPinned, isFalse);
+      });
+
+      test('filters chats by search query before separating', () {
+        final matchingPinned = MockChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: DateTime.now(),
+          isPinned: true,
+          mockDisplayName: 'Test Group',
+        );
+
+        final matchingUnpinned = MockChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: DateTime.now(),
+          mockDisplayName: 'Test Chat',
+        );
+
+        final nonMatchingPinned = MockChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: DateTime.now(),
+          isPinned: true,
+          mockDisplayName: 'Other Group',
+        );
+
+        final nonMatchingUnpinned = MockChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: DateTime.now(),
+          mockDisplayName: 'Different Chat',
+        );
+
+        final items = [matchingPinned, matchingUnpinned, nonMatchingPinned, nonMatchingUnpinned];
+        final separated = notifier.separatePinnedChats(items, searchQuery: 'test');
+
+        expect(separated.pinned.length, equals(1));
+        expect(separated.unpinned.length, equals(1));
+        expect(separated.pinned.first.displayName.toLowerCase(), contains('test'));
+        expect(separated.unpinned.first.displayName.toLowerCase(), contains('test'));
+      });
+
+      test('sorts pinned and unpinned lists by date (most recent first)', () {
+        final older = DateTime.now().subtract(const Duration(hours: 2));
+        final newer = DateTime.now().subtract(const Duration(hours: 1));
+
+        final olderPinned = ChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: older,
+          isPinned: true,
+        );
+        final newerPinned = ChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: newer,
+          isPinned: true,
+        );
+        final olderUnpinned = ChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: older,
+        );
+        final newerUnpinned = ChatListItem(
+          type: ChatListItemType.chat,
+          dateCreated: newer,
+        );
+
+        final items = [olderPinned, olderUnpinned, newerPinned, newerUnpinned];
+        final separated = notifier.separatePinnedChats(items);
+
+        expect(separated.pinned.first.dateCreated, equals(newer));
+        expect(separated.pinned.last.dateCreated, equals(older));
+        expect(separated.unpinned.first.dateCreated, equals(newer));
+        expect(separated.unpinned.last.dateCreated, equals(older));
+      });
+    });
   });
+}
+
+// Mock ChatListItem for testing without external dependencies
+class MockChatListItem extends ChatListItem {
+  final String mockDisplayName;
+  final String mockSubtitle;
+
+  const MockChatListItem({
+    required super.type,
+    required super.dateCreated,
+    super.isPinned = false,
+    this.mockDisplayName = '',
+    this.mockSubtitle = '',
+  });
+
+  @override
+  String get displayName => mockDisplayName;
+
+  @override
+  String get subtitle => mockSubtitle;
+
+  @override
+  String get id => 'mock_id';
 }

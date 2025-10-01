@@ -71,23 +71,4 @@ class ChatListItem {
         return welcome?.id ?? '';
     }
   }
-
-  /// Create a copy of this ChatListItem with updated values
-  ChatListItem copyWith({
-    ChatListItemType? type,
-    Group? group,
-    Welcome? welcome,
-    MessageModel? lastMessage,
-    DateTime? dateCreated,
-    bool? isPinned,
-  }) {
-    return ChatListItem(
-      type: type ?? this.type,
-      group: group ?? this.group,
-      welcome: welcome ?? this.welcome,
-      lastMessage: lastMessage ?? this.lastMessage,
-      dateCreated: dateCreated ?? this.dateCreated,
-      isPinned: isPinned ?? this.isPinned,
-    );
-  }
 }

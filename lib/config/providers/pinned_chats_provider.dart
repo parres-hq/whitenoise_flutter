@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/domain/models/chat_list_item.dart';
 
 class PinnedChatsNotifier extends Notifier<Set<String>> {
   static final Logger _log = Logger('PinnedChatsNotifier');
@@ -115,6 +116,49 @@ class PinnedChatsNotifier extends Notifier<Set<String>> {
     state = <String>{};
     await _savePinnedChats();
     _log.info('Cleared all pinned chats');
+  }
+
+  /// Filters chat items based on search query
+  List<ChatListItem> filterChatItems(
+    List<ChatListItem> chatItems,
+    String searchQuery,
+  ) {
+    if (searchQuery.isEmpty) {
+      return chatItems;
+    }
+
+    final searchLower = searchQuery.toLowerCase();
+    return chatItems.where((item) {
+      return item.displayName.toLowerCase().contains(searchLower) ||
+          item.subtitle.toLowerCase().contains(searchLower) ||
+          (item.lastMessage?.content?.toLowerCase().contains(searchLower) ?? false);
+    }).toList();
+  }
+
+  /// Separates chat items into pinned and unpinned lists with optional search filtering
+  ({List<ChatListItem> pinned, List<ChatListItem> unpinned}) separatePinnedChats(
+    List<ChatListItem> chatItems, {
+    String searchQuery = '',
+  }) {
+    // First filter by search query if provided
+    final filteredItems = searchQuery.isEmpty ? chatItems : filterChatItems(chatItems, searchQuery);
+
+    final pinnedChats = <ChatListItem>[];
+    final unpinnedChats = <ChatListItem>[];
+
+    for (final item in filteredItems) {
+      if (item.isPinned) {
+        pinnedChats.add(item);
+      } else {
+        unpinnedChats.add(item);
+      }
+    }
+
+    // Sort each list by date created (most recent first)
+    pinnedChats.sort((a, b) => b.dateCreated.compareTo(a.dateCreated));
+    unpinnedChats.sort((a, b) => b.dateCreated.compareTo(a.dateCreated));
+
+    return (pinned: pinnedChats, unpinned: unpinnedChats);
   }
 }
 
