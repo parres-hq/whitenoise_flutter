@@ -12,7 +12,6 @@ import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/router_provider.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 import 'package:whitenoise/ui/core/ui/wn_toast.dart';
-
 import 'ui/core/themes/src/app_theme.dart';
 
 Future<void> main() async {

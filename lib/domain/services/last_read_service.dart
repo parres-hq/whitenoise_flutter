@@ -29,6 +29,7 @@ class LastReadService {
       _logger.fine('Set last read for group $groupId: $readTimestamp');
     } catch (e) {
       _logger.warning('Error setting last read for group $groupId: $e');
+      rethrow;
     }
   }
 

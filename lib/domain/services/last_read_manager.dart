@@ -21,11 +21,10 @@ class LastReadManager {
   static Future<void> saveLastReadImmediate(String groupId, DateTime messageCreatedAt) async {
     try {
       final lastSaved = _lastSavedTimestamps[groupId];
-      if (lastSaved != null && messageCreatedAt.difference(lastSaved).abs() < _minSaveInterval) {
+      if (lastSaved != null && DateTime.now().difference(lastSaved) < _minSaveInterval) {
         _logger.fine('Skipping immediate save for $groupId - too recent');
         return;
       }
-
       await LastReadService.setLastRead(groupId: groupId, timestamp: messageCreatedAt);
       _lastSavedTimestamps[groupId] = messageCreatedAt;
       _pendingTimestamps.remove(groupId);

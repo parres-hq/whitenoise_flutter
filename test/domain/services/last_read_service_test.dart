@@ -280,7 +280,7 @@ void main() {
           DateTime.fromMillisecondsSinceEpoch(0), // Unix epoch
           DateTime.fromMillisecondsSinceEpoch(1), // Minimum positive value
           DateTime.fromMillisecondsSinceEpoch(9999999999999), // Far future
-          DateTime(1970, 1, 1), // Unix epoch (different constructor)
+          DateTime(1970), // Unix epoch (different constructor)
           DateTime(2038, 1, 19, 3, 14, 7), // Year 2038 problem
         ];
 

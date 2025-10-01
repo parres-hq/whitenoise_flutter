@@ -7,6 +7,7 @@ import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
+import 'package:whitenoise/src/rust/api/welcomes.dart';
 
 /// Service responsible for message synchronization, filtering, and notifications.
 ///
@@ -47,32 +48,48 @@ class MessageSyncService {
       final group = matching.first;
 
       final isDM = await group.isDirectMessageType(accountPubkey: activePubkey);
-
-      if (isDM) {
-        final members = await groupMembers(pubkey: activePubkey, groupId: groupId);
-        if (members.isNotEmpty) {
-          final otherMemberPubkey = members.firstWhere(
-            (memberPubkey) => memberPubkey != activePubkey,
-            orElse: () => members.first,
-          );
-          try {
-            final metadata = await userMetadata(pubkey: otherMemberPubkey);
-            if (metadata.displayName?.isNotEmpty == true) {
-              return metadata.displayName!;
-            }
-          } catch (e) {
-            _logger.warning('Get user metadata for $otherMemberPubkey', e);
-          }
-          return otherMemberPubkey.substring(0, _pubkeyDisplayLength);
-        }
-        return 'Direct Message';
-      } else {
-        return group.name.isNotEmpty ? group.name : 'Unknown Group';
-      }
+      return isDM
+          ? await _resolveDmDisplayName(activePubkey, groupId, group)
+          : _resolveGroupChatDisplayName(group);
     } catch (e) {
       _logger.warning('Get group name for $groupId', e);
       return 'Group Chat';
     }
+  }
+
+  static Future<String> _resolveDmDisplayName(
+    String activePubkey,
+    String groupId,
+    dynamic group,
+  ) async {
+    final members = await groupMembers(pubkey: activePubkey, groupId: groupId);
+    if (members.isEmpty) {
+      return 'Direct Message';
+    }
+
+    final otherMemberPubkey = members.firstWhere(
+      (memberPubkey) => memberPubkey != activePubkey,
+      orElse: () => members.first,
+    );
+
+    try {
+      final metadata = await userMetadata(pubkey: otherMemberPubkey);
+      if (metadata.displayName?.isNotEmpty == true) {
+        return metadata.displayName!;
+      }
+    } catch (e) {
+      _logger.warning('Get user metadata for $otherMemberPubkey', e);
+    }
+
+    return _formatMemberDisplayName(otherMemberPubkey);
+  }
+
+  static String _resolveGroupChatDisplayName(dynamic group) {
+    return group.name.isNotEmpty ? group.name : 'Unknown Group';
+  }
+
+  static String _formatMemberDisplayName(String pubkey) {
+    return pubkey.substring(0, _pubkeyDisplayLength);
   }
 
   /// Filters messages to find new ones that should trigger notifications.
@@ -174,7 +191,7 @@ class MessageSyncService {
   static Future<void> notifyNewMessages({
     required String groupId,
     required String activePubkey,
-    required List<dynamic> newMessages,
+    required List<ChatMessage> newMessages,
   }) async {
     if (groupId.isEmpty) {
       _logger.warning('Empty groupId provided to notifyNewMessages');
@@ -209,7 +226,7 @@ class MessageSyncService {
   }
 
   static Future<void> notifyNewInvites({
-    required List<dynamic> newWelcomes,
+    required List<Welcome> newWelcomes,
   }) async {
     for (final welcome in newWelcomes) {
       try {
