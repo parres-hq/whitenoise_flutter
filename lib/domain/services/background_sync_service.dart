@@ -79,17 +79,21 @@ class BackgroundSyncService {
       bool invitesRegistered = false;
       bool metadataRegistered = false;
 
-      await Workmanager().registerPeriodicTask(
-        'messages_sync',
-        messagesSyncTask,
-        frequency: _messagesSyncFrequency,
-        constraints: Constraints(
-          networkType: NetworkType.connected,
-          requiresBatteryNotLow: true,
-        ),
-      );
-      messagesRegistered = true;
-      await _setTaskFlag(activePubkey: activePubkey, taskName: messagesSyncTask, value: true);
+      try {
+        await Workmanager().registerPeriodicTask(
+          'messages_sync',
+          messagesSyncTask,
+          frequency: _messagesSyncFrequency,
+          constraints: Constraints(
+            networkType: NetworkType.connected,
+            requiresBatteryNotLow: true,
+          ),
+        );
+        messagesRegistered = true;
+        await _setTaskFlag(activePubkey: activePubkey, taskName: messagesSyncTask, value: true);
+      } catch (e) {
+        _logger.severe('Register messages sync task', e);
+      }
 
       try {
         await Workmanager().registerPeriodicTask(
