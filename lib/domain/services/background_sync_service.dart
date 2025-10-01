@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:logging/logging.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/domain/services/account_secure_storage_service.dart';
-import 'package:whitenoise/domain/services/notification_id_service.dart';
+import 'package:whitenoise/domain/services/message_sync_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
@@ -23,21 +21,7 @@ class BackgroundSyncService {
   static const Duration _messagesSyncFrequency = Duration(minutes: 15);
   static const Duration _invitesSyncFrequency = Duration(minutes: 15);
   static const Duration _metadataRefreshFrequency = Duration(hours: 24);
-
-  // Notification constants
-  static const String _notificationTypeNewMessage = 'new_message';
-  static const String _notificationTypeInvitesSync = 'invites_sync';
-  static const String _notificationTitleNewInvitations = 'New Invitations';
-  static const String _notificationTitleDirectMessage = 'Direct Message';
-  static const String _notificationTitleUnknownGroup = 'Unknown Group';
-  static const String _notificationTitleGroupChat = 'Group Chat';
-
-  // Sync time constants
-  static const Duration _messageFilterBufferSeconds = Duration(seconds: 1);
   static const Duration _taskDelaySeconds = Duration(seconds: 1);
-
-  // Display name constants
-  static const int _pubkeyDisplayLength = 8;
 
   static bool _isInitialized = false;
 
@@ -143,66 +127,6 @@ class BackgroundSyncService {
     }
   }
 
-  static List<ChatMessage> _filterNewMessages(
-    List<ChatMessage> messages,
-    String currentUserPubkey,
-    DateTime? lastSyncTime,
-  ) {
-    final now = DateTime.now();
-    final earliestAllowedTime = now.subtract(_messageFilterBufferSeconds);
-
-    // Use only lastSyncTime for background sync - we want to notify about ALL new messages
-    // since the last background sync, regardless of whether the user has read them in the app
-    final lastProcessedTime = lastSyncTime ?? now.subtract(const Duration(hours: 1));
-
-    return messages.where((message) {
-      if (message.pubkey == currentUserPubkey) return false;
-      if (message.isDeleted) return false;
-      if (!message.createdAt.isAfter(lastProcessedTime)) return false;
-      if (message.createdAt.isAfter(earliestAllowedTime)) return false;
-      return true;
-    }).toList();
-  }
-
-  static Future<String> _getGroupDisplayName(String groupId, String activePubkey) async {
-    try {
-      final groups = await activeGroups(pubkey: activePubkey);
-      final matching = groups.where((g) => g.mlsGroupId == groupId);
-      if (matching.isEmpty) {
-        _logger.warning('Group not found for $groupId');
-        return _notificationTitleGroupChat;
-      }
-      final group = matching.first;
-
-      final isDM = await group.isDirectMessageType(accountPubkey: activePubkey);
-
-      if (isDM) {
-        final members = await groupMembers(pubkey: activePubkey, groupId: groupId);
-        if (members.isNotEmpty) {
-          final otherMemberPubkey = members.firstWhere(
-            (memberPubkey) => memberPubkey != activePubkey,
-            orElse: () => members.first,
-          );
-          try {
-            final metadata = await userMetadata(pubkey: otherMemberPubkey);
-            if (metadata.displayName?.isNotEmpty == true) {
-              return metadata.displayName!;
-            }
-          } catch (e) {
-            _logger.warning('Get user metadata for $otherMemberPubkey', e);
-          }
-          return otherMemberPubkey.substring(0, _pubkeyDisplayLength);
-        }
-        return _notificationTitleDirectMessage;
-      } else {
-        return group.name.isNotEmpty ? group.name : _notificationTitleUnknownGroup;
-      }
-    } catch (e) {
-      _logger.warning('Get group name for $groupId', e);
-      return _notificationTitleGroupChat;
-    }
-  }
-
   static Future<void> triggerTask(String taskName) async {
     try {
       _logger.info('Manually triggering task: $taskName');
@@ -217,38 +141,6 @@ class BackgroundSyncService {
       _logger.info('Task $taskName scheduled for background execution');
     } catch (e) {
       _logger.severe('Trigger task $taskName', e);
-    }
-  }
-
-  /// Gets the last sync time for a specific group from SharedPreferences
-  static Future<DateTime?> _getLastSyncTime({
-    required String activePubkey,
-    required String groupId,
-  }) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final timestamp = prefs.getInt('bg_sync_last_${activePubkey}_$groupId');
-      return timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
-    } catch (e) {
-      _logger.warning('Get last sync time for group $groupId', e);
-      return null;
-    }
-  }
-
-  /// Sets the last sync time for a specific group in SharedPreferences
-  static Future<void> _setLastSyncTime({
-    required String activePubkey,
-    required String groupId,
-    required DateTime time,
-  }) async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setInt(
-        'bg_sync_last_${activePubkey}_$groupId',
-        time.millisecondsSinceEpoch,
-      );
-    } catch (e) {
-      _logger.warning('Set last sync time for group $groupId', e);
     }
   }
 }
@@ -333,7 +225,7 @@ Future<int> _syncMessagesForGroup({
   required String activePubkey,
   required Logger logger,
 }) async {
-  final DateTime? lastSyncTime = await BackgroundSyncService._getLastSyncTime(
+  final DateTime? lastSyncTime = await MessageSyncService.getLastSyncTime(
     activePubkey: activePubkey,
     groupId: groupId,
   );
@@ -341,9 +233,10 @@ Future<int> _syncMessagesForGroup({
     pubkey: activePubkey,
     groupId: groupId,
   );
-  final List<ChatMessage> newMessages = BackgroundSyncService._filterNewMessages(
+  final List<ChatMessage> newMessages = await MessageSyncService.filterNewMessages(
     aggregatedMessages,
     activePubkey,
+    groupId,
     lastSyncTime,
   );
   logger.info(
@@ -357,11 +250,10 @@ Future<int> _syncMessagesForGroup({
     );
     return 0;
   }
-  await _notifyNewMessages(
+  await MessageSyncService.notifyNewMessages(
     groupId: groupId,
     activePubkey: activePubkey,
     newMessages: newMessages,
-    logger: logger,
   );
   await _updateCheckpointWithNewMessages(
     activePubkey: activePubkey,
@@ -371,37 +263,6 @@ Future<int> _syncMessagesForGroup({
   return newMessages.length;
 }
 
-Future<void> _notifyNewMessages({
-  required String groupId,
-  required String activePubkey,
-  required List<ChatMessage> newMessages,
-  required Logger logger,
-}) async {
-  final String groupDisplayName = await BackgroundSyncService._getGroupDisplayName(
-    groupId,
-    activePubkey,
-  );
-  for (final ChatMessage message in newMessages) {
-    try {
-      await NotificationService.showMessageNotification(
-        id: await NotificationIdService.getIdFor(
-          key: '${BackgroundSyncService._notificationTypeNewMessage}:$groupId:${message.id}',
-        ),
-        title: groupDisplayName,
-        body: message.content,
-        payload: jsonEncode({
-          'type': BackgroundSyncService._notificationTypeNewMessage,
-          'groupId': groupId,
-          'messageId': message.id,
-          'sender': message.pubkey,
-        }),
-      );
-    } catch (e) {
-      logger.warning('Show notification for message ${message.id}: $e');
-    }
-  }
-}
-
 Future<void> _updateCheckpointNoNewMessages({
   required String activePubkey,
   required String groupId,
@@ -409,10 +270,10 @@ Future<void> _updateCheckpointNoNewMessages({
 }) async {
   final DateTime now = DateTime.now();
   final DateTime earliestAllowedTime = now.subtract(
-    BackgroundSyncService._messageFilterBufferSeconds,
+    const Duration(seconds: 1),
   );
   if (lastSyncTime == null || lastSyncTime.isBefore(earliestAllowedTime)) {
-    await BackgroundSyncService._setLastSyncTime(
+    await MessageSyncService.setLastSyncTime(
       activePubkey: activePubkey,
       groupId: groupId,
       time: earliestAllowedTime,
@@ -428,7 +289,7 @@ Future<void> _updateCheckpointWithNewMessages({
   final DateTime latestProcessed = newMessages
       .map((m) => m.createdAt)
       .reduce((a, b) => a.isAfter(b) ? a : b);
-  await BackgroundSyncService._setLastSyncTime(
+  await MessageSyncService.setLastSyncTime(
     activePubkey: activePubkey,
     groupId: groupId,
     time: latestProcessed,
@@ -448,12 +309,12 @@ Future<bool> _handleInvitesSync() async {
     }
 
     // Use checkpoint tracking for invites like we do for messages
-    final DateTime? lastSyncTime = await BackgroundSyncService._getLastSyncTime(
+    final DateTime? lastSyncTime = await MessageSyncService.getLastSyncTime(
       activePubkey: activePubkey,
       groupId: 'invites',
     );
     final now = DateTime.now();
-    final earliestAllowedTime = now.subtract(BackgroundSyncService._messageFilterBufferSeconds);
+    final earliestAllowedTime = now.subtract(const Duration(seconds: 1));
     final lastProcessedTime = lastSyncTime ?? now.subtract(const Duration(hours: 1));
 
     final welcomes = await pendingWelcomes(pubkey: activePubkey);
@@ -469,28 +330,14 @@ Future<bool> _handleInvitesSync() async {
       'Invites sync: Found ${welcomes.length} total pending welcomes, ${newWelcomes.length} new welcomes',
     );
 
-    for (final welcome in newWelcomes) {
-      try {
-        await NotificationService.showMessageNotification(
-          id: await NotificationIdService.getIdFor(
-            key: '${BackgroundSyncService._notificationTypeInvitesSync}:${welcome.id}',
-          ),
-          title: BackgroundSyncService._notificationTitleNewInvitations,
-          body: 'New group invitation',
-          payload: jsonEncode({
-            'type': BackgroundSyncService._notificationTypeInvitesSync,
-            'welcomeId': welcome.id,
-          }),
-        );
-      } catch (e) {
-        logger.warning('Show notification for welcome ${welcome.id}: $e');
-      }
-    }
+    await MessageSyncService.notifyNewInvites(
+      newWelcomes: newWelcomes,
+    );
 
     // Update checkpoint after processing
     if (newWelcomes.isEmpty) {
       if (lastSyncTime == null || lastSyncTime.isBefore(earliestAllowedTime)) {
-        await BackgroundSyncService._setLastSyncTime(
+        await MessageSyncService.setLastSyncTime(
           activePubkey: activePubkey,
           groupId: 'invites',
           time: earliestAllowedTime,
@@ -500,7 +347,7 @@ Future<bool> _handleInvitesSync() async {
       final DateTime latestWelcome = newWelcomes
           .map((w) => DateTime.fromMillisecondsSinceEpoch(w.createdAt.toInt() * 1000))
           .reduce((a, b) => a.isAfter(b) ? a : b);
-      await BackgroundSyncService._setLastSyncTime(
+      await MessageSyncService.setLastSyncTime(
         activePubkey: activePubkey,
         groupId: 'invites',
         time: latestWelcome,

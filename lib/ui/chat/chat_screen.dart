@@ -12,6 +12,7 @@ import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/services/dm_chat_service.dart';
+import 'package:whitenoise/domain/services/last_read_manager.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/invite/chat_invite_screen.dart';
 import 'package:whitenoise/ui/chat/services/chat_dialog_service.dart';
@@ -53,6 +54,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     WidgetsBinding.instance.addObserver(this);
     _initializeDMChatData();
 
+    // Add scroll listener for last read saving
+    _scrollController.addListener(_onScroll);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
@@ -79,7 +83,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _chatSubscription?.close();
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    // Cancel pending last read saves for this group
+    LastReadManager.cancelPendingSaves(widget.groupId);
     super.dispose();
   }
 
@@ -149,6 +156,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     if (isLoadingCompleted && currentMessages.isNotEmpty && !_hasInitialScrollCompleted) {
       _hasInitialScrollCompleted = true;
       _scrollToBottom(animated: false);
+      // Save last read when chat first loads
+      _saveLastReadForCurrentMessages();
       return;
     }
 
@@ -158,6 +167,40 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
         currentMessages.length > previousMessages.length &&
         currentMessages.last.id != previousMessages.last.id) {
       _scrollToBottom();
+      // Save last read when new messages arrive and user is viewing
+      _saveLastReadForCurrentMessages();
+    }
+  }
+
+  /// Save last read timestamp for current messages
+  void _saveLastReadForCurrentMessages() {
+    final messages = ref.read(
+      chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
+    );
+    if (messages.isNotEmpty) {
+      LastReadManager.saveLastReadForLatestMessage(widget.groupId, messages);
+    }
+  }
+
+  /// Handle scroll events for last read saving
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+
+    final position = _scrollController.position;
+    final isAtBottom = position.pixels >= position.maxScrollExtent - 50; // 50px threshold
+
+    if (isAtBottom) {
+      // User scrolled to bottom, save last read with debouncing
+      final messages = ref.read(
+        chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
+      );
+      if (messages.isNotEmpty) {
+        final latestMessage = messages.last;
+        LastReadManager.saveLastReadDebounced(
+          widget.groupId,
+          latestMessage.createdAt,
+        );
+      }
     }
   }
 

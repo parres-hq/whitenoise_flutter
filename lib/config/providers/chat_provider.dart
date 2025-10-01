@@ -8,6 +8,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/domain/services/last_read_manager.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/utils.dart';
@@ -219,6 +220,13 @@ class ChatNotifier extends Notifier<ChatState> {
 
       // Update group order by triggering a resort based on the new message
       await _updateGroupOrderForNewMessage(groupId);
+
+      // Save last read when user sends a message (immediate save)
+      final messagesForLastRead = state.groupMessages[groupId] ?? [];
+      if (messagesForLastRead.isNotEmpty) {
+        final latestMessage = messagesForLastRead.last;
+        LastReadManager.saveLastReadImmediate(groupId, latestMessage.createdAt);
+      }
 
       _logger.info('ChatProvider: Message sent successfully to group $groupId');
       onMessageSent?.call();
