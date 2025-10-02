@@ -6,8 +6,8 @@ use mdk_core::prelude::group_types::GroupState as WhitenoiseGroupState;
 use mdk_core::prelude::{NostrGroupConfigData, NostrGroupDataUpdate};
 use nostr_sdk::prelude::*;
 use whitenoise::{
-    GroupInformation as WhitenoiseGroupInformation, GroupType as WhitenoiseGroupType, RelayType,
-    Whitenoise,
+    GroupInformation as WhitenoiseGroupInformation, GroupType as WhitenoiseGroupType, ImageType,
+    RelayType, Whitenoise,
 };
 
 #[frb(non_opaque)]
@@ -338,4 +338,39 @@ pub async fn get_groups_informations(
         .into_iter()
         .map(|info| info.into())
         .collect())
+}
+
+// Result structure for upload_group_image
+#[frb(non_opaque)]
+#[derive(Debug, Clone)]
+pub struct UploadGroupImageResult {
+    pub encrypted_hash: [u8; 32],
+    pub image_key: [u8; 32],
+    pub image_nonce: [u8; 12],
+}
+
+#[frb]
+pub async fn upload_group_image(
+    account_pubkey: String,
+    group_id: String,
+    file_path: String,
+    image_type: String,
+    server_url: String,
+) -> Result<UploadGroupImageResult, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let group_id = group_id_from_string(&group_id)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    let server = Url::parse(&server_url)?;
+    let image_type = ImageType::try_from(image_type)?;
+
+    let (encrypted_hash, image_key, image_nonce) = whitenoise
+        .upload_group_image(&account, &group_id, &file_path, image_type, server)
+        .await?;
+
+    Ok(UploadGroupImageResult {
+        encrypted_hash,
+        image_key,
+        image_nonce,
+    })
 }
