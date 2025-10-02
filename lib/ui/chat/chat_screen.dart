@@ -48,6 +48,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   bool _hasInitialScrollCompleted = false;
   bool _isKeyboardOpen = false;
 
+  static const double _scrollBottomThreshold = 50.0;
+
   @override
   void initState() {
     super.initState();
@@ -96,6 +98,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     if (group != null) {
       _dmChatDataFuture = ref.getDMChatData(group.mlsGroupId);
     }
+  }
+
+  /// Check if the user is effectively at the bottom of the chat
+  bool _isAtBottom() {
+    if (!_scrollController.hasClients) return false;
+    final pos = _scrollController.position;
+    final threshold = _scrollBottomThreshold.clamp(0.0, double.infinity);
+    return pos.pixels >= (pos.maxScrollExtent - threshold);
   }
 
   /// Scroll to the bottom of the chat
@@ -156,8 +166,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     if (isLoadingCompleted && currentMessages.isNotEmpty && !_hasInitialScrollCompleted) {
       _hasInitialScrollCompleted = true;
       _scrollToBottom(animated: false);
-      // Save last read when chat first loads
-      _saveLastReadForCurrentMessages();
+      // Save last read only if user is effectively at bottom
+      if (_isAtBottom()) {
+        _saveLastReadForCurrentMessages();
+      }
       return;
     }
 
@@ -167,8 +179,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
         currentMessages.length > previousMessages.length &&
         currentMessages.last.id != previousMessages.last.id) {
       _scrollToBottom();
-      // Save last read when new messages arrive and user is viewing
-      _saveLastReadForCurrentMessages();
+      // Save last read only if user is already at bottom
+      if (_isAtBottom()) {
+        _saveLastReadForCurrentMessages();
+      }
     }
   }
 
@@ -186,10 +200,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   void _onScroll() {
     if (!_scrollController.hasClients) return;
 
-    final position = _scrollController.position;
-    final isAtBottom = position.pixels >= position.maxScrollExtent - 50; // 50px threshold
-
-    if (isAtBottom) {
+    if (_isAtBottom()) {
       // User scrolled to bottom, save last read with debouncing
       final messages = ref.read(
         chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),

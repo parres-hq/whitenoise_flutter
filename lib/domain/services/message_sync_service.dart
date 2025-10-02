@@ -119,7 +119,10 @@ class MessageSyncService {
     final now = DateTime.now();
     final earliestAllowedTime = now.subtract(_messageSyncBuffer);
 
-    final lastReadTime = await LastReadService.getLastRead(groupId: groupId);
+    final lastReadTime = await LastReadService.getLastRead(
+      groupId: groupId,
+      activePubkey: currentUserPubkey,
+    );
     final lastProcessedTime = _getMostRecentTime([
       lastSyncTime,
       lastReadTime,
@@ -138,6 +141,9 @@ class MessageSyncService {
     final startIndex = _binarySearchAfter(sortedMessages, lastProcessedTime);
     final endIndex = _binarySearchBefore(sortedMessages, earliestAllowedTime);
 
+    if (startIndex >= endIndex) {
+      return [];
+    }
     final filteredMessages =
         sortedMessages.sublist(startIndex, endIndex).where((message) {
           return message.pubkey != currentUserPubkey && !message.isDeleted;

@@ -15,38 +15,39 @@ class LastReadService {
 
   static Future<void> setLastRead({
     required String groupId,
+    required String activePubkey,
     DateTime? timestamp,
     FlutterSecureStorage? storage,
   }) async {
     final secureStorage = storage ?? _secureStorage;
     try {
       final readTimestamp = timestamp ?? DateTime.now();
-      final key = '$_lastReadPrefix$groupId';
+      final key = '$_lastReadPrefix${activePubkey}_$groupId';
       await secureStorage.write(
         key: key,
         value: readTimestamp.millisecondsSinceEpoch.toString(),
       );
-      _logger.fine('Set last read for group $groupId: $readTimestamp');
+      _logger.fine('Set last read for group $groupId (pubkey: $activePubkey): $readTimestamp');
     } catch (e) {
-      _logger.warning('Error setting last read for group $groupId: $e');
-      rethrow;
+      _logger.warning('Error setting last read for group $groupId (pubkey: $activePubkey): $e');
     }
   }
 
   static Future<DateTime?> getLastRead({
     required String groupId,
+    required String activePubkey,
     FlutterSecureStorage? storage,
   }) async {
     final secureStorage = storage ?? _secureStorage;
     try {
-      final key = '$_lastReadPrefix$groupId';
+      final key = '$_lastReadPrefix${activePubkey}_$groupId';
       final value = await secureStorage.read(key: key);
       if (value == null) return null;
       final milliseconds = int.tryParse(value);
       if (milliseconds == null) return null;
       return DateTime.fromMillisecondsSinceEpoch(milliseconds);
     } catch (e) {
-      _logger.warning('Error getting last read for group $groupId: $e');
+      _logger.warning('Error getting last read for group $groupId (pubkey: $activePubkey): $e');
       return null;
     }
   }

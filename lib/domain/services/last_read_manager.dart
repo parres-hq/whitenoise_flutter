@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/domain/services/account_secure_storage_service.dart';
 import 'package:whitenoise/domain/services/last_read_service.dart';
 
 /// Manages efficient saving of last read timestamps for chat groups.
@@ -25,7 +26,18 @@ class LastReadManager {
         _logger.fine('Skipping immediate save for $groupId - too recent');
         return;
       }
-      await LastReadService.setLastRead(groupId: groupId, timestamp: messageCreatedAt);
+
+      final activePubkey = await AccountSecureStorageService.getActivePubkey();
+      if (activePubkey == null) {
+        _logger.warning('No active pubkey found, skipping last read save for group $groupId');
+        return;
+      }
+
+      await LastReadService.setLastRead(
+        groupId: groupId,
+        activePubkey: activePubkey,
+        timestamp: messageCreatedAt,
+      );
       _lastSavedTimestamps[groupId] = messageCreatedAt;
       _pendingTimestamps.remove(groupId);
       _cleanupOldEntries();
@@ -48,11 +60,11 @@ class LastReadManager {
   }
 
   static void saveLastReadThrottled(String groupId, DateTime messageCreatedAt) {
+    // Always keep the latest timestamp
+    _pendingTimestamps[groupId] = messageCreatedAt;
     if (_throttleTimers.containsKey(groupId)) {
       return;
     }
-
-    _pendingTimestamps[groupId] = messageCreatedAt;
     _throttleTimers[groupId] = Timer(_scrollThrottleDelay, () async {
       final timestamp = _pendingTimestamps[groupId];
       if (timestamp != null) {

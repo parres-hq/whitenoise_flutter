@@ -11,6 +11,7 @@ void main() {
   group('LastReadService', () {
     late MockFlutterSecureStorage mockStorage;
     const String testGroupId = 'test-group-123';
+    const String testActivePubkey = 'test-pubkey-123';
     final DateTime testTimestamp = DateTime(2024, 1, 15, 10, 30, 45);
     final String testTimestampString = testTimestamp.millisecondsSinceEpoch.toString();
 
@@ -23,20 +24,21 @@ void main() {
         test('sets the last read timestamp with custom value', () async {
           when(
             mockStorage.write(
-              key: 'last_read_$testGroupId',
+              key: 'last_read_${testActivePubkey}_$testGroupId',
               value: testTimestampString,
             ),
           ).thenAnswer((_) async => {});
 
           await LastReadService.setLastRead(
             groupId: testGroupId,
+            activePubkey: testActivePubkey,
             timestamp: testTimestamp,
             storage: mockStorage,
           );
 
           verify(
             mockStorage.write(
-              key: 'last_read_$testGroupId',
+              key: 'last_read_${testActivePubkey}_$testGroupId',
               value: testTimestampString,
             ),
           ).called(1);
@@ -49,13 +51,14 @@ void main() {
 
           when(
             mockStorage.write(
-              key: 'last_read_$testGroupId',
+              key: 'last_read_${testActivePubkey}_$testGroupId',
               value: anyNamed('value'),
             ),
           ).thenAnswer((_) async => {});
 
           await LastReadService.setLastRead(
             groupId: testGroupId,
+            activePubkey: testActivePubkey,
             storage: mockStorage,
           );
 
@@ -65,7 +68,7 @@ void main() {
           final capturedValue =
               verify(
                     mockStorage.write(
-                      key: 'last_read_$testGroupId',
+                      key: 'last_read_${testActivePubkey}_$testGroupId',
                       value: captureAnyNamed('value'),
                     ),
                   ).captured.first
@@ -84,7 +87,7 @@ void main() {
         test('handles storage error gracefully', () async {
           when(
             mockStorage.write(
-              key: 'last_read_$testGroupId',
+              key: 'last_read_${testActivePubkey}_$testGroupId',
               value: testTimestampString,
             ),
           ).thenThrow(Exception('Storage error'));
@@ -92,13 +95,14 @@ void main() {
           // Should not throw
           await LastReadService.setLastRead(
             groupId: testGroupId,
+            activePubkey: testActivePubkey,
             timestamp: testTimestamp,
             storage: mockStorage,
           );
 
           verify(
             mockStorage.write(
-              key: 'last_read_$testGroupId',
+              key: 'last_read_${testActivePubkey}_$testGroupId',
               value: testTimestampString,
             ),
           ).called(1);
@@ -119,21 +123,29 @@ void main() {
 
           await LastReadService.setLastRead(
             groupId: groupId1,
+            activePubkey: testActivePubkey,
             timestamp: testTimestamp,
             storage: mockStorage,
           );
 
           await LastReadService.setLastRead(
             groupId: groupId2,
+            activePubkey: testActivePubkey,
             timestamp: testTimestamp,
             storage: mockStorage,
           );
 
           verify(
-            mockStorage.write(key: 'last_read_$groupId1', value: testTimestampString),
+            mockStorage.write(
+              key: 'last_read_${testActivePubkey}_$groupId1',
+              value: testTimestampString,
+            ),
           ).called(1);
           verify(
-            mockStorage.write(key: 'last_read_$groupId2', value: testTimestampString),
+            mockStorage.write(
+              key: 'last_read_${testActivePubkey}_$groupId2',
+              value: testTimestampString,
+            ),
           ).called(1);
         });
       });
@@ -142,87 +154,96 @@ void main() {
     group('getLastRead', () {
       group('without stored timestamp', () {
         setUp(() {
-          when(mockStorage.read(key: 'last_read_$testGroupId')).thenAnswer((_) async => null);
+          when(
+            mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId'),
+          ).thenAnswer((_) async => null);
         });
 
         test('returns null', () async {
           final timestamp = await LastReadService.getLastRead(
             groupId: testGroupId,
+            activePubkey: testActivePubkey,
             storage: mockStorage,
           );
 
           expect(timestamp, isNull);
-          verify(mockStorage.read(key: 'last_read_$testGroupId')).called(1);
+          verify(mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId')).called(1);
         });
       });
 
       group('with stored timestamp', () {
         setUp(() {
           when(
-            mockStorage.read(key: 'last_read_$testGroupId'),
+            mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId'),
           ).thenAnswer((_) async => testTimestampString);
         });
 
         test('returns the correct timestamp', () async {
           final timestamp = await LastReadService.getLastRead(
             groupId: testGroupId,
+            activePubkey: testActivePubkey,
             storage: mockStorage,
           );
 
           expect(timestamp, equals(testTimestamp));
-          verify(mockStorage.read(key: 'last_read_$testGroupId')).called(1);
+          verify(mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId')).called(1);
         });
       });
 
       group('with invalid timestamp format', () {
         setUp(() {
           when(
-            mockStorage.read(key: 'last_read_$testGroupId'),
+            mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId'),
           ).thenAnswer((_) async => 'invalid-timestamp');
         });
 
         test('returns null', () async {
           final timestamp = await LastReadService.getLastRead(
             groupId: testGroupId,
+            activePubkey: testActivePubkey,
             storage: mockStorage,
           );
 
           expect(timestamp, isNull);
-          verify(mockStorage.read(key: 'last_read_$testGroupId')).called(1);
+          verify(mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId')).called(1);
         });
       });
 
       group('with empty string', () {
         setUp(() {
-          when(mockStorage.read(key: 'last_read_$testGroupId')).thenAnswer((_) async => '');
+          when(
+            mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId'),
+          ).thenAnswer((_) async => '');
         });
 
         test('returns null', () async {
           final timestamp = await LastReadService.getLastRead(
             groupId: testGroupId,
+            activePubkey: testActivePubkey,
             storage: mockStorage,
           );
 
           expect(timestamp, isNull);
-          verify(mockStorage.read(key: 'last_read_$testGroupId')).called(1);
+          verify(mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId')).called(1);
         });
       });
 
       group('with error', () {
         setUp(() {
           when(
-            mockStorage.read(key: 'last_read_$testGroupId'),
+            mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId'),
           ).thenThrow(Exception('Storage error'));
         });
 
         test('returns null', () async {
           final timestamp = await LastReadService.getLastRead(
             groupId: testGroupId,
+            activePubkey: testActivePubkey,
             storage: mockStorage,
           );
 
           expect(timestamp, isNull);
-          verify(mockStorage.read(key: 'last_read_$testGroupId')).called(1);
+          verify(mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId')).called(1);
         });
       });
 
@@ -233,11 +254,19 @@ void main() {
 
           when(mockStorage.read(key: anyNamed('key'))).thenAnswer((_) async => testTimestampString);
 
-          await LastReadService.getLastRead(groupId: groupId1, storage: mockStorage);
-          await LastReadService.getLastRead(groupId: groupId2, storage: mockStorage);
+          await LastReadService.getLastRead(
+            groupId: groupId1,
+            activePubkey: testActivePubkey,
+            storage: mockStorage,
+          );
+          await LastReadService.getLastRead(
+            groupId: groupId2,
+            activePubkey: testActivePubkey,
+            storage: mockStorage,
+          );
 
-          verify(mockStorage.read(key: 'last_read_$groupId1')).called(1);
-          verify(mockStorage.read(key: 'last_read_$groupId2')).called(1);
+          verify(mockStorage.read(key: 'last_read_${testActivePubkey}_$groupId1')).called(1);
+          verify(mockStorage.read(key: 'last_read_${testActivePubkey}_$groupId2')).called(1);
         });
       });
     });
@@ -246,18 +275,19 @@ void main() {
       test('setLastRead and getLastRead work together', () async {
         when(
           mockStorage.write(
-            key: 'last_read_$testGroupId',
+            key: 'last_read_${testActivePubkey}_$testGroupId',
             value: testTimestampString,
           ),
         ).thenAnswer((_) async => {});
 
         when(
-          mockStorage.read(key: 'last_read_$testGroupId'),
+          mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId'),
         ).thenAnswer((_) async => testTimestampString);
 
         // Set the timestamp
         await LastReadService.setLastRead(
           groupId: testGroupId,
+          activePubkey: testActivePubkey,
           timestamp: testTimestamp,
           storage: mockStorage,
         );
@@ -265,14 +295,18 @@ void main() {
         // Get the timestamp
         final retrievedTimestamp = await LastReadService.getLastRead(
           groupId: testGroupId,
+          activePubkey: testActivePubkey,
           storage: mockStorage,
         );
 
         expect(retrievedTimestamp, equals(testTimestamp));
         verify(
-          mockStorage.write(key: 'last_read_$testGroupId', value: testTimestampString),
+          mockStorage.write(
+            key: 'last_read_${testActivePubkey}_$testGroupId',
+            value: testTimestampString,
+          ),
         ).called(1);
-        verify(mockStorage.read(key: 'last_read_$testGroupId')).called(1);
+        verify(mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId')).called(1);
       });
 
       test('handles edge case timestamps', () async {
@@ -289,23 +323,25 @@ void main() {
 
           when(
             mockStorage.write(
-              key: 'last_read_$testGroupId',
+              key: 'last_read_${testActivePubkey}_$testGroupId',
               value: timestampString,
             ),
           ).thenAnswer((_) async => {});
 
           when(
-            mockStorage.read(key: 'last_read_$testGroupId'),
+            mockStorage.read(key: 'last_read_${testActivePubkey}_$testGroupId'),
           ).thenAnswer((_) async => timestampString);
 
           await LastReadService.setLastRead(
             groupId: testGroupId,
+            activePubkey: testActivePubkey,
             timestamp: edgeTimestamp,
             storage: mockStorage,
           );
 
           final retrievedTimestamp = await LastReadService.getLastRead(
             groupId: testGroupId,
+            activePubkey: testActivePubkey,
             storage: mockStorage,
           );
 
