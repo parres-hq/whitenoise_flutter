@@ -9,7 +9,7 @@ import '../frb_generated.dart';
 import '../lib.dart';
 import 'error.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`
 
 Future<List<Group>> activeGroups({required String pubkey}) =>
     RustLib.instance.api.crateApiGroupsActiveGroups(pubkey: pubkey);
@@ -80,6 +80,20 @@ Future<List<GroupInformation>> getGroupsInformations({
 }) => RustLib.instance.api.crateApiGroupsGetGroupsInformations(
   accountPubkey: accountPubkey,
   groupIds: groupIds,
+);
+
+Future<UploadGroupImageResult> uploadGroupImage({
+  required String accountPubkey,
+  required String groupId,
+  required String filePath,
+  required String imageType,
+  required String serverUrl,
+}) => RustLib.instance.api.crateApiGroupsUploadGroupImage(
+  accountPubkey: accountPubkey,
+  groupId: groupId,
+  filePath: filePath,
+  imageType: imageType,
+  serverUrl: serverUrl,
 );
 
 class FlutterGroupDataUpdate {
@@ -214,4 +228,28 @@ enum GroupState {
 enum GroupType {
   directMessage,
   group,
+}
+
+class UploadGroupImageResult {
+  final U8Array32 encryptedHash;
+  final U8Array32 imageKey;
+  final U8Array12 imageNonce;
+
+  const UploadGroupImageResult({
+    required this.encryptedHash,
+    required this.imageKey,
+    required this.imageNonce,
+  });
+
+  @override
+  int get hashCode => encryptedHash.hashCode ^ imageKey.hashCode ^ imageNonce.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UploadGroupImageResult &&
+          runtimeType == other.runtimeType &&
+          encryptedHash == other.encryptedHash &&
+          imageKey == other.imageKey &&
+          imageNonce == other.imageNonce;
 }
