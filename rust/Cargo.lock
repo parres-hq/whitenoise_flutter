@@ -2058,6 +2058,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "kamadak-exif"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1130d80c7374efad55a117d715a3af9368f0fa7a2c54573afc15a188cd984837"
+dependencies = [
+ "mutate_once",
+]
+
+[[package]]
 name = "keyring"
 version = "3.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2396,10 +2405,13 @@ dependencies = [
 
 [[package]]
 name = "mdk-core"
-version = "0.5.0"
-source = "git+https://github.com/parres-hq/mdk?rev=e20d4cf34edcd8592b6218ec20086e453860bf1d#e20d4cf34edcd8592b6218ec20086e453860bf1d"
+version = "0.5.1"
+source = "git+https://github.com/parres-hq/mdk?rev=87e909060c56c83934e24bb078697b3b65d16011#87e909060c56c83934e24bb078697b3b65d16011"
 dependencies = [
+ "chacha20poly1305",
  "hex",
+ "hkdf",
+ "kamadak-exif",
  "mdk-storage-traits",
  "nostr",
  "openmls",
@@ -2407,14 +2419,16 @@ dependencies = [
  "openmls_rust_crypto",
  "openmls_traits",
  "serde",
+ "sha2",
+ "thiserror 2.0.16",
  "tls_codec",
  "tracing",
 ]
 
 [[package]]
 name = "mdk-sqlite-storage"
-version = "0.5.0"
-source = "git+https://github.com/parres-hq/mdk?rev=e20d4cf34edcd8592b6218ec20086e453860bf1d#e20d4cf34edcd8592b6218ec20086e453860bf1d"
+version = "0.5.1"
+source = "git+https://github.com/parres-hq/mdk?rev=87e909060c56c83934e24bb078697b3b65d16011#87e909060c56c83934e24bb078697b3b65d16011"
 dependencies = [
  "mdk-storage-traits",
  "nostr",
@@ -2429,8 +2443,8 @@ dependencies = [
 
 [[package]]
 name = "mdk-storage-traits"
-version = "0.5.0"
-source = "git+https://github.com/parres-hq/mdk?rev=e20d4cf34edcd8592b6218ec20086e453860bf1d#e20d4cf34edcd8592b6218ec20086e453860bf1d"
+version = "0.5.1"
+source = "git+https://github.com/parres-hq/mdk?rev=87e909060c56c83934e24bb078697b3b65d16011#87e909060c56c83934e24bb078697b3b65d16011"
 dependencies = [
  "nostr",
  "openmls",
@@ -2481,6 +2495,12 @@ dependencies = [
  "wasi 0.11.1+wasi-snapshot-preview1",
  "windows-sys 0.59.0",
 ]
+
+[[package]]
+name = "mutate_once"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "13d2233c9842d08cfe13f9eac96e207ca6a2ea10b80259ebe8ad0268be27d2af"
 
 [[package]]
 name = "negentropy"
@@ -2704,23 +2724,25 @@ checksum = "c08d65885ee38876c4f86fa503fb49d7b507c2b62552df7c70b2fce627e06381"
 
 [[package]]
 name = "openmls"
-version = "0.7.0"
+version = "0.7.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4d63c0968d4ec14a79259ad7287b03da934ffecd7cddacf9054224cafe8a9aa7"
+checksum = "7af47d535cef7b75806a2b5fcf81ba8e68179f5923aca9bc6a4d8d563e4f8757"
 dependencies = [
  "log",
  "openmls_traits",
  "rayon",
  "serde",
+ "serde_bytes",
  "thiserror 2.0.16",
  "tls_codec",
+ "zeroize",
 ]
 
 [[package]]
 name = "openmls_basic_credential"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ef01a72cab1d27a047d47ef3f084f049c2b25a081cd996d3a8904ed16fd523f8"
+checksum = "e3e6454b2b1b6749fc2f142d7f74eb387f7793be88187ed372e9f5f4cf10c34c"
 dependencies = [
  "ed25519-dalek",
  "openmls_traits",
@@ -2732,9 +2754,9 @@ dependencies = [
 
 [[package]]
 name = "openmls_memory_storage"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "29ef51988f762610917d071606ec641c6e8007262589634f7b8e77b35ded7423"
+checksum = "9e7b071ea5573a97efaa72b7c53e81cebc644b62ef0fe992bad685cc0f7dd4ea"
 dependencies = [
  "log",
  "openmls_traits",
@@ -2745,9 +2767,9 @@ dependencies = [
 
 [[package]]
 name = "openmls_rust_crypto"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a08aebf5bf9ed2ab567b253e6d1b93a5c11e0ce456fe2f8761d80b88a0a90ae0"
+checksum = "3faef09e17a15c8065b9ec6b1e150c19dcb0c4cb810a636b6f010a94a189678e"
 dependencies = [
  "aes-gcm",
  "chacha20poly1305",
@@ -2770,9 +2792,9 @@ dependencies = [
 
 [[package]]
 name = "openmls_sqlite_storage"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "712c09cdf8e245479b553c28f1f4c89a5d91e67146e9ab4418fb9583cb8c7f91"
+checksum = "a3e6a68f5cf720fb3827164049d6cba7262dfca2537c23909efbb480f9013731"
 dependencies = [
  "log",
  "openmls_traits",
@@ -2784,9 +2806,9 @@ dependencies = [
 
 [[package]]
 name = "openmls_traits"
-version = "0.4.0"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0b50a33e77f6bb34610f7b10548518abe22858c194d3c994670931510530a74"
+checksum = "e21d8877bacdbc407060df29bf59b145bb886a8fa0099b87ae8067a34b902a13"
 dependencies = [
  "serde",
  "tls_codec",
@@ -3731,6 +3753,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5f0e2c6ed6606019b4e29e69dbaba95b11854410e5347d525002456dbbb786b6"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde_bytes"
+version = "0.11.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8437fd221bde2d4ca316d61b90e337e9e702b3820b87d63caa9ba6c02bd06d96"
+dependencies = [
+ "serde",
 ]
 
 [[package]]
@@ -4940,7 +4971,7 @@ checksum = "a751b3277700db47d3e574514de2eced5e54dc8a5436a3bf7a0b248b2cee16f3"
 [[package]]
 name = "whitenoise"
 version = "0.1.0"
-source = "git+https://github.com/parres-hq/whitenoise?rev=f6c1108e3d204ab75b696386025e1f8f69ce603f#f6c1108e3d204ab75b696386025e1f8f69ce603f"
+source = "git+https://github.com/parres-hq/whitenoise?rev=f463ed899aeb9724dcdb226d894bceaa25564e86#f463ed899aeb9724dcdb226d894bceaa25564e86"
 dependencies = [
  "anyhow",
  "async-trait",
