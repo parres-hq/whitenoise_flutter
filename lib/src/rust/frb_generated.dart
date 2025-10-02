@@ -77,7 +77,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => 637576675;
+  int get rustContentHash => -1746397136;
 
   static const kDefaultExternalLibraryLoaderConfig = ExternalLibraryLoaderConfig(
     stem: 'rust_lib_whitenoise',
@@ -304,6 +304,14 @@ abstract class RustLibApi extends BaseApi {
     required String serverUrl,
     required String filePath,
     required String imageType,
+  });
+
+  Future<UploadGroupImageResult> crateApiGroupsUploadGroupImage({
+    required String accountPubkey,
+    required String groupId,
+    required String filePath,
+    required String imageType,
+    required String serverUrl,
   });
 
   Future<bool> crateApiUsersUserHasKeyPackage({required String pubkey});
@@ -2273,6 +2281,52 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
+  Future<UploadGroupImageResult> crateApiGroupsUploadGroupImage({
+    required String accountPubkey,
+    required String groupId,
+    required String filePath,
+    required String imageType,
+    required String serverUrl,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(accountPubkey, serializer);
+          sse_encode_String(groupId, serializer);
+          sse_encode_String(filePath, serializer);
+          sse_encode_String(imageType, serializer);
+          sse_encode_String(serverUrl, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 59,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_upload_group_image_result,
+          decodeErrorData: sse_decode_api_error,
+        ),
+        constMeta: kCrateApiGroupsUploadGroupImageConstMeta,
+        argValues: [accountPubkey, groupId, filePath, imageType, serverUrl],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiGroupsUploadGroupImageConstMeta => const TaskConstMeta(
+    debugName: 'upload_group_image',
+    argNames: [
+      'accountPubkey',
+      'groupId',
+      'filePath',
+      'imageType',
+      'serverUrl',
+    ],
+  );
+
+  @override
   Future<bool> crateApiUsersUserHasKeyPackage({required String pubkey}) {
     return handler.executeNormal(
       NormalTask(
@@ -2282,7 +2336,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 59,
+            funcId: 60,
             port: port_,
           );
         },
@@ -2312,7 +2366,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 60,
+            funcId: 61,
             port: port_,
           );
         },
@@ -2349,7 +2403,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 61,
+            funcId: 62,
             port: port_,
           );
         },
@@ -3009,6 +3063,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  U8Array12 dco_decode_u_8_array_12(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return U8Array12(dco_decode_list_prim_u_8_strict(raw));
+  }
+
+  @protected
   U8Array32 dco_decode_u_8_array_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return U8Array32(dco_decode_list_prim_u_8_strict(raw));
@@ -3018,6 +3078,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void dco_decode_unit(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return;
+  }
+
+  @protected
+  UploadGroupImageResult dco_decode_upload_group_image_result(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3) throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return UploadGroupImageResult(
+      encryptedHash: dco_decode_u_8_array_32(arr[0]),
+      imageKey: dco_decode_u_8_array_32(arr[1]),
+      imageNonce: dco_decode_u_8_array_12(arr[2]),
+    );
   }
 
   @protected
@@ -3903,6 +3975,13 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  U8Array12 sse_decode_u_8_array_12(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final inner = sse_decode_list_prim_u_8_strict(deserializer);
+    return U8Array12(inner);
+  }
+
+  @protected
   U8Array32 sse_decode_u_8_array_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     final inner = sse_decode_list_prim_u_8_strict(deserializer);
@@ -3912,6 +3991,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   void sse_decode_unit(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
+  }
+
+  @protected
+  UploadGroupImageResult sse_decode_upload_group_image_result(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_encryptedHash = sse_decode_u_8_array_32(deserializer);
+    final var_imageKey = sse_decode_u_8_array_32(deserializer);
+    final var_imageNonce = sse_decode_u_8_array_12(deserializer);
+    return UploadGroupImageResult(
+      encryptedHash: var_encryptedHash,
+      imageKey: var_imageKey,
+      imageNonce: var_imageNonce,
+    );
   }
 
   @protected
@@ -4717,6 +4811,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_u_8_array_12(U8Array12 self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_prim_u_8_strict(self.inner, serializer);
+  }
+
+  @protected
   void sse_encode_u_8_array_32(U8Array32 self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_list_prim_u_8_strict(self.inner, serializer);
@@ -4725,6 +4825,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   void sse_encode_unit(void self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
+  }
+
+  @protected
+  void sse_encode_upload_group_image_result(
+    UploadGroupImageResult self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_8_array_32(self.encryptedHash, serializer);
+    sse_encode_u_8_array_32(self.imageKey, serializer);
+    sse_encode_u_8_array_12(self.imageNonce, serializer);
   }
 
   @protected
