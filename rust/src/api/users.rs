@@ -1,5 +1,5 @@
 use crate::api::relays::Relay;
-use crate::api::{metadata::FlutterMetadata, ApiError};
+use crate::api::{ApiError, metadata::FlutterMetadata};
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
 use nostr_sdk::prelude::*;
