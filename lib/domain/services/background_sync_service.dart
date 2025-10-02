@@ -58,7 +58,6 @@ class BackgroundSyncService {
           existingWorkPolicy: ExistingPeriodicWorkPolicy.update,
           constraints: Constraints(
             networkType: NetworkType.connected,
-            requiresBatteryNotLow: true,
           ),
         );
         _logger.info('Messages sync task registered successfully');
@@ -75,7 +74,6 @@ class BackgroundSyncService {
           existingWorkPolicy: ExistingPeriodicWorkPolicy.update,
           constraints: Constraints(
             networkType: NetworkType.connected,
-            requiresBatteryNotLow: true,
           ),
         );
         _logger.info('Invites sync task registered successfully');

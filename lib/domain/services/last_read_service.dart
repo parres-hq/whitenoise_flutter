@@ -29,7 +29,7 @@ class LastReadService {
       );
       _logger.fine('Set last read for group $groupId (pubkey: $activePubkey): $readTimestamp');
     } catch (e) {
-      _logger.warning('Error setting last read for group $groupId (pubkey: $activePubkey): $e');
+      _logger.severe('Error setting last read for group $groupId (pubkey: $activePubkey): $e');
     }
   }
 
@@ -47,7 +47,7 @@ class LastReadService {
       if (milliseconds == null) return null;
       return DateTime.fromMillisecondsSinceEpoch(milliseconds);
     } catch (e) {
-      _logger.warning('Error getting last read for group $groupId (pubkey: $activePubkey): $e');
+      _logger.severe('Error getting last read for group $groupId (pubkey: $activePubkey): $e');
       return null;
     }
   }
