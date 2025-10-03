@@ -8,15 +8,15 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/error.dart';
-import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_skeleton_container.dart';
+import 'package:whitenoise/ui/user_profile_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class ShareProfileQrScanScreen extends ConsumerStatefulWidget {
@@ -205,12 +205,12 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
           return;
         }
         _controller.stop();
-        final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
-        final userProfileData = await userProfileDataNotifier.getUserProfileData(npub.trim());
+        final userProfileNotifier = ref.read(userProfileProvider.notifier);
+        final userProfile = await userProfileNotifier.getUserProfile(npub.trim());
         if (mounted) {
           await StartChatBottomSheet.show(
             context: context,
-            contact: userProfileData,
+            userProfile: userProfile,
             onChatCreated: (group) {
               if (group != null && mounted) {
                 // Navigate to home first, then to the group chat
