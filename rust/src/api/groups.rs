@@ -54,6 +54,9 @@ pub struct FlutterGroupDataUpdate {
     pub description: Option<String>,
     pub relays: Option<Vec<String>>,
     pub admins: Option<Vec<String>>,
+    pub image_key: Option<[u8; 32]>,
+    pub image_hash: Option<[u8; 32]>,
+    pub image_nonce: Option<[u8; 12]>,
 }
 
 impl From<FlutterGroupDataUpdate> for NostrGroupDataUpdate {
@@ -61,9 +64,11 @@ impl From<FlutterGroupDataUpdate> for NostrGroupDataUpdate {
         Self {
             name: group_data.name,
             description: group_data.description,
-            image_key: None,   // TODO: Support image updates
-            image_hash: None,  // TODO: Support image updates
-            image_nonce: None, // TODO: Support image updates
+            // Wrap in Some() to convert Option<T> to Option<Option<T>>
+            // None means don't update, Some(value) means set to value
+            image_key: group_data.image_key.map(Some),
+            image_hash: group_data.image_hash.map(Some),
+            image_nonce: group_data.image_nonce.map(Some),
             // Will silently drop invalid relay inputs
             relays: group_data.relays.map(|relays| {
                 relays

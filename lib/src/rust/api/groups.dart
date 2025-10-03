@@ -101,16 +101,29 @@ class FlutterGroupDataUpdate {
   final String? description;
   final List<String>? relays;
   final List<String>? admins;
+  final U8Array32? imageKey;
+  final U8Array32? imageHash;
+  final U8Array12? imageNonce;
 
   const FlutterGroupDataUpdate({
     this.name,
     this.description,
     this.relays,
     this.admins,
+    this.imageKey,
+    this.imageHash,
+    this.imageNonce,
   });
 
   @override
-  int get hashCode => name.hashCode ^ description.hashCode ^ relays.hashCode ^ admins.hashCode;
+  int get hashCode =>
+      name.hashCode ^
+      description.hashCode ^
+      relays.hashCode ^
+      admins.hashCode ^
+      imageKey.hashCode ^
+      imageHash.hashCode ^
+      imageNonce.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -120,7 +133,10 @@ class FlutterGroupDataUpdate {
           name == other.name &&
           description == other.description &&
           relays == other.relays &&
-          admins == other.admins;
+          admins == other.admins &&
+          imageKey == other.imageKey &&
+          imageHash == other.imageHash &&
+          imageNonce == other.imageNonce;
 }
 
 class Group {
