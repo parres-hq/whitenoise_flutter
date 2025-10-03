@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,18 +11,18 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/follow_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
-import 'package:whitenoise/ui/contact_list/widgets/share_invite_button.dart';
-import 'package:whitenoise/ui/contact_list/widgets/share_invite_callout.dart';
-import 'package:whitenoise/ui/contact_list/widgets/user_profile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/user_profile_list/widgets/share_invite_button.dart';
+import 'package:whitenoise/ui/user_profile_list/widgets/share_invite_callout.dart';
+import 'package:whitenoise/ui/user_profile_list/widgets/user_profile_card.dart';
 
 // User API interface for testing
 abstract class WnUsersApi {
@@ -39,20 +40,20 @@ class DefaultWnUsersApi implements WnUsersApi {
 }
 
 class StartChatBottomSheet extends ConsumerStatefulWidget {
-  final ContactModel contact;
+  final UserProfile userProfile;
   final ValueChanged<Group?>? onChatCreated;
   final WnUsersApi? usersApi;
 
   const StartChatBottomSheet({
     super.key,
-    required this.contact,
+    required this.userProfile,
     this.onChatCreated,
     this.usersApi,
   });
 
   static Future<void> show({
     required BuildContext context,
-    required ContactModel contact,
+    required UserProfile userProfile,
     ValueChanged<Group?>? onChatCreated,
   }) {
     return WnBottomSheet.show(
@@ -60,7 +61,8 @@ class StartChatBottomSheet extends ConsumerStatefulWidget {
       title: 'User Profile',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
-      builder: (context) => StartChatBottomSheet(contact: contact, onChatCreated: onChatCreated),
+      builder:
+          (context) => StartChatBottomSheet(userProfile: userProfile, onChatCreated: onChatCreated),
     );
   }
 
@@ -90,7 +92,9 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     }
     try {
       final usersApi = widget.usersApi ?? const DefaultWnUsersApi();
-      final userHasKeyPackage = await usersApi.userHasKeyPackage(pubkey: widget.contact.publicKey);
+      final userHasKeyPackage = await usersApi.userHasKeyPackage(
+        pubkey: widget.userProfile.publicKey,
+      );
       if (mounted) {
         setState(() {
           _isLoadingKeyPackage = false;
@@ -127,8 +131,8 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
             groupName: '',
             groupDescription: '',
             isDm: true,
-            memberPublicKeyHexs: [widget.contact.publicKey],
-            adminPublicKeyHexs: [widget.contact.publicKey],
+            memberPublicKeyHexs: [widget.userProfile.publicKey],
+            adminPublicKeyHexs: [widget.userProfile.publicKey],
           );
 
       if (group != null) {
@@ -146,7 +150,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
           }
 
           ref.showSuccessToast(
-            'Chat with ${widget.contact.displayName} started successfully',
+            'Chat with ${widget.userProfile.displayName} started successfully',
           );
         }
       } else {
@@ -167,18 +171,18 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
   }
 
   Future<void> _toggleFollow() async {
-    final followNotifier = ref.read(followProvider(widget.contact.publicKey).notifier);
-    var currentFollowState = ref.read(followProvider(widget.contact.publicKey));
+    final followNotifier = ref.read(followProvider(widget.userProfile.publicKey).notifier);
+    var currentFollowState = ref.read(followProvider(widget.userProfile.publicKey));
     late String successMessage;
     if (currentFollowState.isFollowing) {
-      successMessage = 'Unfollowed ${widget.contact.displayName}';
-      await followNotifier.removeFollow(widget.contact.publicKey);
+      successMessage = 'Unfollowed ${widget.userProfile.displayName}';
+      await followNotifier.removeFollow(widget.userProfile.publicKey);
     } else {
-      successMessage = 'Followed ${widget.contact.displayName}';
-      await followNotifier.addFollow(widget.contact.publicKey);
+      successMessage = 'Followed ${widget.userProfile.displayName}';
+      await followNotifier.addFollow(widget.userProfile.publicKey);
     }
 
-    currentFollowState = ref.read(followProvider(widget.contact.publicKey));
+    currentFollowState = ref.read(followProvider(widget.userProfile.publicKey));
     final errorMessage = currentFollowState.error ?? '';
     if (errorMessage.isNotEmpty) {
       ref.showErrorToast(errorMessage);
@@ -188,16 +192,16 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
   }
 
   void _openAddToGroup() {
-    if (widget.contact.publicKey.isEmpty) {
+    if (widget.userProfile.publicKey.isEmpty) {
       ref.showErrorToast('No user to add to group');
       return;
     }
-    context.push('/add_to_group/${widget.contact.publicKey}');
+    context.push('/add_to_group/${widget.userProfile.publicKey}');
   }
 
   @override
   Widget build(BuildContext context) {
-    final followState = ref.watch(followProvider(widget.contact.publicKey));
+    final followState = ref.watch(followProvider(widget.userProfile.publicKey));
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -207,11 +211,11 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
           child: Column(
             children: [
               Gap(12.h),
-              UserProfile(
-                imageUrl: widget.contact.imagePath ?? '',
-                name: widget.contact.displayName,
-                nip05: widget.contact.nip05 ?? '',
-                pubkey: widget.contact.publicKey,
+              UserProfileCard(
+                imageUrl: widget.userProfile.imagePath ?? '',
+                name: widget.userProfile.displayName,
+                nip05: widget.userProfile.nip05 ?? '',
+                pubkey: widget.userProfile.publicKey,
                 ref: ref,
               ),
               Gap(36.h),
@@ -245,7 +249,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                     ? Column(
                       key: const ValueKey('invite'),
                       children: [
-                        ShareInviteCallout(contact: widget.contact),
+                        ShareInviteCallout(userProfile: widget.userProfile),
                         Gap(10.h),
                         const ShareInviteButton(),
                       ],

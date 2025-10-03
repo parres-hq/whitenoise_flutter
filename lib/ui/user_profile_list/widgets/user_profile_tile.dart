@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -10,8 +10,8 @@ import 'package:whitenoise/ui/core/ui/wn_skeleton_container.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
-class ContactListTile extends StatelessWidget {
-  final ContactModel contact;
+class UserProfileTile extends StatelessWidget {
+  final UserProfile userProfile;
   final bool isSelected;
   final VoidCallback? onTap;
   final VoidCallback? onDelete;
@@ -21,8 +21,8 @@ class ContactListTile extends StatelessWidget {
   final bool enableSwipeToDelete;
   final String? preformattedPublicKey;
 
-  const ContactListTile({
-    required this.contact,
+  const UserProfileTile({
+    required this.userProfile,
     this.onTap,
     this.onDelete,
     this.isSelected = false,
@@ -40,30 +40,30 @@ class ContactListTile extends StatelessWidget {
     }
 
     try {
-      final npub = PubkeyFormatter(pubkey: contact.publicKey).toNpub() ?? '';
+      final npub = PubkeyFormatter(pubkey: userProfile.publicKey).toNpub() ?? '';
       return npub.formatPublicKey();
     } catch (e) {
       // Return the full hex key as fallback
-      return contact.publicKey.formatPublicKey();
+      return userProfile.publicKey.formatPublicKey();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final contactImagePath = contact.imagePath ?? '';
+    final userProfileImagePath = userProfile.imagePath ?? '';
     final formattedKey = _getFormattedPublicKey();
 
-    final contactTile = GestureDetector(
+    final userProfileTile = GestureDetector(
       onTap: onTap,
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 8.h),
         child: Row(
           children: [
             WnAvatar(
-              imageUrl: contactImagePath,
-              displayName: contact.displayName,
+              imageUrl: userProfileImagePath,
+              displayName: userProfile.displayName,
               size: 56.w,
-              showBorder: contactImagePath.isEmpty,
+              showBorder: userProfileImagePath.isEmpty,
             ),
             Gap(12.w),
             Expanded(
@@ -74,7 +74,7 @@ class ContactListTile extends StatelessWidget {
                     children: [
                       Expanded(
                         child: Text(
-                          contact.displayName,
+                          userProfile.displayName,
                           style: TextStyle(
                             color: context.colors.secondaryForeground,
                             fontSize: 18.sp,
@@ -133,7 +133,7 @@ class ContactListTile extends StatelessWidget {
     // If swipe to delete is enabled, wrap with Dismissible
     if (enableSwipeToDelete && onDelete != null) {
       return Dismissible(
-        key: Key(contact.publicKey),
+        key: Key(userProfile.publicKey),
         direction: DismissDirection.endToStart,
         confirmDismiss: (direction) async {
           // Show confirmation dialog
@@ -141,9 +141,9 @@ class ContactListTile extends StatelessWidget {
             context: context,
             builder:
                 (context) => AlertDialog(
-                  title: const Text('Remove Contact'),
+                  title: const Text('Unfollow'),
                   content: Text(
-                    'Are you sure you want to remove ${contact.displayName} from your contacts?',
+                    'Are you sure you want to stop following ${userProfile.displayName}',
                   ),
                   actions: [
                     TextButton(
@@ -174,16 +174,16 @@ class ContactListTile extends StatelessWidget {
             size: 24.w,
           ),
         ),
-        child: contactTile,
+        child: userProfileTile,
       );
     }
 
-    return contactTile;
+    return userProfileTile;
   }
 }
 
-class ContactListTileLoading extends StatelessWidget {
-  const ContactListTileLoading({super.key});
+class UserProfileTileLoading extends StatelessWidget {
+  const UserProfileTileLoading({super.key});
 
   @override
   Widget build(BuildContext context) {

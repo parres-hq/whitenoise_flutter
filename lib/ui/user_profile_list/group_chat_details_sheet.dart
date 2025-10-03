@@ -5,33 +5,33 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
-import 'package:whitenoise/ui/contact_list/safe_toast_mixin.dart';
-import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
-import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
+import 'package:whitenoise/ui/user_profile_list/safe_toast_mixin.dart';
+import 'package:whitenoise/ui/user_profile_list/share_invite_bottom_sheet.dart';
+import 'package:whitenoise/ui/user_profile_list/widgets/user_profile_tile.dart';
 
 class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   const GroupChatDetailsSheet({
     super.key,
-    required this.selectedContacts,
+    required this.selectedUserProfiles,
     this.onGroupCreated,
   });
 
-  final List<ContactModel> selectedContacts;
+  final List<UserProfile> selectedUserProfiles;
   final ValueChanged<Group?>? onGroupCreated;
 
   static Future<void> show({
     required BuildContext context,
-    required List<ContactModel> selectedContacts,
+    required List<UserProfile> selectedUserProfiles,
     ValueChanged<Group?>? onGroupCreated,
   }) {
     return WnBottomSheet.show(
@@ -41,7 +41,7 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
       transitionDuration: const Duration(milliseconds: 400),
       builder:
           (context) => GroupChatDetailsSheet(
-            selectedContacts: selectedContacts,
+            selectedUserProfiles: selectedUserProfiles,
             onGroupCreated: onGroupCreated,
           ),
     );
@@ -82,19 +82,21 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
     });
 
     try {
-      // Filter contacts based on keypackage availability
-      final filteredContacts = await _filterContactsByKeyPackage(widget.selectedContacts);
+      // Filter userProfiles based on keypackage availability
+      final filteredUserProfiles = await _filterUserProfilesByKeyPackage(
+        widget.selectedUserProfiles,
+      );
       if (!mounted) return;
 
-      final contactsWithKeyPackage = filteredContacts['withKeyPackage']!;
-      final contactsWithoutKeyPackage = filteredContacts['withoutKeyPackage']!;
+      final userProfilesWithKeyPackage = filteredUserProfiles['withKeyPackage']!;
+      final userProfilesWithoutKeyPackage = filteredUserProfiles['withoutKeyPackage']!;
 
-      // If less than 2 contacts have keypackages, only show invite sheet (no group creation)
-      if (contactsWithKeyPackage.isEmpty) {
-        if (contactsWithoutKeyPackage.isNotEmpty && mounted) {
+      // If less than 2 userProfiles have keypackages, only show invite sheet (no group creation)
+      if (userProfilesWithKeyPackage.isEmpty) {
+        if (userProfilesWithoutKeyPackage.isNotEmpty && mounted) {
           await ShareInviteBottomSheet.show(
             context: context,
-            contacts: contactsWithoutKeyPackage,
+            userProfiles: userProfilesWithoutKeyPackage,
           );
         }
 
@@ -104,13 +106,13 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         return;
       }
 
-      // Create group with contacts that have keypackages
+      // Create group with userProfiles that have keypackages
       if (!mounted) return;
 
       final createdGroup = await notifier.createNewGroup(
         groupName: groupName,
         groupDescription: '',
-        memberPublicKeyHexs: contactsWithKeyPackage.map((c) => c.publicKey).toList(),
+        memberPublicKeyHexs: userProfilesWithKeyPackage.map((c) => c.publicKey).toList(),
         adminPublicKeyHexs: [],
       );
 
@@ -118,11 +120,11 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
       if (createdGroup != null) {
         // Show share invite bottom sheet for members without keypackages
-        if (contactsWithoutKeyPackage.isNotEmpty && mounted) {
+        if (userProfilesWithoutKeyPackage.isNotEmpty && mounted) {
           try {
             await ShareInviteBottomSheet.show(
               context: context,
-              contacts: contactsWithoutKeyPackage,
+              userProfiles: userProfilesWithoutKeyPackage,
             );
           } catch (e) {
             Logger(
@@ -170,31 +172,31 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
     super.dispose();
   }
 
-  /// Filters contacts by keypackage availability
-  Future<Map<String, List<ContactModel>>> _filterContactsByKeyPackage(
-    List<ContactModel> contacts,
+  /// Filters userProfiles by keypackage availability
+  Future<Map<String, List<UserProfile>>> _filterUserProfilesByKeyPackage(
+    List<UserProfile> userProfiles,
   ) async {
-    final contactsWithKeyPackage = <ContactModel>[];
-    final contactsWithoutKeyPackage = <ContactModel>[];
+    final userProfilesWithKeyPackage = <UserProfile>[];
+    final userProfilesWithoutKeyPackage = <UserProfile>[];
 
-    for (final contact in contacts) {
+    for (final userProfile in userProfiles) {
       try {
-        final hasKeyPackage = await userHasKeyPackage(pubkey: contact.publicKey);
+        final hasKeyPackage = await userHasKeyPackage(pubkey: userProfile.publicKey);
 
         if (hasKeyPackage) {
-          contactsWithKeyPackage.add(contact);
+          userProfilesWithKeyPackage.add(userProfile);
         } else {
-          contactsWithoutKeyPackage.add(contact);
+          userProfilesWithoutKeyPackage.add(userProfile);
         }
       } catch (e) {
-        // If there's an error checking keypackage, assume contact doesn't have one
-        contactsWithoutKeyPackage.add(contact);
+        // If there's an error checking keypackage, assume userProfile doesn't have one
+        userProfilesWithoutKeyPackage.add(userProfile);
       }
     }
 
     return {
-      'withKeyPackage': contactsWithKeyPackage,
-      'withoutKeyPackage': contactsWithoutKeyPackage,
+      'withKeyPackage': userProfilesWithKeyPackage,
+      'withoutKeyPackage': userProfilesWithoutKeyPackage,
     };
   }
 
@@ -264,10 +266,10 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         Expanded(
           child: ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
-            itemCount: widget.selectedContacts.length,
+            itemCount: widget.selectedUserProfiles.length,
             itemBuilder: (context, index) {
-              final contact = widget.selectedContacts[index];
-              return ContactListTile(contact: contact);
+              final userProfile = widget.selectedUserProfiles[index];
+              return UserProfileTile(userProfile: userProfile);
             },
           ),
         ),
