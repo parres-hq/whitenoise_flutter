@@ -196,12 +196,11 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
               Flexible(
                 child: ListView.builder(
                   shrinkWrap: true,
-                  padding: EdgeInsets.only(bottom: 16.h),
+                  padding: EdgeInsets.zero,
                   itemCount: _accountsProfileData.length,
                   itemBuilder: (context, index) {
                     final profile = _accountsProfileData[index];
                     return Container(
-                      margin: EdgeInsets.only(bottom: 8.h),
                       padding: EdgeInsets.symmetric(
                         horizontal: 2.w,
                         vertical: 2.h,
@@ -218,7 +217,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
                                       color: context.colors.primary.withValues(alpha: 0.1),
                                     )
                                     : null,
-                            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+                            padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
                             child: ContactListTile(
                               contact: profile,
                               onTap: () {
@@ -238,11 +237,12 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
                   },
                 ),
               ),
-              Gap(4.h),
+              Gap(16.h),
               WnFilledButton(
                 label: 'Connect Another Profile',
                 onPressed: _handleConnectAnotherProfile,
               ),
+              Gap(28.h),
             ],
           ],
         ),
