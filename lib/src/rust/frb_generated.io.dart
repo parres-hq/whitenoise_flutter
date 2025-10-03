@@ -268,6 +268,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String>? dco_decode_opt_list_String(dynamic raw);
 
   @protected
+  U8Array12? dco_decode_opt_u_8_array_12(dynamic raw);
+
+  @protected
   U8Array32? dco_decode_opt_u_8_array_32(dynamic raw);
 
   @protected
@@ -568,6 +571,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
+
+  @protected
+  U8Array12? sse_decode_opt_u_8_array_12(SseDeserializer deserializer);
 
   @protected
   U8Array32? sse_decode_opt_u_8_array_32(SseDeserializer deserializer);
@@ -921,6 +927,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_u_8_array_12(U8Array12? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_u_8_array_32(U8Array32? self, SseSerializer serializer);
