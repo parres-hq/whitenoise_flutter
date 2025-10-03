@@ -8,11 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
+- Added notification permissions request to contact list screen
+- Added background sync service to fetch new messages and invites and show notifications for them
+
 ### Changed
+
 ### Deprecated
+
 ### Removed
+
 - Removes metadata cache provider [#654](https://github.com/parres-hq/whitenoise_flutter/pull/654)
+
 ### Fixed
+
 - Fixed 2 users group creation when DM already exists
 - Fixed issue where keyboard covers part of the "introduce yourself" textfield.
 - Improved close reply tap area/response.
@@ -21,8 +30,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pinned the header in auth flow screens when keyboard is open for easier back navigation.
 - Fixed broken profile image upload [#701](https://github.com/parres-hq/whitenoise_flutter/pull/701)
 - Fixed double rendering issue for some messages [#654](https://github.com/parres-hq/whitenoise_flutter/pull/654)
-### Security
 
+### Security
 
 ## [0.1.4] - 2025-09-22
 
@@ -42,6 +51,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Optimized relay connection error banner with intelligent delay and dismissal on reconnection
 
 ### Removed
+
 - Removed relay pull-to-refresh
 
 ### Fixed
@@ -59,7 +69,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Show updated user profile after publishing new metadata
 - Fixed loading and scroll performance of large follow lists
 - Lots of UI polish
-
 
 ## [0.1.3] - 2025-08-09
 
