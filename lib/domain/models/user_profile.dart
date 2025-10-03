@@ -3,7 +3,7 @@ import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
-class ContactModel {
+class UserProfile {
   final String publicKey;
   final String displayName;
   final String? imagePath;
@@ -13,7 +13,7 @@ class ContactModel {
   final String? lud16;
   final String? _formattedPublicKey; // Cached formatted public key
 
-  ContactModel({
+  UserProfile({
     required this.publicKey,
     required this.displayName,
     this.imagePath,
@@ -38,8 +38,8 @@ class ContactModel {
     }
   }
 
-  // Create ContactModel from Rust API Metadata with proper sanitization
-  factory ContactModel.fromMetadata({
+  // Create UserProfile from Rust API Metadata with proper sanitization
+  factory UserProfile.fromMetadata({
     required String pubkey,
     FlutterMetadata? metadata,
   }) {
@@ -69,7 +69,7 @@ class ContactModel {
       formattedKey = pubkey.formatPublicKey();
     }
 
-    return ContactModel(
+    return UserProfile(
       displayName: finalDisplayName,
       publicKey: npub,
       imagePath: picture,
@@ -104,7 +104,7 @@ class ContactModel {
   String get avatarLetter => displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
 
   @override
-  bool operator ==(covariant ContactModel other) {
+  bool operator ==(covariant UserProfile other) {
     if (identical(this, other)) return true;
 
     final hexNpub = PubkeyFormatter(pubkey: publicKey).toHex();

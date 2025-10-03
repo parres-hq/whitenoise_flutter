@@ -94,15 +94,15 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
   }
 }
 
-class AddToContactButton extends ConsumerStatefulWidget {
-  const AddToContactButton(this.user, {super.key});
+class AddToFollowsButton extends ConsumerStatefulWidget {
+  const AddToFollowsButton(this.user, {super.key});
   final User user;
 
   @override
-  ConsumerState<AddToContactButton> createState() => _AddToContactButtonState();
+  ConsumerState<AddToFollowsButton> createState() => _AddToFollowsButtonState();
 }
 
-class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
+class _AddToFollowsButtonState extends ConsumerState<AddToFollowsButton> {
   Future<void> _toggleFollow() async {
     final followNotifier = ref.read(followProvider(widget.user.publicKey).notifier);
     var currentFollowState = ref.read(followProvider(widget.user.publicKey));

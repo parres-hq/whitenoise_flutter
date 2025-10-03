@@ -186,7 +186,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                                 onInfoTap:
                                     () => _showHelpTooltip(
                                       _inboxRelayHelpIconKey,
-                                      'Relays used to receive invitations and start secure conversations with new contacts.',
+                                      'Relays used to receive invitations and start secure conversations.',
                                     ),
                               ),
                             ),
