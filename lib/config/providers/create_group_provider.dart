@@ -191,6 +191,16 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
       contactsWithoutKeyPackage: [],
     );
   }
+
+  void discardChanges() {
+    state = state.copyWith(
+      groupName: '',
+      isGroupNameValid: false,
+      isCreatingGroup: false,
+      isUploadingImage: false,
+      selectedImagePath: null,
+    );
+  }
 }
 
 final createGroupProvider = StateNotifierProvider<CreateGroupNotifier, CreateGroupState>(
