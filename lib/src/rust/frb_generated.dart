@@ -2754,12 +2754,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FlutterGroupDataUpdate dco_decode_flutter_group_data_update(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4) throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 7) throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
     return FlutterGroupDataUpdate(
       name: dco_decode_opt_String(arr[0]),
       description: dco_decode_opt_String(arr[1]),
       relays: dco_decode_opt_list_String(arr[2]),
       admins: dco_decode_opt_list_String(arr[3]),
+      imageKey: dco_decode_opt_u_8_array_32(arr[4]),
+      imageHash: dco_decode_opt_u_8_array_32(arr[5]),
+      imageNonce: dco_decode_opt_u_8_array_12(arr[6]),
     );
   }
 
@@ -2983,6 +2986,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   List<String>? dco_decode_opt_list_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_list_String(raw);
+  }
+
+  @protected
+  U8Array12? dco_decode_opt_u_8_array_12(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_u_8_array_12(raw);
   }
 
   @protected
@@ -3517,11 +3526,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     final var_description = sse_decode_opt_String(deserializer);
     final var_relays = sse_decode_opt_list_String(deserializer);
     final var_admins = sse_decode_opt_list_String(deserializer);
+    final var_imageKey = sse_decode_opt_u_8_array_32(deserializer);
+    final var_imageHash = sse_decode_opt_u_8_array_32(deserializer);
+    final var_imageNonce = sse_decode_opt_u_8_array_12(deserializer);
     return FlutterGroupDataUpdate(
       name: var_name,
       description: var_description,
       relays: var_relays,
       admins: var_admins,
+      imageKey: var_imageKey,
+      imageHash: var_imageHash,
+      imageNonce: var_imageNonce,
     );
   }
 
@@ -3890,6 +3905,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_list_String(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  U8Array12? sse_decode_opt_u_8_array_12(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_u_8_array_12(deserializer));
     } else {
       return null;
     }
@@ -4426,6 +4452,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_String(self.description, serializer);
     sse_encode_opt_list_String(self.relays, serializer);
     sse_encode_opt_list_String(self.admins, serializer);
+    sse_encode_opt_u_8_array_32(self.imageKey, serializer);
+    sse_encode_opt_u_8_array_32(self.imageHash, serializer);
+    sse_encode_opt_u_8_array_12(self.imageNonce, serializer);
   }
 
   @protected
@@ -4735,6 +4764,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_list_String(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_u_8_array_12(U8Array12? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_u_8_array_12(self, serializer);
     }
   }
 
