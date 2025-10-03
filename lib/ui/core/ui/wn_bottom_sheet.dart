@@ -187,7 +187,7 @@ class WnBottomSheet {
                                 bottom:
                                     (keyboardAware ? MediaQuery.viewInsetsOf(context).bottom : 0) +
                                     (useSafeArea ? _calculateBottomPadding(context) : 0),
-                                top: 21.h,
+                                top: 16.h,
                               ),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
@@ -262,7 +262,7 @@ class WnBottomSheet {
             child: WnImage(
               AssetsPaths.icClose,
               color: context.colors.primary,
-              size: 24.w,
+              size: 32.w,
             ),
           ),
       ],

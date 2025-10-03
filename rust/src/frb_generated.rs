@@ -30,7 +30,7 @@ use crate::api::messages::*;
 use crate::api::utils::*;
 use crate::api::*;
 use flutter_rust_bridge::for_generated::byteorder::{NativeEndian, ReadBytesExt, WriteBytesExt};
-use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
 use flutter_rust_bridge::{Handler, IntoIntoDart};
 
 // Section: boilerplate
@@ -2753,11 +2753,17 @@ impl SseDecode for crate::api::groups::FlutterGroupDataUpdate {
         let mut var_description = <Option<String>>::sse_decode(deserializer);
         let mut var_relays = <Option<Vec<String>>>::sse_decode(deserializer);
         let mut var_admins = <Option<Vec<String>>>::sse_decode(deserializer);
+        let mut var_imageKey = <Option<[u8; 32]>>::sse_decode(deserializer);
+        let mut var_imageHash = <Option<[u8; 32]>>::sse_decode(deserializer);
+        let mut var_imageNonce = <Option<[u8; 12]>>::sse_decode(deserializer);
         return crate::api::groups::FlutterGroupDataUpdate {
             name: var_name,
             description: var_description,
             relays: var_relays,
             admins: var_admins,
+            image_key: var_imageKey,
+            image_hash: var_imageHash,
+            image_nonce: var_imageNonce,
         };
     }
 }
@@ -3134,6 +3140,17 @@ impl SseDecode for Option<Vec<String>> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<Vec<String>>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<[u8; 12]> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<[u8; 12]>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -3764,6 +3781,9 @@ impl flutter_rust_bridge::IntoDart for crate::api::groups::FlutterGroupDataUpdat
             self.description.into_into_dart().into_dart(),
             self.relays.into_into_dart().into_dart(),
             self.admins.into_into_dart().into_dart(),
+            self.image_key.into_into_dart().into_dart(),
+            self.image_hash.into_into_dart().into_dart(),
+            self.image_nonce.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -4338,6 +4358,9 @@ impl SseEncode for crate::api::groups::FlutterGroupDataUpdate {
         <Option<String>>::sse_encode(self.description, serializer);
         <Option<Vec<String>>>::sse_encode(self.relays, serializer);
         <Option<Vec<String>>>::sse_encode(self.admins, serializer);
+        <Option<[u8; 32]>>::sse_encode(self.image_key, serializer);
+        <Option<[u8; 32]>>::sse_encode(self.image_hash, serializer);
+        <Option<[u8; 12]>>::sse_encode(self.image_nonce, serializer);
     }
 }
 
@@ -4640,6 +4663,16 @@ impl SseEncode for Option<Vec<String>> {
     }
 }
 
+impl SseEncode for Option<[u8; 12]> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <[u8; 12]>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<[u8; 32]> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4838,7 +4871,7 @@ mod io {
     use flutter_rust_bridge::for_generated::byteorder::{
         NativeEndian, ReadBytesExt, WriteBytesExt,
     };
-    use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+    use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
     use flutter_rust_bridge::{Handler, IntoIntoDart};
 
     // Section: boilerplate
