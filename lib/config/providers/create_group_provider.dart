@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/create_group_state.dart';
@@ -123,7 +124,8 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
         throw Exception('No active pubkey available');
       }
 
-      final imageType = await ImageUtils.getMimeTypeFromPath(state.selectedImagePath!);
+      final imageUtils = ref.read(wnImageUtilsProvider);
+      final imageType = await imageUtils.getMimeTypeFromPath(state.selectedImagePath!);
       if (imageType == null) {
         throw Exception(
           'Could not determine image type from file path: ${state.selectedImagePath}',
@@ -132,7 +134,7 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
 
       final serverUrl = await rust_utils.getDefaultBlossomServerUrl();
 
-      await uploadGroupImage(
+      final result = await uploadGroupImage(
         accountPubkey: activePubkey,
         groupId: groupId,
         filePath: state.selectedImagePath!,
