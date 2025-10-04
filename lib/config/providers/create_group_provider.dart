@@ -10,7 +10,6 @@ import 'package:whitenoise/domain/services/image_picker_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
 import 'package:whitenoise/src/rust/api/utils.dart' as rust_utils;
-import 'package:whitenoise/utils/image_utils.dart';
 
 class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
   final _logger = Logger('CreateGroupNotifier');
@@ -75,7 +74,26 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
 
       if (createdGroup != null) {
         if (state.selectedImagePath != null && state.selectedImagePath!.isNotEmpty) {
-          await _uploadGroupImage(createdGroup.mlsGroupId);
+          final activePubkey = ref.read(activePubkeyProvider) ?? '';
+          if (activePubkey.isEmpty) {
+            throw Exception('No active pubkey available');
+          }
+
+          final uploadResult = await _uploadGroupImage(
+            createdGroup.mlsGroupId,
+            activePubkey,
+          );
+
+          if (uploadResult != null) {
+            await createdGroup.updateGroupData(
+              accountPubkey: activePubkey,
+              groupData: FlutterGroupDataUpdate(
+                imageKey: uploadResult.imageKey,
+                imageHash: uploadResult.encryptedHash,
+                imageNonce: uploadResult.imageNonce,
+              ),
+            );
+          }
         }
 
         onGroupCreated?.call(createdGroup);
@@ -113,17 +131,12 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
     );
   }
 
-  Future<void> _uploadGroupImage(String groupId) async {
-    if (state.selectedImagePath == null || state.selectedImagePath!.isEmpty) return;
+  Future<UploadGroupImageResult?> _uploadGroupImage(String groupId, String accountPubkey) async {
+    if (state.selectedImagePath == null || state.selectedImagePath!.isEmpty) return null;
 
     state = state.copyWith(isUploadingImage: true, error: null, stackTrace: null);
 
     try {
-      final activePubkey = ref.read(activePubkeyProvider);
-      if (activePubkey == null || activePubkey.isEmpty) {
-        throw Exception('No active pubkey available');
-      }
-
       final imageUtils = ref.read(wnImageUtilsProvider);
       final imageType = await imageUtils.getMimeTypeFromPath(state.selectedImagePath!);
       if (imageType == null) {
@@ -135,7 +148,7 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
       final serverUrl = await rust_utils.getDefaultBlossomServerUrl();
 
       final result = await uploadGroupImage(
-        accountPubkey: activePubkey,
+        accountPubkey: accountPubkey,
         groupId: groupId,
         filePath: state.selectedImagePath!,
         imageType: imageType,
@@ -147,6 +160,7 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
         error: null,
         stackTrace: null,
       );
+      return result;
     } catch (e, st) {
       _logger.severe('_uploadGroupImage', e, st);
       state = state.copyWith(
@@ -155,6 +169,7 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
         isUploadingImage: false,
       );
     }
+    return null;
   }
 
   Future<Map<String, List<ContactModel>>> _filterContactsByKeyPackage(
