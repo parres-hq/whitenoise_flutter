@@ -16,7 +16,7 @@ tokio = { version = "1.44", features = ["rt", "rt-multi-thread"] }
 url = "2.5.1"
 
 
-mdk-core = { version = "0.5.1", git="https://github.com/parres-hq/mdk", rev = "87e909060c56c83934e24bb078697b3b65d16011" }
+mdk-core = { version = "0.5.1", git="https://github.com/parres-hq/mdk", rev = "899f6f09a0c3f5dbe95ea546710eea758cbc7d5e" }
 nostr-sdk = { version = "0.43", features = [
     "lmdb",
     "nip04",
@@ -29,7 +29,7 @@ nostr-sdk = { version = "0.43", features = [
 
 thiserror = "2.0.12"
 
-whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "f463ed899aeb9724dcdb226d894bceaa25564e86" }
+whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "d849ca96d248e6a9766af50d19f14c7e73d94eca" }
 # whitenoise = { version = "0.1.0", path = "../../whitenoise" }
 
 [lints.rust]
