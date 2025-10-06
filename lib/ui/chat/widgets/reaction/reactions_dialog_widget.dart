@@ -108,7 +108,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
       // Since we have the center, calculate the top position
       // Estimate half the message height to get the top
       final estimatedHalfMessageHeight = 40.h;
-      // Move the message up by 20.h for better positioning
+      // Move the message up by 16.h for better positioning
       final messageTopY = messageCenterY - estimatedHalfMessageHeight - 16.h;
 
       // Calculate space available below the message center
