@@ -88,7 +88,7 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
   void _onTapDown(TapDownDetails details) {
     _longPressTimer?.cancel();
     _longPressHapticTimer?.cancel();
-    
+
     // Store the tap position - this is the global position on screen
     _tapPosition = details.globalPosition;
 
@@ -98,16 +98,16 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
 
     _longPressTimer = Timer(const Duration(milliseconds: 350), () {
       _longPressHapticTimer?.cancel();
-      
+
       // Get the widget's position on screen using RenderBox
       final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
       if (renderBox != null) {
         // Get position relative to the entire screen (global coordinates)
         final position = renderBox.localToGlobal(Offset.zero);
-        
+
         // Use the vertical center of the message for better positioning
         final adjustedPosition = Offset(position.dx, position.dy);
-        
+
         widget.onLongPress(adjustedPosition);
       } else {
         // Fallback to tap position if RenderBox is not available

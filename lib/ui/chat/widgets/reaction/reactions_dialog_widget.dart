@@ -90,30 +90,30 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
     final menuItemsHeight = (widget.menuItems.length * 48.h) + 32.h; // Menu items + bottom gap
     final gapBetweenReactionsAndMessage = 16.h;
     final gapBetweenMessageAndMenu = 16.h;
-    
+
     // Total height needed below the message
     final heightBelowMessage = gapBetweenMessageAndMenu + menuItemsHeight;
-    
+
     // If we have a message position, use it to position the content
     if (widget.messagePosition != null) {
       // Get the safe area insets to adjust for status bar, notch, etc.
       final mediaQuery = MediaQuery.of(context);
       final topInset = mediaQuery.padding.top;
-      
+
       // The position passed is the vertical center of the message in global coordinates
       // Adjust by subtracting the top safe area inset because dialog is inside SafeArea
       final messageCenterY = widget.messagePosition!.dy - topInset;
       final screenHeight = constraints.maxHeight;
-      
+
       // Since we have the center, calculate the top position
       // Estimate half the message height to get the top
       final estimatedHalfMessageHeight = 40.h;
       // Move the message up by 20.h for better positioning
       final messageTopY = messageCenterY - estimatedHalfMessageHeight - 16.h;
-      
+
       // Calculate space available below the message center
       final spaceBelow = screenHeight - messageCenterY - estimatedHalfMessageHeight;
-      
+
       // Check if we need to move the message up to fit the menu
       if (spaceBelow < heightBelowMessage) {
         // Calculate how much to move up
@@ -122,10 +122,11 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
           reactionBarHeight + gapBetweenReactionsAndMessage + 20.h, // Minimum top position
           messageTopY, // Don't move down, only up
         );
-        
+
         // Position with reactions above the adjusted message position
-        final topSpacing = (adjustedMessageTopY - reactionBarHeight - gapBetweenReactionsAndMessage).clamp(0.0, screenHeight);
-        
+        final topSpacing = (adjustedMessageTopY - reactionBarHeight - gapBetweenReactionsAndMessage)
+            .clamp(0.0, screenHeight);
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -140,8 +141,11 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         );
       } else {
         // Keep the message at its original position
-        final topSpacing = (messageTopY - reactionBarHeight - gapBetweenReactionsAndMessage).clamp(0.0, screenHeight);
-        
+        final topSpacing = (messageTopY - reactionBarHeight - gapBetweenReactionsAndMessage).clamp(
+          0.0,
+          screenHeight,
+        );
+
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
