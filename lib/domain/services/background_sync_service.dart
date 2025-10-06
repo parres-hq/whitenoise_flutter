@@ -381,7 +381,8 @@ Future<int> _syncInvitesForAccount({
     );
     final now = DateTime.now();
     final earliestAllowedTime = now.subtract(const Duration(seconds: 1));
-    final lastProcessedTime = lastSyncTime ?? now.subtract(const Duration(hours: 1));
+    // Use epoch (0) when no last sync time exists to process all pending invites
+    final lastProcessedTime = lastSyncTime ?? DateTime.fromMillisecondsSinceEpoch(0);
 
     final welcomes = await pendingWelcomes(pubkey: account.pubkey);
     final newWelcomes = _filterNewWelcomes(
