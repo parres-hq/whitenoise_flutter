@@ -1,15 +1,8 @@
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logging/logging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LastReadService {
-  static const FlutterSecureStorage _secureStorage = FlutterSecureStorage(
-    aOptions: AndroidOptions(
-      encryptedSharedPreferences: true,
-    ),
-    iOptions: IOSOptions(
-      accessibility: KeychainAccessibility.first_unlock_this_device,
-    ),
-  );
+  static final Future<SharedPreferences> _preferences = SharedPreferences.getInstance();
   static const String _lastReadPrefix = 'last_read_';
   static final _logger = Logger('LastReadService');
 
@@ -17,16 +10,12 @@ class LastReadService {
     required String groupId,
     required String activePubkey,
     DateTime? timestamp,
-    FlutterSecureStorage? storage,
   }) async {
-    final secureStorage = storage ?? _secureStorage;
     try {
       final readTimestamp = timestamp ?? DateTime.now();
       final key = '$_lastReadPrefix${activePubkey}_$groupId';
-      await secureStorage.write(
-        key: key,
-        value: readTimestamp.millisecondsSinceEpoch.toString(),
-      );
+      final prefs = await _preferences;
+      await prefs.setInt(key, readTimestamp.millisecondsSinceEpoch);
       _logger.fine('Set last read for group $groupId (pubkey: $activePubkey): $readTimestamp');
     } catch (e) {
       _logger.severe('Error setting last read for group $groupId (pubkey: $activePubkey): $e');
@@ -36,14 +25,11 @@ class LastReadService {
   static Future<DateTime?> getLastRead({
     required String groupId,
     required String activePubkey,
-    FlutterSecureStorage? storage,
   }) async {
-    final secureStorage = storage ?? _secureStorage;
     try {
       final key = '$_lastReadPrefix${activePubkey}_$groupId';
-      final value = await secureStorage.read(key: key);
-      if (value == null) return null;
-      final milliseconds = int.tryParse(value);
+      final prefs = await _preferences;
+      final milliseconds = prefs.getInt(key);
       if (milliseconds == null) return null;
       return DateTime.fromMillisecondsSinceEpoch(milliseconds);
     } catch (e) {
