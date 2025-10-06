@@ -72,7 +72,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
               child: Column(
                 children: [
                   WnFilledButton(
-                    label: 'Decline',
+                    label: 'shared.decline'.tr(),
                     visualState: WnButtonVisualState.secondary,
                     onPressed: () async {
                       await welcomesNotifier.declineWelcomeInvitation(widget.inviteId);
@@ -83,7 +83,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
                   ),
                   Gap(8.h),
                   WnFilledButton(
-                    label: 'Accept',
+                    label: 'shared.accept'.tr(),
                     loading: _isAccepting,
                     onPressed:
                         _isAccepting
@@ -189,7 +189,7 @@ class GroupInviteHeader extends StatelessWidget {
           Gap(12.h),
           if (welcome.groupDescription.isNotEmpty) ...[
             Text(
-              'Group Description:',
+              'ui.groupDescription'.tr(),
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
@@ -209,14 +209,14 @@ class GroupInviteHeader extends StatelessWidget {
           ],
           Text.rich(
             TextSpan(
-              text: 'Group Chat Invitation • ',
+              text: 'ui.groupChatInvitation'.tr(),
               style: TextStyle(
                 fontSize: 14.sp,
                 color: context.colors.mutedForeground,
               ),
               children: [
                 TextSpan(
-                  text: '${welcome.memberCount} members',
+                  text: 'ui.membersCount'.tr().replaceAll('{count}', '${welcome.memberCount}'),
                   style: TextStyle(
                     color: context.colors.primary,
                     fontWeight: FontWeight.w600,
@@ -299,7 +299,7 @@ class DMInviteHeader extends ConsumerWidget {
                   ),
                   children: [
                     TextSpan(
-                      text: ' invited you to a secure chat.',
+                      text: 'ui.invitedToSecureChat'.tr(),
                       style: TextStyle(
                         color: context.colors.mutedForeground,
                       ),

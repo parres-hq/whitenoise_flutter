@@ -88,6 +88,7 @@
         "deleteAllKeyPackagesFromRelays": "Delete all key packages from relays",
         "deleteAllKeyPackagesTitle": "Delete All Key Packages",
         "deleteAllKeyPackagesDescription": "This will delete all key packages for the active account. Other users won't be able to invite you to new encrypted conversations until you generate new key packages. This action cannot be undone.",
+        "deleteAllKeyPackageDescription": "This will delete key package #{number}. Other users won't be able to use this key package to invite you to new encrypted conversations. This action cannot be undone.",
         "deleteKeyPackageTitle": "Delete Key Package",
         "deleteKeyPackageDescription": "This will delete key package #{number}. Other users won't be able to use this key package to invite you to new encrypted conversations. This action cannot be undone.",
         "keyPackagesCount": "Key Packages ({count})",
@@ -420,7 +421,12 @@
         "scanQrCode": "Scan QR Code",
         "removeContact": "Remove Contact",
         "signedOutChooseDifferent": "Signed out. Choose different profile.",
-        "failedToLoadAccounts": "Failed to load accounts"
+        "failedToLoadAccounts": "Failed to load accounts",
+        "groupDescription": "Group Description:",
+        "groupChatInvitation": "Group Chat Invitation • ",
+        "membersCount": "{count} members",
+        "invitedToSecureChat": " invited you to a secure chat.",
+        "confirmRemoveContact": "Are you sure you want to remove {name} from your contacts?"
     },
     "errors": {
         "failedToChangeLanguage": "Failed to change language to",

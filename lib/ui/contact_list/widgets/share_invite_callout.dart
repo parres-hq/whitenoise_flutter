@@ -14,7 +14,7 @@ class ShareInviteCallout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final contactName =
-        contact.displayName.isNotEmpty && contact.displayName != 'chats.unknownUser'.tr()
+        contact.displayName.isNotEmpty && contact.displayName != 'Unknown User'
             ? contact.displayName
             : 'chats.thisUser'.tr();
     final inviteMessage = 'chats.userNotOnWhiteNoise'.tr({'contactName': contactName});

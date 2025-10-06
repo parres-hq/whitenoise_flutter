@@ -144,7 +144,7 @@ class ContactListTile extends StatelessWidget {
                 (context) => AlertDialog(
                   title: Text('ui.removeContact'.tr()),
                   content: Text(
-                    'Are you sure you want to remove ${contact.displayName} from your contacts?',
+                    'ui.confirmRemoveContact'.tr({'name': contact.displayName}),
                   ),
                   actions: [
                     TextButton(

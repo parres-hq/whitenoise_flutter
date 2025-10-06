@@ -421,7 +421,12 @@
         "scanQrCode": "Escanear código QR",
         "removeContact": "Eliminar contacto",
         "signedOutChooseDifferent": "Sesión cerrada. Elige un perfil diferente.",
-        "failedToLoadAccounts": "Error al cargar las cuentas"
+        "failedToLoadAccounts": "Error al cargar las cuentas",
+        "groupDescription": "Descripción del grupo:",
+        "groupChatInvitation": "Invitación a chat de grupo • ",
+        "membersCount": "{count} miembros",
+        "invitedToSecureChat": " te invitó a un chat seguro.",
+        "confirmRemoveContact": "¿Estás seguro de que quieres eliminar a {name} de tus contactos?"
     },
     "errors": {
         "failedToChangeLanguage": "No se pudo cambiar el idioma a",

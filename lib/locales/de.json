@@ -421,7 +421,12 @@
         "scanQrCode": "QR-Code scannen",
         "removeContact": "Kontakt entfernen",
         "signedOutChooseDifferent": "Abgemeldet. Wählen Sie ein anderes Profil.",
-        "failedToLoadAccounts": "Fehler beim Laden der Konten"
+        "failedToLoadAccounts": "Fehler beim Laden der Konten",
+        "groupDescription": "Gruppenbeschreibung:",
+        "groupChatInvitation": "Gruppenchat-Einladung • ",
+        "membersCount": "{count} Mitglieder",
+        "invitedToSecureChat": " hat Sie zu einem sicheren Chat eingeladen.",
+        "confirmRemoveContact": "Sind Sie sicher, dass Sie {name} aus Ihren Kontakten entfernen möchten?"
     },
     "errors": {
         "failedToChangeLanguage": "Sprache konnte nicht geändert werden zu",
