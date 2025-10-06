@@ -1,7 +1,7 @@
 [package]
 name = "rust_lib_whitenoise"
 version = "0.1.4"
-edition = "2021"
+edition = "2024"
 
 [lib]
 crate-type = ["cdylib", "staticlib"]
@@ -16,7 +16,7 @@ tokio = { version = "1.44", features = ["rt", "rt-multi-thread"] }
 url = "2.5.1"
 
 
-mdk-core = { version = "0.5.0", git="https://github.com/parres-hq/mdk", rev = "e20d4cf34edcd8592b6218ec20086e453860bf1d" }
+mdk-core = { version = "0.5.1", git="https://github.com/parres-hq/mdk", rev = "899f6f09a0c3f5dbe95ea546710eea758cbc7d5e" }
 nostr-sdk = { version = "0.43", features = [
     "lmdb",
     "nip04",
@@ -29,7 +29,7 @@ nostr-sdk = { version = "0.43", features = [
 
 thiserror = "2.0.12"
 
-whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "f6c1108e3d204ab75b696386025e1f8f69ce603f" }
+whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "d849ca96d248e6a9766af50d19f14c7e73d94eca" }
 # whitenoise = { version = "0.1.0", path = "../../whitenoise" }
 
 [lints.rust]

@@ -30,7 +30,7 @@ use crate::api::messages::*;
 use crate::api::utils::*;
 use crate::api::*;
 use flutter_rust_bridge::for_generated::byteorder::{NativeEndian, ReadBytesExt, WriteBytesExt};
-use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
 use flutter_rust_bridge::{Handler, IntoIntoDart};
 
 // Section: boilerplate
@@ -41,7 +41,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.11.1";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 637576675;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1746397136;
 
 // Section: executor
 
@@ -2273,6 +2273,53 @@ fn wire__crate__api__accounts__upload_account_profile_picture_impl(
         },
     )
 }
+fn wire__crate__api__groups__upload_group_image_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "upload_group_image",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_account_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_group_id = <String>::sse_decode(&mut deserializer);
+            let api_file_path = <String>::sse_decode(&mut deserializer);
+            let api_image_type = <String>::sse_decode(&mut deserializer);
+            let api_server_url = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| async move {
+                transform_result_sse::<_, crate::api::error::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::api::groups::upload_group_image(
+                            api_account_pubkey,
+                            api_group_id,
+                            api_file_path,
+                            api_image_type,
+                            api_server_url,
+                        )
+                        .await?;
+                        Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__users__user_has_key_package_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -2706,11 +2753,17 @@ impl SseDecode for crate::api::groups::FlutterGroupDataUpdate {
         let mut var_description = <Option<String>>::sse_decode(deserializer);
         let mut var_relays = <Option<Vec<String>>>::sse_decode(deserializer);
         let mut var_admins = <Option<Vec<String>>>::sse_decode(deserializer);
+        let mut var_imageKey = <Option<[u8; 32]>>::sse_decode(deserializer);
+        let mut var_imageHash = <Option<[u8; 32]>>::sse_decode(deserializer);
+        let mut var_imageNonce = <Option<[u8; 12]>>::sse_decode(deserializer);
         return crate::api::groups::FlutterGroupDataUpdate {
             name: var_name,
             description: var_description,
             relays: var_relays,
             admins: var_admins,
+            image_key: var_imageKey,
+            image_hash: var_imageHash,
+            image_nonce: var_imageNonce,
         };
     }
 }
@@ -3093,6 +3146,17 @@ impl SseDecode for Option<Vec<String>> {
     }
 }
 
+impl SseDecode for Option<[u8; 12]> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<[u8; 12]>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<[u8; 32]> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3180,6 +3244,14 @@ impl SseDecode for u8 {
     }
 }
 
+impl SseDecode for [u8; 12] {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <Vec<u8>>::sse_decode(deserializer);
+        return flutter_rust_bridge::for_generated::from_vec_to_array(inner);
+    }
+}
+
 impl SseDecode for [u8; 32] {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -3191,6 +3263,20 @@ impl SseDecode for [u8; 32] {
 impl SseDecode for () {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {}
+}
+
+impl SseDecode for crate::api::groups::UploadGroupImageResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_encryptedHash = <[u8; 32]>::sse_decode(deserializer);
+        let mut var_imageKey = <[u8; 32]>::sse_decode(deserializer);
+        let mut var_imageNonce = <[u8; 12]>::sse_decode(deserializer);
+        return crate::api::groups::UploadGroupImageResult {
+            encrypted_hash: var_encryptedHash,
+            image_key: var_imageKey,
+            image_nonce: var_imageNonce,
+        };
+    }
 }
 
 impl SseDecode for crate::api::users::User {
@@ -3434,9 +3520,10 @@ fn pde_ffi_dispatcher_primary_impl(
             rust_vec_len,
             data_len,
         ),
-        59 => wire__crate__api__users__user_has_key_package_impl(port, ptr, rust_vec_len, data_len),
-        60 => wire__crate__api__users__user_metadata_impl(port, ptr, rust_vec_len, data_len),
-        61 => wire__crate__api__users__user_relays_impl(port, ptr, rust_vec_len, data_len),
+        59 => wire__crate__api__groups__upload_group_image_impl(port, ptr, rust_vec_len, data_len),
+        60 => wire__crate__api__users__user_has_key_package_impl(port, ptr, rust_vec_len, data_len),
+        61 => wire__crate__api__users__user_metadata_impl(port, ptr, rust_vec_len, data_len),
+        62 => wire__crate__api__users__user_relays_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -3694,6 +3781,9 @@ impl flutter_rust_bridge::IntoDart for crate::api::groups::FlutterGroupDataUpdat
             self.description.into_into_dart().into_dart(),
             self.relays.into_into_dart().into_dart(),
             self.admins.into_into_dart().into_dart(),
+            self.image_key.into_into_dart().into_dart(),
+            self.image_hash.into_into_dart().into_dart(),
+            self.image_nonce.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -3901,6 +3991,28 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::messages::SerializableToken>
     for crate::api::messages::SerializableToken
 {
     fn into_into_dart(self) -> crate::api::messages::SerializableToken {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::groups::UploadGroupImageResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.encrypted_hash.into_into_dart().into_dart(),
+            self.image_key.into_into_dart().into_dart(),
+            self.image_nonce.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::groups::UploadGroupImageResult
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::groups::UploadGroupImageResult>
+    for crate::api::groups::UploadGroupImageResult
+{
+    fn into_into_dart(self) -> crate::api::groups::UploadGroupImageResult {
         self
     }
 }
@@ -4246,6 +4358,9 @@ impl SseEncode for crate::api::groups::FlutterGroupDataUpdate {
         <Option<String>>::sse_encode(self.description, serializer);
         <Option<Vec<String>>>::sse_encode(self.relays, serializer);
         <Option<Vec<String>>>::sse_encode(self.admins, serializer);
+        <Option<[u8; 32]>>::sse_encode(self.image_key, serializer);
+        <Option<[u8; 32]>>::sse_encode(self.image_hash, serializer);
+        <Option<[u8; 12]>>::sse_encode(self.image_nonce, serializer);
     }
 }
 
@@ -4548,6 +4663,16 @@ impl SseEncode for Option<Vec<String>> {
     }
 }
 
+impl SseEncode for Option<[u8; 12]> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <[u8; 12]>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<[u8; 32]> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4619,6 +4744,19 @@ impl SseEncode for u8 {
     }
 }
 
+impl SseEncode for [u8; 12] {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<u8>>::sse_encode(
+            {
+                let boxed: Box<[_]> = Box::new(self);
+                boxed.into_vec()
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for [u8; 32] {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4635,6 +4773,15 @@ impl SseEncode for [u8; 32] {
 impl SseEncode for () {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {}
+}
+
+impl SseEncode for crate::api::groups::UploadGroupImageResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <[u8; 32]>::sse_encode(self.encrypted_hash, serializer);
+        <[u8; 32]>::sse_encode(self.image_key, serializer);
+        <[u8; 12]>::sse_encode(self.image_nonce, serializer);
+    }
 }
 
 impl SseEncode for crate::api::users::User {
@@ -4724,7 +4871,7 @@ mod io {
     use flutter_rust_bridge::for_generated::byteorder::{
         NativeEndian, ReadBytesExt, WriteBytesExt,
     };
-    use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+    use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
     use flutter_rust_bridge::{Handler, IntoIntoDart};
 
     // Section: boilerplate
