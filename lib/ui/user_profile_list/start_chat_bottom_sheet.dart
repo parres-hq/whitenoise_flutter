@@ -23,6 +23,7 @@ import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/user_profile_list/widgets/share_invite_button.dart';
 import 'package:whitenoise/ui/user_profile_list/widgets/share_invite_callout.dart';
 import 'package:whitenoise/ui/user_profile_list/widgets/user_profile_card.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 // User API interface for testing
 abstract class WnUsersApi {
@@ -35,7 +36,10 @@ class DefaultWnUsersApi implements WnUsersApi {
 
   @override
   Future<bool> userHasKeyPackage({required String pubkey}) {
-    return wn_users_api.userHasKeyPackage(pubkey: pubkey);
+    final hexPubkey = PubkeyFormatter(pubkey: pubkey).toHex();
+    if (hexPubkey == null) return Future.value(false);
+
+    return wn_users_api.userHasKeyPackage(pubkey: hexPubkey);
   }
 }
 
@@ -125,14 +129,15 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     });
 
     try {
+      final userHexPubkey = PubkeyFormatter(pubkey: widget.userProfile.publicKey).toHex() ?? '';
       final group = await ref
           .read(groupsProvider.notifier)
           .createNewGroup(
             groupName: '',
             groupDescription: '',
             isDm: true,
-            memberPublicKeyHexs: [widget.userProfile.publicKey],
-            adminPublicKeyHexs: [widget.userProfile.publicKey],
+            memberPublicKeyHexs: [userHexPubkey],
+            adminPublicKeyHexs: [userHexPubkey],
           );
 
       if (group != null) {

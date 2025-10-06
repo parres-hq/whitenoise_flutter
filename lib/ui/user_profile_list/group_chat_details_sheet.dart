@@ -18,6 +18,7 @@ import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 import 'package:whitenoise/ui/user_profile_list/safe_toast_mixin.dart';
 import 'package:whitenoise/ui/user_profile_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/user_profile_list/widgets/user_profile_tile.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   const GroupChatDetailsSheet({
@@ -112,7 +113,12 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
       final createdGroup = await notifier.createNewGroup(
         groupName: groupName,
         groupDescription: '',
-        memberPublicKeyHexs: userProfilesWithKeyPackage.map((c) => c.publicKey).toList(),
+        memberPublicKeyHexs:
+            userProfilesWithKeyPackage
+                .map((c) => PubkeyFormatter(pubkey: c.publicKey).toHex())
+                .where((hex) => hex != null && hex.isNotEmpty)
+                .cast<String>()
+                .toList(),
         adminPublicKeyHexs: [],
       );
 
@@ -181,7 +187,8 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
     for (final userProfile in userProfiles) {
       try {
-        final hasKeyPackage = await userHasKeyPackage(pubkey: userProfile.publicKey);
+        final hexPubkey = PubkeyFormatter(pubkey: userProfile.publicKey).toHex();
+        final hasKeyPackage = hexPubkey != null && await userHasKeyPackage(pubkey: hexPubkey);
 
         if (hasKeyPackage) {
           userProfilesWithKeyPackage.add(userProfile);
