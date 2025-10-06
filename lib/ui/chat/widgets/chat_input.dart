@@ -12,6 +12,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ChatInput extends ConsumerStatefulWidget {
   const ChatInput({
@@ -259,7 +260,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                 controller: _textController,
                                 focusNode: _focusNode,
                                 onChanged: (_) => setState(() {}),
-                                hintText: 'Message',
+                                hintText: 'chats.message'.tr(),
                                 maxLines: 5,
                                 textInputAction: TextInputAction.newline,
                                 keyboardType: TextInputType.multiline,
@@ -367,7 +368,7 @@ class ReplyEditHeader extends StatelessWidget {
               Text(
                 replyingTo?.sender.displayName ??
                     editingMessage?.sender.displayName ??
-                    'Unknown User',
+                    'chats.unknownUser'.tr(),
                 style: TextStyle(
                   color: context.colors.mutedForeground,
                   fontSize: 12.sp,
@@ -393,7 +394,7 @@ class ReplyEditHeader extends StatelessWidget {
 
           Gap(4.h),
           Text(
-            replyingTo?.content ?? editingMessage?.content ?? 'Quote Text...',
+            replyingTo?.content ?? editingMessage?.content ?? 'chats.quoteText'.tr(),
             style: TextStyle(
               color: context.colors.primary,
               fontSize: 12.sp,

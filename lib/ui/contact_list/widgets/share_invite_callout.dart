@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/ui/core/ui/wn_callout.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ShareInviteCallout extends StatelessWidget {
   final ContactModel contact;
@@ -13,12 +14,11 @@ class ShareInviteCallout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final contactName =
-        contact.displayName.isNotEmpty && contact.displayName != 'Unknown User'
+        contact.displayName.isNotEmpty && contact.displayName != 'chats.unknownUser'.tr()
             ? contact.displayName
-            : 'This user';
-    final inviteMessage =
-        "$contactName isn't on White Noise yet. Share the download link to start a secure chat.";
+            : 'chats.thisUser'.tr();
+    final inviteMessage = 'chats.userNotOnWhiteNoise'.tr({'contactName': contactName});
 
-    return WnCallout(title: 'Invite to White Noise', description: inviteMessage);
+    return WnCallout(title: 'chats.inviteToWhiteNoise'.tr(), description: inviteMessage);
   }
 }

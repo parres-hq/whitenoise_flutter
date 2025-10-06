@@ -16,6 +16,7 @@ import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class NewGroupChatSheet extends ConsumerStatefulWidget {
   final ValueChanged<Group?>? onGroupCreated;
@@ -233,7 +234,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                               // Navigate back - contacts should be loaded by new_chat_bottom_sheet
                               Navigator.of(context).pop();
                             },
-                            child: const Text('Go Back'),
+                            child: Text('shared.goBack'.tr()),
                           ),
                         ],
                       ),

@@ -7,6 +7,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_skeleton_container.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -141,21 +142,21 @@ class ContactListTile extends StatelessWidget {
             context: context,
             builder:
                 (context) => AlertDialog(
-                  title: const Text('Remove Contact'),
+                  title: Text('ui.removeContact'.tr()),
                   content: Text(
                     'Are you sure you want to remove ${contact.displayName} from your contacts?',
                   ),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(false),
-                      child: const Text('Cancel'),
+                      child: Text('shared.cancel'.tr()),
                     ),
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(true),
                       style: TextButton.styleFrom(
                         foregroundColor: context.colors.destructive,
                       ),
-                      child: const Text('Remove'),
+                      child: Text('shared.remove'.tr()),
                     ),
                   ],
                 ),

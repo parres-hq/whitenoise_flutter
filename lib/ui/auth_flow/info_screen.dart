@@ -10,6 +10,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class InfoScreen extends ConsumerStatefulWidget {
   const InfoScreen({super.key});
@@ -70,7 +71,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
       onPopInvokedWithResult: (didPop, result) => _deleteJustCreatedAccount(),
       child: Scaffold(
         backgroundColor: context.colors.neutral,
-        appBar: const AuthAppBar(title: 'Beyond the Noise'),
+        appBar: AuthAppBar(title: 'auth.beyondTheNoise'.tr()),
         body: SafeArea(
           child: SingleChildScrollView(
             child: Padding(
@@ -81,23 +82,20 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                   FeatureItem(
                     context: context,
                     imagePath: AssetsPaths.blueHoodie,
-                    title: 'Privacy & Security',
-                    subtitle:
-                        'Keep your conversations private. Even in case of a breach, your messages remain secure.',
+                    title: 'auth.privacyAndSecurity'.tr(),
+                    subtitle: 'auth.privacySecuritySubtitle'.tr(),
                   ),
                   FeatureItem(
                     context: context,
                     imagePath: AssetsPaths.purpleWoman,
-                    title: 'Choose Identity',
-                    subtitle:
-                        'Chat without revealing your phone number or email. Choose your identity: real name, pseudonym, or anonymous.',
+                    title: 'auth.chooseIdentity'.tr(),
+                    subtitle: 'auth.chooseIdentitySubtitle'.tr(),
                   ),
                   FeatureItem(
                     context: context,
                     imagePath: AssetsPaths.greenBird,
-                    title: 'Decentralized & Permissionless',
-                    subtitle:
-                        'No central authority controls your communication—no permissions needed, no censorship possible.',
+                    title: 'auth.decentralizedAndPermissionless'.tr(),
+                    subtitle: 'auth.decentralizedPermissionlessSubtitle'.tr(),
                   ),
                 ],
               ),
@@ -117,7 +115,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 return WnFilledButton(
                   loading: isButtonDisabled,
                   onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
-                  label: 'Setup Profile',
+                  label: 'auth.setupProfile'.tr(),
                   suffixIcon: WnImage(
                     AssetsPaths.icArrowRight,
                     color: context.colors.primaryForeground,

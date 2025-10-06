@@ -13,6 +13,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -40,8 +41,8 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
     if (welcome == null) {
       return Scaffold(
         backgroundColor: context.colors.neutral,
-        body: const Center(
-          child: Text('Invitation not found'),
+        body: Center(
+          child: Text('ui.invitationNotFound'.tr()),
         ),
       );
     }

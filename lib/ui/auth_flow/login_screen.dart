@@ -15,6 +15,7 @@ import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -76,7 +77,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     final key = _keyController.text.trim();
 
     if (key.isEmpty) {
-      ref.showErrorToast('Please enter your private key');
+      ref.showErrorToast('auth.pleaseEnterPrivateKey'.tr());
       return;
     }
 
@@ -111,7 +112,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     return Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: context.colors.neutral,
-      appBar: const AuthAppBar(title: 'Login to White Noise'),
+      appBar: AuthAppBar(title: 'auth.loginToWhiteNoise'.tr()),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 24).w,
@@ -137,7 +138,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'Enter Your Private Key',
+                      'auth.enterYourPrivateKey'.tr(),
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14.sp,
@@ -201,7 +202,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                         return WnFilledButton(
                           loading: authState.isLoading,
                           onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
-                          label: 'Login',
+                          label: 'auth.login'.tr(),
                         );
                       },
                     ),

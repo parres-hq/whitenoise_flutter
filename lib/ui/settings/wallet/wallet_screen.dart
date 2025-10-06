@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/info_box.dart';
@@ -9,6 +10,7 @@ import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class WalletScreen extends ConsumerStatefulWidget {
   const WalletScreen({super.key});
@@ -30,7 +32,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: context.colors.neutral,
-      appBar: const WnAppBar(title: Text('Wallet')),
+      appBar: WnAppBar(title: Text('ui.wallet'.tr())),
       body: Column(
         children: [
           Expanded(
@@ -45,7 +47,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                       children: [
                         Gap(24.h),
                         Text(
-                          'Connect bitcoin lightning wallet to send and receive payments within White Noise.',
+                          'wallet.connectionDescription'.tr(),
                           style: TextStyle(
                             fontSize: 18.sp,
                             color: context.colors.secondaryForeground,
@@ -53,7 +55,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                         ),
                         Gap(24.h),
                         Text(
-                          'Connection Secret',
+                          'wallet.connectionString'.tr(),
                           style: TextStyle(
                             fontSize: 14.sp,
                             fontWeight: FontWeight.w500,
@@ -80,7 +82,7 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                                 ClipboardUtils.copyWithToast(
                                   ref: ref,
                                   textToCopy: _connectionSecretController.text,
-                                  successMessage: 'Connection secret copied to clipboard',
+                                  successMessage: 'wallet.connectionStringCopied'.tr(),
                                 );
                               },
                             ),
@@ -101,9 +103,8 @@ class _WalletScreenState extends ConsumerState<WalletScreen> {
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: InfoBox(
                       colorTheme: context.colors.secondaryForeground,
-                      title: 'What wallet can I connect?',
-                      description:
-                          'You can connect any wallet that supports Nostr Wallet Connect. See full list of such wallets here.',
+                      title: 'wallet.informationQuestion'.tr(),
+                      description: 'wallet.informationAnswer'.tr(),
                     ),
                   ),
                 ],

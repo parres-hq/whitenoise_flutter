@@ -90,8 +90,8 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
         if (!aIsAdmin && bIsAdmin) return 1;
 
         // Within same category (both admins or both regular), sort alphabetically
-        final aName = a.displayName.isNotEmpty ? a.displayName : 'Unknown User';
-        final bName = b.displayName.isNotEmpty ? b.displayName : 'Unknown User';
+        final aName = a.displayName.isNotEmpty ? a.displayName : 'chats.unknownUser'.tr();
+        final bName = b.displayName.isNotEmpty ? b.displayName : 'chats.unknownUser'.tr();
         return aName.toLowerCase().compareTo(bName.toLowerCase());
       });
 
@@ -147,13 +147,13 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
           Gap(64.h),
           WnAvatar(
             imageUrl: '',
-            displayName: groupDetails?.name ?? 'Unknown Group',
+            displayName: groupDetails?.name ?? 'chats.unknownGroup'.tr(),
             size: 96.w,
             showBorder: true,
           ),
           SizedBox(height: 8.h),
           Text(
-            groupDetails?.name ?? 'Unknown Group',
+            groupDetails?.name ?? 'chats.unknownGroup'.tr(),
             style: context.textTheme.bodyLarge?.copyWith(
               color: context.colors.primary,
               fontSize: 18.sp,
@@ -162,7 +162,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
           Gap(16.h),
           if (groupDescription.isNotEmpty) ...[
             Text(
-              'Group Description:',
+              'chats.groupDescription'.tr(),
               style: context.textTheme.bodyMedium?.copyWith(
                 color: context.colors.mutedForeground,
                 fontSize: 16.sp,
@@ -181,7 +181,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             GestureDetector(
               onTap: isAdmin ? () => Routes.goToEditGroup(context, widget.groupId) : null,
               child: Text(
-                isAdmin ? 'Add Group Description...' : 'No Group Description',
+                isAdmin ? 'chats.addGroupDescription'.tr() : 'chats.noGroupDescription'.tr(),
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: context.colors.mutedForeground,
                   fontSize: 16.sp,
@@ -197,7 +197,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
               child: WnFilledButton(
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,
-                label: 'Edit Group',
+                label: 'ui.editGroup'.tr(),
                 onPressed: () => Routes.goToEditGroup(context, widget.groupId),
               ),
             ),
@@ -212,7 +212,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Text(
-                    'Members:',
+                    'chats.members'.tr(),
                     style: context.textTheme.bodyLarge?.copyWith(
                       color: context.colors.mutedForeground,
                       fontSize: 16.sp,
@@ -263,10 +263,10 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
       ),
       title: Text(
         isCurrentUser
-            ? 'You'
+            ? 'chats.you'.tr()
             : member.displayName.isNotEmpty
             ? member.displayName
-            : 'Unknown User',
+            : 'chats.unknownUser'.tr(),
         style: context.textTheme.bodyMedium?.copyWith(
           color: context.colors.primary,
           fontWeight: FontWeight.w600,
@@ -276,7 +276,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
       subtitle:
           isAdmin
               ? Text(
-                '(Admin)',
+                'chats.adminLabel'.tr(),
                 style: TextStyle(
                   color: context.colors.mutedForeground,
                   fontSize: 12.sp,

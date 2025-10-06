@@ -5,6 +5,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ShareInviteButton extends ConsumerStatefulWidget {
   const ShareInviteButton({
@@ -29,12 +30,12 @@ class _ShareInviteButtonState extends ConsumerState<ShareInviteButton> {
 
       if (mounted) {
         Navigator.pop(context);
-        ref.showSuccessToast('Invite shared successfully!');
+        ref.showSuccessToast('chats.inviteSharedSuccess'.tr());
       }
     } catch (e) {
       _logger.severe('Failed to share invite: $e');
       if (mounted) {
-        ref.showErrorToast('Failed to share invite');
+        ref.showErrorToast('chats.inviteShareFailed'.tr());
       }
     } finally {
       if (mounted) {
@@ -52,7 +53,7 @@ class _ShareInviteButtonState extends ConsumerState<ShareInviteButton> {
         WnFilledButton(
           onPressed: _isSendingInvite ? null : _shareInvite,
           loading: _isSendingInvite,
-          label: _isSendingInvite ? 'Sharing...' : 'Share',
+          label: _isSendingInvite ? 'chats.sharing'.tr() : 'chats.share'.tr(),
         ),
       ],
     );

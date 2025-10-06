@@ -30,6 +30,8 @@ environment:
 dependencies:
     flutter:
         sdk: flutter
+    flutter_localizations:
+        sdk: flutter
     logging: ^1.2.0
 
     # The following adds the Cupertino Icons font to your application.
@@ -56,7 +58,7 @@ dependencies:
     freezed_annotation: ^2.4.1
     shared_preferences: ^2.5.3
     flutter_secure_storage: ^9.2.4
-    intl: ^0.19.0
+    intl: ^0.20.2
     flutter_animate: ^4.5.2
     chat_bubbles: ^1.6.0
     uuid: ^4.5.1
@@ -116,6 +118,7 @@ flutter:
     assets:
       - assets/svgs/
       - assets/pngs/
+      - lib/locales/
     # To add assets to your application, add an assets section, like this:
     # assets:
     #   - images/a_dot_burr.jpeg

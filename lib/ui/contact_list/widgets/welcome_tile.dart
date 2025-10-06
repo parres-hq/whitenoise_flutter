@@ -8,6 +8,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/utils/timeago_formatter.dart';
 
@@ -32,7 +33,7 @@ class WelcomeTile extends ConsumerWidget {
       future: userProfileDataNotifier.getUserProfileData(welcome.welcomer),
       builder: (context, snapshot) {
         final welcomerContact = snapshot.data;
-        final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
+        final welcomerName = welcomerContact?.displayName ?? 'chats.unknownUser'.tr();
         final welcomerImageUrl = welcomerContact?.imagePath ?? '';
 
         return InkWell(
@@ -85,8 +86,8 @@ class WelcomeTile extends ConsumerWidget {
                           Expanded(
                             child: Text(
                               welcome.groupName.isEmpty
-                                  ? 'Sent you a secure chat invitation.'
-                                  : 'Invited you to ${welcome.groupName}',
+                                  ? 'chats.secureInvitationSent'.tr()
+                                  : 'chats.invitedToGroup'.tr({'groupName': welcome.groupName}),
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 color: context.colors.mutedForeground,

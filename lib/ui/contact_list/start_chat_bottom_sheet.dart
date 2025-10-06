@@ -22,6 +22,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 // User API interface for testing
 abstract class WnUsersApi {
@@ -57,7 +58,7 @@ class StartChatBottomSheet extends ConsumerStatefulWidget {
   }) {
     return WnBottomSheet.show(
       context: context,
-      title: 'User Profile',
+      title: 'ui.userProfile'.tr(),
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder: (context) => StartChatBottomSheet(contact: contact, onChatCreated: onChatCreated),
@@ -85,7 +86,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     final activeAccountState = await ref.read(activeAccountProvider.future);
     final activeAccount = activeAccountState.account;
     if (activeAccount == null) {
-      ref.showErrorToast('No active account found');
+      ref.showErrorToast('settings.noActiveAccountFound'.tr());
       return;
     }
     try {
@@ -109,7 +110,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
         setState(() {
           _isLoadingKeyPackage = false;
           _isLoadingKeyPackageError = true;
-          ref.showErrorToast('Error loading user key package: $e');
+          ref.showErrorToast('${'ui.errorLoadingUserKeyPackage'.tr()}: $e');
         });
       }
     }
@@ -146,14 +147,14 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
           }
 
           ref.showSuccessToast(
-            'Chat with ${widget.contact.displayName} started successfully',
+            'ui.chatStartedSuccessfully'.tr().replaceAll('{name}', widget.contact.displayName),
           );
         }
       } else {
         // Group creation failed - check the provider state for the error message
         if (mounted) {
           final groupsState = ref.read(groupsProvider);
-          final errorMessage = groupsState.error ?? 'Failed to create direct message group';
+          final errorMessage = groupsState.error ?? 'ui.failedToCreateDirectMessageGroup'.tr();
           ref.showErrorToast(errorMessage);
         }
       }
@@ -171,10 +172,10 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     var currentFollowState = ref.read(followProvider(widget.contact.publicKey));
     late String successMessage;
     if (currentFollowState.isFollowing) {
-      successMessage = 'Unfollowed ${widget.contact.displayName}';
+      successMessage = 'ui.unfollowed'.tr().replaceAll('{name}', widget.contact.displayName);
       await followNotifier.removeFollow(widget.contact.publicKey);
     } else {
-      successMessage = 'Followed ${widget.contact.displayName}';
+      successMessage = 'ui.followed'.tr().replaceAll('{name}', widget.contact.displayName);
       await followNotifier.addFollow(widget.contact.publicKey);
     }
 
@@ -189,7 +190,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
 
   void _openAddToGroup() {
     if (widget.contact.publicKey.isEmpty) {
-      ref.showErrorToast('No user to add to group');
+      ref.showErrorToast('ui.noUserToAddToGroup'.tr());
       return;
     }
     context.push('/add_to_group/${widget.contact.publicKey}');
@@ -256,7 +257,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                         WnFilledButton(
                           visualState: WnButtonVisualState.secondary,
                           onPressed: followState.isLoading ? null : _toggleFollow,
-                          label: followState.isFollowing ? 'Unfollow' : 'Follow',
+                          label: followState.isFollowing ? 'ui.unfollow'.tr() : 'ui.follow'.tr(),
                           suffixIcon: WnImage(
                             followState.isFollowing
                                 ? AssetsPaths.icRemoveUser
@@ -269,7 +270,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                         WnFilledButton(
                           visualState: WnButtonVisualState.secondary,
                           onPressed: _openAddToGroup,
-                          label: 'Add to Group',
+                          label: 'ui.addToGroup'.tr(),
                           suffixIcon: WnImage(
                             AssetsPaths.icChatInvite,
                             size: 18.w,
@@ -280,7 +281,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
                         WnFilledButton(
                           onPressed: _isCreatingGroup ? null : _createOrOpenDirectMessageGroup,
                           loading: _isCreatingGroup,
-                          label: _isCreatingGroup ? 'Creating Chat...' : 'Start Chat',
+                          label: _isCreatingGroup ? 'ui.creatingChat'.tr() : 'ui.startChat'.tr(),
                         ),
                       ],
                     ),
