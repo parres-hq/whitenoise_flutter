@@ -271,7 +271,9 @@ class MessageSyncService {
     try {
       final prefs = await _preferences;
       final timestamp = prefs.getInt('bg_sync_last_${activePubkey}_$groupId');
-      return timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
+      final dateTime = timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
+      _logger.info('Last sync time for group $groupId: ${dateTime?.toLocal()}');
+      return dateTime;
     } catch (e) {
       _logger.warning('Failed to get last sync time for group $groupId', e);
       return null;
@@ -298,6 +300,7 @@ class MessageSyncService {
         'bg_sync_last_${activePubkey}_$groupId',
         time.millisecondsSinceEpoch,
       );
+      _logger.info('Last sync time for group $groupId Set to ${time.toLocal()}');
     } catch (e) {
       _logger.warning('Failed to set last sync time for group $groupId', e);
     }
