@@ -21,6 +21,7 @@ class ReactionsDialogWidget extends StatefulWidget {
     this.reactions = DefaultData.reactions,
     this.widgetAlignment = Alignment.centerRight,
     this.menuItemsWidth = 0.50,
+    this.messagePosition,
   });
 
   // Id for the hero widget
@@ -47,6 +48,9 @@ class ReactionsDialogWidget extends StatefulWidget {
   // The width of the menu items
   final double menuItemsWidth;
 
+  // The position of the message on screen (optional)
+  final Offset? messagePosition;
+
   @override
   State<ReactionsDialogWidget> createState() => _ReactionsDialogWidgetState();
 }
@@ -69,23 +73,104 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
           child: SafeArea(
-            child: Column(
-              children: [
-                const Spacer(),
-                buildReactions(context),
-                Gap(16.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: buildMessage(),
-                ),
-                Gap(16.h),
-                buildMenuItems(context),
-                Gap(32.h),
-              ],
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return _buildPositionedContent(context, constraints);
+              },
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildPositionedContent(BuildContext context, BoxConstraints constraints) {
+    // Calculate the heights of the reaction bar and menu
+    final reactionBarHeight = 56.h; // Approximate height of reaction bar
+    final menuItemsHeight = (widget.menuItems.length * 48.h) + 32.h; // Menu items + bottom gap
+    final gapBetweenReactionsAndMessage = 16.h;
+    final gapBetweenMessageAndMenu = 16.h;
+    
+    // Total height needed below the message
+    final heightBelowMessage = gapBetweenMessageAndMenu + menuItemsHeight;
+    
+    // If we have a message position, use it to position the content
+    if (widget.messagePosition != null) {
+      // Get the safe area insets to adjust for status bar, notch, etc.
+      final mediaQuery = MediaQuery.of(context);
+      final topInset = mediaQuery.padding.top;
+      
+      // The position passed is the vertical center of the message in global coordinates
+      // Adjust by subtracting the top safe area inset because dialog is inside SafeArea
+      final messageCenterY = widget.messagePosition!.dy - topInset;
+      final screenHeight = constraints.maxHeight;
+      
+      // Since we have the center, calculate the top position
+      // Estimate half the message height to get the top
+      final estimatedHalfMessageHeight = 40.h;
+      // Move the message up by 20.h for better positioning
+      final messageTopY = messageCenterY - estimatedHalfMessageHeight - 16.h;
+      
+      // Calculate space available below the message center
+      final spaceBelow = screenHeight - messageCenterY - estimatedHalfMessageHeight;
+      
+      // Check if we need to move the message up to fit the menu
+      if (spaceBelow < heightBelowMessage) {
+        // Calculate how much to move up
+        final shortfall = heightBelowMessage - spaceBelow;
+        final adjustedMessageTopY = (messageTopY - shortfall).clamp(
+          reactionBarHeight + gapBetweenReactionsAndMessage + 20.h, // Minimum top position
+          messageTopY, // Don't move down, only up
+        );
+        
+        // Position with reactions above the adjusted message position
+        final topSpacing = (adjustedMessageTopY - reactionBarHeight - gapBetweenReactionsAndMessage).clamp(0.0, screenHeight);
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(height: topSpacing),
+            buildReactions(context),
+            Gap(gapBetweenReactionsAndMessage),
+            buildMessage(),
+            Gap(gapBetweenMessageAndMenu),
+            buildMenuItems(context),
+            const Spacer(),
+          ],
+        );
+      } else {
+        // Keep the message at its original position
+        final topSpacing = (messageTopY - reactionBarHeight - gapBetweenReactionsAndMessage).clamp(0.0, screenHeight);
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(height: topSpacing),
+            buildReactions(context),
+            Gap(gapBetweenReactionsAndMessage),
+            buildMessage(),
+            Gap(gapBetweenMessageAndMenu),
+            buildMenuItems(context),
+            const Spacer(),
+          ],
+        );
+      }
+    }
+
+    // Fallback to centered layout if no position provided
+    return Column(
+      children: [
+        const Spacer(),
+        buildReactions(context),
+        Gap(16.h),
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.w),
+          child: buildMessage(),
+        ),
+        Gap(16.h),
+        buildMenuItems(context),
+        Gap(32.h),
+      ],
     );
   }
 
@@ -94,7 +179,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
       alignment: widget.widgetAlignment,
       child: Container(
         width: MediaQuery.of(context).size.width * widget.menuItemsWidth,
-        margin: EdgeInsets.symmetric(horizontal: 48.w),
+        margin: EdgeInsets.symmetric(horizontal: 18.w),
         decoration: BoxDecoration(
           color: context.colors.primaryForeground,
         ),
@@ -164,7 +249,7 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
     return Align(
       alignment: widget.widgetAlignment,
       child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 16.w),
+        margin: EdgeInsets.symmetric(horizontal: 8.w),
         child: widget.messageWidget,
       ),
     );
