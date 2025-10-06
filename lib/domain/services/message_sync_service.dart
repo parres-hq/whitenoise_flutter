@@ -225,6 +225,7 @@ class MessageSyncService {
             'sender': message.pubkey,
           }),
         );
+        _logger.info('Notification shown for message ${message.id}');
       } catch (e) {
         _logger.warning('Failed to show notification for message ${message.id}', e);
       }
@@ -247,6 +248,7 @@ class MessageSyncService {
             'welcomeId': welcome.id,
           }),
         );
+        _logger.info('Notification shown for welcome ${welcome.id}');
       } catch (e) {
         _logger.warning('Failed to show notification for welcome ${welcome.id}', e);
       }

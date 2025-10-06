@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:logging/logging.dart';
-import 'package:whitenoise/domain/services/account_secure_storage_service.dart';
+import 'package:whitenoise/domain/models/background_task_config.dart';
 import 'package:whitenoise/domain/services/message_sync_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
+import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
@@ -14,14 +16,32 @@ import 'package:workmanager/workmanager.dart';
 class BackgroundSyncService {
   static final _logger = Logger('BackgroundSyncService');
 
-  static const String messagesSyncTask = 'com.whitenoise.messages_sync';
-  static const String invitesSyncTask = 'com.whitenoise.invites_sync';
-  static const String metadataRefreshTask = 'com.whitenoise.metadata_refresh';
+  static const BackgroundTaskConfig messagesSyncTask = BackgroundTaskConfig(
+    id: 'com.whitenoise.messages_sync',
+    uniqueName: 'messages_sync',
+    displayName: 'Messages Sync',
+    frequency: Duration(minutes: 15),
+  );
 
-  static const Duration _messagesSyncFrequency = Duration(minutes: 15);
-  static const Duration _invitesSyncFrequency = Duration(minutes: 15);
-  static const Duration _metadataRefreshFrequency = Duration(hours: 24);
-  static const Duration _taskDelaySeconds = Duration(seconds: 1);
+  static const BackgroundTaskConfig invitesSyncTask = BackgroundTaskConfig(
+    id: 'com.whitenoise.invites_sync',
+    uniqueName: 'invites_sync',
+    displayName: 'Invites Sync',
+    frequency: Duration(minutes: 15),
+  );
+
+  static const BackgroundTaskConfig metadataRefreshTask = BackgroundTaskConfig(
+    id: 'com.whitenoise.metadata_refresh',
+    uniqueName: 'metadata_refresh',
+    displayName: 'Metadata Refresh',
+    frequency: Duration(hours: 24),
+  );
+
+  static const List<BackgroundTaskConfig> allTasks = [
+    messagesSyncTask,
+    invitesSyncTask,
+    metadataRefreshTask,
+  ];
 
   static bool _isInitialized = false;
 
@@ -30,17 +50,14 @@ class BackgroundSyncService {
       _logger.fine('BackgroundSyncService already initialized');
       return;
     }
-
     try {
       await Workmanager().initialize(
         callbackDispatcher,
       );
-
       _isInitialized = true;
       _logger.info('BackgroundSyncService initialized successfully');
     } catch (e) {
       _logger.severe('BackgroundSyncService initialization', e);
-      rethrow;
     }
   }
 
@@ -48,44 +65,45 @@ class BackgroundSyncService {
     if (!_isInitialized) {
       await initialize();
     }
-
     try {
-      try {
-        await Workmanager().registerPeriodicTask(
-          'messages_sync',
-          messagesSyncTask,
-          frequency: _messagesSyncFrequency,
-          existingWorkPolicy: ExistingPeriodicWorkPolicy.update,
-          constraints: Constraints(
-            networkType: NetworkType.connected,
-          ),
-        );
-        _logger.info('Messages sync task registered successfully');
-      } catch (e) {
-        _logger.severe('Register messages sync task', e);
-        rethrow;
-      }
-
-      try {
-        await Workmanager().registerPeriodicTask(
-          'invites_sync',
-          invitesSyncTask,
-          frequency: _invitesSyncFrequency,
-          existingWorkPolicy: ExistingPeriodicWorkPolicy.update,
-          constraints: Constraints(
-            networkType: NetworkType.connected,
-          ),
-        );
-        _logger.info('Invites sync task registered successfully');
-      } catch (e) {
-        _logger.severe('Register invites sync task', e);
-        rethrow;
-      }
-
-      _logger.info('Notification tasks registered successfully');
+      await registerMessagesSyncTask();
+      await registerInvitesSyncTask();
     } catch (e) {
       _logger.severe('Notification tasks registration', e);
-      rethrow;
+    }
+  }
+
+  static Future<void> registerMessagesSyncTask() async {
+    try {
+      await Workmanager().registerPeriodicTask(
+        messagesSyncTask.uniqueName,
+        messagesSyncTask.id,
+        frequency: messagesSyncTask.frequency,
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.update,
+        constraints: Constraints(
+          networkType: NetworkType.connected,
+        ),
+      );
+      _logger.info('Messages sync task registered successfully');
+    } catch (e) {
+      _logger.severe('Register messages sync task', e);
+    }
+  }
+
+  static Future<void> registerInvitesSyncTask() async {
+    try {
+      await Workmanager().registerPeriodicTask(
+        invitesSyncTask.uniqueName,
+        invitesSyncTask.id,
+        frequency: invitesSyncTask.frequency,
+        existingWorkPolicy: ExistingPeriodicWorkPolicy.update,
+        constraints: Constraints(
+          networkType: NetworkType.connected,
+        ),
+      );
+      _logger.info('Invites sync task registered successfully');
+    } catch (e) {
+      _logger.severe('Register invites sync task', e);
     }
   }
 
@@ -93,12 +111,11 @@ class BackgroundSyncService {
     if (!_isInitialized) {
       await initialize();
     }
-
     try {
       await Workmanager().registerPeriodicTask(
-        'metadata_refresh',
-        metadataRefreshTask,
-        frequency: _metadataRefreshFrequency,
+        metadataRefreshTask.uniqueName,
+        metadataRefreshTask.id,
+        frequency: metadataRefreshTask.frequency,
         existingWorkPolicy: ExistingPeriodicWorkPolicy.update,
         constraints: Constraints(
           networkType: NetworkType.connected,
@@ -107,7 +124,6 @@ class BackgroundSyncService {
       _logger.info('Metadata refresh task registered successfully');
     } catch (e) {
       _logger.severe('Register metadata refresh task', e);
-      rethrow;
     }
   }
 
@@ -125,20 +141,26 @@ class BackgroundSyncService {
     }
   }
 
-  static Future<void> triggerTask(String taskName) async {
+  static Future<bool> isTaskScheduled(String taskName) async {
     try {
-      _logger.info('Manually triggering task: $taskName');
-
-      await Workmanager().registerOneOffTask(
-        taskName,
-        taskName,
-        initialDelay: _taskDelaySeconds,
-        existingWorkPolicy: ExistingWorkPolicy.replace,
-      );
-
-      _logger.info('Task $taskName scheduled for background execution');
+      if (Platform.isAndroid) {
+        final isScheduled = await Workmanager().isScheduledByUniqueName(taskName);
+        _logger.info('Task $taskName is scheduled: $isScheduled');
+        return isScheduled;
+      } else if (Platform.isIOS) {
+        //? This is a workaround to check if the task is scheduled on iOS
+        //? Because the isScheduledByUniqueName method is not available on iOS
+        //? We need to print the scheduled tasks and check if the task is in the list
+        //? this is not so reliable
+        final scheduledTasks = await Workmanager().printScheduledTasks();
+        final isScheduled = scheduledTasks.contains(taskName);
+        _logger.info('Task $taskName is scheduled: $isScheduled');
+        return isScheduled;
+      }
+      return false;
     } catch (e) {
-      _logger.severe('Trigger task $taskName', e);
+      _logger.severe('Check if task is registered', e);
+      return false;
     }
   }
 }
@@ -161,16 +183,15 @@ void callbackDispatcher() {
         logger.warning('Failed to initialize NotificationService in background task: $e');
       }
 
-      switch (task) {
-        case BackgroundSyncService.messagesSyncTask:
-          return await _handleMessagesSync();
-        case BackgroundSyncService.invitesSyncTask:
-          return await _handleInvitesSync();
-        case BackgroundSyncService.metadataRefreshTask:
-          return await _handleMetadataRefresh();
-        default:
-          logger.warning('Unknown background task: $task');
-          return Future.value(false);
+      if (task == BackgroundSyncService.messagesSyncTask.id) {
+        return await _handleMessagesSync();
+      } else if (task == BackgroundSyncService.invitesSyncTask.id) {
+        return await _handleInvitesSync();
+      } else if (task == BackgroundSyncService.metadataRefreshTask.id) {
+        return await _handleMetadataRefresh();
+      } else {
+        logger.warning('Unknown background task: $task');
+        return Future.value(false);
       }
     } catch (e, stackTrace) {
       logger.severe('Background task $task failed', e, stackTrace);
@@ -183,32 +204,23 @@ Future<bool> _handleMessagesSync() async {
   final logger = Logger('MessagesSyncTask');
   try {
     logger.info('Starting messages sync background task');
-    final String? activePubkey = await AccountSecureStorageService.getActivePubkey();
-    if (activePubkey == null) {
-      logger.info('No active account found, skipping messages sync');
+    final List<Account> accounts = await getAccounts();
+    if (accounts.isEmpty) {
+      logger.info('No accounts found, skipping messages sync');
       return true;
     }
-    final List<dynamic> groups = await activeGroups(pubkey: activePubkey);
-    if (groups.isEmpty) {
-      logger.info('No groups found, skipping messages sync');
-      return true;
-    }
+    logger.info('Found ${accounts.length} accounts to sync');
     int totalNewMessages = 0;
-    for (final group in groups) {
-      try {
-        final int newCount = await _syncMessagesForGroup(
-          groupId: group.mlsGroupId,
-          activePubkey: activePubkey,
-          logger: logger,
-        );
-        totalNewMessages += newCount;
-      } catch (e) {
-        logger.warning('Sync group ${group.mlsGroupId}: $e');
-      }
+    for (final account in accounts) {
+      final int newCount = await _syncMessagesForAccount(
+        account: account,
+        logger: logger,
+      );
+      totalNewMessages += newCount;
     }
     logger.info(
       totalNewMessages > 0
-          ? 'Messages sync completed: $totalNewMessages new messages notified'
+          ? 'Messages sync completed: $totalNewMessages new messages notified across ${accounts.length} accounts'
           : 'Messages sync completed: No new messages',
     );
     return true;
@@ -218,22 +230,49 @@ Future<bool> _handleMessagesSync() async {
   }
 }
 
+Future<int> _syncMessagesForAccount({
+  required Account account,
+  required Logger logger,
+}) async {
+  try {
+    final List<dynamic> groups = await activeGroups(pubkey: account.pubkey);
+    logger.info('Account ${account.pubkey}: Found ${groups.length} groups');
+    int newMessagesCount = 0;
+    for (final group in groups) {
+      try {
+        final int newCount = await _syncMessagesForGroup(
+          groupId: group.mlsGroupId,
+          accountPubkey: account.pubkey,
+          logger: logger,
+        );
+        newMessagesCount += newCount;
+      } catch (e) {
+        logger.warning('Sync group ${group.mlsGroupId} for account ${account.pubkey}: $e');
+      }
+    }
+    return newMessagesCount;
+  } catch (e) {
+    logger.warning('Sync messages for account ${account.pubkey}: $e');
+    return 0;
+  }
+}
+
 Future<int> _syncMessagesForGroup({
   required String groupId,
-  required String activePubkey,
+  required String accountPubkey,
   required Logger logger,
 }) async {
   final DateTime? lastSyncTime = await MessageSyncService.getLastSyncTime(
-    activePubkey: activePubkey,
+    activePubkey: accountPubkey,
     groupId: groupId,
   );
   final List<ChatMessage> aggregatedMessages = await fetchAggregatedMessagesForGroup(
-    pubkey: activePubkey,
+    pubkey: accountPubkey,
     groupId: groupId,
   );
   final List<ChatMessage> newMessages = await MessageSyncService.filterNewMessages(
     aggregatedMessages,
-    activePubkey,
+    accountPubkey,
     groupId,
     lastSyncTime,
   );
@@ -242,7 +281,7 @@ Future<int> _syncMessagesForGroup({
   );
   if (newMessages.isEmpty) {
     await _updateCheckpointNoNewMessages(
-      activePubkey: activePubkey,
+      accountPubkey: accountPubkey,
       groupId: groupId,
       lastSyncTime: lastSyncTime,
     );
@@ -250,11 +289,11 @@ Future<int> _syncMessagesForGroup({
   }
   await MessageSyncService.notifyNewMessages(
     groupId: groupId,
-    activePubkey: activePubkey,
+    activePubkey: accountPubkey,
     newMessages: newMessages,
   );
   await _updateCheckpointWithNewMessages(
-    activePubkey: activePubkey,
+    accountPubkey: accountPubkey,
     groupId: groupId,
     newMessages: newMessages,
   );
@@ -262,7 +301,7 @@ Future<int> _syncMessagesForGroup({
 }
 
 Future<void> _updateCheckpointNoNewMessages({
-  required String activePubkey,
+  required String accountPubkey,
   required String groupId,
   required DateTime? lastSyncTime,
 }) async {
@@ -272,7 +311,7 @@ Future<void> _updateCheckpointNoNewMessages({
   );
   if (lastSyncTime == null || lastSyncTime.isBefore(earliestAllowedTime)) {
     await MessageSyncService.setLastSyncTime(
-      activePubkey: activePubkey,
+      activePubkey: accountPubkey,
       groupId: groupId,
       time: earliestAllowedTime,
     );
@@ -280,7 +319,7 @@ Future<void> _updateCheckpointNoNewMessages({
 }
 
 Future<void> _updateCheckpointWithNewMessages({
-  required String activePubkey,
+  required String accountPubkey,
   required String groupId,
   required List<ChatMessage> newMessages,
 }) async {
@@ -288,7 +327,7 @@ Future<void> _updateCheckpointWithNewMessages({
       .map((m) => m.createdAt)
       .reduce((a, b) => a.isAfter(b) ? a : b);
   await MessageSyncService.setLastSyncTime(
-    activePubkey: activePubkey,
+    activePubkey: accountPubkey,
     groupId: groupId,
     time: latestProcessed,
   );
@@ -300,69 +339,113 @@ Future<bool> _handleInvitesSync() async {
   try {
     logger.info('Starting invites sync background task');
 
-    final activePubkey = await AccountSecureStorageService.getActivePubkey();
-    if (activePubkey == null) {
-      logger.info('No active account found, skipping invites sync');
+    final List<Account> accounts = await getAccounts();
+    if (accounts.isEmpty) {
+      logger.info('No accounts found, skipping invites sync');
       return true;
     }
 
-    // Use checkpoint tracking for invites like we do for messages
+    logger.info('Found ${accounts.length} accounts to sync invites');
+    int totalNewInvites = 0;
+
+    for (final account in accounts) {
+      final int newCount = await _syncInvitesForAccount(
+        account: account,
+        logger: logger,
+      );
+      totalNewInvites += newCount;
+    }
+
+    if (totalNewInvites > 0) {
+      logger.info(
+        'Invites sync completed: Found $totalNewInvites new invites across ${accounts.length} accounts',
+      );
+    } else {
+      logger.info('Invites sync completed: No new invites found');
+    }
+    return true;
+  } catch (e, stackTrace) {
+    logger.severe('Invites sync task failed', e, stackTrace);
+    return false;
+  }
+}
+
+Future<int> _syncInvitesForAccount({
+  required Account account,
+  required Logger logger,
+}) async {
+  try {
     final DateTime? lastSyncTime = await MessageSyncService.getLastSyncTime(
-      activePubkey: activePubkey,
+      activePubkey: account.pubkey,
       groupId: 'invites',
     );
     final now = DateTime.now();
     final earliestAllowedTime = now.subtract(const Duration(seconds: 1));
     final lastProcessedTime = lastSyncTime ?? now.subtract(const Duration(hours: 1));
 
-    final welcomes = await pendingWelcomes(pubkey: activePubkey);
-    final newWelcomes =
-        welcomes.where((w) {
-          final welcomeTime = DateTime.fromMillisecondsSinceEpoch(w.createdAt.toInt() * 1000);
-          if (!welcomeTime.isAfter(lastProcessedTime)) return false;
-          if (welcomeTime.isAfter(earliestAllowedTime)) return false;
-          return true;
-        }).toList();
+    final welcomes = await pendingWelcomes(pubkey: account.pubkey);
+    final newWelcomes = _filterNewWelcomes(
+      welcomes: welcomes,
+      lastProcessedTime: lastProcessedTime,
+      earliestAllowedTime: earliestAllowedTime,
+    );
 
     logger.info(
-      'Invites sync: Found ${welcomes.length} total pending welcomes, ${newWelcomes.length} new welcomes',
+      'Account ${account.pubkey}: Found ${welcomes.length} total pending welcomes, ${newWelcomes.length} new welcomes',
     );
 
-    await MessageSyncService.notifyNewInvites(
+    await MessageSyncService.notifyNewInvites(newWelcomes: newWelcomes);
+
+    await _updateInviteCheckpoint(
+      accountPubkey: account.pubkey,
       newWelcomes: newWelcomes,
+      lastSyncTime: lastSyncTime,
+      earliestAllowedTime: earliestAllowedTime,
     );
 
-    // Update checkpoint after processing
-    if (newWelcomes.isEmpty) {
-      if (lastSyncTime == null || lastSyncTime.isBefore(earliestAllowedTime)) {
-        await MessageSyncService.setLastSyncTime(
-          activePubkey: activePubkey,
-          groupId: 'invites',
-          time: earliestAllowedTime,
-        );
-      }
-    } else {
-      final DateTime latestWelcome = newWelcomes
-          .map((w) => DateTime.fromMillisecondsSinceEpoch(w.createdAt.toInt() * 1000))
-          .reduce((a, b) => a.isAfter(b) ? a : b);
-      await MessageSyncService.setLastSyncTime(
-        activePubkey: activePubkey,
-        groupId: 'invites',
-        time: latestWelcome,
-      );
-    }
+    return newWelcomes.length;
+  } catch (e) {
+    logger.warning('Sync invites for account ${account.pubkey}: $e');
+    return 0;
+  }
+}
 
-    if (newWelcomes.isNotEmpty) {
-      logger.info(
-        'Invites sync completed successfully: Found ${newWelcomes.length} new invites and sent notifications',
-      );
-    } else {
-      logger.info('Invites sync completed successfully: No new invites found');
-    }
+List<Welcome> _filterNewWelcomes({
+  required List<Welcome> welcomes,
+  required DateTime lastProcessedTime,
+  required DateTime earliestAllowedTime,
+}) {
+  return welcomes.where((w) {
+    final welcomeTime = DateTime.fromMillisecondsSinceEpoch(w.createdAt.toInt() * 1000);
+    if (!welcomeTime.isAfter(lastProcessedTime)) return false;
+    if (welcomeTime.isAfter(earliestAllowedTime)) return false;
     return true;
-  } catch (e, stackTrace) {
-    logger.severe('Invites sync task failed', e, stackTrace);
-    return false;
+  }).toList();
+}
+
+Future<void> _updateInviteCheckpoint({
+  required String accountPubkey,
+  required List<Welcome> newWelcomes,
+  required DateTime? lastSyncTime,
+  required DateTime earliestAllowedTime,
+}) async {
+  if (newWelcomes.isEmpty) {
+    if (lastSyncTime == null || lastSyncTime.isBefore(earliestAllowedTime)) {
+      await MessageSyncService.setLastSyncTime(
+        activePubkey: accountPubkey,
+        groupId: 'invites',
+        time: earliestAllowedTime,
+      );
+    }
+  } else {
+    final DateTime latestWelcome = newWelcomes
+        .map((w) => DateTime.fromMillisecondsSinceEpoch(w.createdAt.toInt() * 1000))
+        .reduce((a, b) => a.isAfter(b) ? a : b);
+    await MessageSyncService.setLastSyncTime(
+      activePubkey: accountPubkey,
+      groupId: 'invites',
+      time: latestWelcome,
+    );
   }
 }
 
@@ -372,39 +455,80 @@ Future<bool> _handleMetadataRefresh() async {
   try {
     logger.info('Starting metadata refresh background task');
 
-    final activePubkey = await AccountSecureStorageService.getActivePubkey();
-    if (activePubkey == null) {
-      logger.info('No active account found, skipping metadata refresh');
+    final List<Account> accounts = await getAccounts();
+    if (accounts.isEmpty) {
+      logger.info('No accounts found, skipping metadata refresh');
       return true;
     }
 
-    final groups = await activeGroups(pubkey: activePubkey);
+    logger.info('Found ${accounts.length} accounts to refresh metadata');
     int refreshedCount = 0;
 
-    for (final group in groups) {
-      try {
-        final memberPubkeys = await groupMembers(
-          pubkey: activePubkey,
-          groupId: group.mlsGroupId,
-        );
-
-        for (final memberPubkey in memberPubkeys) {
-          try {
-            await userMetadata(pubkey: memberPubkey);
-            refreshedCount++;
-          } catch (e) {
-            logger.warning('Refresh metadata for $memberPubkey: $e');
-          }
-        }
-      } catch (e) {
-        logger.warning('Get members for group ${group.mlsGroupId}: $e');
-      }
+    for (final account in accounts) {
+      final int count = await _refreshMetadataForAccount(
+        account: account,
+        logger: logger,
+      );
+      refreshedCount += count;
     }
 
-    logger.info('Metadata refresh completed. Refreshed $refreshedCount user profiles');
+    logger.info(
+      'Metadata refresh completed. Refreshed $refreshedCount user profiles across ${accounts.length} accounts',
+    );
     return true;
   } catch (e, stackTrace) {
     logger.severe('Metadata refresh task failed', e, stackTrace);
     return false;
+  }
+}
+
+Future<int> _refreshMetadataForAccount({
+  required Account account,
+  required Logger logger,
+}) async {
+  try {
+    final groups = await activeGroups(pubkey: account.pubkey);
+    logger.info('Account ${account.pubkey}: Found ${groups.length} groups');
+
+    int refreshedCount = 0;
+    for (final group in groups) {
+      final int count = await _refreshMetadataForGroup(
+        accountPubkey: account.pubkey,
+        group: group,
+        logger: logger,
+      );
+      refreshedCount += count;
+    }
+    return refreshedCount;
+  } catch (e) {
+    logger.warning('Refresh metadata for account ${account.pubkey}: $e');
+    return 0;
+  }
+}
+
+Future<int> _refreshMetadataForGroup({
+  required String accountPubkey,
+  required dynamic group,
+  required Logger logger,
+}) async {
+  try {
+    final memberPubkeys = await groupMembers(
+      pubkey: accountPubkey,
+      groupId: group.mlsGroupId,
+    );
+
+    int refreshedCount = 0;
+    for (final memberPubkey in memberPubkeys) {
+      try {
+        await userMetadata(pubkey: memberPubkey);
+        refreshedCount++;
+      } catch (e) {
+        logger.warning('Refresh metadata for $memberPubkey: $e');
+      }
+    }
+    return refreshedCount;
+  } catch (e) {
+    logger.warning('Get members for group ${group.mlsGroupId}: $e');
+    return 0;
   }
 }

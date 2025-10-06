@@ -6,7 +6,6 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
-import 'package:whitenoise/domain/services/background_sync_service.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api;
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -14,6 +13,7 @@ import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/settings/developer/background_sync_screen.dart';
 
 class DeveloperSettingsScreen extends ConsumerStatefulWidget {
   const DeveloperSettingsScreen({super.key});
@@ -225,48 +225,6 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
     }
   }
 
-  Future<void> _triggerBackgroundTask(String taskName) async {
-    setState(() => _isLoading = true);
-    try {
-      await BackgroundSyncService.triggerTask(taskName);
-      ref.showSuccessToast('Background task "$taskName" triggered successfully');
-    } catch (e) {
-      ref.showErrorToast('Failed to trigger background task: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  Future<void> _registerBackgroundTasks() async {
-    setState(() => _isLoading = true);
-    try {
-      await BackgroundSyncService.registerAllTasks();
-      ref.showSuccessToast('Background tasks registered successfully');
-    } catch (e) {
-      ref.showErrorToast('Failed to register background tasks: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  Future<void> _cancelBackgroundTasks() async {
-    setState(() => _isLoading = true);
-    try {
-      await BackgroundSyncService.cancelAllTasks();
-      ref.showSuccessToast('Background tasks cancelled successfully');
-    } catch (e) {
-      ref.showErrorToast('Failed to cancel background tasks: $e');
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -424,81 +382,18 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Background Sync Testing',
+                                    'Background Services',
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,
                                       color: context.colors.primary,
                                     ),
                                   ),
+
                                   Gap(10.h),
                                   WnFilledButton(
-                                    label: 'Register Background Tasks',
-                                    onPressed: _isLoading ? null : _registerBackgroundTasks,
-                                    loading: _isLoading,
-                                  ),
-                                  Gap(8.h),
-                                  WnFilledButton(
-                                    label: 'Cancel All Background Tasks',
-                                    visualState: WnButtonVisualState.destructive,
-                                    onPressed: _isLoading ? null : _cancelBackgroundTasks,
-                                    loading: _isLoading,
-                                    labelTextStyle: WnButtonSize.large.textStyle().copyWith(
-                                      color: context.colors.solidNeutralWhite,
-                                    ),
-                                  ),
-                                  Gap(8.h),
-                                  Text(
-                                    'Test Individual Tasks:',
-                                    style: TextStyle(
-                                      fontSize: 12.sp,
-                                      fontWeight: FontWeight.w500,
-                                      color: context.colors.mutedForeground,
-                                    ),
-                                  ),
-                                  Gap(4.h),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: WnFilledButton(
-                                          label: 'Messages Sync',
-                                          size: WnButtonSize.small,
-                                          onPressed:
-                                              _isLoading
-                                                  ? null
-                                                  : () => _triggerBackgroundTask(
-                                                    BackgroundSyncService.messagesSyncTask,
-                                                  ),
-                                          loading: _isLoading,
-                                        ),
-                                      ),
-                                      Gap(8.w),
-                                      Expanded(
-                                        child: WnFilledButton(
-                                          label: 'Invites Sync',
-                                          size: WnButtonSize.small,
-                                          onPressed:
-                                              _isLoading
-                                                  ? null
-                                                  : () => _triggerBackgroundTask(
-                                                    BackgroundSyncService.invitesSyncTask,
-                                                  ),
-                                          loading: _isLoading,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Gap(8.h),
-                                  WnFilledButton(
-                                    label: 'Metadata Refresh',
-                                    size: WnButtonSize.small,
-                                    onPressed:
-                                        _isLoading
-                                            ? null
-                                            : () => _triggerBackgroundTask(
-                                              BackgroundSyncService.metadataRefreshTask,
-                                            ),
-                                    loading: _isLoading,
+                                    label: 'Background Sync Service',
+                                    onPressed: () => BackgroundSyncScreen.show(context),
                                   ),
                                 ],
                               ),
