@@ -53,6 +53,13 @@ class NotificationService {
       importance: Importance.high,
     );
 
+    const AndroidNotificationChannel invitesChannel = AndroidNotificationChannel(
+      'invites',
+      'Invites',
+      description: 'Notifications for new invites',
+      importance: Importance.high,
+    );
+
     const AndroidNotificationChannel generalChannel = AndroidNotificationChannel(
       'general',
       'General',
@@ -65,6 +72,7 @@ class NotificationService {
 
     if (plugin != null) {
       await plugin.createNotificationChannel(messageChannel);
+      await plugin.createNotificationChannel(invitesChannel);
       await plugin.createNotificationChannel(generalChannel);
       _logger.fine('Android notification channels created');
     }
@@ -148,6 +156,47 @@ class NotificationService {
       _logger.fine('Message notification shown: $title');
     } catch (e) {
       _logger.severe('Failed to show message notification: $e');
+    }
+  }
+
+  static Future<void> showInviteNotification({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    if (!_isInitialized) {
+      _logger.warning('NotificationService not initialized, cannot show notification');
+      return;
+    }
+    try {
+      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+        'invites',
+        'Invites',
+        channelDescription: 'Notifications for new invites',
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+      );
+
+      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
+
+      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      await _flutterLocalNotificationsPlugin.show(
+        id,
+        title,
+        body,
+        platformChannelSpecifics,
+        payload: payload,
+      );
+
+      _logger.fine('Invite notification shown: $title');
+    } catch (e) {
+      _logger.severe('Failed to show invite notification: $e');
     }
   }
 

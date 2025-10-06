@@ -237,7 +237,7 @@ class MessageSyncService {
   }) async {
     for (final welcome in newWelcomes) {
       try {
-        await NotificationService.showMessageNotification(
+        await NotificationService.showInviteNotification(
           id: await NotificationIdService.getIdFor(
             key: 'invites_sync:${welcome.id}',
           ),
