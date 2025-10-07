@@ -11,14 +11,16 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/services/message_merger_service.dart';
+import 'package:whitenoise/domain/services/message_sender_service.dart';
+import 'package:whitenoise/domain/services/reaction_comparison_service.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/messages.dart';
-import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/message_converter.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class ChatNotifier extends Notifier<ChatState> {
   final _logger = Logger('ChatNotifier');
+  final _messageSenderService = MessageSenderService();
 
   @override
   ChatState build() {
@@ -104,7 +106,6 @@ class ChatNotifier extends Notifier<ChatState> {
   Future<MessageWithTokens?> sendMessage({
     required String groupId,
     required String message,
-    int kind = 9, // Default to text message
     List<Tag>? tags,
     bool isEditing = false,
     void Function()? onMessageSent,
@@ -124,7 +125,6 @@ class ChatNotifier extends Notifier<ChatState> {
       content: message,
       currentUserPublicKey: activePubkey,
       groupId: groupId,
-      kind: kind,
     );
     final optimisticId = optimisticMessageModel.id;
 
@@ -148,11 +148,10 @@ class ChatNotifier extends Notifier<ChatState> {
     try {
       _logger.info('ChatProvider: Sending message to group $groupId');
 
-      final sentMessage = await sendMessageToGroup(
+      final sentMessage = await _messageSenderService.sendMessage(
         pubkey: activePubkey,
         groupId: groupId,
-        message: message,
-        kind: kind,
+        content: message,
         tags: tags,
       );
 
@@ -282,8 +281,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
           // Compare message content and reactions
           if (newMsg.content != currentMsg.content ||
-              newMsg.reactions.length != currentMsg.reactions.length ||
-              !_areReactionsEqual(newMsg.reactions, currentMsg.reactions)) {
+              ReactionComparisonService.areDifferent(newMsg.reactions, currentMsg.reactions)) {
             hasChanges = true;
             break;
           }
@@ -389,7 +387,7 @@ class ChatNotifier extends Notifier<ChatState> {
   }
 
   bool isSameSender(int index, {String? groupId}) {
-    final gId = groupId ??= state.selectedGroupId;
+    final gId = groupId ?? state.selectedGroupId;
     if (gId == null) return false;
     final groupMessages = state.groupMessages[gId] ?? [];
     if (index <= 0 || index >= groupMessages.length) return false;
@@ -402,7 +400,7 @@ class ChatNotifier extends Notifier<ChatState> {
   }
 
   bool isNextSameSender(int index, {String? groupId}) {
-    final gId = groupId ??= state.selectedGroupId;
+    final gId = groupId ?? state.selectedGroupId;
     if (gId == null) return false;
     final groupMessages = state.groupMessages[gId] ?? [];
     if (index < 0 || index >= groupMessages.length - 1) return false;
@@ -487,33 +485,15 @@ class ChatNotifier extends Notifier<ChatState> {
 
       _logger.info('ChatProvider: Adding reaction "$reaction" to message ${message.id}');
 
-      // Create reaction content (emoji) - NIP-25 compliant
-      final reactionContent = reaction; // This should be an emoji like 👍, ❤️, etc.
-
       // Use the message's actual kind (now stored in MessageModel)
       final originalMessageKind = messageKind ?? message.kind;
-
-      // NIP-25 compliant reaction tags
-      // According to NIP-25:
-      // - MUST have e tag with event id being reacted to
-      // - SHOULD have p tag with pubkey of event being reacted to
-      // - SHOULD have k tag with stringified kind number of reacted event
-      final reactionTags = [
-        // e tag: ["e", <event-id>]
-        await tagFromVec(vec: ['e', message.id]),
-        // p tag: ["p", <pubkey>, <relay-hint>]
-        await tagFromVec(vec: ['p', message.sender.publicKey, '']),
-        // k tag: ["k", <kind-number>]
-        await tagFromVec(vec: ['k', originalMessageKind.toString()]),
-      ];
-
-      // Send reaction message (kind 7 for reactions in Nostr)
-      await sendMessageToGroup(
+      await _messageSenderService.sendReaction(
         pubkey: activePubkey,
         groupId: message.groupId ?? '',
-        message: reactionContent,
-        kind: 7, // Nostr kind 7 = reaction
-        tags: reactionTags,
+        messageId: message.id,
+        messagePubkey: message.sender.publicKey,
+        messageKind: originalMessageKind,
+        emoji: reaction,
       );
 
       // Refresh messages to get updated reactions
@@ -560,7 +540,6 @@ class ChatNotifier extends Notifier<ChatState> {
       content: message,
       currentUserPublicKey: activePubkey,
       groupId: groupId,
-      kind: 9,
       replyToMessage: replyToMessage,
     );
     final optimisticId = optimisticMessageModel.id;
@@ -581,17 +560,11 @@ class ChatNotifier extends Notifier<ChatState> {
     try {
       _logger.info('ChatProvider: Sending reply to message $replyToMessageId');
 
-      // Create tags for reply
-      final replyTags = [
-        await tagFromVec(vec: ['e', replyToMessageId]),
-      ];
-
-      final sentMessage = await sendMessageToGroup(
+      final sentMessage = await _messageSenderService.sendReply(
         pubkey: activePubkey,
         groupId: groupId,
-        message: message,
-        kind: 9,
-        tags: replyTags,
+        replyToMessageId: replyToMessageId,
+        content: message,
       );
 
       final stateMessages = state.groupMessages[groupId] ?? [];
@@ -675,20 +648,12 @@ class ChatNotifier extends Notifier<ChatState> {
 
       _logger.info('ChatProvider: Deleting message $messageId');
 
-      // Create tags for deletion (NIP-09)
-      final deleteTags = [
-        await tagFromVec(vec: ['e', messageId]),
-        await tagFromVec(vec: ['p', messagePubkey]), // Author of the message being deleted
-        await tagFromVec(vec: ['k', messageKind.toString()]), // Kind of the message being deleted
-      ];
-
-      // Send deletion message using rust API
-      await sendMessageToGroup(
+      await _messageSenderService.sendDeletion(
         pubkey: activePubkey,
         groupId: groupId,
-        message: '', // Empty content for deletion
-        kind: 5, // Nostr kind 5 = deletion
-        tags: deleteTags,
+        messageId: messageId,
+        messagePubkey: messagePubkey,
+        messageKind: messageKind,
       );
 
       // Refresh messages to get updated state
@@ -771,51 +736,6 @@ class ChatNotifier extends Notifier<ChatState> {
     final now = DateTime.now();
 
     await ref.read(groupsProvider.notifier).updateGroupActivityTime(groupId, now);
-  }
-
-  /// Helper method to compare if two reaction lists are equal
-  bool _areReactionsEqual(List<Reaction> reactions1, List<Reaction> reactions2) {
-    if (reactions1.length != reactions2.length) {
-      return false;
-    }
-
-    // Create maps of emoji -> list of user public keys for comparison
-    final map1 = <String, List<String>>{};
-    final map2 = <String, List<String>>{};
-
-    for (final reaction in reactions1) {
-      map1.putIfAbsent(reaction.emoji, () => []).add(reaction.user.publicKey);
-    }
-
-    for (final reaction in reactions2) {
-      map2.putIfAbsent(reaction.emoji, () => []).add(reaction.user.publicKey);
-    }
-
-    // Compare the maps
-    if (map1.keys.length != map2.keys.length) {
-      return false;
-    }
-
-    for (final emoji in map1.keys) {
-      if (!map2.containsKey(emoji)) {
-        return false;
-      }
-
-      final users1 = map1[emoji]!..sort();
-      final users2 = map2[emoji]!..sort();
-
-      if (users1.length != users2.length) {
-        return false;
-      }
-
-      for (int i = 0; i < users1.length; i++) {
-        if (users1[i] != users2[i]) {
-          return false;
-        }
-      }
-    }
-
-    return true;
   }
 }
 

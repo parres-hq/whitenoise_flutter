@@ -426,7 +426,6 @@ void main() {
           content: 'Optimistic message',
           currentUserPublicKey: currentUserPublicKey,
           groupId: groupId,
-          kind: 9,
         );
 
         expect(result.content, 'Optimistic message');
@@ -457,7 +456,6 @@ void main() {
           currentUserPublicKey: currentUserPublicKey,
           groupId: groupId,
           replyToMessage: replyToMessage,
-          kind: 9,
         );
 
         expect(result.content, 'Optimistic reply');
