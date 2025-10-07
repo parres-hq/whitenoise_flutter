@@ -105,10 +105,7 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
         // Get position relative to the entire screen (global coordinates)
         final position = renderBox.localToGlobal(Offset.zero);
 
-        // Use the vertical center of the message for better positioning
-        final adjustedPosition = Offset(position.dx, position.dy);
-
-        widget.onLongPress(adjustedPosition);
+        widget.onLongPress(position);
       } else {
         // Fallback to tap position if RenderBox is not available
         widget.onLongPress(_tapPosition ?? Offset.zero);
