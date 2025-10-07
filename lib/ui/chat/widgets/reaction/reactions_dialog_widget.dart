@@ -100,19 +100,19 @@ class _ReactionsDialogWidgetState extends State<ReactionsDialogWidget> {
       final mediaQuery = MediaQuery.of(context);
       final topInset = mediaQuery.padding.top;
 
-      // The position passed is the vertical center of the message in global coordinates
+      // The position passed is the top of the message widget in global coordinates
       // Adjust by subtracting the top safe area inset because dialog is inside SafeArea
-      final messageCenterY = widget.messagePosition!.dy - topInset;
+      final messageTopPosition = widget.messagePosition!.dy - topInset;
       final screenHeight = constraints.maxHeight;
 
-      // Since we have the center, calculate the top position
-      // Estimate half the message height to get the top
-      final estimatedHalfMessageHeight = 40.h;
-      // Move the message up by 16.h for better positioning
-      final messageTopY = messageCenterY - estimatedHalfMessageHeight - 16.h;
+      // Calculate where the reactions bar should be positioned (above the message)
+      // This offset accounts for typical message padding and visual spacing
+      final reactionBarOffset = 40.h;
+      // Additional upward adjustment for better visual alignment
+      final visualAlignmentOffset = 16.h;
+      final messageTopY = messageTopPosition - reactionBarOffset - visualAlignmentOffset;
 
-      // Calculate space available below the message center
-      final spaceBelow = screenHeight - messageCenterY - estimatedHalfMessageHeight;
+      final spaceBelow = screenHeight - messageTopPosition - 40.h;
 
       // Check if we need to move the message up to fit the menu
       if (spaceBelow < heightBelowMessage) {
