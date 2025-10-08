@@ -74,7 +74,7 @@ class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             WnImage(
-                              AssetsPaths.icCheckmarkFilledSvg,
+                              AssetsPaths.icCheckmarkFilled,
                               size: 94.w,
                               color: context.colors.primary,
                             ),
