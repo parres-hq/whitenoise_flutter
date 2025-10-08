@@ -87,7 +87,7 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
         'RelayStatusNotifier: Fetching relay statuses for pubkey: $activePubkey',
       );
       // Fetch relay statuses using the Rust function
-      final relayStatuses = await fetchRelayStatus(pubkey: activePubkey);
+      final relayStatuses = await getAccountRelayStatuses(pubkey: activePubkey);
       _logger.info('RelayStatusNotifier: Fetched ${relayStatuses.length} relay statuses');
 
       // Convert list of tuples to map
