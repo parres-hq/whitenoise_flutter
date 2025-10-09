@@ -109,7 +109,11 @@
         "relayAddedSuccessfully": "Релей успешно добавлен",
         "pastedFromClipboard": "Вставлено из буфера обмена",
         "failedToAddRelay": "Не удалось добавить релей",
-        "failedToDeleteRelay": "Не удалось удалить релей"
+        "failedToDeleteRelay": "Не удалось удалить релей",
+        "removeRelayTitle": "Удалить релей?",
+        "removeRelayConfirmation": "Вы уверены, что хотите удалить этот релей? Это действие нельзя отменить.",
+        "removeRelaySuccess": "Релей успешно удалён",
+        "relayRemovedSuccessfully": "Релей успешно удалён"
     },
     "wallet": {
         "connectionDescription": "Подключите ваш bitcoin lightning кошелёк для отправки и получения платежей в White Noise.",

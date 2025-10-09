@@ -109,7 +109,11 @@
         "relayAddedSuccessfully": "Relay adicionado com sucesso",
         "pastedFromClipboard": "Colado da área de transferência",
         "failedToAddRelay": "Falha ao adicionar relay",
-        "failedToDeleteRelay": "Falha ao excluir relay"
+        "failedToDeleteRelay": "Falha ao excluir relay",
+        "removeRelayTitle": "Remover relay?",
+        "removeRelayConfirmation": "Tem certeza de que deseja remover este relay? Esta ação não pode ser desfeita.",
+        "removeRelaySuccess": "Relay removido com sucesso",
+        "relayRemovedSuccessfully": "Relay removido com sucesso"
     },
     "wallet": {
         "connectionDescription": "Conecte sua carteira bitcoin lightning para enviar e receber pagamentos no White Noise.",

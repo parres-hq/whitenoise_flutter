@@ -109,7 +109,11 @@
         "relayAddedSuccessfully": "Röle başarıyla eklendi",
         "pastedFromClipboard": "Panodan yapıştırıldı",
         "failedToAddRelay": "Röle ekleme başarısız",
-        "failedToDeleteRelay": "Röle silme başarısız"
+        "failedToDeleteRelay": "Röle silme başarısız",
+        "removeRelayTitle": "Röleyi kaldır?",
+        "removeRelayConfirmation": "Bu röleyi kaldırmak istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+        "removeRelaySuccess": "Röle başarıyla kaldırıldı",
+        "relayRemovedSuccessfully": "Röle başarıyla kaldırıldı"
     },
     "wallet": {
         "connectionDescription": "White Noise'de ödeme göndermek ve almak için bitcoin lightning cüzdanınızı bağlayın.",
