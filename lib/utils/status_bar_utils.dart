@@ -8,7 +8,7 @@ class StatusBarUtils {
   /// - Dark mode: light icons for dark backgrounds
   /// Use this for screens that adapt their background color to the theme
   /// (e.g., auth flow screens).
-  static Widget wrapWithAdaptiveIcons(BuildContext context, Widget child) {
+  static Widget wrapWithAdaptiveIcons({required BuildContext context, required Widget child}) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(

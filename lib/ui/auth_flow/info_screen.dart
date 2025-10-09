@@ -67,10 +67,10 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return StatusBarUtils.wrapWithAdaptiveIcons(
-      context,
-      PopScope(
-        onPopInvokedWithResult: (didPop, result) => _deleteJustCreatedAccount(),
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) => _deleteJustCreatedAccount(),
+      child: StatusBarUtils.wrapWithAdaptiveIcons(
+        context: context,
         child: Scaffold(
           backgroundColor: context.colors.neutral,
           appBar: const AuthAppBar(title: 'Beyond the Noise'),

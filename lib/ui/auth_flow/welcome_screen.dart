@@ -43,8 +43,8 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
     ref.watch(authProvider);
 
     return StatusBarUtils.wrapWithAdaptiveIcons(
-      context,
-      Scaffold(
+      context: context,
+      child: Scaffold(
         backgroundColor: context.colors.neutral,
         body: SafeArea(
           child: Column(

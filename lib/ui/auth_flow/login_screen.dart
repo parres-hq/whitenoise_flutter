@@ -110,8 +110,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     ref.watch(authProvider);
 
     return StatusBarUtils.wrapWithAdaptiveIcons(
-      context,
-      Scaffold(
+      context: context,
+      child: Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: context.colors.neutral,
         appBar: const AuthAppBar(title: 'Login to White Noise'),

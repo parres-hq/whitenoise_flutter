@@ -113,8 +113,8 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
     });
 
     return StatusBarUtils.wrapWithAdaptiveIcons(
-      context,
-      Scaffold(
+      context: context,
+      child: Scaffold(
         backgroundColor: context.colors.neutral,
         resizeToAvoidBottomInset: true,
         appBar: const AuthAppBar(title: 'Set Up Profile'),
