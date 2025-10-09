@@ -12,27 +12,22 @@ import 'package:whitenoise/ui/user_profile_list/widgets/user_profile_tile.dart';
 
 class ShareInviteBottomSheet extends ConsumerStatefulWidget {
   final List<UserProfile> userProfiles;
-  final VoidCallback? onInviteSent;
 
   const ShareInviteBottomSheet({
     super.key,
     required this.userProfiles,
-    this.onInviteSent,
   });
 
   static Future<void> show({
     required BuildContext context,
     required List<UserProfile> userProfiles,
-    VoidCallback? onInviteSent,
   }) {
     return WnBottomSheet.show(
       context: context,
       title: 'Invite to Chat',
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
-      builder:
-          (context) =>
-              ShareInviteBottomSheet(userProfiles: userProfiles, onInviteSent: onInviteSent),
+      builder: (context) => ShareInviteBottomSheet(userProfiles: userProfiles),
     );
   }
 
