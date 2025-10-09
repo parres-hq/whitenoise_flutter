@@ -262,7 +262,6 @@ class _PositionedContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     final reactionBarHeight = 56.h; // Approximate height of reaction bar
     final menuItemsHeight = (menuItemsCount * 48.h) + 32.h; // Menu items + bottom gap
     final gapBetweenReactionsAndMessage = 16.h;
@@ -313,16 +312,19 @@ class _PositionedContent extends StatelessWidget {
     final spaceBelow = screenHeight - messageTopPosition - 40.h;
 
     // Check if we need to move the message up to fit the menu
-    final adjustedMessageTopY = spaceBelow < heightBelowMessage
-        ? (messageTopY - (heightBelowMessage - spaceBelow)).clamp(
-            reactionBarHeight + gapBetweenReactionsAndMessage + 20.h, // Minimum top position
-            messageTopY, // Don't move down, only up
-          )
-        : messageTopY;
+    final adjustedMessageTopY =
+        spaceBelow < heightBelowMessage
+            ? (messageTopY - (heightBelowMessage - spaceBelow)).clamp(
+              reactionBarHeight + gapBetweenReactionsAndMessage + 20.h, // Minimum top position
+              messageTopY, // Don't move down, only up
+            )
+            : messageTopY;
 
     // Position with reactions above the message position
-    return (adjustedMessageTopY - reactionBarHeight - gapBetweenReactionsAndMessage)
-        .clamp(0.0, screenHeight);
+    return (adjustedMessageTopY - reactionBarHeight - gapBetweenReactionsAndMessage).clamp(
+      0.0,
+      screenHeight,
+    );
   }
 
   Widget _buildPositionedLayout({
