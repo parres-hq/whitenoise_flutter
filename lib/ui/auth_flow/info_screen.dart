@@ -72,86 +72,86 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
       PopScope(
         onPopInvokedWithResult: (didPop, result) => _deleteJustCreatedAccount(),
         child: Scaffold(
-        backgroundColor: context.colors.neutral,
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 0).w,
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => context.pop(),
-                        icon: WnImage(
-                          AssetsPaths.icChevronLeft,
-                          size: 18.w,
-                          color: context.colors.primary,
+          backgroundColor: context.colors.neutral,
+          body: SafeArea(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 32, 24, 0).w,
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () => context.pop(),
+                          icon: WnImage(
+                            AssetsPaths.icChevronLeft,
+                            size: 18.w,
+                            color: context.colors.primary,
+                          ),
                         ),
-                      ),
-                      Gap(8.w),
-                      Text(
-                        'Beyond the Noise',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.mutedForeground,
+                        Gap(8.w),
+                        Text(
+                          'Beyond the Noise',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: context.colors.mutedForeground,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Gap(48.h),
-                  FeatureItem(
-                    context: context,
-                    imagePath: AssetsPaths.blueHoodie,
-                    title: 'Privacy & Security',
-                    subtitle:
-                        'Keep your conversations private. Even in case of a breach, your messages remain secure.',
-                  ),
-                  FeatureItem(
-                    context: context,
-                    imagePath: AssetsPaths.purpleWoman,
-                    title: 'Choose Identity',
-                    subtitle:
-                        'Chat without revealing your phone number or email. Choose your identity: real name, pseudonym, or anonymous.',
-                  ),
-                  FeatureItem(
-                    context: context,
-                    imagePath: AssetsPaths.greenBird,
-                    title: 'Decentralized & Permissionless',
-                    subtitle:
-                        'No central authority controls your communication—no permissions needed, no censorship possible.',
-                  ),
-                ],
+                      ],
+                    ),
+                    Gap(48.h),
+                    FeatureItem(
+                      context: context,
+                      imagePath: AssetsPaths.blueHoodie,
+                      title: 'Privacy & Security',
+                      subtitle:
+                          'Keep your conversations private. Even in case of a breach, your messages remain secure.',
+                    ),
+                    FeatureItem(
+                      context: context,
+                      imagePath: AssetsPaths.purpleWoman,
+                      title: 'Choose Identity',
+                      subtitle:
+                          'Chat without revealing your phone number or email. Choose your identity: real name, pseudonym, or anonymous.',
+                    ),
+                    FeatureItem(
+                      context: context,
+                      imagePath: AssetsPaths.greenBird,
+                      title: 'Decentralized & Permissionless',
+                      subtitle:
+                          'No central authority controls your communication—no permissions needed, no censorship possible.',
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
-        ),
-        bottomNavigationBar: SafeArea(
-          top: false,
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: 24.w,
-            ).copyWith(bottom: 32.h),
-            child: Consumer(
-              builder: (context, ref, child) {
-                final activeAccountState = ref.watch(activeAccountProvider);
-                final isButtonDisabled = _isLoading || activeAccountState.isLoading;
+          bottomNavigationBar: SafeArea(
+            top: false,
+            child: Padding(
+              padding: EdgeInsets.symmetric(
+                horizontal: 24.w,
+              ).copyWith(bottom: 32.h),
+              child: Consumer(
+                builder: (context, ref, child) {
+                  final activeAccountState = ref.watch(activeAccountProvider);
+                  final isButtonDisabled = _isLoading || activeAccountState.isLoading;
 
-                return WnFilledButton(
-                  loading: isButtonDisabled,
-                  onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
-                  label: 'Setup Profile',
-                  suffixIcon: WnImage(
-                    AssetsPaths.icArrowRight,
-                    color: context.colors.primaryForeground,
-                  ),
-                );
-              },
+                  return WnFilledButton(
+                    loading: isButtonDisabled,
+                    onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),
+                    label: 'Setup Profile',
+                    suffixIcon: WnImage(
+                      AssetsPaths.icArrowRight,
+                      color: context.colors.primaryForeground,
+                    ),
+                  );
+                },
+              ),
             ),
           ),
-        ),
         ),
       ),
     );

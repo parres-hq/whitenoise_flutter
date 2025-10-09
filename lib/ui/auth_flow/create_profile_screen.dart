@@ -66,166 +66,167 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
     return StatusBarUtils.wrapWithAdaptiveIcons(
       context,
       Scaffold(
-      backgroundColor: context.colors.neutral,
-      resizeToAvoidBottomInset: true,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 0),
-          child: Column(
-            children: [
-              Row(
-                children: [
-                  IconButton(
-                    onPressed: () => context.pop(),
-                    icon: WnImage(
-                      AssetsPaths.icChevronLeft,
-                      size: 18.w,
+        backgroundColor: context.colors.neutral,
+        resizeToAvoidBottomInset: true,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(24.w, 32.h, 24.w, 0),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    IconButton(
+                      onPressed: () => context.pop(),
+                      icon: WnImage(
+                        AssetsPaths.icChevronLeft,
+                        size: 18.w,
+                        color: context.colors.primary,
+                      ),
+                    ),
+                    Gap(8.w),
+                    Text(
+                      'Set Up Profile',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w600,
+                        color: context.colors.mutedForeground,
+                      ),
+                    ),
+                  ],
+                ),
+                Gap(48.h),
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: _displayNameController,
+                      builder: (context, value, child) {
+                        final displayText = value.text.trim();
+                        return WnAvatar(
+                          imageUrl: ref.watch(createProfileScreenProvider).selectedImagePath ?? '',
+                          displayName: displayText,
+                          size: 96.w,
+                          showBorder:
+                              ref.watch(createProfileScreenProvider).selectedImagePath == null,
+                        );
+                      },
+                    ),
+                    GestureDetector(
+                      onTap:
+                          () =>
+                              ref.read(createProfileScreenProvider.notifier).pickProfileImage(ref),
+                      child: Container(
+                        width: 28.w,
+                        height: 28.w,
+                        padding: EdgeInsets.all(6.w),
+                        decoration: BoxDecoration(
+                          color: context.colors.mutedForeground,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: context.colors.secondary,
+                            width: 1.w,
+                          ),
+                        ),
+                        child: WnImage(
+                          AssetsPaths.icEdit,
+                          color: context.colors.primaryForeground,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Gap(36.h),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Choose a Name',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14.sp,
                       color: context.colors.primary,
                     ),
                   ),
-                  Gap(8.w),
-                  Text(
-                    'Set Up Profile',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.mutedForeground,
-                    ),
-                  ),
-                ],
-              ),
-              Gap(48.h),
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  ValueListenableBuilder<TextEditingValue>(
-                    valueListenable: _displayNameController,
-                    builder: (context, value, child) {
-                      final displayText = value.text.trim();
-                      return WnAvatar(
-                        imageUrl: ref.watch(createProfileScreenProvider).selectedImagePath ?? '',
-                        displayName: displayText,
-                        size: 96.w,
-                        showBorder:
-                            ref.watch(createProfileScreenProvider).selectedImagePath == null,
-                      );
-                    },
-                  ),
-                  GestureDetector(
-                    onTap:
-                        () => ref.read(createProfileScreenProvider.notifier).pickProfileImage(ref),
-                    child: Container(
-                      width: 28.w,
-                      height: 28.w,
-                      padding: EdgeInsets.all(6.w),
+                ),
+                Gap(10.h),
+                _isLoadingDisplayName
+                    ? Container(
+                      height: 56.h,
                       decoration: BoxDecoration(
-                        color: context.colors.mutedForeground,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: context.colors.secondary,
-                          width: 1.w,
+                        color: context.colors.avatarSurface,
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Center(
+                        child: SizedBox(
+                          width: 20.w,
+                          height: 20.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.w,
+                            color: context.colors.primary,
+                          ),
                         ),
                       ),
-                      child: WnImage(
-                        AssetsPaths.icEdit,
-                        color: context.colors.primaryForeground,
-                      ),
+                    )
+                    : WnTextFormField(
+                      hintText: 'Your name',
+                      obscureText: false,
+                      controller: _displayNameController,
                     ),
-                  ),
-                ],
-              ),
-              Gap(36.h),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Choose a Name',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14.sp,
-                    color: context.colors.primary,
+                Gap(36.h),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Introduce yourself',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14.sp,
+                      color: context.colors.primary,
+                    ),
                   ),
                 ),
-              ),
-              Gap(10.h),
-              _isLoadingDisplayName
-                  ? Container(
-                    height: 56.h,
-                    decoration: BoxDecoration(
-                      color: context.colors.avatarSurface,
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Center(
-                      child: SizedBox(
-                        width: 20.w,
-                        height: 20.w,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.w,
-                          color: context.colors.primary,
-                        ),
-                      ),
-                    ),
-                  )
-                  : WnTextFormField(
-                    hintText: 'Your name',
-                    obscureText: false,
-                    controller: _displayNameController,
-                  ),
-              Gap(36.h),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Introduce yourself',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14.sp,
-                    color: context.colors.primary,
-                  ),
+                Gap(8.h),
+                WnTextFormField(
+                  hintText: 'Write something about yourself',
+                  obscureText: false,
+                  controller: _bioController,
+                  maxLines: 3,
+                  minLines: 3,
+                  keyboardType: TextInputType.multiline,
                 ),
-              ),
-              Gap(8.h),
-              WnTextFormField(
-                hintText: 'Write something about yourself',
-                obscureText: false,
-                controller: _bioController,
-                maxLines: 3,
-                minLines: 3,
-                keyboardType: TextInputType.multiline,
-              ),
-              Gap(32.h),
-            ],
+                Gap(32.h),
+              ],
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: 24.w,
-          ).copyWith(bottom: 32.h),
-          child: Consumer(
-            builder: (context, ref, child) {
-              final createProfileState = ref.watch(createProfileScreenProvider);
-              final isButtonDisabled = createProfileState.isLoading || _isLoadingDisplayName;
+        bottomNavigationBar: SafeArea(
+          top: false,
+          child: Padding(
+            padding: EdgeInsets.symmetric(
+              horizontal: 24.w,
+            ).copyWith(bottom: 32.h),
+            child: Consumer(
+              builder: (context, ref, child) {
+                final createProfileState = ref.watch(createProfileScreenProvider);
+                final isButtonDisabled = createProfileState.isLoading || _isLoadingDisplayName;
 
-              return WnFilledButton(
-                label: 'Finish',
-                loading: isButtonDisabled,
-                onPressed:
-                    isButtonDisabled
-                        ? null
-                        : () => ref
-                            .read(createProfileScreenProvider.notifier)
-                            .updateProfile(
-                              ref,
-                              _displayNameController.text.trim(),
-                              _bioController.text.trim(),
-                            ),
-              );
-            },
+                return WnFilledButton(
+                  label: 'Finish',
+                  loading: isButtonDisabled,
+                  onPressed:
+                      isButtonDisabled
+                          ? null
+                          : () => ref
+                              .read(createProfileScreenProvider.notifier)
+                              .updateProfile(
+                                ref,
+                                _displayNameController.text.trim(),
+                                _bioController.text.trim(),
+                              ),
+                );
+              },
+            ),
           ),
         ),
-      ),
       ),
     );
   }

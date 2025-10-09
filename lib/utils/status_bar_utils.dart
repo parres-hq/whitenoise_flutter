@@ -10,7 +10,7 @@ class StatusBarUtils {
   /// (e.g., auth flow screens).
   static Widget wrapWithAdaptiveIcons(BuildContext context, Widget child) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,

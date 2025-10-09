@@ -111,139 +111,139 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     return StatusBarUtils.wrapWithAdaptiveIcons(
       context,
       Scaffold(
-      resizeToAvoidBottomInset: true,
-      backgroundColor: context.colors.neutral,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 24).w,
-          controller: _scrollController,
-          child: SizedBox(
-            height:
-                MediaQuery.of(context).size.height -
-                (MediaQuery.of(context).padding.top + MediaQuery.of(context).padding.bottom),
-            child: Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.only(top: 24.h),
-                  child: Row(
-                    children: [
-                      IconButton(
-                        onPressed: () => context.pop(),
-                        icon: WnImage(
-                          AssetsPaths.icChevronLeft,
-                          size: 18.w,
-                          color: context.colors.primary,
-                        ),
-                      ),
-                      Gap(8.w),
-                      Text(
-                        'Login to White Noise',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.mutedForeground,
-                        ),
-                        textHeightBehavior: const TextHeightBehavior(
-                          applyHeightToFirstAscent: false,
-                          applyHeightToLastDescent: false,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Gap(79.5.h),
-                const Expanded(
-                  child: Center(
-                    child: WnImage(
-                      AssetsPaths.login,
-                      fit: BoxFit.contain,
-                      width: double.infinity,
-                    ),
-                  ),
-                ),
-                Gap(79.5.h),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'Enter Your Private Key',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14.sp,
-                        color: context.colorScheme.onSurface,
-                      ),
-                    ),
-                    Gap(6.h),
-                    Row(
+        resizeToAvoidBottomInset: true,
+        backgroundColor: context.colors.neutral,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24).w,
+            controller: _scrollController,
+            child: SizedBox(
+              height:
+                  MediaQuery.of(context).size.height -
+                  (MediaQuery.of(context).padding.top + MediaQuery.of(context).padding.bottom),
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 24.h),
+                    child: Row(
                       children: [
-                        Expanded(
-                          child: WnTextFormField(
-                            hintText: 'nsec...',
-                            type: FieldType.password,
-                            controller: _keyController,
-                            focusNode: _focusNode,
-                            decoration: InputDecoration(
-                              suffixIcon: GestureDetector(
-                                onTap: _scanQRCode,
-                                child: Padding(
-                                  padding: EdgeInsets.all(12.w),
-                                  child: WnImage(
-                                    AssetsPaths.icScan,
-                                    size: 16.w,
-                                    color: context.colors.primary,
+                        IconButton(
+                          onPressed: () => context.pop(),
+                          icon: WnImage(
+                            AssetsPaths.icChevronLeft,
+                            size: 18.w,
+                            color: context.colors.primary,
+                          ),
+                        ),
+                        Gap(8.w),
+                        Text(
+                          'Login to White Noise',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: context.colors.mutedForeground,
+                          ),
+                          textHeightBehavior: const TextHeightBehavior(
+                            applyHeightToFirstAscent: false,
+                            applyHeightToLastDescent: false,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Gap(79.5.h),
+                  const Expanded(
+                    child: Center(
+                      child: WnImage(
+                        AssetsPaths.login,
+                        fit: BoxFit.contain,
+                        width: double.infinity,
+                      ),
+                    ),
+                  ),
+                  Gap(79.5.h),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Enter Your Private Key',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14.sp,
+                          color: context.colorScheme.onSurface,
+                        ),
+                      ),
+                      Gap(6.h),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: WnTextFormField(
+                              hintText: 'nsec...',
+                              type: FieldType.password,
+                              controller: _keyController,
+                              focusNode: _focusNode,
+                              decoration: InputDecoration(
+                                suffixIcon: GestureDetector(
+                                  onTap: _scanQRCode,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(12.w),
+                                    child: WnImage(
+                                      AssetsPaths.icScan,
+                                      size: 16.w,
+                                      color: context.colors.primary,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        Gap(4.w),
-                        // Used .h for bothe to make it square and also go along with the 56.h
-                        // calculation I made in WnTextFormField's vertical: 19.h.
-                        // IntrinsicHeight avoided here since it's been used once in this page already.
-                        // PS this has been tested on different screen sizes and it works fine.
-                        Container(
-                          height: 56.h,
-                          width: 56.h,
-                          decoration: BoxDecoration(
-                            color: context.colors.avatarSurface,
+                          Gap(4.w),
+                          // Used .h for bothe to make it square and also go along with the 56.h
+                          // calculation I made in WnTextFormField's vertical: 19.h.
+                          // IntrinsicHeight avoided here since it's been used once in this page already.
+                          // PS this has been tested on different screen sizes and it works fine.
+                          Container(
+                            height: 56.h,
+                            width: 56.h,
+                            decoration: BoxDecoration(
+                              color: context.colors.avatarSurface,
+                            ),
+                            child: WnIconButton(
+                              iconPath: AssetsPaths.icPaste,
+                              onTap:
+                                  () async => await ClipboardUtils.pasteWithToast(
+                                    ref: ref,
+                                    onPaste: (text) {
+                                      _keyController.text = text;
+                                    },
+                                  ),
+                              padding: 20.w,
+                              size: 56.h,
+                            ),
                           ),
-                          child: WnIconButton(
-                            iconPath: AssetsPaths.icPaste,
-                            onTap:
-                                () async => await ClipboardUtils.pasteWithToast(
-                                  ref: ref,
-                                  onPaste: (text) {
-                                    _keyController.text = text;
-                                  },
-                                ),
-                            padding: 20.w,
-                            size: 56.h,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Gap(8.h),
-                    Consumer(
-                      builder: (context, ref, child) {
-                        final authState = ref.watch(authProvider);
-                        return WnFilledButton(
-                          loading: authState.isLoading,
-                          onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
-                          label: 'Login',
-                        );
-                      },
-                    ),
-                    // Gap(16.h),
-                  ],
-                ),
-              ],
+                        ],
+                      ),
+                      Gap(8.h),
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final authState = ref.watch(authProvider);
+                          return WnFilledButton(
+                            loading: authState.isLoading,
+                            onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
+                            label: 'Login',
+                          );
+                        },
+                      ),
+                      // Gap(16.h),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-      ),
       ),
     );
   }
