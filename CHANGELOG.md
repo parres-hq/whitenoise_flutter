@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Added localization support with multi-language support (English, Spanish, German, Italian)
+- Added localization support with multi-language support (English, German, Spanish, French, Italian, Portuguese, Russian, Turkish)
 ### Changed
 ### Deprecated
 ### Removed
