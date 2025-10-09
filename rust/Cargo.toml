@@ -1,7 +1,7 @@
 [package]
 name = "rust_lib_whitenoise"
 version = "0.1.4"
-edition = "2021"
+edition = "2024"
 
 [lib]
 crate-type = ["cdylib", "staticlib"]
@@ -16,14 +16,20 @@ tokio = { version = "1.44", features = ["rt", "rt-multi-thread"] }
 url = "2.5.1"
 
 
-nostr-mls = { version = "0.43.0", git="https://github.com/rust-nostr/nostr", rev = "fadf1a6b3d8c5457e5a66d95d6c1677b4353e653" }
-nostr-sdk = { version = "0.43.0", git="https://github.com/rust-nostr/nostr", rev = "fadf1a6b3d8c5457e5a66d95d6c1677b4353e653" }
+mdk-core = { version = "0.5.1", git="https://github.com/parres-hq/mdk", rev = "899f6f09a0c3f5dbe95ea546710eea758cbc7d5e" }
+nostr-sdk = { version = "0.43", features = [
+    "lmdb",
+    "nip04",
+    "nip44",
+    "nip47",
+    "nip59",
+] }
 # nostr-mls = {version = "0.43.0", path = "../../rust-nostr/mls/nostr-mls"}
 # nostr-sdk = {version = "0.43.0", path = "../../rust-nostr/crates/nostr-sdk"}
 
 thiserror = "2.0.12"
 
-whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "bb76beaffc8232bf244c591e1330dbbed5c43795" }
+whitenoise = { version = "0.1.0", git = "https://github.com/parres-hq/whitenoise", rev = "ae54a8d796af84c7c4357dcf7b317a930026ad09" }
 # whitenoise = { version = "0.1.0", path = "../../whitenoise" }
 
 [lints.rust]

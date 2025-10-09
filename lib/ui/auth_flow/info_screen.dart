@@ -5,12 +5,12 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/ui/auth_flow/auth_header.dart';
+import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/status_bar_utils.dart';
-
-import '../core/themes/assets.dart';
-import '../core/themes/src/extensions.dart';
 
 class InfoScreen extends ConsumerStatefulWidget {
   const InfoScreen({super.key});
@@ -73,34 +73,13 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
         onPopInvokedWithResult: (didPop, result) => _deleteJustCreatedAccount(),
         child: Scaffold(
           backgroundColor: context.colors.neutral,
+          appBar: const AuthAppBar(title: 'Beyond the Noise'),
           body: SafeArea(
             child: SingleChildScrollView(
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(24, 32, 24, 0).w,
+                padding: const EdgeInsets.fromLTRB(24, 0, 24, 0).w,
                 child: Column(
                   children: [
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () => context.pop(),
-                          icon: WnImage(
-                            AssetsPaths.icChevronLeft,
-                            size: 18.w,
-                            color: context.colors.primary,
-                          ),
-                        ),
-                        Gap(8.w),
-                        Text(
-                          'Beyond the Noise',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w600,
-                            color: context.colors.mutedForeground,
-                          ),
-                        ),
-                      ],
-                    ),
                     Gap(48.h),
                     FeatureItem(
                       context: context,
@@ -138,7 +117,6 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
                 builder: (context, ref, child) {
                   final activeAccountState = ref.watch(activeAccountProvider);
                   final isButtonDisabled = _isLoading || activeAccountState.isLoading;
-
                   return WnFilledButton(
                     loading: isButtonDisabled,
                     onPressed: isButtonDisabled ? null : () => _onContinuePressed(context),

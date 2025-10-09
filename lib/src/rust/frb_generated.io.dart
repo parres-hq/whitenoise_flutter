@@ -268,6 +268,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String>? dco_decode_opt_list_String(dynamic raw);
 
   @protected
+  U8Array12? dco_decode_opt_u_8_array_12(dynamic raw);
+
+  @protected
   U8Array32? dco_decode_opt_u_8_array_32(dynamic raw);
 
   @protected
@@ -295,10 +298,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int dco_decode_u_8(dynamic raw);
 
   @protected
+  U8Array12 dco_decode_u_8_array_12(dynamic raw);
+
+  @protected
   U8Array32 dco_decode_u_8_array_32(dynamic raw);
 
   @protected
   void dco_decode_unit(dynamic raw);
+
+  @protected
+  UploadGroupImageResult dco_decode_upload_group_image_result(dynamic raw);
 
   @protected
   User dco_decode_user(dynamic raw);
@@ -564,6 +573,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String>? sse_decode_opt_list_String(SseDeserializer deserializer);
 
   @protected
+  U8Array12? sse_decode_opt_u_8_array_12(SseDeserializer deserializer);
+
+  @protected
   U8Array32? sse_decode_opt_u_8_array_32(SseDeserializer deserializer);
 
   @protected
@@ -593,10 +605,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   int sse_decode_u_8(SseDeserializer deserializer);
 
   @protected
+  U8Array12 sse_decode_u_8_array_12(SseDeserializer deserializer);
+
+  @protected
   U8Array32 sse_decode_u_8_array_32(SseDeserializer deserializer);
 
   @protected
   void sse_decode_unit(SseDeserializer deserializer);
+
+  @protected
+  UploadGroupImageResult sse_decode_upload_group_image_result(
+    SseDeserializer deserializer,
+  );
 
   @protected
   User sse_decode_user(SseDeserializer deserializer);
@@ -909,6 +929,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_list_String(List<String>? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_u_8_array_12(U8Array12? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_u_8_array_32(U8Array32? self, SseSerializer serializer);
 
   @protected
@@ -945,10 +968,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_u_8(int self, SseSerializer serializer);
 
   @protected
+  void sse_encode_u_8_array_12(U8Array12 self, SseSerializer serializer);
+
+  @protected
   void sse_encode_u_8_array_32(U8Array32 self, SseSerializer serializer);
 
   @protected
   void sse_encode_unit(void self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_upload_group_image_result(
+    UploadGroupImageResult self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_user(User self, SseSerializer serializer);

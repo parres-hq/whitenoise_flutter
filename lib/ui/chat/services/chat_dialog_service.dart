@@ -1,6 +1,5 @@
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
@@ -88,9 +87,9 @@ class ChatDialogService {
     required WidgetRef ref,
     required MessageModel message,
     required int messageIndex,
+    Offset? messagePosition,
   }) {
     final chatNotifier = ref.read(chatProvider.notifier);
-    HapticFeedback.mediumImpact();
 
     Navigator.of(context).push(
       HeroDialogRoute(
@@ -140,6 +139,7 @@ class ChatDialogService {
               }
             },
             widgetAlignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+            messagePosition: messagePosition,
           );
         },
       ),

@@ -10,6 +10,7 @@ class ChatListItem {
   final Welcome? welcome;
   final MessageModel? lastMessage;
   final DateTime dateCreated;
+  final bool isPinned;
 
   const ChatListItem({
     required this.type,
@@ -17,17 +18,20 @@ class ChatListItem {
     this.welcome,
     this.lastMessage,
     required this.dateCreated,
+    this.isPinned = false,
   });
 
   factory ChatListItem.fromGroup({
     required Group group,
     MessageModel? lastMessage,
+    bool isPinned = false,
   }) {
     return ChatListItem(
       type: ChatListItemType.chat,
       group: group,
       lastMessage: lastMessage,
       dateCreated: lastMessage?.createdAt ?? DateTime.now(),
+      isPinned: isPinned,
     );
   }
 

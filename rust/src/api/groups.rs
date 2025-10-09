@@ -1,13 +1,13 @@
 use crate::api::{error::ApiError, group_id_from_string, group_id_to_string};
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
-use nostr_mls::prelude::group_types::Group as WhitenoiseGroup;
-use nostr_mls::prelude::group_types::GroupState as WhitenoiseGroupState;
-use nostr_mls::prelude::{NostrGroupConfigData, NostrGroupDataUpdate};
+use mdk_core::prelude::group_types::Group as WhitenoiseGroup;
+use mdk_core::prelude::group_types::GroupState as WhitenoiseGroupState;
+use mdk_core::prelude::{NostrGroupConfigData, NostrGroupDataUpdate};
 use nostr_sdk::prelude::*;
 use whitenoise::{
-    GroupInformation as WhitenoiseGroupInformation, GroupType as WhitenoiseGroupType, RelayType,
-    Whitenoise,
+    GroupInformation as WhitenoiseGroupInformation, GroupType as WhitenoiseGroupType, ImageType,
+    RelayType, Whitenoise,
 };
 
 #[frb(non_opaque)]
@@ -54,6 +54,9 @@ pub struct FlutterGroupDataUpdate {
     pub description: Option<String>,
     pub relays: Option<Vec<String>>,
     pub admins: Option<Vec<String>>,
+    pub image_key: Option<[u8; 32]>,
+    pub image_hash: Option<[u8; 32]>,
+    pub image_nonce: Option<[u8; 12]>,
 }
 
 impl From<FlutterGroupDataUpdate> for NostrGroupDataUpdate {
@@ -61,9 +64,11 @@ impl From<FlutterGroupDataUpdate> for NostrGroupDataUpdate {
         Self {
             name: group_data.name,
             description: group_data.description,
-            image_key: None,   // TODO: Support image updates
-            image_hash: None,  // TODO: Support image updates
-            image_nonce: None, // TODO: Support image updates
+            // Wrap in Some() to convert Option<T> to Option<Option<T>>
+            // None means don't update, Some(value) means set to value
+            image_key: group_data.image_key.map(Some),
+            image_hash: group_data.image_hash.map(Some),
+            image_nonce: group_data.image_nonce.map(Some),
             // Will silently drop invalid relay inputs
             relays: group_data.relays.map(|relays| {
                 relays
@@ -338,4 +343,39 @@ pub async fn get_groups_informations(
         .into_iter()
         .map(|info| info.into())
         .collect())
+}
+
+// Result structure for upload_group_image
+#[frb(non_opaque)]
+#[derive(Debug, Clone)]
+pub struct UploadGroupImageResult {
+    pub encrypted_hash: [u8; 32],
+    pub image_key: [u8; 32],
+    pub image_nonce: [u8; 12],
+}
+
+#[frb]
+pub async fn upload_group_image(
+    account_pubkey: String,
+    group_id: String,
+    file_path: String,
+    image_type: String,
+    server_url: String,
+) -> Result<UploadGroupImageResult, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let group_id = group_id_from_string(&group_id)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    let server = Url::parse(&server_url)?;
+    let image_type = ImageType::try_from(image_type)?;
+
+    let (encrypted_hash, image_key, image_nonce) = whitenoise
+        .upload_group_image(&account, &group_id, &file_path, image_type, server)
+        .await?;
+
+    Ok(UploadGroupImageResult {
+        encrypted_hash,
+        image_key,
+        image_nonce,
+    })
 }

@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/ui/auth_flow/auth_header.dart';
 import 'package:whitenoise/ui/auth_flow/qr_scanner_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -113,6 +114,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
       Scaffold(
         resizeToAvoidBottomInset: true,
         backgroundColor: context.colors.neutral,
+        appBar: const AuthAppBar(title: 'Login to White Noise'),
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 24).w,
@@ -120,49 +122,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
             child: SizedBox(
               height:
                   MediaQuery.of(context).size.height -
-                  (MediaQuery.of(context).padding.top + MediaQuery.of(context).padding.bottom),
+                  (MediaQuery.of(context).padding.top +
+                      MediaQuery.of(context).padding.bottom +
+                      56.h),
               child: Column(
                 children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: 24.h),
-                    child: Row(
-                      children: [
-                        IconButton(
-                          onPressed: () => context.pop(),
-                          icon: WnImage(
-                            AssetsPaths.icChevronLeft,
-                            size: 18.w,
-                            color: context.colors.primary,
-                          ),
-                        ),
-                        Gap(8.w),
-                        Text(
-                          'Login to White Noise',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18.sp,
-                            fontWeight: FontWeight.w600,
-                            color: context.colors.mutedForeground,
-                          ),
-                          textHeightBehavior: const TextHeightBehavior(
-                            applyHeightToFirstAscent: false,
-                            applyHeightToLastDescent: false,
-                          ),
-                        ),
-                      ],
+                  const Spacer(),
+                  Center(
+                    child: WnImage(
+                      AssetsPaths.login,
+                      fit: BoxFit.contain,
+                      width: double.infinity,
+                      height: 345.h,
                     ),
                   ),
-                  Gap(79.5.h),
-                  const Expanded(
-                    child: Center(
-                      child: WnImage(
-                        AssetsPaths.login,
-                        fit: BoxFit.contain,
-                        width: double.infinity,
-                      ),
-                    ),
-                  ),
-                  Gap(79.5.h),
+                  const Spacer(),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     mainAxisSize: MainAxisSize.min,
@@ -236,7 +210,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                           );
                         },
                       ),
-                      // Gap(16.h),
+                      Gap(16.h),
                     ],
                   ),
                 ],

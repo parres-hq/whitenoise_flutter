@@ -9,7 +9,7 @@ import '../frb_generated.dart';
 import '../lib.dart';
 import 'error.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`
 
 Future<List<Group>> activeGroups({required String pubkey}) =>
     RustLib.instance.api.crateApiGroupsActiveGroups(pubkey: pubkey);
@@ -82,21 +82,48 @@ Future<List<GroupInformation>> getGroupsInformations({
   groupIds: groupIds,
 );
 
+Future<UploadGroupImageResult> uploadGroupImage({
+  required String accountPubkey,
+  required String groupId,
+  required String filePath,
+  required String imageType,
+  required String serverUrl,
+}) => RustLib.instance.api.crateApiGroupsUploadGroupImage(
+  accountPubkey: accountPubkey,
+  groupId: groupId,
+  filePath: filePath,
+  imageType: imageType,
+  serverUrl: serverUrl,
+);
+
 class FlutterGroupDataUpdate {
   final String? name;
   final String? description;
   final List<String>? relays;
   final List<String>? admins;
+  final U8Array32? imageKey;
+  final U8Array32? imageHash;
+  final U8Array12? imageNonce;
 
   const FlutterGroupDataUpdate({
     this.name,
     this.description,
     this.relays,
     this.admins,
+    this.imageKey,
+    this.imageHash,
+    this.imageNonce,
   });
 
   @override
-  int get hashCode => name.hashCode ^ description.hashCode ^ relays.hashCode ^ admins.hashCode;
+  int get hashCode =>
+      name.hashCode ^
+      description.hashCode ^
+      relays.hashCode ^
+      admins.hashCode ^
+      imageKey.hashCode ^
+      imageHash.hashCode ^
+      imageNonce.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -106,7 +133,10 @@ class FlutterGroupDataUpdate {
           name == other.name &&
           description == other.description &&
           relays == other.relays &&
-          admins == other.admins;
+          admins == other.admins &&
+          imageKey == other.imageKey &&
+          imageHash == other.imageHash &&
+          imageNonce == other.imageNonce;
 }
 
 class Group {
@@ -214,4 +244,28 @@ enum GroupState {
 enum GroupType {
   directMessage,
   group,
+}
+
+class UploadGroupImageResult {
+  final U8Array32 encryptedHash;
+  final U8Array32 imageKey;
+  final U8Array12 imageNonce;
+
+  const UploadGroupImageResult({
+    required this.encryptedHash,
+    required this.imageKey,
+    required this.imageNonce,
+  });
+
+  @override
+  int get hashCode => encryptedHash.hashCode ^ imageKey.hashCode ^ imageNonce.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is UploadGroupImageResult &&
+          runtimeType == other.runtimeType &&
+          encryptedHash == other.encryptedHash &&
+          imageKey == other.imageKey &&
+          imageNonce == other.imageNonce;
 }
