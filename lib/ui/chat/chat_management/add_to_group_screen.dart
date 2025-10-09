@@ -142,7 +142,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
           }
 
           // Get user profile information for the user to be added
-          UserProfile? userProfileToAdd;
+          late final UserProfile userProfileToAdd;
           try {
             // First try to get from follows
             final followsNotifier = ref.read(followsProvider.notifier);
