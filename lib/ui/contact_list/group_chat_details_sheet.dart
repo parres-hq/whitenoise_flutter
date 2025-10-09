@@ -18,6 +18,7 @@ import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   const GroupChatDetailsSheet({
@@ -36,7 +37,7 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   }) {
     return WnBottomSheet.show(
       context: context,
-      title: 'Group chat details',
+      title: 'ui.groupChatDetails'.tr(),
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
@@ -147,11 +148,11 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
           });
         }
       } else {
-        safeShowErrorToast('Failed to create group chat. Please try again.');
+        safeShowErrorToast('ui.failedToCreateGroup'.tr());
       }
     } catch (e) {
       if (mounted) {
-        safeShowErrorToast('Error creating group: ${e.toString()}');
+        safeShowErrorToast('${'ui.errorCreatingGroup'.tr()}: ${e.toString()}');
       }
     } finally {
       // Always reset loading state
@@ -232,7 +233,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Group chat name',
+                'ui.groupChatName'.tr(),
                 style: TextStyle(
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w500,
@@ -242,7 +243,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
               Gap(8.h),
               WnTextField(
                 textController: _groupNameController,
-                hintText: 'Enter group name',
+                hintText: 'chats.enterGroupName'.tr(),
                 padding: EdgeInsets.zero,
               ),
             ],
@@ -252,7 +253,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.w),
           child: Text(
-            'Members',
+            'ui.members'.tr(),
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
@@ -274,7 +275,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         WnFilledButton(
           onPressed: _isCreatingGroup || !_isGroupNameValid ? null : _createGroupChat,
           loading: _isCreatingGroup,
-          label: _isCreatingGroup ? 'Creating Group...' : 'Create Group',
+          label: _isCreatingGroup ? 'ui.creatingGroup'.tr() : 'ui.createGroup'.tr(),
         ),
       ],
     );

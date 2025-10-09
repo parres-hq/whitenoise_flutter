@@ -34,7 +34,7 @@ class NewGroupChatSheet extends ConsumerStatefulWidget {
   }) {
     return WnBottomSheet.show(
       context: context,
-      title: 'New group chat',
+      title: 'ui.newGroupChat'.tr(),
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
@@ -104,7 +104,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     if (filteredContacts.isEmpty) {
       return Center(
         child: Text(
-          _searchQuery.isEmpty ? 'No contacts found' : 'No contacts match your search',
+          _searchQuery.isEmpty ? 'chats.noContactsFound'.tr() : 'chats.noContactsMatchSearch'.tr(),
           style: TextStyle(fontSize: 16.sp),
         ),
       );
@@ -177,7 +177,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
               Expanded(
                 child: WnTextFormField(
                   controller: _searchController,
-                  hintText: 'Search contact or public key...',
+                  hintText: 'chats.searchContactPlaceholder'.tr(),
                   size: FieldSize.small,
                   decoration: InputDecoration(
                     prefixIcon: Padding(
@@ -216,7 +216,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Error loading contacts',
+                            'chats.contactsLoadingError'.tr(),
                             style: TextStyle(fontSize: 16.sp),
                           ),
                           Gap(8.h),
@@ -253,7 +253,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                       );
                     }
                     : null,
-            label: 'Continue',
+            label: 'shared.continue'.tr(),
           ),
         ],
       ),

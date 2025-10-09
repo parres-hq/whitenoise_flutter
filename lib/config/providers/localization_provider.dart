@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:whitenoise/config/states/localization_state.dart';
 import 'package:whitenoise/services/localization_service.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 // Localization notifier
 class LocalizationNotifier extends StateNotifier<LocalizationState> {
@@ -130,7 +131,7 @@ class LocalizationNotifier extends StateNotifier<LocalizationState> {
     if (state.selectedLanguage == 'system') {
       final deviceLocale = LocalizationService.getDeviceLocale();
       final deviceLanguageName = LocalizationService.supportedLocales[deviceLocale] ?? 'English';
-      return 'System ($deviceLanguageName)';
+      return '${'shared.system'.tr()} ($deviceLanguageName)';
     }
     return LocalizationService.supportedLocales[state.selectedLanguage] ?? state.selectedLanguage;
   }

@@ -26,7 +26,7 @@ class _ShareInviteButtonState extends ConsumerState<ShareInviteButton> {
     });
 
     try {
-      await Share.share(kInviteMessage);
+      await Share.share('ui.inviteMessage'.tr());
 
       if (mounted) {
         Navigator.pop(context);

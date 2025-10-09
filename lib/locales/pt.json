@@ -10,7 +10,9 @@
         "remove": "Remover",
         "delete": "Excluir",
         "discardChanges": "Descartar alterações",
-        "unsavedChanges": "Alterações não salvas"
+        "unsavedChanges": "Alterações não salvas",
+        "continue": "Continuar",
+        "system": "Sistema"
     },
     "settings": {
         "title": "Configurações",
@@ -225,6 +227,7 @@
         "profileReadyDescription": "Toque em 'Começar a conversar' para procurar contatos agora, ou use o ícone de conversa '+' no canto superior direito quando quiser.",
         "shareYourProfile": "Compartilhe seu perfil",
         "searchForFriends": "Procurar amigos",
+        "noContactsMatchSearch": "Nenhum contato corresponde à sua pesquisa",
         "inviteSharedSuccess": "Convite compartilhado com sucesso!",
         "inviteShareFailed": "Falha ao compartilhar convite",
         "sharing": "Compartilhando...",

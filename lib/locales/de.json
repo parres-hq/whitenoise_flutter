@@ -10,7 +10,9 @@
         "remove": "Entfernen",
         "delete": "Löschen",
         "discardChanges": "Änderungen verwerfen",
-        "unsavedChanges": "Nicht gespeicherte Änderungen"
+        "unsavedChanges": "Nicht gespeicherte Änderungen",
+        "continue": "Fortfahren",
+        "system": "System"
     },
     "settings": {
         "title": "Einstellungen",
@@ -225,6 +227,7 @@
         "profileReadyDescription": "Tippen Sie auf 'Chat starten', um jetzt nach Kontakten zu suchen, oder verwenden Sie das '+' Chat-Symbol in der oberen rechten Ecke, wann immer Sie möchten.",
         "shareYourProfile": "Profil teilen",
         "searchForFriends": "Nach Freunden suchen",
+        "noContactsMatchSearch": "Keine Kontakte entsprechen Ihrer Suche",
         "inviteSharedSuccess": "Einladung erfolgreich geteilt!",
         "inviteShareFailed": "Einladung konnte nicht geteilt werden",
         "sharing": "Wird geteilt...",

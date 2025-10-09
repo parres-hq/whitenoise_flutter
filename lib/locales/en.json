@@ -10,7 +10,9 @@
         "remove": "Remove",
         "delete": "Delete",
         "discardChanges": "Discard Changes",
-        "unsavedChanges": "Unsaved changes"
+        "unsavedChanges": "Unsaved changes",
+        "continue": "Continue",
+        "system": "System"
     },
     "settings": {
         "title": "Settings",
@@ -225,6 +227,7 @@
         "profileReadyDescription": "Tap Start Chatting to search for contacts now, or use the + chat icon in the top-right corner whenever you like.",
         "shareYourProfile": "Share Your Profile",
         "searchForFriends": "Search For Friends",
+        "noContactsMatchSearch": "No contacts match your search",
         "inviteSharedSuccess": "Invite shared successfully!",
         "inviteShareFailed": "Failed to share invite",
         "sharing": "Sharing...",
@@ -369,7 +372,16 @@
         "groupChatInvitation": "Group Chat Invitation • ",
         "membersCount": "{count} members",
         "invitedToSecureChat": " invited you to a secure chat.",
-        "confirmRemoveContact": "Are you sure you want to remove {name} from your contacts?"
+        "confirmRemoveContact": "Are you sure you want to remove {name} from your contacts?",
+        "createGroupToContinue": "Create a Group to Continue",
+        "noGroupsCreateDescription": "You are not a member of any groups. Make a new group to add someone.",
+        "groupChatName": "Group chat name",
+        "enterGroupName": "Enter group name",
+        "createGroup": "Create Group",
+        "creatingGroup": "Creating Group...",
+        "failedToCreateGroup": "Failed to create group chat. Please try again.",
+        "errorCreatingGroup": "Error creating group",
+        "inviteMessage": "Join me on White Noise. No phone number. No surveillance. Just real privacy. Download it here: https://www.whitenoise.chat/download"
     },
     "errors": {
         "failedToChangeLanguage": "Failed to change language to {languageName}",

@@ -59,7 +59,7 @@ class ProfileReadyCard extends ConsumerWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Your Profile is Ready',
+                  'chats.profileReadyTitle'.tr(),
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
