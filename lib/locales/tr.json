@@ -372,7 +372,7 @@
         "confirmRemoveContact": "{name} adlı kişiyi kişilerinizden kaldırmak istediğinizden emin misiniz?"
     },
     "errors": {
-        "failedToChangeLanguage": "Dil değiştirme başarısız",
+        "failedToChangeLanguage": "Dil değiştirme başarısız: {languageName}",
         "errorOccurred": "Bir hata oluştu",
         "unknownError": "Bilinmeyen hata",
         "unexpectedError": "Beklenmeyen bir hata oluştu",

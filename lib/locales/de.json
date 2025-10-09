@@ -377,7 +377,7 @@
         "confirmRemoveContact": "Sind Sie sicher, dass Sie {name} aus Ihren Kontakten entfernen möchten?"
     },
     "errors": {
-        "failedToChangeLanguage": "Sprache konnte nicht geändert werden zu",
+        "failedToChangeLanguage": "Sprache konnte nicht geändert werden zu {languageName}",
         "errorOccurred": "Ein Fehler ist aufgetreten",
         "unknownError": "Unbekannter Fehler",
         "unexpectedError": "Ein unerwarteter Fehler ist aufgetreten",

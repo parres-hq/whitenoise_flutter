@@ -10,7 +10,7 @@
         "remove": "Eliminar",
         "delete": "Borrar",
         "discardChanges": "Descartar cambios",
-        "unsavedChanges": "Cambios no guardados"
+        "unsavedChanges": "Cambios sin guardar"
     },
     "settings": {
         "title": "Configuración",
@@ -37,7 +37,7 @@
         "signedOutSuccessfully": "Desconectado exitosamente.",
         "failedToCheckAccountsAfterLogout": "Error al verificar cuentas después del cierre de sesión",
         "signOutTitle": "¿Cerrar sesión?",
-        "signOutDescription": "Estás seguro de querer cerrar sesión? Si no has hecho una copia de seguridad de tus llaves, no podrás recuperarlas.",
+        "signOutDescription": "¿Estás seguro de querer cerrar sesión? Si no has hecho una copia de seguridad de tus llaves, no podrás recuperarlas.",
         "deleteAllData": "Borrar todos los datos",
         "deleteAllDataTitle": "¿Estás seguro que quieres borrar todo?",
         "deleteAllDataDescription": "Esto eliminará todos los datos de grupos, mensajes y cerrará sesión de todas tus cuentas. Esto no borrará tus llaves de nostr ni otros eventos que hayas publicado. <br><br> ¿Estás seguro de querer borrar todos los datos de White Noise? Esto no se puede deshacer.",
@@ -49,10 +49,10 @@
         "deleteAllKeyPackagesTitle": "Eliminar todos los paquetes de llaves",
         "deleteAllKeyPackagesDescription": "Esto eliminará todos los paquetes de llaves de la cuenta activa. Otros usuarios no podrán invitarte a nuevas conversaciones encriptadas hasta que generes nuevos paquetes de llaves. Esta acción no se puede deshacer.",
         "deleteKeyPackageTitle": "Eliminar paquete de llaves",
-        "deleteKeyPackageDescription": "Esto eliminará el paquete de llaves #{number}. Otros usuarios no podrán usar este paquete de llaves para invitarte a nuevas conversaciones encriptadas. Esta acción no se puede deshacer.",
+        "deleteKeyPackageDescription": "Esto eliminará el paquete de llaves N°{number}. Otros usuarios no podrán usar este paquete de llaves para invitarte a nuevas conversaciones encriptadas. Esta acción no se puede deshacer.",
         "keyPackagesCount": "Paquetes de llaves ({count})",
         "noKeyPackagesFound": "No se encontraron paquetes de llaves",
-        "keyPackageNumber": "Paquete de llaves #{number}",
+        "keyPackageNumber": "Paquete de llaves N°{number}",
         "keyPackageId": "ID: {id}",
         "keyPackageCreatedAt": "Creado el: {date}",
         "deletedKeyPackagesSuccess": "{count} paquetes de llaves eliminados exitosamente",
@@ -63,7 +63,7 @@
         "failedToPublishKeyPackage": "Error al publicar el paquete de llaves",
         "keyPackageDeletedSuccess": "Paquete de llaves eliminado exitosamente",
         "failedToDeleteKeyPackage": "Error al eliminar el paquete de llaves",
-        "noActiveAccountFound": "No se encontró cuenta activa"
+        "noActiveAccountFound": "No se encontró una cuenta activa"
     },
     "profile": {
         "nostrAddress": "Dirección Nostr (NIP-05)",
@@ -213,8 +213,8 @@
         "checkingForNewMessages": "Verificando nuevos mensajes…",
         "searchChats": "Buscar chats",
         "emptySlogan": "Descentralizado. Incensurable.\nMensajería segura.",
-        "errorLoadingFollows": "Error al cargar seguidos",
-        "noFollowsFound": "No se encontraron seguidos",
+        "errorLoadingFollows": "Error al cargar los usuarios que sigues",
+        "noFollowsFound": "No se encontraron los usuarios que sigues",
         "loadingMetadata": "Cargando metadatos...",
         "noFollowsMatchSearch": "Ningún seguido coincide con tu búsqueda",
         "errorStartingChat": "Error al iniciar el chat",
@@ -307,9 +307,9 @@
         "pleaseEnterPrivateKey": "Por favor ingresa tu llave privada",
         "setUpProfile": "Configurar perfil",
         "finish": "Finalizar",
-        "privacySecuritySubtitle": "Mantén tus conversaciones privadas. Incluso en caso de una brecha, tus mensajes permanecen seguros.",
+        "privacySecuritySubtitle": "Mantén tus conversaciones privadas. Incluso en caso de una brecha de seguridad, tus mensajes permanecen seguros.",
         "chooseIdentitySubtitle": "Chatea sin revelar tu número de teléfono o email. Elige tu identidad: nombre real, seudónimo o anónimo.",
-        "decentralizedPermissionlessSubtitle": "Ninguna autoridad central controla tu comunicación—no se necesitan permisos, no es posible la censura."
+        "decentralizedPermissionlessSubtitle": "Ninguna autoridad central controla tu comunicación. No se necesitan permisos ni es posible la censura."
     },
     "ui": {
         "newChat": "Nueva conversación",
@@ -377,7 +377,7 @@
         "confirmRemoveContact": "¿Estás seguro de que quieres eliminar a {name} de tus contactos?"
     },
     "errors": {
-        "failedToChangeLanguage": "No se pudo cambiar el idioma a",
+        "failedToChangeLanguage": "No se pudo cambiar el idioma a {languageName}",
         "errorOccurred": "Ocurrió un error",
         "unknownError": "Error desconocido",
         "unexpectedError": "Ocurrió un error inesperado",

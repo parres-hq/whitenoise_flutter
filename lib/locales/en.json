@@ -372,7 +372,7 @@
         "confirmRemoveContact": "Are you sure you want to remove {name} from your contacts?"
     },
     "errors": {
-        "failedToChangeLanguage": "Failed to change language to",
+        "failedToChangeLanguage": "Failed to change language to {languageName}",
         "errorOccurred": "An error occurred",
         "unknownError": "Unknown error",
         "unexpectedError": "An unexpected error occurred",
