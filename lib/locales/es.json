@@ -109,7 +109,11 @@
         "relayAddedSuccessfully": "Relé agregado exitosamente",
         "pastedFromClipboard": "Pegado del portapapeles",
         "failedToAddRelay": "Error al agregar el relé",
-        "failedToDeleteRelay": "Error al eliminar el relé"
+        "failedToDeleteRelay": "Error al eliminar el relé",
+        "removeRelayTitle": "¿Eliminar relé?",
+        "removeRelayConfirmation": "¿Estás seguro de que quieres eliminar este relé? Esta acción no se puede deshacer.",
+        "removeRelaySuccess": "Relé eliminado exitosamente",
+        "relayRemovedSuccessfully": "Relé eliminado exitosamente"
     },
     "wallet": {
         "connectionDescription": "Conecta tu billetera lightning para enviar y recibir pagos de bitcoin en White Noise.",
