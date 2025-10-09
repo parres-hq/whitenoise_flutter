@@ -14,6 +14,7 @@ import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/status_bar_utils.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -107,7 +108,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
   Widget build(BuildContext context) {
     ref.watch(authProvider);
 
-    return Scaffold(
+    return StatusBarUtils.wrapWithAdaptiveIcons(
+      context,
+      Scaffold(
       resizeToAvoidBottomInset: true,
       backgroundColor: context.colors.neutral,
       body: SafeArea(
@@ -240,6 +243,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
             ),
           ),
         ),
+      ),
       ),
     );
   }

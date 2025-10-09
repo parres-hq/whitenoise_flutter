@@ -11,6 +11,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/status_bar_utils.dart';
 
 class CreateProfileScreen extends ConsumerStatefulWidget {
   const CreateProfileScreen({super.key});
@@ -62,7 +63,9 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
       });
     });
 
-    return Scaffold(
+    return StatusBarUtils.wrapWithAdaptiveIcons(
+      context,
+      Scaffold(
       backgroundColor: context.colors.neutral,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
@@ -222,6 +225,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen> {
             },
           ),
         ),
+      ),
       ),
     );
   }

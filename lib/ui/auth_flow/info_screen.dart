@@ -7,6 +7,7 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/status_bar_utils.dart';
 
 import '../core/themes/assets.dart';
 import '../core/themes/src/extensions.dart';
@@ -66,9 +67,11 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      onPopInvokedWithResult: (didPop, result) => _deleteJustCreatedAccount(),
-      child: Scaffold(
+    return StatusBarUtils.wrapWithAdaptiveIcons(
+      context,
+      PopScope(
+        onPopInvokedWithResult: (didPop, result) => _deleteJustCreatedAccount(),
+        child: Scaffold(
         backgroundColor: context.colors.neutral,
         body: SafeArea(
           child: SingleChildScrollView(
@@ -148,6 +151,7 @@ class _InfoScreenState extends ConsumerState<InfoScreen> {
               },
             ),
           ),
+        ),
         ),
       ),
     );

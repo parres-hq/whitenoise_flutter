@@ -7,6 +7,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/status_bar_utils.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
   const WelcomeScreen({super.key});
@@ -41,7 +42,9 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
   Widget build(BuildContext context) {
     ref.watch(authProvider);
 
-    return Scaffold(
+    return StatusBarUtils.wrapWithAdaptiveIcons(
+      context,
+      Scaffold(
       backgroundColor: context.colors.neutral,
       body: SafeArea(
         child: Column(
@@ -108,6 +111,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
