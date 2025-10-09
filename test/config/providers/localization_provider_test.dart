@@ -94,6 +94,50 @@ void main() {
         expect(state.currentLocale, const Locale('it'));
       });
 
+      test('should change locale to Turkish', () async {
+        final notifier = container.read(localizationProvider.notifier);
+
+        final success = await notifier.changeLocale('tr');
+
+        expect(success, true);
+        final state = container.read(localizationProvider);
+        expect(state.selectedLanguage, 'tr');
+        expect(state.currentLocale, const Locale('tr'));
+      });
+
+      test('should change locale to French', () async {
+        final notifier = container.read(localizationProvider.notifier);
+
+        final success = await notifier.changeLocale('fr');
+
+        expect(success, true);
+        final state = container.read(localizationProvider);
+        expect(state.selectedLanguage, 'fr');
+        expect(state.currentLocale, const Locale('fr'));
+      });
+
+      test('should change locale to Portuguese', () async {
+        final notifier = container.read(localizationProvider.notifier);
+
+        final success = await notifier.changeLocale('pt');
+
+        expect(success, true);
+        final state = container.read(localizationProvider);
+        expect(state.selectedLanguage, 'pt');
+        expect(state.currentLocale, const Locale('pt'));
+      });
+
+      test('should change locale to Russian', () async {
+        final notifier = container.read(localizationProvider.notifier);
+
+        final success = await notifier.changeLocale('ru');
+
+        expect(success, true);
+        final state = container.read(localizationProvider);
+        expect(state.selectedLanguage, 'ru');
+        expect(state.currentLocale, const Locale('ru'));
+      });
+
       test('should handle system locale selection', () async {
         final notifier = container.read(localizationProvider.notifier);
 
@@ -148,7 +192,7 @@ void main() {
       test('should handle unsupported locale gracefully', () async {
         final notifier = container.read(localizationProvider.notifier);
 
-        final success = await notifier.changeLocale('fr');
+        final success = await notifier.changeLocale('zh');
 
         expect(success, false);
       });
@@ -173,11 +217,19 @@ void main() {
         expect(supportedLocales.keys, contains('es'));
         expect(supportedLocales.keys, contains('de'));
         expect(supportedLocales.keys, contains('it'));
+        expect(supportedLocales.keys, contains('tr'));
+        expect(supportedLocales.keys, contains('fr'));
+        expect(supportedLocales.keys, contains('pt'));
+        expect(supportedLocales.keys, contains('ru'));
 
         expect(supportedLocales['en'], 'English');
         expect(supportedLocales['es'], 'Español');
         expect(supportedLocales['de'], 'Deutsch');
         expect(supportedLocales['it'], 'Italiano');
+        expect(supportedLocales['tr'], 'Türkçe');
+        expect(supportedLocales['fr'], 'Français');
+        expect(supportedLocales['pt'], 'Português');
+        expect(supportedLocales['ru'], 'Русский');
       });
 
       test('should check locale support correctly', () {
@@ -187,8 +239,12 @@ void main() {
         expect(notifier.isLocaleSupported('es'), true);
         expect(notifier.isLocaleSupported('de'), true);
         expect(notifier.isLocaleSupported('it'), true);
+        expect(notifier.isLocaleSupported('tr'), true);
+        expect(notifier.isLocaleSupported('fr'), true);
+        expect(notifier.isLocaleSupported('pt'), true);
+        expect(notifier.isLocaleSupported('ru'), true);
         expect(notifier.isLocaleSupported('system'), true);
-        expect(notifier.isLocaleSupported('fr'), false);
+        expect(notifier.isLocaleSupported('zh'), false);
         expect(notifier.isLocaleSupported(''), false);
       });
 
@@ -206,6 +262,18 @@ void main() {
 
         await notifier.changeLocale('it');
         expect(notifier.selectedLanguageDisplayName, 'Italiano');
+
+        await notifier.changeLocale('tr');
+        expect(notifier.selectedLanguageDisplayName, 'Türkçe');
+
+        await notifier.changeLocale('fr');
+        expect(notifier.selectedLanguageDisplayName, 'Français');
+
+        await notifier.changeLocale('pt');
+        expect(notifier.selectedLanguageDisplayName, 'Português');
+
+        await notifier.changeLocale('ru');
+        expect(notifier.selectedLanguageDisplayName, 'Русский');
       });
 
       test('should clear error correctly', () async {
@@ -301,7 +369,7 @@ void main() {
       test('localizationErrorProvider should provide error state', () async {
         final notifier = container.read(localizationProvider.notifier);
 
-        await notifier.changeLocale('fr');
+        await notifier.changeLocale('zh');
 
         final error = container.read(localizationErrorProvider);
         expect(error, isNull);
@@ -344,9 +412,13 @@ void main() {
         await notifier.changeLocale('es');
         await notifier.changeLocale('de');
         await notifier.changeLocale('it');
+        await notifier.changeLocale('tr');
+        await notifier.changeLocale('fr');
+        await notifier.changeLocale('pt');
+        await notifier.changeLocale('ru');
 
         final finalState = container.read(localizationProvider);
-        expect(finalState.selectedLanguage, 'it');
+        expect(finalState.selectedLanguage, 'ru');
         expect(finalState.isLoading, false);
         expect(finalState.error, isNull);
       });
@@ -479,6 +551,10 @@ void main() {
         expect(supportedLocales, contains('es'));
         expect(supportedLocales, contains('de'));
         expect(supportedLocales, contains('it'));
+        expect(supportedLocales, contains('tr'));
+        expect(supportedLocales, contains('fr'));
+        expect(supportedLocales, contains('pt'));
+        expect(supportedLocales, contains('ru'));
       });
 
       test('should have correct display names', () {
@@ -488,6 +564,10 @@ void main() {
         expect(supportedLocales['es'], 'Español');
         expect(supportedLocales['de'], 'Deutsch');
         expect(supportedLocales['it'], 'Italiano');
+        expect(supportedLocales['tr'], 'Türkçe');
+        expect(supportedLocales['fr'], 'Français');
+        expect(supportedLocales['pt'], 'Português');
+        expect(supportedLocales['ru'], 'Русский');
       });
     });
 
@@ -497,7 +577,7 @@ void main() {
         expect(deviceLocale, isNotNull);
         expect(deviceLocale, isNotEmpty);
 
-        final supportedCodes = ['en', 'es', 'de', 'it'];
+        final supportedCodes = ['en', 'es', 'de', 'it', 'tr', 'fr', 'pt', 'ru'];
         expect(supportedCodes, contains(deviceLocale));
       });
     });
@@ -510,15 +590,17 @@ void main() {
           notifier.changeLocale('en'),
           notifier.changeLocale('es'),
           notifier.changeLocale('de'),
+          notifier.changeLocale('tr'),
+          notifier.changeLocale('fr'),
         ];
 
         final results = await Future.wait(futures);
 
-        expect(results.length, 3);
+        expect(results.length, 5);
 
         final finalState = container.read(localizationProvider);
         expect(finalState.isLoading, false);
-        expect(['en', 'es', 'de'], contains(finalState.selectedLanguage));
+        expect(['en', 'es', 'de', 'tr', 'fr'], contains(finalState.selectedLanguage));
       });
     });
   });

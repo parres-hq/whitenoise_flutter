@@ -10,6 +10,10 @@ class LocalizationService {
     'es': 'Español',
     'de': 'Deutsch',
     'it': 'Italiano',
+    'tr': 'Türkçe',
+    'fr': 'Français',
+    'pt': 'Português',
+    'ru': 'Русский',
   };
 
   static const String _fallbackLocale = 'en';
