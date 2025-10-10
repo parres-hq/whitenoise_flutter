@@ -462,8 +462,8 @@ class ReplyBox extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  replyingTo?.isMe == true 
-                      ? 'chats.you'.tr() 
+                  replyingTo?.isMe == true
+                      ? 'chats.you'.tr()
                       : replyingTo?.sender.displayName ?? '',
                   style: TextStyle(
                     color: context.colors.mutedForeground,
