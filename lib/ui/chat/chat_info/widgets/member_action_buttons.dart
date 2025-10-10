@@ -58,7 +58,7 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
           });
 
           ref.showSuccessToast(
-            'ui.chatStartedSuccessfully'.tr().replaceAll('{name}', widget.user.displayName),
+            'ui.chatStartedSuccessfully'.tr({'name': widget.user.displayName}),
           );
         }
       } else {
@@ -110,10 +110,10 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
     late String successMessage;
 
     if (currentFollowState.isFollowing) {
-      successMessage = 'ui.unfollowed'.tr().replaceAll('{name}', widget.user.displayName);
+      successMessage = 'ui.unfollowed'.tr({'name': widget.user.displayName});
       await followNotifier.removeFollow(widget.user.publicKey);
     } else {
-      successMessage = 'ui.followed'.tr().replaceAll('{name}', widget.user.displayName);
+      successMessage = 'ui.followed'.tr({'name': widget.user.displayName});
       await followNotifier.addFollow(widget.user.publicKey);
     }
 

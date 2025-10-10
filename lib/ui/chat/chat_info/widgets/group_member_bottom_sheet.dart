@@ -88,7 +88,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
       if (mounted) {
         Navigator.pop(context, true);
         ref.showSuccessToast(
-          'chats.removedFromGroupSuccess'.tr().replaceAll('{name}', widget.member.displayName),
+          'chats.removedFromGroupSuccess'.tr({'name': widget.member.displayName}),
         );
       }
     } catch (e) {

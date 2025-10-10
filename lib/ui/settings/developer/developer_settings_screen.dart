@@ -87,7 +87,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
         accountPubkey: activePubkey,
       );
       ref.showSuccessToast(
-        'settings.deletedKeyPackagesSuccess'.tr().replaceAll('{count}', deletedCount.toString()),
+        'settings.deletedKeyPackagesSuccess'.tr({'count': deletedCount}),
       );
 
       // Clear the displayed key packages if they were being shown
@@ -450,7 +450,7 @@ class _KeyPackageItem extends StatelessWidget {
                 SizedBox(width: 8.w),
                 Expanded(
                   child: Text(
-                    'settings.keyPackageNumber'.tr().replaceAll('{number}', (index + 1).toString()),
+                    'settings.keyPackageNumber'.tr({'number': index + 1}),
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
@@ -480,7 +480,7 @@ class _KeyPackageItem extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             Text(
-              'settings.keyPackageId'.tr().replaceAll('{id}', keyPackage.id),
+              'settings.keyPackageId'.tr({'id': keyPackage.id}),
               style: TextStyle(
                 fontSize: 12.sp,
                 color: context.colors.mutedForeground,

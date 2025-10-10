@@ -216,7 +216,7 @@ class GroupInviteHeader extends StatelessWidget {
               ),
               children: [
                 TextSpan(
-                  text: 'ui.membersCount'.tr().replaceAll('{count}', '${welcome.memberCount}'),
+                  text: 'ui.membersCount'.tr({'count': welcome.memberCount}),
                   style: TextStyle(
                     color: context.colors.primary,
                     fontWeight: FontWeight.w600,
@@ -291,16 +291,19 @@ class DMInviteHeader extends ConsumerWidget {
               Gap(32.h),
               Text.rich(
                 TextSpan(
-                  text: welcomerName,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: context.colors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
                   children: [
                     TextSpan(
-                      text: 'ui.invitedToSecureChat'.tr(),
+                      text: welcomerName,
                       style: TextStyle(
+                        fontSize: 14.sp,
+                        color: context.colors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    TextSpan(
+                      text: ' invited you to a secure chat.',
+                      style: TextStyle(
+                        fontSize: 14.sp,
                         color: context.colors.mutedForeground,
                       ),
                     ),

@@ -147,7 +147,7 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
           }
 
           ref.showSuccessToast(
-            'ui.chatStartedSuccessfully'.tr().replaceAll('{name}', widget.contact.displayName),
+            'ui.chatStartedSuccessfully'.tr({'name': widget.contact.displayName}),
           );
         }
       } else {
@@ -172,10 +172,10 @@ class _StartChatBottomSheetState extends ConsumerState<StartChatBottomSheet> {
     var currentFollowState = ref.read(followProvider(widget.contact.publicKey));
     late String successMessage;
     if (currentFollowState.isFollowing) {
-      successMessage = 'ui.unfollowed'.tr().replaceAll('{name}', widget.contact.displayName);
+      successMessage = 'ui.unfollowed'.tr({'name': widget.contact.displayName});
       await followNotifier.removeFollow(widget.contact.publicKey);
     } else {
-      successMessage = 'ui.followed'.tr().replaceAll('{name}', widget.contact.displayName);
+      successMessage = 'ui.followed'.tr({'name': widget.contact.displayName});
       await followNotifier.addFollow(widget.contact.publicKey);
     }
 

@@ -146,10 +146,10 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8.w),
                     child: Text(
-                      'chats.matchesCounter'
-                          .tr()
-                          .replaceAll('{current}', searchNotifier.currentMatchNumber.toString())
-                          .replaceAll('{total}', searchNotifier.totalMatches.toString()),
+                      'chats.matchesCounter'.tr({
+                        'current': searchNotifier.currentMatchNumber,
+                        'total': searchNotifier.totalMatches,
+                      }),
                       style: TextStyle(
                         color: context.colors.mutedForeground,
                         fontSize: 14.sp,

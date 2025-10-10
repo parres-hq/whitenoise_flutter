@@ -35,10 +35,10 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     late String successMessage;
 
     if (currentFollowState.isFollowing) {
-      successMessage = 'ui.unfollowed'.tr().replaceAll('{name}', displayName);
+      successMessage = 'ui.unfollowed'.tr({'name': displayName});
       await followNotifier.removeFollow(pubkey);
     } else {
-      successMessage = 'ui.followed'.tr().replaceAll('{name}', displayName);
+      successMessage = 'ui.followed'.tr({'name': displayName});
       await followNotifier.addFollow(pubkey);
     }
 
