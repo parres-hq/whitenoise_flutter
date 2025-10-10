@@ -387,9 +387,9 @@ class ChatNotifier extends Notifier<ChatState> {
   }
 
   bool isSameSender(int index, {String? groupId}) {
-    final gId = groupId ?? state.selectedGroupId;
-    if (gId == null) return false;
-    final groupMessages = state.groupMessages[gId] ?? [];
+    final selectedGroupId = groupId ?? state.selectedGroupId;
+    if (selectedGroupId == null) return false;
+    final groupMessages = state.groupMessages[selectedGroupId] ?? [];
     if (index <= 0 || index >= groupMessages.length) return false;
     final currentSenderPubkey = groupMessages[index].sender.publicKey;
     final currentSenderHexPubkey = PubkeyFormatter(pubkey: currentSenderPubkey).toHex() ?? '';
@@ -400,9 +400,9 @@ class ChatNotifier extends Notifier<ChatState> {
   }
 
   bool isNextSameSender(int index, {String? groupId}) {
-    final gId = groupId ?? state.selectedGroupId;
-    if (gId == null) return false;
-    final groupMessages = state.groupMessages[gId] ?? [];
+    final selectedGroupId = groupId ?? state.selectedGroupId;
+    if (selectedGroupId == null) return false;
+    final groupMessages = state.groupMessages[selectedGroupId] ?? [];
     if (index < 0 || index >= groupMessages.length - 1) return false;
     final currentSenderPubkey = groupMessages[index].sender.publicKey;
     final currentSenderHexPubkey = PubkeyFormatter(pubkey: currentSenderPubkey).toHex() ?? '';
