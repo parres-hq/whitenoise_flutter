@@ -139,7 +139,7 @@ class WnBottomSheet {
     Duration transitionDuration = const Duration(milliseconds: 300),
     Curve curve = Curves.easeOutCubic,
     bool keyboardAware = false,
-    bool useSafeArea = true,
+    bool useSafeArea = true,    
   }) {
     return Navigator.of(context).push<T>(
       _FadeBottomSheetRoute<T>(
@@ -172,7 +172,7 @@ class WnBottomSheet {
                         color: Colors.transparent,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: context.colors.primaryForeground,
+                            color: context.colors.neutral,
                           ),
                           child: ConstrainedBox(
                             constraints: BoxConstraints(

@@ -164,7 +164,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                         left: 1.sw * 0.5,
                                         bottom: 4.h,
                                         width: 28.w,
-                                        child: EditIconWidget(
+                                        child: WnEditIconWidget(
                                           onTap: () async {
                                             try {
                                               await ref

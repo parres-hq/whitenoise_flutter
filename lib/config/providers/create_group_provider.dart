@@ -28,6 +28,14 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
     );
   }
 
+  void updateGroupDescription(String groupDescription) {
+    state = state.copyWith(
+      groupDescription: groupDescription,
+      error: null,
+      stackTrace: null,
+    );
+  }
+
   Future<void> pickGroupImage() async {
     try {
       final imagePath = await _imagePickerService.pickProfileImage();
@@ -47,20 +55,16 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
     }
   }
 
-  Future<void> filterContactsAndCreateGroup({
-    required List<ContactModel> selectedContacts,
-    ValueChanged<Group?>? onGroupCreated,
-  }) async {
-    if (!state.isGroupNameValid) return;
-
-    state = state.copyWith(isCreatingGroup: true, error: null, stackTrace: null);
-
+  Future<void> filterContactsWithKeyPackage(
+    List<ContactModel> selectedContacts,
+  ) async {
     try {
       final filteredContacts = await _filterContactsByKeyPackage(selectedContacts);
       final contactsWithKeyPackage = filteredContacts['withKeyPackage']!;
       final contactsWithoutKeyPackage = filteredContacts['withoutKeyPackage']!;
 
       state = state.copyWith(
+        contactsWithKeyPackage: contactsWithKeyPackage,
         contactsWithoutKeyPackage: contactsWithoutKeyPackage,
         shouldShowInviteSheet: contactsWithoutKeyPackage.isNotEmpty,
       );
@@ -69,8 +73,26 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
         state = state.copyWith(isCreatingGroup: false);
         return;
       }
+    } catch (e) {
+      _logger.severe('filterContactsWithKeyPackage', e);
+      state = state.copyWith(
+        error: 'Error filtering contacts: ${e.toString()}',
+        stackTrace: null,
+        isCreatingGroup: false,
+      );
+    }
+  }
 
-      final createdGroup = await _createGroupWithContacts(contactsWithKeyPackage);
+  Future<void> createGroup({
+    ValueChanged<Group?>? onGroupCreated,
+  }) async {
+    if (!state.isGroupNameValid) return;
+    if (state.contactsWithKeyPackage.isEmpty) return;
+
+    state = state.copyWith(isCreatingGroup: true, error: null, stackTrace: null);
+
+    try {
+      final createdGroup = await _createGroupWithContacts(state.contactsWithKeyPackage);
 
       if (createdGroup != null) {
         if (state.selectedImagePath != null && state.selectedImagePath!.isNotEmpty) {
@@ -121,11 +143,12 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
 
   Future<Group?> _createGroupWithContacts(List<ContactModel> contactsWithKeyPackage) async {
     final groupName = state.groupName.trim();
+    final groupDescription = state.groupDescription.trim();
     final notifier = ref.read(groupsProvider.notifier);
 
     return await notifier.createNewGroup(
       groupName: groupName,
-      groupDescription: '',
+      groupDescription: groupDescription,
       memberPublicKeyHexs: contactsWithKeyPackage.map((c) => c.publicKey).toList(),
       adminPublicKeyHexs: [],
     );

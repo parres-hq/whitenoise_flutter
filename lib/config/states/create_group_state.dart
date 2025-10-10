@@ -7,6 +7,7 @@ part 'create_group_state.freezed.dart';
 sealed class CreateGroupState with _$CreateGroupState {
   const factory CreateGroupState({
     @Default('') String groupName,
+    @Default('') String groupDescription,
     @Default(false) bool isGroupNameValid,
     @Default(false) bool isCreatingGroup,
     @Default(false) bool isUploadingImage,
@@ -14,10 +15,15 @@ sealed class CreateGroupState with _$CreateGroupState {
     String? error,
     StackTrace? stackTrace,
     @Default([]) List<ContactModel> contactsWithoutKeyPackage,
+    @Default([]) List<ContactModel> contactsWithKeyPackage,
     @Default(false) bool shouldShowInviteSheet,
   }) = _CreateGroupState;
 
   const CreateGroupState._();
 
-  bool get canCreateGroup => isGroupNameValid && !isCreatingGroup && !isUploadingImage;
+  bool get canCreateGroup =>
+      isGroupNameValid &&
+      !isCreatingGroup &&
+      !isUploadingImage &&
+      contactsWithKeyPackage.isNotEmpty;
 }
