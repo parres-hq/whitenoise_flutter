@@ -139,7 +139,7 @@ class WnBottomSheet {
     Duration transitionDuration = const Duration(milliseconds: 300),
     Curve curve = Curves.easeOutCubic,
     bool keyboardAware = false,
-    bool useSafeArea = true,    
+    bool useSafeArea = true,
   }) {
     return Navigator.of(context).push<T>(
       _FadeBottomSheetRoute<T>(
