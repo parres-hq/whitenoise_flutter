@@ -282,7 +282,7 @@
         "groupDescription": "Gruppenbeschreibung:",
         "groupChatInvitation": "Gruppenchat-Einladung • ",
         "membersCount": "{count} Mitglieder",
-        "invitedToSecureChat": " hat Sie zu einem sicheren Chat eingeladen.",
+        "invitedToSecureChat": "{name} hat Sie zu einem sicheren Chat eingeladen.",
         "confirmRemoveContact": "Sind Sie sicher, dass Sie {name} aus Ihren Kontakten entfernen möchten?",
         "createGroupToContinue": "Eine Gruppe erstellen, um fortzufahren",
         "noGroupsCreateDescription": "Sie sind Mitglied keiner Gruppen. Erstellen Sie eine neue Gruppe, um jemanden hinzuzufügen.",

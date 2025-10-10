@@ -282,7 +282,7 @@
         "groupDescription": "Grup Açıklaması:",
         "groupChatInvitation": "Grup Sohbet Daveti • ",
         "membersCount": "{count} üye",
-        "invitedToSecureChat": " sizi güvenli bir sohbete davet etti.",
+        "invitedToSecureChat": "{name} sizi güvenli bir sohbete davet etti.",
         "confirmRemoveContact": "{name} adlı kişiyi kişilerinizden kaldırmak istediğinizden emin misiniz?",
         "createGroupToContinue": "Devam Etmek İçin Grup Oluşturun",
         "noGroupsCreateDescription": "Herhangi bir grubun üyesi değilsiniz. Birini eklemek için yeni bir grup oluşturun.",

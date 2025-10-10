@@ -282,7 +282,7 @@
         "groupDescription": "Описание группы:",
         "groupChatInvitation": "Приглашение в групповой чат • ",
         "membersCount": "{count} участников",
-        "invitedToSecureChat": " пригласил вас в безопасный чат.",
+        "invitedToSecureChat": "{name} пригласил вас в безопасный чат.",
         "confirmRemoveContact": "Вы уверены, что хотите удалить {name} из ваших контактов?",
         "createGroupToContinue": "Создать группу для продолжения",
         "noGroupsCreateDescription": "Вы не состоите ни в одной группе. Создайте новую группу, чтобы добавить кого-то.",
