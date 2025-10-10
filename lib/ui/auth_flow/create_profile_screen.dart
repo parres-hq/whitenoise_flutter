@@ -11,6 +11,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/status_bar_utils.dart';
 
 class CreateProfileScreen extends ConsumerStatefulWidget {
   const CreateProfileScreen({super.key});
@@ -111,148 +112,152 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
       });
     });
 
-    return Scaffold(
-      backgroundColor: context.colors.neutral,
-      resizeToAvoidBottomInset: true,
-      appBar: const AuthAppBar(title: 'Set Up Profile'),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 0),
-          child: Column(
-            children: [
-              Gap(48.h),
-              Stack(
-                alignment: Alignment.bottomRight,
-                children: [
-                  ValueListenableBuilder<TextEditingValue>(
-                    valueListenable: _displayNameController,
-                    builder: (context, value, child) {
-                      final displayText = value.text.trim();
-                      return WnAvatar(
-                        imageUrl: ref.watch(createProfileScreenProvider).selectedImagePath ?? '',
-                        displayName: displayText,
-                        size: 96.w,
-                        showBorder:
-                            ref.watch(createProfileScreenProvider).selectedImagePath == null,
-                      );
-                    },
+    return StatusBarUtils.wrapWithAdaptiveIcons(
+      context: context,
+      child: Scaffold(
+        backgroundColor: context.colors.neutral,
+        resizeToAvoidBottomInset: true,
+        appBar: const AuthAppBar(title: 'Set Up Profile'),
+        body: SafeArea(
+          child: SingleChildScrollView(
+            controller: _scrollController,
+            padding: EdgeInsets.fromLTRB(24.w, 0, 24.w, 0),
+            child: Column(
+              children: [
+                Gap(48.h),
+                Stack(
+                  alignment: Alignment.bottomRight,
+                  children: [
+                    ValueListenableBuilder<TextEditingValue>(
+                      valueListenable: _displayNameController,
+                      builder: (context, value, child) {
+                        final displayText = value.text.trim();
+                        return WnAvatar(
+                          imageUrl: ref.watch(createProfileScreenProvider).selectedImagePath ?? '',
+                          displayName: displayText,
+                          size: 96.w,
+                          showBorder:
+                              ref.watch(createProfileScreenProvider).selectedImagePath == null,
+                        );
+                      },
+                    ),
+                    GestureDetector(
+                      onTap:
+                          () =>
+                              ref.read(createProfileScreenProvider.notifier).pickProfileImage(ref),
+                      child: Container(
+                        width: 28.w,
+                        height: 28.w,
+                        padding: EdgeInsets.all(6.w),
+                        decoration: BoxDecoration(
+                          color: context.colors.mutedForeground,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: context.colors.secondary,
+                            width: 1.w,
+                          ),
+                        ),
+                        child: WnImage(
+                          AssetsPaths.icEdit,
+                          color: context.colors.primaryForeground,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                Gap(36.h),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Choose a Name',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14.sp,
+                      color: context.colors.primary,
+                    ),
                   ),
-                  GestureDetector(
-                    onTap:
-                        () => ref.read(createProfileScreenProvider.notifier).pickProfileImage(ref),
-                    child: Container(
-                      width: 28.w,
-                      height: 28.w,
-                      padding: EdgeInsets.all(6.w),
+                ),
+                Gap(10.h),
+                _isLoadingDisplayName
+                    ? Container(
+                      height: 56.h,
                       decoration: BoxDecoration(
-                        color: context.colors.mutedForeground,
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: context.colors.secondary,
-                          width: 1.w,
+                        color: context.colors.avatarSurface,
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Center(
+                        child: SizedBox(
+                          width: 20.w,
+                          height: 20.w,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.w,
+                            color: context.colors.primary,
+                          ),
                         ),
                       ),
-                      child: WnImage(
-                        AssetsPaths.icEdit,
-                        color: context.colors.primaryForeground,
-                      ),
+                    )
+                    : WnTextFormField(
+                      hintText: 'Your name',
+                      obscureText: false,
+                      controller: _displayNameController,
                     ),
-                  ),
-                ],
-              ),
-              Gap(36.h),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Choose a Name',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14.sp,
-                    color: context.colors.primary,
+                Gap(36.h),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Introduce yourself',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14.sp,
+                      color: context.colors.primary,
+                    ),
                   ),
                 ),
-              ),
-              Gap(10.h),
-              _isLoadingDisplayName
-                  ? Container(
-                    height: 56.h,
-                    decoration: BoxDecoration(
-                      color: context.colors.avatarSurface,
-                      borderRadius: BorderRadius.circular(8.r),
-                    ),
-                    child: Center(
-                      child: SizedBox(
-                        width: 20.w,
-                        height: 20.w,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2.w,
-                          color: context.colors.primary,
-                        ),
-                      ),
-                    ),
-                  )
-                  : WnTextFormField(
-                    hintText: 'Your name',
-                    obscureText: false,
-                    controller: _displayNameController,
-                  ),
-              Gap(36.h),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  'Introduce yourself',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 14.sp,
-                    color: context.colors.primary,
-                  ),
+                Gap(8.h),
+                WnTextFormField(
+                  hintText: 'Write something about yourself',
+                  obscureText: false,
+                  controller: _bioController,
+                  focusNode: _bioFocusNode,
+                  maxLines: 3,
+                  minLines: 3,
+                  keyboardType: TextInputType.multiline,
                 ),
-              ),
-              Gap(8.h),
-              WnTextFormField(
-                hintText: 'Write something about yourself',
-                obscureText: false,
-                controller: _bioController,
-                focusNode: _bioFocusNode,
-                maxLines: 3,
-                minLines: 3,
-                keyboardType: TextInputType.multiline,
-              ),
-              Gap(32.h),
-            ],
+                Gap(32.h),
+              ],
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: Container(
-        padding: EdgeInsets.only(
-          left: 24.w,
-          right: 24.w,
-          top: 16.h,
-          bottom: 16.h + MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SafeArea(
-          top: false,
-          child: Consumer(
-            builder: (context, ref, child) {
-              final createProfileState = ref.watch(createProfileScreenProvider);
-              final isButtonDisabled = createProfileState.isLoading || _isLoadingDisplayName;
+        bottomNavigationBar: Container(
+          padding: EdgeInsets.only(
+            left: 24.w,
+            right: 24.w,
+            top: 16.h,
+            bottom: 16.h + MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: SafeArea(
+            top: false,
+            child: Consumer(
+              builder: (context, ref, child) {
+                final createProfileState = ref.watch(createProfileScreenProvider);
+                final isButtonDisabled = createProfileState.isLoading || _isLoadingDisplayName;
 
-              return WnFilledButton(
-                label: 'Finish',
-                loading: isButtonDisabled,
-                onPressed:
-                    isButtonDisabled
-                        ? null
-                        : () => ref
-                            .read(createProfileScreenProvider.notifier)
-                            .updateProfile(
-                              ref,
-                              _displayNameController.text.trim(),
-                              _bioController.text.trim(),
-                            ),
-              );
-            },
+                return WnFilledButton(
+                  label: 'Finish',
+                  loading: isButtonDisabled,
+                  onPressed:
+                      isButtonDisabled
+                          ? null
+                          : () => ref
+                              .read(createProfileScreenProvider.notifier)
+                              .updateProfile(
+                                ref,
+                                _displayNameController.text.trim(),
+                                _bioController.text.trim(),
+                              ),
+                );
+              },
+            ),
           ),
         ),
       ),
