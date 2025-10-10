@@ -11,6 +11,7 @@ import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class RelayTile extends ConsumerStatefulWidget {
   const RelayTile({
@@ -43,7 +44,7 @@ class _RelayTileState extends ConsumerState<RelayTile> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      'Remove Relay?',
+                      'network.removeRelayTitle'.tr(),
                       style: TextStyle(
                         fontSize: 16.sp,
                         fontWeight: FontWeight.w600,
@@ -62,7 +63,7 @@ class _RelayTileState extends ConsumerState<RelayTile> {
                 ),
                 Gap(6.h),
                 Text(
-                  'Are you sure you want to remove this relay? To use it again, you’ll need to add it back manually.',
+                  'network.removeRelayConfirmation'.tr(),
                   style: TextStyle(
                     fontSize: 14.sp,
                     color: context.colors.mutedForeground,
@@ -72,14 +73,14 @@ class _RelayTileState extends ConsumerState<RelayTile> {
                 WnFilledButton(
                   onPressed: () => Navigator.of(context).pop(false),
                   visualState: WnButtonVisualState.secondary,
-                  label: 'Cancel',
+                  label: 'shared.cancel'.tr(),
                   size: WnButtonSize.small,
                 ),
                 Gap(8.h),
                 WnFilledButton(
                   onPressed: () => Navigator.of(context).pop(true),
                   visualState: WnButtonVisualState.destructive,
-                  label: 'Remove Relay',
+                  label: 'shared.remove'.tr(),
                   size: WnButtonSize.small,
                 ),
               ],
@@ -90,7 +91,7 @@ class _RelayTileState extends ConsumerState<RelayTile> {
     if (confirmed == true && mounted) {
       if (widget.onDelete != null) {
         widget.onDelete!();
-        ref.showSuccessToast('Relay removed successfully');
+        ref.showSuccessToast('network.relayRemovedSuccessfully'.tr());
       }
     }
   }

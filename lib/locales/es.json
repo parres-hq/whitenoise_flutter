@@ -284,7 +284,15 @@
         "groupChatInvitation": "Invitación a chat de grupo • ",
         "membersCount": "{count} miembros",
         "invitedToSecureChat": " te invitó a un chat seguro.",
-        "confirmRemoveContact": "¿Estás seguro de que quieres eliminar a {name} de tus contactos?"
+        "confirmRemoveContact": "¿Estás seguro de que quieres eliminar a {name} de tus contactos?",
+        "createGroupToContinue": "Crear un Grupo para Continuar",
+        "noGroupsCreateDescription": "No eres miembro de ningún grupo. Crea un nuevo grupo para agregar a alguien.",
+        "groupChatName": "Nombre del chat de grupo",
+        "createGroup": "Crear Grupo",
+        "creatingGroup": "Creando Grupo...",
+        "failedToCreateGroup": "Error al crear el chat de grupo. Por favor, inténtalo de nuevo.",
+        "errorCreatingGroup": "Error al crear grupo",
+        "inviteMessage": "Únete a mí en White Noise. Sin número de teléfono. Sin vigilancia. Solo privacidad real. Descárgalo aquí: https://www.whitenoise.chat/download"
     },
     "errors": {
         "errorOccurred": "Ocurrió un error",
