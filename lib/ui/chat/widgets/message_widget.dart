@@ -10,7 +10,7 @@ import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_bubble/bubble.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
-import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/message_utils.dart';
 
 class MessageWidget extends StatelessWidget {
   final MessageModel message;
@@ -462,9 +462,7 @@ class ReplyBox extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  replyingTo?.isMe == true
-                      ? 'chats.you'.tr()
-                      : replyingTo?.sender.displayName ?? '',
+                  MessageUtils.getDisplayName(replyingTo, null),
                   style: TextStyle(
                     color: context.colors.mutedForeground,
                     fontSize: 12.sp,

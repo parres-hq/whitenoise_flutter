@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,6 +15,7 @@ import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/message_utils.dart';
 
 class ChatInput extends ConsumerStatefulWidget {
   const ChatInput({
@@ -343,24 +345,6 @@ class ReplyEditHeader extends ConsumerWidget {
   final MessageModel? editingMessage;
   final VoidCallback onCancel;
 
-  String _getDisplayName(MessageModel? replyingTo, MessageModel? editingMessage) {
-    if (replyingTo != null) {
-      if (replyingTo.isMe) {
-        return 'chats.you'.tr();
-      }
-      return replyingTo.sender.displayName;
-    }
-
-    if (editingMessage != null) {
-      if (editingMessage.isMe) {
-        return 'chats.you'.tr();
-      }
-      return editingMessage.sender.displayName;
-    }
-
-    return 'chats.unknownUser'.tr();
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     // Watch localization changes
@@ -387,7 +371,7 @@ class ReplyEditHeader extends ConsumerWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                _getDisplayName(replyingTo, editingMessage),
+                MessageUtils.getDisplayName(replyingTo, editingMessage),
                 style: TextStyle(
                   color: context.colors.mutedForeground,
                   fontSize: 12.sp,
