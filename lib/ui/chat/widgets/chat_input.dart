@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
+import 'package:whitenoise/config/providers/localization_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -330,7 +331,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
   }
 }
 
-class ReplyEditHeader extends StatelessWidget {
+class ReplyEditHeader extends ConsumerWidget {
   const ReplyEditHeader({
     super.key,
     this.replyingTo,
@@ -342,8 +343,28 @@ class ReplyEditHeader extends StatelessWidget {
   final MessageModel? editingMessage;
   final VoidCallback onCancel;
 
+  String _getDisplayName(MessageModel? replyingTo, MessageModel? editingMessage) {
+    if (replyingTo != null) {
+      if (replyingTo.isMe) {
+        return 'chats.you'.tr();
+      }
+      return replyingTo.sender.displayName;
+    }
+
+    if (editingMessage != null) {
+      if (editingMessage.isMe) {
+        return 'chats.you'.tr();
+      }
+      return editingMessage.sender.displayName;
+    }
+
+    return 'chats.unknownUser'.tr();
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch localization changes
+    ref.watch(currentLocaleProvider);
     if (replyingTo == null && editingMessage == null) {
       return const SizedBox.shrink();
     }
@@ -366,9 +387,7 @@ class ReplyEditHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                replyingTo?.sender.displayName ??
-                    editingMessage?.sender.displayName ??
-                    'chats.unknownUser'.tr(),
+                _getDisplayName(replyingTo, editingMessage),
                 style: TextStyle(
                   color: context.colors.mutedForeground,
                   fontSize: 12.sp,
