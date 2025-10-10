@@ -24,7 +24,6 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
       groupName: groupName,
       isGroupNameValid: isValid,
       error: null,
-      stackTrace: null,
     );
   }
 
@@ -32,7 +31,6 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
     state = state.copyWith(
       groupDescription: groupDescription,
       error: null,
-      stackTrace: null,
     );
   }
 
@@ -43,14 +41,12 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
         state = state.copyWith(
           selectedImagePath: imagePath,
           error: null,
-          stackTrace: null,
         );
       }
     } catch (e, st) {
       _logger.severe('pickGroupImage', e, st);
       state = state.copyWith(
         error: 'Failed to pick group image',
-        stackTrace: st,
       );
     }
   }
@@ -73,11 +69,10 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
         state = state.copyWith(isCreatingGroup: false);
         return;
       }
-    } catch (e) {
-      _logger.severe('filterContactsWithKeyPackage', e);
+    } catch (e, st) {
+      _logger.severe('filterContactsWithKeyPackage', e, st);
       state = state.copyWith(
         error: 'Error filtering contacts: ${e.toString()}',
-        stackTrace: null,
         isCreatingGroup: false,
       );
     }
@@ -89,7 +84,7 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
     if (!state.isGroupNameValid) return;
     if (state.contactsWithKeyPackage.isEmpty) return;
 
-    state = state.copyWith(isCreatingGroup: true, error: null, stackTrace: null);
+    state = state.copyWith(isCreatingGroup: true, error: null);
 
     try {
       final createdGroup = await _createGroupWithContacts(state.contactsWithKeyPackage);
@@ -132,10 +127,9 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
         );
       }
     } catch (e, st) {
-      _logger.severe('filterContactsAndCreateGroup', e, st);
+      _logger.severe('createGroup', e, st);
       state = state.copyWith(
         error: 'Error creating group: ${e.toString()}',
-        stackTrace: st,
         isCreatingGroup: false,
       );
     }
@@ -157,7 +151,7 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
   Future<UploadGroupImageResult?> _uploadGroupImage(String groupId, String accountPubkey) async {
     if (state.selectedImagePath == null || state.selectedImagePath!.isEmpty) return null;
 
-    state = state.copyWith(isUploadingImage: true, error: null, stackTrace: null);
+    state = state.copyWith(isUploadingImage: true, error: null);
 
     try {
       final imageUtils = ref.read(wnImageUtilsProvider);
@@ -181,14 +175,12 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
       state = state.copyWith(
         isUploadingImage: false,
         error: null,
-        stackTrace: null,
       );
       return result;
     } catch (e, st) {
       _logger.severe('_uploadGroupImage', e, st);
       state = state.copyWith(
         error: 'Failed to upload group image: ${e.toString()}',
-        stackTrace: st,
         isUploadingImage: false,
       );
     }
@@ -222,7 +214,9 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
   }
 
   void clearError() {
-    state = state.copyWith(error: null, stackTrace: null);
+    state = state.copyWith(
+      error: null,
+    );
   }
 
   void dismissInviteSheet() {
@@ -241,7 +235,6 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
       isUploadingImage: false,
       selectedImagePath: null,
       error: null,
-      stackTrace: null,
       contactsWithKeyPackage: [],
       contactsWithoutKeyPackage: [],
       shouldShowInviteSheet: false,

@@ -13,7 +13,6 @@ sealed class CreateGroupState with _$CreateGroupState {
     @Default(false) bool isUploadingImage,
     String? selectedImagePath,
     String? error,
-    StackTrace? stackTrace,
     @Default([]) List<ContactModel> contactsWithoutKeyPackage,
     @Default([]) List<ContactModel> contactsWithKeyPackage,
     @Default(false) bool shouldShowInviteSheet,

@@ -24,15 +24,17 @@ mixin _$CreateGroupState {
   bool get isUploadingImage => throw _privateConstructorUsedError;
   String? get selectedImagePath => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
-  StackTrace? get stackTrace => throw _privateConstructorUsedError;
-  List<ContactModel> get contactsWithoutKeyPackage => throw _privateConstructorUsedError;
-  List<ContactModel> get contactsWithKeyPackage => throw _privateConstructorUsedError;
+  List<ContactModel> get contactsWithoutKeyPackage =>
+      throw _privateConstructorUsedError;
+  List<ContactModel> get contactsWithKeyPackage =>
+      throw _privateConstructorUsedError;
   bool get shouldShowInviteSheet => throw _privateConstructorUsedError;
 
   /// Create a copy of CreateGroupState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $CreateGroupStateCopyWith<CreateGroupState> get copyWith => throw _privateConstructorUsedError;
+  $CreateGroupStateCopyWith<CreateGroupState> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -50,7 +52,6 @@ abstract class $CreateGroupStateCopyWith<$Res> {
     bool isUploadingImage,
     String? selectedImagePath,
     String? error,
-    StackTrace? stackTrace,
     List<ContactModel> contactsWithoutKeyPackage,
     List<ContactModel> contactsWithKeyPackage,
     bool shouldShowInviteSheet,
@@ -79,7 +80,6 @@ class _$CreateGroupStateCopyWithImpl<$Res, $Val extends CreateGroupState>
     Object? isUploadingImage = null,
     Object? selectedImagePath = freezed,
     Object? error = freezed,
-    Object? stackTrace = freezed,
     Object? contactsWithoutKeyPackage = null,
     Object? contactsWithKeyPackage = null,
     Object? shouldShowInviteSheet = null,
@@ -121,11 +121,6 @@ class _$CreateGroupStateCopyWithImpl<$Res, $Val extends CreateGroupState>
                     ? _value.error
                     : error // ignore: cast_nullable_to_non_nullable
                         as String?,
-            stackTrace:
-                freezed == stackTrace
-                    ? _value.stackTrace
-                    : stackTrace // ignore: cast_nullable_to_non_nullable
-                        as StackTrace?,
             contactsWithoutKeyPackage:
                 null == contactsWithoutKeyPackage
                     ? _value.contactsWithoutKeyPackage
@@ -148,7 +143,8 @@ class _$CreateGroupStateCopyWithImpl<$Res, $Val extends CreateGroupState>
 }
 
 /// @nodoc
-abstract class _$$CreateGroupStateImplCopyWith<$Res> implements $CreateGroupStateCopyWith<$Res> {
+abstract class _$$CreateGroupStateImplCopyWith<$Res>
+    implements $CreateGroupStateCopyWith<$Res> {
   factory _$$CreateGroupStateImplCopyWith(
     _$CreateGroupStateImpl value,
     $Res Function(_$CreateGroupStateImpl) then,
@@ -163,7 +159,6 @@ abstract class _$$CreateGroupStateImplCopyWith<$Res> implements $CreateGroupStat
     bool isUploadingImage,
     String? selectedImagePath,
     String? error,
-    StackTrace? stackTrace,
     List<ContactModel> contactsWithoutKeyPackage,
     List<ContactModel> contactsWithKeyPackage,
     bool shouldShowInviteSheet,
@@ -191,7 +186,6 @@ class __$$CreateGroupStateImplCopyWithImpl<$Res>
     Object? isUploadingImage = null,
     Object? selectedImagePath = freezed,
     Object? error = freezed,
-    Object? stackTrace = freezed,
     Object? contactsWithoutKeyPackage = null,
     Object? contactsWithKeyPackage = null,
     Object? shouldShowInviteSheet = null,
@@ -233,11 +227,6 @@ class __$$CreateGroupStateImplCopyWithImpl<$Res>
                 ? _value.error
                 : error // ignore: cast_nullable_to_non_nullable
                     as String?,
-        stackTrace:
-            freezed == stackTrace
-                ? _value.stackTrace
-                : stackTrace // ignore: cast_nullable_to_non_nullable
-                    as StackTrace?,
         contactsWithoutKeyPackage:
             null == contactsWithoutKeyPackage
                 ? _value._contactsWithoutKeyPackage
@@ -269,7 +258,6 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
     this.isUploadingImage = false,
     this.selectedImagePath,
     this.error,
-    this.stackTrace,
     final List<ContactModel> contactsWithoutKeyPackage = const [],
     final List<ContactModel> contactsWithKeyPackage = const [],
     this.shouldShowInviteSheet = false,
@@ -296,13 +284,12 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
   final String? selectedImagePath;
   @override
   final String? error;
-  @override
-  final StackTrace? stackTrace;
   final List<ContactModel> _contactsWithoutKeyPackage;
   @override
   @JsonKey()
   List<ContactModel> get contactsWithoutKeyPackage {
-    if (_contactsWithoutKeyPackage is EqualUnmodifiableListView) return _contactsWithoutKeyPackage;
+    if (_contactsWithoutKeyPackage is EqualUnmodifiableListView)
+      return _contactsWithoutKeyPackage;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_contactsWithoutKeyPackage);
   }
@@ -311,7 +298,8 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
   @override
   @JsonKey()
   List<ContactModel> get contactsWithKeyPackage {
-    if (_contactsWithKeyPackage is EqualUnmodifiableListView) return _contactsWithKeyPackage;
+    if (_contactsWithKeyPackage is EqualUnmodifiableListView)
+      return _contactsWithKeyPackage;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_contactsWithKeyPackage);
   }
@@ -322,7 +310,7 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
 
   @override
   String toString() {
-    return 'CreateGroupState(groupName: $groupName, groupDescription: $groupDescription, isGroupNameValid: $isGroupNameValid, isCreatingGroup: $isCreatingGroup, isUploadingImage: $isUploadingImage, selectedImagePath: $selectedImagePath, error: $error, stackTrace: $stackTrace, contactsWithoutKeyPackage: $contactsWithoutKeyPackage, contactsWithKeyPackage: $contactsWithKeyPackage, shouldShowInviteSheet: $shouldShowInviteSheet)';
+    return 'CreateGroupState(groupName: $groupName, groupDescription: $groupDescription, isGroupNameValid: $isGroupNameValid, isCreatingGroup: $isCreatingGroup, isUploadingImage: $isUploadingImage, selectedImagePath: $selectedImagePath, error: $error, contactsWithoutKeyPackage: $contactsWithoutKeyPackage, contactsWithKeyPackage: $contactsWithKeyPackage, shouldShowInviteSheet: $shouldShowInviteSheet)';
   }
 
   @override
@@ -330,7 +318,8 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CreateGroupStateImpl &&
-            (identical(other.groupName, groupName) || other.groupName == groupName) &&
+            (identical(other.groupName, groupName) ||
+                other.groupName == groupName) &&
             (identical(other.groupDescription, groupDescription) ||
                 other.groupDescription == groupDescription) &&
             (identical(other.isGroupNameValid, isGroupNameValid) ||
@@ -342,7 +331,6 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
             (identical(other.selectedImagePath, selectedImagePath) ||
                 other.selectedImagePath == selectedImagePath) &&
             (identical(other.error, error) || other.error == error) &&
-            (identical(other.stackTrace, stackTrace) || other.stackTrace == stackTrace) &&
             const DeepCollectionEquality().equals(
               other._contactsWithoutKeyPackage,
               _contactsWithoutKeyPackage,
@@ -365,7 +353,6 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
     isUploadingImage,
     selectedImagePath,
     error,
-    stackTrace,
     const DeepCollectionEquality().hash(_contactsWithoutKeyPackage),
     const DeepCollectionEquality().hash(_contactsWithKeyPackage),
     shouldShowInviteSheet,
@@ -392,7 +379,6 @@ abstract class _CreateGroupState extends CreateGroupState {
     final bool isUploadingImage,
     final String? selectedImagePath,
     final String? error,
-    final StackTrace? stackTrace,
     final List<ContactModel> contactsWithoutKeyPackage,
     final List<ContactModel> contactsWithKeyPackage,
     final bool shouldShowInviteSheet,
@@ -413,8 +399,6 @@ abstract class _CreateGroupState extends CreateGroupState {
   String? get selectedImagePath;
   @override
   String? get error;
-  @override
-  StackTrace? get stackTrace;
   @override
   List<ContactModel> get contactsWithoutKeyPackage;
   @override
