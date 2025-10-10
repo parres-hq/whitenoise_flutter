@@ -24,17 +24,14 @@ mixin _$CreateGroupState {
   bool get isUploadingImage => throw _privateConstructorUsedError;
   String? get selectedImagePath => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
-  List<ContactModel> get contactsWithoutKeyPackage =>
-      throw _privateConstructorUsedError;
-  List<ContactModel> get contactsWithKeyPackage =>
-      throw _privateConstructorUsedError;
+  List<ContactModel> get contactsWithoutKeyPackage => throw _privateConstructorUsedError;
+  List<ContactModel> get contactsWithKeyPackage => throw _privateConstructorUsedError;
   bool get shouldShowInviteSheet => throw _privateConstructorUsedError;
 
   /// Create a copy of CreateGroupState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $CreateGroupStateCopyWith<CreateGroupState> get copyWith =>
-      throw _privateConstructorUsedError;
+  $CreateGroupStateCopyWith<CreateGroupState> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -143,8 +140,7 @@ class _$CreateGroupStateCopyWithImpl<$Res, $Val extends CreateGroupState>
 }
 
 /// @nodoc
-abstract class _$$CreateGroupStateImplCopyWith<$Res>
-    implements $CreateGroupStateCopyWith<$Res> {
+abstract class _$$CreateGroupStateImplCopyWith<$Res> implements $CreateGroupStateCopyWith<$Res> {
   factory _$$CreateGroupStateImplCopyWith(
     _$CreateGroupStateImpl value,
     $Res Function(_$CreateGroupStateImpl) then,
@@ -288,8 +284,7 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
   @override
   @JsonKey()
   List<ContactModel> get contactsWithoutKeyPackage {
-    if (_contactsWithoutKeyPackage is EqualUnmodifiableListView)
-      return _contactsWithoutKeyPackage;
+    if (_contactsWithoutKeyPackage is EqualUnmodifiableListView) return _contactsWithoutKeyPackage;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_contactsWithoutKeyPackage);
   }
@@ -298,8 +293,7 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
   @override
   @JsonKey()
   List<ContactModel> get contactsWithKeyPackage {
-    if (_contactsWithKeyPackage is EqualUnmodifiableListView)
-      return _contactsWithKeyPackage;
+    if (_contactsWithKeyPackage is EqualUnmodifiableListView) return _contactsWithKeyPackage;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableListView(_contactsWithKeyPackage);
   }
@@ -318,8 +312,7 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$CreateGroupStateImpl &&
-            (identical(other.groupName, groupName) ||
-                other.groupName == groupName) &&
+            (identical(other.groupName, groupName) || other.groupName == groupName) &&
             (identical(other.groupDescription, groupDescription) ||
                 other.groupDescription == groupDescription) &&
             (identical(other.isGroupNameValid, isGroupNameValid) ||
