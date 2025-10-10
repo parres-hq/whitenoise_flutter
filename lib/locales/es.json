@@ -272,7 +272,6 @@
         "invitationNotFound": "Invitación no encontrada",
         "errorLoadingRelays": "Error al cargar relés",
         "viewQrCode": "Ver código QR",
-        "whatWalletCanIConnect": "¿Qué billetera puedo conectar?",
         "publishNewKeyPackage": "Publicar nuevo paquete de llaves",
         "inspectRelayKeyPackages": "Inspeccionar paquetes de llaves del relé",
         "deleteAllKeyPackagesFromRelays": "Eliminar todos los paquetes de llaves de los relés",

@@ -272,7 +272,6 @@
         "invitationNotFound": "Einladung nicht gefunden",
         "errorLoadingRelays": "Fehler beim Laden der Relays",
         "viewQrCode": "QR-Code anzeigen",
-        "whatWalletCanIConnect": "Welche Wallet kann ich verbinden?",
         "publishNewKeyPackage": "Neues Schlüsselpaket veröffentlichen",
         "inspectRelayKeyPackages": "Relay-Schlüsselpakete untersuchen",
         "deleteAllKeyPackagesFromRelays": "Alle Schlüsselpakete von Relays löschen",
