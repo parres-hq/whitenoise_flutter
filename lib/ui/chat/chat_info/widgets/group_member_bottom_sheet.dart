@@ -135,10 +135,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
             Gap(16.h),
             Text.rich(
               TextSpan(
-                text: 'chats.removeFromGroupConfirmation'.tr().replaceAll(
-                  '{name}',
-                  widget.member.displayName,
-                ),
+                text: 'chats.removeFromGroupConfirmation'.tr({'name': widget.member.displayName}),
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: context.colors.mutedForeground,
                   fontWeight: FontWeight.w500,
