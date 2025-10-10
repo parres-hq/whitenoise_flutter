@@ -11,6 +11,7 @@ import 'package:whitenoise/ui/chat/widgets/reaction/reactions_dialog_widget.dart
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ChatDialogService {
   static void showEmojiBottomSheet({
@@ -120,15 +121,15 @@ class ChatDialogService {
               }
             },
             onContextMenuTap: (menuItem) {
-              if (menuItem.label == 'Reply') {
+              if (menuItem.label == 'chats.replyAction'.tr()) {
                 chatNotifier.handleReply(message);
-              } else if (menuItem.label == 'Copy') {
+              } else if (menuItem.label == 'chats.copyAction'.tr()) {
                 ClipboardUtils.copyWithToast(
                   ref: ref,
                   textToCopy: message.content ?? '',
                   successMessage: 'Message copied to clipboard',
                 );
-              } else if (menuItem.label == 'Delete') {
+              } else if (menuItem.label == 'chats.deleteAction'.tr()) {
                 chatNotifier.deleteMessage(
                   groupId: message.groupId ?? '',
                   messageId: message.id,
