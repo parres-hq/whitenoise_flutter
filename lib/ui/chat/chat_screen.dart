@@ -355,11 +355,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                             groupId: widget.groupId,
                                           ),
                                       onLongPress:
-                                          () => ChatDialogService.showReactionDialog(
+                                          (position) => ChatDialogService.showReactionDialog(
                                             context: context,
                                             ref: ref,
                                             message: message,
                                             messageIndex: messageIndex,
+                                            messagePosition: position,
                                           ),
                                       child: Hero(
                                         tag: message.id,
