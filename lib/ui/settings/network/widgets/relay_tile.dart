@@ -10,8 +10,8 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/settings/network/widgets/network_section.dart';
-import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/string_extensions.dart';
 
 class RelayTile extends ConsumerStatefulWidget {
   const RelayTile({
