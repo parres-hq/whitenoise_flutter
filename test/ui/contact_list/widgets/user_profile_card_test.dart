@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:whitenoise/ui/contact_list/widgets/user_profile.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/user_profile_list/widgets/user_profile_card.dart';
 
 import '../../../test_helpers.dart';
 
 // Test wrapper widget that provides real WidgetRef
-class UserProfileTestWrapper extends ConsumerWidget {
+class UserProfileCardTestWrapper extends ConsumerWidget {
   final String name;
   final String nip05;
   final String pubkey;
   final String imageUrl;
 
-  const UserProfileTestWrapper({
+  const UserProfileCardTestWrapper({
     super.key,
     required this.name,
     this.nip05 = '',
@@ -23,7 +23,7 @@ class UserProfileTestWrapper extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return UserProfile(
+    return UserProfileCard(
       name: name,
       nip05: nip05,
       pubkey: pubkey,
@@ -34,14 +34,14 @@ class UserProfileTestWrapper extends ConsumerWidget {
 }
 
 void main() {
-  group('UserProfile Widget Tests', () {
+  group('UserProfileCard Widget Tests', () {
     testWidgets('displays user name correctly', (WidgetTester tester) async {
       const displayName = 'John Doe';
       const pubkey = 'abc123def456789012345678901234567890123456789012345678901234567890';
 
       await tester.pumpWidget(
         createTestWidget(
-          const UserProfileTestWrapper(
+          const UserProfileCardTestWrapper(
             name: displayName,
             pubkey: pubkey,
           ),
@@ -58,7 +58,7 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          const UserProfileTestWrapper(
+          const UserProfileCardTestWrapper(
             name: displayName,
             nip05: nip05,
             pubkey: pubkey,
@@ -77,7 +77,7 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          const UserProfileTestWrapper(
+          const UserProfileCardTestWrapper(
             name: displayName,
             pubkey: pubkey,
           ),
@@ -93,7 +93,7 @@ void main() {
 
       await tester.pumpWidget(
         createTestWidget(
-          const UserProfileTestWrapper(
+          const UserProfileCardTestWrapper(
             name: displayName,
             pubkey: pubkey,
           ),

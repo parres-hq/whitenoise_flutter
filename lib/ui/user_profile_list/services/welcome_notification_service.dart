@@ -5,7 +5,7 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
-import 'package:whitenoise/ui/contact_list/group_welcome_invitation_sheet.dart';
+import 'package:whitenoise/ui/user_profile_list/group_welcome_invitation_sheet.dart';
 
 class WelcomeNotificationService {
   static final _logger = Logger('WelcomeNotificationService');

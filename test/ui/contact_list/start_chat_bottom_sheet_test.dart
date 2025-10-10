@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
-import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/user_profile_list/start_chat_bottom_sheet.dart';
 
 import '../../test_helpers.dart';
 
@@ -68,7 +68,7 @@ class MockWnUsersApiWithError implements WnUsersApi {
 
 void main() {
   group('StartChatBottomSheet Tests', () {
-    final contact = ContactModel(
+    final userProfile = UserProfile(
       displayName: 'Satoshi Nakamoto',
       publicKey: 'abc123def456789012345678901234567890123456789012345678901234567890',
       nip05: 'satoshi@nakamoto.com',
@@ -83,7 +83,7 @@ void main() {
     testWidgets('displays user name', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          StartChatBottomSheet(contact: contact),
+          StartChatBottomSheet(userProfile: userProfile),
           overrides: commonOverrides,
         ),
       );
@@ -94,7 +94,7 @@ void main() {
     testWidgets('displays nip05', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          StartChatBottomSheet(contact: contact),
+          StartChatBottomSheet(userProfile: userProfile),
           overrides: commonOverrides,
         ),
       );
@@ -105,7 +105,7 @@ void main() {
     testWidgets('displays formatted pubkey', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          StartChatBottomSheet(contact: contact),
+          StartChatBottomSheet(userProfile: userProfile),
           overrides: commonOverrides,
         ),
       );
@@ -121,7 +121,7 @@ void main() {
     testWidgets('shows copy option', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          StartChatBottomSheet(contact: contact),
+          StartChatBottomSheet(userProfile: userProfile),
           overrides: commonOverrides,
         ),
       );
@@ -135,7 +135,7 @@ void main() {
     testWidgets('initially shows loading indicator', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
-          StartChatBottomSheet(contact: contact),
+          StartChatBottomSheet(userProfile: userProfile),
           overrides: commonOverrides,
         ),
       );
@@ -149,7 +149,7 @@ void main() {
           createTestWidget(
             SingleChildScrollView(
               child: StartChatBottomSheet(
-                contact: contact,
+                userProfile: userProfile,
                 usersApi: MockWnUsersApiWithoutPackage(),
               ),
             ),
@@ -181,13 +181,13 @@ void main() {
       });
     });
 
-    group('when contact has key package', () {
+    group('when userProfile has key package', () {
       Future<void> setup(WidgetTester tester) async {
         await tester.pumpWidget(
           createTestWidget(
             SingleChildScrollView(
               child: StartChatBottomSheet(
-                contact: contact,
+                userProfile: userProfile,
                 usersApi: MockWnUsersApiWithPackage(),
               ),
             ),
@@ -227,7 +227,7 @@ void main() {
           await tester.pumpWidget(
             createTestWidget(
               StartChatBottomSheet(
-                contact: contact,
+                userProfile: userProfile,
                 usersApi: MockWnUsersApiWithPackage(),
               ),
               overrides: [
@@ -235,7 +235,7 @@ void main() {
                 followsProvider.overrideWith(
                   () => MockFollowsNotifier([
                     User(
-                      pubkey: contact.publicKey,
+                      pubkey: userProfile.publicKey,
                       metadata: const FlutterMetadata(custom: {}),
                       createdAt: DateTime.now(),
                       updatedAt: DateTime.now(),
@@ -270,7 +270,7 @@ void main() {
         await tester.pumpWidget(
           createTestWidget(
             StartChatBottomSheet(
-              contact: contact,
+              userProfile: userProfile,
               usersApi: MockWnUsersApiWithError(),
             ),
             overrides: commonOverrides,

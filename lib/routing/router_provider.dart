@@ -12,7 +12,6 @@ import 'package:whitenoise/ui/chat/chat_info/chat_info_screen.dart';
 import 'package:whitenoise/ui/chat/chat_info/edit_group_screen.dart';
 import 'package:whitenoise/ui/chat/chat_management/add_to_group_screen.dart';
 import 'package:whitenoise/ui/chat/chat_screen.dart';
-import 'package:whitenoise/ui/contact_list/chat_list_screen.dart';
 import 'package:whitenoise/ui/settings/app_settings/app_settings_screen.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/donate/donate_screen.dart';
@@ -23,6 +22,7 @@ import 'package:whitenoise/ui/settings/profile/share_profile_qr_scan_screen.dart
 import 'package:whitenoise/ui/settings/profile/share_profile_screen.dart';
 import 'package:whitenoise/ui/settings/profile_keys/profile_keys_screen.dart';
 import 'package:whitenoise/ui/settings/wallet/wallet_screen.dart';
+import 'package:whitenoise/ui/user_profile_list/chat_list_screen.dart';
 
 /// Navigation observer that dismisses toasts when routes change
 class _NavigationObserver extends NavigatorObserver {
@@ -85,7 +85,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       // If user is not authenticated and trying to access protected routes,
       // redirect to home
       if (!authState.isAuthenticated && !authState.isLoading) {
-        final protectedRoutes = [Routes.chats, Routes.contacts, Routes.settings];
+        final protectedRoutes = [Routes.chats, Routes.users, Routes.settings];
         if (protectedRoutes.any((route) => currentLocation.startsWith(route))) {
           return Routes.home;
         }
@@ -122,15 +122,15 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       GoRoute(
-        path: Routes.contacts,
+        path: Routes.users,
         builder: (context, state) => const ChatListScreen(),
         routes: [
           GoRoute(
             path: ':id',
             builder: (context, state) {
-              final contactId = state.pathParameters['id']!;
+              final userId = state.pathParameters['id']!;
               return Scaffold(
-                body: Center(child: Text('Contact Detail: $contactId')),
+                body: Center(child: Text('User Detail: $userId')),
               );
             },
           ),
@@ -213,14 +213,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         ],
       ),
       GoRoute(
-        path: Routes.contactQrScan,
+        path: Routes.userProfileQrScan,
         builder: (context, state) => const ShareProfileQrScanScreen(hideViewQrButton: true),
       ),
       GoRoute(
-        path: Routes.addContactToGroup,
+        path: Routes.addUserToGroup,
         builder: (context, state) {
-          final contactNpub = state.pathParameters['id']!;
-          return AddToGroupScreen(contactNpub: contactNpub);
+          final userNpub = state.pathParameters['id']!;
+          return AddToGroupScreen(userNpub: userNpub);
         },
       ),
     ],

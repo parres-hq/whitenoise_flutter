@@ -14,9 +14,9 @@ abstract final class Routes {
   static const chatInfo = '/chats/:id/info';
   static const editGroup = '/chats/:id/info/edit';
 
-  // Contacts
-  static const contacts = '/contacts';
-  static const contact = '/contacts/:id';
+  // Users
+  static const users = '/users';
+  static const user = '/users/:id';
 
   // Settings
   static const settings = '/settings';
@@ -30,17 +30,17 @@ abstract final class Routes {
   static const settingsDonate = '/settings/donate';
   static const settingsShareProfile = '/settings/share_profile';
   static const settingsShareProfileQrScan = '/settings/share_profile/qr_scan';
-  static const contactQrScan = '/contact/qr_scan';
+  static const userProfileQrScan = '/user_profiles/qr_scan';
 
   // misc
-  static const addContactToGroup = '/add_to_group/:id';
+  static const addUserToGroup = '/add_to_group/:id';
 
   static void goToChat(BuildContext context, String chatId, {String? inviteId}) {
     GoRouter.of(context).go('/chats/$chatId', extra: inviteId);
   }
 
-  static void goToContact(BuildContext context, String contactId) {
-    GoRouter.of(context).go('/contacts/$contactId');
+  static void goToUser(BuildContext context, String userId) {
+    GoRouter.of(context).go('/users/$userId');
   }
 
   static void goToOnboarding(BuildContext context) {
