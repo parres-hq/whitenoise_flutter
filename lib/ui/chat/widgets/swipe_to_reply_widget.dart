@@ -11,7 +11,7 @@ import 'package:whitenoise/ui/core/ui/wn_image.dart';
 class SwipeToReplyWidget extends StatefulWidget {
   final MessageModel message;
   final VoidCallback onReply;
-  final VoidCallback onLongPress;
+  final Function(Offset) onLongPress;
   final Widget child;
 
   const SwipeToReplyWidget({
@@ -36,6 +36,7 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
   bool _canUndo = false;
   Timer? _longPressTimer;
   Timer? _longPressHapticTimer;
+  Offset? _tapPosition;
 
   void _handleDragStart(DragStartDetails details) {
     _longPressTimer?.cancel();
@@ -88,13 +89,27 @@ class _SwipeToReplyWidgetState extends State<SwipeToReplyWidget> {
     _longPressTimer?.cancel();
     _longPressHapticTimer?.cancel();
 
+    // Store the tap position - this is the global position on screen
+    _tapPosition = details.globalPosition;
+
     _longPressHapticTimer = Timer(const Duration(milliseconds: 100), () {
       HapticFeedback.mediumImpact();
     });
 
     _longPressTimer = Timer(const Duration(milliseconds: 350), () {
       _longPressHapticTimer?.cancel();
-      widget.onLongPress();
+
+      // Get the widget's position on screen using RenderBox
+      final RenderBox? renderBox = context.findRenderObject() as RenderBox?;
+      if (renderBox != null) {
+        // Get position relative to the entire screen (global coordinates)
+        final position = renderBox.localToGlobal(Offset.zero);
+
+        widget.onLongPress(position);
+      } else {
+        // Fallback to tap position if RenderBox is not available
+        widget.onLongPress(_tapPosition ?? Offset.zero);
+      }
     });
   }
 
