@@ -87,6 +87,7 @@ class ChatDialogService {
     required WidgetRef ref,
     required MessageModel message,
     required int messageIndex,
+    Offset? messagePosition,
   }) {
     final chatNotifier = ref.read(chatProvider.notifier);
 
@@ -138,6 +139,7 @@ class ChatDialogService {
               }
             },
             widgetAlignment: message.isMe ? Alignment.centerRight : Alignment.centerLeft,
+            messagePosition: messagePosition,
           );
         },
       ),
