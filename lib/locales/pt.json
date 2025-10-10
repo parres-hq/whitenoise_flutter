@@ -154,6 +154,7 @@
         "errorStartingChat": "Falha ao iniciar conversa",
         "matchesCounter": "{current} de {total} correspondências",
         "noResultsFound": "Nenhum resultado encontrado",
+        "messageNotFound": "Mensagem não encontrada",
         "profileReadyTitle": "Seu perfil está pronto",
         "profileReadyDescription": "Toque em 'Começar a conversar' para procurar contatos agora, ou use o ícone de conversa '+' no canto superior direito quando quiser.",
         "shareYourProfile": "Compartilhe seu perfil",

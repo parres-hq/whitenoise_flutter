@@ -154,6 +154,7 @@
         "errorStartingChat": "Не удалось начать чат",
         "matchesCounter": "{current} из {total} совпадений",
         "noResultsFound": "Результаты не найдены",
+        "messageNotFound": "Сообщение не найдено",
         "profileReadyTitle": "Ваш профиль готов",
         "profileReadyDescription": "Нажмите 'Начать общение' чтобы найти контакты сейчас, или используйте иконку чата '+' в правом верхнем углу когда захотите.",
         "shareYourProfile": "Поделитесь своим профилем",

@@ -154,6 +154,7 @@
         "errorStartingChat": "Sohbet başlatma başarısız",
         "matchesCounter": "{total} eşleşmeden {current}",
         "noResultsFound": "Sonuç bulunamadı",
+        "messageNotFound": "Mesaj bulunamadı",
         "profileReadyTitle": "Profiliniz Hazır",
         "profileReadyDescription": "Şimdi kişileri aramak için 'Sohbet Başlat'a dokunun veya istediğiniz zaman sağ üst köşedeki '+' sohbet simgesini kullanın.",
         "shareYourProfile": "Profilinizi Paylaşın",
