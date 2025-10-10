@@ -7,6 +7,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/status_bar_utils.dart';
 
 class WelcomeScreen extends ConsumerStatefulWidget {
@@ -63,7 +64,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                     ),
                     Gap(24.h),
                     Text(
-                      'White Noise',
+                      'auth.whiteNoise'.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
@@ -74,7 +75,7 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
                     ),
                     Gap(6.h),
                     Text(
-                      'Decentralized. Uncensorable.\nSecure Messaging. ',
+                      'auth.slogan'.tr(),
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontWeight: FontWeight.w400,
@@ -98,13 +99,13 @@ class _WelcomeScreenState extends ConsumerState<WelcomeScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 WnFilledButton(
-                  label: 'Login',
+                  label: 'auth.login'.tr(),
                   visualState: WnButtonVisualState.secondary,
                   onPressed: _isCreatingAccount ? null : () => context.go('/login'),
                 ),
                 Gap(8.h),
                 WnFilledButton(
-                  label: 'Sign Up',
+                  label: 'auth.signup'.tr(),
                   loading: _isCreatingAccount,
                   onPressed: _isCreatingAccount ? null : () => _handleCreateAccount(context),
                 ),

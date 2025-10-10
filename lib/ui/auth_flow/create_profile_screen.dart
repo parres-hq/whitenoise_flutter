@@ -11,6 +11,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/status_bar_utils.dart';
 
 class CreateProfileScreen extends ConsumerStatefulWidget {
@@ -117,7 +118,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
       child: Scaffold(
         backgroundColor: context.colors.neutral,
         resizeToAvoidBottomInset: true,
-        appBar: const AuthAppBar(title: 'Set Up Profile'),
+        appBar: AuthAppBar(title: 'auth.setUpProfile'.tr()),
         body: SafeArea(
           child: SingleChildScrollView(
             controller: _scrollController,
@@ -169,7 +170,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Choose a Name',
+                    'auth.chooseAName'.tr(),
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14.sp,
@@ -197,7 +198,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
                       ),
                     )
                     : WnTextFormField(
-                      hintText: 'Your name',
+                      hintText: 'auth.yourName'.tr(),
                       obscureText: false,
                       controller: _displayNameController,
                     ),
@@ -205,7 +206,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
                 Align(
                   alignment: Alignment.centerLeft,
                   child: Text(
-                    'Introduce yourself',
+                    'auth.introduceYourself'.tr(),
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
                       fontSize: 14.sp,
@@ -215,7 +216,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
                 ),
                 Gap(8.h),
                 WnTextFormField(
-                  hintText: 'Write something about yourself',
+                  hintText: 'auth.writeSomethingAboutYourself'.tr(),
                   obscureText: false,
                   controller: _bioController,
                   focusNode: _bioFocusNode,
@@ -243,7 +244,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
                 final isButtonDisabled = createProfileState.isLoading || _isLoadingDisplayName;
 
                 return WnFilledButton(
-                  label: 'Finish',
+                  label: 'auth.finish'.tr(),
                   loading: isButtonDisabled,
                   onPressed:
                       isButtonDisabled

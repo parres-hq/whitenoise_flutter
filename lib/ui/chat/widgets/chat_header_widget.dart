@@ -9,6 +9,7 @@ import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -101,7 +102,7 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
           Gap(12.h),
           if (widget.group.description.isNotEmpty) ...[
             Text(
-              'Group Description:',
+              'chats.groupDescription'.tr(),
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
