@@ -11,6 +11,7 @@ import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_section.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class NetworkScreen extends ConsumerStatefulWidget {
   const NetworkScreen({super.key});
@@ -142,7 +143,7 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
               ),
               title: RepaintBoundary(
                 child: Text(
-                  'Network Relays',
+                  'settings.networkRelays'.tr(),
                   style: TextStyle(
                     fontSize: 18.sp,
                     fontWeight: FontWeight.w600,
@@ -165,42 +166,42 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                           children: [
                             RepaintBoundary(
                               child: RelaySection(
-                                title: 'My Relays',
+                                title: 'network.myRelays'.tr(),
                                 helpIconKey: _myRelayHelpIconKey,
                                 relayState: normalRelaysState,
                                 relayNotifier: ref.read(normalRelaysProvider.notifier),
                                 onInfoTap:
                                     () => _showHelpTooltip(
                                       _myRelayHelpIconKey,
-                                      'Relays you have defined for use across all your Nostr applications.',
+                                      'network.myRelaysHelp'.tr(),
                                     ),
                               ),
                             ),
                             SizedBox(height: 16.h),
                             RepaintBoundary(
                               child: RelaySection(
-                                title: 'Inbox Relays',
+                                title: 'network.inboxRelays'.tr(),
                                 helpIconKey: _inboxRelayHelpIconKey,
                                 relayState: inboxRelaysState,
                                 relayNotifier: ref.read(inboxRelaysProvider.notifier),
                                 onInfoTap:
                                     () => _showHelpTooltip(
                                       _inboxRelayHelpIconKey,
-                                      'Relays used to receive invitations and start secure conversations with new contacts.',
+                                      'network.inboxRelaysHelp'.tr(),
                                     ),
                               ),
                             ),
                             SizedBox(height: 16.h),
                             RepaintBoundary(
                               child: RelaySection(
-                                title: 'Key Package Relays',
+                                title: 'network.keyPackageRelays'.tr(),
                                 helpIconKey: _keyPackageRelayHelpIconKey,
                                 relayState: keyPackageRelaysState,
                                 relayNotifier: ref.read(keyPackageRelaysProvider.notifier),
                                 onInfoTap:
                                     () => _showHelpTooltip(
                                       _keyPackageRelayHelpIconKey,
-                                      'Relays that store your secure key so others can invite you to encrypted conversations.',
+                                      'network.keyPackageRelaysHelp'.tr(),
                                     ),
                               ),
                             ),

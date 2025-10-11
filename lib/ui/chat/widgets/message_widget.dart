@@ -1,13 +1,16 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 
+import 'package:whitenoise/config/providers/localization_provider.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_bubble/bubble.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/message_utils.dart';
 
 class MessageWidget extends StatelessWidget {
   final MessageModel message;
@@ -427,13 +430,15 @@ class TimeAndStatus extends StatelessWidget {
   }
 }
 
-class ReplyBox extends StatelessWidget {
+class ReplyBox extends ConsumerWidget {
   const ReplyBox({super.key, this.replyingTo, this.onTap});
   final MessageModel? replyingTo;
   final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch localization changes
+    ref.watch(currentLocaleProvider);
     if (replyingTo == null) {
       return const SizedBox.shrink();
     }
@@ -457,7 +462,7 @@ class ReplyBox extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  replyingTo?.sender.displayName ?? '',
+                  MessageUtils.getDisplayName(replyingTo, null),
                   style: TextStyle(
                     color: context.colors.mutedForeground,
                     fontSize: 12.sp,

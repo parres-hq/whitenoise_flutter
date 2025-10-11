@@ -1,10 +1,12 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
+import 'package:whitenoise/config/providers/localization_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -12,6 +14,8 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/message_utils.dart';
 
 class ChatInput extends ConsumerStatefulWidget {
   const ChatInput({
@@ -259,7 +263,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                 controller: _textController,
                                 focusNode: _focusNode,
                                 onChanged: (_) => setState(() {}),
-                                hintText: 'Message',
+                                hintText: 'chats.message'.tr(),
                                 maxLines: 5,
                                 textInputAction: TextInputAction.newline,
                                 keyboardType: TextInputType.multiline,
@@ -329,7 +333,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
   }
 }
 
-class ReplyEditHeader extends StatelessWidget {
+class ReplyEditHeader extends ConsumerWidget {
   const ReplyEditHeader({
     super.key,
     this.replyingTo,
@@ -342,7 +346,9 @@ class ReplyEditHeader extends StatelessWidget {
   final VoidCallback onCancel;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Watch localization changes
+    ref.watch(currentLocaleProvider);
     if (replyingTo == null && editingMessage == null) {
       return const SizedBox.shrink();
     }
@@ -365,9 +371,7 @@ class ReplyEditHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                replyingTo?.sender.displayName ??
-                    editingMessage?.sender.displayName ??
-                    'Unknown User',
+                MessageUtils.getDisplayName(replyingTo, editingMessage),
                 style: TextStyle(
                   color: context.colors.mutedForeground,
                   fontSize: 12.sp,
@@ -393,7 +397,7 @@ class ReplyEditHeader extends StatelessWidget {
 
           Gap(4.h),
           Text(
-            replyingTo?.content ?? editingMessage?.content ?? 'Quote Text...',
+            replyingTo?.content ?? editingMessage?.content ?? 'chats.quoteText'.tr(),
             style: TextStyle(
               color: context.colors.primary,
               fontSize: 12.sp,

@@ -17,12 +17,12 @@ class ReactionsDialogWidget extends StatefulWidget {
     required this.messageWidget,
     required this.onReactionTap,
     required this.onContextMenuTap,
-    this.menuItems = DefaultData.menuItems,
+    List<MenuItem>? menuItems,
     this.reactions = DefaultData.reactions,
     this.widgetAlignment = Alignment.centerRight,
     this.menuItemsWidth = 0.50,
     this.messagePosition,
-  });
+  }) : _menuItems = menuItems;
 
   // Id for the hero widget
   final String id;
@@ -37,7 +37,9 @@ class ReactionsDialogWidget extends StatefulWidget {
   final Function(MenuItem) onContextMenuTap;
 
   // The list of menu items to be displayed in the context menu
-  final List<MenuItem> menuItems;
+  final List<MenuItem>? _menuItems;
+
+  List<MenuItem> get menuItems => _menuItems ?? DefaultData.menuItems;
 
   // The list of reactions to be displayed
   final List<String> reactions;

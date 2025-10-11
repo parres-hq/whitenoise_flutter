@@ -21,6 +21,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -84,8 +85,8 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
                   children: [
                     Text(
                       groupType == GroupType.directMessage
-                          ? 'Chat Information'
-                          : 'Group Information',
+                          ? 'chats.chatInformation'.tr()
+                          : 'chats.groupInformation'.tr(),
                       style: context.textTheme.bodyMedium?.copyWith(
                         color: context.colors.mutedForeground,
                         fontSize: 18.sp,

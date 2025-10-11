@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/create_group_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
@@ -15,6 +16,7 @@ import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   const GroupChatDetailsSheet({
@@ -33,7 +35,7 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   }) {
     return WnBottomSheet.show(
       context: context,
-      title: 'Group chat details',
+      title: 'ui.groupChatDetails'.tr(),
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
@@ -122,8 +124,9 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                 context: context,
                 contacts: next.contactsWithoutKeyPackage,
               );
-            } catch (e) {
-              safeShowErrorToast('Failed to show share invite bottom sheet: $e');
+            } catch (e, st) {
+              Logger('GroupChatDetailsSheet').severe('Error showing invite sheet', e, st);
+              safeShowErrorToast('An error occurred, please try again.');
             } finally {
               ref.read(createGroupProvider.notifier).dismissInviteSheet();
             }
@@ -279,8 +282,8 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                 state.isUploadingImage
                     ? 'Uploading Image...'
                     : state.isCreatingGroup
-                    ? 'Creating Group...'
-                    : 'Create Group',
+                    ? 'ui.creatingGroup'.tr()
+                    : 'ui.createGroup'.tr(),
           ),
           Gap(16.h),
         ],

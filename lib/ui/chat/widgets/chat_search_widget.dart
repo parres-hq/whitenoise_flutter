@@ -6,6 +6,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ChatSearchWidget extends ConsumerStatefulWidget {
   final String groupId;
@@ -67,7 +68,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                 setState(() {}); // Update UI to show/hide clear button
               },
               decoration: InputDecoration(
-                hintText: 'Search chat',
+                hintText: 'chats.searchChat'.tr(),
                 hintStyle: TextStyle(
                   color: context.colors.mutedForeground,
                   fontSize: 16.sp,
@@ -145,7 +146,10 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 8.w),
                     child: Text(
-                      '${searchNotifier.currentMatchNumber} of ${searchNotifier.totalMatches} matches',
+                      'chats.matchesCounter'.tr({
+                        'current': searchNotifier.currentMatchNumber,
+                        'total': searchNotifier.totalMatches,
+                      }),
                       style: TextStyle(
                         color: context.colors.mutedForeground,
                         fontSize: 14.sp,
@@ -184,7 +188,7 @@ class _ChatSearchWidgetState extends ConsumerState<ChatSearchWidget> {
               padding: EdgeInsets.all(12.w), // Minimal padding
               color: context.colors.solidNeutralBlack,
               child: Text(
-                'No results found',
+                'chats.noResultsFound'.tr(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: context.colors.mutedForeground,

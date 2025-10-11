@@ -10,6 +10,7 @@ import 'package:whitenoise/domain/services/image_picker_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
 import 'package:whitenoise/src/rust/api/utils.dart' as rust_utils;
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
   final _logger = Logger('CreateGroupNotifier');
@@ -122,14 +123,14 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
         );
       } else {
         state = state.copyWith(
-          error: 'Failed to create group chat. Please try again.',
+          error: 'ui.failedToCreateGroup'.tr(),
           isCreatingGroup: false,
         );
       }
     } catch (e, st) {
       _logger.severe('createGroup', e, st);
       state = state.copyWith(
-        error: 'Error creating group: ${e.toString()}',
+        error: 'ui.errorCreatingGroup'.tr(),
         isCreatingGroup: false,
       );
     }
