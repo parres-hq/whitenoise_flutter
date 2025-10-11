@@ -12,6 +12,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/settings/profile/connect_profile_bottom_sheet.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class SwitchProfileBottomSheet extends ConsumerStatefulWidget {
@@ -36,7 +37,7 @@ class SwitchProfileBottomSheet extends ConsumerStatefulWidget {
   }) {
     return WnBottomSheet.show(
       context: context,
-      title: 'Profiles',
+      title: 'ui.profiles'.tr(),
       barrierDismissible: isDismissible,
       showCloseButton: isDismissible,
       builder:
@@ -94,7 +95,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
     _loadAccountsProfileData();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (widget.showSuccessToast) {
-        ref.showRawSuccessToast('Signed out. Choose different profile.');
+        ref.showRawSuccessToast('ui.signedOutChooseDifferent'.tr());
       }
     });
   }
@@ -125,7 +126,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
       _sortAccountsProfileData();
     } catch (e) {
       if (mounted) {
-        ref.showErrorToast('Failed to load accounts');
+        ref.showErrorToast('ui.failedToLoadAccounts'.tr());
         setState(() {
           _isLoadingAccounts = false;
         });
@@ -239,7 +240,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
               ),
               Gap(16.h),
               WnFilledButton(
-                label: 'Connect Another Profile',
+                label: 'ui.connectAnotherProfile'.tr(),
                 onPressed: _handleConnectAnotherProfile,
               ),
               Gap(28.h),

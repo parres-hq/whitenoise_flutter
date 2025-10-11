@@ -13,6 +13,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -40,8 +41,8 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
     if (welcome == null) {
       return Scaffold(
         backgroundColor: context.colors.neutral,
-        body: const Center(
-          child: Text('Invitation not found'),
+        body: Center(
+          child: Text('ui.invitationNotFound'.tr()),
         ),
       );
     }
@@ -71,7 +72,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
               child: Column(
                 children: [
                   WnFilledButton(
-                    label: 'Decline',
+                    label: 'shared.decline'.tr(),
                     visualState: WnButtonVisualState.secondary,
                     onPressed: () async {
                       await welcomesNotifier.declineWelcomeInvitation(widget.inviteId);
@@ -82,7 +83,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
                   ),
                   Gap(8.h),
                   WnFilledButton(
-                    label: 'Accept',
+                    label: 'shared.accept'.tr(),
                     loading: _isAccepting,
                     onPressed:
                         _isAccepting
@@ -188,7 +189,7 @@ class GroupInviteHeader extends StatelessWidget {
           Gap(12.h),
           if (welcome.groupDescription.isNotEmpty) ...[
             Text(
-              'Group Description:',
+              'ui.groupDescription'.tr(),
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,
@@ -208,14 +209,14 @@ class GroupInviteHeader extends StatelessWidget {
           ],
           Text.rich(
             TextSpan(
-              text: 'Group Chat Invitation • ',
+              text: 'ui.groupChatInvitation'.tr(),
               style: TextStyle(
                 fontSize: 14.sp,
                 color: context.colors.mutedForeground,
               ),
               children: [
                 TextSpan(
-                  text: '${welcome.memberCount} members',
+                  text: 'ui.membersCount'.tr({'count': welcome.memberCount}),
                   style: TextStyle(
                     color: context.colors.primary,
                     fontWeight: FontWeight.w600,
@@ -290,16 +291,19 @@ class DMInviteHeader extends ConsumerWidget {
               Gap(32.h),
               Text.rich(
                 TextSpan(
-                  text: welcomerName,
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    color: context.colors.primary,
-                    fontWeight: FontWeight.w600,
-                  ),
                   children: [
+                    TextSpan(
+                      text: welcomerName,
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        color: context.colors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                     TextSpan(
                       text: ' invited you to a secure chat.',
                       style: TextStyle(
+                        fontSize: 14.sp,
                         color: context.colors.mutedForeground,
                       ),
                     ),
