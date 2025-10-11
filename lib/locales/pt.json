@@ -291,7 +291,12 @@
         "creatingGroup": "Criando grupo...",
         "failedToCreateGroup": "Falha ao criar chat de grupo. Tente novamente.",
         "errorCreatingGroup": "Erro ao criar grupo",
-        "inviteMessage": "Junte-se a mim no White Noise. Sem número de telefone. Sem vigilância. Apenas privacidade real. Baixe aqui: https://www.whitenoise.chat/download"
+        "inviteMessage": "Junte-se a mim no White Noise. Sem número de telefone. Sem vigilância. Apenas privacidade real. Baixe aqui: https://www.whitenoise.chat/download",
+        "groupName": "Nome do Grupo",
+        "invitingMembers": "Convidando Membros:",
+        "groupNameHint": "Grupo Cidadãos Livres",
+        "groupDescriptionHint": "Escreva algo sobre o grupo",
+        "uploadingImage": "Enviando Imagem..."
     },
     "errors": {
         "errorOccurred": "Ocorreu um erro",

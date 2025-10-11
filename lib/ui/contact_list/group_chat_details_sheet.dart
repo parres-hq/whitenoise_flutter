@@ -86,11 +86,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
               WidgetsBinding.instance.addPostFrameCallback(
                 (_) async {
                   if (mounted) {
-                    context.go(Routes.home);
-                    await Future.delayed(const Duration(milliseconds: 150));
-                    if (mounted) {
-                      Routes.goToChat(context, createdGroup.mlsGroupId);
-                    }
+                    Routes.goToChat(context, createdGroup.mlsGroupId);
                   }
                 },
               );
@@ -178,7 +174,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Group Name:',
+                  'ui.groupName'.tr(),
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
@@ -188,7 +184,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                 Gap(8.h),
                 WnTextField(
                   textController: _groupNameController,
-                  hintText: 'Free Citizen Group',
+                  hintText: 'ui.groupNameHint'.tr(),
                   padding: EdgeInsets.zero,
                 ),
               ],
@@ -201,7 +197,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Group Description :',
+                  'ui.groupDescription'.tr(),
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w500,
@@ -211,7 +207,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                 Gap(8.h),
                 WnTextField(
                   textController: _groupDescriptionController,
-                  hintText: 'Write something about the group',
+                  hintText: 'ui.groupDescriptionHint'.tr(),
                   maxLines: 5,
                   padding: EdgeInsets.zero,
                 ),
@@ -221,7 +217,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
           Gap(24.h),
           Text(
-            'Inviting Members:',
+            'ui.invitingMembers'.tr(),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 16.sp,
@@ -280,7 +276,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
             loading: state.isCreatingGroup || state.isUploadingImage,
             label:
                 state.isUploadingImage
-                    ? 'Uploading Image...'
+                    ? 'ui.uploadingImage'.tr()
                     : state.isCreatingGroup
                     ? 'ui.creatingGroup'.tr()
                     : 'ui.createGroup'.tr(),
