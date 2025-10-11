@@ -9,6 +9,7 @@ import 'package:whitenoise/ui/contact_list/widgets/share_invite_callout.dart';
 import 'package:whitenoise/ui/contact_list/widgets/user_profile.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_callout.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ShareInviteBottomSheet extends ConsumerStatefulWidget {
   final List<ContactModel> contacts;
@@ -27,7 +28,7 @@ class ShareInviteBottomSheet extends ConsumerStatefulWidget {
   }) {
     return WnBottomSheet.show(
       context: context,
-      title: 'Invite to Chat',
+      title: 'ui.inviteToChat'.tr(),
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder: (context) => ShareInviteBottomSheet(contacts: contacts, onInviteSent: onInviteSent),
@@ -68,10 +69,9 @@ class _ShareInviteBottomSheetState extends ConsumerState<ShareInviteBottomSheet>
             child: Column(
               children: [
                 Gap(24.h),
-                const WnCallout(
-                  title: 'Invite to White Noise',
-                  description:
-                      "These contacts aren't ready for secure messaging yet. Share White Noise with them to get started!",
+                WnCallout(
+                  title: 'ui.inviteToWhiteNoise'.tr(),
+                  description: 'ui.contactsNotReadyForSecureMessaging'.tr(),
                 ),
                 Gap(16.h),
               ],

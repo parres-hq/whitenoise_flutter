@@ -11,6 +11,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class SendMessageButton extends ConsumerStatefulWidget {
   const SendMessageButton(this.user, {super.key});
@@ -27,7 +28,7 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
 
   Future<void> _createOrOpenDirectMessageGroup() async {
     if (widget.user.publicKey.isEmpty) {
-      ref.showErrorToast('No user to start chat with');
+      ref.showErrorToast('chats.noUserToStartChatWith'.tr());
       return;
     }
     setState(() {
@@ -57,13 +58,13 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
           });
 
           ref.showSuccessToast(
-            'Chat with ${widget.user.displayName} started successfully',
+            'ui.chatStartedSuccessfully'.tr({'name': widget.user.displayName}),
           );
         }
       } else {
         if (mounted) {
           final groupsState = ref.read(groupsProvider);
-          final errorMessage = groupsState.error ?? 'Failed to create direct message group';
+          final errorMessage = groupsState.error ?? 'ui.failedToCreateDirectMessageGroup'.tr();
           ref.showErrorToast(errorMessage);
         }
       }
@@ -83,7 +84,7 @@ class _SendMessageButtonState extends ConsumerState<SendMessageButton> {
       loading: _isLoading,
       size: WnButtonSize.small,
       visualState: WnButtonVisualState.secondary,
-      label: 'Send Message',
+      label: 'ui.sendMessage'.tr(),
       suffixIcon: WnImage(
         AssetsPaths.icMessage,
         width: 14.w,
@@ -109,10 +110,10 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
     late String successMessage;
 
     if (currentFollowState.isFollowing) {
-      successMessage = 'Unfollowed ${widget.user.displayName}';
+      successMessage = 'ui.unfollowed'.tr({'name': widget.user.displayName});
       await followNotifier.removeFollow(widget.user.publicKey);
     } else {
-      successMessage = 'Followed ${widget.user.displayName}';
+      successMessage = 'ui.followed'.tr({'name': widget.user.displayName});
       await followNotifier.addFollow(widget.user.publicKey);
     }
 
@@ -134,7 +135,7 @@ class _AddToContactButtonState extends ConsumerState<AddToContactButton> {
       loading: followState.isLoading,
       size: WnButtonSize.small,
       visualState: WnButtonVisualState.secondary,
-      label: followState.isFollowing ? 'Unfollow' : 'Follow',
+      label: followState.isFollowing ? 'ui.unfollow'.tr() : 'ui.follow'.tr(),
       suffixIcon: WnImage(
         followState.isFollowing ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
         size: 11.w,

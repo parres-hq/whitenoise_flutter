@@ -8,6 +8,7 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ConnectProfileBottomSheet extends ConsumerStatefulWidget {
   const ConnectProfileBottomSheet({super.key});
@@ -17,7 +18,7 @@ class ConnectProfileBottomSheet extends ConsumerStatefulWidget {
   }) {
     return WnBottomSheet.show(
       context: context,
-      title: 'Connect Another Profile',
+      title: 'ui.connectAnotherProfile'.tr(),
       showCloseButton: false,
       showBackButton: true,
       builder: (context) => const ConnectProfileBottomSheet(),
@@ -39,7 +40,7 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
       mainAxisSize: MainAxisSize.min,
       children: [
         WnFilledButton(
-          label: 'Login With Existing Profile',
+          label: 'ui.loginWithExistingProfile'.tr(),
           loading: _isLoginLoading,
           visualState: WnButtonVisualState.secondary,
           onPressed:
@@ -64,7 +65,7 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
         ),
         Gap(8.h),
         WnFilledButton(
-          label: 'Create New Profile',
+          label: 'ui.createNewProfile'.tr(),
           loading: authState.isLoading,
           onPressed: () async {
             // Wait for account creation and metadata generation
@@ -76,7 +77,7 @@ class _ConnectProfileBottomSheetState extends ConsumerState<ConnectProfileBottom
               context.go(Routes.createProfile);
             } else {
               if (!context.mounted) return;
-              ref.showErrorToast(authState.error ?? 'Unknown error');
+              ref.showErrorToast(authState.error ?? 'errors.unknownError'.tr());
             }
           },
         ),

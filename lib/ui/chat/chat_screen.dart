@@ -25,6 +25,7 @@ import 'package:whitenoise/ui/chat/widgets/swipe_to_reply_widget.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -307,8 +308,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     if (group == null) {
       return Scaffold(
         backgroundColor: context.colors.neutral,
-        body: const Center(
-          child: Text('Group not found'),
+        body: Center(
+          child: Text('ui.groupNotFound'.tr()),
         ),
       );
     }
@@ -409,12 +410,11 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                             groupId: widget.groupId,
                                           ),
                                       onLongPress:
-                                          (position) => ChatDialogService.showReactionDialog(
+                                          () => ChatDialogService.showReactionDialog(
                                             context: context,
                                             ref: ref,
                                             message: message,
                                             messageIndex: messageIndex,
-                                            messagePosition: position,
                                           ),
                                       child: Hero(
                                         tag: message.id,

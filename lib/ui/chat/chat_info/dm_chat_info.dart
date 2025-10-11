@@ -28,17 +28,17 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
   Future<void> _toggleFollow(String? pubkey) async {
     if (pubkey == null) return;
     final dmChatData = await _dmChatDataFuture;
-    final displayName = dmChatData?.displayName ?? 'Unknown';
+    final displayName = dmChatData?.displayName ?? 'chats.unknown'.tr();
 
     final followNotifier = ref.read(followProvider(pubkey).notifier);
     var currentFollowState = ref.read(followProvider(pubkey));
     late String successMessage;
 
     if (currentFollowState.isFollowing) {
-      successMessage = 'Unfollowed $displayName';
+      successMessage = 'ui.unfollowed'.tr({'name': displayName});
       await followNotifier.removeFollow(pubkey);
     } else {
-      successMessage = 'Followed $displayName';
+      successMessage = 'ui.followed'.tr({'name': displayName});
       await followNotifier.addFollow(pubkey);
     }
 
@@ -56,8 +56,8 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: npub,
-      successMessage: 'Public key copied',
-      noTextMessage: 'No public key to copy',
+      successMessage: 'chats.publicKeyCopied'.tr(),
+      noTextMessage: 'chats.noPublicKeyToCopy'.tr(),
     );
   }
 
@@ -92,12 +92,12 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               Gap(64.h),
               WnAvatar(
                 imageUrl: dmChatData?.displayImage ?? '',
-                displayName: dmChatData?.displayName ?? 'Unknown',
+                displayName: dmChatData?.displayName ?? 'chats.unknown'.tr(),
                 size: 96.w,
               ),
               SizedBox(height: 16.h),
               Text(
-                dmChatData?.displayName ?? 'Unknown',
+                dmChatData?.displayName ?? 'chats.unknown'.tr(),
                 style: context.textTheme.bodyLarge?.copyWith(
                   color: context.colors.primary,
                   fontSize: 18.sp,
@@ -140,7 +140,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               WnFilledButton(
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,
-                label: 'Search Chat',
+                label: 'ui.searchChat'.tr(),
                 suffixIcon: WnImage(
                   AssetsPaths.icSearch,
                   width: 14.w,
@@ -158,7 +158,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                     followState.isFollowing
                         ? WnButtonVisualState.secondary
                         : WnButtonVisualState.primary,
-                label: followState.isFollowing ? 'Unfollow' : 'Follow',
+                label: followState.isFollowing ? 'ui.unfollow'.tr() : 'ui.follow'.tr(),
                 loading: followState.isLoading,
                 suffixIcon: WnImage(
                   followState.isFollowing ? AssetsPaths.icRemoveUser : AssetsPaths.icAddUser,
@@ -174,7 +174,7 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
               WnFilledButton(
                 size: WnButtonSize.small,
                 visualState: WnButtonVisualState.secondary,
-                label: 'Add to Group',
+                label: 'ui.addToGroup'.tr(),
                 suffixIcon: WnImage(
                   AssetsPaths.icAdd,
                   width: 14.w,

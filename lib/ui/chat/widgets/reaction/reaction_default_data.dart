@@ -1,5 +1,6 @@
 import 'package:whitenoise/ui/chat/widgets/reaction/reaction_menu_item.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class DefaultData {
   // default list of five reactions to be displayed from emojis and a plus icon at the end
@@ -15,22 +16,22 @@ class DefaultData {
   ];
 
   // The default list of menuItems (for other users' messages - no delete option)
-  static const List<MenuItem> menuItems = [reply, copy];
+  static List<MenuItem> get menuItems => [reply, copy];
 
-  static const List<MenuItem> myMessageMenuItems = [reply, copy, delete];
+  static List<MenuItem> get myMessageMenuItems => [reply, copy, delete];
 
-  static const MenuItem reply = MenuItem(
-    label: 'Reply',
+  static MenuItem get reply => MenuItem(
+    label: 'chats.replyAction'.tr(),
     assetPath: AssetsPaths.icReply,
   );
 
-  static const MenuItem copy = MenuItem(
-    label: 'Copy',
+  static MenuItem get copy => MenuItem(
+    label: 'chats.copyAction'.tr(),
     assetPath: AssetsPaths.icCopy,
   );
 
-  static const MenuItem delete = MenuItem(
-    label: 'Delete',
+  static MenuItem get delete => MenuItem(
+    label: 'chats.deleteAction'.tr(),
     assetPath: AssetsPaths.icDelete,
     isDestructive: true,
   );

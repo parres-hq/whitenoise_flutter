@@ -16,6 +16,7 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -33,7 +34,7 @@ class GroupMemberBottomSheet extends ConsumerStatefulWidget {
   static void show(BuildContext context, {required String groupId, required User member}) {
     WnBottomSheet.show(
       context: context,
-      title: 'Member',
+      title: 'chats.member'.tr(),
       builder: (context) => GroupMemberBottomSheet(groupId: groupId, member: member),
     );
   }
@@ -51,14 +52,14 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: npub,
-      successMessage: 'Public key copied',
-      noTextMessage: 'No public key to copy',
+      successMessage: 'chats.publicKeyCopied'.tr(),
+      noTextMessage: 'chats.noPublicKeyToCopy'.tr(),
     );
   }
 
   void _openAddToGroup() {
     if (widget.member.publicKey.isEmpty) {
-      ref.showErrorToast('No user to add to group');
+      ref.showErrorToast('ui.noUserToAddToGroup'.tr());
       return;
     }
     context.push('/add_to_group/${widget.member.publicKey}');
@@ -86,11 +87,13 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
           );
       if (mounted) {
         Navigator.pop(context, true);
-        ref.showSuccessToast('${widget.member.displayName} removed from group');
+        ref.showSuccessToast(
+          'chats.removedFromGroupSuccess'.tr({'name': widget.member.displayName}),
+        );
       }
     } catch (e) {
       if (mounted) {
-        ref.showErrorToast('Failed to remove member: $e');
+        ref.showErrorToast('${'chats.failedToRemoveMember'.tr()}: $e');
       }
     } finally {
       if (mounted) {
@@ -112,7 +115,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  'Remove From Group?',
+                  'chats.removeFromGroupTitle'.tr(),
                   style: context.textTheme.bodyLarge?.copyWith(
                     color: context.colors.primary,
                     fontSize: 16.sp,
@@ -132,25 +135,12 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
             Gap(16.h),
             Text.rich(
               TextSpan(
-                text: 'Are you sure you want to remove ',
+                text: 'chats.removeFromGroupConfirmation'.tr({'name': widget.member.displayName}),
                 style: context.textTheme.bodyMedium?.copyWith(
                   color: context.colors.mutedForeground,
                   fontWeight: FontWeight.w500,
                   fontSize: 14.sp,
                 ),
-                children: [
-                  TextSpan(
-                    text: widget.member.displayName,
-                    style: context.textTheme.bodyMedium?.copyWith(
-                      color: context.colors.primary,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const TextSpan(
-                    text:
-                        ' from the group? They\'ll lose access to all messages and group activity. You\'ll need to invite them again if you want them back.',
-                  ),
-                ],
               ),
               textAlign: TextAlign.left,
             ),
@@ -159,7 +149,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
               size: WnButtonSize.small,
               onPressed: () => Navigator.pop(context),
               visualState: WnButtonVisualState.secondary,
-              label: 'Cancel',
+              label: 'shared.cancel'.tr(),
             ),
             Gap(8.h),
             WnFilledButton(
@@ -167,7 +157,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
               loading: _isRemoving,
               onPressed: _isRemoving ? null : _removeFromGroup,
               visualState: WnButtonVisualState.destructive,
-              label: 'Remove From Group',
+              label: 'ui.removeFromGroup'.tr(),
             ),
           ],
         ),
@@ -269,7 +259,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
           onPressed: _openAddToGroup,
           size: WnButtonSize.small,
           visualState: WnButtonVisualState.secondary,
-          label: 'Add to Another Group',
+          label: 'ui.addToAnotherGroup'.tr(),
           suffixIcon: WnImage(
             AssetsPaths.icChatInvite,
             width: 14.w,
@@ -288,7 +278,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
             },
             size: WnButtonSize.small,
             visualState: WnButtonVisualState.secondaryWarning,
-            label: 'Remove From Group',
+            label: 'ui.removeFromGroup'.tr(),
             labelTextStyle: context.textTheme.bodyMedium?.copyWith(
               color: context.colors.destructive,
               fontWeight: FontWeight.w600,
