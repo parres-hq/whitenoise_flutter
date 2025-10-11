@@ -102,7 +102,6 @@ class MessageConverter {
     required String content,
     required String currentUserPublicKey,
     required String groupId,
-    required int kind,
     MessageModel? replyToMessage,
   }) {
     final messageHash =
@@ -128,7 +127,6 @@ class MessageConverter {
       groupId: groupId,
       status: MessageStatus.sending,
       replyTo: replyToMessage,
-      kind: kind,
     );
   }
 
