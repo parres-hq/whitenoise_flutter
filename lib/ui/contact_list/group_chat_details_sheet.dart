@@ -5,6 +5,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/create_group_provider.dart';
+import 'package:whitenoise/config/states/create_group_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -53,7 +54,7 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
 class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> with SafeToastMixin {
   final TextEditingController _groupNameController = TextEditingController();
   final TextEditingController _groupDescriptionController = TextEditingController();
-
+  Group? createdGroup;
   @override
   void initState() {
     super.initState();
@@ -82,59 +83,70 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         .createGroup(
           onGroupCreated: (createdGroup) {
             if (createdGroup != null && mounted) {
+              this.createdGroup = createdGroup;
               context.pop();
-              WidgetsBinding.instance.addPostFrameCallback(
-                (_) async {
-                  if (mounted) {
-                    Routes.goToChat(context, createdGroup.mlsGroupId);
-                  }
-                },
-              );
             }
           },
         );
   }
 
+  void _showInviteSheet(CreateGroupState state) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) {
+        try {
+          await ShareInviteBottomSheet.show(
+            context: context,
+            contacts: state.contactsWithoutKeyPackage,
+          );
+        } catch (e, st) {
+          Logger('GroupChatDetailsSheet').severe('Error showing invite sheet', e, st);
+          safeShowErrorToast('errors.errorOccurredTryAgain'.tr());
+        } finally {
+          ref.read(createGroupProvider.notifier).dismissInviteSheet();
+        }
+      }
+    });
+  }
+
+  void _goToChat() {
+    if (createdGroup != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) async {
+          if (mounted) {
+            Routes.goToChat(context, createdGroup!.mlsGroupId);
+          }
+        },
+      );
+    }
+  }
+
   @override
   void dispose() {
     _groupNameController.removeListener(_onGroupNameChanged);
+    _groupDescriptionController.removeListener(_onGroupDescriptionChanged);
+    _groupDescriptionController.dispose();
     _groupNameController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(createGroupProvider);
-
     ref.listen(createGroupProvider, (previous, next) {
       if (next.error != null) {
         safeShowErrorToast(next.error!);
         ref.read(createGroupProvider.notifier).clearError();
       }
-
       if (next.shouldShowInviteSheet && next.contactsWithoutKeyPackage.isNotEmpty) {
-        WidgetsBinding.instance.addPostFrameCallback((_) async {
-          if (mounted) {
-            try {
-              await ShareInviteBottomSheet.show(
-                context: context,
-                contacts: next.contactsWithoutKeyPackage,
-              );
-            } catch (e, st) {
-              Logger('GroupChatDetailsSheet').severe('Error showing invite sheet', e, st);
-              safeShowErrorToast('An error occurred, please try again.');
-            } finally {
-              ref.read(createGroupProvider.notifier).dismissInviteSheet();
-            }
-          }
-        });
+        _showInviteSheet(next);
       }
     });
 
+    final state = ref.watch(createGroupProvider);
     return PopScope(
-      onPopInvokedWithResult: (didPop, result) {
+      onPopInvokedWithResult: (didPop, _) {
         if (didPop) {
           ref.read(createGroupProvider.notifier).discardChanges();
+          _goToChat();
         }
       },
       child: Column(

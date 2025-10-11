@@ -300,6 +300,7 @@
     },
     "errors": {
         "errorOccurred": "Ein Fehler ist aufgetreten",
-        "unknownError": "Unbekannter Fehler"
+        "unknownError": "Unbekannter Fehler",
+        "errorOccurredTryAgain": "Ein Fehler ist aufgetreten, bitte versuchen Sie es erneut."
     }
 }

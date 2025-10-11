@@ -300,6 +300,7 @@
     },
     "errors": {
         "errorOccurred": "Ocorreu um erro",
-        "unknownError": "Erro desconhecido"
+        "unknownError": "Erro desconhecido",
+        "errorOccurredTryAgain": "Ocorreu um erro, tente novamente por favor."
     }
 }

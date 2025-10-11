@@ -300,6 +300,7 @@
     },
     "errors": {
         "errorOccurred": "Произошла ошибка",
-        "unknownError": "Неизвестная ошибка"
+        "unknownError": "Неизвестная ошибка",
+        "errorOccurredTryAgain": "Произошла ошибка, пожалуйста, попробуйте еще раз."
     }
 }

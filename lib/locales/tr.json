@@ -300,6 +300,7 @@
     },
     "errors": {
         "errorOccurred": "Bir hata oluştu",
-        "unknownError": "Bilinmeyen hata"
+        "unknownError": "Bilinmeyen hata",
+        "errorOccurredTryAgain": "Bir hata oluştu, lütfen tekrar deneyin."
     }
 }
