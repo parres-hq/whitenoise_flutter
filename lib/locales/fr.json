@@ -291,10 +291,16 @@
         "creatingGroup": "Création du groupe...",
         "failedToCreateGroup": "Échec de la création du chat de groupe. Veuillez réessayer.",
         "errorCreatingGroup": "Erreur lors de la création du groupe",
-        "inviteMessage": "Rejoignez-moi sur White Noise. Pas de numéro de téléphone. Pas de surveillance. Juste une vraie confidentialité. Téléchargez ici : https://www.whitenoise.chat/download"
+        "inviteMessage": "Rejoignez-moi sur White Noise. Pas de numéro de téléphone. Pas de surveillance. Juste une vraie confidentialité. Téléchargez ici : https://www.whitenoise.chat/download",
+        "groupName": "Nom du Groupe",
+        "invitingMembers": "Invitation de Membres :",
+        "groupNameHint": "Groupe Citoyens Libres",
+        "groupDescriptionHint": "Écrivez quelque chose sur le groupe",
+        "uploadingImage": "Téléchargement de l'Image..."
     },
     "errors": {
         "errorOccurred": "Une erreur s'est produite",
-        "unknownError": "Erreur inconnue"
+        "unknownError": "Erreur inconnue",
+        "errorOccurredTryAgain": "Une erreur s'est produite, veuillez réessayer."
     }
 }
