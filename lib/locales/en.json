@@ -201,11 +201,7 @@
         "removeFromGroupConfirmation": "Are you sure you want to remove {name} from the group? They'll lose access to all messages and group activity. You'll need to invite them again if you want them back.",
         "removedFromGroupSuccess": "{name} removed from group",
         "failedToRemoveMember": "Failed to remove member",
-        "noUserToStartChatWith": "No user to start chat with",
-        "invitingMembers": "Inviting Members:",
-        "groupNameHint": "Free Citizen Group",
-        "groupDescriptionHint": "Write something about the group",
-        "uploadingImage": "Uploading Image..."
+        "noUserToStartChatWith": "No user to start chat with"
     },
     "clipboard": {
         "emptyTextError": "No text found in clipboard",
@@ -295,7 +291,12 @@
         "creatingGroup": "Creating Group...",
         "failedToCreateGroup": "Failed to create group chat. Please try again.",
         "errorCreatingGroup": "Error creating group",
-        "inviteMessage": "Join me on White Noise. No phone number. No surveillance. Just real privacy. Download it here: https://www.whitenoise.chat/download"
+        "inviteMessage": "Join me on White Noise. No phone number. No surveillance. Just real privacy. Download it here: https://www.whitenoise.chat/download",
+        "groupName": "Group Name:",
+        "invitingMembers": "Inviting Members:",
+        "groupNameHint": "Free Citizen Group",
+        "groupDescriptionHint": "Write something about the group",
+        "uploadingImage": "Uploading Image..."
     },
     "errors": {
         "errorOccurred": "An error occurred",
