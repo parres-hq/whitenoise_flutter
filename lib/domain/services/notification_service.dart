@@ -1,6 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logging/logging.dart';
-import 'package:timezone/timezone.dart' as tz;
 
 class NotificationService {
   static final _logger = Logger('NotificationService');
@@ -53,6 +52,13 @@ class NotificationService {
       importance: Importance.high,
     );
 
+    const AndroidNotificationChannel invitesChannel = AndroidNotificationChannel(
+      'invites',
+      'Invites',
+      description: 'Notifications for new invites',
+      importance: Importance.high,
+    );
+
     const AndroidNotificationChannel generalChannel = AndroidNotificationChannel(
       'general',
       'General',
@@ -65,6 +71,7 @@ class NotificationService {
 
     if (plugin != null) {
       await plugin.createNotificationChannel(messageChannel);
+      await plugin.createNotificationChannel(invitesChannel);
       await plugin.createNotificationChannel(generalChannel);
       _logger.fine('Android notification channels created');
     }
@@ -151,6 +158,47 @@ class NotificationService {
     }
   }
 
+  static Future<void> showInviteNotification({
+    required int id,
+    required String title,
+    required String body,
+    String? payload,
+  }) async {
+    if (!_isInitialized) {
+      _logger.warning('NotificationService not initialized, cannot show notification');
+      return;
+    }
+    try {
+      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+        'invites',
+        'Invites',
+        channelDescription: 'Notifications for new invites',
+        importance: Importance.high,
+        priority: Priority.high,
+        icon: '@mipmap/ic_launcher',
+      );
+
+      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
+
+      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+        android: androidDetails,
+        iOS: iosDetails,
+      );
+
+      await _flutterLocalNotificationsPlugin.show(
+        id,
+        title,
+        body,
+        platformChannelSpecifics,
+        payload: payload,
+      );
+
+      _logger.fine('Invite notification shown: $title');
+    } catch (e) {
+      _logger.severe('Failed to show invite notification: $e');
+    }
+  }
+
   static Future<void> cancelNotification(int id) async {
     try {
       await _flutterLocalNotificationsPlugin.cancel(id);
@@ -166,64 +214,6 @@ class NotificationService {
       _logger.info('All notifications cancelled');
     } catch (e) {
       _logger.severe('Failed to cancel all notifications: $e');
-    }
-  }
-
-  static Future<List<PendingNotificationRequest>> getPendingNotifications() async {
-    try {
-      return await _flutterLocalNotificationsPlugin.pendingNotificationRequests();
-    } catch (e) {
-      _logger.severe('Failed to get pending notifications: $e');
-      return [];
-    }
-  }
-
-  static Future<void> scheduleNotification({
-    required int id,
-    required String title,
-    required String body,
-    required DateTime scheduledDate,
-    String? payload,
-    String channelId = 'general',
-  }) async {
-    if (!_isInitialized) {
-      _logger.warning('NotificationService not initialized, cannot schedule notification');
-      return;
-    }
-
-    try {
-      final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-        channelId,
-        channelId == 'messages' ? 'Messages' : 'General',
-        channelDescription:
-            channelId == 'messages' ? 'Notifications for new messages' : 'General notifications',
-        importance: channelId == 'messages' ? Importance.high : Importance.defaultImportance,
-        priority: channelId == 'messages' ? Priority.high : Priority.defaultPriority,
-        icon: '@mipmap/ic_launcher',
-      );
-
-      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
-
-      final NotificationDetails platformChannelSpecifics = NotificationDetails(
-        android: androidDetails,
-        iOS: iosDetails,
-        macOS: iosDetails,
-      );
-
-      await _flutterLocalNotificationsPlugin.zonedSchedule(
-        id,
-        title,
-        body,
-        tz.TZDateTime.from(scheduledDate, tz.local),
-        platformChannelSpecifics,
-        payload: payload,
-        androidScheduleMode: AndroidScheduleMode.exact,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-      );
-
-      _logger.info('Notification scheduled for $scheduledDate: $title');
-    } catch (e) {
-      _logger.severe('Failed to schedule notification: $e');
     }
   }
 }

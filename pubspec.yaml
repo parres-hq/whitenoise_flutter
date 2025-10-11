@@ -71,6 +71,8 @@ dependencies:
     flutter_local_notifications: ^18.0.1
     timezone: ^0.10.1
     flutter_timezone: ^5.0.0
+    workmanager: ^0.9.0+3
+    synchronized: ^3.4.0    
     flutter_slidable: ^4.0.3
 
 dev_dependencies:
@@ -88,7 +90,7 @@ dev_dependencies:
         sdk: flutter
     build_runner: ^2.4.8
     freezed: ^2.4.7
-    mockito: ^5.4.4
+    mockito: ^5.4.4    
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

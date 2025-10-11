@@ -13,6 +13,7 @@ import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/settings/developer/background_sync_screen.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
 class DeveloperSettingsScreen extends ConsumerStatefulWidget {
@@ -387,6 +388,28 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                   ),
                                 ),
                             ],
+                            Gap(24.h),
+                            RepaintBoundary(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Background Services',
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      fontWeight: FontWeight.w600,
+                                      color: context.colors.primary,
+                                    ),
+                                  ),
+
+                                  Gap(10.h),
+                                  WnFilledButton(
+                                    label: 'Background Sync Service',
+                                    onPressed: () => BackgroundSyncScreen.show(context),
+                                  ),
+                                ],
+                              ),
+                            ),
                             Gap(MediaQuery.of(context).padding.bottom),
                           ],
                         ),

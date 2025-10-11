@@ -9,12 +9,12 @@ import 'package:timezone/timezone.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/localization_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
+import 'package:whitenoise/domain/services/background_sync_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/router_provider.dart';
 import 'package:whitenoise/services/localization_service.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 import 'package:whitenoise/ui/core/ui/wn_toast.dart';
-
 import 'ui/core/themes/src/app_theme.dart';
 
 Future<void> main() async {
@@ -61,6 +61,13 @@ Future<void> main() async {
 
     await authNotifier.initialize();
     log.info('Whitenoise initialized via authProvider');
+
+    try {
+      await BackgroundSyncService.initialize();
+      log.info('Background sync service initialized successfully');
+    } catch (e) {
+      log.severe('Failed to initialize background sync service: $e');
+    }
   } catch (e) {
     log.severe('Initialization failed: $e');
   }
