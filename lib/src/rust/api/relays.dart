@@ -17,31 +17,8 @@ Future<RelayType> relayTypeInbox() => RustLib.instance.api.crateApiRelaysRelayTy
 
 Future<RelayType> relayTypeKeyPackage() => RustLib.instance.api.crateApiRelaysRelayTypeKeyPackage();
 
-Future<List<(String, String)>> getAccountRelayStatuses({
-  required String pubkey,
-}) => RustLib.instance.api.crateApiRelaysGetAccountRelayStatuses(pubkey: pubkey);
-
-/// Ensures all subscriptions (global and all accounts) are operational.
-///
-/// This method is designed for periodic background tasks that need to ensure
-/// the entire subscription system is functioning. It checks and refreshes
-/// global subscriptions first, then iterates through all accounts.
-///
-/// Uses a best-effort strategy: if one subscription check fails, logs the error
-/// and continues with the remaining checks. This maximizes the number of working
-/// subscriptions even when some fail due to transient network issues.
-///
-/// # Error Handling
-///
-/// - **Subscription errors**: Logged and ignored, processing continues
-/// - **Database errors**: Propagated immediately (catastrophic failure)
-///
-/// # Returns
-///
-/// - `Ok(())`: Completed all checks (some may have failed, check logs)
-/// - `Err(_)`: Only on catastrophic failures (e.g., database connection lost)
-Future<void> ensureAllSubscriptions() =>
-    RustLib.instance.api.crateApiRelaysEnsureAllSubscriptions();
+Future<List<(String, String)>> fetchRelayStatus({required String pubkey}) =>
+    RustLib.instance.api.crateApiRelaysFetchRelayStatus(pubkey: pubkey);
 
 class Relay {
   final String url;

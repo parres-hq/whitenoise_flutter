@@ -16,6 +16,7 @@ import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class NewGroupChatSheet extends ConsumerStatefulWidget {
   final ValueChanged<Group?>? onGroupCreated;
@@ -33,7 +34,7 @@ class NewGroupChatSheet extends ConsumerStatefulWidget {
   }) {
     return WnBottomSheet.show(
       context: context,
-      title: 'New group chat',
+      title: 'ui.newGroupChat'.tr(),
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
@@ -103,7 +104,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     if (filteredContacts.isEmpty) {
       return Center(
         child: Text(
-          _searchQuery.isEmpty ? 'No contacts found' : 'No contacts match your search',
+          _searchQuery.isEmpty ? 'chats.noContactsFound'.tr() : 'chats.noContactsMatchSearch'.tr(),
           style: TextStyle(fontSize: 16.sp),
         ),
       );
@@ -176,7 +177,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
               Expanded(
                 child: WnTextFormField(
                   controller: _searchController,
-                  hintText: 'Search contact or public key...',
+                  hintText: 'chats.searchContactPlaceholder'.tr(),
                   size: FieldSize.small,
                   decoration: InputDecoration(
                     prefixIcon: Padding(
@@ -215,7 +216,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'Error loading contacts',
+                            'chats.contactsLoadingError'.tr(),
                             style: TextStyle(fontSize: 16.sp),
                           ),
                           Gap(8.h),
@@ -233,7 +234,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                               // Navigate back - contacts should be loaded by new_chat_bottom_sheet
                               Navigator.of(context).pop();
                             },
-                            child: const Text('Go Back'),
+                            child: Text('shared.goBack'.tr()),
                           ),
                         ],
                       ),
@@ -252,7 +253,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                       );
                     }
                     : null,
-            label: 'Continue',
+            label: 'shared.continue'.tr(),
           ),
         ],
       ),

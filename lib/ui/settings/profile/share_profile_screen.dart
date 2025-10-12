@@ -14,6 +14,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -42,7 +43,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
       setState(() {});
     } catch (e) {
       if (!mounted) return;
-      ref.showErrorToast('Failed to load profile: ${e.toString()}');
+      ref.showErrorToast('${'profile.failedToLoadProfile'.tr()}: ${e.toString()}');
     }
   }
 
@@ -50,7 +51,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: text,
-      successMessage: 'Public key copied',
+      successMessage: 'profile.publicKeyCopied'.tr(),
     );
   }
 
@@ -78,7 +79,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                   children: [
                     const BackButton(),
                     Text(
-                      'Share Profile',
+                      'profile.shareProfile'.tr(),
                       style: TextStyle(
                         fontSize: 18.sp,
                         fontWeight: FontWeight.w600,
@@ -164,7 +165,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                             ),
                             Gap(10.h),
                             Text(
-                              'Scan to connect.',
+                              'profile.scanToConnect'.tr(),
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontSize: 14.sp,
@@ -174,7 +175,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                             ),
                             const Spacer(),
                             WnFilledButton(
-                              label: 'Scan QR Code',
+                              label: 'profile.scanQrCode'.tr(),
                               suffixIcon: WnImage(
                                 AssetsPaths.icScan,
                                 size: 18.w,
@@ -189,8 +190,8 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                     },
                     loading: () => const Center(child: CircularProgressIndicator()),
                     error:
-                        (error, stackTrace) => const Center(
-                          child: Text('Error loading profile'),
+                        (error, stackTrace) => Center(
+                          child: Text('ui.errorLoadingProfile'.tr()),
                         ),
                   ),
                 ),

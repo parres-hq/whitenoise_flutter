@@ -82,13 +82,8 @@ void main() {
         ),
       );
 
-      expect(find.text('Invite to White Noise'), findsOneWidget);
-      expect(
-        find.textContaining(
-          "Satoshi Nakamoto isn't on White Noise yet. Share the download link to start a secure chat.",
-        ),
-        findsOneWidget,
-      );
+      expect(find.text('chats.inviteToWhiteNoise'), findsOneWidget);
+      expect(find.text('chats.userNotOnWhiteNoise'), findsOneWidget);
     });
 
     testWidgets('displays share button', (WidgetTester tester) async {
@@ -100,7 +95,7 @@ void main() {
         ),
       );
 
-      expect(find.text('Share'), findsOneWidget);
+      expect(find.text('chats.share'), findsOneWidget);
     });
   });
 }
