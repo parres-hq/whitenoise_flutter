@@ -4,11 +4,13 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/domain/services/avatar_color_service.dart';
 
 /// Provider for managing avatar colors in memory
-final avatarColorProvider = NotifierProvider<AvatarColorNotifier, Map<String, Color>>(AvatarColorNotifier.new);
+final avatarColorProvider = NotifierProvider<AvatarColorNotifier, Map<String, Color>>(
+  AvatarColorNotifier.new,
+);
 
 class AvatarColorNotifier extends Notifier<Map<String, Color>> {
   final _logger = Logger('AvatarColorProvider');
-  final _service = AvatarColorService();
+  final _avatarColorService = AvatarColorService();
 
   @override
   Map<String, Color> build() {
@@ -19,7 +21,7 @@ class AvatarColorNotifier extends Notifier<Map<String, Color>> {
   /// Load all saved colors from SharedPreferences into memory cache
   Future<void> _loadSavedColors() async {
     try {
-      final colorsMap = await _service.loadAllColors();
+      final colorsMap = await _avatarColorService.loadAllColors();
       if (colorsMap.isNotEmpty) {
         state = colorsMap;
         _logger.info('Loaded ${colorsMap.length} saved colors into cache');
@@ -32,12 +34,12 @@ class AvatarColorNotifier extends Notifier<Map<String, Color>> {
   /// Get color for a pubkey from cache or generate new one
   Future<Color> getColor(String pubkey) async {
     final cacheKey = AvatarColorService.toCacheKey(pubkey);
-    
+
     if (state.containsKey(cacheKey)) {
       return state[cacheKey]!;
     }
 
-    final color = await _service.getOrGenerateColor(pubkey);
+    final color = await _avatarColorService.getOrGenerateColor(pubkey);
     state = {...state, cacheKey: color};
 
     return color;
@@ -49,17 +51,18 @@ class AvatarColorNotifier extends Notifier<Map<String, Color>> {
     try {
       _logger.info('Preloading colors for ${pubkeys.length} pubkeys');
 
-      final uncachedPubkeys = pubkeys.where((pk) {
-        final cacheKey = AvatarColorService.toCacheKey(pk);
-        return !state.containsKey(cacheKey);
-      }).toList();
+      final uncachedPubkeys =
+          pubkeys.where((pk) {
+            final cacheKey = AvatarColorService.toCacheKey(pk);
+            return !state.containsKey(cacheKey);
+          }).toList();
 
       if (uncachedPubkeys.isEmpty) {
         _logger.info('All pubkeys already cached');
         return;
       }
 
-      final colorMap = await _service.generateColorsForPubkeys(uncachedPubkeys);
+      final colorMap = await _avatarColorService.generateColorsForPubkeys(uncachedPubkeys);
       final cacheKeyColorMap = <String, Color>{};
       for (final entry in colorMap.entries) {
         final cacheKey = AvatarColorService.toCacheKey(entry.key);
@@ -76,7 +79,7 @@ class AvatarColorNotifier extends Notifier<Map<String, Color>> {
 
   /// Clear all colors including SharedPreferences
   Future<void> clearAll() async {
-    await _service.clearAllColors();
+    await _avatarColorService.clearAllColors();
     state = {};
     _logger.info('Cleared all avatar colors');
   }
