@@ -291,10 +291,16 @@
         "creatingGroup": "Creating Group...",
         "failedToCreateGroup": "Failed to create group chat. Please try again.",
         "errorCreatingGroup": "Error creating group",
-        "inviteMessage": "Join me on White Noise. No phone number. No surveillance. Just real privacy. Download it here: https://www.whitenoise.chat/download"
+        "inviteMessage": "Join me on White Noise. No phone number. No surveillance. Just real privacy. Download it here: https://www.whitenoise.chat/download",
+        "groupName": "Group Name:",
+        "invitingMembers": "Inviting Members:",
+        "groupNameHint": "Free Citizen Group",
+        "groupDescriptionHint": "Write something about the group",
+        "uploadingImage": "Uploading Image..."
     },
     "errors": {
         "errorOccurred": "An error occurred",
-        "unknownError": "Unknown error"
+        "unknownError": "Unknown error",
+        "errorOccurredTryAgain": "An error occurred, please try again."
     }
 }
