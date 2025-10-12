@@ -170,6 +170,7 @@ class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
                 displayName: otherUser.displayName,
                 size: 96.r,
                 showBorder: true,
+                pubkey: otherUser.publicKey,
               ),
               Gap(12.h),
               Text(

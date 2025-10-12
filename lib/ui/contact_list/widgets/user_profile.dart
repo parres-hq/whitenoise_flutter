@@ -42,6 +42,7 @@ class UserProfile extends StatelessWidget {
           displayName: name,
           size: 96.r,
           showBorder: imageUrl.isEmpty,
+          pubkey: pubkey,
         ),
         Gap(8.h),
         Text(
