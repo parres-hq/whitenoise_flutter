@@ -31,8 +31,14 @@ class AvatarColorService {
     const Color(0xFF90A4AE), // Blue Grey
   ];
 
-  /// Generate a unique identifier from pubkey (first 12 chars of npub)
-  String _generateIdentifier(String pubkey) {
+  /// Generate a consistent cache key from pubkey (first 12 chars of npub)
+  /// Handles both hex and npub format inputs
+  /// Returns a shortened identifier, not a valid pubkey
+  static String toCacheKey(String pubkey) {
+    if (pubkey.startsWith('npub1')) {
+      return pubkey.substring(0, 12);
+    }
+    
     final npub = PubkeyFormatter(pubkey: pubkey).toNpub();
     if (npub == null) {
       _logger.warning('Failed to convert pubkey to npub, using hex fallback');
@@ -76,7 +82,7 @@ class AvatarColorService {
   /// Get color for a pubkey, generating and saving if not exists
   Future<Color> getOrGenerateColor(String pubkey) async {
     try {
-      final identifier = _generateIdentifier(pubkey);
+      final identifier = toCacheKey(pubkey);
       final colorsMap = await _loadColorsMap();
 
       // Try to get existing color
@@ -111,7 +117,7 @@ class AvatarColorService {
       bool hasNewColors = false;
 
       for (final pubkey in pubkeys) {
-        final identifier = _generateIdentifier(pubkey);
+        final identifier = toCacheKey(pubkey);
 
         // Check if color already exists
         final existingColorValue = colorsMap[identifier];
