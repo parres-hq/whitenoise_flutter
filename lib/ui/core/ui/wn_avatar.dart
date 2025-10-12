@@ -1,27 +1,30 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
-class WnAvatar extends StatelessWidget {
+class WnAvatar extends ConsumerWidget {
   const WnAvatar({
     super.key,
     required this.imageUrl,
     this.size = 20,
-    this.backgroundColor,
-    this.borderColor,
     this.showBorder = false,
     this.displayName,
+    this.pubkey,
   });
   final String imageUrl;
   final double size;
-  final Color? backgroundColor;
-  final Color? borderColor;
   final bool showBorder;
   final String? displayName;
+  final String? pubkey;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+
+    final themeColor = pubkey != null ? ref.watch(avatarColorProvider)[pubkey] : null;
+
     // Use a single ClipOval with decoration instead of Container + ClipOval
     return Container(
       width: size,
@@ -30,17 +33,17 @@ class WnAvatar extends StatelessWidget {
           showBorder
               ? BoxDecoration(
                 border: Border.all(
-                  color: borderColor ?? context.colors.border,
+                  color: themeColor?.withValues(alpha: 0.5) ?? context.colors.border,
                   width: 1.w,
                 ),
                 shape: BoxShape.circle,
               )
               : null,
       child: ClipOval(
-        child: Container(
+        child: Container( 
           width: size,
           height: size,
-          color: backgroundColor ?? context.colors.avatarSurface,
+          color: themeColor?.withValues(alpha: 0.2) ?? context.colors.avatarSurface,
           child: WnImage(
             imageUrl,
             size: size,
@@ -49,6 +52,7 @@ class WnAvatar extends StatelessWidget {
                 (context) => FallbackAvatar(
                   displayName: displayName,
                   size: size,
+                  textColor: themeColor ?? context.colors.primary,
                 ),
           ),
         ),
@@ -62,10 +66,12 @@ class FallbackAvatar extends StatelessWidget {
     super.key,
     required this.displayName,
     required this.size,
+    this.textColor,
   });
 
   final String? displayName;
   final double size;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +83,7 @@ class FallbackAvatar extends StatelessWidget {
           style: TextStyle(
             fontSize: size * 0.4,
             fontWeight: FontWeight.bold,
-            color: context.colors.primary,
+            color: textColor,
           ),
         ),
       );
@@ -91,7 +97,7 @@ class FallbackAvatar extends StatelessWidget {
           AssetsPaths.icUser,
           width: size * 0.4,
           height: size * 0.4,
-          color: context.colors.primary,
+          color: textColor,
         ),
       ),
     );
