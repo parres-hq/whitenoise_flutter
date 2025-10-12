@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whitenoise/config/providers/avatar_color_provider.dart';
+import 'package:whitenoise/domain/services/avatar_color_service.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
@@ -22,8 +23,8 @@ class WnAvatar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-
-    final themeColor = pubkey != null ? ref.watch(avatarColorProvider)[pubkey] : null;
+    final cacheKey = pubkey != null ? AvatarColorService.toCacheKey(pubkey!) : null;
+    final themeColor = cacheKey != null ? ref.watch(avatarColorProvider)[cacheKey] : null;
 
     // Use a single ClipOval with decoration instead of Container + ClipOval
     return Container(
