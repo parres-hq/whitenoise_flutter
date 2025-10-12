@@ -17,6 +17,7 @@ import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class EditProfileScreen extends ConsumerStatefulWidget {
   const EditProfileScreen({super.key});
@@ -61,11 +62,11 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
       next.when(
         data: (profile) {
           if (profile.error != null) {
-            ref.showErrorToast('Error: ${profile.error}');
+            ref.showErrorToast('${'errors.errorOccurred'.tr()}: ${profile.error}');
           }
           // Check if we just finished saving (was saving before, not saving now, no error)
           if (previous?.value?.isSaving == true && !profile.isSaving && profile.error == null) {
-            ref.showSuccessToast('Profile updated successfully');
+            ref.showSuccessToast('profile.profileUpdatedSuccessfully'.tr());
             return;
           }
 
@@ -111,7 +112,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
           ),
           title: RepaintBoundary(
             child: Text(
-              'Edit Profile',
+              'settings.editProfile'.tr(),
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
@@ -129,7 +130,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
               error:
                   (error, _) => Center(
                     child: Text(
-                      'Error loading profile: $error',
+                      '${'profile.errorLoadingProfile'.tr()}: $error',
                       style: TextStyle(color: context.colors.destructive),
                     ),
                   ),
@@ -171,7 +172,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                         left: 1.sw * 0.5,
                                         bottom: 4.h,
                                         width: 28.w,
-                                        child: EditIconWidget(
+                                        child: WnEditIconWidget(
                                           onTap: () async {
                                             try {
                                               await ref
@@ -179,7 +180,9 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                                   .pickProfileImage();
                                             } catch (e) {
                                               if (context.mounted) {
-                                                ref.showErrorToast('Failed to pick profile image');
+                                                ref.showErrorToast(
+                                                  'profile.failedToPickProfileImage'.tr(),
+                                                );
                                               }
                                             }
                                           },
@@ -189,7 +192,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                   ),
                                   Gap(36.h),
                                   Text(
-                                    'Profile Name',
+                                    'profile.profileName'.tr(),
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 14.sp,
@@ -199,7 +202,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                   Gap(10.h),
                                   WnTextFormField(
                                     controller: _displayNameController,
-                                    hintText: 'Trent Reznor',
+                                    hintText: 'auth.yourName'.tr(),
                                     onChanged: (value) {
                                       ref
                                           .read(editProfileScreenProvider.notifier)
@@ -208,7 +211,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                   ),
                                   Gap(36.h),
                                   Text(
-                                    'Nostr Address (NIP-05)',
+                                    'profile.nostrAddress'.tr(),
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 14.sp,
@@ -218,7 +221,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                   Gap(10.h),
                                   WnTextFormField(
                                     controller: _nostrAddressController,
-                                    hintText: 'example@whitenoise.chat',
+                                    hintText: 'profile.nostrAddressExample'.tr(),
                                     onChanged: (value) {
                                       ref
                                           .read(editProfileScreenProvider.notifier)
@@ -227,7 +230,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                   ),
                                   Gap(36.h),
                                   Text(
-                                    'About You',
+                                    'profile.aboutYou'.tr(),
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
                                       fontSize: 14.sp,
@@ -237,7 +240,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                   Gap(10.h),
                                   WnTextFormField(
                                     controller: _aboutController,
-                                    hintText: 'Write something about yourself.',
+                                    hintText: 'auth.writeSomethingAboutYourself'.tr(),
                                     minLines: 3,
                                     maxLines: 3,
                                     keyboardType: TextInputType.multiline,
@@ -272,9 +275,8 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                             context: context,
                                             builder:
                                                 (dialogContext) => WnDialog(
-                                                  title: 'Unsaved changes',
-                                                  content:
-                                                      'You have unsaved changes. Are you sure you want to leave?',
+                                                  title: 'shared.unsavedChanges'.tr(),
+                                                  content: 'profile.unsavedChangesQuestion'.tr(),
                                                   actions: Row(
                                                     children: [
                                                       Expanded(
@@ -291,7 +293,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                                           visualState:
                                                               WnButtonVisualState.secondaryWarning,
                                                           size: WnButtonSize.small,
-                                                          label: 'Discard Changes',
+                                                          label: 'shared.discardChanges'.tr(),
                                                         ),
                                                       ),
                                                       Gap(10.w),
@@ -308,7 +310,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                                               Navigator.of(dialogContext).pop();
                                                             }
                                                           },
-                                                          label: 'Save',
+                                                          label: 'shared.save'.tr(),
                                                           size: WnButtonSize.small,
                                                         ),
                                                       ),
@@ -316,7 +318,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                                   ),
                                                 ),
                                           ),
-                                      label: 'Discard Changes',
+                                      label: 'shared.discardChanges'.tr(),
                                       visualState: WnButtonVisualState.secondary,
                                     ),
                                     Gap(8.h),
@@ -330,7 +332,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                                     .updateProfileData()
                                             : null,
                                     loading: profile.isSaving,
-                                    label: 'Save',
+                                    label: 'shared.save'.tr(),
                                   ),
                                 ],
                               ),

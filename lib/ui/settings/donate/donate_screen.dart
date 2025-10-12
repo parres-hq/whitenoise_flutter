@@ -12,6 +12,7 @@ import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class DonateScreen extends ConsumerWidget {
   const DonateScreen({super.key});
@@ -20,7 +21,7 @@ class DonateScreen extends ConsumerWidget {
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: text,
-      successMessage: 'Copied $type address',
+      successMessage: 'donate.copiedAddressSuccess'.tr({'type': type}),
     );
   }
 
@@ -49,7 +50,7 @@ class DonateScreen extends ConsumerWidget {
           ),
           title: RepaintBoundary(
             child: Text(
-              'Donate to White Noise',
+              'settings.donateToWhiteNoise'.tr(),
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
@@ -78,7 +79,7 @@ class DonateScreen extends ConsumerWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'As a not-for-profit, White Noise exists solely for your privacy and freedom, not for profit. Your support keeps us independent and uncompromised.',
+                              'donate.description'.tr(),
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w500,
@@ -88,7 +89,7 @@ class DonateScreen extends ConsumerWidget {
                             ),
                             Gap(32.h),
                             Text(
-                              'Lightning Address',
+                              'donate.lightningAddress'.tr(),
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,
@@ -118,7 +119,7 @@ class DonateScreen extends ConsumerWidget {
                             ),
                             Gap(32.h),
                             Text(
-                              'Bitcoin Silent Payment Address',
+                              'donate.bitcoinSilentPaymentAddress'.tr(),
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,

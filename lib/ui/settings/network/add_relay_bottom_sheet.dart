@@ -14,6 +14,7 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/relay_validation.dart';
 
 class AddRelayBottomSheet extends ConsumerStatefulWidget {
@@ -33,7 +34,7 @@ class AddRelayBottomSheet extends ConsumerStatefulWidget {
   }) async {
     await WnBottomSheet.show(
       context: context,
-      title: 'Add Relay',
+      title: 'network.addRelayTitle'.tr(),
       keyboardAware: true,
       builder:
           (context) => AddRelayBottomSheet(
@@ -113,7 +114,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
         });
       }
     } catch (e) {
-      ref.showErrorToast('Failed validating relay URL');
+      ref.showErrorToast('network.failedValidatingRelay'.tr());
       setState(() {
         _isValidatingUrl = false;
         _validUrl = false;
@@ -124,12 +125,12 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
   Future<void> _addRelays() async {
     final relayUrl = _relayUrlController.text.trim();
     if (relayUrl.isEmpty || !_validUrl) {
-      ref.showErrorToast('Please enter a valid relay URL');
+      ref.showErrorToast('network.pleaseEnterValidRelay'.tr());
       return;
     }
     Navigator.of(context).pop();
     widget.onRelayAdded(relayUrl);
-    ref.showSuccessToast('Relay added successfully');
+    ref.showSuccessToast('network.relayAddedSuccessfully'.tr());
   }
 
   Future<void> _pasteFromClipboard() async {
@@ -151,12 +152,12 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
         _debounceTimer?.cancel();
         Future.delayed(const Duration(milliseconds: 100), _validateRelayUrl);
 
-        ref.showRawSuccessToast('Pasted from clipboard');
+        ref.showRawSuccessToast('network.pastedFromClipboard'.tr());
       } else {
-        ref.showRawErrorToast('No text found in clipboard');
+        ref.showRawErrorToast('clipboard.emptyTextError'.tr());
       }
     } catch (e) {
-      ref.showRawErrorToast('Failed to paste from clipboard');
+      ref.showRawErrorToast('clipboard.readError'.tr());
     }
   }
 
@@ -167,7 +168,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Enter Relay Address',
+          'network.enterRelayAddress'.tr(),
           style: TextStyle(
             fontSize: 14.sp,
             fontWeight: FontWeight.w600,
@@ -183,7 +184,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
                 children: [
                   WnTextFormField(
                     controller: _relayUrlController,
-                    hintText: 'wss://relay.example.com',
+                    hintText: 'network.relayUrlPlaceholder'.tr(),
                   ),
                 ],
               ),
@@ -219,7 +220,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
 
                     Gap(8.w),
                     Text(
-                      'Relay Not Supported',
+                      'network.relayNotSupported'.tr(),
                       style: TextStyle(
                         color: context.colors.primary,
                         fontWeight: FontWeight.w600,
@@ -245,7 +246,7 @@ class _AddRelayBottomSheetState extends ConsumerState<AddRelayBottomSheet> {
         WnFilledButton(
           onPressed: _validUrl ? _addRelays : null,
           loading: _isValidatingUrl,
-          label: 'Add Relay',
+          label: 'network.addRelayButton'.tr(),
         ),
       ],
     );

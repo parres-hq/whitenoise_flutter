@@ -4,20 +4,20 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/config/providers/create_group_provider.dart';
+import 'package:whitenoise/config/states/create_group_state.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/src/rust/api/users.dart';
 import 'package:whitenoise/ui/contact_list/safe_toast_mixin.dart';
 import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
-import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
-import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
+import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   const GroupChatDetailsSheet({
@@ -36,7 +36,7 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   }) {
     return WnBottomSheet.show(
       context: context,
-      title: 'Group chat details',
+      title: 'ui.groupChatDetails'.tr(),
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
@@ -53,230 +53,249 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
 
 class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> with SafeToastMixin {
   final TextEditingController _groupNameController = TextEditingController();
-  bool _isGroupNameValid = false;
-  bool _isCreatingGroup = false;
-
+  final TextEditingController _groupDescriptionController = TextEditingController();
+  Group? createdGroup;
   @override
   void initState() {
     super.initState();
     _groupNameController.addListener(_onGroupNameChanged);
+    _groupDescriptionController.addListener(_onGroupDescriptionChanged);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      ref.read(createGroupProvider.notifier).filterContactsWithKeyPackage(widget.selectedContacts);
+    });
   }
 
   void _onGroupNameChanged() {
-    final isValid = _groupNameController.text.trim().isNotEmpty;
-    if (isValid != _isGroupNameValid) {
-      setState(() {
-        _isGroupNameValid = isValid;
-      });
-    }
+    ref.read(createGroupProvider.notifier).updateGroupName(_groupNameController.text);
+  }
+
+  void _onGroupDescriptionChanged() {
+    ref.read(createGroupProvider.notifier).updateGroupDescription(_groupDescriptionController.text);
+  }
+
+  Future<void> _pickGroupImage() async {
+    await ref.read(createGroupProvider.notifier).pickGroupImage();
   }
 
   void _createGroupChat() async {
-    if (!_isGroupNameValid || !mounted) return;
+    await ref
+        .read(createGroupProvider.notifier)
+        .createGroup(
+          onGroupCreated: (createdGroup) {
+            if (createdGroup != null && mounted) {
+              this.createdGroup = createdGroup;
+              context.pop();
+            }
+          },
+        );
+  }
 
-    final groupName = _groupNameController.text.trim();
-    final notifier = ref.read(groupsProvider.notifier);
-
-    setState(() {
-      _isCreatingGroup = true;
-    });
-
-    try {
-      // Filter contacts based on keypackage availability
-      final filteredContacts = await _filterContactsByKeyPackage(widget.selectedContacts);
-      if (!mounted) return;
-
-      final contactsWithKeyPackage = filteredContacts['withKeyPackage']!;
-      final contactsWithoutKeyPackage = filteredContacts['withoutKeyPackage']!;
-
-      // If less than 2 contacts have keypackages, only show invite sheet (no group creation)
-      if (contactsWithKeyPackage.isEmpty) {
-        if (contactsWithoutKeyPackage.isNotEmpty && mounted) {
+  void _showInviteSheet(CreateGroupState state) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) {
+        try {
           await ShareInviteBottomSheet.show(
             context: context,
-            contacts: contactsWithoutKeyPackage,
+            contacts: state.contactsWithoutKeyPackage,
           );
+        } catch (e, st) {
+          Logger('GroupChatDetailsSheet').severe('Error showing invite sheet', e, st);
+          safeShowErrorToast('errors.errorOccurredTryAgain'.tr());
+        } finally {
+          ref.read(createGroupProvider.notifier).dismissInviteSheet();
         }
-
-        if (mounted) {
-          context.pop();
-        }
-        return;
       }
+    });
+  }
 
-      // Create group with contacts that have keypackages
-      if (!mounted) return;
-
-      final createdGroup = await notifier.createNewGroup(
-        groupName: groupName,
-        groupDescription: '',
-        memberPublicKeyHexs: contactsWithKeyPackage.map((c) => c.publicKey).toList(),
-        adminPublicKeyHexs: [],
-      );
-
-      if (!mounted) return;
-
-      if (createdGroup != null) {
-        // Show share invite bottom sheet for members without keypackages
-        if (contactsWithoutKeyPackage.isNotEmpty && mounted) {
-          try {
-            await ShareInviteBottomSheet.show(
-              context: context,
-              contacts: contactsWithoutKeyPackage,
-            );
-          } catch (e) {
-            Logger(
-              'GroupChatDetailsSheet',
-            ).severe('Error showing share invite bottom sheet: $e');
+  void _goToChat() {
+    if (createdGroup != null) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) async {
+          if (mounted) {
+            Routes.goToChat(context, createdGroup!.mlsGroupId);
           }
-        }
-
-        // Navigate to the created group
-        if (mounted) {
-          context.pop();
-
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            if (mounted) {
-              context.go(Routes.home);
-              // Small delay to ensure navigation completes
-              await Future.delayed(const Duration(milliseconds: 150));
-              if (mounted) {
-                Routes.goToChat(context, createdGroup.mlsGroupId);
-              }
-            }
-          });
-        }
-      } else {
-        safeShowErrorToast('Failed to create group chat. Please try again.');
-      }
-    } catch (e) {
-      if (mounted) {
-        safeShowErrorToast('Error creating group: ${e.toString()}');
-      }
-    } finally {
-      // Always reset loading state
-      if (mounted) {
-        setState(() {
-          _isCreatingGroup = false;
-        });
-      }
+        },
+      );
     }
   }
 
   @override
   void dispose() {
     _groupNameController.removeListener(_onGroupNameChanged);
+    _groupDescriptionController.removeListener(_onGroupDescriptionChanged);
+    _groupDescriptionController.dispose();
     _groupNameController.dispose();
     super.dispose();
   }
 
-  /// Filters contacts by keypackage availability
-  Future<Map<String, List<ContactModel>>> _filterContactsByKeyPackage(
-    List<ContactModel> contacts,
-  ) async {
-    final contactsWithKeyPackage = <ContactModel>[];
-    final contactsWithoutKeyPackage = <ContactModel>[];
-
-    for (final contact in contacts) {
-      try {
-        final hasKeyPackage = await userHasKeyPackage(pubkey: contact.publicKey);
-
-        if (hasKeyPackage) {
-          contactsWithKeyPackage.add(contact);
-        } else {
-          contactsWithoutKeyPackage.add(contact);
-        }
-      } catch (e) {
-        // If there's an error checking keypackage, assume contact doesn't have one
-        contactsWithoutKeyPackage.add(contact);
-      }
-    }
-
-    return {
-      'withKeyPackage': contactsWithKeyPackage,
-      'withoutKeyPackage': contactsWithoutKeyPackage,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Center(
-          child: GestureDetector(
-            onTap: () {
-              // TODO: implement group image upload.
-            },
-            child: Container(
-              width: 80.w,
-              height: 80.w,
-              padding: EdgeInsets.all(16.w),
-              decoration: BoxDecoration(
-                color: context.colors.baseMuted,
-                shape: BoxShape.circle,
-              ),
-              child: WnImage(
-                AssetsPaths.icCamera,
-                size: 42.w,
-                color: context.colors.mutedForeground,
-              ),
-            ),
-          ),
-        ),
-        Gap(24.h),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Group chat name',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w500,
-                  color: context.colors.primary,
+    ref.listen(createGroupProvider, (previous, next) {
+      if (next.error != null) {
+        safeShowErrorToast(next.error!);
+        ref.read(createGroupProvider.notifier).clearError();
+      }
+      if (next.shouldShowInviteSheet && next.contactsWithoutKeyPackage.isNotEmpty) {
+        _showInviteSheet(next);
+      }
+    });
+
+    final state = ref.watch(createGroupProvider);
+    return PopScope(
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          ref.read(createGroupProvider.notifier).discardChanges();
+          _goToChat();
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Center(
+            child: Stack(
+              alignment: Alignment.bottomCenter,
+              children: [
+                ValueListenableBuilder<TextEditingValue>(
+                  valueListenable: _groupNameController,
+                  builder: (context, value, child) {
+                    final displayName = value.text.trim();
+                    return WnAvatar(
+                      imageUrl: state.selectedImagePath ?? '',
+                      displayName: displayName,
+                      size: 96.w,
+                      showBorder: true,
+                    );
+                  },
                 ),
-              ),
-              Gap(8.h),
-              WnTextField(
-                textController: _groupNameController,
-                hintText: 'Enter group name',
-                padding: EdgeInsets.zero,
-              ),
-            ],
-          ),
-        ),
-        Gap(24.h),
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w),
-          child: Text(
-            'Members',
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w500,
-              color: context.colors.primary,
+                Positioned(
+                  right: 5.w,
+                  bottom: 4.h,
+                  width: 28.w,
+                  child: WnEditIconWidget(
+                    onTap: _pickGroupImage,
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-        Gap(8.h),
-        Expanded(
-          child: ListView.builder(
+          Gap(24.h),
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
-            itemCount: widget.selectedContacts.length,
-            itemBuilder: (context, index) {
-              final contact = widget.selectedContacts[index];
-              return ContactListTile(contact: contact);
-            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'ui.groupName'.tr(),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                    color: context.colors.primary,
+                  ),
+                ),
+                Gap(8.h),
+                WnTextField(
+                  textController: _groupNameController,
+                  hintText: 'ui.groupNameHint'.tr(),
+                  padding: EdgeInsets.zero,
+                ),
+              ],
+            ),
           ),
-        ),
-        WnFilledButton(
-          onPressed: _isCreatingGroup || !_isGroupNameValid ? null : _createGroupChat,
-          loading: _isCreatingGroup,
-          label: _isCreatingGroup ? 'Creating Group...' : 'Create Group',
-        ),
-      ],
+          Gap(24.h),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'ui.groupDescription'.tr(),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w500,
+                    color: context.colors.primary,
+                  ),
+                ),
+                Gap(8.h),
+                WnTextField(
+                  textController: _groupDescriptionController,
+                  hintText: 'ui.groupDescriptionHint'.tr(),
+                  maxLines: 5,
+                  padding: EdgeInsets.zero,
+                ),
+              ],
+            ),
+          ),
+
+          Gap(24.h),
+          Text(
+            'ui.invitingMembers'.tr(),
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+              color: context.colors.mutedForeground,
+            ),
+          ),
+          Gap(12.h),
+          Wrap(
+            runSpacing: 8.h,
+            spacing: 8.w,
+            alignment: WrapAlignment.center,
+            children:
+                state.contactsWithKeyPackage
+                    .map(
+                      (contact) => Container(
+                        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+                        decoration: BoxDecoration(
+                          color: context.colors.avatarSurface,
+                          borderRadius: BorderRadius.circular(20.r),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.center,
+
+                          children: [
+                            WnAvatar(
+                              imageUrl: contact.imagePath ?? '',
+                              displayName: contact.displayName,
+                              size: 30.w,
+                              showBorder: true,
+                            ),
+                            Gap(8.w),
+                            SizedBox(
+                              width: 104.w,
+                              child: Text(
+                                contact.displayName,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: context.colors.primary,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                    .toList(),
+          ),
+          const Spacer(),
+          WnFilledButton(
+            onPressed: state.canCreateGroup ? _createGroupChat : null,
+            loading: state.isCreatingGroup || state.isUploadingImage,
+            label:
+                state.isUploadingImage
+                    ? 'ui.uploadingImage'.tr()
+                    : state.isCreatingGroup
+                    ? 'ui.creatingGroup'.tr()
+                    : 'ui.createGroup'.tr(),
+          ),
+          Gap(16.h),
+        ],
+      ),
     );
   }
 }

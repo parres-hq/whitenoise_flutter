@@ -17,6 +17,7 @@ import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_skeleton_container.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/utils/timeago_formatter.dart';
 
@@ -99,7 +100,7 @@ class ChatListItemTile extends ConsumerWidget {
 
   String _getDisplayName(AsyncSnapshot<DMChatData?> snapshot, DMChatData? data, String fallback) {
     if (snapshot.connectionState == ConnectionState.waiting) {
-      return fallback.isEmpty ? 'Loading...' : fallback;
+      return fallback.isEmpty ? 'shared.loading'.tr() : fallback;
     }
     final String name = data?.displayName ?? '';
     return name.isNotEmpty ? name : fallback;
@@ -245,7 +246,7 @@ class ChatListItemTile extends ConsumerWidget {
     final content = message.content ?? '';
 
     if (message.isMe) {
-      return 'You: $content';
+      return 'chats.youMessage'.tr({'content': content});
     }
     return content;
   }

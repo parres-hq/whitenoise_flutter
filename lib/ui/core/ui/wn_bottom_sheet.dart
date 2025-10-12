@@ -172,7 +172,7 @@ class WnBottomSheet {
                         color: Colors.transparent,
                         child: Container(
                           decoration: BoxDecoration(
-                            color: context.colors.primaryForeground,
+                            color: context.colors.neutral,
                           ),
                           child: ConstrainedBox(
                             constraints: BoxConstraints(

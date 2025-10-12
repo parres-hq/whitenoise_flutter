@@ -7,6 +7,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class CreateGroupDialog extends StatelessWidget {
   final VoidCallback? onCreateGroup;
@@ -31,7 +32,7 @@ class CreateGroupDialog extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Create a Group to Continue',
+                  'ui.createGroupToContinue'.tr(),
                   style: context.textTheme.bodyLarge?.copyWith(
                     color: context.colors.primary,
                     fontSize: 18.sp,
@@ -53,7 +54,7 @@ class CreateGroupDialog extends StatelessWidget {
           Align(
             alignment: Alignment.centerLeft,
             child: Text(
-              'You are not a member of any groups. Make a new group to add someone.',
+              'ui.noGroupsCreateDescription'.tr(),
               style: context.textTheme.bodyMedium?.copyWith(
                 color: context.colors.mutedForeground,
                 fontSize: 14.sp,
@@ -67,7 +68,7 @@ class CreateGroupDialog extends StatelessWidget {
             children: [
               WnFilledButton(
                 onPressed: onCancel ?? () => Navigator.of(context).pop(),
-                label: 'Cancel',
+                label: 'shared.cancel'.tr(),
                 visualState: WnButtonVisualState.secondary,
                 size: WnButtonSize.small,
                 labelTextStyle: TextStyle(
@@ -78,7 +79,7 @@ class CreateGroupDialog extends StatelessWidget {
               Gap(12.h),
               WnFilledButton(
                 onPressed: onCreateGroup,
-                label: 'New Group Chat',
+                label: 'ui.newGroupChat'.tr(),
                 size: WnButtonSize.small,
                 labelTextStyle: TextStyle(
                   fontSize: 16.sp,

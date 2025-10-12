@@ -161,23 +161,23 @@ void main() {
 
       testWidgets('displays invite', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Invite to White Noise'), findsOneWidget);
-        expect(find.text('Share'), findsOneWidget);
+        expect(find.text('chats.inviteToWhiteNoise'), findsOneWidget);
+        expect(find.text('chats.share'), findsOneWidget);
       });
 
       testWidgets('hides follow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Follow'), findsNothing);
+        expect(find.text('ui.follow'), findsNothing);
       });
 
       testWidgets('hides add to group option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Add to Group'), findsNothing);
+        expect(find.text('ui.addToGroup'), findsNothing);
       });
 
       testWidgets('hides start chat option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Start Chat'), findsNothing);
+        expect(find.text('ui.startChat'), findsNothing);
       });
     });
 
@@ -199,27 +199,27 @@ void main() {
 
       testWidgets('displays follow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Follow'), findsOneWidget);
+        expect(find.text('ui.follow'), findsOneWidget);
       });
 
       testWidgets('displays add to group option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Add to Group'), findsOneWidget);
+        expect(find.text('ui.addToGroup'), findsOneWidget);
       });
 
       testWidgets('hides unfollow option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Unfollow'), findsNothing);
+        expect(find.text('ui.unfollow'), findsNothing);
       });
 
       testWidgets('displays start chat option', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Start Chat'), findsOneWidget);
+        expect(find.text('ui.startChat'), findsOneWidget);
       });
 
       testWidgets('hides invite section', (WidgetTester tester) async {
         await setup(tester);
-        expect(find.text('Invite to White Noise'), findsNothing);
+        expect(find.text('chats.inviteToWhiteNoise'), findsNothing);
       });
 
       group('when user is already a follow', () {
@@ -250,17 +250,17 @@ void main() {
 
         testWidgets('displays unfollow option', (WidgetTester tester) async {
           await setup(tester);
-          expect(find.text('Unfollow'), findsOneWidget);
+          expect(find.text('ui.unfollow'), findsOneWidget);
         });
 
         testWidgets('hides follow option', (WidgetTester tester) async {
           await setup(tester);
-          expect(find.text('Follow'), findsNothing);
+          expect(find.text('ui.follow'), findsNothing);
         });
 
         testWidgets('hides invite section', (WidgetTester tester) async {
           await setup(tester);
-          expect(find.text('Invite to White Noise'), findsNothing);
+          expect(find.text('chats.inviteToWhiteNoise'), findsNothing);
         });
       });
     });

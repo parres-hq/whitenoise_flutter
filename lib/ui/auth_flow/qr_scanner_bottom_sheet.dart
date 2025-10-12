@@ -6,6 +6,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class QRScannerBottomSheet extends StatefulWidget {
   const QRScannerBottomSheet({super.key});
@@ -13,7 +14,7 @@ class QRScannerBottomSheet extends StatefulWidget {
   static Future<String?> show(BuildContext context) {
     return WnBottomSheet.show<String>(
       context: context,
-      title: 'Scan QR Code',
+      title: 'auth.scanQrCode'.tr(),
       showBackButton: true,
       showCloseButton: false,
       builder: (context) => const QRScannerBottomSheet(),
@@ -79,7 +80,7 @@ class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
                             ),
                             Gap(16.h),
                             Text(
-                              'QR Code Detected!',
+                              'auth.qrCodeDetected'.tr(),
                               style: TextStyle(
                                 fontSize: 16.sp,
                                 color: context.colors.primaryForeground,
@@ -94,7 +95,7 @@ class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
         ),
         Gap(24.h),
         Text(
-          'Scan your Private Key QR code.',
+          'auth.scanYourPrivateKeyQr'.tr(),
           style: TextStyle(
             fontSize: 14.sp,
             color: context.colors.mutedForeground,

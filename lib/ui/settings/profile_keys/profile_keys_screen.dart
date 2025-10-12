@@ -12,6 +12,7 @@ import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ProfileKeysScreen extends ConsumerStatefulWidget {
@@ -41,7 +42,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: npub,
-      successMessage: 'Public key copied',
+      successMessage: 'nostrKeys.copyPublicKeySuccess'.tr(),
     );
   }
 
@@ -51,7 +52,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
       await ClipboardUtils.copySensitiveWithToast(
         ref: ref,
         textToCopy: nsec,
-        successMessage: 'Private key copied',
+        successMessage: 'nostrKeys.copyPrivateKeySuccess'.tr(),
       );
     }
   }
@@ -95,7 +96,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
           ),
           title: RepaintBoundary(
             child: Text(
-              'Profile Keys',
+              'settings.profileKeys'.tr(),
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
@@ -120,7 +121,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             Text(
-                              'Public Key',
+                              'nostrKeys.publicKeyTitle'.tr(),
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,
@@ -148,7 +149,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                             ),
                             Gap(12.h),
                             Text(
-                              'Your public key is your unique identifier in the Nostr network, enabling others to verify and recognize your messages. Share it openly!',
+                              'nostrKeys.publicKeyDescription'.tr(),
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,
@@ -157,7 +158,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                             ),
                             Gap(36.h),
                             Text(
-                              'Private Key',
+                              'nostrKeys.privateKeyTitle'.tr(),
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,
@@ -181,7 +182,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                   ),
                                   Gap(12.w),
                                   Text(
-                                    'Loading private key...',
+                                    'nostrKeys.loadingPrivateKey'.tr(),
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       color: context.colors.mutedForeground,
@@ -203,7 +204,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                     Gap(12.w),
                                     Expanded(
                                       child: Text(
-                                        'Error loading private key: ${nostrKeys.error}',
+                                        '${'nostrKeys.errorLoadingPrivateKey'.tr()}: ${nostrKeys.error}',
                                         style: TextStyle(
                                           fontSize: 14.sp,
                                           color: context.colors.destructive,
@@ -247,7 +248,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                               ),
                             Gap(10.h),
                             Text(
-                              'Private key works like a secret password that grants access to your Nostr identity.',
+                              'nostrKeys.privateKeyDescription'.tr(),
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,
@@ -281,7 +282,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Keep your private key safe!',
+                                          'nostrKeys.privateKeyWarningTitle'.tr(),
                                           style: TextStyle(
                                             fontSize: 16.sp,
                                             fontWeight: FontWeight.w600,
@@ -290,7 +291,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                         ),
                                         Gap(8.h),
                                         Text(
-                                          'Don\'t share your private key publicly, and use it only to log in to other Nostr apps.',
+                                          'nostrKeys.privateKeyWarningDescription'.tr(),
                                           style: TextStyle(
                                             fontSize: 14.sp,
                                             fontWeight: FontWeight.w500,

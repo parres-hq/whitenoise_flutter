@@ -15,6 +15,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class EditGroupScreen extends ConsumerStatefulWidget {
   final String groupId;
@@ -81,7 +82,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
 
     final activeAccount = ref.read(activePubkeyProvider);
     if (activeAccount == null) {
-      ref.showErrorToast('No active account found');
+      ref.showErrorToast('settings.noActiveAccountFound'.tr());
       return;
     }
 
@@ -93,7 +94,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
       final newName = _nameController.text.trim();
       final newDescription = _descriptionController.text.trim();
       if (newName.isEmpty) {
-        ref.showErrorToast('Group name cannot be empty');
+        ref.showErrorToast('chats.groupNameCannotBeEmpty'.tr());
         setState(() => _isLoading = false);
         return;
       }
@@ -108,7 +109,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
           );
 
       if (mounted) {
-        ref.showSuccessToast('Group updated successfully');
+        ref.showSuccessToast('chats.groupUpdatedSuccessfully'.tr());
         //? Small delay to allow toast to show before navigation
         await Future.delayed(const Duration(milliseconds: 500));
         if (mounted) {
@@ -117,7 +118,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
       }
     } catch (e) {
       _logger.severe('Error updating group: $e');
-      ref.showErrorToast('Failed to update group: ${e.toString()}');
+      ref.showErrorToast('${'chats.failedToUpdateGroup'.tr()}: ${e.toString()}');
     } finally {
       if (mounted) {
         setState(() {
@@ -134,11 +135,11 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
     if (group == null) {
       return Scaffold(
         backgroundColor: context.colors.neutral,
-        appBar: const WnAppBar(
-          title: Text('Edit Group'),
+        appBar: WnAppBar(
+          title: Text('ui.editGroup'.tr()),
         ),
-        body: const Center(
-          child: Text('Group not found'),
+        body: Center(
+          child: Text('ui.groupNotFound'.tr()),
         ),
       );
     }
@@ -171,7 +172,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
                       ),
                     ),
                     Text(
-                      'Edit Group Information',
+                      'chats.editGroupInformation'.tr(),
                       style: context.textTheme.bodyLarge?.copyWith(
                         color: context.colors.mutedForeground,
                         fontSize: 18.sp,
@@ -198,7 +199,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Group Name:',
+                              'chats.groupName'.tr(),
                               style: TextStyle(
                                 color: context.colors.primary,
                                 fontSize: 14.sp,
@@ -208,12 +209,12 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
                             Gap(10.h),
                             WnTextFormField(
                               controller: _nameController,
-                              hintText: 'Enter group name',
+                              hintText: 'chats.enterGroupName'.tr(),
                               readOnly: _isLoading,
                             ),
                             Gap(36.h),
                             Text(
-                              'Group Description:',
+                              'chats.groupDescription'.tr(),
                               style: TextStyle(
                                 color: context.colors.primary,
                                 fontSize: 14.sp,
@@ -223,7 +224,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
                             Gap(10.h),
                             WnTextFormField(
                               controller: _descriptionController,
-                              hintText: 'Enter group description',
+                              hintText: 'chats.enterGroupDescription'.tr(),
                               maxLines: 3,
                               minLines: 3,
                               keyboardType: TextInputType.multiline,
@@ -243,14 +244,14 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
                     children: [
                       WnFilledButton(
                         onPressed: _hasChanges && !_isLoading ? () => context.pop() : null,
-                        label: 'Discard Changes',
+                        label: 'shared.discardChanges'.tr(),
                         visualState: WnButtonVisualState.secondary,
                       ),
                       Gap(8.h),
                       WnFilledButton(
                         onPressed: _hasChanges && !_isLoading ? _saveChanges : null,
                         loading: _isLoading,
-                        label: 'Save',
+                        label: 'shared.save'.tr(),
                       ),
                       Gap(36.h),
                     ],

@@ -16,6 +16,7 @@ class WnTextField extends StatelessWidget {
     this.obscureText = false,
     this.label,
     this.readOnly = false,
+    this.maxLines = 1,
   });
 
   final TextEditingController? textController;
@@ -27,6 +28,7 @@ class WnTextField extends StatelessWidget {
   final bool obscureText;
   final String? label;
   final bool readOnly;
+  final int maxLines;
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +53,7 @@ class WnTextField extends StatelessWidget {
           autofocus: autofocus,
           obscureText: obscureText,
           readOnly: readOnly,
+          maxLines: maxLines,
           style: TextStyle(
             color: context.colors.primary,
             fontSize: 14.sp,

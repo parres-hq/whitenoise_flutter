@@ -20,6 +20,7 @@ import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/widgets/active_account_tile.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class GeneralSettingsScreen extends ConsumerStatefulWidget {
   const GeneralSettingsScreen({super.key});
@@ -63,11 +64,11 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       await ref.read(activePubkeyProvider.notifier).setActivePubkey(accountPubkey);
 
       if (mounted) {
-        ref.showSuccessToast('Account switched successfully');
+        ref.showSuccessToast('settings.accountSwitchedSuccessfully'.tr());
       }
     } catch (e) {
       if (mounted) {
-        ref.showErrorToast('Failed to switch account: $e');
+        ref.showErrorToast('${'settings.failedToSwitchAccount'.tr()}: $e');
       }
     }
   }
@@ -95,14 +96,13 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       barrierColor: Colors.transparent,
       builder:
           (dialogContext) => WnDialog(
-            title: 'Sign out',
-            content:
-                'Are you sure? If you haven\'t saved your private key, you won\'t be able to log back in.',
+            title: 'settings.signOutTitle'.tr(),
+            content: 'settings.signOutWarning'.tr(),
             actions: Row(
               children: [
                 Expanded(
                   child: WnFilledButton(
-                    label: 'Cancel',
+                    label: 'shared.cancel'.tr(),
                     visualState: WnButtonVisualState.secondary,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -111,7 +111,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                 Gap(8.w),
                 Expanded(
                   child: WnFilledButton(
-                    label: 'Sign out',
+                    label: 'settings.signOut'.tr(),
                     labelTextStyle: WnButtonSize.small.textStyle().copyWith(
                       color: context.colors.solidNeutralWhite,
                     ),
@@ -159,13 +159,13 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
             await _showAccountSwitcher(isDismissible: false, showSuccessToast: true);
           }
         } else {
-          ref.showSuccessToast('Account signed out. Switched to the other available account.');
+          ref.showSuccessToast('settings.accountSignedOutSwitched'.tr());
         }
       } catch (e) {
-        ref.showErrorToast('Failed to check accounts after logout');
+        ref.showErrorToast('settings.failedToCheckAccountsAfterLogout'.tr());
       }
     } else {
-      ref.showSuccessToast('Signed out successfully.');
+      ref.showSuccessToast('settings.signedOutSuccessfully'.tr());
       if (mounted) {
         context.go(Routes.home);
       }
@@ -191,7 +191,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         ),
         title: RepaintBoundary(
           child: Text(
-            'Settings',
+            'settings.title'.tr(),
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
@@ -211,7 +211,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                   const ActiveAccountTile(),
                   SizedBox(height: 12.h),
                   WnFilledButton(
-                    label: 'Switch Account',
+                    label: 'ui.switchAccount'.tr(),
                     size: WnButtonSize.small,
                     visualState: WnButtonVisualState.secondary,
                     onPressed: () async => await _showAccountSwitcher(),
@@ -237,22 +237,22 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
               children: [
                 SettingsListTile(
                   assetPath: AssetsPaths.icUser,
-                  text: 'Edit Profile',
+                  text: 'settings.editProfile'.tr(),
                   onTap: () => context.push('${Routes.settings}/profile'),
                 ),
                 SettingsListTile(
                   assetPath: AssetsPaths.icPassword,
-                  text: 'Profile Keys',
+                  text: 'settings.profileKeys'.tr(),
                   onTap: () => context.push('${Routes.settings}/keys'),
                 ),
                 SettingsListTile(
                   assetPath: AssetsPaths.icDataVis3,
-                  text: 'Network Relays',
+                  text: 'settings.networkRelays'.tr(),
                   onTap: () => context.push('${Routes.settings}/network'),
                 ),
                 SettingsListTile(
                   assetPath: AssetsPaths.icLogout,
-                  text: 'Sign out',
+                  text: 'settings.signOut'.tr(),
                   onTap: _handleLogout,
                 ),
               ],
@@ -271,12 +271,12 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
               children: [
                 SettingsListTile(
                   assetPath: AssetsPaths.icSettings,
-                  text: 'App Settings',
+                  text: 'settings.appSettings'.tr(),
                   onTap: () => context.push('${Routes.settings}/app_settings'),
                 ),
                 SettingsListTile(
                   assetPath: AssetsPaths.icFavorite,
-                  text: 'Donate to White Noise',
+                  text: 'settings.donateToWhiteNoise'.tr(),
                   onTap: () => context.push(Routes.settingsDonate),
                 ),
               ],
@@ -295,7 +295,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
               children: [
                 SettingsListTile(
                   assetPath: AssetsPaths.icDevelopment,
-                  text: 'Developer Settings',
+                  text: 'settings.developerSettings'.tr(),
                   onTap: () => DeveloperSettingsScreen.show(context),
                   foregroundColor: context.colors.mutedForeground,
                 ),
@@ -308,7 +308,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
             RepaintBoundary(
               child: Center(
                 child: Text(
-                  'Version ${_packageInfo!.version}+${_packageInfo!.buildNumber}',
+                  '${'settings.version'.tr()} ${_packageInfo!.version}+${_packageInfo!.buildNumber}',
                   style: TextStyle(
                     fontSize: 10.sp,
                     fontWeight: FontWeight.w400,

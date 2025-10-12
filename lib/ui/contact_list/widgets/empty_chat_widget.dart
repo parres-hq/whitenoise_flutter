@@ -4,6 +4,7 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class EmptyChatWidget extends StatelessWidget {
   const EmptyChatWidget({super.key});
@@ -17,7 +18,7 @@ class EmptyChatWidget extends StatelessWidget {
           const WnImage(AssetsPaths.icChat),
           Gap(20.h),
           Text(
-            'No chats found',
+            'chats.noChatsFound'.tr(),
             style: TextStyle(
               color: context.colors.mutedForeground,
               fontSize: 18.sp,
@@ -26,7 +27,7 @@ class EmptyChatWidget extends StatelessWidget {
           ),
           Gap(8.h),
           Text(
-            'Click "+" to start a new chat',
+            'chats.startNewChat'.tr(),
             style: TextStyle(
               color: context.colors.mutedForeground,
               fontSize: 18.sp,

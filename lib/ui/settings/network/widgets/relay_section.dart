@@ -8,6 +8,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/settings/network/add_relay_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_tile.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 /// Simplified relay section widget (no expansion/collapse functionality)
 class RelaySection extends ConsumerStatefulWidget {
@@ -51,7 +52,7 @@ class _RelaySectionState extends ConsumerState<RelaySection> {
         return await (widget.relayNotifier as KeyPackageRelaysNotifier).addRelay(url);
       }
     } catch (e) {
-      ref.showErrorToast('Failed to add relay: $e');
+      ref.showErrorToast('${'network.failedToAddRelay'.tr()}: $e');
     }
   }
 
@@ -68,7 +69,7 @@ class _RelaySectionState extends ConsumerState<RelaySection> {
         return await (widget.relayNotifier as KeyPackageRelaysNotifier).deleteRelay(url);
       }
     } catch (e) {
-      ref.showErrorToast('Failed to delete relay: $e');
+      ref.showErrorToast('${'network.failedToDeleteRelay'.tr()}: $e');
     }
   }
 
@@ -138,7 +139,7 @@ class _RelaySectionState extends ConsumerState<RelaySection> {
     }
 
     if (widget.relayState.error != null) {
-      return const Center(child: Text('Error Loading Relays'));
+      return Center(child: Text('ui.errorLoadingRelays'.tr()));
     }
 
     if (widget.relayState.relays.length > 5) {

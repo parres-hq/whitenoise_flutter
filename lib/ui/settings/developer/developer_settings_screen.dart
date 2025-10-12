@@ -13,6 +13,7 @@ import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class DeveloperSettingsScreen extends ConsumerStatefulWidget {
   const DeveloperSettingsScreen({super.key});
@@ -38,7 +39,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
   Future<void> _deleteAllKeyPackages() async {
     final activePubkey = ref.read(activePubkeyProvider) ?? '';
     if (activePubkey.isEmpty) {
-      ref.showErrorToast('No active account found');
+      ref.showErrorToast('settings.noActiveAccountFound'.tr());
       return;
     }
 
@@ -48,14 +49,13 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
       barrierColor: Colors.transparent,
       builder:
           (dialogContext) => WnDialog(
-            title: 'Delete All Key Packages',
-            content:
-                'This will delete all key packages for the active account. Other users won\'t be able to invite you to new encrypted conversations until you generate new key packages. This action cannot be undone.',
+            title: 'settings.deleteAllKeyPackagesTitle'.tr(),
+            content: 'settings.deleteAllKeyPackagesDescription'.tr(),
             actions: Row(
               children: [
                 Expanded(
                   child: WnFilledButton(
-                    label: 'Cancel',
+                    label: 'shared.cancel'.tr(),
                     visualState: WnButtonVisualState.secondary,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -67,7 +67,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                     visualState: WnButtonVisualState.destructive,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
-                    label: 'Delete',
+                    label: 'shared.delete'.tr(),
                     labelTextStyle: WnButtonSize.small.textStyle().copyWith(
                       color: context.colors.solidNeutralWhite,
                     ),
@@ -86,7 +86,9 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
       final deletedCount = await accounts_api.deleteAccountKeyPackages(
         accountPubkey: activePubkey,
       );
-      ref.showSuccessToast('Deleted $deletedCount key packages successfully');
+      ref.showSuccessToast(
+        'settings.deletedKeyPackagesSuccess'.tr({'count': deletedCount}),
+      );
 
       // Clear the displayed key packages if they were being shown
       if (_showKeyPackages) {
@@ -96,7 +98,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
         });
       }
     } catch (e) {
-      ref.showErrorToast('Failed to delete key packages: $e');
+      ref.showErrorToast('${'settings.failedToDeleteKeyPackages'.tr()}: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -107,7 +109,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
   Future<void> _fetchKeyPackages() async {
     final activePubkey = ref.read(activePubkeyProvider) ?? '';
     if (activePubkey.isEmpty) {
-      ref.showErrorToast('No active account found');
+      ref.showErrorToast('settings.noActiveAccountFound'.tr());
       return;
     }
 
@@ -121,9 +123,14 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
         _keyPackages = keyPackages;
         _showKeyPackages = true;
       });
-      ref.showSuccessToast('Fetched ${keyPackages.length} key packages');
+      ref.showSuccessToast(
+        'settings.fetchedKeyPackagesSuccess'.tr().replaceAll(
+          '{count}',
+          keyPackages.length.toString(),
+        ),
+      );
     } catch (e) {
-      ref.showErrorToast('Failed to fetch key packages: $e');
+      ref.showErrorToast('${'settings.failedToFetchKeyPackages'.tr()}: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -134,7 +141,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
   Future<void> _publishKeyPackage() async {
     final activePubkey = ref.read(activePubkeyProvider) ?? '';
     if (activePubkey.isEmpty) {
-      ref.showErrorToast('No active account found');
+      ref.showErrorToast('settings.noActiveAccountFound'.tr());
       return;
     }
 
@@ -144,14 +151,14 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
       await accounts_api.publishAccountKeyPackage(
         accountPubkey: activePubkey,
       );
-      ref.showSuccessToast('Key package published successfully');
+      ref.showSuccessToast('settings.keyPackagePublishedSuccess'.tr());
 
       // Refresh the key packages list if it's currently shown
       if (_showKeyPackages) {
         await _fetchKeyPackages();
       }
     } catch (e) {
-      ref.showErrorToast('Failed to publish key package: $e');
+      ref.showErrorToast('${'settings.failedToPublishKeyPackage'.tr()}: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -162,7 +169,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
   Future<void> _deleteKeyPackage(String keyPackageId, int index) async {
     final activePubkey = ref.read(activePubkeyProvider) ?? '';
     if (activePubkey.isEmpty) {
-      ref.showErrorToast('No active account found');
+      ref.showErrorToast('settings.noActiveAccountFound'.tr());
       return;
     }
 
@@ -172,14 +179,16 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
       barrierColor: Colors.transparent,
       builder:
           (dialogContext) => WnDialog(
-            title: 'Delete Key Package',
-            content:
-                'This will delete key package #${index + 1}. Other users won\'t be able to use this key package to invite you to new encrypted conversations. This action cannot be undone.',
+            title: 'settings.deleteKeyPackageTitle'.tr(),
+            content: 'settings.deleteKeyPackageDescription'.tr().replaceAll(
+              '{number}',
+              (index + 1).toString(),
+            ),
             actions: Row(
               children: [
                 Expanded(
                   child: WnFilledButton(
-                    label: 'Cancel',
+                    label: 'shared.cancel'.tr(),
                     visualState: WnButtonVisualState.secondary,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -191,7 +200,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                     visualState: WnButtonVisualState.destructive,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
-                    label: 'Delete',
+                    label: 'shared.delete'.tr(),
                     labelTextStyle: WnButtonSize.small.textStyle().copyWith(
                       color: context.colors.solidNeutralWhite,
                     ),
@@ -211,12 +220,12 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
         accountPubkey: activePubkey,
         keyPackageId: keyPackageId,
       );
-      ref.showSuccessToast('Key package deleted successfully');
+      ref.showSuccessToast('settings.keyPackageDeletedSuccess'.tr());
 
       // Refresh the key packages list
       await _fetchKeyPackages();
     } catch (e) {
-      ref.showErrorToast('Failed to delete key package: $e');
+      ref.showErrorToast('${'settings.failedToDeleteKeyPackage'.tr()}: $e');
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
@@ -249,7 +258,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
           ),
           title: RepaintBoundary(
             child: Text(
-              'Developer Settings',
+              'settings.developerSettings'.tr(),
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
@@ -279,7 +288,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                 children: [
                                   // Key Package Management
                                   Text(
-                                    'Key Package Management',
+                                    'settings.keyPackageManagement'.tr(),
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,
@@ -288,19 +297,19 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                   ),
                                   Gap(10.h),
                                   WnFilledButton(
-                                    label: 'Publish new key package',
+                                    label: 'settings.publishNewKeyPackage'.tr(),
                                     onPressed: _isLoading ? null : _publishKeyPackage,
                                     loading: _isLoading,
                                   ),
                                   Gap(8.h),
                                   WnFilledButton(
-                                    label: 'Inspect relay key packages',
+                                    label: 'settings.inspectRelayKeyPackages'.tr(),
                                     onPressed: _isLoading ? null : _fetchKeyPackages,
                                     loading: _isLoading && !_showKeyPackages,
                                   ),
                                   Gap(8.h),
                                   WnFilledButton(
-                                    label: 'Delete all key packages from relays',
+                                    label: 'settings.deleteAllKeyPackagesFromRelays'.tr(),
                                     visualState: WnButtonVisualState.destructive,
                                     onPressed: _isLoading ? null : _deleteAllKeyPackages,
                                     loading: _isLoading && _showKeyPackages,
@@ -314,7 +323,10 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                             if (_showKeyPackages) ...[
                               Gap(24.h),
                               Text(
-                                'Key Packages (${_keyPackages.length})',
+                                'settings.keyPackagesCount'.tr().replaceAll(
+                                  '{count}',
+                                  _keyPackages.length.toString(),
+                                ),
                                 style: TextStyle(
                                   fontSize: 16.sp,
                                   fontWeight: FontWeight.w600,
@@ -344,7 +356,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                         ),
                                         SizedBox(width: 12.w),
                                         Text(
-                                          'No key packages found',
+                                          'settings.noKeyPackagesFound'.tr(),
                                           style: TextStyle(
                                             fontSize: 14.sp,
                                             color: context.colors.mutedForeground,
@@ -438,7 +450,7 @@ class _KeyPackageItem extends StatelessWidget {
                 SizedBox(width: 8.w),
                 Expanded(
                   child: Text(
-                    'Key Package #${index + 1}',
+                    'settings.keyPackageNumber'.tr({'number': index + 1}),
                     style: TextStyle(
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
@@ -468,7 +480,7 @@ class _KeyPackageItem extends StatelessWidget {
             ),
             SizedBox(height: 8.h),
             Text(
-              'ID: ${keyPackage.id}',
+              'settings.keyPackageId'.tr({'id': keyPackage.id}),
               style: TextStyle(
                 fontSize: 12.sp,
                 color: context.colors.mutedForeground,
@@ -477,7 +489,10 @@ class _KeyPackageItem extends StatelessWidget {
             ),
             SizedBox(height: 4.h),
             Text(
-              'Created at: ${keyPackage.createdAt.toIso8601String()}',
+              'settings.keyPackageCreatedAt'.tr().replaceAll(
+                '{date}',
+                keyPackage.createdAt.toIso8601String(),
+              ),
               style: TextStyle(
                 fontSize: 12.sp,
                 color: context.colors.mutedForeground,

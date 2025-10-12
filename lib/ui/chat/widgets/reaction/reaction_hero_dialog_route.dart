@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class HeroDialogRoute<T> extends PageRoute<T> {
   // The constructor takes a WidgetBuilder and an optional fullscreenDialog flag.
@@ -53,5 +54,5 @@ class HeroDialogRoute<T> extends PageRoute<T> {
 
   // This is the semantic label for the barrier. It is used by screen reading software for visually impaired users.
   @override
-  String get barrierLabel => 'Popup dialog open';
+  String get barrierLabel => 'chats.popupDialogOpen'.tr();
 }

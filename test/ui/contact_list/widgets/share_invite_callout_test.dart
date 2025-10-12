@@ -20,13 +20,8 @@ void main() {
       );
       testWidgets('shows invite with generic name', (WidgetTester tester) async {
         await setup(tester, contact);
-        expect(find.text('Invite to White Noise'), findsOneWidget);
-        expect(
-          find.text(
-            "This user isn't on White Noise yet. Share the download link to start a secure chat.",
-          ),
-          findsOneWidget,
-        );
+        expect(find.text('chats.inviteToWhiteNoise'), findsOneWidget);
+        expect(find.text('chats.userNotOnWhiteNoise'), findsOneWidget);
       });
     });
 
@@ -39,13 +34,8 @@ void main() {
       );
       testWidgets('shows invite with generic name', (WidgetTester tester) async {
         await setup(tester, contact);
-        expect(find.text('Invite to White Noise'), findsOneWidget);
-        expect(
-          find.text(
-            "This user isn't on White Noise yet. Share the download link to start a secure chat.",
-          ),
-          findsOneWidget,
-        );
+        expect(find.text('chats.inviteToWhiteNoise'), findsOneWidget);
+        expect(find.text('chats.userNotOnWhiteNoise'), findsOneWidget);
       });
     });
     group('when contact has a display name', () {
@@ -57,13 +47,8 @@ void main() {
       );
       testWidgets('shows invite with display name', (WidgetTester tester) async {
         await setup(tester, contact);
-        expect(find.text('Invite to White Noise'), findsOneWidget);
-        expect(
-          find.text(
-            "Satoshi Nakamoto isn't on White Noise yet. Share the download link to start a secure chat.",
-          ),
-          findsOneWidget,
-        );
+        expect(find.text('chats.inviteToWhiteNoise'), findsOneWidget);
+        expect(find.text('chats.userNotOnWhiteNoise'), findsOneWidget);
       });
     });
   });

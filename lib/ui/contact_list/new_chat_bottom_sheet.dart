@@ -25,6 +25,7 @@ import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class NewChatBottomSheet extends ConsumerStatefulWidget {
@@ -36,7 +37,7 @@ class NewChatBottomSheet extends ConsumerStatefulWidget {
   static Future<void> show(BuildContext context) {
     return WnBottomSheet.show(
       context: context,
-      title: 'Start New Chat',
+      title: 'ui.startNewChat'.tr(),
       blurSigma: 8.0,
       transitionDuration: const Duration(milliseconds: 400),
       useSafeArea: false,
@@ -129,13 +130,13 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       } else {
         _logger.severe('NewChatBottomSheet: No active account found');
         if (mounted) {
-          ref.showErrorToast('No active account found');
+          ref.showErrorToast('settings.noActiveAccountFound'.tr());
         }
       }
     } catch (e) {
       _logger.severe('NewChatBottomSheet: Error loading follows: $e');
       if (mounted) {
-        ref.showErrorToast('Error loading follows: $e');
+        ref.showErrorToast('${'chats.errorLoadingFollows'.tr()}: $e');
       }
     }
   }
@@ -167,7 +168,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       if (mounted) {
         setState(() {
           _tempContact = ContactModel(
-            displayName: 'Unknown User',
+            displayName: 'chats.unknownUser'.tr(),
             publicKey: publicKey.trim(),
           );
           _isLoadingUserProfileData = false;
@@ -200,7 +201,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     } catch (e) {
       _logger.severe('Error handling contact tap: $e');
       if (mounted) {
-        ref.showErrorToast('Failed to start chat: $e');
+        ref.showErrorToast('${'chats.errorStartingChat'.tr()}: $e');
       }
     }
   }
@@ -216,7 +217,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            'Error loading follows',
+            'chats.errorLoadingFollows'.tr(),
             style: TextStyle(
               color: context.colors.mutedForeground,
               fontSize: 16.sp,
@@ -234,7 +235,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           Gap(16.h),
           ElevatedButton(
             onPressed: _loadFollows,
-            child: const Text('Retry'),
+            child: Text('shared.retry'.tr()),
           ),
         ],
       ),
@@ -245,7 +246,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     return Column(
       children: [
         NewChatTile(
-          title: 'New Group Chat',
+          title: 'ui.newGroupChat'.tr(),
           iconPath: AssetsPaths.icGroupChat,
           onTap: () {
             Navigator.pop(context);
@@ -253,7 +254,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           },
         ),
         NewChatTile(
-          title: 'Help and Feedback',
+          title: 'ui.helpAndFeedback'.tr(),
           iconPath: AssetsPaths.icFeedback,
           onTap: () async {
             Navigator.pop(context);
@@ -268,7 +269,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
               _logger.warning('Failed to fetch metadata for support contact: $e');
 
               final basicContact = ContactModel(
-                displayName: 'Support',
+                displayName: 'ui.support'.tr(),
                 publicKey: kSupportNpub,
               );
 
@@ -370,10 +371,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                       : Center(
                         child: Text(
                           _searchQuery.isEmpty
-                              ? 'No follows found'
+                              ? 'chats.noFollowsFound'.tr()
                               : _isValidPublicKey(_searchQuery)
-                              ? 'Loading metadata...'
-                              : 'No follows match your search',
+                              ? 'chats.loadingMetadata'.tr()
+                              : 'chats.noFollowsMatchSearch'.tr(),
                           style: TextStyle(
                             color: context.colors.mutedForeground,
                             fontSize: 16.sp,
@@ -441,7 +442,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                 controller: _searchController,
                 focusNode: _searchFocusNode,
                 size: FieldSize.small,
-                hintText: 'Search contact or public key...',
+                hintText: 'chats.searchContactPlaceholder'.tr(),
                 decoration: InputDecoration(
                   prefixIcon: Padding(
                     padding: EdgeInsets.all(12.w),

@@ -7,6 +7,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class UserProfile extends StatelessWidget {
@@ -29,7 +30,7 @@ class UserProfile extends StatelessWidget {
     ClipboardUtils.copyWithToast(
       ref: ref,
       textToCopy: pubkey,
-      successMessage: 'Public key copied',
+      successMessage: 'chats.publicKeyCopied'.tr(),
     );
   }
 

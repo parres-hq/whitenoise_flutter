@@ -29,6 +29,7 @@ import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/wn_heads_up.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {
   const ChatListScreen({super.key});
@@ -337,11 +338,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                   SliverToBoxAdapter(
                     child:
                         WnHeadsUp(
-                          title: 'No Relays Connected',
-                          subtitle: 'The app won\'t work until you add at least one.',
+                          title: 'chats.noRelaysConnected'.tr(),
+                          subtitle: 'chats.appWontWorkUntilRelay'.tr(),
                           action: InkWell(
                             child: Text(
-                              'Connect Relays',
+                              'chats.connectRelays'.tr(),
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 color: context.colors.primary,
@@ -390,7 +391,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                                     ),
                                     Gap(12.w),
                                     Text(
-                                      'Checking for new messages…',
+                                      'chats.checkingForNewMessages'.tr(),
                                       style: TextStyle(
                                         fontSize: 14.sp,
                                         fontWeight: FontWeight.w500,
@@ -414,7 +415,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                             WnTextFormField(
                               controller: _searchController,
                               focusNode: _searchFocusNode,
-                              hintText: 'Search Chats',
+                              hintText: 'chats.searchChats'.tr(),
                               onChanged: (value) {
                                 setState(() {
                                   _searchQuery = value;
@@ -519,7 +520,7 @@ class _EmptyGroupList extends StatelessWidget {
             ),
             Gap(12.h),
             Text(
-              'Decentralized. Uncensorable.\nSecure Messaging.',
+              'chats.emptySlogan'.tr(),
               style: TextStyle(
                 fontSize: 16.sp,
                 fontWeight: FontWeight.w600,

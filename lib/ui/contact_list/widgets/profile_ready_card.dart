@@ -11,6 +11,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ProfileReadyCard extends ConsumerWidget {
   const ProfileReadyCard({super.key});
@@ -58,7 +59,7 @@ class ProfileReadyCard extends ConsumerWidget {
             children: [
               Expanded(
                 child: Text(
-                  'Your Profile is Ready',
+                  'chats.profileReadyTitle'.tr(),
                   style: TextStyle(
                     fontSize: 16.sp,
                     fontWeight: FontWeight.w600,
@@ -80,7 +81,7 @@ class ProfileReadyCard extends ConsumerWidget {
           ),
           Gap(8.h),
           Text(
-            'Tap Start Chatting to search for contacts now, or use the + chat icon in the top-right corner whenever you like.',
+            'chats.profileReadyDescription'.tr(),
             style: TextStyle(
               fontSize: 14.sp,
               fontWeight: FontWeight.w500,
@@ -89,7 +90,7 @@ class ProfileReadyCard extends ConsumerWidget {
           ),
           Gap(24.h),
           WnFilledButton(
-            label: 'Share Your Profile',
+            label: 'chats.shareYourProfile'.tr(),
             onPressed: () => context.push('${Routes.settings}/share_profile'),
             size: WnButtonSize.small,
             visualState: WnButtonVisualState.secondary,
@@ -101,7 +102,7 @@ class ProfileReadyCard extends ConsumerWidget {
           ),
           Gap(8.h),
           WnFilledButton(
-            label: 'Search For Friends',
+            label: 'chats.searchForFriends'.tr(),
             onPressed: () {
               NewChatBottomSheet.show(context);
             },

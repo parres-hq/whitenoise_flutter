@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:logging/logging.dart';
@@ -7,9 +8,11 @@ import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/avatar_color_provider.dart';
+import 'package:whitenoise/config/providers/localization_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/router_provider.dart';
+import 'package:whitenoise/services/localization_service.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 import 'package:whitenoise/ui/core/ui/wn_toast.dart';
 
@@ -49,9 +52,14 @@ Future<void> main() async {
 
   final container = ProviderContainer();
   final authNotifier = container.read(authProvider.notifier);
+  final localizationNotifier = container.read(localizationProvider.notifier);
   container.read(themeProvider.notifier);
 
   try {
+    // Initialize localization first
+    await localizationNotifier.initialize();
+    log.info('Localization initialized successfully');
+
     await authNotifier.initialize();
     log.info('Whitenoise initialized via authProvider');
   } catch (e) {
@@ -69,6 +77,7 @@ class MyApp extends ConsumerWidget {
     final width = MediaQuery.of(context).size.width;
     final router = ref.watch(routerProvider);
     final themeState = ref.watch(themeProvider);
+    final currentLocale = ref.watch(currentLocaleProvider);
     ref.watch(avatarColorProvider);
 
     return ScreenUtilInit(
@@ -82,6 +91,13 @@ class MyApp extends ConsumerWidget {
           theme: lightTheme,
           darkTheme: darkTheme,
           themeMode: themeState.themeMode,
+          locale: currentLocale,
+          supportedLocales: LocalizationService.supportedLocaleObjects,
+          localizationsDelegates: const [
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
           routerConfig: router,
           builder: (context, child) {
             return WnToast(child: child ?? const SizedBox.shrink());

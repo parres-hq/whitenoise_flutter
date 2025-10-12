@@ -23,6 +23,8 @@ import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/widgets/language_selector_dropdown.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class AppSettingsScreen extends ConsumerWidget {
   const AppSettingsScreen({super.key});
@@ -35,13 +37,13 @@ class AppSettingsScreen extends ConsumerWidget {
       barrierColor: Colors.transparent,
       builder:
           (dialogContext) => WnDialog(
-            title: 'Delete app app data',
-            content: 'This will erase every profile, key, and local files. This can\'t be undone.',
+            title: 'settings.deleteAppDataTitle'.tr(),
+            content: 'settings.deleteAppDataDescription'.tr(),
             actions: Row(
               children: [
                 Expanded(
                   child: WnFilledButton(
-                    label: 'Cancel',
+                    label: 'shared.cancel'.tr(),
                     visualState: WnButtonVisualState.secondary,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -53,7 +55,7 @@ class AppSettingsScreen extends ConsumerWidget {
                     visualState: WnButtonVisualState.destructive,
                     size: WnButtonSize.small,
                     onPressed: () => Navigator.of(dialogContext).pop(true),
-                    label: 'Delete',
+                    label: 'settings.delete'.tr(),
                     labelTextStyle: WnButtonSize.small.textStyle().copyWith(
                       color: context.colors.solidNeutralWhite,
                     ),
@@ -204,8 +206,8 @@ class AppSettingsScreen extends ConsumerWidget {
             ),
           ),
           title: RepaintBoundary(
-            child: Text(
-              'App Settings',
+            child: LocalizedText(
+              'settings.appSettings',
               style: TextStyle(
                 fontSize: 18.sp,
                 fontWeight: FontWeight.w600,
@@ -233,8 +235,8 @@ class AppSettingsScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Theme',
+                            LocalizedText(
+                              'settings.theme',
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,
@@ -248,9 +250,20 @@ class AppSettingsScreen extends ConsumerWidget {
                                 ref.read(themeProvider.notifier).setThemeMode(newMode);
                               },
                             ),
-                            Gap(16.h),
-                            Text(
-                              'Danger Zone',
+                            Gap(24.h),
+                            LocalizedText(
+                              'settings.language',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                color: context.colors.primary,
+                              ),
+                            ),
+                            Gap(10.h),
+                            const LanguageSelectorDropdown(),
+                            Gap(24.h),
+                            LocalizedText(
+                              'settings.dangerZone',
                               style: TextStyle(
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w600,
@@ -259,7 +272,7 @@ class AppSettingsScreen extends ConsumerWidget {
                             ),
                             Gap(10.h),
                             WnFilledButton(
-                              label: 'Delete All Data',
+                              label: 'settings.deleteAllData'.tr(),
                               labelTextStyle: WnButtonSize.large.textStyle().copyWith(
                                 color: context.colors.solidNeutralWhite,
                               ),
@@ -300,11 +313,11 @@ class _ThemeDropdownState extends State<_ThemeDropdown> {
   String getThemeText(ThemeMode mode) {
     switch (mode) {
       case ThemeMode.system:
-        return 'System';
+        return 'settings.themeSystem'.tr();
       case ThemeMode.light:
-        return 'Light';
+        return 'settings.themeLight'.tr();
       case ThemeMode.dark:
-        return 'Dark';
+        return 'settings.themeDark'.tr();
     }
   }
 
@@ -363,7 +376,7 @@ class _ThemeDropdownState extends State<_ThemeDropdown> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 _ThemeOption(
-                  text: 'System',
+                  text: 'settings.themeSystem'.tr(),
                   isSelected: widget.currentTheme == ThemeMode.system,
                   onTap: () {
                     widget.onThemeChanged(ThemeMode.system);
@@ -373,7 +386,7 @@ class _ThemeDropdownState extends State<_ThemeDropdown> {
                   },
                 ),
                 _ThemeOption(
-                  text: 'Light',
+                  text: 'settings.themeLight'.tr(),
                   isSelected: widget.currentTheme == ThemeMode.light,
                   onTap: () {
                     widget.onThemeChanged(ThemeMode.light);
@@ -383,7 +396,7 @@ class _ThemeDropdownState extends State<_ThemeDropdown> {
                   },
                 ),
                 _ThemeOption(
-                  text: 'Dark',
+                  text: 'settings.themeDark'.tr(),
                   isSelected: widget.currentTheme == ThemeMode.dark,
                   onTap: () {
                     widget.onThemeChanged(ThemeMode.dark);

@@ -4,10 +4,10 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
-class EditIconWidget extends StatelessWidget {
-  const EditIconWidget({super.key, this.onTap});
+class WnEditIconWidget extends StatelessWidget {
+  const WnEditIconWidget({super.key, this.onTap});
 
-  final void Function()? onTap;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
