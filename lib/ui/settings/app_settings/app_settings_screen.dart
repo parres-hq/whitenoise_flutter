@@ -9,6 +9,7 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -142,6 +143,15 @@ class AppSettingsScreen extends ConsumerWidget {
         _logger.warning('⚠️ Error invalidating active pubkey provider: $e');
       }
 
+      // Clear all avatar colors
+      try {
+        _logger.info('🎨 Clearing avatar colors...');
+        await ref.read(avatarColorProvider.notifier).clearAll();
+        _logger.info('✅ Avatar colors cleared');
+      } catch (e) {
+        _logger.warning('⚠️ Error clearing avatar colors: $e');
+      }
+
       // Set authentication state to false - this should be last
       try {
         _logger.info('🔓 Setting unauthenticated state...');
@@ -154,6 +164,7 @@ class AppSettingsScreen extends ConsumerWidget {
       }
 
       _logger.info('🏠 Navigating to home...');
+      if (!context.mounted) return;
       Navigator.of(context).pop(); // Close loading dialog
       context.go(Routes.home);
       _logger.info('✅ Delete all data completed successfully');
