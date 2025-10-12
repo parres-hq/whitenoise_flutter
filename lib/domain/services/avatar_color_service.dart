@@ -38,7 +38,7 @@ class AvatarColorService {
     if (pubkey.startsWith('npub1')) {
       return pubkey.substring(0, 12);
     }
-    
+
     final npub = PubkeyFormatter(pubkey: pubkey).toNpub();
     if (npub == null) {
       _logger.warning('Failed to convert pubkey to npub, using hex fallback');
@@ -53,7 +53,7 @@ class AvatarColorService {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_storageKey);
       if (jsonString == null) return {};
-      
+
       final decoded = json.decode(jsonString) as Map<String, dynamic>;
       return decoded.map((key, value) => MapEntry(key, value as int));
     } catch (e) {
@@ -128,7 +128,7 @@ class AvatarColorService {
       for (final pubkey in pubkeys) {
         final identifier = toCacheKey(pubkey);
         final existingColorValue = colorsMap[identifier];
-        
+
         if (existingColorValue != null) {
           colorMap[pubkey] = Color(existingColorValue);
         } else {

@@ -6,6 +6,7 @@ import 'package:logging/logging.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/src/rust/api.dart' show createWhitenoiseConfig, initializeWhitenoise;
 import 'package:whitenoise/src/rust/api/accounts.dart';
@@ -94,7 +95,7 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       final account = await createIdentity();
 
-      // Account created successfully
+      await ref.read(avatarColorProvider.notifier).getColor(account.pubkey);
 
       // Get the newly created account data and set it as active
 
@@ -122,7 +123,7 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       final account = await createIdentity();
 
-      // Account created successfully
+      await ref.read(avatarColorProvider.notifier).getColor(account.pubkey);
 
       // Get the newly created account data and set it as active
       await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
@@ -158,7 +159,7 @@ class AuthNotifier extends Notifier<AuthState> {
       final account = await login(nsecOrHexPrivkey: nsecOrPrivkey);
       _logger.info('Login successful, account created');
 
-      // Account logged in successfully
+      await ref.read(avatarColorProvider.notifier).getColor(account.pubkey);
 
       // Get the logged in account data and set it as active
 
@@ -310,7 +311,7 @@ class AuthNotifier extends Notifier<AuthState> {
         } else {
           // No other accounts available, set as unauthenticated
           _logger.info('No other accounts available after logout, setting unauthenticated');
-          
+
           // Clear all avatar colors since this is the last account
           try {
             await ref.read(avatarColorProvider.notifier).clearAll();
@@ -318,7 +319,7 @@ class AuthNotifier extends Notifier<AuthState> {
           } catch (e) {
             _logger.warning('Failed to clear avatar colors: $e');
           }
-          
+
           state = state.copyWith(isAuthenticated: false, isLoading: false);
         }
       } else {
