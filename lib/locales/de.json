@@ -291,10 +291,16 @@
         "creatingGroup": "Gruppe wird erstellt...",
         "failedToCreateGroup": "Fehler beim Erstellen des Gruppenchats. Bitte versuchen Sie es erneut.",
         "errorCreatingGroup": "Fehler beim Erstellen der Gruppe",
-        "inviteMessage": "Treten Sie mir bei White Noise bei. Keine Telefonnummer. Keine Überwachung. Nur echte Privatsphäre. Hier herunterladen: https://www.whitenoise.chat/download"
+        "inviteMessage": "Treten Sie mir bei White Noise bei. Keine Telefonnummer. Keine Überwachung. Nur echte Privatsphäre. Hier herunterladen: https://www.whitenoise.chat/download",
+        "groupName": "Gruppenname",
+        "invitingMembers": "Mitglieder werden eingeladen:",
+        "groupNameHint": "Freie Bürger Gruppe",
+        "groupDescriptionHint": "Schreibe etwas über die Gruppe",
+        "uploadingImage": "Bild wird hochgeladen..."
     },
     "errors": {
         "errorOccurred": "Ein Fehler ist aufgetreten",
-        "unknownError": "Unbekannter Fehler"
+        "unknownError": "Unbekannter Fehler",
+        "errorOccurredTryAgain": "Ein Fehler ist aufgetreten, bitte versuchen Sie es erneut."
     }
 }

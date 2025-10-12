@@ -291,10 +291,16 @@
         "creatingGroup": "Grup Oluşturuluyor...",
         "failedToCreateGroup": "Grup sohbeti oluşturma başarısız. Lütfen tekrar deneyin.",
         "errorCreatingGroup": "Grup oluşturma hatası",
-        "inviteMessage": "White Noise'da bana katıl. Telefon numarası yok. Gözetim yok. Sadece gerçek gizlilik. Buradan indir: https://www.whitenoise.chat/download"
+        "inviteMessage": "White Noise'da bana katıl. Telefon numarası yok. Gözetim yok. Sadece gerçek gizlilik. Buradan indir: https://www.whitenoise.chat/download",
+        "groupName": "Grup Adı",
+        "invitingMembers": "Üyeler Davet Ediliyor:",
+        "groupNameHint": "Özgür Vatandaşlar Grubu",
+        "groupDescriptionHint": "Grup hakkında bir şeyler yazın",
+        "uploadingImage": "Resim Yükleniyor..."
     },
     "errors": {
         "errorOccurred": "Bir hata oluştu",
-        "unknownError": "Bilinmeyen hata"
+        "unknownError": "Bilinmeyen hata",
+        "errorOccurredTryAgain": "Bir hata oluştu, lütfen tekrar deneyin."
     }
 }
