@@ -5,6 +5,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/localization_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/domain/services/background_sync_service.dart';
@@ -13,6 +14,7 @@ import 'package:whitenoise/routing/router_provider.dart';
 import 'package:whitenoise/services/localization_service.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
 import 'package:whitenoise/ui/core/ui/wn_toast.dart';
+
 import 'ui/core/themes/src/app_theme.dart';
 
 Future<void> main() async {
@@ -68,6 +70,7 @@ class MyApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
     final themeState = ref.watch(themeProvider);
     final currentLocale = ref.watch(currentLocaleProvider);
+    ref.watch(avatarColorProvider);
 
     return ScreenUtilInit(
       designSize: width > 600 ? const Size(600, 1024) : const Size(390, 844),
