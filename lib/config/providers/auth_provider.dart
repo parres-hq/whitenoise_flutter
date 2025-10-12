@@ -310,6 +310,15 @@ class AuthNotifier extends Notifier<AuthState> {
         } else {
           // No other accounts available, set as unauthenticated
           _logger.info('No other accounts available after logout, setting unauthenticated');
+          
+          // Clear all avatar colors since this is the last account
+          try {
+            await ref.read(avatarColorProvider.notifier).clearAll();
+            _logger.info('Cleared all avatar colors after last account logout');
+          } catch (e) {
+            _logger.warning('Failed to clear avatar colors: $e');
+          }
+          
           state = state.copyWith(isAuthenticated: false, isLoading: false);
         }
       } else {
