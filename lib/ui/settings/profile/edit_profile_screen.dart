@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/edit_profile_screen_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -118,6 +119,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                     displayName: displayName,
                                     size: 96.w,
                                     showBorder: imageUrl.isEmpty,
+                                            pubkey: ref.watch(activeAccountProvider).value?.account?.pubkey,
                                   );
                                 },
                               ),
