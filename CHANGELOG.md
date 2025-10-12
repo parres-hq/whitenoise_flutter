@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- Added unique color theming to the avatar of all users.
 ### Changed
 ### Deprecated
 ### Removed
