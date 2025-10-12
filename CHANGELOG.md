@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added localization support with multi-language support (English, German, Spanish, French, Italian, Portuguese, Russian, Turkish)
 - Added add member to existing group functionality.
 - Added images support in messages
+- Added unique color theming to the avatar of all users.
 
 ### Changed
 
