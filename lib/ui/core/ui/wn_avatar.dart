@@ -41,7 +41,7 @@ class WnAvatar extends ConsumerWidget {
               )
               : null,
       child: ClipOval(
-        child: Container( 
+        child: Container(
           width: size,
           height: size,
           color: themeColor?.withValues(alpha: 0.2) ?? context.colors.avatarSurface,
