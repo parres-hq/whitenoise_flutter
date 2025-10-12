@@ -73,6 +73,18 @@ class AvatarColorService {
     }
   }
 
+  /// Load all saved colors from SharedPreferences
+  /// Returns a map of cache key -> Color for the provider's memory cache
+  Future<Map<String, Color>> loadAllColors() async {
+    try {
+      final colorsMap = await _loadColorsMap();
+      return colorsMap.map((key, value) => MapEntry(key, Color(value)));
+    } catch (e) {
+      _logger.severe('Error loading all colors: $e');
+      return {};
+    }
+  }
+
   /// Generate a random color from the predefined palette
   Color _generateRandomColor() {
     final random = Random();
@@ -85,13 +97,11 @@ class AvatarColorService {
       final identifier = toCacheKey(pubkey);
       final colorsMap = await _loadColorsMap();
 
-      // Try to get existing color
       final colorValue = colorsMap[identifier];
       if (colorValue != null) {
         return Color(colorValue);
       }
 
-      // Generate new color
       final newColor = _generateRandomColor();
       colorsMap[identifier] = newColor.toARGB32();
       await _saveColorsMap(colorsMap);
@@ -100,7 +110,6 @@ class AvatarColorService {
       return newColor;
     } catch (e) {
       _logger.severe('Error getting/generating color for pubkey: $e');
-      // Return a default color on error
       return _avatarColors[0];
     }
   }
@@ -118,13 +127,11 @@ class AvatarColorService {
 
       for (final pubkey in pubkeys) {
         final identifier = toCacheKey(pubkey);
-
-        // Check if color already exists
         final existingColorValue = colorsMap[identifier];
+        
         if (existingColorValue != null) {
           colorMap[pubkey] = Color(existingColorValue);
         } else {
-          // Generate new color
           final newColor = _generateRandomColor();
           colorsMap[identifier] = newColor.toARGB32();
           colorMap[pubkey] = newColor;
@@ -132,7 +139,6 @@ class AvatarColorService {
         }
       }
 
-      // Only save if we generated new colors
       if (hasNewColors) {
         await _saveColorsMap(colorsMap);
       }

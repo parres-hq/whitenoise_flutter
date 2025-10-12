@@ -101,6 +101,7 @@ class _ShareProfileScreenState extends ConsumerState<ShareProfileScreen> {
                               displayName: profile?.displayName ?? '',
                               size: 96.w,
                               showBorder: true,
+                              pubkey: state.account?.pubkey,
                             ),
                             Gap(8.h),
                             Text(

@@ -71,6 +71,7 @@ class _ChatListActiveAccountAvatarState extends ConsumerState<ChatListActiveAcco
   Widget _buildAvatar({
     String imageUrl = '',
     String? displayName,
+    String? pubkey,
   }) {
     return InkWell(
       borderRadius: BorderRadius.circular(16.r),
@@ -84,6 +85,7 @@ class _ChatListActiveAccountAvatarState extends ConsumerState<ChatListActiveAcco
         displayName: displayName,
         size: 36.r,
         showBorder: true,
+        pubkey: pubkey,
       ),
     );
   }
@@ -98,6 +100,7 @@ class _ChatListActiveAccountAvatarState extends ConsumerState<ChatListActiveAcco
           return _buildAvatar(
             imageUrl: _profileData?.imagePath ?? '',
             displayName: _profileData?.displayName,
+            pubkey: _profileData?.publicKey,
           );
         }
         return _buildAvatar();

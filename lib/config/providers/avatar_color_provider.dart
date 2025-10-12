@@ -12,22 +12,32 @@ class AvatarColorNotifier extends Notifier<Map<String, Color>> {
 
   @override
   Map<String, Color> build() {
+    _loadSavedColors();
     return {};
+  }
+
+  /// Load all saved colors from SharedPreferences into memory cache
+  Future<void> _loadSavedColors() async {
+    try {
+      final colorsMap = await _service.loadAllColors();
+      if (colorsMap.isNotEmpty) {
+        state = colorsMap;
+        _logger.info('Loaded ${colorsMap.length} saved colors into cache');
+      }
+    } catch (e) {
+      _logger.warning('Failed to load saved colors: $e');
+    }
   }
 
   /// Get color for a pubkey from cache or generate new one
   Future<Color> getColor(String pubkey) async {
     final cacheKey = AvatarColorService.toCacheKey(pubkey);
     
-    // Check cache first
     if (state.containsKey(cacheKey)) {
       return state[cacheKey]!;
     }
 
-    // Get or generate from service
     final color = await _service.getOrGenerateColor(pubkey);
-
-    // Update cache
     state = {...state, cacheKey: color};
 
     return color;
@@ -39,7 +49,6 @@ class AvatarColorNotifier extends Notifier<Map<String, Color>> {
     try {
       _logger.info('Preloading colors for ${pubkeys.length} pubkeys');
 
-      // Filter out pubkeys that are already cached
       final uncachedPubkeys = pubkeys.where((pk) {
         final cacheKey = AvatarColorService.toCacheKey(pk);
         return !state.containsKey(cacheKey);
@@ -50,17 +59,13 @@ class AvatarColorNotifier extends Notifier<Map<String, Color>> {
         return;
       }
 
-      // Batch generate/load colors
       final colorMap = await _service.generateColorsForPubkeys(uncachedPubkeys);
-
-      // Convert to cache keys before updating state
       final cacheKeyColorMap = <String, Color>{};
       for (final entry in colorMap.entries) {
         final cacheKey = AvatarColorService.toCacheKey(entry.key);
         cacheKeyColorMap[cacheKey] = entry.value;
       }
 
-      // Update state with new colors
       state = {...state, ...cacheKeyColorMap};
 
       _logger.info('Preloaded ${cacheKeyColorMap.length} colors');
