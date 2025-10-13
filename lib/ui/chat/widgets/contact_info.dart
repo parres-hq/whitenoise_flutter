@@ -8,19 +8,22 @@ class ContactInfo extends StatelessWidget {
   final String? title;
   final VoidCallback? onTap;
   final bool isLoading;
+  final String? pubkey;
 
   const ContactInfo({
     super.key,
     required this.title,
     required this.image,
     this.onTap,
+    this.pubkey,
   }) : isLoading = false;
 
   const ContactInfo.loading({super.key})
     : image = null,
       title = null,
       onTap = null,
-      isLoading = true;
+      isLoading = true,
+      pubkey = null;
 
   @override
   Widget build(BuildContext context) {
@@ -56,6 +59,7 @@ class ContactInfo extends StatelessWidget {
           displayName: title!,
           size: 36.r,
           showBorder: true,
+          pubkey: pubkey,
         ),
         Gap(8.w),
         Text(

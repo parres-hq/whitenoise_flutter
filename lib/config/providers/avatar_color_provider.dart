@@ -77,6 +77,22 @@ class AvatarColorNotifier extends Notifier<Map<String, Color>> {
     }
   }
 
+  /// Generate a random color without saving (for ephemeral previews)
+  Color generateRandomColor() {
+    return _avatarColorService.generateRandomColorPublic();
+  }
+
+  /// Set a color directly for a pubkey and save to SharedPreferences
+  /// Used to persist ephemeral preview colors after group creation
+  Future<void> setColorDirectly(String pubkey, Color color) async {
+    final cacheKey = AvatarColorService.toCacheKey(pubkey);
+
+    await _avatarColorService.saveColorDirectly(pubkey, color);
+
+    state = {...state, cacheKey: color};
+    _logger.info('Set color directly for $cacheKey');
+  }
+
   /// Clear all colors including SharedPreferences
   Future<void> clearAll() async {
     await _avatarColorService.clearAllColors();

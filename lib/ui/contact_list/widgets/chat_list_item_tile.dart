@@ -57,7 +57,13 @@ class ChatListItemTile extends ConsumerWidget {
             // Show loading state with basic info while determining group type
             final displayName = groupsNotifier.getGroupDisplayName(group.mlsGroupId) ?? group.name;
             final displayImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
-            return _buildChatTileContent(context, displayName, displayImage, group);
+            return _buildChatTileContent(
+              context,
+              displayName,
+              displayImage,
+              group,
+              group.nostrGroupId,
+            );
           }
 
           final resolvedGroupType = snapshot.data ?? GroupType.group;
@@ -81,7 +87,7 @@ class ChatListItemTile extends ConsumerWidget {
 
     // Non-DM chats use fallback data directly
     if (groupType != GroupType.directMessage) {
-      return _buildChatTileContent(context, fallbackName, fallbackImage, group);
+      return _buildChatTileContent(context, fallbackName, fallbackImage, group, group.nostrGroupId);
     }
 
     // DM chats get enhanced user info
@@ -92,8 +98,9 @@ class ChatListItemTile extends ConsumerWidget {
 
         final displayName = _getDisplayName(snapshot, data, fallbackName);
         final displayImage = _getDisplayImage(snapshot, data, fallbackImage);
+        final pubkey = data?.publicKey;
 
-        return _buildChatTileContent(context, displayName, displayImage, group);
+        return _buildChatTileContent(context, displayName, displayImage, group, pubkey);
       },
     );
   }
@@ -121,6 +128,7 @@ class ChatListItemTile extends ConsumerWidget {
     String displayName,
     String? displayImage,
     Group group,
+    String? pubkey,
   ) {
     final displayImageUrl = displayImage ?? '';
     return Consumer(
@@ -171,6 +179,7 @@ class ChatListItemTile extends ConsumerWidget {
                     displayName: displayName,
                     size: 56.r,
                     showBorder: displayImageUrl.isEmpty,
+                    pubkey: pubkey,
                   ),
                   Gap(8.w),
                   Expanded(

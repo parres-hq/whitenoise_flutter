@@ -6,6 +6,8 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
+/// [color] is optional and is used to override the color of the avatar
+/// for cases where the pubkey to generate/find color in color cache isn't available yet.
 class WnAvatar extends ConsumerWidget {
   const WnAvatar({
     super.key,
@@ -14,18 +16,25 @@ class WnAvatar extends ConsumerWidget {
     this.showBorder = false,
     this.displayName,
     this.pubkey,
+    this.color,
   });
   final String imageUrl;
   final double size;
   final bool showBorder;
   final String? displayName;
   final String? pubkey;
+  final Color? color;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cacheKey =
-        pubkey != null && pubkey!.isNotEmpty ? AvatarColorService.toCacheKey(pubkey!) : null;
-    final themeColor = cacheKey != null ? ref.watch(avatarColorProvider)[cacheKey] : null;
+    final Color? themeColor;
+    if (color != null) {
+      themeColor = color;
+    } else {
+      final cacheKey =
+          pubkey != null && pubkey!.isNotEmpty ? AvatarColorService.toCacheKey(pubkey!) : null;
+      themeColor = cacheKey != null ? ref.watch(avatarColorProvider)[cacheKey] : null;
+    }
 
     // Use a single ClipOval with decoration instead of Container + ClipOval
     return Container(
