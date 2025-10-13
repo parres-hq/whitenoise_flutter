@@ -200,7 +200,8 @@
         "removeFromGroupConfirmation": "Bist du sicher, dass du {name} aus der Gruppe entfernen möchtest? Sie verlieren den Zugang zu allen Nachrichten und Gruppenaktivitäten. Du musst sie erneut einladen, wenn du sie zurückholen möchtest.",
         "removedFromGroupSuccess": "{name} aus Gruppe entfernt",
         "failedToRemoveMember": "Fehler beim Entfernen des Mitglieds",
-        "noUserToStartChatWith": "Kein Benutzer zum Chatten"
+        "noUserToStartChatWith": "Kein Benutzer zum Chatten",
+        "photos": "Fotos"
     },
     "clipboard": {
         "emptyTextError": "Kein Text in der Zwischenablage gefunden",

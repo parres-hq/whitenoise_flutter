@@ -200,7 +200,8 @@
         "removeFromGroupConfirmation": "¿Estás seguro de que quieres remover a {name} del grupo? Perderán acceso a todos los mensajes y actividad del grupo. Tendrás que invitarlos de nuevo si los quieres de vuelta.",
         "removedFromGroupSuccess": "{name} removido del grupo",
         "failedToRemoveMember": "Error al remover miembro",
-        "noUserToStartChatWith": "No hay usuario para iniciar chat"
+        "noUserToStartChatWith": "No hay usuario para iniciar chat",
+        "photos": "Fotos"
     },
     "clipboard": {
         "emptyTextError": "No se encontró texto en el portapapeles",

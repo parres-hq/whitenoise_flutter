@@ -40,6 +40,7 @@ class AssetsPaths {
   static const String icGroupSettings = '$_svgsDir/ic_group_settings.svg';
   static const String icHelp = '$_svgsDir/ic_help.svg';
   static const String icIconsTime = '$_svgsDir/ic_icons_time.svg';
+  static const String icImage = '$_svgsDir/ic_image.svg';
   static const String icInProgress = '$_svgsDir/ic_in_progress.svg';
   static const String icInfoFilled = '$_svgsDir/ic_information_filled.svg';
   static const String icInformation = '$_svgsDir/ic_information.svg';

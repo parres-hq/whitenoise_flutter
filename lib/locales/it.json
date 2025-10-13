@@ -200,7 +200,8 @@
         "removeFromGroupConfirmation": "Sei sicuro di voler rimuovere {name} dal gruppo? Perderanno l'accesso a tutti i messaggi e alle attività del gruppo. Dovrai invitarli di nuovo se li vuoi di ritorno.",
         "removedFromGroupSuccess": "{name} rimosso dal gruppo",
         "failedToRemoveMember": "Impossibile rimuovere il membro",
-        "noUserToStartChatWith": "Nessun utente con cui iniziare la chat"
+        "noUserToStartChatWith": "Nessun utente con cui iniziare la chat",
+        "photos": "Foto"
     },
     "clipboard": {
         "emptyTextError": "Nessun testo trovato negli appunti",

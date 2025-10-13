@@ -200,7 +200,8 @@
         "removeFromGroupConfirmation": "Tem certeza de que deseja remover {name} do grupo? Eles perderão o acesso a todas as mensagens e atividades do grupo. Você precisará convidá-los novamente se quiser que voltem.",
         "removedFromGroupSuccess": "{name} removido do grupo",
         "failedToRemoveMember": "Falha ao remover membro",
-        "noUserToStartChatWith": "Nenhum usuário para iniciar conversa"
+        "noUserToStartChatWith": "Nenhum usuário para iniciar conversa",
+        "photos": "Fotos"
     },
     "clipboard": {
         "emptyTextError": "Nenhum texto encontrado na área de transferência",

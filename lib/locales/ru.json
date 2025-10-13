@@ -200,7 +200,8 @@
         "removeFromGroupConfirmation": "Вы уверены, что хотите удалить {name} из группы? Они потеряют доступ ко всем сообщениям и активности группы. Вам нужно будет пригласить их снова, если захотите их вернуть.",
         "removedFromGroupSuccess": "{name} удалён из группы",
         "failedToRemoveMember": "Не удалось удалить участника",
-        "noUserToStartChatWith": "Нет пользователя для начала чата"
+        "noUserToStartChatWith": "Нет пользователя для начала чата",
+        "photos": "Фото"
     },
     "clipboard": {
         "emptyTextError": "Текст в буфере обмена не найден",
