@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
-import 'package:whitenoise/ui/contact_list/services/welcome_notification_service.dart';
+import 'package:whitenoise/ui/user_profile_list/services/welcome_notification_service.dart';
 
 void main() {
   group('WelcomeNotificationService Core Tests', () {

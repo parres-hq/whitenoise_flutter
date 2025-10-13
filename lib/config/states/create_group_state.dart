@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 
 part 'create_group_state.freezed.dart';
 
@@ -13,8 +13,8 @@ sealed class CreateGroupState with _$CreateGroupState {
     @Default(false) bool isUploadingImage,
     String? selectedImagePath,
     String? error,
-    @Default([]) List<ContactModel> contactsWithoutKeyPackage,
-    @Default([]) List<ContactModel> contactsWithKeyPackage,
+    @Default([]) List<UserProfile> userProfilesWithoutKeyPackage,
+    @Default([]) List<UserProfile> userProfilesWithKeyPackage,
     @Default(false) bool shouldShowInviteSheet,
   }) = _CreateGroupState;
 
@@ -24,5 +24,5 @@ sealed class CreateGroupState with _$CreateGroupState {
       isGroupNameValid &&
       !isCreatingGroup &&
       !isUploadingImage &&
-      contactsWithKeyPackage.isNotEmpty;
+      userProfilesWithKeyPackage.isNotEmpty;
 }

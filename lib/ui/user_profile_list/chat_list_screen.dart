@@ -17,11 +17,6 @@ import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
-import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
-import 'package:whitenoise/ui/contact_list/services/welcome_notification_service.dart';
-import 'package:whitenoise/ui/contact_list/widgets/chat_list_active_account_avatar.dart';
-import 'package:whitenoise/ui/contact_list/widgets/chat_list_item_tile.dart';
-import 'package:whitenoise/ui/contact_list/widgets/profile_ready_card.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
@@ -29,6 +24,11 @@ import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/wn_heads_up.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/ui/user_profile_list/new_chat_bottom_sheet.dart';
+import 'package:whitenoise/ui/user_profile_list/services/welcome_notification_service.dart';
+import 'package:whitenoise/ui/user_profile_list/widgets/chat_list_active_account_avatar.dart';
+import 'package:whitenoise/ui/user_profile_list/widgets/chat_list_item_tile.dart';
+import 'package:whitenoise/ui/user_profile_list/widgets/profile_ready_card.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ChatListScreen extends ConsumerStatefulWidget {

@@ -33,9 +33,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.solidPrimary,
     required this.input,
     required this.meChatBubble,
-    required this.contactChatBubble,
+    required this.otherChatBubble,
     required this.meChatBubbleText,
-    required this.contactChatBubbleText,
+    required this.otherChatBubbleText,
     required this.overlay,
     required this.surface,
     required this.solidNeutralBlack,
@@ -78,9 +78,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color solidPrimary;
   final Color input;
   final Color meChatBubble;
-  final Color contactChatBubble;
+  final Color otherChatBubble;
   final Color meChatBubbleText;
-  final Color contactChatBubbleText;
+  final Color otherChatBubbleText;
   final Color overlay;
   final Color surface;
   final Color solidNeutralBlack;
@@ -124,9 +124,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     solidPrimary: LightAppColors.solidPrimary,
     input: LightAppColors.input,
     meChatBubble: LightAppColors.meChatBubble,
-    contactChatBubble: LightAppColors.contactChatBubble,
+    otherChatBubble: LightAppColors.otherChatBubble,
     meChatBubbleText: LightAppColors.meChatBubbleText,
-    contactChatBubbleText: LightAppColors.contactChatBubbleText,
+    otherChatBubbleText: LightAppColors.otherChatBubbleText,
     overlay: LightAppColors.overlay,
     surface: LightAppColors.surface,
     solidNeutralBlack: LightAppColors.solidNeutralBlack,
@@ -171,9 +171,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     solidPrimary: DarkAppColors.solidPrimary,
     input: DarkAppColors.input,
     meChatBubble: DarkAppColors.meChatBubble,
-    contactChatBubble: DarkAppColors.contactChatBubble,
+    otherChatBubble: DarkAppColors.otherChatBubble,
     meChatBubbleText: DarkAppColors.meChatBubbleText,
-    contactChatBubbleText: DarkAppColors.contactChatBubbleText,
+    otherChatBubbleText: DarkAppColors.otherChatBubbleText,
     overlay: DarkAppColors.overlay,
     surface: DarkAppColors.surface,
     solidNeutralBlack: DarkAppColors.solidNeutralBlack,
@@ -218,9 +218,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? solidPrimary,
     Color? input,
     Color? meChatBubble,
-    Color? contactChatBubble,
+    Color? otherChatBubble,
     Color? meChatBubbleText,
-    Color? contactChatBubbleText,
+    Color? otherChatBubbleText,
     Color? overlay,
     Color? surface,
     Color? solidNeutralBlack,
@@ -263,9 +263,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       solidPrimary: solidPrimary ?? this.solidPrimary,
       input: input ?? this.input,
       meChatBubble: meChatBubble ?? this.meChatBubble,
-      contactChatBubble: contactChatBubble ?? this.contactChatBubble,
+      otherChatBubble: otherChatBubble ?? this.otherChatBubble,
       meChatBubbleText: meChatBubbleText ?? this.meChatBubbleText,
-      contactChatBubbleText: contactChatBubbleText ?? this.contactChatBubbleText,
+      otherChatBubbleText: otherChatBubbleText ?? this.otherChatBubbleText,
       overlay: overlay ?? this.overlay,
       surface: surface ?? this.surface,
       solidNeutralBlack: solidNeutralBlack ?? this.solidNeutralBlack,
@@ -323,9 +323,9 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       solidPrimary: Color.lerp(solidPrimary, other.solidPrimary, t)!,
       input: Color.lerp(input, other.input, t)!,
       meChatBubble: Color.lerp(meChatBubble, other.meChatBubble, t)!,
-      contactChatBubble: Color.lerp(contactChatBubble, other.contactChatBubble, t)!,
+      otherChatBubble: Color.lerp(otherChatBubble, other.otherChatBubble, t)!,
       meChatBubbleText: Color.lerp(meChatBubbleText, other.meChatBubbleText, t)!,
-      contactChatBubbleText: Color.lerp(contactChatBubbleText, other.contactChatBubbleText, t)!,
+      otherChatBubbleText: Color.lerp(otherChatBubbleText, other.otherChatBubbleText, t)!,
       overlay: Color.lerp(overlay, other.overlay, t)!,
       surface: Color.lerp(surface, other.surface, t)!,
       solidNeutralBlack: Color.lerp(solidNeutralBlack, other.solidNeutralBlack, t)!,

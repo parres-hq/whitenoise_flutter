@@ -4,21 +4,21 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/chat_management/widgets/create_group_dialog.dart';
-import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/user_profile_list/new_group_chat_sheet.dart';
 
 class AddToGroupScreen extends ConsumerStatefulWidget {
-  const AddToGroupScreen({super.key, required this.contactNpub});
-  final String contactNpub;
+  const AddToGroupScreen({super.key, required this.userNpub});
+  final String userNpub;
 
   @override
   ConsumerState<AddToGroupScreen> createState() => _AddToGroupScreenState();
@@ -104,7 +104,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
             .read(groupsProvider.notifier)
             .addToGroup(
               groupId: groupId,
-              membersNpubs: [widget.contactNpub],
+              membersNpubs: [widget.userNpub],
             );
         successCount++;
       } catch (e) {
@@ -141,38 +141,35 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
             Navigator.of(context).pop();
           }
 
-          // Get contact information for the user to be added
-          ContactModel? contactToAdd;
+          // Get user profile information for the user to be added
+          late final UserProfile userProfileToAdd;
           try {
-            // First try to get from follows (cached contacts)
+            // First try to get from follows
             final followsNotifier = ref.read(followsProvider.notifier);
-            final existingFollow = followsNotifier.findFollowByPubkey(widget.contactNpub);
+            final existingFollow = followsNotifier.findFollowByPubkey(widget.userNpub);
 
             if (existingFollow != null) {
-              contactToAdd = ContactModel.fromMetadata(
+              userProfileToAdd = UserProfile.fromMetadata(
                 pubkey: existingFollow.pubkey,
                 metadata: existingFollow.metadata,
               );
             } else {
               // If not in follows, fetch from user profile data provider
-              final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
-              contactToAdd = await userProfileDataNotifier.getUserProfileData(widget.contactNpub);
+              final userProfileNotifier = ref.read(userProfileProvider.notifier);
+              userProfileToAdd = await userProfileNotifier.getUserProfile(widget.userNpub);
             }
           } catch (e) {
-            // Create a basic contact model with just the public key
-            contactToAdd = ContactModel(
+            // Create a basic user profile with just the public key
+            userProfileToAdd = UserProfile(
               displayName: 'Unknown User',
-              publicKey: widget.contactNpub,
+              publicKey: widget.userNpub,
             );
           }
-
-          // Ensure we always have a contact (in case getUserProfileData returns null)
-
           if (!mounted) return;
 
           await NewGroupChatSheet.show(
             context,
-            preSelectedContacts: [contactToAdd],
+            preSelectedUserProfiles: [userProfileToAdd],
             onGroupCreated: (group) {
               // Only pop the AddToGroupScreen if group was created successfully
               if (mounted && group != null) {
@@ -240,8 +237,8 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
                     final members = groupsState.groupMembers?[group.mlsGroupId] ?? [];
                     final memberCount = members.length;
 
-                    final isContactInGroup = members.any(
-                      (member) => member.publicKey == widget.contactNpub,
+                    final isUserInGroup = members.any(
+                      (member) => member.publicKey == widget.userNpub,
                     );
 
                     return CheckboxListTile(
@@ -267,8 +264,8 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
                           fontSize: 12.sp,
                         ),
                       ),
-                      enabled: !isContactInGroup,
-                      value: _groupsToAddUserTo.contains(group.mlsGroupId) || isContactInGroup,
+                      enabled: !isUserInGroup,
+                      value: _groupsToAddUserTo.contains(group.mlsGroupId) || isUserInGroup,
                       onChanged: (bool? value) {
                         setState(() {
                           if (value == true) {

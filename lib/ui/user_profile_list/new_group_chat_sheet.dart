@@ -4,10 +4,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/ui/contact_list/group_chat_details_sheet.dart';
-import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
@@ -15,14 +13,16 @@ import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/ui/user_profile_list/group_chat_details_sheet.dart';
+import 'package:whitenoise/ui/user_profile_list/widgets/user_profile_tile.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
 class NewGroupChatSheet extends ConsumerStatefulWidget {
   final ValueChanged<Group?>? onGroupCreated;
-  final List<ContactModel>? preSelectedContacts;
+  final List<UserProfile>? preSelectedUserProfiles;
 
-  const NewGroupChatSheet({super.key, this.onGroupCreated, this.preSelectedContacts});
+  const NewGroupChatSheet({super.key, this.onGroupCreated, this.preSelectedUserProfiles});
 
   @override
   ConsumerState<NewGroupChatSheet> createState() => _NewGroupChatSheetState();
@@ -30,7 +30,7 @@ class NewGroupChatSheet extends ConsumerStatefulWidget {
   static Future<void> show(
     BuildContext context, {
     ValueChanged<Group?>? onGroupCreated,
-    List<ContactModel>? preSelectedContacts,
+    List<UserProfile>? preSelectedUserProfiles,
   }) {
     return WnBottomSheet.show(
       context: context,
@@ -40,7 +40,7 @@ class NewGroupChatSheet extends ConsumerStatefulWidget {
       builder:
           (context) => NewGroupChatSheet(
             onGroupCreated: onGroupCreated,
-            preSelectedContacts: preSelectedContacts,
+            preSelectedUserProfiles: preSelectedUserProfiles,
           ),
     );
   }
@@ -49,15 +49,15 @@ class NewGroupChatSheet extends ConsumerStatefulWidget {
 class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  final Set<ContactModel> _selectedContacts = {};
+  final Set<UserProfile> _selectedUserProfiles = {};
 
   @override
   void initState() {
     super.initState();
     _searchController.addListener(_onSearchChanged);
-    // Add pre-selected contacts to the selection
-    if (widget.preSelectedContacts != null) {
-      _selectedContacts.addAll(widget.preSelectedContacts!);
+    // Add pre-selected user profiles to the selection
+    if (widget.preSelectedUserProfiles != null) {
+      _selectedUserProfiles.addAll(widget.preSelectedUserProfiles!);
     }
   }
 
@@ -90,21 +90,21 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     });
   }
 
-  void _toggleContactSelection(ContactModel contact) {
+  void _toggleUserProfileSelection(UserProfile userProfile) {
     setState(() {
-      if (_selectedContacts.contains(contact)) {
-        _selectedContacts.remove(contact);
+      if (_selectedUserProfiles.contains(userProfile)) {
+        _selectedUserProfiles.remove(userProfile);
       } else {
-        _selectedContacts.add(contact);
+        _selectedUserProfiles.add(userProfile);
       }
     });
   }
 
-  Widget _buildContactsList(List<ContactModel> filteredContacts) {
-    if (filteredContacts.isEmpty) {
+  Widget _buildUserProfilesList(List<UserProfile> filteredUserProfiles) {
+    if (filteredUserProfiles.isEmpty) {
       return Center(
         child: Text(
-          _searchQuery.isEmpty ? 'chats.noContactsFound'.tr() : 'chats.noContactsMatchSearch'.tr(),
+          _searchQuery.isEmpty ? 'chats.noUsersFound'.tr() : 'chats.noUsersMatchSearch'.tr(),
           style: TextStyle(fontSize: 16.sp),
         ),
       );
@@ -112,46 +112,49 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
 
     return ListView.builder(
       padding: EdgeInsets.zero,
-      itemCount: filteredContacts.length,
+      itemCount: filteredUserProfiles.length,
       itemBuilder: (context, index) {
-        final contact = filteredContacts[index];
-        final isSelected = _selectedContacts.contains(contact);
+        final userProfile = filteredUserProfiles[index];
+        final isSelected = _selectedUserProfiles.contains(userProfile);
 
-        return ContactListTile(
-          contact: contact,
+        return UserProfileTile(
+          userProfile: userProfile,
           isSelected: isSelected,
-          onTap: () => _toggleContactSelection(contact),
+          onTap: () => _toggleUserProfileSelection(userProfile),
           showCheck: true,
         );
       },
     );
   }
 
-  List<ContactModel> _getFilteredContacts(List<ContactModel>? contacts, String? currentUserPubkey) {
-    if (contacts == null) return [];
+  List<UserProfile> _getFilteredUserProfiles(
+    List<UserProfile>? userProfiles,
+    String? currentUserPubkey,
+  ) {
+    if (userProfiles == null) return [];
 
-    // First filter out the creator (current user) from the contacts
-    final contactsWithoutCreator =
-        contacts.where((contact) {
+    // First filter out the creator (current user) from the userProfiles
+    final userProfilesWithoutCreator =
+        userProfiles.where((userProfile) {
           // Compare public keys, ensuring both are trimmed and lowercased for comparison
           return currentUserPubkey == null ||
-              contact.publicKey.trim().toLowerCase() != currentUserPubkey.trim().toLowerCase();
+              userProfile.publicKey.trim().toLowerCase() != currentUserPubkey.trim().toLowerCase();
         }).toList();
 
     // Then apply search filter if there's a search query
-    if (_searchQuery.isEmpty) return contactsWithoutCreator;
+    if (_searchQuery.isEmpty) return userProfilesWithoutCreator;
 
-    return contactsWithoutCreator
+    return userProfilesWithoutCreator
         .where(
-          (contact) =>
-              contact.displayName.toLowerCase().contains(
+          (userProfile) =>
+              userProfile.displayName.toLowerCase().contains(
                 _searchQuery.toLowerCase(),
               ) ||
-              (contact.nip05?.toLowerCase().contains(
+              (userProfile.nip05?.toLowerCase().contains(
                     _searchQuery.toLowerCase(),
                   ) ??
                   false) ||
-              contact.publicKey.toLowerCase().contains(
+              userProfile.publicKey.toLowerCase().contains(
                 _searchQuery.toLowerCase(),
               ),
         )
@@ -163,10 +166,10 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     final followsState = ref.watch(followsProvider);
     final activeAccount = ref.watch(activePubkeyProvider);
     final follows = followsState.follows;
-    final contactModels = follows.map(
-      (follow) => ContactModel.fromMetadata(pubkey: follow.pubkey, metadata: follow.metadata),
+    final userProfiles = follows.map(
+      (follow) => UserProfile.fromMetadata(pubkey: follow.pubkey, metadata: follow.metadata),
     );
-    final filteredContacts = _getFilteredContacts(contactModels.toList(), activeAccount);
+    final filteredUserProfiles = _getFilteredUserProfiles(userProfiles.toList(), activeAccount);
 
     return Padding(
       padding: EdgeInsets.only(bottom: 16.h),
@@ -177,7 +180,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
               Expanded(
                 child: WnTextFormField(
                   controller: _searchController,
-                  hintText: 'chats.searchContactPlaceholder'.tr(),
+                  hintText: 'chats.searchUserPlaceholder'.tr(),
                   size: FieldSize.small,
                   decoration: InputDecoration(
                     prefixIcon: Padding(
@@ -216,7 +219,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            'chats.contactsLoadingError'.tr(),
+                            'chats.followsLoadingError'.tr(),
                             style: TextStyle(fontSize: 16.sp),
                           ),
                           Gap(8.h),
@@ -231,7 +234,6 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                           Gap(16.h),
                           ElevatedButton(
                             onPressed: () {
-                              // Navigate back - contacts should be loaded by new_chat_bottom_sheet
                               Navigator.of(context).pop();
                             },
                             child: Text('shared.goBack'.tr()),
@@ -239,16 +241,16 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
                         ],
                       ),
                     )
-                    : _buildContactsList(filteredContacts),
+                    : _buildUserProfilesList(filteredUserProfiles),
           ),
           WnFilledButton(
             onPressed:
-                _selectedContacts.isNotEmpty
+                _selectedUserProfiles.isNotEmpty
                     ? () {
                       Navigator.pop(context);
                       GroupChatDetailsSheet.show(
                         context: context,
-                        selectedContacts: _selectedContacts.toList(),
+                        selectedUserProfiles: _selectedUserProfiles.toList(),
                         onGroupCreated: widget.onGroupCreated,
                       );
                     }
