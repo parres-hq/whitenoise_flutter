@@ -50,7 +50,7 @@ class AvatarColorService {
       _logger.warning('Failed to convert pubkey to npub, using hex fallback');
       return trimmed.length >= 12 ? trimmed.substring(0, 12) : trimmed;
     }
-    
+
     return npub.length >= 12 ? npub.substring(0, 12) : npub;
   }
 
