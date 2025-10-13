@@ -171,94 +171,92 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     );
     final filteredUserProfiles = _getFilteredUserProfiles(userProfiles.toList(), activeAccount);
 
-    return Padding(
-      padding: EdgeInsets.only(bottom: 16.h),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: WnTextFormField(
-                  controller: _searchController,
-                  hintText: 'chats.searchUserPlaceholder'.tr(),
-                  size: FieldSize.small,
-                  decoration: InputDecoration(
-                    prefixIcon: Padding(
-                      padding: EdgeInsets.all(12.w),
-                      child: WnImage(
-                        AssetsPaths.icSearch,
-                        color: context.colors.primary,
-                        size: 16.w,
-                      ),
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: WnTextFormField(
+                controller: _searchController,
+                hintText: 'chats.searchUserPlaceholder'.tr(),
+                size: FieldSize.small,
+                decoration: InputDecoration(
+                  prefixIcon: Padding(
+                    padding: EdgeInsets.all(12.w),
+                    child: WnImage(
+                      AssetsPaths.icSearch,
+                      color: context.colors.primary,
+                      size: 16.w,
                     ),
                   ),
                 ),
               ),
-              Gap(4.w),
-              WnIconButton(
-                iconPath: AssetsPaths.icPaste,
-                onTap:
-                    () async => await ClipboardUtils.pasteWithToast(
-                      ref: ref,
-                      onPaste: (text) {
-                        _searchController.text = text;
-                      },
+            ),
+            Gap(4.w),
+            WnIconButton(
+              iconPath: AssetsPaths.icPaste,
+              onTap:
+                  () async => await ClipboardUtils.pasteWithToast(
+                    ref: ref,
+                    onPaste: (text) {
+                      _searchController.text = text;
+                    },
+                  ),
+              padding: 14.w,
+              size: 44.h,
+            ),
+          ],
+        ),
+        Expanded(
+          child:
+              followsState.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : followsState.error != null
+                  ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'chats.followsLoadingError'.tr(),
+                          style: TextStyle(fontSize: 16.sp),
+                        ),
+                        Gap(8.h),
+                        Text(
+                          followsState.error!,
+                          style: TextStyle(
+                            fontSize: 12.sp,
+                            color: context.colors.baseMuted,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        Gap(16.h),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Navigate back - contacts should be loaded by new_chat_bottom_sheet
+                            Navigator.of(context).pop();
+                          },
+                          child: Text('shared.goBack'.tr()),
+                        ),
+                      ],
                     ),
-                padding: 14.w,
-                size: 44.h,
-              ),
-            ],
-          ),
-          Expanded(
-            child:
-                followsState.isLoading
-                    ? const Center(child: CircularProgressIndicator())
-                    : followsState.error != null
-                    ? Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'chats.followsLoadingError'.tr(),
-                            style: TextStyle(fontSize: 16.sp),
-                          ),
-                          Gap(8.h),
-                          Text(
-                            followsState.error!,
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              color: context.colors.baseMuted,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                          Gap(16.h),
-                          ElevatedButton(
-                            onPressed: () {
-                              Navigator.of(context).pop();
-                            },
-                            child: Text('shared.goBack'.tr()),
-                          ),
-                        ],
-                      ),
-                    )
-                    : _buildUserProfilesList(filteredUserProfiles),
-          ),
-          WnFilledButton(
-            onPressed:
-                _selectedUserProfiles.isNotEmpty
-                    ? () {
-                      Navigator.pop(context);
-                      GroupChatDetailsSheet.show(
-                        context: context,
-                        selectedUserProfiles: _selectedUserProfiles.toList(),
-                        onGroupCreated: widget.onGroupCreated,
-                      );
-                    }
-                    : null,
-            label: 'shared.continue'.tr(),
-          ),
-        ],
-      ),
+                  )
+                  : _buildUserProfilesList(filteredUserProfiles),
+        ),
+        WnFilledButton(
+          onPressed:
+              _selectedUserProfiles.isNotEmpty
+                  ? () {
+                    Navigator.pop(context);
+                    GroupChatDetailsSheet.show(
+                      context: context,
+                      selectedUserProfiles: _selectedUserProfiles.toList(),
+                      onGroupCreated: widget.onGroupCreated,
+                    );
+                  }
+                  : null,
+          label: 'shared.continue'.tr(),
+        ),
+      ],
     );
   }
 }

@@ -116,15 +116,18 @@ class WnBottomSheet {
     return MediaQuery.of(context).viewInsets.bottom > 0;
   }
 
-  /// Calculate bottom padding to reach exactly 24h or 54h total (including SafeArea)
-  static double _calculateBottomPadding(BuildContext context) {
-    final safeAreaBottom = MediaQuery.paddingOf(context).bottom;
-    final targetPadding = isKeyboardOpen(context) ? 24.h : 54.h;
-    final additionalPadding = targetPadding - safeAreaBottom;
-
-    // Ensure we don't have negative padding
-    return additionalPadding > 0 ? additionalPadding : 0;
+  /// Calculate bottom padding for safe area
+  /// - When keyboard is open: 8.h padding
+  /// - When keyboard is closed: device safe area (home indicator) + 8.h padding
+  static double _calculateSafeAreaPadding(BuildContext context) {
+    final keyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
+    final safeAreaBottom = MediaQuery.viewPaddingOf(context).bottom;
+    
+    return keyboardHeight > 0 
+        ? 8.h
+        : safeAreaBottom + 8.h;
   }
+
 
   static Future<T?> show<T>({
     required BuildContext context,
@@ -186,7 +189,7 @@ class WnBottomSheet {
                               padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
                                 bottom:
                                     (keyboardAware ? MediaQuery.viewInsetsOf(context).bottom : 0) +
-                                    (useSafeArea ? _calculateBottomPadding(context) : 0),
+                                    (useSafeArea ? _calculateSafeAreaPadding(context) : 0),
                                 top: 16.h,
                               ),
                               child: Column(

@@ -153,7 +153,6 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
       child: Scaffold(
         backgroundColor: context.colors.appBarBackground,
         body: SafeArea(
-          bottom: false,
           child: ColoredBox(
             color: context.colors.neutral,
             child: Column(
@@ -253,7 +252,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
                         loading: _isLoading,
                         label: 'shared.save'.tr(),
                       ),
-                      Gap(36.h),
+                      Gap(8.h),
                     ],
                   ),
                 ),
