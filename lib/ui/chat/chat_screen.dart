@@ -90,7 +90,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     final group = groupsNotifier.findGroupById(widget.groupId);
     if (group != null) {
       _dmChatDataFuture = ref.getDMChatData(group.mlsGroupId);
-      
+
       // Preload avatar color for the chat
       final groupType = await groupsNotifier.getGroupType(group);
       if (groupType == GroupType.directMessage) {
