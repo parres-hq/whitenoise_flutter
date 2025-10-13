@@ -30,6 +30,7 @@ class ChatGroupAppbar extends ConsumerWidget {
           imageUrl: watchedGroupImagePath ?? '',
           displayName: watchedGroupDisplayName ?? 'shared.unknownUser'.tr(),
           size: 36.r,
+          pubkey: groupId,
           showBorder: true,
         ),
         Gap(8.w),

@@ -57,7 +57,7 @@ class ChatListItemTile extends ConsumerWidget {
       return _buildChatTileLoading(context, group);
     }
 
-    return _buildChatTileContent(context, watchedDisplayName, watchedGroupImagePath, group);
+    return _buildChatTileContent(context, watchedDisplayName, watchedGroupImagePath, group, group.nostrGroupId);
   }
 
   Widget _buildChatTileLoading(BuildContext context, Group group) {
@@ -190,6 +190,7 @@ class ChatListItemTile extends ConsumerWidget {
     String displayName,
     String? displayImage,
     Group group,
+    String? pubkey,
   ) {
     final displayImageUrl = displayImage ?? '';
     return Consumer(
@@ -243,6 +244,7 @@ class ChatListItemTile extends ConsumerWidget {
                     displayName: displayName,
                     size: 56.r,
                     showBorder: displayImageUrl.isEmpty,
+                    pubkey: pubkey,
                   ),
                   Gap(8.w),
                   Expanded(

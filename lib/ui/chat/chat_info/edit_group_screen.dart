@@ -227,6 +227,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
                                 displayName: group.name,
                                 size: 96.w,
                                 showBorder: true,
+                                pubkey: group.nostrGroupId,
                               ),
                               Positioned(
                                 right: 5.w,

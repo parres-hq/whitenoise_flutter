@@ -91,6 +91,26 @@ class AvatarColorService {
     return _avatarColors[random.nextInt(_avatarColors.length)];
   }
 
+  /// Public method to generate a random color without saving
+  /// Used for ephemeral previews
+  Color generateRandomColorPublic() {
+    return _generateRandomColor();
+  }
+
+  /// Save a color directly for a pubkey
+  /// Used to persist ephemeral preview colors
+  Future<void> saveColorDirectly(String pubkey, Color color) async {
+    try {
+      final identifier = toCacheKey(pubkey);
+      final colorsMap = await _loadColorsMap();
+      colorsMap[identifier] = color.toARGB32();
+      await _saveColorsMap(colorsMap);
+      _logger.info('Saved color directly for pubkey: $pubkey');
+    } catch (e) {
+      _logger.severe('Error saving color directly: $e');
+    }
+  }
+
   /// Get color for a pubkey, generating and saving if not exists
   Future<Color> getOrGenerateColor(String pubkey) async {
     try {
@@ -105,7 +125,7 @@ class AvatarColorService {
       final newColor = _generateRandomColor();
       colorsMap[identifier] = newColor.toARGB32();
       await _saveColorsMap(colorsMap);
-      _logger.info('Generated new color for pubkey: ${pubkey.substring(0, 8)}...');
+      _logger.info('Generated new color for pubkey: $pubkey');
 
       return newColor;
     } catch (e) {
