@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -84,11 +85,26 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     super.dispose();
   }
 
-  void _initializeDMChatData() {
+  void _initializeDMChatData() async {
     final groupsNotifier = ref.read(groupsProvider.notifier);
     final group = groupsNotifier.findGroupById(widget.groupId);
     if (group != null) {
       _dmChatDataFuture = ref.getDMChatData(group.mlsGroupId);
+
+      // Preload avatar color for the chat
+      final groupType = await groupsNotifier.getGroupType(group);
+      if (groupType == GroupType.directMessage) {
+        // For DMs, get color after loading user data
+        _dmChatDataFuture?.then((dmData) {
+          final pubkey = dmData?.publicKey;
+          if (pubkey != null && pubkey.isNotEmpty && mounted) {
+            ref.read(avatarColorProvider.notifier).getColor(pubkey);
+          }
+        });
+      } else {
+        // For groups, use group's nostr ID
+        ref.read(avatarColorProvider.notifier).getColor(group.nostrGroupId);
+      }
     }
   }
 
@@ -329,6 +345,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                             groupType == GroupType.directMessage
                                                 ? otherUser?.displayImage ?? ''
                                                 : '',
+                                        pubkey:
+                                            groupType == GroupType.directMessage
+                                                ? otherUser?.publicKey ?? ''
+                                                : group.nostrGroupId,
                                         onTap: () => context.push('/chats/${widget.groupId}/info'),
                                       );
                                     },

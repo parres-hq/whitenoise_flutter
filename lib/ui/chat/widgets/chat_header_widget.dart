@@ -80,6 +80,7 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
             displayName: widget.group.name,
             size: 96.r,
             showBorder: true,
+            pubkey: widget.group.nostrGroupId,
           ),
           Gap(12.h),
           Text(
@@ -171,6 +172,7 @@ class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
                 displayName: otherUser.displayName,
                 size: 96.r,
                 showBorder: true,
+                pubkey: otherUser.publicKey,
               ),
               Gap(12.h),
               Text(

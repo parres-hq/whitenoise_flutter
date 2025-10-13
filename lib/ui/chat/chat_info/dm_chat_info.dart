@@ -94,6 +94,8 @@ class _DMChatInfoState extends ConsumerState<DMChatInfo> {
                 imageUrl: dmChatData?.displayImage ?? '',
                 displayName: dmChatData?.displayName ?? 'chats.unknown'.tr(),
                 size: 96.w,
+                pubkey: dmChatData?.publicKey,
+                showBorder: true,
               ),
               SizedBox(height: 16.h),
               Text(

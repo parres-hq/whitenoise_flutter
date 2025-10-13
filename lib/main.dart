@@ -7,6 +7,7 @@ import 'package:logging/logging.dart';
 import 'package:timezone/data/latest.dart' as tz;
 import 'package:timezone/timezone.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/localization_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
@@ -77,6 +78,7 @@ class MyApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
     final themeState = ref.watch(themeProvider);
     final currentLocale = ref.watch(currentLocaleProvider);
+    ref.watch(avatarColorProvider);
 
     return ScreenUtilInit(
       designSize: width > 600 ? const Size(600, 1024) : const Size(390, 844),

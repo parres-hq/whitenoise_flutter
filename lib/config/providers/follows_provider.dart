@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api;
 import 'package:whitenoise/src/rust/api/users.dart';
 import 'package:whitenoise/utils/error_handling.dart';
@@ -88,6 +89,12 @@ class FollowsNotifier extends Notifier<FollowsState> {
       _logger.info('FollowsProvider: Loaded ${follows.length} follows');
 
       final sortedFollows = UserUtils.sortUsersByName(follows);
+
+      // Preload avatar colors for all follows in the background
+      final pubkeys = sortedFollows.map((user) => user.pubkey).toList();
+      ref.read(avatarColorProvider.notifier).preloadColors(pubkeys).catchError((e) {
+        _logger.warning('Failed to preload avatar colors: $e');
+      });
 
       state = state.copyWith(follows: sortedFollows, isLoading: false);
     } catch (e, st) {

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/create_profile_screen_provider.dart';
 import 'package:whitenoise/ui/auth_flow/auth_header.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -133,9 +134,11 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
                       valueListenable: _displayNameController,
                       builder: (context, value, child) {
                         final displayText = value.text.trim();
+                        final activePubkey = ref.watch(activePubkeyProvider);
                         return WnAvatar(
                           imageUrl: ref.watch(createProfileScreenProvider).selectedImagePath ?? '',
                           displayName: displayText,
+                          pubkey: activePubkey,
                           size: 96.w,
                           showBorder:
                               ref.watch(createProfileScreenProvider).selectedImagePath == null,

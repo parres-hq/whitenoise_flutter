@@ -63,6 +63,7 @@ class ContactListTile extends StatelessWidget {
             WnAvatar(
               imageUrl: contactImagePath,
               displayName: contact.displayName,
+              pubkey: contact.publicKey,
               size: 56.w,
               showBorder: contactImagePath.isEmpty,
             ),

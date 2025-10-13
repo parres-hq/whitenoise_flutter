@@ -9,6 +9,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
 import 'package:whitenoise/domain/models/contact_model.dart';
@@ -154,6 +155,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     try {
       final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
       final userProfileData = await userProfileDataNotifier.getUserProfileData(publicKey.trim());
+      ref.read(avatarColorProvider.notifier).getColor(publicKey.trim());
 
       if (mounted) {
         setState(() {

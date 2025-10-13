@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added localization support with multi-language support (English, German, Spanish, French, Italian, Portuguese, Russian, Turkish)
+- Added unique color theming to the avatar of all users.
 ### Changed
 ### Deprecated
 ### Removed
