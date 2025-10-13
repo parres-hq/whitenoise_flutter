@@ -122,12 +122,9 @@ class WnBottomSheet {
   static double _calculateSafeAreaPadding(BuildContext context) {
     final keyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
     final safeAreaBottom = MediaQuery.viewPaddingOf(context).bottom;
-    
-    return keyboardHeight > 0 
-        ? 8.h
-        : safeAreaBottom + 8.h;
-  }
 
+    return keyboardHeight > 0 ? 8.h : safeAreaBottom + 8.h;
+  }
 
   static Future<T?> show<T>({
     required BuildContext context,
