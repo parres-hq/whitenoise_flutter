@@ -35,16 +35,23 @@ class AvatarColorService {
   /// Handles both hex and npub format inputs
   /// Returns a shortened identifier, not a valid pubkey
   static String toCacheKey(String pubkey) {
-    if (pubkey.startsWith('npub1')) {
-      return pubkey.substring(0, 12);
+    final trimmed = pubkey.trim();
+    if (trimmed.isEmpty) {
+      _logger.warning('Empty pubkey provided to toCacheKey');
+      return 'empty_key';
     }
 
-    final npub = PubkeyFormatter(pubkey: pubkey).toNpub();
+    if (trimmed.startsWith('npub1')) {
+      return trimmed.length >= 12 ? trimmed.substring(0, 12) : trimmed;
+    }
+
+    final npub = PubkeyFormatter(pubkey: trimmed).toNpub();
     if (npub == null) {
       _logger.warning('Failed to convert pubkey to npub, using hex fallback');
-      return pubkey.substring(0, 12);
+      return trimmed.length >= 12 ? trimmed.substring(0, 12) : trimmed;
     }
-    return npub.substring(0, 12);
+    
+    return npub.length >= 12 ? npub.substring(0, 12) : npub;
   }
 
   /// Load all colors from SharedPreferences
