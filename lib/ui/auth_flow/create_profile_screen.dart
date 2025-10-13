@@ -135,11 +135,11 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
                       builder: (context, value, child) {
                         final displayText = value.text.trim();
                         final activePubkey = ref.watch(activePubkeyProvider);
-                      return WnAvatar(
+                        return WnAvatar(
                           imageUrl: ref.watch(createProfileScreenProvider).selectedImagePath ?? '',
                           displayName: displayText,
                           pubkey: activePubkey,
-                        size: 96.w,
+                          size: 96.w,
                           showBorder:
                               ref.watch(createProfileScreenProvider).selectedImagePath == null,
                         );
