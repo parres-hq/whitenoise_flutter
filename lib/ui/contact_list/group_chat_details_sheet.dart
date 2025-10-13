@@ -293,7 +293,6 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                     ? 'ui.creatingGroup'.tr()
                     : 'ui.createGroup'.tr(),
           ),
-          Gap(16.h),
         ],
       ),
     );
