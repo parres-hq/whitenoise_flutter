@@ -11,24 +11,20 @@ class AvatarColorService {
   static const String _storageKey = 'avatar_colors_map';
   static final _logger = Logger('AvatarColorService');
 
-  /// Predefined set of vibrant colors for avatars
+  /// Predefined set of avatar foreground colors from design system
   static final List<Color> _avatarColors = [
-    const Color(0xFFE57373), // Red
-    const Color(0xFFF06292), // Pink
-    const Color(0xFFBA68C8), // Purple
-    const Color(0xFF9575CD), // Deep Purple
-    const Color(0xFF7986CB), // Indigo
-    const Color(0xFF64B5F6), // Blue
-    const Color(0xFF4FC3F7), // Light Blue
-    const Color(0xFF4DD0E1), // Cyan
-    const Color(0xFF4DB6AC), // Teal
-    const Color(0xFF81C784), // Green
-    const Color(0xFFAED581), // Light Green
-    const Color(0xFFFFD54F), // Amber
-    const Color(0xFFFFB74D), // Orange
-    const Color(0xFFFF8A65), // Deep Orange
-    const Color(0xFFA1887F), // Brown
-    const Color(0xFF90A4AE), // Blue Grey
+    const Color(0xFF1e3a8a), // Blue Foreground
+    const Color(0xFF164e63), // Cyan Foreground
+    const Color(0xFF064e3b), // Emerald Foreground
+    const Color(0xFF701a75), // Fuchsia Foreground
+    const Color(0xFF312e81), // Indigo Foreground
+    const Color(0xFF365314), // Lime Foreground
+    const Color(0xFF7c2d12), // Orange Foreground
+    const Color(0xFF881337), // Rose Foreground
+    const Color(0xFF0c4a6e), // Sky Foreground
+    const Color(0xFF134e4a), // Teal Foreground
+    const Color(0xFF4c1d95), // Violet Foreground
+    const Color(0xFF78350f), // Amber Foreground
   ];
 
   /// Generate a consistent cache key from pubkey (first 12 chars of npub)
