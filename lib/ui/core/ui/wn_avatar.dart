@@ -23,7 +23,8 @@ class WnAvatar extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cacheKey = pubkey != null ? AvatarColorService.toCacheKey(pubkey!) : null;
+    final cacheKey =
+        pubkey != null && pubkey!.isNotEmpty ? AvatarColorService.toCacheKey(pubkey!) : null;
     final themeColor = cacheKey != null ? ref.watch(avatarColorProvider)[cacheKey] : null;
 
     // Use a single ClipOval with decoration instead of Container + ClipOval
