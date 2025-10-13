@@ -15,6 +15,7 @@ import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/user_profile_list/new_group_chat_sheet.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class AddToGroupScreen extends ConsumerStatefulWidget {
   const AddToGroupScreen({super.key, required this.userNpub});
@@ -236,10 +237,14 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
                     final group = _regularGroups[index];
                     final members = groupsState.groupMembers?[group.mlsGroupId] ?? [];
                     final memberCount = members.length;
+                    final userHex =
+                        PubkeyFormatter(pubkey: widget.userNpub).toHex() ?? widget.userNpub;
 
-                    final isUserInGroup = members.any(
-                      (member) => member.publicKey == widget.userNpub,
-                    );
+                    final isUserInGroup = members.any((member) {
+                      final memberHex =
+                          PubkeyFormatter(pubkey: member.publicKey).toHex() ?? member.publicKey;
+                      return memberHex == userHex;
+                    });
 
                     return CheckboxListTile(
                       contentPadding: EdgeInsets.symmetric(horizontal: 16.w),
