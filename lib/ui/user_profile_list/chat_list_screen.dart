@@ -15,6 +15,8 @@ import 'package:whitenoise/config/providers/profile_ready_card_visibility_provid
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
+import 'package:whitenoise/domain/services/background_sync_service.dart';
+import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -38,7 +40,8 @@ class ChatListScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatListScreen> createState() => _ChatListScreenState();
 }
 
-class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProviderStateMixin {
+class _ChatListScreenState extends ConsumerState<ChatListScreen>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   static final Logger _log = Logger('ChatListScreen');
   String _searchQuery = '';
 
@@ -69,10 +72,30 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _pollingNotifier = ref.read(pollingProvider.notifier);
     _initializeControllers();
     _setupScrollListener();
     _scheduleInitialSetup();
+    _requestNotificationsPermission();
+    _initializeBackgroundSync();
+  }
+
+  Future<void> _initializeBackgroundSync() async {
+    try {
+      await BackgroundSyncService.initialize();
+      await BackgroundSyncService.registerAllTasks();
+    } catch (e) {
+      _log.severe('Failed to initialize background sync: $e');
+    }
+  }
+
+  Future<void> _requestNotificationsPermission() async {
+    try {
+      await NotificationService.requestPermissions();
+    } catch (e, st) {
+      _log.severe('Failed to get notifications permission: $e $st');
+    }
   }
 
   void _initializeControllers() {
@@ -246,7 +269,16 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     _scrollController.dispose();
     _loadingAnimationController.dispose();
     WelcomeNotificationService.clearContext();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // On resume, re register all tasks with update policy
+      _initializeBackgroundSync();
+    }
   }
 
   @override
