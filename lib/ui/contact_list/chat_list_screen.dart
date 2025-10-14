@@ -84,7 +84,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   Future<void> _initializeBackgroundSync() async {
     try {
       await BackgroundSyncService.initialize();
-      await BackgroundSyncService.registerAllTasks();
+      await BackgroundSyncService.registerMetadataSyncTask();
     } catch (e) {
       _log.severe('Failed to initialize background sync: $e');
     }

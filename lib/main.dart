@@ -64,7 +64,6 @@ Future<void> main() async {
 
     try {
       await BackgroundSyncService.initialize();
-      log.info('Background sync service initialized successfully');
     } catch (e) {
       log.severe('Failed to initialize background sync service: $e');
     }

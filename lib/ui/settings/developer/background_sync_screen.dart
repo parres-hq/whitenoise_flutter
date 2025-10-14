@@ -7,7 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
-import 'package:whitenoise/domain/models/background_task_config.dart';
 import 'package:whitenoise/domain/services/background_sync_service.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -53,37 +52,12 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
     }
   }
 
-  Future<void> _registerTask(BackgroundTaskConfig task) async {
+  Future<void> _registerTask() async {
     setState(() => _isLoading = true);
     try {
-      if (task.uniqueName == BackgroundSyncService.messagesSyncTask.uniqueName) {
-        await BackgroundSyncService.registerMessagesSyncTask();
-      } else if (task.uniqueName == BackgroundSyncService.invitesSyncTask.uniqueName) {
-        await BackgroundSyncService.registerInvitesSyncTask();
-      } else if (task.uniqueName == BackgroundSyncService.metadataRefreshTask.uniqueName) {
-        await BackgroundSyncService.registerMetadataSyncTask();
-      }
+      await BackgroundSyncService.registerMetadataSyncTask();
       if (mounted) {
-        ref.showSuccessToast('${task.displayName} registered successfully');
-        await _checkTasksStatus();
-      }
-    } catch (e) {
-      if (mounted) {
-        ref.showErrorToast('Failed to register ${task.displayName}: $e');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
-
-  Future<void> _registerAllTasks() async {
-    setState(() => _isLoading = true);
-    try {
-      await BackgroundSyncService.registerAllTasks();
-      if (mounted) {
-        ref.showSuccessToast('All background tasks registered successfully');
+        ref.showSuccessToast('background tasks registered successfully');
         await _checkTasksStatus();
       }
     } catch (e) {
@@ -97,12 +71,12 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
     }
   }
 
-  Future<void> _cancelAllTasks() async {
+  Future<void> _cancelBackgroundTasks() async {
     setState(() => _isLoading = true);
     try {
       await BackgroundSyncService.cancelAllTasks();
       if (mounted) {
-        ref.showSuccessToast('All background tasks cancelled successfully');
+        ref.showSuccessToast('background tasks cancelled successfully');
         await _checkTasksStatus();
       }
     } catch (e) {
@@ -184,7 +158,7 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
                                 frequency: task.frequencyDisplay,
                                 isLoading: _isLoading,
                                 isScheduled: isScheduled,
-                                onTrigger: () => _registerTask(task),
+                                onTrigger: () => _registerTask(),
                               ),
                             ),
                             if (index < BackgroundSyncService.allTasks.length - 1) Gap(8.h),
@@ -206,17 +180,9 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
                     Gap(10.h),
                     RepaintBoundary(
                       child: WnFilledButton(
-                        label: 'Register All Tasks',
-                        onPressed: _isLoading ? null : _registerAllTasks,
-                        loading: _isLoading,
-                      ),
-                    ),
-                    Gap(8.h),
-                    RepaintBoundary(
-                      child: WnFilledButton(
                         label: 'Cancel All Tasks',
                         visualState: WnButtonVisualState.destructive,
-                        onPressed: _isLoading ? null : _cancelAllTasks,
+                        onPressed: _isLoading ? null : _cancelBackgroundTasks,
                         loading: _isLoading,
                         labelTextStyle: WnButtonSize.large.textStyle().copyWith(
                           color: context.colors.solidNeutralWhite,

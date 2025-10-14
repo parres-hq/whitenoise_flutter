@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logging/logging.dart';
 
@@ -81,38 +84,20 @@ class NotificationService {
     _logger.info('Notification tapped: ${response.payload}');
   }
 
-  static Future<bool> requestPermissions() async {
-    try {
-      // Request Android permissions
-      final androidPlugin =
-          _flutterLocalNotificationsPlugin
-              .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+  static Future<void> requestPermissions() async {
+    final NotificationPermission notificationPermission =
+        await FlutterForegroundTask.checkNotificationPermission();
+    if (notificationPermission != NotificationPermission.granted) {
+      await FlutterForegroundTask.requestNotificationPermission();
+    }
 
-      if (androidPlugin != null) {
-        final granted = await androidPlugin.requestNotificationsPermission();
-        _logger.info('Android notification permission granted: $granted');
-        return granted ?? false;
+    if (Platform.isAndroid) {
+      if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+        await FlutterForegroundTask.requestIgnoreBatteryOptimization();
       }
-
-      // Request iOS permissions
-      final iosPlugin =
-          _flutterLocalNotificationsPlugin
-              .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
-
-      if (iosPlugin != null) {
-        final granted = await iosPlugin.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-        _logger.info('iOS notification permission granted: $granted');
-        return granted ?? false;
+      if (!await FlutterForegroundTask.canScheduleExactAlarms) {
+        await FlutterForegroundTask.openAlarmsAndRemindersSettings();
       }
-
-      return false;
-    } catch (e) {
-      _logger.severe('Failed to request notification permissions: $e');
-      return false;
     }
   }
 
