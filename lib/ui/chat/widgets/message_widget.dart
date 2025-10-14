@@ -87,10 +87,10 @@ class MessageWidget extends StatelessWidget {
                   size: 32.w,
                   displayName: message.sender.displayName,
                 ),
-                Gap(8.w),
+                Gap(4.w),
               ] else ...[
                 // Add spacer to maintain consistent tail alignment
-                SizedBox(width: 32.w + 8.w), // Same width as avatar + gap
+                SizedBox(width: 32.w + 4.w), // Same width as avatar + gap
               ],
             ],
             messageContentStack,
