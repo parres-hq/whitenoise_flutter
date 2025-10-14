@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts;
@@ -60,6 +62,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
   List<UserProfile> _accountsProfileData = [];
   // Cache for converting any npub profile key to hex for quick sync comparisons
   final Map<String, String> _pubkeyToHex = {};
+  final _logger = Logger('SwitchProfileBottomSheet');
 
   /// Precompute and cache hex versions of all loaded profile keys
   void _precomputeProfileHexes() {
@@ -121,6 +124,11 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
               )
               .toList();
       final List<UserProfile> accountsProfileData = await Future.wait(accountsProfileDataFutures);
+
+      final pubkeys = accountsProfileData.map((profile) => profile.publicKey).toList();
+      ref.read(avatarColorProvider.notifier).preloadColors(pubkeys).catchError((e) {
+        _logger.warning('Failed to preload avatar colors: $e');
+      });
 
       if (!mounted) return;
       setState(() {
