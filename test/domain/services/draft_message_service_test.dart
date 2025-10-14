@@ -16,7 +16,7 @@ void main() {
     group('saveDraft', () {
       group('when message has content', () {
         test('writes message to storage', () async {
-          await DraftMessageService.saveDraft(
+          await DraftMessageService().saveDraft(
             chatId: 'my_chat_id',
             message: 'Hello world message',
             storage: storage,
@@ -33,7 +33,7 @@ void main() {
         });
 
         test('deletes from storage with empty string', () async {
-          await DraftMessageService.saveDraft(
+          await DraftMessageService().saveDraft(
             chatId: 'my_chat_id',
             message: '',
             storage: storage,
@@ -44,7 +44,7 @@ void main() {
         });
 
         test('deletes from storage with whitespace only', () async {
-          await DraftMessageService.saveDraft(
+          await DraftMessageService().saveDraft(
             chatId: 'my_chat_id',
             message: '   \t\n  ',
             storage: storage,
@@ -64,7 +64,7 @@ void main() {
         });
 
         test('overwrites existing draft', () async {
-          await DraftMessageService.saveDraft(
+          await DraftMessageService().saveDraft(
             chatId: 'my_super_chat_id',
             message: 'Updated draft content',
             storage: storage,
@@ -83,7 +83,7 @@ void main() {
         });
 
         test('returns the stored message', () async {
-          final result = await DraftMessageService.loadDraft(
+          final result = await DraftMessageService().loadDraft(
             chatId: 'other_chat_id',
             storage: storage,
           );
@@ -94,7 +94,7 @@ void main() {
 
       group('when draft does not exist', () {
         test('returns null', () async {
-          final result = await DraftMessageService.loadDraft(
+          final result = await DraftMessageService().loadDraft(
             chatId: 'nonexistent_chat_id',
             storage: storage,
           );
@@ -112,7 +112,7 @@ void main() {
         });
 
         test('returns the message correctly', () async {
-          final result = await DraftMessageService.loadDraft(
+          final result = await DraftMessageService().loadDraft(
             chatId: 'emojis_chat_id',
             storage: storage,
           );
@@ -130,7 +130,7 @@ void main() {
         });
 
         test('removes only the specified draft', () async {
-          await DraftMessageService.clearDraft(
+          await DraftMessageService().clearDraft(
             chatId: 'first_chat_id',
             storage: storage,
           );
@@ -140,7 +140,7 @@ void main() {
         });
 
         test('leaves other drafts unchanged', () async {
-          await DraftMessageService.clearDraft(
+          await DraftMessageService().clearDraft(
             chatId: 'first_chat_id',
             storage: storage,
           );
@@ -152,7 +152,7 @@ void main() {
 
       group('when draft does not exist', () {
         test('completes without error', () async {
-          await DraftMessageService.clearDraft(
+          await DraftMessageService().clearDraft(
             chatId: 'missing_chat_id',
             storage: storage,
           );
@@ -172,14 +172,14 @@ void main() {
         });
 
         test('removes all draft keys', () async {
-          await DraftMessageService.clearAllDrafts(storage: storage);
+          await DraftMessageService().clearAllDrafts(storage: storage);
 
           final draft1 = await storage.read(key: 'draft_message_chat_one_id');
           expect(draft1, isNull);
         });
 
         test('preserves non-draft data', () async {
-          await DraftMessageService.clearAllDrafts(storage: storage);
+          await DraftMessageService().clearAllDrafts(storage: storage);
 
           final otherData = await storage.read(key: 'user_preferences');
           expect(otherData, equals('Important user data'));
@@ -188,7 +188,7 @@ void main() {
 
       group('when storage is empty', () {
         test('completes without error', () async {
-          await DraftMessageService.clearAllDrafts(storage: storage);
+          await DraftMessageService().clearAllDrafts(storage: storage);
 
           final allData = await storage.readAll();
           expect(allData, isEmpty);
@@ -205,14 +205,14 @@ void main() {
         });
 
         test('preserves keys without exact prefix', () async {
-          await DraftMessageService.clearAllDrafts(storage: storage);
+          await DraftMessageService().clearAllDrafts(storage: storage);
 
           final preserved = await storage.read(key: 'draft_message');
           expect(preserved, equals('no underscore key'));
         });
 
         test('removes keys with exact prefix', () async {
-          await DraftMessageService.clearAllDrafts(storage: storage);
+          await DraftMessageService().clearAllDrafts(storage: storage);
 
           final cleared = await storage.read(key: 'draft_message_valid_chat_id');
           expect(cleared, isNull);

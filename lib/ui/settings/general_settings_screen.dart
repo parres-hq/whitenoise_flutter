@@ -135,7 +135,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
     if (!mounted) return;
 
     // Clear all draft messages before logout
-    await DraftMessageService.clearAllDrafts();
+    await DraftMessageService().clearAllDrafts();
 
     await authNotifier.logoutCurrentAccount();
 
