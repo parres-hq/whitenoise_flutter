@@ -11,6 +11,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -183,7 +184,7 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
               future: _fetchInviterMetadata(),
               builder: (context, snapshot) {
                 final displayName =
-                    snapshot.data?.displayName ?? snapshot.data?.name ?? 'Unknown User';
+                    snapshot.data?.displayName ?? snapshot.data?.name ?? 'shared.unknownUser'.tr();
                 return Row(
                   children: [
                     WnAvatar(
@@ -340,7 +341,7 @@ class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCar
         return Column(
           children: [
             Text(
-              displayName ?? 'Unknown User',
+              displayName ?? 'shared.unknownUser'.tr(),
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 18.sp,

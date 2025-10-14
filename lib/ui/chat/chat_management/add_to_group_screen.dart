@@ -15,6 +15,7 @@ import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/user_profile_list/new_group_chat_sheet.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class AddToGroupScreen extends ConsumerStatefulWidget {
@@ -162,7 +163,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
           } catch (e) {
             // Create a basic user profile with just the public key
             userProfileToAdd = UserProfile(
-              displayName: 'Unknown User',
+              displayName: 'shared.unknownUser'.tr(),
               publicKey: widget.userNpub,
             );
           }

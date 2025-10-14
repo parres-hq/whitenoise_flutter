@@ -12,7 +12,8 @@
         "discardChanges": "Discard Changes",
         "unsavedChanges": "Unsaved changes",
         "continue": "Continue",
-        "system": "System"
+        "system": "System",
+        "unknownUser": "Unknown User"
     },
     "settings": {
         "title": "Settings",
@@ -163,7 +164,6 @@
         "inviteShareFailed": "Failed to share invite",
         "sharing": "Sharing...",
         "share": "Share",
-        "unknownUser": "Unknown User",
         "thisUser": "This user",
         "inviteToWhiteNoise": "Invite to White Noise",
         "userNotOnWhiteNoise": "{userName} isn't on White Noise yet. Share the download link to start a secure chat.",

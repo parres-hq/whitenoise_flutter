@@ -12,7 +12,8 @@
         "discardChanges": "Отменить изменения",
         "unsavedChanges": "Несохранённые изменения",
         "continue": "Продолжить",
-        "system": "Система"
+        "system": "Система",
+        "unknownUser": "Неизвестный пользователь"
     },
     "settings": {
         "title": "Настройки",
@@ -163,7 +164,6 @@
         "inviteShareFailed": "Не удалось поделиться приглашением",
         "sharing": "Отправка...",
         "share": "Поделиться",
-        "unknownUser": "Неизвестный пользователь",
         "thisUser": "Этот пользователь",
         "inviteToWhiteNoise": "Пригласить в White Noise",
         "userNotOnWhiteNoise": "{userName} ещё нет в White Noise. Поделитесь ссылкой для скачивания, чтобы начать безопасный чат.",

@@ -1,4 +1,5 @@
 import 'package:whitenoise/src/rust/api/users.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 /// Utility class for User operations like sorting and filtering
 class UserUtils {
@@ -9,9 +10,9 @@ class UserUtils {
       final aName = _getDisplayName(a);
       final bName = _getDisplayName(b);
 
-      if (aName == 'Unknown User' && bName != 'Unknown User') return 1;
-      if (bName == 'Unknown User' && aName != 'Unknown User') return -1;
-      if (aName == 'Unknown User' && bName == 'Unknown User') return 0;
+      if (aName == 'shared.unknownUser'.tr() && bName != 'shared.unknownUser'.tr()) return 1;
+      if (bName == 'shared.unknownUser'.tr() && aName != 'shared.unknownUser'.tr()) return -1;
+      if (aName == 'shared.unknownUser'.tr() && bName == 'shared.unknownUser'.tr()) return 0;
 
       return aName.toLowerCase().compareTo(bName.toLowerCase());
     });
@@ -62,7 +63,7 @@ class UserUtils {
       return metadata.name!;
     }
 
-    return 'Unknown User';
+    return 'shared.unknownUser'.tr();
   }
 
   static String getDisplayName(User user) {
