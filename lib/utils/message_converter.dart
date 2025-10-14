@@ -1,6 +1,7 @@
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart' as domain_user;
 import 'package:whitenoise/src/rust/api/messages.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_utils.dart';
 import 'package:whitenoise/utils/reaction_converter.dart';
 
@@ -133,7 +134,7 @@ class MessageConverter {
   static domain_user.User _unknownUser({required String pubkey}) {
     return domain_user.User(
       id: pubkey,
-      displayName: 'Unknown User',
+      displayName: 'shared.unknownUser'.tr(),
       nip05: '',
       publicKey: pubkey,
     );
@@ -216,7 +217,7 @@ class MessageConverter {
       createdAt: DateTime.now(),
       sender: domain_user.User(
         id: 'unknown',
-        displayName: 'Unknown User',
+        displayName: 'shared.unknownUser'.tr(),
         nip05: '',
         publicKey: 'unknown',
       ),

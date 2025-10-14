@@ -5,6 +5,7 @@ import 'package:whitenoise/config/providers/group_messages_provider.dart';
 import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class MockActivePubkeyNotifier extends ActivePubkeyNotifier {
@@ -27,7 +28,7 @@ class MockUserProfileNotifier extends UserProfileNotifier {
     return _userProfiles[pubkey] ??
         UserProfile(
           publicKey: pubkey,
-          displayName: 'Unknown User',
+          displayName: 'shared.unknownUser'.tr(),
         );
   }
 }

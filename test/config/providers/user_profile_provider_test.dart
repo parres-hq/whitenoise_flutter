@@ -4,6 +4,7 @@ import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 import 'package:whitenoise/src/rust/api/users.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 final testNpubPubkey = 'npub1zygjyg3nxdzyg424ven8waug3zvejqqq424thw7venwammhwlllsj2q4yf';
 final testHexPubkey = '1111222233334444555566667777888899990000aaaabbbbccccddddeeeeffff';
@@ -156,12 +157,12 @@ void main() {
 
         group('with npub pubkey', () {
           test(
-            'returns data with "Unknown User" for display name',
+            'returns data with Unknown User for display name',
             () async {
               final notifier = container.read(userProfileProvider.notifier);
               final result = await notifier.getUserProfile(testNpubPubkey);
               expect(result, isNotNull);
-              expect(result.displayName, 'Unknown User');
+              expect(result.displayName, 'shared.unknownUser'.tr());
               expect(result.about, 'Bio without name');
             },
           );
@@ -174,7 +175,7 @@ void main() {
               final notifier = container.read(userProfileProvider.notifier);
               final result = await notifier.getUserProfile(testHexPubkey);
               expect(result, isNotNull);
-              expect(result.displayName, 'Unknown User');
+              expect(result.displayName, 'shared.unknownUser'.tr());
               expect(result.about, 'Bio without name');
             },
           );
