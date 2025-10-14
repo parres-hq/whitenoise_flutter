@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added notification permissions request to contact list screen
 - Added background sync service to fetch new messages and invites and show notifications for them
-
+- Added user avatars in group chat messages
 - Added localization support with multi-language support (English, German, Spanish, French, Italian, Portuguese, Russian, Turkish)
 
 ### Changed
