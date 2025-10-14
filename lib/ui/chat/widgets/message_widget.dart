@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,6 +10,7 @@ import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_bubble/bubble.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/message_utils.dart';
 
@@ -75,7 +77,22 @@ class MessageWidget extends StatelessWidget {
         ),
         child: Row(
           mainAxisAlignment: message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Always reserve space for avatar in group messages to keep tails aligned
+            if (isGroupMessage && !message.isMe) ...[
+              if (!isSameSenderAsPrevious) ...[
+                WnAvatar(
+                  imageUrl: message.sender.imagePath ?? '',
+                  size: 32.w,
+                  displayName: message.sender.displayName,
+                ),
+                Gap(8.w),
+              ] else ...[
+                // Add spacer to maintain consistent tail alignment
+                SizedBox(width: 32.w + 8.w), // Same width as avatar + gap
+              ],
+            ],
             messageContentStack,
           ],
         ),
@@ -101,7 +118,7 @@ class MessageWidget extends StatelessWidget {
               crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (isGroupMessage && !isSameSenderAsNext && !message.isMe) ...[
+                if (isGroupMessage && !isSameSenderAsPrevious && !message.isMe) ...[
                   Text(
                     message.sender.displayName,
                     style: TextStyle(
