@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/ui/user_profile_list/widgets/share_invite_callout.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import '../../../test_helpers.dart';
 
 void main() {
@@ -27,7 +28,7 @@ void main() {
 
     group('when userProfile has an unknown display name', () {
       final userProfile = UserProfile(
-        displayName: 'Unknown User',
+        displayName: 'shared.unknownUser'.tr(),
         publicKey: 'abc123def456789012345678901234567890123456789012345678901234567890',
         nip05: 'satoshi@nakamoto.com',
         imagePath: 'https://example.com/satoshi.png',

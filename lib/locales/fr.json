@@ -12,7 +12,8 @@
         "discardChanges": "Ignorer les changements",
         "unsavedChanges": "Changements non sauvegardés",
         "continue": "Continuer",
-        "system": "Système"
+        "system": "Système",
+        "unknownUser": "Utilisateur inconnu"
     },
     "settings": {
         "title": "Paramètres",
@@ -163,7 +164,6 @@
         "inviteShareFailed": "Échec du partage de l'invitation",
         "sharing": "Partage...",
         "share": "Partager",
-        "unknownUser": "Utilisateur inconnu",
         "thisUser": "Cet utilisateur",
         "inviteToWhiteNoise": "Inviter à White Noise",
         "userNotOnWhiteNoise": "{userName} n'est pas encore sur White Noise. Partagez le lien de téléchargement pour commencer une conversation sécurisée.",

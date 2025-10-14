@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
@@ -54,7 +55,7 @@ class UserProfile {
     final npub = PubkeyFormatter(pubkey: pubkey).toNpub() ?? '';
 
     // Use display_name first, then fall back to name, then to Unknown User
-    String finalDisplayName = 'Unknown User';
+    String finalDisplayName = 'shared.unknownUser'.tr();
     if (displayName.isNotEmpty) {
       finalDisplayName = displayName;
     } else if (name.isNotEmpty) {

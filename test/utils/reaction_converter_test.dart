@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/domain/models/message_model.dart' show Reaction;
 import 'package:whitenoise/domain/models/user_model.dart' as domain_user;
 import 'package:whitenoise/src/rust/api/messages.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/reaction_converter.dart';
 
 void main() {
@@ -93,7 +94,7 @@ void main() {
           final secondReactionUser = secondReaction.user;
           expect(secondReactionUser, isA<domain_user.User>());
           expect(secondReactionUser.id, 'npub1_nice_jane_456');
-          expect(secondReactionUser.displayName, 'Unknown User');
+          expect(secondReactionUser.displayName, 'shared.unknownUser'.tr());
           expect(secondReactionUser.nip05, '');
           expect(secondReactionUser.publicKey, 'npub1_nice_jane_456');
         });

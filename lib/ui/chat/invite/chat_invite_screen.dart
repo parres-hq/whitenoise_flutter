@@ -248,7 +248,7 @@ class DMInviteHeader extends ConsumerWidget {
       future: userProfileNotifier.getUserProfile(welcome.welcomer),
       builder: (context, snapshot) {
         final welcomerUser = snapshot.data;
-        final welcomerName = welcomerUser?.displayName ?? 'Unknown User';
+        final welcomerName = welcomerUser?.displayName ?? 'shared.unknownUser'.tr();
         final welcomerImageUrl = welcomerUser?.imagePath ?? '';
 
         return Container(
@@ -342,7 +342,7 @@ class DMAppBarTitle extends ConsumerWidget {
         }
 
         final welcomerUser = snapshot.data;
-        final welcomerName = welcomerUser?.displayName ?? 'Unknown User';
+        final welcomerName = welcomerUser?.displayName ?? 'shared.unknownUser'.tr();
         final welcomerImageUrl = welcomerUser?.imagePath ?? '';
 
         return UserProfileInfo(

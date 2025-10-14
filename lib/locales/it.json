@@ -12,7 +12,8 @@
         "discardChanges": "Scarta modifiche",
         "unsavedChanges": "Modifiche non salvate",
         "continue": "Continua",
-        "system": "Sistema"
+        "system": "Sistema",
+        "unknownUser": "Utente sconosciuto"
     },
     "settings": {
         "title": "Impostazioni",
@@ -163,7 +164,6 @@
         "inviteShareFailed": "Impossibile condividere l'invito",
         "sharing": "Condivisione...",
         "share": "Condividi",
-        "unknownUser": "Utente sconosciuto",
         "thisUser": "Questo utente",
         "inviteToWhiteNoise": "Invita a White Noise",
         "userNotOnWhiteNoise": "{userName} non è ancora su White Noise. Condividi il link di download per iniziare una chat sicura.",

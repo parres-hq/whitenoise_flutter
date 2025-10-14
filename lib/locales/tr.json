@@ -12,7 +12,8 @@
         "discardChanges": "Değişiklikleri İptal Et",
         "unsavedChanges": "Kaydedilmemiş değişiklikler",
         "continue": "Devam Et",
-        "system": "Sistem"
+        "system": "Sistem",
+        "unknownUser": "Bilinmeyen Kullanıcı"
     },
     "settings": {
         "title": "Ayarlar",
@@ -163,7 +164,6 @@
         "inviteShareFailed": "Davet paylaşma başarısız",
         "sharing": "Paylaşılıyor...",
         "share": "Paylaş",
-        "unknownUser": "Bilinmeyen Kullanıcı",
         "thisUser": "Bu kullanıcı",
         "inviteToWhiteNoise": "White Noise'a Davet Et",
         "userNotOnWhiteNoise": "{userName} henüz White Noise'de değil. Güvenli bir sohbet başlatmak için indirme bağlantısını paylaşın.",
