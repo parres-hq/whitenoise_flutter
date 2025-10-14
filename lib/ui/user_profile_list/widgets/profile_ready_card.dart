@@ -6,11 +6,11 @@ import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/ui/contact_list/new_chat_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/user_profile_list/new_chat_bottom_sheet.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ProfileReadyCard extends ConsumerWidget {

@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added localization support with multi-language support (English, German, Spanish, French, Italian, Portuguese, Russian, Turkish)
 
 ### Changed
-
+- Renamed contact to user profile everywhere [#710](https://github.com/parres-hq/whitenoise_flutter/pull/710)
 ### Deprecated
 
 ### Removed

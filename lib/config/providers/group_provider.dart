@@ -363,7 +363,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         try {
           final npub = _pubkeyFormatter(pubkey: memberPubkey).toNpub() ?? '';
 
-          // First try to get from follows (cached contacts)
+          // First try to get from follows
           final followsNotifier = ref.read(followsProvider.notifier);
           final existingFollow = followsNotifier.findFollowByPubkey(memberPubkey);
 

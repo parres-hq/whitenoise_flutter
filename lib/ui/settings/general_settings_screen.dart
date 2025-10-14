@@ -7,7 +7,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts;
@@ -83,7 +83,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       context: context,
       isDismissible: isDismissible,
       showSuccessToast: showSuccessToast,
-      onProfileSelected: (ContactModel selectedProfile) async {
+      onProfileSelected: (UserProfile selectedProfile) async {
         await _switchAccount(selectedProfile.publicKey);
       },
     );

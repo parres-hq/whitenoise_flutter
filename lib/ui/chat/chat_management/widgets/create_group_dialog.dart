@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
@@ -12,13 +12,13 @@ import 'package:whitenoise/utils/localization_extensions.dart';
 class CreateGroupDialog extends StatelessWidget {
   final VoidCallback? onCreateGroup;
   final VoidCallback? onCancel;
-  final ContactModel? contactToAdd;
+  final UserProfile? userProfileToAdd;
 
   const CreateGroupDialog({
     super.key,
     this.onCreateGroup,
     this.onCancel,
-    this.contactToAdd,
+    this.userProfileToAdd,
   });
 
   @override
@@ -97,7 +97,7 @@ class CreateGroupDialog extends StatelessWidget {
     BuildContext context, {
     VoidCallback? onCreateGroup,
     VoidCallback? onCancel,
-    ContactModel? contactToAdd,
+    UserProfile? userProfileToAdd,
   }) {
     return showDialog<bool>(
       context: context,
@@ -105,7 +105,7 @@ class CreateGroupDialog extends StatelessWidget {
           (context) => CreateGroupDialog(
             onCreateGroup: onCreateGroup,
             onCancel: onCancel,
-            contactToAdd: contactToAdd,
+            userProfileToAdd: userProfileToAdd,
           ),
     );
   }

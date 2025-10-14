@@ -24,8 +24,8 @@ mixin _$CreateGroupState {
   bool get isUploadingImage => throw _privateConstructorUsedError;
   String? get selectedImagePath => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
-  List<ContactModel> get contactsWithoutKeyPackage => throw _privateConstructorUsedError;
-  List<ContactModel> get contactsWithKeyPackage => throw _privateConstructorUsedError;
+  List<UserProfile> get userProfilesWithoutKeyPackage => throw _privateConstructorUsedError;
+  List<UserProfile> get userProfilesWithKeyPackage => throw _privateConstructorUsedError;
   bool get shouldShowInviteSheet => throw _privateConstructorUsedError;
 
   /// Create a copy of CreateGroupState
@@ -49,8 +49,8 @@ abstract class $CreateGroupStateCopyWith<$Res> {
     bool isUploadingImage,
     String? selectedImagePath,
     String? error,
-    List<ContactModel> contactsWithoutKeyPackage,
-    List<ContactModel> contactsWithKeyPackage,
+    List<UserProfile> userProfilesWithoutKeyPackage,
+    List<UserProfile> userProfilesWithKeyPackage,
     bool shouldShowInviteSheet,
   });
 }
@@ -77,8 +77,8 @@ class _$CreateGroupStateCopyWithImpl<$Res, $Val extends CreateGroupState>
     Object? isUploadingImage = null,
     Object? selectedImagePath = freezed,
     Object? error = freezed,
-    Object? contactsWithoutKeyPackage = null,
-    Object? contactsWithKeyPackage = null,
+    Object? userProfilesWithoutKeyPackage = null,
+    Object? userProfilesWithKeyPackage = null,
     Object? shouldShowInviteSheet = null,
   }) {
     return _then(
@@ -118,16 +118,16 @@ class _$CreateGroupStateCopyWithImpl<$Res, $Val extends CreateGroupState>
                     ? _value.error
                     : error // ignore: cast_nullable_to_non_nullable
                         as String?,
-            contactsWithoutKeyPackage:
-                null == contactsWithoutKeyPackage
-                    ? _value.contactsWithoutKeyPackage
-                    : contactsWithoutKeyPackage // ignore: cast_nullable_to_non_nullable
-                        as List<ContactModel>,
-            contactsWithKeyPackage:
-                null == contactsWithKeyPackage
-                    ? _value.contactsWithKeyPackage
-                    : contactsWithKeyPackage // ignore: cast_nullable_to_non_nullable
-                        as List<ContactModel>,
+            userProfilesWithoutKeyPackage:
+                null == userProfilesWithoutKeyPackage
+                    ? _value.userProfilesWithoutKeyPackage
+                    : userProfilesWithoutKeyPackage // ignore: cast_nullable_to_non_nullable
+                        as List<UserProfile>,
+            userProfilesWithKeyPackage:
+                null == userProfilesWithKeyPackage
+                    ? _value.userProfilesWithKeyPackage
+                    : userProfilesWithKeyPackage // ignore: cast_nullable_to_non_nullable
+                        as List<UserProfile>,
             shouldShowInviteSheet:
                 null == shouldShowInviteSheet
                     ? _value.shouldShowInviteSheet
@@ -155,8 +155,8 @@ abstract class _$$CreateGroupStateImplCopyWith<$Res> implements $CreateGroupStat
     bool isUploadingImage,
     String? selectedImagePath,
     String? error,
-    List<ContactModel> contactsWithoutKeyPackage,
-    List<ContactModel> contactsWithKeyPackage,
+    List<UserProfile> userProfilesWithoutKeyPackage,
+    List<UserProfile> userProfilesWithKeyPackage,
     bool shouldShowInviteSheet,
   });
 }
@@ -182,8 +182,8 @@ class __$$CreateGroupStateImplCopyWithImpl<$Res>
     Object? isUploadingImage = null,
     Object? selectedImagePath = freezed,
     Object? error = freezed,
-    Object? contactsWithoutKeyPackage = null,
-    Object? contactsWithKeyPackage = null,
+    Object? userProfilesWithoutKeyPackage = null,
+    Object? userProfilesWithKeyPackage = null,
     Object? shouldShowInviteSheet = null,
   }) {
     return _then(
@@ -223,16 +223,16 @@ class __$$CreateGroupStateImplCopyWithImpl<$Res>
                 ? _value.error
                 : error // ignore: cast_nullable_to_non_nullable
                     as String?,
-        contactsWithoutKeyPackage:
-            null == contactsWithoutKeyPackage
-                ? _value._contactsWithoutKeyPackage
-                : contactsWithoutKeyPackage // ignore: cast_nullable_to_non_nullable
-                    as List<ContactModel>,
-        contactsWithKeyPackage:
-            null == contactsWithKeyPackage
-                ? _value._contactsWithKeyPackage
-                : contactsWithKeyPackage // ignore: cast_nullable_to_non_nullable
-                    as List<ContactModel>,
+        userProfilesWithoutKeyPackage:
+            null == userProfilesWithoutKeyPackage
+                ? _value._userProfilesWithoutKeyPackage
+                : userProfilesWithoutKeyPackage // ignore: cast_nullable_to_non_nullable
+                    as List<UserProfile>,
+        userProfilesWithKeyPackage:
+            null == userProfilesWithKeyPackage
+                ? _value._userProfilesWithKeyPackage
+                : userProfilesWithKeyPackage // ignore: cast_nullable_to_non_nullable
+                    as List<UserProfile>,
         shouldShowInviteSheet:
             null == shouldShowInviteSheet
                 ? _value.shouldShowInviteSheet
@@ -254,11 +254,11 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
     this.isUploadingImage = false,
     this.selectedImagePath,
     this.error,
-    final List<ContactModel> contactsWithoutKeyPackage = const [],
-    final List<ContactModel> contactsWithKeyPackage = const [],
+    final List<UserProfile> userProfilesWithoutKeyPackage = const [],
+    final List<UserProfile> userProfilesWithKeyPackage = const [],
     this.shouldShowInviteSheet = false,
-  }) : _contactsWithoutKeyPackage = contactsWithoutKeyPackage,
-       _contactsWithKeyPackage = contactsWithKeyPackage,
+  }) : _userProfilesWithoutKeyPackage = userProfilesWithoutKeyPackage,
+       _userProfilesWithKeyPackage = userProfilesWithKeyPackage,
        super._();
 
   @override
@@ -280,22 +280,24 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
   final String? selectedImagePath;
   @override
   final String? error;
-  final List<ContactModel> _contactsWithoutKeyPackage;
+  final List<UserProfile> _userProfilesWithoutKeyPackage;
   @override
   @JsonKey()
-  List<ContactModel> get contactsWithoutKeyPackage {
-    if (_contactsWithoutKeyPackage is EqualUnmodifiableListView) return _contactsWithoutKeyPackage;
+  List<UserProfile> get userProfilesWithoutKeyPackage {
+    if (_userProfilesWithoutKeyPackage is EqualUnmodifiableListView)
+      return _userProfilesWithoutKeyPackage;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_contactsWithoutKeyPackage);
+    return EqualUnmodifiableListView(_userProfilesWithoutKeyPackage);
   }
 
-  final List<ContactModel> _contactsWithKeyPackage;
+  final List<UserProfile> _userProfilesWithKeyPackage;
   @override
   @JsonKey()
-  List<ContactModel> get contactsWithKeyPackage {
-    if (_contactsWithKeyPackage is EqualUnmodifiableListView) return _contactsWithKeyPackage;
+  List<UserProfile> get userProfilesWithKeyPackage {
+    if (_userProfilesWithKeyPackage is EqualUnmodifiableListView)
+      return _userProfilesWithKeyPackage;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_contactsWithKeyPackage);
+    return EqualUnmodifiableListView(_userProfilesWithKeyPackage);
   }
 
   @override
@@ -304,7 +306,7 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
 
   @override
   String toString() {
-    return 'CreateGroupState(groupName: $groupName, groupDescription: $groupDescription, isGroupNameValid: $isGroupNameValid, isCreatingGroup: $isCreatingGroup, isUploadingImage: $isUploadingImage, selectedImagePath: $selectedImagePath, error: $error, contactsWithoutKeyPackage: $contactsWithoutKeyPackage, contactsWithKeyPackage: $contactsWithKeyPackage, shouldShowInviteSheet: $shouldShowInviteSheet)';
+    return 'CreateGroupState(groupName: $groupName, groupDescription: $groupDescription, isGroupNameValid: $isGroupNameValid, isCreatingGroup: $isCreatingGroup, isUploadingImage: $isUploadingImage, selectedImagePath: $selectedImagePath, error: $error, userProfilesWithoutKeyPackage: $userProfilesWithoutKeyPackage, userProfilesWithKeyPackage: $userProfilesWithKeyPackage, shouldShowInviteSheet: $shouldShowInviteSheet)';
   }
 
   @override
@@ -325,12 +327,12 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
                 other.selectedImagePath == selectedImagePath) &&
             (identical(other.error, error) || other.error == error) &&
             const DeepCollectionEquality().equals(
-              other._contactsWithoutKeyPackage,
-              _contactsWithoutKeyPackage,
+              other._userProfilesWithoutKeyPackage,
+              _userProfilesWithoutKeyPackage,
             ) &&
             const DeepCollectionEquality().equals(
-              other._contactsWithKeyPackage,
-              _contactsWithKeyPackage,
+              other._userProfilesWithKeyPackage,
+              _userProfilesWithKeyPackage,
             ) &&
             (identical(other.shouldShowInviteSheet, shouldShowInviteSheet) ||
                 other.shouldShowInviteSheet == shouldShowInviteSheet));
@@ -346,8 +348,8 @@ class _$CreateGroupStateImpl extends _CreateGroupState {
     isUploadingImage,
     selectedImagePath,
     error,
-    const DeepCollectionEquality().hash(_contactsWithoutKeyPackage),
-    const DeepCollectionEquality().hash(_contactsWithKeyPackage),
+    const DeepCollectionEquality().hash(_userProfilesWithoutKeyPackage),
+    const DeepCollectionEquality().hash(_userProfilesWithKeyPackage),
     shouldShowInviteSheet,
   );
 
@@ -372,8 +374,8 @@ abstract class _CreateGroupState extends CreateGroupState {
     final bool isUploadingImage,
     final String? selectedImagePath,
     final String? error,
-    final List<ContactModel> contactsWithoutKeyPackage,
-    final List<ContactModel> contactsWithKeyPackage,
+    final List<UserProfile> userProfilesWithoutKeyPackage,
+    final List<UserProfile> userProfilesWithKeyPackage,
     final bool shouldShowInviteSheet,
   }) = _$CreateGroupStateImpl;
   const _CreateGroupState._() : super._();
@@ -393,9 +395,9 @@ abstract class _CreateGroupState extends CreateGroupState {
   @override
   String? get error;
   @override
-  List<ContactModel> get contactsWithoutKeyPackage;
+  List<UserProfile> get userProfilesWithoutKeyPackage;
   @override
-  List<ContactModel> get contactsWithKeyPackage;
+  List<UserProfile> get userProfilesWithKeyPackage;
   @override
   bool get shouldShowInviteSheet;
 

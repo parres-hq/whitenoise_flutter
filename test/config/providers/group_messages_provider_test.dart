@@ -2,8 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/group_messages_provider.dart';
-import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
@@ -16,16 +16,16 @@ class MockActivePubkeyNotifier extends ActivePubkeyNotifier {
   String? build() => _pubkey;
 }
 
-class MockUserProfileDataNotifier extends UserProfileDataNotifier {
-  final Map<String, ContactModel> _contacts;
+class MockUserProfileNotifier extends UserProfileNotifier {
+  final Map<String, UserProfile> _userProfiles;
 
-  MockUserProfileDataNotifier(this._contacts)
-    : super(wnApiGetUserFn: null, getContactModelFromMetadataFn: null);
+  MockUserProfileNotifier(this._userProfiles)
+    : super(wnApiGetUserFn: null, getUserProfileFromMetadataFn: null);
 
   @override
-  Future<ContactModel> getUserProfileData(String pubkey) async {
-    return _contacts[pubkey] ??
-        ContactModel(
+  Future<UserProfile> getUserProfile(String pubkey) async {
+    return _userProfiles[pubkey] ??
+        UserProfile(
           publicKey: pubkey,
           displayName: 'Unknown User',
         );
@@ -80,20 +80,20 @@ void main() {
     TestWidgetsFlutterBinding.ensureInitialized();
     late ProviderContainer container;
 
-    final testContacts = {
-      'npub1testkey12345678901234567890': ContactModel(
+    final testUserProfiles = {
+      'npub1testkey12345678901234567890': UserProfile(
         publicKey: 'npub1testkey12345678901234567890',
         displayName: 'Alice',
         imagePath: '/path/to/alice.jpg',
         nip05: 'alice@example.com',
       ),
-      'npub140x77qfrg4ncnlkuh2v8v4pjzz4ummcpydzk0z07mjafsaj5xggq9d4zqy': ContactModel(
+      'npub140x77qfrg4ncnlkuh2v8v4pjzz4ummcpydzk0z07mjafsaj5xggq9d4zqy': UserProfile(
         publicKey: 'npub140x77qfrg4ncnlkuh2v8v4pjzz4ummcpydzk0z07mjafsaj5xggq9d4zqy',
         displayName: 'Bob',
         imagePath: '/path/to/bob.jpg',
         nip05: 'bob@example.com',
       ),
-      'npub1zygjyg3nxdzyg424ven8waug3zvejqqq424thw7venwammhwlllsj2q4yf': ContactModel(
+      'npub1zygjyg3nxdzyg424ven8waug3zvejqqq424thw7venwammhwlllsj2q4yf': UserProfile(
         publicKey: 'npub1zygjyg3nxdzyg424ven8waug3zvejqqq424thw7venwammhwlllsj2q4yf',
         displayName: 'Carl',
         imagePath: '/path/to/carl.jpg',
@@ -142,14 +142,14 @@ void main() {
 
     ProviderContainer createContainer({
       String? activePubkey,
-      Map<String, ContactModel>? contacts,
+      Map<String, UserProfile>? userProfiles,
       List<ChatMessage>? messages,
       List<String>? members,
     }) {
       return ProviderContainer(
         overrides: [
           activePubkeyProvider.overrideWith(() => MockActivePubkeyNotifier(activePubkey)),
-          userProfileDataProvider.overrideWith(() => MockUserProfileDataNotifier(contacts ?? {})),
+          userProfileProvider.overrideWith(() => MockUserProfileNotifier(userProfiles ?? {})),
           groupMessagesProvider.overrideWith(
             () => GroupMessagesNotifier(
               fetchAggregatedMessagesForGroupFn: mockFetchAggregatedMessagesForGroup(
@@ -206,7 +206,7 @@ void main() {
         setUp(() {
           container = createContainer(
             activePubkey: 'npub1testkey12345678901234567890',
-            contacts: testContacts,
+            userProfiles: testUserProfiles,
             messages: mockMessages,
             members: [
               'npub1testkey12345678901234567890',
@@ -243,7 +243,7 @@ void main() {
         setUp(() {
           container = createContainer(
             activePubkey: 'npub140x77qfrg4ncnlkuh2v8v4pjzz4ummcpydzk0z07mjafsaj5xggq9d4zqy',
-            contacts: testContacts,
+            userProfiles: testUserProfiles,
             messages: mockMessages,
             members: [
               'npub1testkey12345678901234567890',
@@ -268,7 +268,7 @@ void main() {
         setUp(() {
           container = createContainer(
             activePubkey: 'npub1zygjyg3nxdzyg424ven8waug3zvejqqq424thw7venwammhwlllsj2q4yf',
-            contacts: testContacts,
+            userProfiles: testUserProfiles,
             messages: mockMessages,
             members: [
               'npub1testkey12345678901234567890',

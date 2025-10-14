@@ -13,10 +13,10 @@ import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
-class ChatContactHeader extends ConsumerWidget {
+class ChatUserHeader extends ConsumerWidget {
   final Group group;
 
-  const ChatContactHeader({super.key, required this.group});
+  const ChatUserHeader({super.key, required this.group});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

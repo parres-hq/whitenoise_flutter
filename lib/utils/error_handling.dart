@@ -242,13 +242,4 @@ class ErrorHandlingUtils {
         '• Encryption key issues\n\n'
         'Please check your connection and try again.';
   }
-
-  /// Error message for contact loading failures
-  static String getContactLoadFallbackMessage() {
-    return 'Failed to load contacts. This could be due to:\n'
-        '• Network connectivity issues\n'
-        '• Relay connection problems\n'
-        '• Local database issues\n\n'
-        'Please check your connection and try again.';
-  }
 }

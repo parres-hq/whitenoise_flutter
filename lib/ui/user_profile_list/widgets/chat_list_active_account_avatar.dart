@@ -3,8 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
-import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 
@@ -22,7 +22,7 @@ class ChatListActiveAccountAvatar extends ConsumerStatefulWidget {
 
 class _ChatListActiveAccountAvatarState extends ConsumerState<ChatListActiveAccountAvatar> {
   ProviderSubscription<AsyncValue<ActiveAccountState>>? _activeAccountSubscription;
-  ContactModel? _profileData;
+  UserProfile? _profileData;
 
   @override
   void initState() {
@@ -51,9 +51,9 @@ class _ChatListActiveAccountAvatarState extends ConsumerState<ChatListActiveAcco
       final AsyncValue<ActiveAccountState> activeAccountState = ref.read(activeAccountProvider);
       final String? pubkey = activeAccountState.valueOrNull?.account?.pubkey;
       if (pubkey == null || pubkey.isEmpty) return;
-      final ContactModel profileData = await ref
-          .read(userProfileDataProvider.notifier)
-          .getUserProfileData(pubkey);
+      final UserProfile profileData = await ref
+          .read(userProfileProvider.notifier)
+          .getUserProfile(pubkey);
       if (!mounted) return;
       final String? currentPubkey = ref.read(activeAccountProvider).valueOrNull?.account?.pubkey;
       if (currentPubkey != pubkey) return;

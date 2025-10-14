@@ -49,7 +49,7 @@ class MessageWidget extends StatelessWidget {
       children: [
         ChatMessageBubble(
           isSender: message.isMe,
-          color: message.isMe ? context.colors.meChatBubble : context.colors.contactChatBubble,
+          color: message.isMe ? context.colors.meChatBubble : context.colors.otherChatBubble,
           tail: !isSameSenderAsPrevious,
           child: _buildMessageContent(context),
         ),
@@ -62,7 +62,7 @@ class MessageWidget extends StatelessWidget {
               message: message,
               onReactionTap: onReactionTap,
               bubbleColor:
-                  message.isMe ? context.colors.meChatBubble : context.colors.contactChatBubble,
+                  message.isMe ? context.colors.meChatBubble : context.colors.otherChatBubble,
             ),
           ),
       ],
@@ -150,7 +150,7 @@ class MessageWidget extends StatelessWidget {
     final textStyle = TextStyle(
       fontSize: 16.sp,
       fontWeight: FontWeight.w500,
-      color: message.isMe ? context.colors.meChatBubbleText : context.colors.contactChatBubbleText,
+      color: message.isMe ? context.colors.meChatBubbleText : context.colors.otherChatBubbleText,
     );
 
     final messageContent = message.content ?? '';
@@ -341,7 +341,7 @@ class ReactionsRow extends StatelessWidget {
                               color:
                                   message.isMe
                                       ? context.colors.meChatBubbleText
-                                      : context.colors.contactChatBubbleText,
+                                      : context.colors.otherChatBubbleText,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -354,7 +354,7 @@ class ReactionsRow extends StatelessWidget {
                             color:
                                 message.isMe
                                     ? context.colors.meChatBubbleText
-                                    : context.colors.contactChatBubbleText,
+                                    : context.colors.otherChatBubbleText,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -371,7 +371,7 @@ class ReactionsRow extends StatelessWidget {
                                 color:
                                     message.isMe
                                         ? context.colors.meChatBubbleText
-                                        : context.colors.contactChatBubbleText,
+                                        : context.colors.otherChatBubbleText,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -385,7 +385,7 @@ class ReactionsRow extends StatelessWidget {
                               color:
                                   message.isMe
                                       ? context.colors.meChatBubbleText
-                                      : context.colors.contactChatBubbleText,
+                                      : context.colors.otherChatBubbleText,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -403,7 +403,7 @@ class ReactionsRow extends StatelessWidget {
               color:
                   message.isMe
                       ? context.colors.meChatBubbleText
-                      : context.colors.contactChatBubbleText,
+                      : context.colors.otherChatBubbleText,
             ),
           ),
       ],

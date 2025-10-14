@@ -6,32 +6,32 @@ import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/create_group_provider.dart';
 import 'package:whitenoise/config/states/create_group_state.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/ui/contact_list/safe_toast_mixin.dart';
-import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_field.dart';
 import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
+import 'package:whitenoise/ui/user_profile_list/safe_toast_mixin.dart';
+import 'package:whitenoise/ui/user_profile_list/share_invite_bottom_sheet.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
 class GroupChatDetailsSheet extends ConsumerStatefulWidget {
   const GroupChatDetailsSheet({
     super.key,
-    required this.selectedContacts,
+    required this.selectedUserProfiles,
     this.onGroupCreated,
   });
 
-  final List<ContactModel> selectedContacts;
+  final List<UserProfile> selectedUserProfiles;
   final ValueChanged<Group?>? onGroupCreated;
 
   static Future<void> show({
     required BuildContext context,
-    required List<ContactModel> selectedContacts,
+    required List<UserProfile> selectedUserProfiles,
     ValueChanged<Group?>? onGroupCreated,
   }) {
     return WnBottomSheet.show(
@@ -41,7 +41,7 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
       transitionDuration: const Duration(milliseconds: 400),
       builder:
           (context) => GroupChatDetailsSheet(
-            selectedContacts: selectedContacts,
+            selectedUserProfiles: selectedUserProfiles,
             onGroupCreated: onGroupCreated,
           ),
     );
@@ -61,7 +61,9 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
     _groupNameController.addListener(_onGroupNameChanged);
     _groupDescriptionController.addListener(_onGroupDescriptionChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(createGroupProvider.notifier).filterContactsWithKeyPackage(widget.selectedContacts);
+      ref
+          .read(createGroupProvider.notifier)
+          .filterUserProfilesWithKeyPackage(widget.selectedUserProfiles);
     });
   }
 
@@ -96,7 +98,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         try {
           await ShareInviteBottomSheet.show(
             context: context,
-            contacts: state.contactsWithoutKeyPackage,
+            userProfiles: state.userProfilesWithoutKeyPackage,
           );
         } catch (e, st) {
           Logger('GroupChatDetailsSheet').severe('Error showing invite sheet', e, st);
@@ -136,7 +138,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         safeShowErrorToast(next.error!);
         ref.read(createGroupProvider.notifier).clearError();
       }
-      if (next.shouldShowInviteSheet && next.contactsWithoutKeyPackage.isNotEmpty) {
+      if (next.shouldShowInviteSheet && next.userProfilesWithoutKeyPackage.isNotEmpty) {
         _showInviteSheet(next);
       }
     });
@@ -243,9 +245,9 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
             spacing: 8.w,
             alignment: WrapAlignment.center,
             children:
-                state.contactsWithKeyPackage
+                state.userProfilesWithKeyPackage
                     .map(
-                      (contact) => Container(
+                      (userProfile) => Container(
                         padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
                         decoration: BoxDecoration(
                           color: context.colors.avatarSurface,
@@ -257,8 +259,8 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
                           children: [
                             WnAvatar(
-                              imageUrl: contact.imagePath ?? '',
-                              displayName: contact.displayName,
+                              imageUrl: userProfile.imagePath ?? '',
+                              displayName: userProfile.displayName,
                               size: 30.w,
                               showBorder: true,
                             ),
@@ -266,7 +268,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                             SizedBox(
                               width: 104.w,
                               child: Text(
-                                contact.displayName,
+                                userProfile.displayName,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                                 style: TextStyle(

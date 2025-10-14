@@ -19,9 +19,9 @@ import 'package:whitenoise/ui/chat/services/chat_dialog_service.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_header_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_search_widget.dart';
-import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
 import 'package:whitenoise/ui/chat/widgets/message_widget.dart';
 import 'package:whitenoise/ui/chat/widgets/swipe_to_reply_widget.dart';
+import 'package:whitenoise/ui/chat/widgets/user_profile_info.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
@@ -371,10 +371,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                     future: _dmChatDataFuture,
                                     builder: (context, snapshot) {
                                       if (snapshot.connectionState == ConnectionState.waiting) {
-                                        return const ContactInfo.loading();
+                                        return const UserProfileInfo.loading();
                                       }
                                       final otherUser = snapshot.data;
-                                      return ContactInfo(
+                                      return UserProfileInfo(
                                         title:
                                             groupType == GroupType.directMessage
                                                 ? otherUser?.displayName ?? ''
@@ -397,7 +397,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                   itemCount: messages.length + 1,
                                   itemBuilder: (context, index) {
                                     if (index == 0) {
-                                      return ChatContactHeader(group: group);
+                                      return ChatUserHeader(group: group);
                                     }
                                     final int messageIndex = index - 1;
                                     final message = messages[messageIndex];
