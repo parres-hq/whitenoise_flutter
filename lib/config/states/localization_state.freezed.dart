@@ -18,7 +18,8 @@ final _privateConstructorUsedError = UnsupportedError(
 /// @nodoc
 mixin _$LocalizationState {
   Locale get currentLocale => throw _privateConstructorUsedError;
-  String get selectedLanguage => throw _privateConstructorUsedError; // system, en, es, de, it
+  String get selectedLanguage =>
+      throw _privateConstructorUsedError; // system, en, es, de, it, tr, fr, pt, ru
   bool get isLoading => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
@@ -168,7 +169,7 @@ class _$LocalizationStateImpl extends _LocalizationState {
   @override
   @JsonKey()
   final String selectedLanguage;
-  // system, en, es, de, it
+  // system, en, es, de, it, tr, fr, pt, ru
   @override
   @JsonKey()
   final bool isLoading;
@@ -226,7 +227,7 @@ abstract class _LocalizationState extends LocalizationState {
   @override
   Locale get currentLocale;
   @override
-  String get selectedLanguage; // system, en, es, de, it
+  String get selectedLanguage; // system, en, es, de, it, tr, fr, pt, ru
   @override
   bool get isLoading;
   @override

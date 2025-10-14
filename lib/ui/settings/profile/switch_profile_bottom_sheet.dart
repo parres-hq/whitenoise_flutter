@@ -4,19 +4,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
-import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts;
-import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/settings/profile/connect_profile_bottom_sheet.dart';
+import 'package:whitenoise/ui/user_profile_list/widgets/user_profile_tile.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class SwitchProfileBottomSheet extends ConsumerStatefulWidget {
-  final Function(ContactModel) onProfileSelected;
+  final Function(UserProfile) onProfileSelected;
   final bool isDismissible;
   final bool showSuccessToast;
 
@@ -31,7 +31,7 @@ class SwitchProfileBottomSheet extends ConsumerStatefulWidget {
   /// showSuccessToast is used to determine if the account switcher is shown because of logout
   static Future<void> show({
     required BuildContext context,
-    required Function(ContactModel) onProfileSelected,
+    required Function(UserProfile) onProfileSelected,
     bool isDismissible = true,
     bool showSuccessToast = false,
   }) {
@@ -57,7 +57,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
   String? _activeAccountHex;
   bool _isConnectProfileSheetOpen = false;
   bool _isLoadingAccounts = true;
-  List<ContactModel> _accountsProfileData = [];
+  List<UserProfile> _accountsProfileData = [];
   // Cache for converting any npub profile key to hex for quick sync comparisons
   final Map<String, String> _pubkeyToHex = {};
 
@@ -109,14 +109,12 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
 
     try {
       final List<Account> accounts = await getAccounts();
-      final UserProfileDataNotifier userProfileDataNotifier = ref.read(
-        userProfileDataProvider.notifier,
+      final UserProfileNotifier userProfileNotifier = ref.read(
+        userProfileProvider.notifier,
       );
-      final List<Future<ContactModel>> accountsProfileDataFutures =
-          accounts
-              .map((account) => userProfileDataNotifier.getUserProfileData(account.pubkey))
-              .toList();
-      final List<ContactModel> accountsProfileData = await Future.wait(accountsProfileDataFutures);
+      final List<Future<UserProfile>> accountsProfileDataFutures =
+          accounts.map((account) => userProfileNotifier.getUserProfile(account.pubkey)).toList();
+      final List<UserProfile> accountsProfileData = await Future.wait(accountsProfileDataFutures);
 
       if (!mounted) return;
       setState(() {
@@ -143,7 +141,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
     }
   }
 
-  Future<bool> _isActiveAccount(ContactModel profile) async {
+  Future<bool> _isActiveAccount(UserProfile profile) async {
     if (_activeAccountHex == null) return false;
 
     try {
@@ -219,8 +217,8 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
                                     )
                                     : null,
                             padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 6.h),
-                            child: ContactListTile(
-                              contact: profile,
+                            child: UserProfileTile(
+                              userProfile: profile,
                               onTap: () {
                                 if (isActiveAccount && !widget.showSuccessToast) {
                                   // Just close the sheet if selecting the currently active profile

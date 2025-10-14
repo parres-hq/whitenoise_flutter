@@ -10,19 +10,19 @@ import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
-import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/routing/chat_navigation_extension.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/ui/contact_list/new_group_chat_sheet.dart';
-import 'package:whitenoise/ui/contact_list/start_chat_bottom_sheet.dart';
-import 'package:whitenoise/ui/contact_list/widgets/contact_list_tile.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/ui/user_profile_list/new_group_chat_sheet.dart';
+import 'package:whitenoise/ui/user_profile_list/start_chat_bottom_sheet.dart';
+import 'package:whitenoise/ui/user_profile_list/widgets/user_profile_tile.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/public_key_validation_extension.dart';
@@ -51,8 +51,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   final FocusNode _searchFocusNode = FocusNode();
   String _searchQuery = '';
   final _logger = Logger('NewChatBottomSheet');
-  ContactModel? _tempContact;
-  bool _isLoadingUserProfileData = false;
+  UserProfile? _tempUserProfile;
+  bool _isLoadingUserProfile = false;
   Timer? _debounceTimer;
 
   @override
@@ -100,12 +100,12 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       if (mounted) {
         setState(() {
           _searchQuery = processedText;
-          _tempContact = null;
+          _tempUserProfile = null;
         });
 
         // If it's a valid public key, fetch metadata
         if (_isValidPublicKey(_searchQuery)) {
-          _getUserProfileDataForPublicKey(_searchQuery);
+          _getUserProfileForPublicKey(_searchQuery);
         }
       }
     });
@@ -125,7 +125,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       if (activePubkey.isNotEmpty) {
         _logger.info('NewChatBottomSheet: Found active account: $activePubkey');
         await ref.read(followsProvider.notifier).loadFollows();
-        _logger.info('NewChatBottomSheet: Contacts loaded successfully');
+        _logger.info('NewChatBottomSheet: UserProfiles loaded successfully');
       } else {
         _logger.severe('NewChatBottomSheet: No active account found');
         if (mounted) {
@@ -144,46 +144,46 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     return input.trim().isValidPublicKey;
   }
 
-  Future<void> _getUserProfileDataForPublicKey(String publicKey) async {
-    if (_isLoadingUserProfileData) return;
+  Future<void> _getUserProfileForPublicKey(String publicKey) async {
+    if (_isLoadingUserProfile) return;
 
     setState(() {
-      _isLoadingUserProfileData = true;
+      _isLoadingUserProfile = true;
     });
 
     try {
-      final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
-      final userProfileData = await userProfileDataNotifier.getUserProfileData(publicKey.trim());
+      final userProfileNotifier = ref.read(userProfileProvider.notifier);
+      final userProfile = await userProfileNotifier.getUserProfile(publicKey.trim());
 
       if (mounted) {
         setState(() {
-          _tempContact = userProfileData;
-          _isLoadingUserProfileData = false;
+          _tempUserProfile = userProfile;
+          _isLoadingUserProfile = false;
         });
       }
     } catch (e) {
       _logger.warning('Failed to get user profile data for public key: $e');
       if (mounted) {
         setState(() {
-          _tempContact = ContactModel(
+          _tempUserProfile = UserProfile(
             displayName: 'chats.unknownUser'.tr(),
             publicKey: publicKey.trim(),
           );
-          _isLoadingUserProfileData = false;
+          _isLoadingUserProfile = false;
         });
       }
     }
   }
 
-  Future<void> _handleContactTap(ContactModel contact) async {
-    _logger.info('Starting chat flow with contact: ${contact.publicKey}');
+  Future<void> _handleUserProfileTap(UserProfile userProfile) async {
+    _logger.info('Starting chat flow with user: ${userProfile.publicKey}');
 
     try {
       // Show the loading bottom sheet immediately
       if (mounted) {
         StartChatBottomSheet.show(
           context: context,
-          contact: contact,
+          userProfile: userProfile,
           onChatCreated: (group) {
             if (group != null && mounted) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -197,7 +197,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         );
       }
     } catch (e) {
-      _logger.severe('Error handling contact tap: $e');
+      _logger.severe('Error handling userProfile tap: $e');
       if (mounted) {
         ref.showErrorToast('${'chats.errorStartingChat'.tr()}: $e');
       }
@@ -205,8 +205,8 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
   }
 
   Future<void> _scanQRCode() async {
-    // Navigate to the contact QR scan screen
-    context.push(Routes.contactQrScan);
+    // Navigate to the userProfile QR scan screen
+    context.push(Routes.userProfileQrScan);
   }
 
   Widget _buildErrorWidget(String error) {
@@ -258,21 +258,21 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
             Navigator.pop(context);
 
             try {
-              final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
-              final supportUserProfileData = await userProfileDataNotifier.getUserProfileData(
+              final userProfileNotifier = ref.read(userProfileProvider.notifier);
+              final supportUserProfile = await userProfileNotifier.getUserProfile(
                 kSupportNpub,
               );
-              _handleContactTap(supportUserProfileData);
+              _handleUserProfileTap(supportUserProfile);
             } catch (e) {
-              _logger.warning('Failed to fetch metadata for support contact: $e');
+              _logger.warning('Failed to fetch metadata for support user: $e');
 
-              final basicContact = ContactModel(
+              final basicUserProfile = UserProfile(
                 displayName: 'ui.support'.tr(),
                 publicKey: kSupportNpub,
               );
 
               if (context.mounted) {
-                _handleContactTap(basicContact);
+                _handleUserProfileTap(basicUserProfile);
               }
             }
           },
@@ -281,10 +281,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     );
   }
 
-  Widget _buildContactsList({
+  Widget _buildUserProfilesList({
     required FollowsState followsState,
-    required List<ContactModel> filteredContacts,
-    required bool showTempContact,
+    required List<UserProfile> filteredUserProfiles,
+    required bool showTempUserProfile,
   }) {
     if (followsState.isLoading) {
       return SingleChildScrollView(
@@ -293,7 +293,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           children: [
             _buildMainOptions(),
             Gap(26.h),
-            const _LoadingContactList(),
+            const _LoadingUserProfileList(),
             Gap(60.h),
           ],
         ),
@@ -309,14 +309,14 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
     // Count gap after main options
     totalItems += 1; // gap
 
-    // Count contact items
-    if (showTempContact) {
-      totalItems += 1; // temp contact
-      totalItems += 1; // gap after temp contact
-    } else if (filteredContacts.isEmpty) {
+    // Count userProfile items
+    if (showTempUserProfile) {
+      totalItems += 1; // temp userProfile
+      totalItems += 1; // gap after temp userProfile
+    } else if (filteredUserProfiles.isEmpty) {
       totalItems += 1; // empty state
     } else {
-      totalItems += filteredContacts.length; // contact items
+      totalItems += filteredUserProfiles.length; // userProfile items
     }
 
     // Count bottom padding
@@ -341,31 +341,31 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         }
         currentIndex++;
 
-        if (showTempContact) {
-          // Temp contact
+        if (showTempUserProfile) {
+          // Temp userProfile
           if (index == currentIndex) {
-            return _isLoadingUserProfileData
-                ? const ContactListTileLoading()
-                : ContactListTile(
-                  contact: _tempContact!,
-                  onTap: () => _handleContactTap(_tempContact!),
-                  preformattedPublicKey: _tempContact!.formattedPublicKey,
+            return _isLoadingUserProfile
+                ? const UserProfileTileLoading()
+                : UserProfileTile(
+                  userProfile: _tempUserProfile!,
+                  onTap: () => _handleUserProfileTap(_tempUserProfile!),
+                  preformattedPublicKey: _tempUserProfile!.formattedPublicKey,
                 );
           }
           currentIndex++;
 
-          // Gap after temp contact
+          // Gap after temp userProfile
           if (index == currentIndex) {
             return Gap(16.h);
           }
           currentIndex++;
-        } else if (filteredContacts.isEmpty) {
+        } else if (filteredUserProfiles.isEmpty) {
           // Empty state
           if (index == currentIndex) {
             return SizedBox(
               child:
-                  _isLoadingUserProfileData
-                      ? const ContactListTileLoading()
+                  _isLoadingUserProfile
+                      ? const UserProfileTileLoading()
                       : Center(
                         child: Text(
                           _searchQuery.isEmpty
@@ -383,20 +383,20 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           }
           currentIndex++;
         } else {
-          // Contact items
-          final contactIndex = index - currentIndex;
-          if (contactIndex >= 0 && contactIndex < filteredContacts.length) {
-            final contact = filteredContacts[contactIndex];
+          // UserProfile items
+          final userProfileIndex = index - currentIndex;
+          if (userProfileIndex >= 0 && userProfileIndex < filteredUserProfiles.length) {
+            final userProfile = filteredUserProfiles[userProfileIndex];
             return Padding(
               padding: EdgeInsets.only(bottom: 4.h),
-              child: ContactListTile(
-                contact: contact,
-                onTap: () => _handleContactTap(contact),
-                preformattedPublicKey: contact.formattedPublicKey,
+              child: UserProfileTile(
+                userProfile: userProfile,
+                onTap: () => _handleUserProfileTap(userProfile),
+                preformattedPublicKey: userProfile.formattedPublicKey,
               ),
             );
           }
-          currentIndex += filteredContacts.length;
+          currentIndex += filteredUserProfiles.length;
         }
 
         // Bottom padding
@@ -417,19 +417,19 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
         _searchQuery.isEmpty
             ? followsState.follows
             : followsNotifier.getFilteredFollows(_searchQuery);
-    final filteredContacts =
+    final filteredUserProfiles =
         filteredFollows
             .map(
               (follow) =>
-                  ContactModel.fromMetadata(pubkey: follow.pubkey, metadata: follow.metadata),
+                  UserProfile.fromMetadata(pubkey: follow.pubkey, metadata: follow.metadata),
             )
             .toList();
 
-    final showTempContact =
+    final showTempUserProfile =
         _searchQuery.isNotEmpty &&
         _isValidPublicKey(_searchQuery) &&
-        filteredContacts.isEmpty &&
-        _tempContact != null;
+        filteredUserProfiles.isEmpty &&
+        _tempUserProfile != null;
 
     return Column(
       children: [
@@ -440,7 +440,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
                 controller: _searchController,
                 focusNode: _searchFocusNode,
                 size: FieldSize.small,
-                hintText: 'chats.searchContactPlaceholder'.tr(),
+                hintText: 'chats.searchUserPlaceholder'.tr(),
                 decoration: InputDecoration(
                   prefixIcon: Padding(
                     padding: EdgeInsets.all(12.w),
@@ -485,10 +485,10 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
           child:
               followsState.error != null
                   ? _buildErrorWidget(followsState.error!)
-                  : _buildContactsList(
+                  : _buildUserProfilesList(
                     followsState: followsState,
-                    filteredContacts: filteredContacts,
-                    showTempContact: showTempContact,
+                    filteredUserProfiles: filteredUserProfiles,
+                    showTempUserProfile: showTempUserProfile,
                   ),
         ),
       ],
@@ -543,8 +543,8 @@ class NewChatTile extends StatelessWidget {
   }
 }
 
-class _LoadingContactList extends StatelessWidget {
-  const _LoadingContactList();
+class _LoadingUserProfileList extends StatelessWidget {
+  const _LoadingUserProfileList();
 
   @override
   Widget build(BuildContext context) {
@@ -553,7 +553,7 @@ class _LoadingContactList extends StatelessWidget {
         8,
         (index) => Padding(
           padding: EdgeInsets.only(bottom: 12.h),
-          child: const ContactListTileLoading(),
+          child: const UserProfileTileLoading(),
         ),
       ),
     );

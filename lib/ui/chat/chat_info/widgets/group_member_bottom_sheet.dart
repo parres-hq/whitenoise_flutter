@@ -246,7 +246,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
                     child: SendMessageButton(widget.member),
                   ),
                   Flexible(
-                    child: AddToContactButton(widget.member),
+                    child: FollowToggleButton(widget.member),
                   ),
                 ],
               ),
@@ -293,7 +293,7 @@ class _GroupMemberBottomSheetState extends ConsumerState<GroupMemberBottomSheet>
           ),
         ] else ...[
           Gap(8.h),
-          AddToContactButton(widget.member),
+          FollowToggleButton(widget.member),
         ],
       ],
     );
