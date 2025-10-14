@@ -4,7 +4,7 @@ class DraftMessageService {
   static const FlutterSecureStorage _defaultStorage = FlutterSecureStorage();
   static const String _draftPrefix = 'draft_message_';
 
-  static Future<void> saveDraft({
+  Future<void> saveDraft({
     required String chatId,
     required String message,
     FlutterSecureStorage? storage,
@@ -22,7 +22,7 @@ class DraftMessageService {
     }
   }
 
-  static Future<String?> loadDraft({
+  Future<String?> loadDraft({
     required String chatId,
     FlutterSecureStorage? storage,
   }) async {
@@ -35,7 +35,7 @@ class DraftMessageService {
     }
   }
 
-  static Future<void> clearDraft({
+  Future<void> clearDraft({
     required String chatId,
     FlutterSecureStorage? storage,
   }) async {
@@ -48,7 +48,7 @@ class DraftMessageService {
     }
   }
 
-  static Future<void> clearAllDrafts({FlutterSecureStorage? storage}) async {
+  Future<void> clearAllDrafts({FlutterSecureStorage? storage}) async {
     final secureStorage = storage ?? _defaultStorage;
     try {
       final allKeys = await secureStorage.readAll();
