@@ -15,9 +15,8 @@ Generate code, corrections, and refactorings that comply with the basic principl
 
 - Use English for all code and documentation.
 - Always declare the type of each variable and function (parameters and return value).
-  - Avoid using any.
+  - Avoid using dynamic and Object without justification.
   - Create necessary types.
-- Don't leave blank lines within a function.
 - One export per file.
 
 ### Nomenclature
@@ -35,7 +34,6 @@ Generate code, corrections, and refactorings that comply with the basic principl
     - i, j for loops
     - err for errors
     - ctx for contexts
-    - req, res, next for middleware function parameters
 
 ### Functions
 
@@ -62,8 +60,8 @@ Generate code, corrections, and refactorings that comply with the basic principl
 - Don't abuse primitive types and encapsulate data in composite types.
 - Avoid data validations in functions and use classes with internal validation.
 - Prefer immutability for data.
-  - Use readonly for data that doesn't change.
-  - Use as const for literals that don't change.
+  - Use final for runtime constants and const for compile-time constants.
+  - Use const constructors and const literals where possible.
 
 ### Classes
 
@@ -105,10 +103,6 @@ Generate code, corrections, and refactorings that comply with the basic principl
   - see keepAlive if you need to keep the state alive
 - Use freezed to manage UI states
 - Controller always takes methods as input and updates the UI state that effects the UI
-- Use getIt to manage dependencies
-  - Use singleton for services and repositories
-  - Use factory for use cases
-  - Use lazy singleton for controllers
 - Use AutoRoute to manage routes
   - Use extras to pass data between pages
 - Use extensions to manage reusable code
