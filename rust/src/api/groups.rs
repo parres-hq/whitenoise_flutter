@@ -6,8 +6,8 @@ use mdk_core::prelude::group_types::GroupState as WhitenoiseGroupState;
 use mdk_core::prelude::{NostrGroupConfigData, NostrGroupDataUpdate};
 use nostr_sdk::prelude::*;
 use whitenoise::{
-    GroupInformation as WhitenoiseGroupInformation, GroupType as WhitenoiseGroupType, ImageType,
-    RelayType, Whitenoise,
+    GroupInformation as WhitenoiseGroupInformation, GroupType as WhitenoiseGroupType, RelayType,
+    Whitenoise,
 };
 
 #[frb(non_opaque)]
@@ -359,7 +359,6 @@ pub async fn upload_group_image(
     account_pubkey: String,
     group_id: String,
     file_path: String,
-    image_type: String,
     server_url: String,
 ) -> Result<UploadGroupImageResult, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
@@ -367,10 +366,9 @@ pub async fn upload_group_image(
     let group_id = group_id_from_string(&group_id)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
     let server = Url::parse(&server_url)?;
-    let image_type = ImageType::try_from(image_type)?;
 
     let (encrypted_hash, image_key, image_nonce) = whitenoise
-        .upload_group_image(&account, &group_id, &file_path, image_type, server)
+        .upload_group_image(&account, &group_id, &file_path, server, None)
         .await?;
 
     Ok(UploadGroupImageResult {
@@ -378,4 +376,17 @@ pub async fn upload_group_image(
         image_key,
         image_nonce,
     })
+}
+
+#[frb]
+pub async fn get_group_image_path(
+    account_pubkey: String,
+    group_id: String,
+) -> Result<Option<String>, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let group_id = group_id_from_string(&group_id)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    let path = whitenoise.get_group_image_path(&account, &group_id).await?;
+    Ok(path.map(|p| p.to_string_lossy().to_string()))
 }

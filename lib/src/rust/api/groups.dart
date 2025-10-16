@@ -86,14 +86,20 @@ Future<UploadGroupImageResult> uploadGroupImage({
   required String accountPubkey,
   required String groupId,
   required String filePath,
-  required String imageType,
   required String serverUrl,
 }) => RustLib.instance.api.crateApiGroupsUploadGroupImage(
   accountPubkey: accountPubkey,
   groupId: groupId,
   filePath: filePath,
-  imageType: imageType,
   serverUrl: serverUrl,
+);
+
+Future<String?> getGroupImagePath({
+  required String accountPubkey,
+  required String groupId,
+}) => RustLib.instance.api.crateApiGroupsGetGroupImagePath(
+  accountPubkey: accountPubkey,
+  groupId: groupId,
 );
 
 class FlutterGroupDataUpdate {
