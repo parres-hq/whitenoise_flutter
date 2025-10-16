@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/domain/services/image_picker_service.dart';
+import 'package:whitenoise/src/rust/api/media.dart' as rust_media;
 import 'package:whitenoise/ui/chat/states/chat_input_state.dart';
+import 'package:whitenoise/ui/chat/states/media_file_upload.dart';
 
 class ChatInputNotifier extends StateNotifier<ChatInputState> {
   ChatInputNotifier({
@@ -63,24 +65,78 @@ class ChatInputNotifier extends StateNotifier<ChatInputState> {
 
   Future<void> handleImagesSelected() async {
     final imagePaths = await _imagePickerService.pickMultipleImages();
-    if (imagePaths.isNotEmpty) {
-      state = state.copyWith(
-        showMediaSelector: false,
-        selectedImages: [...state.selectedImages, ...imagePaths],
-      );
-    } else {
+    if (imagePaths.isEmpty) {
       state = state.copyWith(showMediaSelector: false);
+      return;
+    }
+
+    // Hide media selector and add images in uploading state
+    final uploadingItems =
+        imagePaths
+            .map(
+              (path) => MediaFileUpload.uploading(filePath: path),
+            )
+            .toList();
+
+    state = state.copyWith(
+      showMediaSelector: false,
+      selectedMedia: [...state.selectedMedia, ...uploadingItems],
+    );
+
+    // Upload each image
+    for (final path in imagePaths) {
+      _uploadImage(path);
+    }
+  }
+
+  Future<void> _uploadImage(String filePath) async {
+    try {
+      // Upload the image to blossom server
+      final mediaFile = await rust_media.uploadMedia(
+        accountPubkey: 'temp_pubkey', // TODO: Get actual account pubkey
+        groupId: _groupId,
+        filePath: filePath,
+      );
+
+      // Update the item from uploading to uploaded
+      final updatedMedia =
+          state.selectedMedia.map((item) {
+            return item.maybeWhen(
+              uploading:
+                  (path) => path == filePath ? MediaFileUpload.uploaded(file: mediaFile) : item,
+              orElse: () => item,
+            );
+          }).toList();
+
+      state = state.copyWith(selectedMedia: updatedMedia);
+    } catch (e, st) {
+      _logger.severe('Failed to upload image: $filePath', e, st);
+
+      // Update the item to failed state
+      final updatedMedia =
+          state.selectedMedia.map((item) {
+            return item.maybeWhen(
+              uploading:
+                  (path) =>
+                      path == filePath
+                          ? MediaFileUpload.failed(filePath: path, error: e.toString())
+                          : item,
+              orElse: () => item,
+            );
+          }).toList();
+
+      state = state.copyWith(selectedMedia: updatedMedia);
     }
   }
 
   void removeImage(int index) {
-    if (index < 0 || index >= state.selectedImages.length) {
+    if (index < 0 || index >= state.selectedMedia.length) {
       _logger.warning('Invalid image index: $index');
       return;
     }
-    final updatedImages = List<String>.from(state.selectedImages);
-    updatedImages.removeAt(index);
-    state = state.copyWith(selectedImages: updatedImages);
+    final updatedMedia = List<MediaFileUpload>.from(state.selectedMedia);
+    updatedMedia.removeAt(index);
+    state = state.copyWith(selectedMedia: updatedMedia);
   }
 
   void setSingleLineHeight(double height) {
@@ -100,7 +156,7 @@ class ChatInputNotifier extends StateNotifier<ChatInputState> {
       showMediaSelector: false,
       isLoadingDraft: false,
       previousEditingMessageContent: null,
-      selectedImages: [],
+      selectedMedia: [],
     );
   }
 

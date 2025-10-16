@@ -166,7 +166,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
 
     final isEditing = chatState.editingMessage[widget.groupId] != null;
     final content = _textController.text.trim();
-    if (content.isEmpty && chatInputState.selectedImages.isEmpty) return;
+    if (content.isEmpty && chatInputState.selectedMedia.isEmpty) return;
 
     widget.onSend(content, isEditing);
 
@@ -234,14 +234,14 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                 },
                               ),
                               ChatInputMediaPreview(
-                                imagePaths: chatInputState.selectedImages,
+                                mediaItems: chatInputState.selectedMedia,
                                 onRemoveImage: _removeImage,
                                 onAddMore: _handleImagesSelected,
                                 isReply: chatState.replyingTo[widget.groupId] != null,
                               ),
                               Row(
                                 children: [
-                                  if (chatInputState.selectedImages.isEmpty)
+                                  if (chatInputState.selectedMedia.isEmpty)
                                     GestureDetector(
                                       onTap: _toggleMediaSelector,
                                       child: Padding(
@@ -277,7 +277,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                         textController: _textController,
                         singleLineHeight: chatInputState.singleLineHeight,
                         onSend: _sendMessage,
-                        hasImages: chatInputState.selectedImages.isNotEmpty,
+                        hasImages: chatInputState.selectedMedia.isNotEmpty,
                       ),
                     ],
                   ),
