@@ -42,7 +42,7 @@ pub async fn fetch_relay_status(pubkey: String) -> Result<Vec<(String, String)>,
     let whitenoise = Whitenoise::get_instance()?;
     let pubkey = PublicKey::parse(&pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
-    let statuses = whitenoise.fetch_relay_status(&account).await?;
+    let statuses = whitenoise.get_account_relay_statuses(&account).await?;
     let converted_statuses = statuses
         .into_iter()
         .map(|(url, status)| (url.to_string(), status.to_string()))
