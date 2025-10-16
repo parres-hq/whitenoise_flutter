@@ -62,9 +62,8 @@ void main() {
       mockDraftMessageService = MockDraftMessageService();
       container = ProviderContainer(
         overrides: [
-          chatInputProvider(testGroupId).overrideWith(
-            (ref) => ChatInputNotifier(
-              groupId: testGroupId,
+          chatInputProvider.overrideWith(
+            () => ChatInputNotifier(
               imagePickerService: mockImagePicker,
               draftMessageService: mockDraftMessageService,
               draftSaveDelay: testDraftSaveDelay,

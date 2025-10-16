@@ -5,24 +5,30 @@ import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/domain/services/image_picker_service.dart';
 import 'package:whitenoise/ui/chat/states/chat_input_state.dart';
 
-class ChatInputNotifier extends StateNotifier<ChatInputState> {
+class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
   ChatInputNotifier({
-    required String groupId,
     ImagePickerService? imagePickerService,
     DraftMessageService? draftMessageService,
     Duration draftSaveDelay = const Duration(milliseconds: 500),
-  }) : _groupId = groupId,
-       _imagePickerService = imagePickerService ?? ImagePickerService(),
+  }) : _imagePickerService = imagePickerService ?? ImagePickerService(),
        _draftMessageService = draftMessageService ?? DraftMessageService(),
-       _draftSaveDelay = draftSaveDelay,
-       super(const ChatInputState());
+       _draftSaveDelay = draftSaveDelay;
 
   static final _logger = Logger('ChatInputNotifier');
-  final String _groupId;
+  late final String _groupId;
   final ImagePickerService _imagePickerService;
   final DraftMessageService _draftMessageService;
   final Duration _draftSaveDelay;
   Timer? _draftSaveTimer;
+
+  @override
+  ChatInputState build(String groupId) {
+    _groupId = groupId;
+    ref.onDispose(() {
+      _draftSaveTimer?.cancel();
+    });
+    return const ChatInputState();
+  }
 
   Future<String?> loadDraft() async {
     state = state.copyWith(isLoadingDraft: true);
@@ -30,9 +36,7 @@ class ChatInputNotifier extends StateNotifier<ChatInputState> {
       final draft = await _draftMessageService.loadDraft(chatId: _groupId);
       return draft;
     } finally {
-      if (mounted) {
-        state = state.copyWith(isLoadingDraft: false);
-      }
+      state = state.copyWith(isLoadingDraft: false);
     }
   }
 
@@ -103,14 +107,8 @@ class ChatInputNotifier extends StateNotifier<ChatInputState> {
       selectedImages: [],
     );
   }
-
-  @override
-  void dispose() {
-    _draftSaveTimer?.cancel();
-    super.dispose();
-  }
 }
 
-final chatInputProvider = StateNotifierProvider.family<ChatInputNotifier, ChatInputState, String>(
-  (ref, groupId) => ChatInputNotifier(groupId: groupId),
+final chatInputProvider = NotifierProvider.family<ChatInputNotifier, ChatInputState, String>(
+  ChatInputNotifier.new,
 );
