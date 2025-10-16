@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/domain/models/background_task_config.dart';
+import 'package:whitenoise/domain/services/background_sync_handler.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
@@ -23,35 +25,77 @@ class BackgroundSyncService {
     metadataRefreshTask,
   ];
 
-  static bool _isInitialized = false;
+  static bool _isWorkManagerInitialized = false;
 
-  static Future<void> initialize() async {
-    if (_isInitialized) {
-      _logger.fine('BackgroundSyncService already initialized');
+  static Future<void> initWorkManager() async {
+    if (_isWorkManagerInitialized) {
+      _logger.fine('workmanager already initialized');
       return;
     }
-    try {
-      await _initWorkManager();
-      _isInitialized = true;
-      _logger.info('BackgroundSyncService initialized successfully');
-    } catch (e) {
-      _logger.severe('BackgroundSyncService initialization', e);
-    }
-  }
-
-  static Future<void> _initWorkManager() async {
     try {
       await Workmanager().initialize(
         callbackDispatcher,
       );
+      _isWorkManagerInitialized = true;
+      _logger.info('workmanager initialized successfully');
     } catch (e) {
-      _logger.severe('BackgroundSyncService _initWorkManager', e);
+      _logger.severe('_initWorkManager', e);
+    }
+  }
+
+  static void initForegroundTask() {
+    try {
+      FlutterForegroundTask.init(
+        androidNotificationOptions: AndroidNotificationOptions(
+          channelId: 'foreground_service',
+          channelName: 'Foreground Service Notification',
+          channelDescription: 'This notification appears when the foreground service is running.',
+          onlyAlertOnce: true,
+        ),
+        iosNotificationOptions: const IOSNotificationOptions(
+          showNotification: false,
+        ),
+        foregroundTaskOptions: ForegroundTaskOptions(
+          eventAction: ForegroundTaskEventAction.repeat(60000),
+          autoRunOnBoot: true,
+          autoRunOnMyPackageReplaced: true,
+          allowWifiLock: true,
+        ),
+      );
+    } catch (e) {
+      _logger.severe('BackgroundSyncService _initForegroundTask', e);
+    }
+  }
+
+  static Future<void> startForegroundTask() async {
+    try {
+      if (await FlutterForegroundTask.isRunningService) {
+        await FlutterForegroundTask.restartService();
+      } else {
+        await FlutterForegroundTask.startService(
+          serviceTypes: [
+            ForegroundServiceTypes.dataSync,
+            ForegroundServiceTypes.remoteMessaging,
+          ],
+          serviceId: 333,
+          notificationTitle: 'Wn Background Service',
+          notificationText: 'Tap to return to the app',
+          notificationInitialRoute: '/',
+          callback: startCallback,
+          // TODO: Add icon: monochrome system icon
+        );
+      }
+    } catch (e) {
+      _logger.severe('BackgroundSyncService startForegroundTask', e);
     }
   }
 
   static Future<void> registerMetadataSyncTask() async {
-    if (!_isInitialized) {
-      await initialize();
+    _logger.info('Metadata refresh task  registering');
+    if (!_isWorkManagerInitialized) {
+      _logger.info('Metadata refresh task  !registering');
+
+      await initWorkManager();
     }
     try {
       await Workmanager().registerPeriodicTask(

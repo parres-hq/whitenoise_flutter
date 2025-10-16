@@ -77,22 +77,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
     _initializeControllers();
     _setupScrollListener();
     _scheduleInitialSetup();
-    _requestNotificationsPermission();
-    _initializeBackgroundSync();
+    _setUpForegroundNotification();
   }
 
-  Future<void> _initializeBackgroundSync() async {
+  Future<void> _setUpForegroundNotification() async {
     try {
-      await BackgroundSyncService.initialize();
-      await BackgroundSyncService.registerMetadataSyncTask();
-    } catch (e) {
-      _log.severe('Failed to initialize background sync: $e');
-    }
-  }
-
-  Future<void> _requestNotificationsPermission() async {
-    try {
-      await NotificationService.requestPermissions();
+      final isGranted = await NotificationService.requestPermissions();
+      if (isGranted) {
+        BackgroundSyncService.initForegroundTask();
+        await BackgroundSyncService.startForegroundTask();
+        print("STARTING SMTNG");
+      }
     } catch (e, st) {
       _log.severe('Failed to get notifications permission: $e $st');
     }
@@ -277,7 +272,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       // On resume, re register all tasks with update policy
-      _initializeBackgroundSync();
+      _setUpForegroundNotification();
     }
   }
 

@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:logging/logging.dart';
-import 'package:timezone/data/latest.dart' as tz;
-import 'package:timezone/timezone.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/localization_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
@@ -29,24 +27,13 @@ Future<void> main() async {
   Logger.root.level = Level.ALL;
   final log = Logger('Whitenoise');
 
-  // Initialize timezone database
-  await _initializeTimeZone();
-
-  // Initialize Rust library first
   try {
     await RustLib.init();
+    FlutterForegroundTask.initCommunicationPort();
     log.info('Rust library initialized successfully');
   } catch (e) {
     log.severe('Failed to initialize Rust library: $e');
     rethrow;
-  }
-
-  // Initialize notification service
-  try {
-    await NotificationService.initialize();
-    log.info('Notification service initialized successfully');
-  } catch (e) {
-    log.severe('Failed to initialize notification service: $e');
   }
 
   final container = ProviderContainer();
@@ -62,11 +49,9 @@ Future<void> main() async {
     await authNotifier.initialize();
     log.info('Whitenoise initialized via authProvider');
 
-    try {
-      await BackgroundSyncService.initialize();
-    } catch (e) {
-      log.severe('Failed to initialize background sync service: $e');
-    }
+    await NotificationService.initialize();
+    await BackgroundSyncService.initWorkManager();
+    await BackgroundSyncService.registerMetadataSyncTask();
   } catch (e) {
     log.severe('Initialization failed: $e');
   }
@@ -109,16 +94,5 @@ class MyApp extends ConsumerWidget {
         );
       },
     );
-  }
-}
-
-Future<void> _initializeTimeZone() async {
-  tz.initializeTimeZones();
-  try {
-    final timezoneName = (await FlutterTimezone.getLocalTimezone()).localizedName?.name ?? '';
-    if (timezoneName.isEmpty) throw Exception('Empty timezone name');
-    setLocalLocation(getLocation(timezoneName));
-  } catch (e) {
-    Logger('Whitenoise').warning('Failed to set local timezone, defaulting to UTC: $e');
   }
 }

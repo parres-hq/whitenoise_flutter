@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -84,20 +85,29 @@ class NotificationService {
     _logger.info('Notification tapped: ${response.payload}');
   }
 
-  static Future<void> requestPermissions() async {
-    final NotificationPermission notificationPermission =
-        await FlutterForegroundTask.checkNotificationPermission();
-    if (notificationPermission != NotificationPermission.granted) {
-      await FlutterForegroundTask.requestNotificationPermission();
-    }
-
-    if (Platform.isAndroid) {
-      if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
-        await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+  static Future<bool> requestPermissions() async {
+    bool isNotificationGranted = false;
+    try {
+      final NotificationPermission notificationPermission =
+          await FlutterForegroundTask.checkNotificationPermission();
+      if (notificationPermission != NotificationPermission.granted) {
+        final status = await FlutterForegroundTask.requestNotificationPermission();
+        isNotificationGranted = status == NotificationPermission.granted;
+      } else {
+        isNotificationGranted = true;
       }
-      if (!await FlutterForegroundTask.canScheduleExactAlarms) {
-        await FlutterForegroundTask.openAlarmsAndRemindersSettings();
+      if (Platform.isAndroid) {
+        if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+          await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+        }
+        if (!await FlutterForegroundTask.canScheduleExactAlarms) {
+          await FlutterForegroundTask.openAlarmsAndRemindersSettings();
+        }
       }
+      return isNotificationGranted;
+    } catch (e) {
+      _logger.warning('Notification Permission not granted, cannot show notification');
+      return isNotificationGranted;
     }
   }
 
@@ -200,5 +210,34 @@ class NotificationService {
     } catch (e) {
       _logger.severe('Failed to cancel all notifications: $e');
     }
+  }
+
+  // Testing: Send random greeting notification
+  static Future<void> sendRandomGreetingNotification() async {
+    final random = Random();
+    final greetings = [
+      'Hello there! 👋',
+      'Hope you\'re having a great day! ☀️',
+      'Just checking in! 😊',
+      'Stay awesome! ⭐',
+      'You\'re doing great! 💪',
+      'Keep up the good work! 🚀',
+      'Have a wonderful day! 🌈',
+      'Sending good vibes! ✨',
+      'You got this! 💯',
+      'Stay positive! 🌟',
+    ];
+
+    final greeting = greetings[random.nextInt(greetings.length)];
+    final notificationId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+    await showMessageNotification(
+      id: notificationId,
+      title: 'Greeting from White Noise',
+      body: greeting,
+      payload: 'test_greeting',
+    );
+
+    _logger.fine('Random greeting notification sent: $greeting');
   }
 }
