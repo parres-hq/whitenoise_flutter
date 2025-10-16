@@ -48,7 +48,7 @@ class MediaThumbnail extends StatelessWidget {
                   width: 32.w,
                   height: 32.h,
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
+                    color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
                   ),
                   child: Center(
                     child: SizedBox(
