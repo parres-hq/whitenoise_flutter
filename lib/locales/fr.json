@@ -200,7 +200,8 @@
         "removeFromGroupConfirmation": "Êtes-vous sûr de vouloir retirer {name} du groupe ? Ils perdront l'accès à tous les messages et activités du groupe. Vous devrez les inviter à nouveau si vous les voulez de retour.",
         "removedFromGroupSuccess": "{name} retiré du groupe",
         "failedToRemoveMember": "Échec de la suppression du membre",
-        "noUserToStartChatWith": "Aucun utilisateur avec qui commencer une conversation"
+        "noUserToStartChatWith": "Aucun utilisateur avec qui commencer une conversation",
+        "photos": "Photos"
     },
     "clipboard": {
         "emptyTextError": "Aucun texte trouvé dans le presse-papiers",

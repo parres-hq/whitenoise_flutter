@@ -70,7 +70,7 @@ extension RelayStatusExt on RelayStatus {
   String getIconAsset() {
     switch (this) {
       case RelayStatus.connected:
-        return AssetsPaths.icCheckmarkFilledSvg;
+        return AssetsPaths.icCheckmarkFilled;
       case RelayStatus.connecting:
         return AssetsPaths.icInProgress;
       case RelayStatus.pending:

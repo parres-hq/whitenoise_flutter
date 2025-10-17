@@ -200,7 +200,8 @@
         "removeFromGroupConfirmation": "{name} adlı kişiyi gruptan çıkarmak istediğinizden emin misiniz? Tüm mesajlara ve grup etkinliklerine erişimlerini kaybedecekler. Onları geri istiyorsanız tekrar davet etmeniz gerekecek.",
         "removedFromGroupSuccess": "{name} gruptan çıkarıldı",
         "failedToRemoveMember": "Üye çıkarma başarısız",
-        "noUserToStartChatWith": "Sohbet başlatacak kullanıcı yok"
+        "noUserToStartChatWith": "Sohbet başlatacak kullanıcı yok",
+        "photos": "Fotoğraflar"
     },
     "clipboard": {
         "emptyTextError": "Panoda metin bulunamadı",
