@@ -44,7 +44,11 @@ class BackgroundSyncHandler extends TaskHandler {
       }
       _log.fine('Syncing messages for ${accounts.length} account(s)');
       for (final account in accounts) {
-        await _syncMessagesForAccount(account.pubkey);
+        try {
+          await _syncMessagesForAccount(account.pubkey);
+        } catch (e, stackTrace) {
+          _log.warning('Message sync failed for ${account.pubkey}: $e', e, stackTrace);
+        }
       }
     } catch (e, stackTrace) {
       _log.warning('Error syncing messages for all accounts: $e', e, stackTrace);
@@ -161,7 +165,6 @@ class BackgroundSyncHandler extends TaskHandler {
             e,
             stackTrace,
           );
-          rethrow;
         }
       }
 
