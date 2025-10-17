@@ -16,6 +16,8 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
   bool isLoadingMembers = false;
   String? currentUserNpub;
   String? groupImagePath;
+  ProviderSubscription<GroupsState>? _groupsSubscription;
+
   @override
   void initState() {
     super.initState();
@@ -23,7 +25,23 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
       _loadGroup();
       _loadMembers();
       _loadCurrentUserNpub();
+
+      setState(() {
+        groupImagePath = ref.read(groupsProvider.notifier).getCachedGroupImagePath(widget.groupId);
+      });
+
+      _groupsSubscription = ref.listenManual(groupsProvider, (previous, next) {
+        if (mounted) {
+          _loadMembers();
+        }
+      });
     });
+  }
+
+  @override
+  void dispose() {
+    _groupsSubscription?.close();
+    super.dispose();
   }
 
   Future<void> _loadGroup() async {
@@ -127,11 +145,6 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
   @override
   Widget build(BuildContext context) {
     final groupDetails = ref.watch(groupsProvider).groupsMap?[widget.groupId];
-    final groupsNotifier = ref.watch(groupsProvider.notifier);
-    ref.listen(groupsProvider, (previous, next) {
-      groupImagePath = groupsNotifier.getCachedGroupImagePath(widget.groupId);
-      _loadMembers();
-    });
     final isAdmin = groupAdmins.any((admin) {
       if (currentUserNpub == null) {
         return false;
