@@ -241,7 +241,6 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
                 label: 'ui.connectAnotherProfile'.tr(),
                 onPressed: _handleConnectAnotherProfile,
               ),
-              Gap(28.h),
             ],
           ],
         ),

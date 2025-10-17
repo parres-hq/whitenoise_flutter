@@ -224,7 +224,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
                   minLines: 3,
                   keyboardType: TextInputType.multiline,
                 ),
-                Gap(32.h),
+                Gap(16.h),
               ],
             ),
           ),
@@ -233,7 +233,6 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
           padding: EdgeInsets.only(
             left: 24.w,
             right: 24.w,
-            top: 16.h,
             bottom: 16.h + MediaQuery.of(context).viewInsets.bottom,
           ),
           child: SafeArea(
