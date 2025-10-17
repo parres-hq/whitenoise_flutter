@@ -66,13 +66,18 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
   }
 
   Future<void> handleImagesSelected() async {
-    final imagePaths = await _imagePickerService.pickMultipleImages();
-    if (imagePaths.isNotEmpty) {
-      state = state.copyWith(
-        showMediaSelector: false,
-        selectedImages: [...state.selectedImages, ...imagePaths],
-      );
-    } else {
+    try {
+      final imagePaths = await _imagePickerService.pickMultipleImages();
+      if (imagePaths.isNotEmpty) {
+        state = state.copyWith(
+          showMediaSelector: false,
+          selectedImages: [...state.selectedImages, ...imagePaths],
+        );
+      } else {
+        state = state.copyWith(showMediaSelector: false);
+      }
+    } catch (e) {
+      _logger.warning('Failed to select images for group $_groupId', e);
       state = state.copyWith(showMediaSelector: false);
     }
   }

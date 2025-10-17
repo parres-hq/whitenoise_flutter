@@ -8,9 +8,13 @@ import 'package:whitenoise/ui/chat/states/chat_input_state.dart';
 
 class MockImagePickerService extends ImagePickerService {
   List<String>? imagesToReturn;
+  Exception? errorToThrow;
 
   @override
   Future<List<String>> pickMultipleImages() async {
+    if (errorToThrow != null) {
+      throw errorToThrow!;
+    }
     return imagesToReturn ?? [];
   }
 }
@@ -165,6 +169,37 @@ void main() {
           expect(state.selectedImages[0], '/path/to/image1.jpg');
           expect(state.selectedImages[1], '/path/to/image2.jpg');
           expect(state.selectedImages[2], '/path/to/image3.jpg');
+        });
+      });
+
+      group('when image picker service throws an error', () {
+        setUp(() {
+          mockImagePicker.errorToThrow = Exception('Image picker failed');
+        });
+
+        test('keeps selectedImages empty', () async {
+          await notifier.handleImagesSelected();
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedImages, isEmpty);
+        });
+
+        test('sets showMediaSelector to false', () async {
+          await notifier.handleImagesSelected();
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.showMediaSelector, false);
+        });
+
+        test('does not add images when error occurs with previous images', () async {
+          mockImagePicker.errorToThrow = null;
+          mockImagePicker.imagesToReturn = ['/path/to/image1.jpg'];
+          await notifier.handleImagesSelected();
+
+          mockImagePicker.errorToThrow = Exception('Image picker failed');
+          await notifier.handleImagesSelected();
+
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedImages.length, 1);
+          expect(state.selectedImages[0], '/path/to/image1.jpg');
         });
       });
     });
