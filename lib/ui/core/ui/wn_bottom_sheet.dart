@@ -236,7 +236,7 @@ class WnBottomSheet {
                   icon: WnImage(
                     AssetsPaths.icChevronLeft,
                     color: context.colors.primary,
-                    size: 24.w,
+                    size: 15.w,
                   ),
                   padding: EdgeInsets.all(4.w),
                   constraints: BoxConstraints(
