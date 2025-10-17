@@ -61,39 +61,39 @@ class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
           width: double.infinity,
           decoration: BoxDecoration(
             border: Border.all(
-              color: Colors.black,
               width: 2.0,
             ),
           ),
-          child: _isScanning
-              ? MobileScanner(
-                  controller: cameraController,
-                  onDetect: _onDetect,
-                )
-              : Container(
-                  color: context.colors.baseMuted,
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        WnImage(
-                          AssetsPaths.icCheckmarkFilledSvg,
-                          size: 94.w,
-                          color: context.colors.primary,
-                        ),
-                        Gap(16.h),
-                        Text(
-                          'auth.qrCodeDetected'.tr(),
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            color: context.colors.primaryForeground,
-                            fontWeight: FontWeight.w600,
+          child:
+              _isScanning
+                  ? MobileScanner(
+                    controller: cameraController,
+                    onDetect: _onDetect,
+                  )
+                  : Container(
+                    color: context.colors.baseMuted,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          WnImage(
+                            AssetsPaths.icCheckmarkFilledSvg,
+                            size: 94.w,
+                            color: context.colors.primary,
                           ),
-                        ),
-                      ],
+                          Gap(16.h),
+                          Text(
+                            'auth.qrCodeDetected'.tr(),
+                            style: TextStyle(
+                              fontSize: 16.sp,
+                              color: context.colors.primaryForeground,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
         ),
         Gap(24.h),
         Text(
