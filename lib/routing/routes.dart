@@ -6,6 +6,7 @@ abstract final class Routes {
   // Auth
   static const login = '/login';
   static const createProfile = '/create-profile';
+  static const qrScanner = '/qr-scanner';
 
   // Chats
   static const chats = '/chats';

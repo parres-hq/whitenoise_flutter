@@ -7,6 +7,7 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
 import 'package:whitenoise/ui/auth_flow/info_screen.dart';
 import 'package:whitenoise/ui/auth_flow/login_screen.dart';
+import 'package:whitenoise/ui/auth_flow/qr_scanner_bottom_sheet.dart';
 import 'package:whitenoise/ui/auth_flow/welcome_screen.dart';
 import 'package:whitenoise/ui/chat/chat_info/chat_info_screen.dart';
 import 'package:whitenoise/ui/chat/chat_info/edit_group_screen.dart';
@@ -119,6 +120,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: Routes.createProfile,
         builder: (context, state) => const CreateProfileScreen(),
+      ),
+
+      GoRoute(
+        path: Routes.qrScanner,
+        builder: (context, state) => const QRScannerBottomSheet(),
       ),
 
       GoRoute(
