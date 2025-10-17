@@ -123,7 +123,7 @@ class WnBottomSheet {
     final keyboardHeight = MediaQuery.viewInsetsOf(context).bottom;
     final safeAreaBottom = MediaQuery.viewPaddingOf(context).bottom;
 
-    return keyboardHeight > 0 ? 8.h : safeAreaBottom + 8.h;
+    return keyboardHeight > 0 ? 16.h : safeAreaBottom + 16.h;
   }
 
   static Future<T?> show<T>({
