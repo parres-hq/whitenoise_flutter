@@ -154,24 +154,19 @@ class BackgroundSyncHandler extends TaskHandler {
         );
 
         try {
-          await MessageSyncService.markInvitesAsNotified(
+          await MessageSyncService.setLastInviteSyncTime(
             activePubkey: accountPubkey,
-            inviteIds: newWelcomes.map((welcome) => welcome.id).toList(),
+            time: DateTime.now(),
           );
         } catch (e, stackTrace) {
           _log.warning(
-            'Failed to mark invites as notified for account $accountPubkey after notification. '
+            'Failed to update invite sync time for account $accountPubkey after notification. '
             'This may cause duplicate notifications on next sync: $e',
             e,
             stackTrace,
           );
         }
       }
-
-      await MessageSyncService.cleanupNotifiedInvites(
-        activePubkey: accountPubkey,
-        currentPendingIds: welcomes.map((welcome) => welcome.id).toSet(),
-      );
     } catch (e, stackTrace) {
       _log.warning('Error syncing invites for account $accountPubkey: $e', e, stackTrace);
     }

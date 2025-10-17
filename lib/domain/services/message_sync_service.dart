@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:synchronized/synchronized.dart';
 import 'package:whitenoise/domain/services/last_read_service.dart';
 import 'package:whitenoise/domain/services/notification_id_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
@@ -23,9 +22,6 @@ class MessageSyncService {
   static const Duration _messageSyncBuffer = Duration(seconds: 1);
   static const Duration _defaultLookbackWindow = Duration(hours: 1);
   static const int _pubkeyDisplayLength = 8;
-
-  // Lock to prevent race conditions in SharedPreferences read-modify-write operations
-  static final _inviteTrackingLock = Lock();
 
   static Future<SharedPreferences> get _preferences async {
     _prefs ??= await SharedPreferences.getInstance();
@@ -314,7 +310,8 @@ class MessageSyncService {
 
   /// Filters invites to find new ones that should trigger notifications.
   ///
-  /// Excludes invites that have already been notified about.
+  /// Excludes invites that have already been processed based on the last sync timestamp.
+  /// Uses the same pattern as message filtering for consistency.
   ///
   /// Returns an empty list for invalid inputs.
   static Future<List<Welcome>> filterNewInvites({
@@ -327,14 +324,20 @@ class MessageSyncService {
     }
 
     try {
-      final prefs = await _preferences;
-      final notifiedIds = prefs.getStringList('bg_sync_notified_invites_$activePubkey') ?? [];
-      final notifiedSet = notifiedIds.toSet();
+      final lastSyncTime = await getLastInviteSyncTime(activePubkey: activePubkey);
 
-      final newWelcomes = welcomes.where((welcome) => !notifiedSet.contains(welcome.id)).toList();
+      // If no previous sync, use default lookback window to avoid notifying old invites
+      final cutoffTime = lastSyncTime ?? DateTime.now().subtract(_defaultLookbackWindow);
+      final cutoffMillis = BigInt.from(cutoffTime.millisecondsSinceEpoch);
+
+      final newWelcomes = welcomes.where((welcome) {
+        // Compare BigInt timestamps directly
+        return welcome.createdAt > cutoffMillis;
+      }).toList();
 
       _logger.fine(
-        'Filtered ${newWelcomes.length} new invite(s) from ${welcomes.length} total for account $activePubkey',
+        'Filtered ${newWelcomes.length} new invite(s) from ${welcomes.length} total for account $activePubkey '
+        '(lastSyncTime: $lastSyncTime, cutoffTime: $cutoffTime)',
       );
 
       return newWelcomes;
@@ -344,74 +347,50 @@ class MessageSyncService {
     }
   }
 
-  /// Marks invites as notified to prevent duplicate notifications.
+  /// Gets the last invite sync timestamp for an account.
   ///
-  /// Uses a lock to ensure atomic read-modify-write operations.
-  static Future<void> markInvitesAsNotified({
+  /// Returns null if no previous sync has been recorded.
+  static Future<DateTime?> getLastInviteSyncTime({
     required String activePubkey,
-    required List<String> inviteIds,
   }) async {
     if (activePubkey.isEmpty) {
-      _logger.warning('Empty activePubkey provided to markInvitesAsNotified');
-      return;
+      _logger.warning('Empty activePubkey provided to getLastInviteSyncTime');
+      return null;
     }
 
-    if (inviteIds.isEmpty) {
-      return;
+    try {
+      final prefs = await _preferences;
+      final timestamp = prefs.getInt('bg_sync_last_invite_$activePubkey');
+      final dateTime = timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
+      _logger.info('Last invite sync time for account $activePubkey: ${dateTime?.toLocal()}');
+      return dateTime;
+    } catch (e) {
+      _logger.warning('Failed to get last invite sync time for account $activePubkey', e);
+      return null;
     }
-
-    await _inviteTrackingLock.synchronized(() async {
-      try {
-        final prefs = await _preferences;
-        final key = 'bg_sync_notified_invites_$activePubkey';
-        final notifiedIds = prefs.getStringList(key) ?? [];
-        final updatedIds = {...notifiedIds, ...inviteIds}.toList();
-
-        await prefs.setStringList(key, updatedIds);
-        _logger.fine('Marked ${inviteIds.length} invite(s) as notified for account $activePubkey');
-      } catch (e) {
-        _logger.warning('Failed to mark invites as notified for account $activePubkey', e);
-      }
-    });
   }
 
-  /// Cleans up notified invite IDs that are no longer pending.
+  /// Sets the last invite sync timestamp for an account.
   ///
-  /// This prevents the stored list from growing indefinitely.
-  /// Uses a lock to ensure atomic read-modify-write operations.
-  static Future<void> cleanupNotifiedInvites({
+  /// This timestamp is used to filter out already-notified invites on the next sync.
+  static Future<void> setLastInviteSyncTime({
     required String activePubkey,
-    required Set<String> currentPendingIds,
+    required DateTime time,
   }) async {
     if (activePubkey.isEmpty) {
-      _logger.warning('Empty activePubkey provided to cleanupNotifiedInvites');
+      _logger.warning('Empty activePubkey provided to setLastInviteSyncTime');
       return;
     }
 
-    await _inviteTrackingLock.synchronized(() async {
-      try {
-        final prefs = await _preferences;
-        final key = 'bg_sync_notified_invites_$activePubkey';
-        final notifiedIds = prefs.getStringList(key) ?? [];
-
-        if (notifiedIds.isEmpty) {
-          return;
-        }
-
-        final notifiedSet = notifiedIds.toSet();
-
-        final cleanedIds = notifiedSet.intersection(currentPendingIds).toList();
-
-        if (cleanedIds.length != notifiedIds.length) {
-          await prefs.setStringList(key, cleanedIds);
-          _logger.fine(
-            'Cleaned up ${notifiedIds.length - cleanedIds.length} notified invite ID(s) for account $activePubkey '
-            '(${cleanedIds.isEmpty ? "cleared all" : "${cleanedIds.length} remaining"})',
-          );
-        }
-      } catch (e) {
-        _logger.warning('Failed to cleanup notified invites for account $activePubkey', e);
-      }
-    });
+    try {
+      final prefs = await _preferences;
+      await prefs.setInt(
+        'bg_sync_last_invite_$activePubkey',
+        time.millisecondsSinceEpoch,
+      );
+      _logger.info('Last invite sync time for account $activePubkey set to ${time.toLocal()}');
+    } catch (e) {
+      _logger.warning('Failed to set last invite sync time for account $activePubkey', e);
+    }
   }
 }
