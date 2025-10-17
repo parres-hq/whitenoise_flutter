@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,6 +10,7 @@ import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_bubble/bubble.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/message_utils.dart';
 
@@ -47,7 +49,7 @@ class MessageWidget extends StatelessWidget {
       children: [
         ChatMessageBubble(
           isSender: message.isMe,
-          color: message.isMe ? context.colors.meChatBubble : context.colors.contactChatBubble,
+          color: message.isMe ? context.colors.meChatBubble : context.colors.otherChatBubble,
           tail: !isSameSenderAsPrevious,
           child: _buildMessageContent(context),
         ),
@@ -60,7 +62,7 @@ class MessageWidget extends StatelessWidget {
               message: message,
               onReactionTap: onReactionTap,
               bubbleColor:
-                  message.isMe ? context.colors.meChatBubble : context.colors.contactChatBubble,
+                  message.isMe ? context.colors.meChatBubble : context.colors.otherChatBubble,
             ),
           ),
       ],
@@ -75,7 +77,22 @@ class MessageWidget extends StatelessWidget {
         ),
         child: Row(
           mainAxisAlignment: message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Always reserve space for avatar in group messages to keep tails aligned
+            if (isGroupMessage && !message.isMe) ...[
+              if (!isSameSenderAsPrevious) ...[
+                WnAvatar(
+                  imageUrl: message.sender.imagePath ?? '',
+                  size: 32.w,
+                  displayName: message.sender.displayName,
+                ),
+                Gap(4.w),
+              ] else ...[
+                // Add spacer to maintain consistent tail alignment
+                SizedBox(width: 32.w + 4.w), // Same width as avatar + gap
+              ],
+            ],
             messageContentStack,
           ],
         ),
@@ -101,7 +118,7 @@ class MessageWidget extends StatelessWidget {
               crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (isGroupMessage && !isSameSenderAsNext && !message.isMe) ...[
+                if (isGroupMessage && !isSameSenderAsPrevious && !message.isMe) ...[
                   Text(
                     message.sender.displayName,
                     style: TextStyle(
@@ -133,7 +150,7 @@ class MessageWidget extends StatelessWidget {
     final textStyle = TextStyle(
       fontSize: 16.sp,
       fontWeight: FontWeight.w500,
-      color: message.isMe ? context.colors.meChatBubbleText : context.colors.contactChatBubbleText,
+      color: message.isMe ? context.colors.meChatBubbleText : context.colors.otherChatBubbleText,
     );
 
     final messageContent = message.content ?? '';
@@ -324,7 +341,7 @@ class ReactionsRow extends StatelessWidget {
                               color:
                                   message.isMe
                                       ? context.colors.meChatBubbleText
-                                      : context.colors.contactChatBubbleText,
+                                      : context.colors.otherChatBubbleText,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -337,7 +354,7 @@ class ReactionsRow extends StatelessWidget {
                             color:
                                 message.isMe
                                     ? context.colors.meChatBubbleText
-                                    : context.colors.contactChatBubbleText,
+                                    : context.colors.otherChatBubbleText,
                           ),
                           textAlign: TextAlign.center,
                         ),
@@ -354,7 +371,7 @@ class ReactionsRow extends StatelessWidget {
                                 color:
                                     message.isMe
                                         ? context.colors.meChatBubbleText
-                                        : context.colors.contactChatBubbleText,
+                                        : context.colors.otherChatBubbleText,
                               ),
                               textAlign: TextAlign.center,
                             ),
@@ -368,7 +385,7 @@ class ReactionsRow extends StatelessWidget {
                               color:
                                   message.isMe
                                       ? context.colors.meChatBubbleText
-                                      : context.colors.contactChatBubbleText,
+                                      : context.colors.otherChatBubbleText,
                             ),
                             textAlign: TextAlign.center,
                           ),
@@ -386,7 +403,7 @@ class ReactionsRow extends StatelessWidget {
               color:
                   message.isMe
                       ? context.colors.meChatBubbleText
-                      : context.colors.contactChatBubbleText,
+                      : context.colors.otherChatBubbleText,
             ),
           ),
       ],

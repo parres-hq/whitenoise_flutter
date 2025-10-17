@@ -1,9 +1,9 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
-import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart' as domain_user;
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/groups.dart' as groups_api;
 import 'package:whitenoise/src/rust/api/messages.dart'
     show ChatMessage, fetchAggregatedMessagesForGroup;
@@ -92,47 +92,47 @@ class GroupMessagesNotifier extends FamilyNotifier<GroupMessagesState, String> {
     if (activePubkey == null || activePubkey.isEmpty) {
       return {};
     }
-    final groupContacts = await _fetchGroupUsersProfileData(activePubkey);
-    final domainUsersMap = _mapContactModelsToDomainUsers(
+    final groupUserProfiles = await _fetchGroupUserProfiles(activePubkey);
+    final domainUsersMap = _mapUserProfilesToDomainUsers(
       activePubkey: activePubkey,
-      contacts: groupContacts,
+      userProfiles: groupUserProfiles,
     );
     return domainUsersMap;
   }
 
-  Future<List<MapEntry<String, ContactModel>>> _fetchUsersProfileData(
+  Future<List<MapEntry<String, UserProfile>>> _fetchUserProfiles(
     List<String> pubkeys,
   ) async {
-    final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+    final userProfileNotifier = ref.read(userProfileProvider.notifier);
     final userFutures = pubkeys.map(
-      (pubkey) => userProfileDataNotifier
-          .getUserProfileData(pubkey)
-          .then((contact) => MapEntry(pubkey, contact)),
+      (pubkey) => userProfileNotifier
+          .getUserProfile(pubkey)
+          .then((userProfile) => MapEntry(pubkey, userProfile)),
     );
     final usersProfileData = await Future.wait(userFutures);
     return usersProfileData;
   }
 
-  Future<List<MapEntry<String, ContactModel>>> _fetchGroupUsersProfileData(
+  Future<List<MapEntry<String, UserProfile>>> _fetchGroupUserProfiles(
     String activePubkey,
   ) async {
     final groupMembersPubkeys = await _groupMembers(
       pubkey: activePubkey,
       groupId: state.groupId,
     );
-    final groupMembersUserProfileData = await _fetchUsersProfileData(groupMembersPubkeys);
-    return groupMembersUserProfileData;
+    final groupMembersUserProfile = await _fetchUserProfiles(groupMembersPubkeys);
+    return groupMembersUserProfile;
   }
 
-  Map<String, domain_user.User> _mapContactModelsToDomainUsers({
+  Map<String, domain_user.User> _mapUserProfilesToDomainUsers({
     required String activePubkey,
-    required List<MapEntry<String, ContactModel>> contacts,
+    required List<MapEntry<String, UserProfile>> userProfiles,
   }) {
     return Map<String, domain_user.User>.fromEntries(
-      contacts.map(
+      userProfiles.map(
         (entry) => MapEntry(
           entry.key,
-          _contactModelToDomainUser(activePubkey: activePubkey, contact: entry.value),
+          _userProfileToDomainUser(activePubkey: activePubkey, userProfile: entry.value),
         ),
       ),
     );
@@ -140,25 +140,25 @@ class GroupMessagesNotifier extends FamilyNotifier<GroupMessagesState, String> {
 
   String _getDisplayName({
     required String activePubkey,
-    required ContactModel contact,
+    required UserProfile userProfile,
   }) {
-    if (_isMe(myPubkey: activePubkey, otherPubkey: contact.publicKey)) {
+    if (_isMe(myPubkey: activePubkey, otherPubkey: userProfile.publicKey)) {
       return 'You';
     } else {
-      return contact.displayName;
+      return userProfile.displayName;
     }
   }
 
-  domain_user.User _contactModelToDomainUser({
+  domain_user.User _userProfileToDomainUser({
     required String activePubkey,
-    required ContactModel contact,
+    required UserProfile userProfile,
   }) {
     return domain_user.User(
-      id: contact.publicKey,
-      displayName: _getDisplayName(activePubkey: activePubkey, contact: contact),
-      nip05: contact.nip05 ?? '',
-      publicKey: contact.publicKey,
-      imagePath: contact.imagePath,
+      id: userProfile.publicKey,
+      displayName: _getDisplayName(activePubkey: activePubkey, userProfile: userProfile),
+      nip05: userProfile.nip05 ?? '',
+      publicKey: userProfile.publicKey,
+      imagePath: userProfile.imagePath,
     );
   }
 }

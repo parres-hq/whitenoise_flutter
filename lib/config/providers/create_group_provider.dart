@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/create_group_state.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/domain/services/image_picker_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
@@ -52,28 +51,28 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
     }
   }
 
-  Future<void> filterContactsWithKeyPackage(
-    List<ContactModel> selectedContacts,
+  Future<void> filterUserProfilesWithKeyPackage(
+    List<UserProfile> selectedUserProfiles,
   ) async {
     try {
-      final filteredContacts = await _filterContactsByKeyPackage(selectedContacts);
-      final contactsWithKeyPackage = filteredContacts['withKeyPackage']!;
-      final contactsWithoutKeyPackage = filteredContacts['withoutKeyPackage']!;
+      final filteredUserProfiles = await _filterUserProfilesByKeyPackage(selectedUserProfiles);
+      final userProfilesWithKeyPackage = filteredUserProfiles['withKeyPackage']!;
+      final userProfilesWithoutKeyPackage = filteredUserProfiles['withoutKeyPackage']!;
 
       state = state.copyWith(
-        contactsWithKeyPackage: contactsWithKeyPackage,
-        contactsWithoutKeyPackage: contactsWithoutKeyPackage,
-        shouldShowInviteSheet: contactsWithoutKeyPackage.isNotEmpty,
+        userProfilesWithKeyPackage: userProfilesWithKeyPackage,
+        userProfilesWithoutKeyPackage: userProfilesWithoutKeyPackage,
+        shouldShowInviteSheet: userProfilesWithoutKeyPackage.isNotEmpty,
       );
 
-      if (contactsWithKeyPackage.isEmpty) {
+      if (userProfilesWithKeyPackage.isEmpty) {
         state = state.copyWith(isCreatingGroup: false);
         return;
       }
     } catch (e, st) {
-      _logger.severe('filterContactsWithKeyPackage', e, st);
+      _logger.severe('filterUserProfilesWithKeyPackage', e, st);
       state = state.copyWith(
-        error: 'Error filtering contacts: ${e.toString()}',
+        error: 'Error filtering userProfiles: ${e.toString()}',
         isCreatingGroup: false,
       );
     }
@@ -83,12 +82,12 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
     ValueChanged<Group?>? onGroupCreated,
   }) async {
     if (!state.isGroupNameValid) return;
-    if (state.contactsWithKeyPackage.isEmpty) return;
+    if (state.userProfilesWithKeyPackage.isEmpty) return;
 
     state = state.copyWith(isCreatingGroup: true, error: null);
 
     try {
-      final createdGroup = await _createGroupWithContacts(state.contactsWithKeyPackage);
+      final createdGroup = await _createGroupWithUserProfiles(state.userProfilesWithKeyPackage);
 
       if (createdGroup != null) {
         if (state.selectedImagePath != null && state.selectedImagePath!.isNotEmpty) {
@@ -119,7 +118,7 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
         state = state.copyWith(
           isCreatingGroup: false,
           shouldShowInviteSheet: false,
-          contactsWithoutKeyPackage: [],
+          userProfilesWithoutKeyPackage: [],
         );
       } else {
         state = state.copyWith(
@@ -136,7 +135,7 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
     }
   }
 
-  Future<Group?> _createGroupWithContacts(List<ContactModel> contactsWithKeyPackage) async {
+  Future<Group?> _createGroupWithUserProfiles(List<UserProfile> userProfilesWithKeyPackage) async {
     final groupName = state.groupName.trim();
     final groupDescription = state.groupDescription.trim();
     final notifier = ref.read(groupsProvider.notifier);
@@ -144,7 +143,7 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
     return await notifier.createNewGroup(
       groupName: groupName,
       groupDescription: groupDescription,
-      memberPublicKeyHexs: contactsWithKeyPackage.map((c) => c.publicKey).toList(),
+      memberPublicKeyHexs: userProfilesWithKeyPackage.map((c) => c.publicKey).toList(),
       adminPublicKeyHexs: [],
     );
   }
@@ -155,21 +154,12 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
     state = state.copyWith(isUploadingImage: true, error: null);
 
     try {
-      final imageUtils = ref.read(wnImageUtilsProvider);
-      final imageType = await imageUtils.getMimeTypeFromPath(state.selectedImagePath!);
-      if (imageType == null) {
-        throw Exception(
-          'Could not determine image type from file path: ${state.selectedImagePath}',
-        );
-      }
-
       final serverUrl = await rust_utils.getDefaultBlossomServerUrl();
 
       final result = await uploadGroupImage(
         accountPubkey: accountPubkey,
         groupId: groupId,
         filePath: state.selectedImagePath!,
-        imageType: imageType,
         serverUrl: serverUrl,
       );
 
@@ -188,29 +178,29 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
     return null;
   }
 
-  Future<Map<String, List<ContactModel>>> _filterContactsByKeyPackage(
-    List<ContactModel> contacts,
+  Future<Map<String, List<UserProfile>>> _filterUserProfilesByKeyPackage(
+    List<UserProfile> userProfiles,
   ) async {
-    final contactsWithKeyPackage = <ContactModel>[];
-    final contactsWithoutKeyPackage = <ContactModel>[];
+    final userProfilesWithKeyPackage = <UserProfile>[];
+    final userProfilesWithoutKeyPackage = <UserProfile>[];
 
-    for (final contact in contacts) {
+    for (final userProfile in userProfiles) {
       try {
-        final hasKeyPackage = await userHasKeyPackage(pubkey: contact.publicKey);
+        final hasKeyPackage = await userHasKeyPackage(pubkey: userProfile.publicKey);
 
         if (hasKeyPackage) {
-          contactsWithKeyPackage.add(contact);
+          userProfilesWithKeyPackage.add(userProfile);
         } else {
-          contactsWithoutKeyPackage.add(contact);
+          userProfilesWithoutKeyPackage.add(userProfile);
         }
       } catch (e) {
-        contactsWithoutKeyPackage.add(contact);
+        userProfilesWithoutKeyPackage.add(userProfile);
       }
     }
 
     return {
-      'withKeyPackage': contactsWithKeyPackage,
-      'withoutKeyPackage': contactsWithoutKeyPackage,
+      'withKeyPackage': userProfilesWithKeyPackage,
+      'withoutKeyPackage': userProfilesWithoutKeyPackage,
     };
   }
 
@@ -223,7 +213,7 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
   void dismissInviteSheet() {
     state = state.copyWith(
       shouldShowInviteSheet: false,
-      contactsWithoutKeyPackage: [],
+      userProfilesWithoutKeyPackage: [],
     );
   }
 
@@ -236,8 +226,8 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
       isUploadingImage: false,
       selectedImagePath: null,
       error: null,
-      contactsWithKeyPackage: [],
-      contactsWithoutKeyPackage: [],
+      userProfilesWithKeyPackage: [],
+      userProfilesWithoutKeyPackage: [],
       shouldShowInviteSheet: false,
     );
   }

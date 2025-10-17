@@ -69,10 +69,10 @@ class LightAppColors {
   static const input = Color(0xffE5E5E5);
 
   static const meChatBubble = Color(0xff0A0A0A);
-  static const contactChatBubble = Color(0xffE5E5E5);
+  static const otherChatBubble = Color(0xffE5E5E5);
 
   static const meChatBubbleText = Color(0xffFAFAFA);
-  static const contactChatBubbleText = Color(0xff0A0A0A);
+  static const otherChatBubbleText = Color(0xff0A0A0A);
 
   static const overlay = Color(0xff000000);
   static const surface = Color(0xfffafafa);
