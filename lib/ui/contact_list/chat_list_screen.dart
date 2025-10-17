@@ -86,10 +86,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
       if (isGranted) {
         BackgroundSyncService.initForegroundTask();
         await BackgroundSyncService.startForegroundTask();
-        print("STARTING SMTNG");
       }
     } catch (e, st) {
-      _log.severe('Failed to get notifications permission: $e $st');
+      _log.severe('Failed to set up foreground notification: $e $st');
     }
   }
 
@@ -271,7 +270,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // On resume, re register all tasks with update policy
       _setUpForegroundNotification();
     }
   }

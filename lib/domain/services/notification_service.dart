@@ -1,6 +1,4 @@
 import 'dart:io';
-import 'dart:math';
-
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logging/logging.dart';
@@ -116,6 +114,7 @@ class NotificationService {
     required String title,
     required String body,
     String? payload,
+    String? groupKey,
   }) async {
     if (!_isInitialized) {
       _logger.warning('NotificationService not initialized, cannot show notification');
@@ -123,18 +122,23 @@ class NotificationService {
     }
 
     try {
-      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
         'messages',
         'Messages',
         channelDescription: 'Notifications for new messages',
         importance: Importance.high,
         priority: Priority.high,
         icon: '@mipmap/ic_launcher',
+        groupKey: groupKey,
       );
 
-      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
+      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
 
-      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      final NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );
@@ -158,24 +162,30 @@ class NotificationService {
     required String title,
     required String body,
     String? payload,
+    String? groupKey,
   }) async {
     if (!_isInitialized) {
       _logger.warning('NotificationService not initialized, cannot show notification');
       return;
     }
     try {
-      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
         'invites',
         'Invites',
         channelDescription: 'Notifications for new invites',
         importance: Importance.high,
         priority: Priority.high,
         icon: '@mipmap/ic_launcher',
+        groupKey: groupKey,
       );
 
-      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
+      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
 
-      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      final NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );
@@ -210,34 +220,5 @@ class NotificationService {
     } catch (e) {
       _logger.severe('Failed to cancel all notifications: $e');
     }
-  }
-
-  // Testing: Send random greeting notification
-  static Future<void> sendRandomGreetingNotification() async {
-    final random = Random();
-    final greetings = [
-      'Hello there! 👋',
-      'Hope you\'re having a great day! ☀️',
-      'Just checking in! 😊',
-      'Stay awesome! ⭐',
-      'You\'re doing great! 💪',
-      'Keep up the good work! 🚀',
-      'Have a wonderful day! 🌈',
-      'Sending good vibes! ✨',
-      'You got this! 💯',
-      'Stay positive! 🌟',
-    ];
-
-    final greeting = greetings[random.nextInt(greetings.length)];
-    final notificationId = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-
-    await showMessageNotification(
-      id: notificationId,
-      title: 'Greeting from White Noise',
-      body: greeting,
-      payload: 'test_greeting',
-    );
-
-    _logger.fine('Random greeting notification sent: $greeting');
   }
 }

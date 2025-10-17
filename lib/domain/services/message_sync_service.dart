@@ -218,6 +218,7 @@ class MessageSyncService {
           ),
           title: groupDisplayName,
           body: message.content,
+          groupKey: groupId, // Group notifications by chat
           payload: jsonEncode({
             'type': 'new_message',
             'groupId': groupId,
@@ -243,6 +244,7 @@ class MessageSyncService {
           ),
           title: 'New Invitations',
           body: 'New group invitation',
+          groupKey: 'invites', // Group all invite notifications together
           payload: jsonEncode({
             'type': 'invites_sync',
             'welcomeId': welcome.id,
@@ -303,6 +305,93 @@ class MessageSyncService {
       _logger.info('Last sync time for group $groupId Set to ${time.toLocal()}');
     } catch (e) {
       _logger.warning('Failed to set last sync time for group $groupId', e);
+    }
+  }
+
+  /// Filters invites to find new ones that should trigger notifications.
+  ///
+  /// Excludes invites that have already been notified about.
+  ///
+  /// Returns an empty list for invalid inputs.
+  static Future<List<Welcome>> filterNewInvites({
+    required String activePubkey,
+    required List<Welcome> welcomes,
+  }) async {
+    if (activePubkey.isEmpty) {
+      _logger.warning('Empty activePubkey provided to filterNewInvites');
+      return [];
+    }
+
+    try {
+      final prefs = await _preferences;
+      final notifiedIds = prefs.getStringList('bg_sync_notified_invites_$activePubkey') ?? [];
+      final notifiedSet = notifiedIds.toSet();
+
+      final newWelcomes = welcomes.where((welcome) => !notifiedSet.contains(welcome.id)).toList();
+
+      _logger.fine(
+        'Filtered ${newWelcomes.length} new invite(s) from ${welcomes.length} total for account $activePubkey',
+      );
+
+      return newWelcomes;
+    } catch (e) {
+      _logger.warning('Failed to filter new invites for account $activePubkey', e);
+      return welcomes;
+    }
+  }
+
+  /// Marks invites as notified to prevent duplicate notifications.
+  static Future<void> markInvitesAsNotified({
+    required String activePubkey,
+    required List<String> inviteIds,
+  }) async {
+    if (activePubkey.isEmpty) {
+      _logger.warning('Empty activePubkey provided to markInvitesAsNotified');
+      return;
+    }
+
+    try {
+      final prefs = await _preferences;
+      final key = 'bg_sync_notified_invites_$activePubkey';
+      final notifiedIds = prefs.getStringList(key) ?? [];
+      final updatedIds = {...notifiedIds, ...inviteIds}.toList();
+
+      await prefs.setStringList(key, updatedIds);
+      _logger.fine('Marked ${inviteIds.length} invite(s) as notified for account $activePubkey');
+    } catch (e) {
+      _logger.warning('Failed to mark invites as notified for account $activePubkey', e);
+    }
+  }
+
+  /// Cleans up notified invite IDs that are no longer pending.
+  ///
+  /// This prevents the stored list from growing indefinitely.
+  static Future<void> cleanupNotifiedInvites({
+    required String activePubkey,
+    required Set<String> currentPendingIds,
+  }) async {
+    if (activePubkey.isEmpty) {
+      _logger.warning('Empty activePubkey provided to cleanupNotifiedInvites');
+      return;
+    }
+
+    try {
+      final prefs = await _preferences;
+      final key = 'bg_sync_notified_invites_$activePubkey';
+      final notifiedIds = prefs.getStringList(key) ?? [];
+      final notifiedSet = notifiedIds.toSet();
+
+      // Keep only IDs that are still pending
+      final cleanedIds = notifiedSet.intersection(currentPendingIds).toList();
+
+      if (cleanedIds.length != notifiedIds.length) {
+        await prefs.setStringList(key, cleanedIds);
+        _logger.fine(
+          'Cleaned up ${notifiedIds.length - cleanedIds.length} notified invite ID(s) for account $activePubkey',
+        );
+      }
+    } catch (e) {
+      _logger.warning('Failed to cleanup notified invites for account $activePubkey', e);
     }
   }
 }

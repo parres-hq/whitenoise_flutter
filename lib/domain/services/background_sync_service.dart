@@ -56,7 +56,7 @@ class BackgroundSyncService {
           showNotification: false,
         ),
         foregroundTaskOptions: ForegroundTaskOptions(
-          eventAction: ForegroundTaskEventAction.repeat(60000),
+          eventAction: ForegroundTaskEventAction.repeat(30000),
           autoRunOnBoot: true,
           autoRunOnMyPackageReplaced: true,
           allowWifiLock: true,
@@ -77,12 +77,11 @@ class BackgroundSyncService {
             ForegroundServiceTypes.dataSync,
             ForegroundServiceTypes.remoteMessaging,
           ],
-          serviceId: 333,
-          notificationTitle: 'Wn Background Service',
+          serviceId: 303,
+          notificationTitle: 'Background Service',
           notificationText: 'Tap to return to the app',
           notificationInitialRoute: '/',
           callback: startCallback,
-          // TODO: Add icon: monochrome system icon
         );
       }
     } catch (e) {
