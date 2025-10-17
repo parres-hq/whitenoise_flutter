@@ -382,7 +382,10 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                         image:
                                             groupType == GroupType.directMessage
                                                 ? otherUser?.displayImage ?? ''
-                                                : '',
+                                                : groupsNotifier.getCachedGroupImagePath(
+                                                      widget.groupId,
+                                                    ) ??
+                                                    '',
                                         onTap: () => context.push('/chats/${widget.groupId}/info'),
                                       );
                                     },
