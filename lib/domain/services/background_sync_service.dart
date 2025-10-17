@@ -60,7 +60,18 @@ class BackgroundSyncService {
           showNotification: false,
         ),
         foregroundTaskOptions: ForegroundTaskOptions(
-          eventAction: ForegroundTaskEventAction.repeat(30000),
+          /// Current: 60 seconds - Polling-based sync
+          ///
+          /// Future with streams (recommended: 15 minutes):
+          /// - Real-time messages delivered via WebSocket/SSE streams
+          /// - Background task only checks stream health and reconnects if needed
+          /// - Significant battery savings: 15 wakeups/hour → 4 wakeups/hour
+          /// - Instant notifications via streams instead of polling
+          ///
+          /// Current interval chosen as compromise:
+          /// - 60s provides reasonably timely notifications (~1 min delay)
+          /// - Will increase to 900000ms (15 min) when streams are implemented
+          eventAction: ForegroundTaskEventAction.repeat(60000),
           autoRunOnBoot: true,
           autoRunOnMyPackageReplaced: true,
           allowWifiLock: true,
@@ -156,7 +167,6 @@ Future<bool> _handleMetadataRefresh() async {
 
   try {
     logger.info('Starting metadata refresh background task');
-
     final List<Account> accounts = await getAccounts();
     if (accounts.isEmpty) {
       logger.info('No accounts found, skipping metadata refresh');
