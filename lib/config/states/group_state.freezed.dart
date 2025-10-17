@@ -27,6 +27,8 @@ mixin _$GroupsState {
       throw _privateConstructorUsedError; // groupId -> display name
   Map<String, GroupType>? get groupTypes =>
       throw _privateConstructorUsedError; // groupId -> GroupType (cached for synchronous access)
+  Map<String, String>? get groupImagePaths =>
+      throw _privateConstructorUsedError; // groupId -> image file path
   bool get isLoading => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
@@ -50,6 +52,7 @@ abstract class $GroupsStateCopyWith<$Res> {
     Map<String, List<User>>? groupAdmins,
     Map<String, String>? groupDisplayNames,
     Map<String, GroupType>? groupTypes,
+    Map<String, String>? groupImagePaths,
     bool isLoading,
     String? error,
   });
@@ -76,6 +79,7 @@ class _$GroupsStateCopyWithImpl<$Res, $Val extends GroupsState>
     Object? groupAdmins = freezed,
     Object? groupDisplayNames = freezed,
     Object? groupTypes = freezed,
+    Object? groupImagePaths = freezed,
     Object? isLoading = null,
     Object? error = freezed,
   }) {
@@ -111,6 +115,11 @@ class _$GroupsStateCopyWithImpl<$Res, $Val extends GroupsState>
                     ? _value.groupTypes
                     : groupTypes // ignore: cast_nullable_to_non_nullable
                         as Map<String, GroupType>?,
+            groupImagePaths:
+                freezed == groupImagePaths
+                    ? _value.groupImagePaths
+                    : groupImagePaths // ignore: cast_nullable_to_non_nullable
+                        as Map<String, String>?,
             isLoading:
                 null == isLoading
                     ? _value.isLoading
@@ -142,6 +151,7 @@ abstract class _$$GroupsStateImplCopyWith<$Res> implements $GroupsStateCopyWith<
     Map<String, List<User>>? groupAdmins,
     Map<String, String>? groupDisplayNames,
     Map<String, GroupType>? groupTypes,
+    Map<String, String>? groupImagePaths,
     bool isLoading,
     String? error,
   });
@@ -167,6 +177,7 @@ class __$$GroupsStateImplCopyWithImpl<$Res>
     Object? groupAdmins = freezed,
     Object? groupDisplayNames = freezed,
     Object? groupTypes = freezed,
+    Object? groupImagePaths = freezed,
     Object? isLoading = null,
     Object? error = freezed,
   }) {
@@ -202,6 +213,11 @@ class __$$GroupsStateImplCopyWithImpl<$Res>
                 ? _value._groupTypes
                 : groupTypes // ignore: cast_nullable_to_non_nullable
                     as Map<String, GroupType>?,
+        groupImagePaths:
+            freezed == groupImagePaths
+                ? _value._groupImagePaths
+                : groupImagePaths // ignore: cast_nullable_to_non_nullable
+                    as Map<String, String>?,
         isLoading:
             null == isLoading
                 ? _value.isLoading
@@ -227,6 +243,7 @@ class _$GroupsStateImpl implements _GroupsState {
     final Map<String, List<User>>? groupAdmins,
     final Map<String, String>? groupDisplayNames,
     final Map<String, GroupType>? groupTypes,
+    final Map<String, String>? groupImagePaths,
     this.isLoading = false,
     this.error,
   }) : _groups = groups,
@@ -234,7 +251,8 @@ class _$GroupsStateImpl implements _GroupsState {
        _groupMembers = groupMembers,
        _groupAdmins = groupAdmins,
        _groupDisplayNames = groupDisplayNames,
-       _groupTypes = groupTypes;
+       _groupTypes = groupTypes,
+       _groupImagePaths = groupImagePaths;
 
   final List<Group>? _groups;
   @override
@@ -305,6 +323,18 @@ class _$GroupsStateImpl implements _GroupsState {
   }
 
   // groupId -> GroupType (cached for synchronous access)
+  final Map<String, String>? _groupImagePaths;
+  // groupId -> GroupType (cached for synchronous access)
+  @override
+  Map<String, String>? get groupImagePaths {
+    final value = _groupImagePaths;
+    if (value == null) return null;
+    if (_groupImagePaths is EqualUnmodifiableMapView) return _groupImagePaths;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
+  // groupId -> image file path
   @override
   @JsonKey()
   final bool isLoading;
@@ -313,7 +343,7 @@ class _$GroupsStateImpl implements _GroupsState {
 
   @override
   String toString() {
-    return 'GroupsState(groups: $groups, groupsMap: $groupsMap, groupMembers: $groupMembers, groupAdmins: $groupAdmins, groupDisplayNames: $groupDisplayNames, groupTypes: $groupTypes, isLoading: $isLoading, error: $error)';
+    return 'GroupsState(groups: $groups, groupsMap: $groupsMap, groupMembers: $groupMembers, groupAdmins: $groupAdmins, groupDisplayNames: $groupDisplayNames, groupTypes: $groupTypes, groupImagePaths: $groupImagePaths, isLoading: $isLoading, error: $error)';
   }
 
   @override
@@ -342,6 +372,10 @@ class _$GroupsStateImpl implements _GroupsState {
               other._groupTypes,
               _groupTypes,
             ) &&
+            const DeepCollectionEquality().equals(
+              other._groupImagePaths,
+              _groupImagePaths,
+            ) &&
             (identical(other.isLoading, isLoading) || other.isLoading == isLoading) &&
             (identical(other.error, error) || other.error == error));
   }
@@ -355,6 +389,7 @@ class _$GroupsStateImpl implements _GroupsState {
     const DeepCollectionEquality().hash(_groupAdmins),
     const DeepCollectionEquality().hash(_groupDisplayNames),
     const DeepCollectionEquality().hash(_groupTypes),
+    const DeepCollectionEquality().hash(_groupImagePaths),
     isLoading,
     error,
   );
@@ -376,6 +411,7 @@ abstract class _GroupsState implements GroupsState {
     final Map<String, List<User>>? groupAdmins,
     final Map<String, String>? groupDisplayNames,
     final Map<String, GroupType>? groupTypes,
+    final Map<String, String>? groupImagePaths,
     final bool isLoading,
     final String? error,
   }) = _$GroupsStateImpl;
@@ -392,6 +428,8 @@ abstract class _GroupsState implements GroupsState {
   Map<String, String>? get groupDisplayNames; // groupId -> display name
   @override
   Map<String, GroupType>? get groupTypes; // groupId -> GroupType (cached for synchronous access)
+  @override
+  Map<String, String>? get groupImagePaths; // groupId -> image file path
   @override
   bool get isLoading;
   @override
