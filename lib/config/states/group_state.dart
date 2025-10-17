@@ -13,6 +13,7 @@ abstract class GroupsState with _$GroupsState {
     Map<String, List<User>>? groupAdmins, // groupId -> admins
     Map<String, String>? groupDisplayNames, // groupId -> display name
     Map<String, GroupType>? groupTypes, // groupId -> GroupType (cached for synchronous access)
+    Map<String, String>? groupImagePaths, // groupId -> image file path
     @Default(false) bool isLoading,
     String? error,
   }) = _GroupsState;

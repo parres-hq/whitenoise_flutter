@@ -70,13 +70,18 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
 
   @override
   Widget build(BuildContext context) {
+    final groupsNotifier = ref.watch(groupsProvider.notifier);
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
           Gap(32.h),
           WnAvatar(
-            imageUrl: '',
+            imageUrl:
+                groupsNotifier.getCachedGroupImagePath(
+                  widget.group.mlsGroupId,
+                ) ??
+                '',
             displayName: widget.group.name,
             size: 96.r,
             showBorder: true,
