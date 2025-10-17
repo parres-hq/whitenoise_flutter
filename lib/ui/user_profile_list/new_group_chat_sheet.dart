@@ -246,12 +246,16 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
           onPressed:
               _selectedUserProfiles.isNotEmpty
                   ? () {
+                    final parentContext = Navigator.of(context).context;
                     Navigator.pop(context);
-                    GroupChatDetailsSheet.show(
-                      context: context,
-                      selectedUserProfiles: _selectedUserProfiles.toList(),
-                      onGroupCreated: widget.onGroupCreated,
-                    );
+                    Future.delayed(const Duration(milliseconds: 300), () {
+                      if (!parentContext.mounted) return;
+                      GroupChatDetailsSheet.show(
+                        context: parentContext,
+                        selectedUserProfiles: _selectedUserProfiles.toList(),
+                        onGroupCreated: widget.onGroupCreated,
+                      );
+                    });
                   }
                   : null,
           label: 'shared.continue'.tr(),
