@@ -253,7 +253,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                         padding: EdgeInsets.only(
                           left: 16.w,
                           right: 16.w,
-                          bottom: 8.h,
+                          bottom: 16.h,
                         ),
                         child: profileState.when(
                           data:
