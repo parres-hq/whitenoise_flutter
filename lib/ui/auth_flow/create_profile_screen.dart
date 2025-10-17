@@ -233,7 +233,7 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
           padding: EdgeInsets.only(
             left: 24.w,
             right: 24.w,
-            bottom: 8.h + MediaQuery.of(context).viewInsets.bottom,
+            bottom: 16.h + MediaQuery.of(context).viewInsets.bottom,
           ),
           child: SafeArea(
             top: false,

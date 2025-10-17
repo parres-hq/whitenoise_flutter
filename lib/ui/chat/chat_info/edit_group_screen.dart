@@ -252,7 +252,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
                         loading: _isLoading,
                         label: 'shared.save'.tr(),
                       ),
-                      Gap(8.h),
+                      Gap(16.h),
                     ],
                   ),
                 ),
