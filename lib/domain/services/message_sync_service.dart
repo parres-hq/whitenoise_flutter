@@ -330,10 +330,11 @@ class MessageSyncService {
       final cutoffTime = lastSyncTime ?? DateTime.now().subtract(_defaultLookbackWindow);
       final cutoffMillis = BigInt.from(cutoffTime.millisecondsSinceEpoch);
 
-      final newWelcomes = welcomes.where((welcome) {
-        // Compare BigInt timestamps directly
-        return welcome.createdAt > cutoffMillis;
-      }).toList();
+      final newWelcomes =
+          welcomes.where((welcome) {
+            // Compare BigInt timestamps directly
+            return welcome.createdAt > cutoffMillis;
+          }).toList();
 
       _logger.fine(
         'Filtered ${newWelcomes.length} new invite(s) from ${welcomes.length} total for account $activePubkey '
