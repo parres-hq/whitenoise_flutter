@@ -50,7 +50,7 @@ Future<void> main() async {
     log.info('Whitenoise initialized via authProvider');
 
     await NotificationService.initialize();
-    await BackgroundSyncService.initWorkManager();
+    await BackgroundSyncService.initialize();
     await BackgroundSyncService.registerMetadataSyncTask();
   } catch (e) {
     log.severe('Initialization failed: $e');

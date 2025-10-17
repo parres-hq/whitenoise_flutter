@@ -27,6 +27,17 @@ class BackgroundSyncService {
 
   static bool _isWorkManagerInitialized = false;
   static bool _isForegroundTaskInitialized = false;
+
+  static Future<void> initialize() async {
+    try {
+      initForegroundTask();
+      await initWorkManager();
+      _logger.info('initialized successfully');
+    } catch (e) {
+      _logger.severe('initialize', e);
+    }
+  }
+
   static Future<void> initWorkManager() async {
     if (_isWorkManagerInitialized) {
       _logger.fine('workmanager already initialized');

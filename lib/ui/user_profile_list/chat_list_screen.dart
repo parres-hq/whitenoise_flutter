@@ -84,7 +84,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
     try {
       final isGranted = await NotificationService.requestPermissions();
       if (isGranted) {
-        BackgroundSyncService.initForegroundTask();
         await BackgroundSyncService.startForegroundTask();
       }
     } catch (e, st) {
