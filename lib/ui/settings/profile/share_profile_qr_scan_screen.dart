@@ -35,6 +35,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
   StreamSubscription<BarcodeCapture>? _subscription;
   Timer? _cameraRestartDebouncer;
   bool _isProcessing = false;
+  String? _lastInvalidKey;
 
   @override
   void initState() {
@@ -201,9 +202,15 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
       if (rawValue.isNotEmpty) {
         final npub = rawValue.trim();
         if (!npub.isValidPublicKey) {
-          ref.showWarningToast('Invalid public key format');
+          // Only show toast if this is a different invalid key than the last one
+          if (_lastInvalidKey != npub) {
+            _lastInvalidKey = npub;
+            ref.showWarningToast('Invalid public key format');
+          }
           return;
         }
+        // Reset the last invalid key when a valid key is scanned
+        _lastInvalidKey = null;
         _controller.stop();
         final userProfileNotifier = ref.read(userProfileProvider.notifier);
         final userProfile = await userProfileNotifier.getUserProfile(npub.trim());
