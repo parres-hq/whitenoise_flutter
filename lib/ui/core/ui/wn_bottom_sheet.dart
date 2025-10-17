@@ -238,6 +238,11 @@ class WnBottomSheet {
                     color: context.colors.primary,
                     size: 24.w,
                   ),
+                  padding: EdgeInsets.all(4.w),
+                  constraints: BoxConstraints(
+                    minWidth: 32.w,
+                    minHeight: 32.w,
+                  ),
                 ),
                 Gap(8.w),
               ],
