@@ -1,6 +1,7 @@
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart' as domain_user;
 import 'package:whitenoise/src/rust/api/messages.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 /// Converts ReactionSummary to Reaction list
 class ReactionConverter {
@@ -15,7 +16,7 @@ class ReactionConverter {
           usersMap[userReaction.user] ??
           domain_user.User(
             id: userReaction.user,
-            displayName: 'Unknown User',
+            displayName: 'shared.unknownUser'.tr(),
             nip05: '',
             publicKey: userReaction.user,
           );

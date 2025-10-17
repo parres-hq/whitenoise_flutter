@@ -14,6 +14,7 @@ import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
 import 'package:whitenoise/utils/error_handling.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 PubkeyFormatter _defaultPubkeyFormatter({String? pubkey}) => PubkeyFormatter(pubkey: pubkey);
@@ -363,7 +364,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         try {
           final npub = _pubkeyFormatter(pubkey: memberPubkey).toNpub() ?? '';
 
-          // First try to get from follows (cached contacts)
+          // First try to get from follows
           final followsNotifier = ref.read(followsProvider.notifier);
           final existingFollow = followsNotifier.findFollowByPubkey(memberPubkey);
 
@@ -393,7 +394,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
             // Create a fallback user with minimal info
             final fallbackUser = domain_user.User(
               id: npub,
-              displayName: 'Unknown User',
+              displayName: 'shared.unknownUser'.tr(),
               nip05: '',
               publicKey: npub,
             );
@@ -474,7 +475,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
             // Create a fallback user with minimal info
             final fallbackUser = domain_user.User(
               id: npub,
-              displayName: 'Unknown User',
+              displayName: 'shared.unknownUser'.tr(),
               nip05: '',
               publicKey: npub,
             );
@@ -677,7 +678,9 @@ class GroupsNotifier extends Notifier<GroupsState> {
           return 'Direct Message';
         }
 
-        return otherMember.displayName.isNotEmpty ? otherMember.displayName : 'Unknown User';
+        return otherMember.displayName.isNotEmpty
+            ? otherMember.displayName
+            : 'shared.unknownUser'.tr();
       } catch (e) {
         String logMessage =
             'Failed to get other member name for DM group ${group.mlsGroupId} - Exception: ';

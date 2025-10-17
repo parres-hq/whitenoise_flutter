@@ -1,9 +1,10 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
-class ContactModel {
+class UserProfile {
   final String publicKey;
   final String displayName;
   final String? imagePath;
@@ -13,7 +14,7 @@ class ContactModel {
   final String? lud16;
   final String? _formattedPublicKey; // Cached formatted public key
 
-  ContactModel({
+  UserProfile({
     required this.publicKey,
     required this.displayName,
     this.imagePath,
@@ -38,8 +39,8 @@ class ContactModel {
     }
   }
 
-  // Create ContactModel from Rust API Metadata with proper sanitization
-  factory ContactModel.fromMetadata({
+  // Create UserProfile from Rust API Metadata with proper sanitization
+  factory UserProfile.fromMetadata({
     required String pubkey,
     FlutterMetadata? metadata,
   }) {
@@ -54,7 +55,7 @@ class ContactModel {
     final npub = PubkeyFormatter(pubkey: pubkey).toNpub() ?? '';
 
     // Use display_name first, then fall back to name, then to Unknown User
-    String finalDisplayName = 'Unknown User';
+    String finalDisplayName = 'shared.unknownUser'.tr();
     if (displayName.isNotEmpty) {
       finalDisplayName = displayName;
     } else if (name.isNotEmpty) {
@@ -69,7 +70,7 @@ class ContactModel {
       formattedKey = pubkey.formatPublicKey();
     }
 
-    return ContactModel(
+    return UserProfile(
       displayName: finalDisplayName,
       publicKey: npub,
       imagePath: picture,
@@ -104,7 +105,7 @@ class ContactModel {
   String get avatarLetter => displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
 
   @override
-  bool operator ==(covariant ContactModel other) {
+  bool operator ==(covariant UserProfile other) {
     if (identical(this, other)) return true;
 
     final hexNpub = PubkeyFormatter(pubkey: publicKey).toHex();

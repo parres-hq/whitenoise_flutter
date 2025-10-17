@@ -1,25 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
-import 'package:whitenoise/ui/contact_list/share_invite_bottom_sheet.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/user_profile_list/share_invite_bottom_sheet.dart';
 
 import '../../test_helpers.dart';
 
 void main() {
   group('ShareInviteBottomSheet Tests', () {
-    final testContact = ContactModel(
+    final testUserProfile = UserProfile(
       displayName: 'Satoshi Nakamoto',
       publicKey: 'abc123def456789012345678901234567890123456789012345678901234567890',
       nip05: 'satoshi@nakamoto.com',
       imagePath: 'https://example.com/satoshi.png',
     );
 
-    testWidgets('displays contact display name', (WidgetTester tester) async {
+    testWidgets('displays userProfile display name', (WidgetTester tester) async {
       await tester.pumpWidget(
         createTestWidget(
           SingleChildScrollView(
-            child: ShareInviteBottomSheet(contacts: [testContact]),
+            child: ShareInviteBottomSheet(userProfiles: [testUserProfile]),
           ),
         ),
       );
@@ -31,7 +31,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           SingleChildScrollView(
-            child: ShareInviteBottomSheet(contacts: [testContact]),
+            child: ShareInviteBottomSheet(userProfiles: [testUserProfile]),
           ),
         ),
       );
@@ -43,7 +43,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           SingleChildScrollView(
-            child: ShareInviteBottomSheet(contacts: [testContact]),
+            child: ShareInviteBottomSheet(userProfiles: [testUserProfile]),
           ),
         ),
       );
@@ -60,15 +60,13 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           SingleChildScrollView(
-            child: ShareInviteBottomSheet(contacts: [testContact]),
+            child: ShareInviteBottomSheet(userProfiles: [testUserProfile]),
           ),
         ),
       );
 
       final copyButton = find.byWidgetPredicate(
-        (widget) =>
-            widget is WnImage &&
-            widget.src.contains('assets/svgs/ic_copy.svg'),
+        (widget) => widget is WnImage && widget.src.contains('assets/svgs/ic_copy.svg'),
       );
       expect(copyButton, findsOneWidget);
     });
@@ -77,7 +75,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           SingleChildScrollView(
-            child: ShareInviteBottomSheet(contacts: [testContact]),
+            child: ShareInviteBottomSheet(userProfiles: [testUserProfile]),
           ),
         ),
       );
@@ -90,7 +88,7 @@ void main() {
       await tester.pumpWidget(
         createTestWidget(
           SingleChildScrollView(
-            child: ShareInviteBottomSheet(contacts: [testContact]),
+            child: ShareInviteBottomSheet(userProfiles: [testUserProfile]),
           ),
         ),
       );

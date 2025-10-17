@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
 import 'package:whitenoise/domain/models/dm_chat_data.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
@@ -18,14 +18,14 @@ class DMChatService {
         final user = await wn_users_api.getUser(pubkey: otherMember.publicKey);
         final otherMemberPubkey = otherMember.publicKey;
         final otherMemberNpubPubkey = PubkeyFormatter(pubkey: otherMemberPubkey).toNpub() ?? '';
-        final contactModel = ContactModel.fromMetadata(
+        final userProfile = UserProfile.fromMetadata(
           pubkey: otherMemberNpubPubkey,
           metadata: user.metadata,
         );
-        final displayName = contactModel.displayName;
-        final displayImage = contactModel.imagePath ?? (otherMember.imagePath ?? '');
-        final nip05 = contactModel.nip05 ?? '';
-        final npup = contactModel.publicKey;
+        final displayName = userProfile.displayName;
+        final displayImage = userProfile.imagePath ?? (otherMember.imagePath ?? '');
+        final nip05 = userProfile.nip05 ?? '';
+        final npup = userProfile.publicKey;
         return DMChatData(
           displayName: displayName,
           displayImage: displayImage,

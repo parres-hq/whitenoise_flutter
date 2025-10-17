@@ -10,14 +10,14 @@ import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
-class UserProfile extends StatelessWidget {
+class UserProfileCard extends StatelessWidget {
   final String imageUrl;
   final String name;
   final String nip05;
   final String pubkey;
   final WidgetRef ref;
 
-  const UserProfile({
+  const UserProfileCard({
     super.key,
     this.imageUrl = '',
     this.nip05 = '',

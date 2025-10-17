@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -27,14 +27,14 @@ class WelcomeTile extends ConsumerWidget {
       return const SizedBox.shrink();
     }
 
-    final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+    final userProfileNotifier = ref.read(userProfileProvider.notifier);
 
     return FutureBuilder(
-      future: userProfileDataNotifier.getUserProfileData(welcome.welcomer),
+      future: userProfileNotifier.getUserProfile(welcome.welcomer),
       builder: (context, snapshot) {
-        final welcomerContact = snapshot.data;
-        final welcomerName = welcomerContact?.displayName ?? 'chats.unknownUser'.tr();
-        final welcomerImageUrl = welcomerContact?.imagePath ?? '';
+        final welcomerUserProfile = snapshot.data;
+        final welcomerName = welcomerUserProfile?.displayName ?? 'chats.unknownUser'.tr();
+        final welcomerImageUrl = welcomerUserProfile?.imagePath ?? '';
 
         return InkWell(
           onTap: () => Routes.goToChat(context, welcome.mlsGroupId, inviteId: welcome.id),

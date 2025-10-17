@@ -5,10 +5,10 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/toast_message_provider.dart';
-import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
-import 'package:whitenoise/ui/chat/widgets/contact_info.dart';
+import 'package:whitenoise/ui/chat/widgets/user_profile_info.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -55,7 +55,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
         title:
             isDMInvite
                 ? DMAppBarTitle(welcome: welcome)
-                : ContactInfo(
+                : UserProfileInfo(
                   title: welcome.groupName,
                   image: '',
                 ),
@@ -242,14 +242,14 @@ class DMInviteHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+    final userProfileNotifier = ref.read(userProfileProvider.notifier);
 
     return FutureBuilder(
-      future: userProfileDataNotifier.getUserProfileData(welcome.welcomer),
+      future: userProfileNotifier.getUserProfile(welcome.welcomer),
       builder: (context, snapshot) {
-        final welcomerContact = snapshot.data;
-        final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
-        final welcomerImageUrl = welcomerContact?.imagePath ?? '';
+        final welcomerUser = snapshot.data;
+        final welcomerName = welcomerUser?.displayName ?? 'shared.unknownUser'.tr();
+        final welcomerImageUrl = welcomerUser?.imagePath ?? '';
 
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -273,7 +273,7 @@ class DMInviteHeader extends ConsumerWidget {
               ),
               Gap(4.h),
               Text(
-                welcomerContact?.nip05 ?? '',
+                welcomerUser?.nip05 ?? '',
                 style: TextStyle(
                   fontSize: 14.sp,
                   color: context.colors.mutedForeground,
@@ -330,22 +330,22 @@ class DMAppBarTitle extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProfileDataNotifier = ref.read(userProfileDataProvider.notifier);
+    final userProfileNotifier = ref.read(userProfileProvider.notifier);
 
     return FutureBuilder(
-      future: userProfileDataNotifier.getUserProfileData(welcome.welcomer),
+      future: userProfileNotifier.getUserProfile(welcome.welcomer),
       builder: (context, snapshot) {
         final isLoading = snapshot.connectionState == ConnectionState.waiting;
 
         if (isLoading) {
-          return const ContactInfo.loading();
+          return const UserProfileInfo.loading();
         }
 
-        final welcomerContact = snapshot.data;
-        final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
-        final welcomerImageUrl = welcomerContact?.imagePath ?? '';
+        final welcomerUser = snapshot.data;
+        final welcomerName = welcomerUser?.displayName ?? 'shared.unknownUser'.tr();
+        final welcomerImageUrl = welcomerUser?.imagePath ?? '';
 
-        return ContactInfo(
+        return UserProfileInfo(
           title: welcomerName,
           image: welcomerImageUrl,
         );

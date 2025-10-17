@@ -1,19 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:whitenoise/config/providers/user_profile_data_provider.dart';
-import 'package:whitenoise/domain/models/contact_model.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
 import 'package:whitenoise/src/rust/api/users.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 final testNpubPubkey = 'npub1zygjyg3nxdzyg424ven8waug3zvejqqq424thw7venwammhwlllsj2q4yf';
 final testHexPubkey = '1111222233334444555566667777888899990000aaaabbbbccccddddeeeeffff';
 
-ContactModel mockContactModelFromMetadata({
+UserProfile mockUserProfileFromMetadata({
   required String pubkey,
   FlutterMetadata? metadata,
 }) {
   final npub = pubkey == testHexPubkey ? testNpubPubkey : pubkey;
-  return ContactModel.fromMetadata(
+  return UserProfile.fromMetadata(
     pubkey: npub,
     metadata: metadata,
   );
@@ -51,7 +52,7 @@ class MockWnUsersApi {
 }
 
 void main() {
-  group('UserProfileDataProvider Tests', () {
+  group('UserProfileProvider Tests', () {
     late ProviderContainer container;
     late MockWnUsersApi mockWnUsersApi;
     final testMetadata = const FlutterMetadata(
@@ -74,10 +75,10 @@ void main() {
     ProviderContainer createContainer() {
       return ProviderContainer(
         overrides: [
-          userProfileDataProvider.overrideWith(
-            () => UserProfileDataNotifier(
+          userProfileProvider.overrideWith(
+            () => UserProfileNotifier(
               wnApiGetUserFn: mockWnUsersApi.getUser,
-              getContactModelFromMetadataFn: mockContactModelFromMetadata,
+              getUserProfileFromMetadataFn: mockUserProfileFromMetadata,
             ),
           ),
         ],
@@ -95,12 +96,12 @@ void main() {
 
     group('Initial State', () {
       test('notifier should be accessible', () {
-        final notifier = container.read(userProfileDataProvider.notifier);
-        expect(notifier, isA<UserProfileDataNotifier>());
+        final notifier = container.read(userProfileProvider.notifier);
+        expect(notifier, isA<UserProfileNotifier>());
       });
     });
 
-    group('getUserProfileData', () {
+    group('getUserProfile', () {
       group('when user exists', () {
         setUp(() {
           mockWnUsersApi.addUser(testHexPubkey, testUser);
@@ -108,8 +109,8 @@ void main() {
 
         group('with npub pubkey', () {
           test('returns expected user profile data', () async {
-            final notifier = container.read(userProfileDataProvider.notifier);
-            final result = await notifier.getUserProfileData(testNpubPubkey);
+            final notifier = container.read(userProfileProvider.notifier);
+            final result = await notifier.getUserProfile(testNpubPubkey);
 
             expect(result, isNotNull);
             expect(result.publicKey, testNpubPubkey);
@@ -124,8 +125,8 @@ void main() {
 
         group('with hex pubkey', () {
           test('returns expected user profile data', () async {
-            final notifier = container.read(userProfileDataProvider.notifier);
-            final result = await notifier.getUserProfileData(testHexPubkey);
+            final notifier = container.read(userProfileProvider.notifier);
+            final result = await notifier.getUserProfile(testHexPubkey);
 
             expect(result, isNotNull);
             expect(result.publicKey, testNpubPubkey);
@@ -156,12 +157,12 @@ void main() {
 
         group('with npub pubkey', () {
           test(
-            'returns data with "Unknown User" for display name',
+            'returns data with Unknown User for display name',
             () async {
-              final notifier = container.read(userProfileDataProvider.notifier);
-              final result = await notifier.getUserProfileData(testNpubPubkey);
+              final notifier = container.read(userProfileProvider.notifier);
+              final result = await notifier.getUserProfile(testNpubPubkey);
               expect(result, isNotNull);
-              expect(result.displayName, 'Unknown User');
+              expect(result.displayName, 'shared.unknownUser'.tr());
               expect(result.about, 'Bio without name');
             },
           );
@@ -171,10 +172,10 @@ void main() {
           test(
             'returns data with "Unknown User" for display name',
             () async {
-              final notifier = container.read(userProfileDataProvider.notifier);
-              final result = await notifier.getUserProfileData(testHexPubkey);
+              final notifier = container.read(userProfileProvider.notifier);
+              final result = await notifier.getUserProfile(testHexPubkey);
               expect(result, isNotNull);
-              expect(result.displayName, 'Unknown User');
+              expect(result.displayName, 'shared.unknownUser'.tr());
               expect(result.about, 'Bio without name');
             },
           );
@@ -186,9 +187,9 @@ void main() {
           mockWnUsersApi.setThrowError(Exception('API error'));
         });
         test('throws exception', () async {
-          final notifier = container.read(userProfileDataProvider.notifier);
+          final notifier = container.read(userProfileProvider.notifier);
           expect(
-            () async => await notifier.getUserProfileData(testNpubPubkey),
+            () async => await notifier.getUserProfile(testNpubPubkey),
             throwsException,
           );
         });

@@ -3,20 +3,20 @@ import 'package:gap/gap.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 
-class ContactInfo extends StatelessWidget {
+class UserProfileInfo extends StatelessWidget {
   final String? image;
   final String? title;
   final VoidCallback? onTap;
   final bool isLoading;
 
-  const ContactInfo({
+  const UserProfileInfo({
     super.key,
     required this.title,
     required this.image,
     this.onTap,
   }) : isLoading = false;
 
-  const ContactInfo.loading({super.key})
+  const UserProfileInfo.loading({super.key})
     : image = null,
       title = null,
       onTap = null,

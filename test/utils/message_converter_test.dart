@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart' as domain_user;
 import 'package:whitenoise/src/rust/api/messages.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/message_converter.dart';
 
 bool mockPubkeyUtilsIsMe({required String myPubkey, required String otherPubkey}) {
@@ -128,7 +129,7 @@ void main() {
           );
 
           expect(result.sender.id, unknownUserPubkey);
-          expect(result.sender.displayName, 'Unknown User');
+          expect(result.sender.displayName, 'shared.unknownUser'.tr());
           expect(result.sender.nip05, '');
           expect(result.sender.publicKey, unknownUserPubkey);
         });
