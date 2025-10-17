@@ -2461,8 +2461,8 @@ dependencies = [
 
 [[package]]
 name = "mdk-core"
-version = "0.5.1"
-source = "git+https://github.com/parres-hq/mdk?rev=f9550e69be4f37919e95c84ee6c81b0e70d09b08#f9550e69be4f37919e95c84ee6c81b0e70d09b08"
+version = "0.5.2"
+source = "git+https://github.com/parres-hq/mdk?rev=f46875ec6fbe1cd616e9dfb4d2aa10f56044e58c#f46875ec6fbe1cd616e9dfb4d2aa10f56044e58c"
 dependencies = [
  "blurhash",
  "chacha20poly1305",
@@ -2486,7 +2486,7 @@ dependencies = [
 [[package]]
 name = "mdk-sqlite-storage"
 version = "0.5.1"
-source = "git+https://github.com/parres-hq/mdk?rev=f9550e69be4f37919e95c84ee6c81b0e70d09b08#f9550e69be4f37919e95c84ee6c81b0e70d09b08"
+source = "git+https://github.com/parres-hq/mdk?rev=f46875ec6fbe1cd616e9dfb4d2aa10f56044e58c#f46875ec6fbe1cd616e9dfb4d2aa10f56044e58c"
 dependencies = [
  "mdk-storage-traits",
  "nostr",
@@ -2502,7 +2502,7 @@ dependencies = [
 [[package]]
 name = "mdk-storage-traits"
 version = "0.5.1"
-source = "git+https://github.com/parres-hq/mdk?rev=f9550e69be4f37919e95c84ee6c81b0e70d09b08#f9550e69be4f37919e95c84ee6c81b0e70d09b08"
+source = "git+https://github.com/parres-hq/mdk?rev=f46875ec6fbe1cd616e9dfb4d2aa10f56044e58c#f46875ec6fbe1cd616e9dfb4d2aa10f56044e58c"
 dependencies = [
  "nostr",
  "openmls",
@@ -5093,7 +5093,7 @@ checksum = "a751b3277700db47d3e574514de2eced5e54dc8a5436a3bf7a0b248b2cee16f3"
 [[package]]
 name = "whitenoise"
 version = "0.1.0"
-source = "git+https://github.com/parres-hq/whitenoise?rev=063f7b270d0b4bc32b891bc323197e07b3c6b752#063f7b270d0b4bc32b891bc323197e07b3c6b752"
+source = "git+https://github.com/parres-hq/whitenoise?rev=474fbaecaa92a5e09e76da2cde7c30502a60f9a4#474fbaecaa92a5e09e76da2cde7c30502a60f9a4"
 dependencies = [
  "anyhow",
  "async-trait",
