@@ -15,7 +15,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
   List<User> groupAdmins = [];
   bool isLoadingMembers = false;
   String? currentUserNpub;
-
+  String? groupImagePath;
   @override
   void initState() {
     super.initState();
@@ -127,7 +127,9 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
   @override
   Widget build(BuildContext context) {
     final groupDetails = ref.watch(groupsProvider).groupsMap?[widget.groupId];
+    final groupsNotifier = ref.watch(groupsProvider.notifier);
     ref.listen(groupsProvider, (previous, next) {
+      groupImagePath = groupsNotifier.getCachedGroupImagePath(widget.groupId);
       _loadMembers();
     });
     final isAdmin = groupAdmins.any((admin) {
@@ -146,7 +148,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
         children: [
           Gap(64.h),
           WnAvatar(
-            imageUrl: '',
+            imageUrl: groupImagePath ?? '',
             displayName: groupDetails?.name ?? 'chats.unknownGroup'.tr(),
             size: 96.w,
             showBorder: true,
