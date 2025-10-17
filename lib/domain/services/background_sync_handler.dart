@@ -156,7 +156,7 @@ class BackgroundSyncHandler extends TaskHandler {
         try {
           await MessageSyncService.markInvitesAsNotified(
             activePubkey: accountPubkey,
-            inviteIds: newWelcomes.map((w) => w.id).toList(),
+            inviteIds: newWelcomes.map((welcome) => welcome.id).toList(),
           );
         } catch (e, stackTrace) {
           _log.warning(
@@ -170,7 +170,7 @@ class BackgroundSyncHandler extends TaskHandler {
 
       await MessageSyncService.cleanupNotifiedInvites(
         activePubkey: accountPubkey,
-        currentPendingIds: welcomes.map((w) => w.id).toSet(),
+        currentPendingIds: welcomes.map((welcome) => welcome.id).toSet(),
       );
     } catch (e, stackTrace) {
       _log.warning('Error syncing invites for account $accountPubkey: $e', e, stackTrace);
