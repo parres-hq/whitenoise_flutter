@@ -394,4 +394,68 @@ class MessageSyncService {
       _logger.warning('Failed to set last invite sync time for account $activePubkey', e);
     }
   }
+
+  /// Sends a summary notification for multiple messages across multiple groups.
+  /// Used when there are too many messages (10+) to prevent notification spam.
+  static Future<void> notifyMessageSummary({
+    required int totalMessages,
+    required int groupCount,
+  }) async {
+    try {
+      final String body = groupCount == 1
+          ? '$totalMessages new messages'
+          : '$totalMessages new messages in $groupCount chats';
+
+      await NotificationService.showMessageNotification(
+        id: await NotificationIdService.getIdFor(key: 'message_summary'),
+        title: 'New Messages',
+        body: body,
+        groupKey: 'message_summary',
+        payload: jsonEncode({
+          'type': 'message_summary',
+          'totalMessages': totalMessages,
+          'groupCount': groupCount,
+        }),
+      );
+      _logger.info('Summary notification shown: $totalMessages messages in $groupCount groups');
+    } catch (e) {
+      _logger.warning('Failed to show summary notification', e);
+    }
+  }
+
+  /// Sends a summary notification for multiple messages in a single group.
+  /// Used when a group has 4+ new messages to prevent individual notification spam.
+  static Future<void> notifyGroupSummary({
+    required String groupId,
+    required String activePubkey,
+    required int messageCount,
+  }) async {
+    if (groupId.isEmpty) {
+      _logger.warning('Empty groupId provided to notifyGroupSummary');
+      return;
+    }
+    if (activePubkey.isEmpty) {
+      _logger.warning('Empty activePubkey provided to notifyGroupSummary');
+      return;
+    }
+
+    try {
+      final String groupDisplayName = await getGroupDisplayName(groupId, activePubkey);
+
+      await NotificationService.showMessageNotification(
+        id: await NotificationIdService.getIdFor(key: 'group_summary:$groupId'),
+        title: groupDisplayName,
+        body: '$messageCount new messages',
+        groupKey: groupId,
+        payload: jsonEncode({
+          'type': 'group_summary',
+          'groupId': groupId,
+          'messageCount': messageCount,
+        }),
+      );
+      _logger.info('Group summary notification shown: $messageCount messages in $groupDisplayName');
+    } catch (e) {
+      _logger.warning('Failed to show group summary notification for group $groupId', e);
+    }
+  }
 }

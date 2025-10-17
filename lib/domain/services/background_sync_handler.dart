@@ -4,9 +4,22 @@ import 'package:whitenoise/domain/services/message_sync_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/src/rust/api/messages.dart' show fetchAggregatedMessagesForGroup;
+import 'package:whitenoise/src/rust/api/messages.dart' show ChatMessage, fetchAggregatedMessagesForGroup;
 import 'package:whitenoise/src/rust/api/welcomes.dart' show pendingWelcomes;
 import 'package:whitenoise/src/rust/frb_generated.dart';
+
+/// Internal class to batch messages for a single group.
+class _GroupMessageBatch {
+  final String groupId;
+  final String accountPubkey;
+  final List<ChatMessage> messages;
+
+  _GroupMessageBatch({
+    required this.groupId,
+    required this.accountPubkey,
+    required this.messages,
+  });
+}
 
 class BackgroundSyncHandler extends TaskHandler {
   final _log = Logger('BackgroundSyncHandler');
@@ -26,7 +39,8 @@ class BackgroundSyncHandler extends TaskHandler {
   Future<void> onRepeatEvent(DateTime timestamp) async {
     try {
       _log.fine('Background sync started at $timestamp');
-      await _syncMessagesForAllAccounts();
+      final messageBatch = await _collectNewMessages();
+      await _sendBatchedNotifications(messageBatch);
       await _syncInvitesForAllAccounts();
       _log.fine('Background sync completed at $timestamp');
     } catch (e, stackTrace) {
@@ -35,44 +49,62 @@ class BackgroundSyncHandler extends TaskHandler {
     FlutterForegroundTask.sendDataToMain(timestamp.millisecondsSinceEpoch);
   }
 
-  Future<void> _syncMessagesForAllAccounts() async {
+  /// Collects all new messages from all accounts and groups without sending notifications.
+  /// Returns a map of groupId -> list of new messages for batching.
+  Future<Map<String, _GroupMessageBatch>> _collectNewMessages() async {
+    final Map<String, _GroupMessageBatch> messageBatch = {};
+    
     try {
       final accounts = await getAccounts();
       if (accounts.isEmpty) {
         _log.fine('No accounts found, skipping message sync');
-        return;
+        return messageBatch;
       }
-      _log.fine('Syncing messages for ${accounts.length} account(s)');
+      
+      _log.fine('Collecting new messages for ${accounts.length} account(s)');
+      
       for (final account in accounts) {
         try {
-          await _syncMessagesForAccount(account.pubkey);
+          await _collectMessagesForAccount(account.pubkey, messageBatch);
         } catch (e, stackTrace) {
-          _log.warning('Message sync failed for ${account.pubkey}: $e', e, stackTrace);
+          _log.warning('Message collection failed for ${account.pubkey}: $e', e, stackTrace);
         }
       }
+      
+      final totalMessages = messageBatch.values.fold(0, (sum, batch) => sum + batch.messages.length);
+      _log.info('Collected $totalMessages new message(s) across ${messageBatch.length} group(s)');
+      
     } catch (e, stackTrace) {
-      _log.warning('Error syncing messages for all accounts: $e', e, stackTrace);
+      _log.warning('Error collecting messages for all accounts: $e', e, stackTrace);
     }
+    
+    return messageBatch;
   }
 
-  Future<void> _syncMessagesForAccount(String accountPubkey) async {
+  Future<void> _collectMessagesForAccount(
+    String accountPubkey,
+    Map<String, _GroupMessageBatch> messageBatch,
+  ) async {
     try {
       final groups = await activeGroups(pubkey: accountPubkey);
       _log.fine('Found ${groups.length} active group(s) for account $accountPubkey');
+      
       for (final group in groups) {
-        await _syncMessagesForGroup(
+        await _collectMessagesForGroup(
           accountPubkey: accountPubkey,
           groupId: group.mlsGroupId,
+          messageBatch: messageBatch,
         );
       }
     } catch (e, stackTrace) {
-      _log.warning('Error syncing messages for account $accountPubkey: $e', e, stackTrace);
+      _log.warning('Error collecting messages for account $accountPubkey: $e', e, stackTrace);
     }
   }
 
-  Future<void> _syncMessagesForGroup({
+  Future<void> _collectMessagesForGroup({
     required String accountPubkey,
     required String groupId,
+    required Map<String, _GroupMessageBatch> messageBatch,
   }) async {
     try {
       final lastSyncTime = await MessageSyncService.getLastSyncTime(
@@ -90,30 +122,114 @@ class BackgroundSyncHandler extends TaskHandler {
         groupId,
         lastSyncTime,
       );
+      
       if (newMessages.isNotEmpty) {
-        _log.info('Found ${newMessages.length} new message(s) in group $groupId');
-        await MessageSyncService.notifyNewMessages(
+        _log.fine('Found ${newMessages.length} new message(s) in group $groupId');
+        messageBatch[groupId] = _GroupMessageBatch(
           groupId: groupId,
-          activePubkey: accountPubkey,
-          newMessages: newMessages,
+          accountPubkey: accountPubkey,
+          messages: newMessages,
         );
-        try {
-          await MessageSyncService.setLastSyncTime(
-            activePubkey: accountPubkey,
-            groupId: groupId,
-            time: DateTime.now(),
-          );
-        } catch (e, stackTrace) {
-          _log.warning(
-            'Failed to update sync time for group $groupId after notification. '
-            'This may cause duplicate notifications on next sync: $e',
-            e,
-            stackTrace,
-          );
-        }
       }
     } catch (e, stackTrace) {
-      _log.warning('Error syncing messages for group $groupId: $e', e, stackTrace);
+      _log.warning('Error collecting messages for group $groupId: $e', e, stackTrace);
+    }
+  }
+
+  /// Sends notifications based on the collected message batch.
+  /// Uses smart batching to prevent notification spam:
+  /// - 1-3 messages per group: Individual notifications
+  /// - 4+ messages per group: Summary notification for that group
+  /// - 10+ total messages: Single summary notification for all
+  Future<void> _sendBatchedNotifications(Map<String, _GroupMessageBatch> messageBatch) async {
+    if (messageBatch.isEmpty) {
+      return;
+    }
+
+    final totalMessages = messageBatch.values.fold(0, (sum, batch) => sum + batch.messages.length);
+    final groupCount = messageBatch.length;
+
+    // Strategy 1: If too many messages overall (10+), send a single summary
+    if (totalMessages >= 10) {
+      await _sendOverallSummaryNotification(totalMessages, groupCount);
+      await _updateAllSyncTimes(messageBatch);
+      return;
+    }
+
+    // Strategy 2: Send per-group notifications (individual or summary)
+    for (final batch in messageBatch.values) {
+      try {
+        if (batch.messages.length <= 3) {
+          // Send individual notifications for small batches
+          await MessageSyncService.notifyNewMessages(
+            groupId: batch.groupId,
+            activePubkey: batch.accountPubkey,
+            newMessages: batch.messages,
+          );
+        } else {
+          // Send summary notification for larger batches
+          await _sendGroupSummaryNotification(batch);
+        }
+
+        // Update sync time after successful notification
+        await MessageSyncService.setLastSyncTime(
+          activePubkey: batch.accountPubkey,
+          groupId: batch.groupId,
+          time: DateTime.now(),
+        );
+      } catch (e, stackTrace) {
+        _log.warning(
+          'Failed to send notifications for group ${batch.groupId}: $e',
+          e,
+          stackTrace,
+        );
+      }
+    }
+  }
+
+  /// Sends a single summary notification for all new messages across all groups.
+  Future<void> _sendOverallSummaryNotification(int totalMessages, int groupCount) async {
+    try {
+      await MessageSyncService.notifyMessageSummary(
+        totalMessages: totalMessages,
+        groupCount: groupCount,
+      );
+      _log.info('Sent overall summary notification: $totalMessages messages in $groupCount groups');
+    } catch (e, stackTrace) {
+      _log.warning('Failed to send overall summary notification: $e', e, stackTrace);
+    }
+  }
+
+  /// Sends a summary notification for a single group with many messages.
+  Future<void> _sendGroupSummaryNotification(_GroupMessageBatch batch) async {
+    try {
+      await MessageSyncService.notifyGroupSummary(
+        groupId: batch.groupId,
+        activePubkey: batch.accountPubkey,
+        messageCount: batch.messages.length,
+      );
+      _log.info('Sent group summary notification: ${batch.messages.length} messages in group ${batch.groupId}');
+    } catch (e, stackTrace) {
+      _log.warning('Failed to send group summary notification: $e', e, stackTrace);
+    }
+  }
+
+  /// Updates sync times for all groups in the batch.
+  Future<void> _updateAllSyncTimes(Map<String, _GroupMessageBatch> messageBatch) async {
+    for (final batch in messageBatch.values) {
+      try {
+        await MessageSyncService.setLastSyncTime(
+          activePubkey: batch.accountPubkey,
+          groupId: batch.groupId,
+          time: DateTime.now(),
+        );
+      } catch (e, stackTrace) {
+        _log.warning(
+          'Failed to update sync time for group ${batch.groupId}: $e',
+          e,
+          stackTrace,
+        );
+      }
     }
   }
 
