@@ -93,11 +93,21 @@ class BackgroundSyncHandler extends TaskHandler {
           activePubkey: accountPubkey,
           newMessages: newMessages,
         );
-        await MessageSyncService.setLastSyncTime(
-          activePubkey: accountPubkey,
-          groupId: groupId,
-          time: DateTime.now(),
-        );
+        try {
+          await MessageSyncService.setLastSyncTime(
+            activePubkey: accountPubkey,
+            groupId: groupId,
+            time: DateTime.now(),
+          );
+        } catch (e, stackTrace) {
+          _log.warning(
+            'Failed to update sync time for group $groupId after notification. '
+            'This may cause duplicate notifications on next sync: $e',
+            e,
+            stackTrace,
+          );
+          rethrow;
+        }
       }
     } catch (e, stackTrace) {
       _log.warning('Error syncing messages for group $groupId: $e', e, stackTrace);
@@ -140,10 +150,20 @@ class BackgroundSyncHandler extends TaskHandler {
           newWelcomes: newWelcomes,
         );
 
-        await MessageSyncService.markInvitesAsNotified(
-          activePubkey: accountPubkey,
-          inviteIds: newWelcomes.map((w) => w.id).toList(),
-        );
+        try {
+          await MessageSyncService.markInvitesAsNotified(
+            activePubkey: accountPubkey,
+            inviteIds: newWelcomes.map((w) => w.id).toList(),
+          );
+        } catch (e, stackTrace) {
+          _log.warning(
+            'Failed to mark invites as notified for account $accountPubkey after notification. '
+            'This may cause duplicate notifications on next sync: $e',
+            e,
+            stackTrace,
+          );
+          rethrow;
+        }
       }
 
       await MessageSyncService.cleanupNotifiedInvites(

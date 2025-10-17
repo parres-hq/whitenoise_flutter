@@ -57,7 +57,7 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
     try {
       await BackgroundSyncService.registerMetadataSyncTask();
       if (mounted) {
-        ref.showSuccessToast('background tasks registered successfully');
+        ref.showSuccessToast('metadata sync task registered successfully');
         await _checkTasksStatus();
       }
     } catch (e) {

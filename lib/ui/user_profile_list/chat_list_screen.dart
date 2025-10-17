@@ -87,7 +87,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
         await BackgroundSyncService.startForegroundTask();
       }
     } catch (e, st) {
-      _log.severe('Failed to set up foreground notification: $e $st');
+      _log.severe('Failed to set up foreground notification', e, st);
     }
   }
 

@@ -17,7 +17,7 @@ private let metadataRefreshTaskId = "com.whitenoise.metadata_refresh"
     FlutterLocalNotificationsPlugin.setPluginRegistrantCallback { (registry) in
         GeneratedPluginRegistrant.register(with: registry)
     }
-        SwiftFlutterForegroundTaskPlugin.setPluginRegistrantCallback { registry in
+    SwiftFlutterForegroundTaskPlugin.setPluginRegistrantCallback { registry in
       GeneratedPluginRegistrant.register(with: registry)
     }
   

@@ -388,11 +388,6 @@ class MessageSyncService {
       return;
     }
 
-    if (currentPendingIds.isEmpty) {
-      _logger.fine('Skipping cleanup: no pending invites for account $activePubkey');
-      return;
-    }
-
     await _inviteTrackingLock.synchronized(() async {
       try {
         final prefs = await _preferences;
@@ -410,7 +405,8 @@ class MessageSyncService {
         if (cleanedIds.length != notifiedIds.length) {
           await prefs.setStringList(key, cleanedIds);
           _logger.fine(
-            'Cleaned up ${notifiedIds.length - cleanedIds.length} notified invite ID(s) for account $activePubkey',
+            'Cleaned up ${notifiedIds.length - cleanedIds.length} notified invite ID(s) for account $activePubkey '
+            '(${cleanedIds.isEmpty ? "cleared all" : "${cleanedIds.length} remaining"})',
           );
         }
       } catch (e) {

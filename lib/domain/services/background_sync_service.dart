@@ -118,9 +118,9 @@ class BackgroundSyncService {
   }
 
   static Future<void> registerMetadataSyncTask() async {
-    _logger.info('Metadata refresh task  registering');
+    _logger.info('Metadata refresh task registering');
     if (!_isWorkManagerInitialized) {
-      _logger.info('Metadata refresh task  !registering');
+      _logger.info('Metadata refresh task not yet registered - initializing WorkManager first');
 
       await initWorkManager();
     }

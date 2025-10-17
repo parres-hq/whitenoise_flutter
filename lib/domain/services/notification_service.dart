@@ -88,6 +88,12 @@ class NotificationService {
       final NotificationPermission notificationPermission =
           await FlutterForegroundTask.checkNotificationPermission();
 
+      if (notificationPermission == NotificationPermission.permanently_denied) {
+        _logger.warning('Notification permission permanently denied');
+        // TODO: Show UI feedback to user to open device settings, if needed.
+        // TODO: UI feedback design needed (good UX to make it not too intrusive)
+        return false;
+      }
       if (notificationPermission != NotificationPermission.granted) {
         final status = await FlutterForegroundTask.requestNotificationPermission();
         if (status != NotificationPermission.granted) {
