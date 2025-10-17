@@ -106,7 +106,6 @@ class BackgroundSyncHandler extends TaskHandler {
             e,
             stackTrace,
           );
-          rethrow;
         }
       }
     } catch (e, stackTrace) {
