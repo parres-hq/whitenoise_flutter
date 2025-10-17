@@ -55,7 +55,6 @@ class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // QR Code Scanner Area
         Container(
           height: 300.h,
           width: double.infinity,
