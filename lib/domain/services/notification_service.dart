@@ -84,28 +84,35 @@ class NotificationService {
   }
 
   static Future<bool> requestPermissions() async {
-    bool isNotificationGranted = false;
     try {
       final NotificationPermission notificationPermission =
           await FlutterForegroundTask.checkNotificationPermission();
+
       if (notificationPermission != NotificationPermission.granted) {
         final status = await FlutterForegroundTask.requestNotificationPermission();
-        isNotificationGranted = status == NotificationPermission.granted;
-      } else {
-        isNotificationGranted = true;
+        if (status != NotificationPermission.granted) {
+          _logger.warning('Notification permission denied');
+          return false;
+        }
       }
+
       if (Platform.isAndroid) {
-        if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
-          await FlutterForegroundTask.requestIgnoreBatteryOptimization();
-        }
-        if (!await FlutterForegroundTask.canScheduleExactAlarms) {
-          await FlutterForegroundTask.openAlarmsAndRemindersSettings();
+        try {
+          if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+            await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+          }
+          if (!await FlutterForegroundTask.canScheduleExactAlarms) {
+            await FlutterForegroundTask.openAlarmsAndRemindersSettings();
+          }
+        } catch (e) {
+          _logger.warning('Failed to configure Android-specific settings: $e');
         }
       }
-      return isNotificationGranted;
+
+      return true;
     } catch (e) {
-      _logger.warning('Notification Permission not granted, cannot show notification');
-      return isNotificationGranted;
+      _logger.severe('Failed to request notification permissions: $e');
+      return false;
     }
   }
 

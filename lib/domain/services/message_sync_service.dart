@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:synchronized/synchronized.dart';
 import 'package:whitenoise/domain/services/last_read_service.dart';
 import 'package:whitenoise/domain/services/notification_id_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
@@ -22,6 +23,9 @@ class MessageSyncService {
   static const Duration _messageSyncBuffer = Duration(seconds: 1);
   static const Duration _defaultLookbackWindow = Duration(hours: 1);
   static const int _pubkeyDisplayLength = 8;
+
+  // Lock to prevent race conditions in SharedPreferences read-modify-write operations
+  static final _inviteTrackingLock = Lock();
 
   static Future<SharedPreferences> get _preferences async {
     _prefs ??= await SharedPreferences.getInstance();
@@ -218,7 +222,7 @@ class MessageSyncService {
           ),
           title: groupDisplayName,
           body: message.content,
-          groupKey: groupId, // Group notifications by chat
+          groupKey: groupId,
           payload: jsonEncode({
             'type': 'new_message',
             'groupId': groupId,
@@ -244,7 +248,7 @@ class MessageSyncService {
           ),
           title: 'New Invitations',
           body: 'New group invitation',
-          groupKey: 'invites', // Group all invite notifications together
+          groupKey: 'invites',
           payload: jsonEncode({
             'type': 'invites_sync',
             'welcomeId': welcome.id,
@@ -336,11 +340,13 @@ class MessageSyncService {
       return newWelcomes;
     } catch (e) {
       _logger.warning('Failed to filter new invites for account $activePubkey', e);
-      return welcomes;
+      return [];
     }
   }
 
   /// Marks invites as notified to prevent duplicate notifications.
+  ///
+  /// Uses a lock to ensure atomic read-modify-write operations.
   static Future<void> markInvitesAsNotified({
     required String activePubkey,
     required List<String> inviteIds,
@@ -350,22 +356,29 @@ class MessageSyncService {
       return;
     }
 
-    try {
-      final prefs = await _preferences;
-      final key = 'bg_sync_notified_invites_$activePubkey';
-      final notifiedIds = prefs.getStringList(key) ?? [];
-      final updatedIds = {...notifiedIds, ...inviteIds}.toList();
-
-      await prefs.setStringList(key, updatedIds);
-      _logger.fine('Marked ${inviteIds.length} invite(s) as notified for account $activePubkey');
-    } catch (e) {
-      _logger.warning('Failed to mark invites as notified for account $activePubkey', e);
+    if (inviteIds.isEmpty) {
+      return;
     }
+
+    await _inviteTrackingLock.synchronized(() async {
+      try {
+        final prefs = await _preferences;
+        final key = 'bg_sync_notified_invites_$activePubkey';
+        final notifiedIds = prefs.getStringList(key) ?? [];
+        final updatedIds = {...notifiedIds, ...inviteIds}.toList();
+
+        await prefs.setStringList(key, updatedIds);
+        _logger.fine('Marked ${inviteIds.length} invite(s) as notified for account $activePubkey');
+      } catch (e) {
+        _logger.warning('Failed to mark invites as notified for account $activePubkey', e);
+      }
+    });
   }
 
   /// Cleans up notified invite IDs that are no longer pending.
   ///
   /// This prevents the stored list from growing indefinitely.
+  /// Uses a lock to ensure atomic read-modify-write operations.
   static Future<void> cleanupNotifiedInvites({
     required String activePubkey,
     required Set<String> currentPendingIds,
@@ -375,23 +388,34 @@ class MessageSyncService {
       return;
     }
 
-    try {
-      final prefs = await _preferences;
-      final key = 'bg_sync_notified_invites_$activePubkey';
-      final notifiedIds = prefs.getStringList(key) ?? [];
-      final notifiedSet = notifiedIds.toSet();
-
-      // Keep only IDs that are still pending
-      final cleanedIds = notifiedSet.intersection(currentPendingIds).toList();
-
-      if (cleanedIds.length != notifiedIds.length) {
-        await prefs.setStringList(key, cleanedIds);
-        _logger.fine(
-          'Cleaned up ${notifiedIds.length - cleanedIds.length} notified invite ID(s) for account $activePubkey',
-        );
-      }
-    } catch (e) {
-      _logger.warning('Failed to cleanup notified invites for account $activePubkey', e);
+    if (currentPendingIds.isEmpty) {
+      _logger.fine('Skipping cleanup: no pending invites for account $activePubkey');
+      return;
     }
+
+    await _inviteTrackingLock.synchronized(() async {
+      try {
+        final prefs = await _preferences;
+        final key = 'bg_sync_notified_invites_$activePubkey';
+        final notifiedIds = prefs.getStringList(key) ?? [];
+
+        if (notifiedIds.isEmpty) {
+          return;
+        }
+
+        final notifiedSet = notifiedIds.toSet();
+
+        final cleanedIds = notifiedSet.intersection(currentPendingIds).toList();
+
+        if (cleanedIds.length != notifiedIds.length) {
+          await prefs.setStringList(key, cleanedIds);
+          _logger.fine(
+            'Cleaned up ${notifiedIds.length - cleanedIds.length} notified invite ID(s) for account $activePubkey',
+          );
+        }
+      } catch (e) {
+        _logger.warning('Failed to cleanup notified invites for account $activePubkey', e);
+      }
+    });
   }
 }

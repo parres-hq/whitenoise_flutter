@@ -26,7 +26,7 @@ class BackgroundSyncService {
   ];
 
   static bool _isWorkManagerInitialized = false;
-
+  static bool _isForegroundTaskInitialized = false;
   static Future<void> initWorkManager() async {
     if (_isWorkManagerInitialized) {
       _logger.fine('workmanager already initialized');
@@ -44,6 +44,10 @@ class BackgroundSyncService {
   }
 
   static void initForegroundTask() {
+    if (_isForegroundTaskInitialized) {
+      _logger.fine('Foreground task already initialized');
+      return;
+    }
     try {
       FlutterForegroundTask.init(
         androidNotificationOptions: AndroidNotificationOptions(
@@ -62,6 +66,8 @@ class BackgroundSyncService {
           allowWifiLock: true,
         ),
       );
+      _isForegroundTaskInitialized = true;
+      _logger.info('Foreground task initialized successfully');
     } catch (e) {
       _logger.severe('BackgroundSyncService _initForegroundTask', e);
     }
