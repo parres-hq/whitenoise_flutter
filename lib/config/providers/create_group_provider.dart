@@ -110,6 +110,9 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
                 imageNonce: uploadResult.imageNonce,
               ),
             );
+
+            // Reload the image path after uploading
+            await ref.read(groupsProvider.notifier).reloadGroupImagePath(createdGroup.mlsGroupId);
           }
         }
 

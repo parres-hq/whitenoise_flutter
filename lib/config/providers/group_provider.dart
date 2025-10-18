@@ -864,6 +864,29 @@ class GroupsNotifier extends Notifier<GroupsState> {
     return state.groupImagePaths?[groupId];
   }
 
+  /// Reload image path for a specific group
+  /// Useful when a group's image has been updated
+  Future<void> reloadGroupImagePath(String groupId) async {
+    final activePubkey = ref.read(activePubkeyProvider);
+    if (activePubkey == null || activePubkey.isEmpty) return;
+
+    try {
+      final imagePath = await getGroupImagePath(
+        accountPubkey: activePubkey,
+        groupId: groupId,
+      );
+
+      if (imagePath != null && imagePath.isNotEmpty) {
+        final updatedPaths = Map<String, String>.from(state.groupImagePaths ?? {});
+        updatedPaths[groupId] = imagePath;
+        state = state.copyWith(groupImagePaths: updatedPaths);
+        _logger.info('Reloaded image path for group $groupId');
+      }
+    } catch (e) {
+      _logger.warning('Failed to reload image path for group $groupId: $e');
+    }
+  }
+
   Future<bool> isCurrentUserAdmin(String groupId) async {
     try {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
