@@ -22,4 +22,19 @@ class ImagePickerService {
       rethrow;
     }
   }
+
+  Future<List<String>> pickMultipleImages() async {
+    try {
+      final List<XFile> images = await _imagePicker.pickMultiImage(
+        maxWidth: 1920,
+        maxHeight: 1920,
+        imageQuality: 85,
+      );
+
+      return images.map((image) => image.path).toList();
+    } catch (e) {
+      _logger.severe('Failed to pick images: $e');
+      rethrow;
+    }
+  }
 }
