@@ -7,7 +7,7 @@ import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/auth_flow/auth_header.dart';
-import 'package:whitenoise/ui/auth_flow/qr_scanner_bottom_sheet.dart';
+import 'package:whitenoise/ui/auth_flow/qr_scanner_screen.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
