@@ -47,7 +47,18 @@ class ChatListItemTile extends ConsumerWidget {
     if (group == null) {
       return const SizedBox.shrink();
     }
-    final groupType = groupsNotifier.getCachedGroupType(group.mlsGroupId);
+    // Watch specific pieces of state so this tile rebuilds when they change
+    final watchedGroupType = ref.watch(
+      groupsProvider.select((s) => s.groupTypes?[group.mlsGroupId]),
+    );
+    final watchedDisplayName = ref.watch(
+      groupsProvider.select((s) => s.groupDisplayNames?[group.mlsGroupId]),
+    );
+    final watchedGroupImagePath = ref.watch(
+      groupsProvider.select((s) => s.groupImagePaths?[group.mlsGroupId]),
+    );
+
+    final groupType = watchedGroupType ?? groupsNotifier.getCachedGroupType(group.mlsGroupId);
     // If group type is not cached yet, use FutureBuilder to handle the async loading
     if (groupType == null) {
       return FutureBuilder<GroupType>(
@@ -55,8 +66,12 @@ class ChatListItemTile extends ConsumerWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             // Show loading state with basic info while determining group type
-            final displayName = groupsNotifier.getGroupDisplayName(group.mlsGroupId) ?? group.name;
-            final displayImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
+            final displayName =
+                (watchedDisplayName ?? groupsNotifier.getGroupDisplayName(group.mlsGroupId)) ??
+                group.name;
+            // Prefer watched image path so we rebuild when it becomes available
+            final displayImage =
+                watchedGroupImagePath ?? groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
             return _buildChatTileContent(context, displayName, displayImage, group);
           }
 
@@ -76,8 +91,20 @@ class ChatListItemTile extends ConsumerWidget {
     GroupType groupType,
   ) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
-    final fallbackName = groupsNotifier.getGroupDisplayName(group.mlsGroupId) ?? group.name;
-    final fallbackImage = groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
+    final fallbackName =
+        ref.watch(
+          groupsProvider.select((s) => s.groupDisplayNames?[group.mlsGroupId]),
+        ) ??
+        groupsNotifier.getGroupDisplayName(group.mlsGroupId) ??
+        group.name;
+    // For non-DM groups, watch the cached image path so the tile updates when it arrives
+    final watchedGroupImagePath = ref.watch(
+      groupsProvider.select((s) => s.groupImagePaths?[group.mlsGroupId]),
+    );
+    final fallbackImage =
+        groupType != GroupType.directMessage
+            ? watchedGroupImagePath
+            : groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
 
     // Non-DM chats use fallback data directly
     if (groupType != GroupType.directMessage) {
