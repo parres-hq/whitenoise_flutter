@@ -4,18 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gap/gap.dart';
+import 'package:whitenoise/config/providers/chat_input_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
-import 'package:whitenoise/config/providers/localization_provider.dart';
-import 'package:whitenoise/domain/models/message_model.dart';
-import 'package:whitenoise/domain/services/draft_message_service.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_input_media_preview.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_input_media_selector.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_input_reply_preview.dart';
+import 'package:whitenoise/ui/chat/widgets/chat_input_send_button.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
-import 'package:whitenoise/utils/message_utils.dart';
 
 class ChatInput extends ConsumerStatefulWidget {
   const ChatInput({
@@ -35,9 +34,6 @@ class ChatInput extends ConsumerStatefulWidget {
 class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserver {
   final _textController = TextEditingController();
   final _focusNode = FocusNode();
-  Timer? _draftSaveTimer;
-  bool _isLoadingDraft = false;
-  double? _singleLineHeight;
   final _inputKey = GlobalKey();
 
   @override
@@ -45,22 +41,60 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadDraftMessage();
-
-    _focusNode.addListener(() {
-      if (_focusNode.hasFocus && widget.onInputFocused != null) {
-        Future.delayed(const Duration(milliseconds: 300), () {
-          widget.onInputFocused!();
-        });
-      }
-      setState(() {});
-    });
-
+    _focusNode.addListener(_handleFocusChange);
     _textController.addListener(_onTextChanged);
-
-    // Measure single line height after first frame
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _measureSingleLineHeight();
     });
+  }
+
+  @override
+  void didUpdateWidget(ChatInput oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final editingMessage = ref.read(chatProvider).editingMessage[widget.groupId];
+    final chatInputNotifier = ref.read(chatInputProvider(widget.groupId).notifier);
+    final chatInputState = ref.read(chatInputProvider(widget.groupId));
+
+    if (editingMessage != null &&
+        editingMessage.content != chatInputState.previousEditingMessageContent) {
+      chatInputNotifier.setPreviousEditingMessageContent(editingMessage.content);
+      _textController.text = editingMessage.content ?? '';
+    }
+  }
+
+  void _handleFocusChange() {
+    final hasFocus = _focusNode.hasFocus;
+    if (hasFocus) {
+      widget.onInputFocused?.call();
+      final chatInputNotifier = ref.read(chatInputProvider(widget.groupId).notifier);
+      final chatInputState = ref.read(chatInputProvider(widget.groupId));
+      if (chatInputState.showMediaSelector) {
+        chatInputNotifier.hideMediaSelector();
+      }
+    }
+    if (mounted) {
+      setState(() {});
+    }
+  }
+
+  void _toggleMediaSelector() {
+    final chatInputNotifier = ref.read(chatInputProvider(widget.groupId).notifier);
+    final chatInputState = ref.read(chatInputProvider(widget.groupId));
+    chatInputNotifier.toggleMediaSelector();
+    if (!chatInputState.showMediaSelector) {
+      _focusNode.unfocus();
+    }
+  }
+
+  Future<void> _handleImagesSelected() async {
+    _focusNode.unfocus();
+    final chatInputNotifier = ref.read(chatInputProvider(widget.groupId).notifier);
+    await chatInputNotifier.handleImagesSelected();
+  }
+
+  void _removeImage(int index) {
+    final chatInputNotifier = ref.read(chatInputProvider(widget.groupId).notifier);
+    chatInputNotifier.removeImage(index);
   }
 
   void _measureSingleLineHeight() {
@@ -69,16 +103,14 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
     final renderObject = context.findRenderObject();
     if (renderObject is RenderBox) {
       final h = renderObject.size.height;
-      if (_singleLineHeight != h) {
-        setState(() => _singleLineHeight = h);
-      }
+      final chatInputNotifier = ref.read(chatInputProvider(widget.groupId).notifier);
+      chatInputNotifier.setSingleLineHeight(h);
     }
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _draftSaveTimer?.cancel();
     _textController.dispose();
     _focusNode.dispose();
     super.dispose();
@@ -87,165 +119,109 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
-
-    // Immediately save draft when app is paused/minimized or becomes inactive
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       _saveDraftImmediately();
     }
   }
 
   Future<void> _loadDraftMessage() async {
-    setState(() {
-      _isLoadingDraft = true;
-    });
-
-    try {
-      final chatState = ref.read(chatProvider);
-      final isEditing = chatState.editingMessage[widget.groupId] != null;
-
-      if (!isEditing) {
-        final draft = await DraftMessageService.loadDraft(chatId: widget.groupId);
-        if (draft != null && draft.isNotEmpty && mounted) {
-          _textController.text = draft;
-        }
-      }
-    } catch (e) {
-      return;
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoadingDraft = false;
-        });
+    final chatState = ref.read(chatProvider);
+    final isEditing = chatState.editingMessage[widget.groupId] != null;
+    if (!isEditing) {
+      final chatInputNotifier = ref.read(chatInputProvider(widget.groupId).notifier);
+      final draft = await chatInputNotifier.loadDraft();
+      if (draft != null && draft.isNotEmpty && mounted) {
+        _textController.text = draft;
       }
     }
   }
 
   void _onTextChanged() {
-    _draftSaveTimer?.cancel();
-
-    if (_isLoadingDraft) return;
-
+    final chatInputState = ref.read(chatInputProvider(widget.groupId));
+    if (chatInputState.isLoadingDraft) return;
     final chatState = ref.read(chatProvider);
     final isEditing = chatState.editingMessage[widget.groupId] != null;
-
     if (!isEditing) {
-      _draftSaveTimer = Timer(const Duration(milliseconds: 500), () {
-        _saveDraft();
-      });
-    }
-  }
-
-  Future<void> _saveDraft() async {
-    try {
-      await DraftMessageService.saveDraft(
-        chatId: widget.groupId,
-        message: _textController.text,
-      );
-    } catch (e) {
-      return;
+      final chatInputNotifier = ref.read(chatInputProvider(widget.groupId).notifier);
+      chatInputNotifier.scheduleDraftSave(_textController.text);
     }
   }
 
   Future<void> _saveDraftImmediately() async {
-    _draftSaveTimer?.cancel();
-
-    if (_isLoadingDraft) return;
-
+    final chatInputState = ref.read(chatInputProvider(widget.groupId));
+    if (chatInputState.isLoadingDraft) return;
     final chatState = ref.read(chatProvider);
     final isEditing = chatState.editingMessage[widget.groupId] != null;
-
     if (!isEditing) {
-      try {
-        await DraftMessageService.saveDraft(
-          chatId: widget.groupId,
-          message: _textController.text,
-        );
-      } catch (e) {
-        return;
-      }
-    }
-  }
-
-  Future<void> _clearDraft() async {
-    try {
-      await DraftMessageService.clearDraft(chatId: widget.groupId);
-    } catch (e) {
-      return;
+      final chatInputNotifier = ref.read(chatInputProvider(widget.groupId).notifier);
+      await chatInputNotifier.saveDraftImmediately(_textController.text);
     }
   }
 
   void _sendMessage() {
     final chatState = ref.read(chatProvider);
     final chatNotifier = ref.read(chatProvider.notifier);
+    final chatInputState = ref.read(chatInputProvider(widget.groupId));
+    final chatInputNotifier = ref.read(chatInputProvider(widget.groupId).notifier);
+
     final isEditing = chatState.editingMessage[widget.groupId] != null;
     final content = _textController.text.trim();
-
-    if (content.isEmpty) return;
+    if (content.isEmpty && chatInputState.selectedImages.isEmpty) return;
 
     widget.onSend(content, isEditing);
 
-    _clearDraft();
-
     _textController.clear();
+    chatInputNotifier.clear();
+
     if (chatState.replyingTo[widget.groupId] != null) {
       chatNotifier.cancelReply(groupId: widget.groupId);
     }
     if (chatState.editingMessage[widget.groupId] != null) {
       chatNotifier.cancelEdit(groupId: widget.groupId);
     }
-
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final chatState = ref.watch(chatProvider);
     final chatNotifier = ref.watch(chatProvider.notifier);
+    final chatInputState = ref.watch(chatInputProvider(widget.groupId));
 
-    // Update text controller when editing message changes
-    if (chatState.editingMessage[widget.groupId] != null &&
-        _textController.text != chatState.editingMessage[widget.groupId]!.content) {
-      _textController.text = chatState.editingMessage[widget.groupId]!.content ?? '';
-    }
-    final isReplying = chatState.replyingTo[widget.groupId] != null;
-    return AnimatedPadding(
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeInOutCubic,
-          padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
-            bottom: 24.h,
-          ),
-          child: Container(
-            width: 1.sw,
-            constraints: BoxConstraints(
-              minHeight: 44.h,
-            ),
-            child: SafeArea(
-              top: false,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Row(
+    return SafeArea(
+      top: false,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedPadding(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOutCubic,
+                padding: EdgeInsets.symmetric(horizontal: 16.w).copyWith(
+                  bottom: chatInputState.showMediaSelector ? 0.h : 24.h,
+                ),
+                child: Container(
+                  width: 1.sw,
+                  constraints: BoxConstraints(
+                    minHeight: 44.h,
+                  ),
+                  child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Expanded(
                         child: Container(
                           decoration: BoxDecoration(
                             color: context.colors.avatarSurface,
-                            border:
-                                isReplying
-                                    ? Border.all(
-                                      color:
-                                          _focusNode.hasFocus
-                                              ? context.colors.primary
-                                              : context.colors.input,
-                                      width: 1.w,
-                                    )
-                                    : null,
+                            border: Border.all(
+                              color:
+                                  _focusNode.hasFocus
+                                      ? context.colors.primary
+                                      : context.colors.input,
+                              width: 1.w,
+                            ),
                           ),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              ReplyEditHeader(
+                              ChatInputReplyPreview(
                                 replyingTo: chatState.replyingTo[widget.groupId],
                                 editingMessage: chatState.editingMessage[widget.groupId],
                                 onCancel: () {
@@ -255,157 +231,82 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                     chatNotifier.cancelEdit(groupId: widget.groupId);
                                     _textController.clear();
                                   }
-                                  setState(() {});
                                 },
                               ),
-                              WnTextFormField(
-                                key: _inputKey,
-                                controller: _textController,
-                                focusNode: _focusNode,
-                                onChanged: (_) => setState(() {}),
-                                hintText: 'chats.message'.tr(),
-                                maxLines: 5,
-                                textInputAction: TextInputAction.newline,
-                                keyboardType: TextInputType.multiline,
-                                textCapitalization: TextCapitalization.sentences,
-                                size: FieldSize.small,
-                                decoration:
-                                    isReplying
-                                        ? const InputDecoration(
-                                          border: InputBorder.none,
-                                          enabledBorder: InputBorder.none,
-                                          focusedBorder: InputBorder.none,
-                                        )
-                                        : null,
+                              ChatInputMediaPreview(
+                                imagePaths: chatInputState.selectedImages,
+                                onRemoveImage: _removeImage,
+                                onAddMore: _handleImagesSelected,
+                                isReply: chatState.replyingTo[widget.groupId] != null,
+                              ),
+                              Row(
+                                children: [
+                                  if (chatInputState.selectedImages.isEmpty)
+                                    GestureDetector(
+                                      onTap: _toggleMediaSelector,
+                                      child: Padding(
+                                        padding: EdgeInsets.only(left: 14.w),
+                                        child: WnImage(
+                                          AssetsPaths.icAdd,
+                                          size: 16.w,
+                                          color: context.colors.primary,
+                                        ),
+                                      ),
+                                    ),
+                                  Expanded(
+                                    child: WnTextFormField(
+                                      key: _inputKey,
+                                      controller: _textController,
+                                      focusNode: _focusNode,
+                                      hintText: 'chats.message'.tr(),
+                                      maxLines: 5,
+                                      textInputAction: TextInputAction.newline,
+                                      keyboardType: TextInputType.multiline,
+                                      textCapitalization: TextCapitalization.sentences,
+                                      size: FieldSize.small,
+                                      isBorderHidden: true,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
                       ),
-                      AnimatedSize(
-                        duration: const Duration(milliseconds: 250),
-                        curve: Curves.easeInOut,
-                        child:
-                            _textController.text.isNotEmpty
-                                ? Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Gap(4.w),
-                                    //TODO @Quwaysim ... This will come in PR for issue #511
-                                    WnIconButton(
-                                          iconPath: AssetsPaths.icArrowUp,
-                                          padding: 14.w,
-                                          size: _singleLineHeight ?? 44.h,
-                                          onTap: _sendMessage,
-                                          buttonColor: context.colors.primary,
-                                          iconColor: context.colors.primaryForeground,
-                                        )
-                                        .animate()
-                                        .fadeIn(
-                                          duration: const Duration(milliseconds: 200),
-                                        )
-                                        .scale(
-                                          begin: const Offset(0.7, 0.7),
-                                          duration: const Duration(milliseconds: 200),
-                                          curve: Curves.elasticOut,
-                                        ),
-                                  ],
-                                )
-                                : const SizedBox.shrink(),
+                      ChatInputSendButton(
+                        textController: _textController,
+                        singleLineHeight: chatInputState.singleLineHeight,
+                        onSend: _sendMessage,
+                        hasImages: chatInputState.selectedImages.isNotEmpty,
                       ),
                     ],
                   ),
-                ],
-              ),
-            ),
-          ),
-        )
-        .animate()
-        .fadeIn(
-          duration: const Duration(milliseconds: 200),
-        )
-        .slideY(
-          begin: 0.3,
-          end: 0,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOutCubic,
-        );
-  }
-}
-
-class ReplyEditHeader extends ConsumerWidget {
-  const ReplyEditHeader({
-    super.key,
-    this.replyingTo,
-    this.editingMessage,
-    required this.onCancel,
-  });
-
-  final MessageModel? replyingTo;
-  final MessageModel? editingMessage;
-  final VoidCallback onCancel;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Watch localization changes
-    ref.watch(currentLocaleProvider);
-    if (replyingTo == null && editingMessage == null) {
-      return const SizedBox.shrink();
-    }
-
-    return Container(
-      margin: EdgeInsets.all(16.w).copyWith(bottom: 8.h),
-      padding: EdgeInsets.all(8.w),
-      decoration: BoxDecoration(
-        color: context.colors.secondary,
-        border: Border(
-          left: BorderSide(
-            color: context.colors.mutedForeground,
-          ),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                MessageUtils.getDisplayName(replyingTo, editingMessage),
-                style: TextStyle(
-                  color: context.colors.mutedForeground,
-                  fontSize: 12.sp,
-                  fontWeight: FontWeight.w600,
                 ),
+              )
+              .animate()
+              .fadeIn(
+                duration: const Duration(milliseconds: 200),
+              )
+              .slideY(
+                begin: 0.3,
+                end: 0,
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeOutCubic,
               ),
-              GestureDetector(
-                onTap: onCancel,
-                child: Container(
-                  width: 24.w,
-                  height: 24.w,
-                  alignment: Alignment.center,
-                  child: WnImage(
-                    AssetsPaths.icClose,
-                    width: 16.w,
-                    height: 16.w,
-                    color: context.colors.mutedForeground,
-                  ),
+          if (chatInputState.showMediaSelector)
+            ChatInputMediaSelector(
+                  onImagesSelected: _handleImagesSelected,
+                )
+                .animate()
+                .slideY(
+                  begin: 0.5,
+                  end: 0,
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeOutCubic,
+                )
+                .fadeIn(
+                  duration: const Duration(milliseconds: 200),
                 ),
-              ),
-            ],
-          ),
-
-          Gap(4.h),
-          Text(
-            replyingTo?.content ?? editingMessage?.content ?? 'chats.quoteText'.tr(),
-            style: TextStyle(
-              color: context.colors.primary,
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w600,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
         ],
       ),
     );
