@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
@@ -13,7 +14,7 @@ class QRScannerScreen extends StatefulWidget {
   const QRScannerScreen({super.key});
 
   static Future<String?> navigate(BuildContext context) {
-    return context.push<String>('/qr-scanner');
+    return context.push<String>(Routes.qrScanner);
   }
 
   @override
