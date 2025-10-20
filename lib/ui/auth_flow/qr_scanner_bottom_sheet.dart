@@ -9,18 +9,18 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
-class QRScannerBottomSheet extends StatefulWidget {
-  const QRScannerBottomSheet({super.key});
+class QRScannerScreen extends StatefulWidget {
+  const QRScannerScreen({super.key});
 
-  static Future<String?> show(BuildContext context) {
+  static Future<String?> navigate(BuildContext context) {
     return context.push<String>('/qr-scanner');
   }
 
   @override
-  State<QRScannerBottomSheet> createState() => _QRScannerBottomSheetState();
+  State<QRScannerScreen> createState() => _QRScannerScreenState();
 }
 
-class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
+class _QRScannerScreenState extends State<QRScannerScreen> {
   late MobileScannerController _controller;
   bool _isScanning = true;
 
@@ -116,8 +116,8 @@ class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
                               const Spacer(),
                               Center(
                                 child: Container(
-                                  width: 288,
-                                  height: 288,
+                                  width: 288.w,
+                                  height: 288.w,
                                   decoration: BoxDecoration(
                                     border: Border.all(
                                       color: context.colors.primary,

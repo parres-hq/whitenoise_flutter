@@ -99,7 +99,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
   }
 
   Future<void> _scanQRCode() async {
-    final scannedCode = await QRScannerBottomSheet.show(context);
+    final scannedCode = await QRScannerScreen.navigate(context);
     if (scannedCode != null && scannedCode.isNotEmpty) {
       _keyController.text = scannedCode;
       setState(() {});

@@ -124,7 +124,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
       GoRoute(
         path: Routes.qrScanner,
-        builder: (context, state) => const QRScannerBottomSheet(),
+        builder: (context, state) => const QRScannerScreen(),
       ),
 
       GoRoute(
