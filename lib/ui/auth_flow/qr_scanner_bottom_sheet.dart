@@ -1,14 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_sheet.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
-class QRScannerBottomSheet extends StatefulWidget {
+class QRScannerBottomSheet extends ConsumerStatefulWidget {
   const QRScannerBottomSheet({super.key});
 
   static Future<String?> show(BuildContext context) {
@@ -22,15 +26,18 @@ class QRScannerBottomSheet extends StatefulWidget {
   }
 
   @override
-  State<QRScannerBottomSheet> createState() => _QRScannerBottomSheetState();
+  ConsumerState<QRScannerBottomSheet> createState() => _QRScannerBottomSheetState();
 }
 
-class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
+class _QRScannerBottomSheetState extends ConsumerState<QRScannerBottomSheet> {
   MobileScannerController cameraController = MobileScannerController();
   bool _isScanning = true;
+  String? _lastInvalidKey;
+  Timer? _resetTimer;
 
   @override
   void dispose() {
+    _resetTimer?.cancel();
     cameraController.dispose();
     super.dispose();
   }
@@ -41,10 +48,30 @@ class _QRScannerBottomSheetState extends State<QRScannerBottomSheet> {
     final List<Barcode> barcodes = capture.barcodes;
     for (final barcode in barcodes) {
       if (barcode.rawValue != null) {
+        final scannedValue = barcode.rawValue!.trim();
+        
+        if (!scannedValue.startsWith('nsec')) {
+          if (_lastInvalidKey != scannedValue) {
+            _lastInvalidKey = scannedValue;
+            _resetTimer?.cancel();
+            _resetTimer = Timer(const Duration(seconds: 5), () {
+              if (mounted) {
+                _lastInvalidKey = null;
+              }
+            });
+            ref.showErrorToast('auth.invalidPrivateKeyFormat'.tr());
+            return;
+          }
+          return;
+        }
+        
+        _lastInvalidKey = null;
+        _resetTimer?.cancel();
+        
         setState(() {
           _isScanning = false;
         });
-        Navigator.of(context).pop(barcode.rawValue);
+        Navigator.of(context).pop(scannedValue);
         return;
       }
     }

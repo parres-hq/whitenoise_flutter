@@ -226,6 +226,7 @@
         "qrCodeDetected": "QR Kod Algılandı!",
         "scanYourPrivateKeyQr": "Özel Anahtar QR kodunuzu tarayın.",
         "pleaseEnterPrivateKey": "Lütfen özel anahtarınızı girin",
+        "invalidPrivateKeyFormat": "Geçersiz özel anahtar formatı. Lütfen geçerli bir özel anahtar QR kodu tarayın.",
         "setUpProfile": "Profil Kur",
         "finish": "Bitir",
         "privacySecuritySubtitle": "Konuşmalarınızı gizli tutun. İhlal durumunda bile mesajlarınız güvenli kalır.",

@@ -226,6 +226,7 @@
         "qrCodeDetected": "Code QR détecté !",
         "scanYourPrivateKeyQr": "Scannez votre code QR de clé privée.",
         "pleaseEnterPrivateKey": "Veuillez entrer votre clé privée",
+        "invalidPrivateKeyFormat": "Format de clé privée invalide. Veuillez scanner un code QR de clé privée valide.",
         "setUpProfile": "Configurer le profil",
         "finish": "Terminer",
         "privacySecuritySubtitle": "Gardez vos conversations privées. Même en cas de violation, vos messages restent sécurisés.",
