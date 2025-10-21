@@ -67,6 +67,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   bool _isLoadingData = false;
   bool _isRefreshing = false;
   bool _isSearchVisible = false;
+  bool _hasInitialDataLoaded = false;
   final int _loadingSkeletonCount = 8;
 
   @override
@@ -125,7 +126,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
     if (_isLoadingData) return;
     _setLoadingState(isLoading: true);
     try {
-      await _loadAllProviderData();
+      await _loadAllProviderDataOptimized();
     } catch (e, st) {
       _log.severe('Error loading data: $e $st');
     } finally {
@@ -134,20 +135,49 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   }
 
   void _setLoadingState({required bool isLoading}) {
-    setState(() {
-      _isLoadingData = isLoading;
-      if (isLoading) {
-        _isSearchVisible = false;
-      }
-    });
+    if (_isLoadingData != isLoading) {
+      setState(() {
+        _isLoadingData = isLoading;
+        if (isLoading) {
+          _isSearchVisible = false;
+        }
+      });
+    }
   }
 
-  Future<void> _loadAllProviderData() async {
-    await Future.wait([
-      ref.read(welcomesProvider.notifier).loadWelcomes(),
-      ref.read(groupsProvider.notifier).loadGroups(),
-      ref.read(relayStatusProvider.notifier).refreshStatuses(),
-    ]);
+  Future<void> _loadAllProviderDataOptimized() async {
+    await _loadAll();
+    _loadMessagesInBackground();
+  }
+
+  Future<void> _loadAll() async {
+    try {
+      await Future.wait([
+        ref.read(welcomesProvider.notifier).loadWelcomes(),
+        ref.read(groupsProvider.notifier).loadGroups(),
+        ref.read(relayStatusProvider.notifier).loadRelayStatusesOptimized(),
+      ]);
+
+      setState(() {
+        _hasInitialDataLoaded = true;
+      });
+    } catch (e) {
+      _log.warning('Error loading data: $e');
+    }
+  }
+
+  void _loadMessagesInBackground() {
+    Future.microtask(() async {
+      try {
+        final groups = ref.read(groupsProvider).groups;
+        if (groups != null && groups.isNotEmpty) {
+          final groupIds = groups.map((g) => g.mlsGroupId).toList();
+          await ref.read(chatProvider.notifier).loadLatestMessagesForGroups(groupIds);
+        }
+      } catch (e) {
+        _log.warning('Error loading messages in background: $e');
+      }
+    });
   }
 
   void _onScroll() {
@@ -276,19 +306,19 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // On resume, re register all tasks with update policy
       _initializeBackgroundSync();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Watch both groups and welcomes
     final groupList = ref.watch(groupsProvider.select((state) => state.groups)) ?? [];
     final welcomesList = ref.watch(welcomesProvider.select((state) => state.welcomes)) ?? [];
     final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
     final pinnedChats = ref.watch(pinnedChatsProvider);
     final pinnedChatsNotifier = ref.watch(pinnedChatsProvider.notifier);
+    final groupsLoading = ref.watch(groupsProvider.select((state) => state.isLoading));
+    final welcomesLoading = ref.watch(welcomesProvider.select((state) => state.isLoading));
 
     final chatItems = <ChatListItem>[];
 
@@ -308,13 +338,11 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
       );
     }
 
-    // Add pending welcomes as chat items
     final pendingWelcomes = welcomesList.where((welcome) => welcome.state == WelcomeState.pending);
     for (final welcome in pendingWelcomes) {
       chatItems.add(ChatListItem.fromWelcome(welcome: welcome));
     }
 
-    // Use the separatePinnedChats method with search filtering
     final separatedChats = pinnedChatsNotifier.separatePinnedChats(
       chatItems,
       searchQuery: _searchQuery,
@@ -323,6 +351,16 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
 
     final delayedRelayErrorState = ref.watch(delayedRelayErrorProvider);
     final shouldShowRelayError = delayedRelayErrorState.shouldShowBanner;
+    final relayStatusState = ref.watch(relayStatusProvider);
+    final relayStatusLoading = relayStatusState.isLoading;
+
+    final shouldShowSkeletonLoading =
+        chatItems.isEmpty &&
+        !_hasInitialDataLoaded &&
+        (groupsLoading || welcomesLoading) &&
+        !_isLoadingData;
+
+    final shouldShowConnectionStatus = relayStatusLoading || shouldShowRelayError;
 
     return GestureDetector(
       onTap: _unfocusSearchIfNeeded,
@@ -387,7 +425,54 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
                         ).animate().fadeIn(),
                   ),
 
-                if (chatItems.isEmpty)
+                if (shouldShowConnectionStatus && !shouldShowRelayError)
+                  SliverToBoxAdapter(
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+                      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+                      decoration: BoxDecoration(
+                        color: context.colors.surface,
+                        borderRadius: BorderRadius.circular(8.r),
+                        border: Border.all(
+                          color: context.colors.border,
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          SizedBox(
+                            width: 16.w,
+                            height: 16.w,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.sp,
+                              backgroundColor: context.colors.border,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                context.colors.primary,
+                              ),
+                            ),
+                          ),
+                          Gap(8.w),
+                          Expanded(
+                            child: Text(
+                              'chats.checkingConnection'.tr(),
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w500,
+                                color: context.colors.mutedForeground,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                if (shouldShowSkeletonLoading)
+                  const SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _EmptyGroupList(),
+                  )
+                else if (chatItems.isEmpty)
                   const SliverFillRemaining(
                     hasScrollBody: false,
                     child: _EmptyGroupList(),
@@ -483,23 +568,29 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
                     padding: EdgeInsets.only(bottom: 32.h),
                     sliver: SliverList.separated(
                       itemBuilder: (context, index) {
-                        if (isInLoadingState) {
+                        if (shouldShowSkeletonLoading && index < _loadingSkeletonCount) {
                           return const ChatListTileLoading();
                         }
-                        final item = filteredChatItems[index];
-                        return ChatListItemTile(
-                          item: item,
-                          onTap: _unfocusSearchIfNeeded,
-                        );
+
+                        if (index < filteredChatItems.length) {
+                          final item = filteredChatItems[index];
+                          return ChatListItemTile(
+                            item: item,
+                            onTap: _unfocusSearchIfNeeded,
+                          ).animate().fadeIn(duration: 300.ms, delay: (index * 50).ms);
+                        }
+
+                        return const SizedBox.shrink();
                       },
                       itemCount:
-                          isInLoadingState ? _loadingSkeletonCount : filteredChatItems.length,
+                          shouldShowSkeletonLoading
+                              ? _loadingSkeletonCount
+                              : filteredChatItems.length,
                       separatorBuilder: (context, index) {
-                        if (isInLoadingState) {
+                        if (shouldShowSkeletonLoading) {
                           return Gap(8.w);
                         }
 
-                        // Add divider between pinned and unpinned sections
                         if (index == separatedChats.pinned.length - 1 &&
                             separatedChats.unpinned.isNotEmpty) {
                           return Container(

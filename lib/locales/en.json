@@ -145,6 +145,7 @@
         "appWontWorkUntilRelay": "The app won't work until you add at least one.",
         "connectRelays": "Connect Relays",
         "checkingForNewMessages": "Checking for new messages…",
+        "checkingConnection": "Checking connection...",
         "searchChats": "Search Chats",
         "emptySlogan": "Decentralized. Uncensorable.\nSecure Messaging.",
         "errorLoadingFollows": "Error loading follows",

@@ -260,6 +260,47 @@ class ChatNotifier extends Notifier<ChatState> {
     await Future.wait(futures);
   }
 
+  Future<void> loadLatestMessagesForGroups(List<String> groupIds) async {
+    if (!_isAuthAvailable()) {
+      return;
+    }
+
+    try {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
+        return;
+      }
+
+      _logger.info('ChatProvider: Loading latest messages for ${groupIds.length} groups');
+
+      final futures = groupIds.map((groupId) => _loadLatestMessageForGroup(groupId, activePubkey));
+      await Future.wait(futures);
+
+      _logger.info('ChatProvider: Completed loading latest messages for chat previews');
+    } catch (e, st) {
+      _logger.warning('ChatProvider: Error loading latest messages for groups: $e', e, st);
+    }
+  }
+
+  Future<void> _loadLatestMessageForGroup(String groupId, String activePubkey) async {
+    try {
+      final messages = await ref.read(groupMessagesProvider(groupId).notifier).fetchMessages();
+
+      if (messages.isNotEmpty) {
+        final latestMessage = messages.last;
+
+        state = state.copyWith(
+          groupMessages: {
+            ...state.groupMessages,
+            groupId: [latestMessage],
+          },
+        );
+      }
+    } catch (e) {
+      _logger.warning('ChatProvider: Error loading latest message for group $groupId: $e');
+    }
+  }
+
   Future<void> checkForNewMessages(String groupId) async {
     if (!_isAuthAvailable()) {
       return;

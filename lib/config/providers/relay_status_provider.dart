@@ -89,7 +89,6 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
       final relayStatuses = await getAccountRelayStatuses(pubkey: activePubkey);
       _logger.info('RelayStatusNotifier: Fetched ${relayStatuses.length} relay statuses');
 
-      // Convert list of tuples to map
       final statusMap = <String, RelayStatus>{};
       for (final (url, status) in relayStatuses) {
         statusMap[url] = RelayStatus.fromString(status);
@@ -110,6 +109,77 @@ class RelayStatusNotifier extends Notifier<RelayStatusState> {
         error: 'Error loading relay statuses: $e',
       );
     }
+  }
+
+  Future<void> loadRelayStatusesOptimized() async {
+    _logger.info('RelayStatusNotifier: Starting optimized relay status loading');
+
+    await _loadCachedRelayStatuses();
+
+    _refreshRelayStatusesInBackground();
+  }
+
+  Future<void> _loadCachedRelayStatuses() async {
+    try {
+      final authState = ref.read(authProvider);
+      if (!authState.isAuthenticated) {
+        state = state.copyWith(
+          isLoading: false,
+          error: 'Not authenticated',
+        );
+        return;
+      }
+
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
+        state = state.copyWith(isLoading: false, error: 'No active account found');
+        return;
+      }
+
+      final relayStatuses = await getAccountRelayStatuses(pubkey: activePubkey);
+
+      final statusMap = <String, RelayStatus>{};
+      for (final (url, status) in relayStatuses) {
+        statusMap[url] = RelayStatus.fromString(status);
+      }
+
+      state = state.copyWith(
+        relayStatuses: statusMap,
+        isLoading: false,
+        error: null,
+      );
+
+      _logger.info('RelayStatusNotifier: Loaded ${statusMap.length} cached relay statuses');
+    } catch (e) {
+      _logger.warning('RelayStatusNotifier: Error loading cached relay statuses: $e');
+    }
+  }
+
+  void _refreshRelayStatusesInBackground() {
+    Future.microtask(() async {
+      try {
+        final authState = ref.read(authProvider);
+        if (!authState.isAuthenticated) return;
+
+        final activePubkey = ref.read(activePubkeyProvider) ?? '';
+        if (activePubkey.isEmpty) return;
+
+        final relayStatuses = await getAccountRelayStatuses(pubkey: activePubkey);
+
+        final statusMap = <String, RelayStatus>{};
+        for (final (url, status) in relayStatuses) {
+          statusMap[url] = RelayStatus.fromString(status);
+        }
+
+        state = state.copyWith(relayStatuses: statusMap);
+
+        _logger.info(
+          'RelayStatusNotifier: Refreshed ${statusMap.length} relay statuses from network',
+        );
+      } catch (e) {
+        _logger.warning('RelayStatusNotifier: Error refreshing relay statuses in background: $e');
+      }
+    });
   }
 
   Future<void> refreshStatuses() async {
