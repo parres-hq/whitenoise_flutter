@@ -49,7 +49,7 @@ class _QRScannerBottomSheetState extends ConsumerState<QRScannerBottomSheet> {
     for (final barcode in barcodes) {
       if (barcode.rawValue != null) {
         final scannedValue = barcode.rawValue!.trim();
-        
+
         if (!scannedValue.startsWith('nsec')) {
           if (_lastInvalidKey != scannedValue) {
             _lastInvalidKey = scannedValue;
@@ -64,10 +64,10 @@ class _QRScannerBottomSheetState extends ConsumerState<QRScannerBottomSheet> {
           }
           return;
         }
-        
+
         _lastInvalidKey = null;
         _resetTimer?.cancel();
-        
+
         setState(() {
           _isScanning = false;
         });
