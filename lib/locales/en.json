@@ -13,7 +13,8 @@
         "unsavedChanges": "Unsaved changes",
         "continue": "Continue",
         "system": "System",
-        "unknownUser": "Unknown User"
+        "unknownUser": "Unknown User",
+        "clearAll": "Clear All"
     },
     "settings": {
         "title": "Settings",
@@ -201,7 +202,13 @@
         "removedFromGroupSuccess": "{name} removed from group",
         "failedToRemoveMember": "Failed to remove member",
         "noUserToStartChatWith": "No user to start chat with",
-        "photos": "Photos"
+        "photos": "Photos",
+        "addMembers": "Add Members",
+        "membersAddedSuccess": "Members added successfully",
+        "failedToAddMembers": "Failed to add members",
+        "addingMembers": "Adding members...",
+        "selectedCount": "{count} selected",
+        "yourContacts": "Your Contacts"
     },
     "clipboard": {
         "emptyTextError": "No text found in clipboard",

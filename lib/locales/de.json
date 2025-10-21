@@ -201,7 +201,8 @@
         "removedFromGroupSuccess": "{name} aus Gruppe entfernt",
         "failedToRemoveMember": "Fehler beim Entfernen des Mitglieds",
         "noUserToStartChatWith": "Kein Benutzer zum Chatten",
-        "photos": "Fotos"
+        "photos": "Fotos",
+        "addMembers": "Mitglieder hinzufügen"
     },
     "clipboard": {
         "emptyTextError": "Kein Text in der Zwischenablage gefunden",

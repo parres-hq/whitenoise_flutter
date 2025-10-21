@@ -201,7 +201,8 @@
         "removedFromGroupSuccess": "{name} удалён из группы",
         "failedToRemoveMember": "Не удалось удалить участника",
         "noUserToStartChatWith": "Нет пользователя для начала чата",
-        "photos": "Фото"
+        "photos": "Фото",
+        "addMembers": "Добавить участников"
     },
     "clipboard": {
         "emptyTextError": "Текст в буфере обмена не найден",

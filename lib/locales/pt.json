@@ -201,7 +201,8 @@
         "removedFromGroupSuccess": "{name} removido do grupo",
         "failedToRemoveMember": "Falha ao remover membro",
         "noUserToStartChatWith": "Nenhum usuário para iniciar conversa",
-        "photos": "Fotos"
+        "photos": "Fotos",
+        "addMembers": "Adicionar membros"
     },
     "clipboard": {
         "emptyTextError": "Nenhum texto encontrado na área de transferência",

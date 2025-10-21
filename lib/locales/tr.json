@@ -201,7 +201,8 @@
         "removedFromGroupSuccess": "{name} gruptan çıkarıldı",
         "failedToRemoveMember": "Üye çıkarma başarısız",
         "noUserToStartChatWith": "Sohbet başlatacak kullanıcı yok",
-        "photos": "Fotoğraflar"
+        "photos": "Fotoğraflar",
+        "addMembers": "Üyeleri Ekle"
     },
     "clipboard": {
         "emptyTextError": "Panoda metin bulunamadı",
