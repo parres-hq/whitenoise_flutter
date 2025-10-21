@@ -435,7 +435,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
                         borderRadius: BorderRadius.circular(8.r),
                         border: Border.all(
                           color: context.colors.border,
-                          width: 1,
+                          width: 1.w,
                         ),
                       ),
                       child: Row(
