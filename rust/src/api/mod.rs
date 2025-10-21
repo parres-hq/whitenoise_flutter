@@ -58,6 +58,7 @@ pub fn create_whitenoise_config(data_dir: String, logs_dir: String) -> Whitenois
 pub mod accounts;
 pub mod error;
 pub mod groups;
+pub mod media_files;
 pub mod messages;
 pub mod metadata;
 pub mod relays;
@@ -70,6 +71,7 @@ pub mod welcomes;
 pub use accounts::*;
 pub use error::*;
 pub use groups::*;
+pub use media_files::*;
 pub use messages::*;
 pub use metadata::*;
 pub use relays::*;

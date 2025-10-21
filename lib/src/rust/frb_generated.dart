@@ -12,6 +12,7 @@ import 'api.dart';
 import 'api/accounts.dart';
 import 'api/error.dart';
 import 'api/groups.dart';
+import 'api/media_files.dart';
 import 'api/messages.dart';
 import 'api/metadata.dart';
 import 'api/relays.dart';
@@ -77,7 +78,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.11.1';
 
   @override
-  int get rustContentHash => 1730614069;
+  int get rustContentHash => -1582502476;
 
   static const kDefaultExternalLibraryLoaderConfig = ExternalLibraryLoaderConfig(
     stem: 'rust_lib_whitenoise',
@@ -311,6 +312,12 @@ abstract class RustLibApi extends BaseApi {
     required String serverUrl,
     required String filePath,
     required String imageType,
+  });
+
+  Future<MediaFile> crateApiMediaFilesUploadChatMedia({
+    required String accountPubkey,
+    required String groupId,
+    required String filePath,
   });
 
   Future<UploadGroupImageResult> crateApiGroupsUploadGroupImage({
@@ -2350,6 +2357,42 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
+  Future<MediaFile> crateApiMediaFilesUploadChatMedia({
+    required String accountPubkey,
+    required String groupId,
+    required String filePath,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(accountPubkey, serializer);
+          sse_encode_String(groupId, serializer);
+          sse_encode_String(filePath, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 61,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_media_file,
+          decodeErrorData: sse_decode_api_error,
+        ),
+        constMeta: kCrateApiMediaFilesUploadChatMediaConstMeta,
+        argValues: [accountPubkey, groupId, filePath],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiMediaFilesUploadChatMediaConstMeta => const TaskConstMeta(
+    debugName: 'upload_chat_media',
+    argNames: ['accountPubkey', 'groupId', 'filePath'],
+  );
+
+  @override
   Future<UploadGroupImageResult> crateApiGroupsUploadGroupImage({
     required String accountPubkey,
     required String groupId,
@@ -2367,7 +2410,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 61,
+            funcId: 62,
             port: port_,
           );
         },
@@ -2397,7 +2440,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 62,
+            funcId: 63,
             port: port_,
           );
         },
@@ -2427,7 +2470,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 63,
+            funcId: 64,
             port: port_,
           );
         },
@@ -2464,7 +2507,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 64,
+            funcId: 65,
             port: port_,
           );
         },
@@ -2733,6 +2776,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  FileMetadata dco_decode_box_autoadd_file_metadata(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_file_metadata(raw);
+  }
+
+  @protected
   FlutterEvent dco_decode_box_autoadd_flutter_event(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_flutter_event(raw);
@@ -2793,6 +2842,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       emoji: dco_decode_String(arr[0]),
       count: dco_decode_u_64(arr[1]),
       users: dco_decode_list_String(arr[2]),
+    );
+  }
+
+  @protected
+  FileMetadata dco_decode_file_metadata(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3) throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return FileMetadata(
+      originalFilename: dco_decode_opt_String(arr[0]),
+      dimensions: dco_decode_opt_String(arr[1]),
+      blurhash: dco_decode_opt_String(arr[2]),
     );
   }
 
@@ -2998,6 +3059,22 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  MediaFile dco_decode_media_file(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 7) throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    return MediaFile(
+      mlsGroupId: dco_decode_String(arr[0]),
+      filePath: dco_decode_String(arr[1]),
+      fileMimeType: dco_decode_String(arr[2]),
+      fileMediaType: dco_decode_String(arr[3]),
+      fileBlossomUrl: dco_decode_String(arr[4]),
+      fileMetadata: dco_decode_opt_box_autoadd_file_metadata(arr[5]),
+      originalFilePath: dco_decode_opt_String(arr[6]),
+    );
+  }
+
+  @protected
   MessageWithTokens dco_decode_message_with_tokens(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -3022,6 +3099,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   DateTime? dco_decode_opt_box_autoadd_Chrono_Utc(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_Chrono_Utc(raw);
+  }
+
+  @protected
+  FileMetadata? dco_decode_opt_box_autoadd_file_metadata(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_file_metadata(raw);
   }
 
   @protected
@@ -3484,6 +3567,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  FileMetadata sse_decode_box_autoadd_file_metadata(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_file_metadata(deserializer));
+  }
+
+  @protected
   FlutterEvent sse_decode_box_autoadd_flutter_event(
     SseDeserializer deserializer,
   ) {
@@ -3557,6 +3648,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     final var_count = sse_decode_u_64(deserializer);
     final var_users = sse_decode_list_String(deserializer);
     return EmojiReaction(emoji: var_emoji, count: var_count, users: var_users);
+  }
+
+  @protected
+  FileMetadata sse_decode_file_metadata(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_originalFilename = sse_decode_opt_String(deserializer);
+    final var_dimensions = sse_decode_opt_String(deserializer);
+    final var_blurhash = sse_decode_opt_String(deserializer);
+    return FileMetadata(
+      originalFilename: var_originalFilename,
+      dimensions: var_dimensions,
+      blurhash: var_blurhash,
+    );
   }
 
   @protected
@@ -3887,6 +3991,29 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  MediaFile sse_decode_media_file(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_mlsGroupId = sse_decode_String(deserializer);
+    final var_filePath = sse_decode_String(deserializer);
+    final var_fileMimeType = sse_decode_String(deserializer);
+    final var_fileMediaType = sse_decode_String(deserializer);
+    final var_fileBlossomUrl = sse_decode_String(deserializer);
+    final var_fileMetadata = sse_decode_opt_box_autoadd_file_metadata(
+      deserializer,
+    );
+    final var_originalFilePath = sse_decode_opt_String(deserializer);
+    return MediaFile(
+      mlsGroupId: var_mlsGroupId,
+      filePath: var_filePath,
+      fileMimeType: var_fileMimeType,
+      fileMediaType: var_fileMediaType,
+      fileBlossomUrl: var_fileBlossomUrl,
+      fileMetadata: var_fileMetadata,
+      originalFilePath: var_originalFilePath,
+    );
+  }
+
+  @protected
   MessageWithTokens sse_decode_message_with_tokens(
     SseDeserializer deserializer,
   ) {
@@ -3926,6 +4053,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_Chrono_Utc(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  FileMetadata? sse_decode_opt_box_autoadd_file_metadata(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_file_metadata(deserializer));
     } else {
       return null;
     }
@@ -4427,6 +4567,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_file_metadata(
+    FileMetadata self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_file_metadata(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_flutter_event(
     FlutterEvent self,
     SseSerializer serializer,
@@ -4490,6 +4639,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.emoji, serializer);
     sse_encode_u_64(self.count, serializer);
     sse_encode_list_String(self.users, serializer);
+  }
+
+  @protected
+  void sse_encode_file_metadata(FileMetadata self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_opt_String(self.originalFilename, serializer);
+    sse_encode_opt_String(self.dimensions, serializer);
+    sse_encode_opt_String(self.blurhash, serializer);
   }
 
   @protected
@@ -4749,6 +4906,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_media_file(MediaFile self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.mlsGroupId, serializer);
+    sse_encode_String(self.filePath, serializer);
+    sse_encode_String(self.fileMimeType, serializer);
+    sse_encode_String(self.fileMediaType, serializer);
+    sse_encode_String(self.fileBlossomUrl, serializer);
+    sse_encode_opt_box_autoadd_file_metadata(self.fileMetadata, serializer);
+    sse_encode_opt_String(self.originalFilePath, serializer);
+  }
+
+  @protected
   void sse_encode_message_with_tokens(
     MessageWithTokens self,
     SseSerializer serializer,
@@ -4782,6 +4951,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_Chrono_Utc(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_file_metadata(
+    FileMetadata? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_file_metadata(self, serializer);
     }
   }
 
