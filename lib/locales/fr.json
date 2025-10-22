@@ -294,7 +294,12 @@
         "invitingMembers": "Invitation de Membres :",
         "groupNameHint": "Groupe Citoyens Libres",
         "groupDescriptionHint": "Écrivez quelque chose sur le groupe",
-        "uploadingImage": "Téléchargement de l'Image..."
+        "uploadingImage": "Téléchargement de l'Image...",
+        "addMembers": "Ajouter des membres",
+        "membersAddedSuccess": "Membres ajoutés avec succès",
+        "failedToAddMembers": "Échec de l'ajout des membres",
+        "addingMembers": "Ajout de membres...",
+        "selectedCount": "{count} sélectionnés"
     },
     "errors": {
         "errorOccurred": "Une erreur s'est produite",

@@ -294,7 +294,12 @@
         "invitingMembers": "Üyeler Davet Ediliyor:",
         "groupNameHint": "Özgür Vatandaşlar Grubu",
         "groupDescriptionHint": "Grup hakkında bir şeyler yazın",
-        "uploadingImage": "Resim Yükleniyor..."
+        "uploadingImage": "Resim Yükleniyor...",
+        "addMembers": "Üyeleri Ekle",
+        "membersAddedSuccess": "Üyeler başarıyla eklendi",
+        "failedToAddMembers": "Üye ekleme başarısız",
+        "addingMembers": "Üyeler ekleniyor...",
+        "selectedCount": "{count} seçildi"
     },
     "errors": {
         "errorOccurred": "Bir hata oluştu",
