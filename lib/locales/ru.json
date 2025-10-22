@@ -201,8 +201,7 @@
         "removedFromGroupSuccess": "{name} удалён из группы",
         "failedToRemoveMember": "Не удалось удалить участника",
         "noUserToStartChatWith": "Нет пользователя для начала чата",
-        "photos": "Фото",
-        "addMembers": "Добавить участников"
+        "photos": "Фото"
     },
     "clipboard": {
         "emptyTextError": "Текст в буфере обмена не найден",
@@ -295,7 +294,12 @@
         "invitingMembers": "Приглашение Участников:",
         "groupNameHint": "Группа Свободных Граждан",
         "groupDescriptionHint": "Напишите что-то о группе",
-        "uploadingImage": "Загрузка Изображения..."
+        "uploadingImage": "Загрузка Изображения...",
+        "addMembers": "Добавить участников",
+        "membersAddedSuccess": "Участники успешно добавлены",
+        "failedToAddMembers": "Не удалось добавить участников",
+        "addingMembers": "Добавление участников...",
+        "selectedCount": "{count} выбрано"
     },
     "errors": {
         "errorOccurred": "Произошла ошибка",

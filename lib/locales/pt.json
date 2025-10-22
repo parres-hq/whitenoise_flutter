@@ -201,8 +201,7 @@
         "removedFromGroupSuccess": "{name} removido do grupo",
         "failedToRemoveMember": "Falha ao remover membro",
         "noUserToStartChatWith": "Nenhum usuário para iniciar conversa",
-        "photos": "Fotos",
-        "addMembers": "Adicionar membros"
+        "photos": "Fotos"
     },
     "clipboard": {
         "emptyTextError": "Nenhum texto encontrado na área de transferência",
@@ -295,7 +294,12 @@
         "invitingMembers": "Convidando Membros:",
         "groupNameHint": "Grupo Cidadãos Livres",
         "groupDescriptionHint": "Escreva algo sobre o grupo",
-        "uploadingImage": "Enviando Imagem..."
+        "uploadingImage": "Enviando Imagem...",
+        "addMembers": "Adicionar membros",
+        "membersAddedSuccess": "Membros adicionados com sucesso",
+        "failedToAddMembers": "Falha ao adicionar membros",
+        "addingMembers": "Adicionando membros...",
+        "selectedCount": "{count} selecionados"
     },
     "errors": {
         "errorOccurred": "Ocorreu um erro",

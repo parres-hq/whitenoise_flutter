@@ -202,13 +202,7 @@
         "removedFromGroupSuccess": "{name} removed from group",
         "failedToRemoveMember": "Failed to remove member",
         "noUserToStartChatWith": "No user to start chat with",
-        "photos": "Photos",
-        "addMembers": "Add Members",
-        "membersAddedSuccess": "Members added successfully",
-        "failedToAddMembers": "Failed to add members",
-        "addingMembers": "Adding members...",
-        "selectedCount": "{count} selected",
-        "yourContacts": "Your Contacts"
+        "photos": "Photos"
     },
     "clipboard": {
         "emptyTextError": "No text found in clipboard",
@@ -301,7 +295,12 @@
         "invitingMembers": "Inviting Members:",
         "groupNameHint": "Free Citizen Group",
         "groupDescriptionHint": "Write something about the group",
-        "uploadingImage": "Uploading Image..."
+        "uploadingImage": "Uploading Image...",
+        "addMembers": "Add Members",
+        "membersAddedSuccess": "Members added successfully",
+        "failedToAddMembers": "Failed to add members",
+        "addingMembers": "Adding members...",
+        "selectedCount": "{count} selected"
     },
     "errors": {
         "errorOccurred": "An error occurred",

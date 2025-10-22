@@ -201,8 +201,7 @@
         "removedFromGroupSuccess": "{name} aus Gruppe entfernt",
         "failedToRemoveMember": "Fehler beim Entfernen des Mitglieds",
         "noUserToStartChatWith": "Kein Benutzer zum Chatten",
-        "photos": "Fotos",
-        "addMembers": "Mitglieder hinzufügen"
+        "photos": "Fotos"
     },
     "clipboard": {
         "emptyTextError": "Kein Text in der Zwischenablage gefunden",
@@ -295,7 +294,12 @@
         "invitingMembers": "Mitglieder werden eingeladen:",
         "groupNameHint": "Freie Bürger Gruppe",
         "groupDescriptionHint": "Schreibe etwas über die Gruppe",
-        "uploadingImage": "Bild wird hochgeladen..."
+        "uploadingImage": "Bild wird hochgeladen...",
+        "addMembers": "Mitglieder hinzufügen",
+        "membersAddedSuccess": "Mitglieder erfolgreich hinzugefügt",
+        "failedToAddMembers": "Fehler beim Hinzufügen von Mitgliedern",
+        "addingMembers": "Mitglieder werden hinzugefügt...",
+        "selectedCount": "{count} ausgewählt"
     },
     "errors": {
         "errorOccurred": "Ein Fehler ist aufgetreten",
