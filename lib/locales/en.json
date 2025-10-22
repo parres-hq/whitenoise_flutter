@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Failed to publish key package",
         "keyPackageDeletedSuccess": "Key package deleted successfully",
         "failedToDeleteKeyPackage": "Failed to delete key package",
-        "noActiveAccountFound": "No active account found"
+        "noActiveAccountFound": "No active account found",
+        "backgroundServices": "Background Services",
+        "backgroundSyncService": "Background Sync Service"
     },
     "profile": {
         "nostrAddress": "Nostr Address (NIP-05)",

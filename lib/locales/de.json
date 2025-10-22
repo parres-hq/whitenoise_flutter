@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Fehler beim Veröffentlichen des Schlüsselpakets",
         "keyPackageDeletedSuccess": "Schlüsselpaket erfolgreich gelöscht",
         "failedToDeleteKeyPackage": "Fehler beim Löschen des Schlüsselpakets",
-        "noActiveAccountFound": "Kein aktives Konto gefunden"
+        "noActiveAccountFound": "Kein aktives Konto gefunden",
+        "backgroundServices": "Hintergrunddienste",
+        "backgroundSyncService": "Hintergrund-Synchronisationsdienst"
     },
     "profile": {
         "nostrAddress": "Nostr-Adresse (NIP-05)",

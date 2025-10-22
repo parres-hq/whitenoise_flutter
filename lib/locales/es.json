@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Error al publicar el paquete de llaves",
         "keyPackageDeletedSuccess": "Paquete de llaves eliminado exitosamente",
         "failedToDeleteKeyPackage": "Error al eliminar el paquete de llaves",
-        "noActiveAccountFound": "No se encontró una cuenta activa"
+        "noActiveAccountFound": "No se encontró una cuenta activa",
+        "backgroundServices": "Servicios en segundo plano",
+        "backgroundSyncService": "Servicio de sincronización en segundo plano"
     },
     "profile": {
         "nostrAddress": "Dirección Nostr (NIP-05)",

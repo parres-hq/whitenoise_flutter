@@ -368,23 +368,23 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                   ),
                                 )
                               else
-                                Expanded(
-                                  child: RepaintBoundary(
-                                    child: ListView.separated(
-                                      itemCount: _keyPackages.length,
-                                      separatorBuilder: (context, index) => SizedBox(height: 8.h),
-                                      itemBuilder: (context, index) {
-                                        final keyPackage = _keyPackages[index];
-                                        return RepaintBoundary(
-                                          child: _KeyPackageItem(
-                                            keyPackage: keyPackage,
-                                            index: index,
-                                            isLoading: _isLoading,
-                                            onDelete: () => _deleteKeyPackage(keyPackage.id, index),
-                                          ),
-                                        );
-                                      },
-                                    ),
+                                RepaintBoundary(
+                                  child: ListView.separated(
+                                    shrinkWrap: true,
+                                    physics: const NeverScrollableScrollPhysics(),
+                                    itemCount: _keyPackages.length,
+                                    separatorBuilder: (context, index) => SizedBox(height: 8.h),
+                                    itemBuilder: (context, index) {
+                                      final keyPackage = _keyPackages[index];
+                                      return RepaintBoundary(
+                                        child: _KeyPackageItem(
+                                          keyPackage: keyPackage,
+                                          index: index,
+                                          isLoading: _isLoading,
+                                          onDelete: () => _deleteKeyPackage(keyPackage.id, index),
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                             ],
@@ -394,7 +394,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Background Services',
+                                    'settings.backgroundServices'.tr(),
                                     style: TextStyle(
                                       fontSize: 14.sp,
                                       fontWeight: FontWeight.w600,
@@ -404,7 +404,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
 
                                   Gap(10.h),
                                   WnFilledButton(
-                                    label: 'Background Sync Service',
+                                    label: 'settings.backgroundSyncService'.tr(),
                                     onPressed: () => BackgroundSyncScreen.show(context),
                                   ),
                                 ],
@@ -444,7 +444,6 @@ class _KeyPackageItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.all(16.w),
-      // This reduces rasterization cost significantly
       decoration: BoxDecoration(
         color: context.colors.avatarSurface,
         borderRadius: BorderRadius.circular(8.r),
@@ -453,7 +452,7 @@ class _KeyPackageItem extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(
             color: context.colors.border.withValues(alpha: 0.3),
-            width: 0.5, // Thinner border for better performance
+            width: 0.5,
           ),
           borderRadius: BorderRadius.circular(6.r),
         ),
