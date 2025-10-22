@@ -129,7 +129,7 @@ class UserProfile {
   /// Convert from User to UserProfile
   factory UserProfile.fromUser(User user) {
     final npub = PubkeyFormatter(pubkey: user.publicKey).toNpub() ?? '';
-    
+
     return UserProfile(
       publicKey: npub,
       displayName: user.displayName,
