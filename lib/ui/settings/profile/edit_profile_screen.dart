@@ -121,7 +121,6 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
           ),
         ),
         body: SafeArea(
-          bottom: false,
           child: ColoredBox(
             color: context.colors.neutral,
             child: profileState.when(
@@ -138,7 +137,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                     children: [
                       Expanded(
                         child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 24.h),
+                          padding: EdgeInsets.only(top: 24.h),
                           child: SingleChildScrollView(
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16.w),
@@ -254,7 +253,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                         padding: EdgeInsets.only(
                           left: 16.w,
                           right: 16.w,
-                          bottom: MediaQuery.of(context).viewPadding.bottom,
+                          bottom: 16.h,
                         ),
                         child: profileState.when(
                           data:
