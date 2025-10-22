@@ -111,7 +111,6 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
         memberPubkeys: memberPubkeys,
       );
 
-      // Refresh groups to get updated member list
       await ref.read(groupsProvider.notifier).loadGroups();
 
       if (mounted) {
@@ -133,12 +132,10 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
   List<User> _getFilteredFollows(List<User>? follows, String? currentUserPubkey) {
     if (follows == null) return [];
 
-    // Filter out only current user
     final availableFollows =
         follows.where((user) {
           final userPubkey = user.publicKey.trim().toLowerCase();
 
-          // Exclude current user only
           if (currentUserPubkey != null && userPubkey == currentUserPubkey.trim().toLowerCase()) {
             return false;
           }
@@ -146,7 +143,6 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
           return true;
         }).toList();
 
-    // Apply search filter if there's a search query
     if (_searchQuery.isEmpty) return availableFollows;
 
     return availableFollows
