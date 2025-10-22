@@ -25,7 +25,7 @@ import 'package:whitenoise/utils/pubkey_formatter.dart';
 class ChatNotifier extends Notifier<ChatState> {
   final _logger = Logger('ChatNotifier');
   final _messageSenderService = MessageSenderService();
-  
+
   final Map<String, Future<DMChatData?>> _dmChatDataLoadingFutures = {};
 
   @override
@@ -820,7 +820,7 @@ class ChatNotifier extends Notifier<ChatState> {
   Future<DMChatData?> _loadDMChatData(String groupId) async {
     const maxRetries = 2;
     int attempt = 0;
-    
+
     while (attempt <= maxRetries) {
       try {
         final otherMember = ref.read(groupsProvider.notifier).getOtherGroupMember(groupId);
@@ -849,15 +849,19 @@ class ChatNotifier extends Notifier<ChatState> {
       } catch (e) {
         attempt++;
         if (attempt <= maxRetries) {
-          _logger.warning('Error in _loadDMChatData for group $groupId (attempt $attempt/$maxRetries): $e');
+          _logger.warning(
+            'Error in _loadDMChatData for group $groupId (attempt $attempt/$maxRetries): $e',
+          );
           await Future.delayed(Duration(milliseconds: 500 * attempt));
         } else {
-          _logger.severe('Failed to load DMChatData for group $groupId after $maxRetries retries: $e');
+          _logger.severe(
+            'Failed to load DMChatData for group $groupId after $maxRetries retries: $e',
+          );
           return null;
         }
       }
     }
-    
+
     return null;
   }
 }
