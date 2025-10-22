@@ -33,8 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed broken profile image upload [#701](https://github.com/parres-hq/whitenoise_flutter/pull/701)
 - Fixed double rendering issue for some messages [#654](https://github.com/parres-hq/whitenoise_flutter/pull/654)
 - Fixed message bubble jumping to another location on context screen.
-
 - Fixed status bar icons invisibility in auth screens (iOS and Android).
+- Fixed start chat button cut off (and other bottom sheets).
 
 ### Security
 
