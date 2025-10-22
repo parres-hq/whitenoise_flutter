@@ -99,7 +99,7 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
     try {
       final activePubkey = ref.read(activePubkeyProvider);
       if (activePubkey == null) {
-        safeShowErrorToast('errors.noActiveAccount'.tr());
+        safeShowErrorToast('settings.noActiveAccountFound'.tr());
         return;
       }
 
