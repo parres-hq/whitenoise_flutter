@@ -25,6 +25,8 @@ import 'package:whitenoise/utils/pubkey_formatter.dart';
 class ChatNotifier extends Notifier<ChatState> {
   final _logger = Logger('ChatNotifier');
   final _messageSenderService = MessageSenderService();
+  
+  final Map<String, Future<DMChatData?>> _dmChatDataLoadingFutures = {};
 
   @override
   ChatState build() {
@@ -758,10 +760,17 @@ class ChatNotifier extends Notifier<ChatState> {
       return state.getDMChatData(groupId);
     }
 
+    if (_dmChatDataLoadingFutures.containsKey(groupId)) {
+      return _dmChatDataLoadingFutures[groupId];
+    }
+
     // Load data asynchronously and cache it
     try {
       _logger.info('Loading DMChatData for group: $groupId');
-      final dmChatData = await _loadDMChatData(groupId);
+      final future = _loadDMChatData(groupId);
+      _dmChatDataLoadingFutures[groupId] = future;
+      final dmChatData = await future;
+      _dmChatDataLoadingFutures.remove(groupId);
 
       // Update state with cached data
       state = state.copyWith(
@@ -774,6 +783,7 @@ class ChatNotifier extends Notifier<ChatState> {
       return dmChatData;
     } catch (e, st) {
       _logger.severe('Failed to load DMChatData for group $groupId', e, st);
+      _dmChatDataLoadingFutures.remove(groupId);
       // Cache null result to avoid repeated failed attempts
       state = state.copyWith(
         dmChatDataCache: {
@@ -806,35 +816,49 @@ class ChatNotifier extends Notifier<ChatState> {
     }
   }
 
-  /// Helper method to load DMChatData using the NotifierProviderRef
+  /// Helper method to load DMChatData using the NotifierProviderRef with retry strategy
   Future<DMChatData?> _loadDMChatData(String groupId) async {
-    try {
-      final otherMember = ref.read(groupsProvider.notifier).getOtherGroupMember(groupId);
+    const maxRetries = 2;
+    int attempt = 0;
+    
+    while (attempt <= maxRetries) {
+      try {
+        final otherMember = ref.read(groupsProvider.notifier).getOtherGroupMember(groupId);
 
-      if (otherMember != null) {
-        final user = await wn_users_api.getUser(pubkey: otherMember.publicKey);
-        final otherMemberPubkey = otherMember.publicKey;
-        final otherMemberNpubPubkey = PubkeyFormatter(pubkey: otherMemberPubkey).toNpub() ?? '';
-        final userProfile = UserProfile.fromMetadata(
-          pubkey: otherMemberNpubPubkey,
-          metadata: user.metadata,
-        );
-        final displayName = userProfile.displayName;
-        final displayImage = userProfile.imagePath ?? (otherMember.imagePath ?? '');
-        final nip05 = userProfile.nip05 ?? '';
-        final npub = userProfile.publicKey;
-        return DMChatData(
-          displayName: displayName,
-          displayImage: displayImage,
-          nip05: nip05,
-          publicKey: npub,
-        );
+        if (otherMember != null) {
+          final user = await wn_users_api.getUser(pubkey: otherMember.publicKey);
+          final otherMemberPubkey = otherMember.publicKey;
+          final otherMemberNpubPubkey = PubkeyFormatter(pubkey: otherMemberPubkey).toNpub() ?? '';
+          final userProfile = UserProfile.fromMetadata(
+            pubkey: otherMemberNpubPubkey,
+            metadata: user.metadata,
+          );
+          final displayName = userProfile.displayName;
+          final displayImage = userProfile.imagePath ?? (otherMember.imagePath ?? '');
+          final nip05 = userProfile.nip05 ?? '';
+          final npub = userProfile.publicKey;
+          return DMChatData(
+            displayName: displayName,
+            displayImage: displayImage,
+            nip05: nip05,
+            publicKey: npub,
+          );
+        }
+
+        return null;
+      } catch (e) {
+        attempt++;
+        if (attempt <= maxRetries) {
+          _logger.warning('Error in _loadDMChatData for group $groupId (attempt $attempt/$maxRetries): $e');
+          await Future.delayed(Duration(milliseconds: 500 * attempt));
+        } else {
+          _logger.severe('Failed to load DMChatData for group $groupId after $maxRetries retries: $e');
+          return null;
+        }
       }
-
-      return null;
-    } catch (e) {
-      return null;
     }
+    
+    return null;
   }
 }
 
