@@ -9,13 +9,16 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/group_messages_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
+import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/domain/services/last_read_manager.dart';
 import 'package:whitenoise/domain/services/message_merger_service.dart';
 import 'package:whitenoise/domain/services/message_sender_service.dart';
 import 'package:whitenoise/domain/services/reaction_comparison_service.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/messages.dart';
+import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/utils/message_converter.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
@@ -237,7 +240,9 @@ class ChatNotifier extends Notifier<ChatState> {
 
     // Auto-load messages when selecting a group, but schedule it outside the build phase
     if (groupId != null) {
-      Future.microtask(() => loadMessagesForGroup(groupId));
+      Future.microtask(() {
+        loadMessagesForGroup(groupId);
+      });
     }
   }
 
@@ -744,6 +749,94 @@ class ChatNotifier extends Notifier<ChatState> {
     final now = DateTime.now();
 
     await ref.read(groupsProvider.notifier).updateGroupActivityTime(groupId, now);
+  }
+
+  /// Get cached DMChatData for a group, or load it if not cached
+  Future<DMChatData?> getDMChatData(String groupId) async {
+    // Return cached data if available
+    if (state.isDMChatDataCached(groupId)) {
+      return state.getDMChatData(groupId);
+    }
+
+    // Load data asynchronously and cache it
+    try {
+      _logger.info('Loading DMChatData for group: $groupId');
+      final dmChatData = await _loadDMChatData(groupId);
+      
+      // Update state with cached data
+      state = state.copyWith(
+        dmChatDataCache: {
+          ...state.dmChatDataCache,
+          groupId: dmChatData,
+        },
+      );
+      
+      return dmChatData;
+    } catch (e, st) {
+      _logger.severe('Failed to load DMChatData for group $groupId', e, st);
+      // Cache null result to avoid repeated failed attempts
+      state = state.copyWith(
+        dmChatDataCache: {
+          ...state.dmChatDataCache,
+          groupId: null,
+        },
+      );
+      return null;
+    }
+  }
+
+  /// Preload DMChatData for a group to ensure it's available immediately
+  Future<void> preloadDMChatData(String groupId) async {
+    if (!state.isDMChatDataCached(groupId)) {
+      await getDMChatData(groupId);
+    }
+  }
+
+  /// Get cached DMChatData synchronously (returns null if not cached)
+  DMChatData? getCachedDMChatData(String groupId) {
+    return state.getDMChatData(groupId);
+  }
+
+  /// Clear cached DMChatData for a specific group
+  void clearDMChatDataForGroup(String groupId) {
+    if (state.isDMChatDataCached(groupId)) {
+      final newCache = Map<String, DMChatData?>.from(state.dmChatDataCache);
+      newCache.remove(groupId);
+      state = state.copyWith(dmChatDataCache: newCache);
+    }
+  }
+
+  /// Helper method to load DMChatData using the NotifierProviderRef
+  Future<DMChatData?> _loadDMChatData(String groupId) async {
+    try {
+      final otherMember = ref
+          .read(groupsProvider.notifier)
+          .getOtherGroupMember(groupId);
+
+      if (otherMember != null) {
+        final user = await wn_users_api.getUser(pubkey: otherMember.publicKey);
+        final otherMemberPubkey = otherMember.publicKey;
+        final otherMemberNpubPubkey = PubkeyFormatter(pubkey: otherMemberPubkey).toNpub() ?? '';
+        final userProfile = UserProfile.fromMetadata(
+          pubkey: otherMemberNpubPubkey,
+          metadata: user.metadata,
+        );
+        final displayName = userProfile.displayName;
+        final displayImage = userProfile.imagePath ?? (otherMember.imagePath ?? '');
+        final nip05 = userProfile.nip05 ?? '';
+        final npup = userProfile.publicKey;
+        return DMChatData(
+          displayName: displayName,
+          displayImage: displayImage,
+          nip05: nip05,
+          publicKey: npup,
+        );
+      }
+
+      return null;
+    } catch (e) {
+      return null;
+    }
   }
 }
 

@@ -10,8 +10,6 @@ import 'package:whitenoise/config/providers/chat_search_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
-import 'package:whitenoise/domain/models/dm_chat_data.dart';
-import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/domain/services/last_read_manager.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/invite/chat_invite_screen.dart';
@@ -44,7 +42,6 @@ class ChatScreen extends ConsumerStatefulWidget {
 class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   double _lastScrollOffset = 0.0;
-  Future<DMChatData?>? _dmChatDataFuture;
   ProviderSubscription<ChatState>? _chatSubscription;
   bool _hasInitialScrollCompleted = false;
   bool _isKeyboardOpen = false;
@@ -55,7 +52,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _initializeDMChatData();
 
     // Add scroll listener for last read saving
     _scrollController.addListener(_onScroll);
@@ -64,6 +60,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
         ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
+        // Preload DMChatData to ensure it's available immediately
+        ref.read(chatProvider.notifier).preloadDMChatData(widget.groupId);
       }
     });
 
@@ -78,7 +76,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     super.didUpdateWidget(oldWidget);
     if (oldWidget.groupId != widget.groupId) {
       _hasInitialScrollCompleted = false; // Reset for new chat
-      _initializeDMChatData();
+      // Preload DMChatData for the new group
+      ref.read(chatProvider.notifier).preloadDMChatData(widget.groupId);
     }
   }
 
@@ -93,13 +92,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     super.dispose();
   }
 
-  void _initializeDMChatData() {
-    final groupsNotifier = ref.read(groupsProvider.notifier);
-    final group = groupsNotifier.findGroupById(widget.groupId);
-    if (group != null) {
-      _dmChatDataFuture = ref.getDMChatData(group.mlsGroupId);
-    }
-  }
 
   /// Check if the user is effectively at the bottom of the chat
   bool _isAtBottom() {
@@ -367,21 +359,24 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                 WnAppBar.sliver(
                                   floating: true,
                                   pinned: true,
-                                  title: FutureBuilder(
-                                    future: _dmChatDataFuture,
-                                    builder: (context, snapshot) {
-                                      if (snapshot.connectionState == ConnectionState.waiting) {
+                                  title: Consumer(
+                                    builder: (context, ref, child) {
+                                      final chatState = ref.watch(chatProvider);
+                                      final dmChatData = chatState.getDMChatData(widget.groupId);
+                                      final isDataCached = chatState.isDMChatDataCached(widget.groupId);
+                                      
+                                      if (groupType == GroupType.directMessage && !isDataCached) {
                                         return const UserProfileInfo.loading();
                                       }
-                                      final otherUser = snapshot.data;
+                                      
                                       return UserProfileInfo(
                                         title:
                                             groupType == GroupType.directMessage
-                                                ? otherUser?.displayName ?? ''
+                                                ? dmChatData?.displayName ?? ''
                                                 : group.name,
                                         image:
                                             groupType == GroupType.directMessage
-                                                ? otherUser?.displayImage ?? ''
+                                                ? dmChatData?.displayImage ?? ''
                                                 : groupsNotifier.getCachedGroupImagePath(
                                                       widget.groupId,
                                                     ) ??

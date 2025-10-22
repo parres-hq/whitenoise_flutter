@@ -20,23 +20,30 @@ mixin _$ChatState {
   // Map of groupId -> list of messages
   Map<String, List<MessageModel>> get groupMessages =>
       throw _privateConstructorUsedError; // Currently selected group ID
-  String? get selectedGroupId => throw _privateConstructorUsedError; // Loading states per group
+  String? get selectedGroupId =>
+      throw _privateConstructorUsedError; // Loading states per group
   Map<String, bool> get groupLoadingStates =>
       throw _privateConstructorUsedError; // Error states per group
   Map<String, String?> get groupErrorStates =>
       throw _privateConstructorUsedError; // Global loading state
-  bool get isLoading => throw _privateConstructorUsedError; // Global error state
-  String? get error => throw _privateConstructorUsedError; // Sending message states per group
+  bool get isLoading =>
+      throw _privateConstructorUsedError; // Global error state
+  String? get error =>
+      throw _privateConstructorUsedError; // Sending message states per group
   Map<String, bool> get sendingStates =>
       throw _privateConstructorUsedError; // Message being replied to per group
   Map<String, MessageModel?> get replyingTo =>
       throw _privateConstructorUsedError; // Message being edited per group
-  Map<String, MessageModel?> get editingMessage => throw _privateConstructorUsedError;
+  Map<String, MessageModel?> get editingMessage =>
+      throw _privateConstructorUsedError; // Cached DMChatData per group
+  Map<String, DMChatData?> get dmChatDataCache =>
+      throw _privateConstructorUsedError;
 
   /// Create a copy of ChatState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ChatStateCopyWith<ChatState> get copyWith => throw _privateConstructorUsedError;
+  $ChatStateCopyWith<ChatState> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -54,11 +61,13 @@ abstract class $ChatStateCopyWith<$Res> {
     Map<String, bool> sendingStates,
     Map<String, MessageModel?> replyingTo,
     Map<String, MessageModel?> editingMessage,
+    Map<String, DMChatData?> dmChatDataCache,
   });
 }
 
 /// @nodoc
-class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStateCopyWith<$Res> {
+class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState>
+    implements $ChatStateCopyWith<$Res> {
   _$ChatStateCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -80,6 +89,7 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStat
     Object? sendingStates = null,
     Object? replyingTo = null,
     Object? editingMessage = null,
+    Object? dmChatDataCache = null,
   }) {
     return _then(
       _value.copyWith(
@@ -128,6 +138,11 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStat
                     ? _value.editingMessage
                     : editingMessage // ignore: cast_nullable_to_non_nullable
                         as Map<String, MessageModel?>,
+            dmChatDataCache:
+                null == dmChatDataCache
+                    ? _value.dmChatDataCache
+                    : dmChatDataCache // ignore: cast_nullable_to_non_nullable
+                        as Map<String, DMChatData?>,
           )
           as $Val,
     );
@@ -135,7 +150,8 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStat
 }
 
 /// @nodoc
-abstract class _$$ChatStateImplCopyWith<$Res> implements $ChatStateCopyWith<$Res> {
+abstract class _$$ChatStateImplCopyWith<$Res>
+    implements $ChatStateCopyWith<$Res> {
   factory _$$ChatStateImplCopyWith(
     _$ChatStateImpl value,
     $Res Function(_$ChatStateImpl) then,
@@ -152,11 +168,13 @@ abstract class _$$ChatStateImplCopyWith<$Res> implements $ChatStateCopyWith<$Res
     Map<String, bool> sendingStates,
     Map<String, MessageModel?> replyingTo,
     Map<String, MessageModel?> editingMessage,
+    Map<String, DMChatData?> dmChatDataCache,
   });
 }
 
 /// @nodoc
-class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, _$ChatStateImpl>
+class __$$ChatStateImplCopyWithImpl<$Res>
+    extends _$ChatStateCopyWithImpl<$Res, _$ChatStateImpl>
     implements _$$ChatStateImplCopyWith<$Res> {
   __$$ChatStateImplCopyWithImpl(
     _$ChatStateImpl _value,
@@ -177,6 +195,7 @@ class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, 
     Object? sendingStates = null,
     Object? replyingTo = null,
     Object? editingMessage = null,
+    Object? dmChatDataCache = null,
   }) {
     return _then(
       _$ChatStateImpl(
@@ -225,6 +244,11 @@ class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, 
                 ? _value._editingMessage
                 : editingMessage // ignore: cast_nullable_to_non_nullable
                     as Map<String, MessageModel?>,
+        dmChatDataCache:
+            null == dmChatDataCache
+                ? _value._dmChatDataCache
+                : dmChatDataCache // ignore: cast_nullable_to_non_nullable
+                    as Map<String, DMChatData?>,
       ),
     );
   }
@@ -243,12 +267,14 @@ class _$ChatStateImpl extends _ChatState {
     final Map<String, bool> sendingStates = const {},
     final Map<String, MessageModel?> replyingTo = const {},
     final Map<String, MessageModel?> editingMessage = const {},
+    final Map<String, DMChatData?> dmChatDataCache = const {},
   }) : _groupMessages = groupMessages,
        _groupLoadingStates = groupLoadingStates,
        _groupErrorStates = groupErrorStates,
        _sendingStates = sendingStates,
        _replyingTo = replyingTo,
        _editingMessage = editingMessage,
+       _dmChatDataCache = dmChatDataCache,
        super._();
 
   // Map of groupId -> list of messages
@@ -271,7 +297,8 @@ class _$ChatStateImpl extends _ChatState {
   @override
   @JsonKey()
   Map<String, bool> get groupLoadingStates {
-    if (_groupLoadingStates is EqualUnmodifiableMapView) return _groupLoadingStates;
+    if (_groupLoadingStates is EqualUnmodifiableMapView)
+      return _groupLoadingStates;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_groupLoadingStates);
   }
@@ -327,9 +354,20 @@ class _$ChatStateImpl extends _ChatState {
     return EqualUnmodifiableMapView(_editingMessage);
   }
 
+  // Cached DMChatData per group
+  final Map<String, DMChatData?> _dmChatDataCache;
+  // Cached DMChatData per group
+  @override
+  @JsonKey()
+  Map<String, DMChatData?> get dmChatDataCache {
+    if (_dmChatDataCache is EqualUnmodifiableMapView) return _dmChatDataCache;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_dmChatDataCache);
+  }
+
   @override
   String toString() {
-    return 'ChatState(groupMessages: $groupMessages, selectedGroupId: $selectedGroupId, groupLoadingStates: $groupLoadingStates, groupErrorStates: $groupErrorStates, isLoading: $isLoading, error: $error, sendingStates: $sendingStates, replyingTo: $replyingTo, editingMessage: $editingMessage)';
+    return 'ChatState(groupMessages: $groupMessages, selectedGroupId: $selectedGroupId, groupLoadingStates: $groupLoadingStates, groupErrorStates: $groupErrorStates, isLoading: $isLoading, error: $error, sendingStates: $sendingStates, replyingTo: $replyingTo, editingMessage: $editingMessage, dmChatDataCache: $dmChatDataCache)';
   }
 
   @override
@@ -351,7 +389,8 @@ class _$ChatStateImpl extends _ChatState {
               other._groupErrorStates,
               _groupErrorStates,
             ) &&
-            (identical(other.isLoading, isLoading) || other.isLoading == isLoading) &&
+            (identical(other.isLoading, isLoading) ||
+                other.isLoading == isLoading) &&
             (identical(other.error, error) || other.error == error) &&
             const DeepCollectionEquality().equals(
               other._sendingStates,
@@ -364,6 +403,10 @@ class _$ChatStateImpl extends _ChatState {
             const DeepCollectionEquality().equals(
               other._editingMessage,
               _editingMessage,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._dmChatDataCache,
+              _dmChatDataCache,
             ));
   }
 
@@ -379,6 +422,7 @@ class _$ChatStateImpl extends _ChatState {
     const DeepCollectionEquality().hash(_sendingStates),
     const DeepCollectionEquality().hash(_replyingTo),
     const DeepCollectionEquality().hash(_editingMessage),
+    const DeepCollectionEquality().hash(_dmChatDataCache),
   );
 
   /// Create a copy of ChatState
@@ -401,6 +445,7 @@ abstract class _ChatState extends ChatState {
     final Map<String, bool> sendingStates,
     final Map<String, MessageModel?> replyingTo,
     final Map<String, MessageModel?> editingMessage,
+    final Map<String, DMChatData?> dmChatDataCache,
   }) = _$ChatStateImpl;
   const _ChatState._() : super._();
 
@@ -422,11 +467,14 @@ abstract class _ChatState extends ChatState {
   @override
   Map<String, MessageModel?> get replyingTo; // Message being edited per group
   @override
-  Map<String, MessageModel?> get editingMessage;
+  Map<String, MessageModel?> get editingMessage; // Cached DMChatData per group
+  @override
+  Map<String, DMChatData?> get dmChatDataCache;
 
   /// Create a copy of ChatState
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ChatStateImplCopyWith<_$ChatStateImpl> get copyWith => throw _privateConstructorUsedError;
+  _$$ChatStateImplCopyWith<_$ChatStateImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }
