@@ -213,7 +213,7 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
             padding: EdgeInsets.symmetric(horizontal: 16.w),
             child: WnTextFormField(
               controller: _searchController,
-              hintText: 'chats.searchFollowsPlaceholder'.tr(),
+              hintText: 'chats.searchUserPlaceholder'.tr(),
               size: FieldSize.small,
               decoration: InputDecoration(
                 prefixIcon: Padding(
@@ -433,17 +433,6 @@ class _FollowsList extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          child: Text(
-            'ui.yourFollows'.tr(),
-            style: TextStyle(
-              fontSize: 14.sp,
-              fontWeight: FontWeight.w600,
-              color: context.colors.mutedForeground,
-            ),
-          ),
-        ),
         Expanded(
           child: ListView.builder(
             padding: EdgeInsets.symmetric(horizontal: 16.w),
