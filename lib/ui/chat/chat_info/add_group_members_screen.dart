@@ -7,9 +7,9 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
+import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -39,7 +39,7 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
   final _logger = Logger('AddGroupMembersScreen');
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
-  final Set<User> _selectedFollows = {};
+  final Set<rust_users.User> _selectedFollows = {};
   bool _isAdding = false;
 
   @override
@@ -77,7 +77,7 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
     });
   }
 
-  void _toggleUserSelection(User user, bool isExistingMember) {
+  void _toggleUserSelection(rust_users.User user, bool isExistingMember) {
     if (isExistingMember) return;
 
     setState(() {
@@ -103,12 +103,12 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
         return;
       }
 
-      final memberPubkeys = _selectedFollows.map((c) => c.publicKey).toList();
+      final memberPubkeysToAdd = _selectedFollows.map((user) => user.pubkey).toList();
 
       await addMembersToGroup(
         pubkey: activePubkey,
         groupId: widget.groupId,
-        memberPubkeys: memberPubkeys,
+        memberPubkeys: memberPubkeysToAdd,
       );
 
       await ref.read(groupsProvider.notifier).loadGroups();
@@ -129,12 +129,12 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
     }
   }
 
-  List<User> _getFilteredFollows(List<User>? follows, String? currentUserPubkey) {
+  List<rust_users.User> _getFilteredFollows(List<rust_users.User>? follows, String? currentUserPubkey) {
     if (follows == null) return [];
 
     final availableFollows =
         follows.where((user) {
-          final userPubkey = user.publicKey.trim().toLowerCase();
+          final userPubkey = user.pubkey.trim().toLowerCase();
 
           if (currentUserPubkey != null && userPubkey == currentUserPubkey.trim().toLowerCase()) {
             return false;
@@ -147,16 +147,19 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
 
     return availableFollows
         .where(
-          (user) =>
-              user.displayName.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ) ||
-              user.nip05.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ) ||
-              user.publicKey.toLowerCase().contains(
-                _searchQuery.toLowerCase(),
-              ),
+          (user) {
+            final displayName = user.metadata.displayName ?? user.metadata.name ?? '';
+            final nip05 = user.metadata.nip05 ?? '';
+            return displayName.toLowerCase().contains(
+                  _searchQuery.toLowerCase(),
+                ) ||
+                nip05.toLowerCase().contains(
+                  _searchQuery.toLowerCase(),
+                ) ||
+                user.pubkey.toLowerCase().contains(
+                  _searchQuery.toLowerCase(),
+                );
+          },
         )
         .toList();
   }
@@ -165,11 +168,7 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
   Widget build(BuildContext context) {
     final followsState = ref.watch(followsProvider);
     final activeAccount = ref.watch(activePubkeyProvider);
-    final follows = followsState.follows;
-    final followsModel = follows.map(
-      (follow) => User.fromMetadata(follow.metadata, follow.pubkey),
-    );
-    final filteredFollows = _getFilteredFollows(followsModel.toList(), activeAccount);
+    final filteredFollows = _getFilteredFollows(followsState.follows, activeAccount);
 
     return Scaffold(
       backgroundColor: context.colors.neutral,
@@ -310,8 +309,8 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
 }
 
 class _SelectedChips extends StatelessWidget {
-  final Set<User> selectedFollows;
-  final ValueChanged<User> onRemove;
+  final Set<rust_users.User> selectedFollows;
+  final ValueChanged<rust_users.User> onRemove;
 
   const _SelectedChips({
     required this.selectedFollows,
@@ -339,14 +338,14 @@ class _SelectedChips extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     WnAvatar(
-                      imageUrl: follow.imagePath ?? '',
-                      displayName: follow.displayName,
+                      imageUrl: follow.metadata.picture ?? '',
+                      displayName: follow.metadata.displayName ?? follow.metadata.name ?? '',
                       size: 18.w,
                       showBorder: true,
                     ),
                     Gap(8.w),
                     Text(
-                      follow.displayName.split(' ').first,
+                      (follow.metadata.displayName ?? follow.metadata.name ?? '').split(' ').first,
                       style: TextStyle(
                         color: context.colors.primaryForeground,
                         fontSize: 12.sp,
@@ -375,10 +374,10 @@ class _SelectedChips extends StatelessWidget {
 }
 
 class _FollowsList extends StatelessWidget {
-  final List<User> follows;
-  final Set<User> selectedFollows;
+  final List<rust_users.User> follows;
+  final Set<rust_users.User> selectedFollows;
   final List<String> existingMemberPubkeys;
-  final Function(User, bool) onToggleSelection;
+  final Function(rust_users.User, bool) onToggleSelection;
   final String searchQuery;
 
   const _FollowsList({
@@ -389,10 +388,10 @@ class _FollowsList extends StatelessWidget {
     required this.searchQuery,
   });
 
-  bool _isExistingMember(User user) {
+  bool _isExistingMember(rust_users.User user) {
     try {
       // Normalize both pubkeys to hex format for comparison
-      final userHexPubkey = PubkeyFormatter(pubkey: user.publicKey).toHex()?.toLowerCase();
+      final userHexPubkey = PubkeyFormatter(pubkey: user.pubkey).toHex()?.toLowerCase();
       if (userHexPubkey == null) return false;
 
       return existingMemberPubkeys.any((memberPubkey) {
@@ -442,7 +441,10 @@ class _FollowsList extends StatelessWidget {
                 child: Padding(
                   padding: EdgeInsets.only(bottom: 16.h),
                   child: UserProfileTile(
-                    userProfile: UserProfile.fromUser(follow),
+                    userProfile: UserProfile.fromMetadata(
+                      pubkey: follow.pubkey,
+                      metadata: follow.metadata,
+                    ),
                     isSelected: isSelected,
                     onTap: () => onToggleSelection(follow, isExistingMember),
                     showCheck: true,
