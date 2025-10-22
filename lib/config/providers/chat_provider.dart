@@ -762,7 +762,7 @@ class ChatNotifier extends Notifier<ChatState> {
     try {
       _logger.info('Loading DMChatData for group: $groupId');
       final dmChatData = await _loadDMChatData(groupId);
-      
+
       // Update state with cached data
       state = state.copyWith(
         dmChatDataCache: {
@@ -770,7 +770,7 @@ class ChatNotifier extends Notifier<ChatState> {
           groupId: dmChatData,
         },
       );
-      
+
       return dmChatData;
     } catch (e, st) {
       _logger.severe('Failed to load DMChatData for group $groupId', e, st);
@@ -809,9 +809,7 @@ class ChatNotifier extends Notifier<ChatState> {
   /// Helper method to load DMChatData using the NotifierProviderRef
   Future<DMChatData?> _loadDMChatData(String groupId) async {
     try {
-      final otherMember = ref
-          .read(groupsProvider.notifier)
-          .getOtherGroupMember(groupId);
+      final otherMember = ref.read(groupsProvider.notifier).getOtherGroupMember(groupId);
 
       if (otherMember != null) {
         final user = await wn_users_api.getUser(pubkey: otherMember.publicKey);

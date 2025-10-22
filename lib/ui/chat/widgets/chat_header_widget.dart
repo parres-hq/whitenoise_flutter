@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -135,11 +135,11 @@ class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
     final chatState = ref.watch(chatProvider);
     final dmChatData = chatState.getDMChatData(widget.group.mlsGroupId);
     final isDataCached = chatState.isDMChatDataCached(widget.group.mlsGroupId);
-    
+
     if (!isDataCached || dmChatData == null) {
       return const SizedBox.shrink();
     }
-    
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(

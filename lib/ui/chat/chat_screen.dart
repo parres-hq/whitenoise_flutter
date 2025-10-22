@@ -92,7 +92,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     super.dispose();
   }
 
-
   /// Check if the user is effectively at the bottom of the chat
   bool _isAtBottom() {
     if (!_scrollController.hasClients) return false;
@@ -363,12 +362,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                     builder: (context, ref, child) {
                                       final chatState = ref.watch(chatProvider);
                                       final dmChatData = chatState.getDMChatData(widget.groupId);
-                                      final isDataCached = chatState.isDMChatDataCached(widget.groupId);
-                                      
+                                      final isDataCached = chatState.isDMChatDataCached(
+                                        widget.groupId,
+                                      );
+
                                       if (groupType == GroupType.directMessage && !isDataCached) {
                                         return const UserProfileInfo.loading();
                                       }
-                                      
+
                                       return UserProfileInfo(
                                         title:
                                             groupType == GroupType.directMessage
