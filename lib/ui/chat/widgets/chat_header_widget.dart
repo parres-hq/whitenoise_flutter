@@ -10,7 +10,6 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
-import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ChatUserHeader extends ConsumerWidget {
@@ -52,21 +51,6 @@ class GroupChatHeader extends ConsumerStatefulWidget {
 }
 
 class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
-  String? _groupNpub;
-
-  @override
-  void initState() {
-    super.initState();
-    _groupNpub = PubkeyFormatter(pubkey: widget.group.nostrGroupId).toNpub();
-  }
-
-  @override
-  void didUpdateWidget(GroupChatHeader oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.group.nostrGroupId != widget.group.nostrGroupId) {
-      _groupNpub = PubkeyFormatter(pubkey: widget.group.nostrGroupId).toNpub();
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,15 +77,6 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
               color: context.colors.primary,
-            ),
-          ),
-          Gap(16.h),
-          Text(
-            _groupNpub?.formatPublicKey() ?? '',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: context.colors.mutedForeground,
             ),
           ),
           Gap(12.h),
