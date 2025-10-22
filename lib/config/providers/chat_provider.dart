@@ -822,12 +822,12 @@ class ChatNotifier extends Notifier<ChatState> {
         final displayName = userProfile.displayName;
         final displayImage = userProfile.imagePath ?? (otherMember.imagePath ?? '');
         final nip05 = userProfile.nip05 ?? '';
-        final npup = userProfile.publicKey;
+        final npub = userProfile.publicKey;
         return DMChatData(
           displayName: displayName,
           displayImage: displayImage,
           nip05: nip05,
-          publicKey: npup,
+          publicKey: npub,
         );
       }
 
