@@ -51,7 +51,6 @@ class GroupChatHeader extends ConsumerStatefulWidget {
 }
 
 class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
-
   @override
   Widget build(BuildContext context) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
