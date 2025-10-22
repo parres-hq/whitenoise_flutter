@@ -13,8 +13,7 @@
         "unsavedChanges": "Unsaved changes",
         "continue": "Continue",
         "system": "System",
-        "unknownUser": "Unknown User",
-        "clearAll": "Clear All"
+        "unknownUser": "Unknown User"
     },
     "settings": {
         "title": "Settings",
