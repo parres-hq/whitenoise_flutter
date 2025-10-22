@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Не удалось опубликовать пакет ключей",
         "keyPackageDeletedSuccess": "Пакет ключей успешно удалён",
         "failedToDeleteKeyPackage": "Не удалось удалить пакет ключей",
-        "noActiveAccountFound": "Активный аккаунт не найден"
+        "noActiveAccountFound": "Активный аккаунт не найден",
+        "backgroundServices": "Фоновые службы",
+        "backgroundSyncService": "Служба фоновой синхронизации"
     },
     "profile": {
         "nostrAddress": "Адрес Nostr (NIP-05)",

@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Anahtar paketi yayınlama başarısız",
         "keyPackageDeletedSuccess": "Anahtar paketi başarıyla silindi",
         "failedToDeleteKeyPackage": "Anahtar paketi silme başarısız",
-        "noActiveAccountFound": "Aktif hesap bulunamadı"
+        "noActiveAccountFound": "Aktif hesap bulunamadı",
+        "backgroundServices": "Arka plan hizmetleri",
+        "backgroundSyncService": "Arka plan senkronizasyon hizmeti"
     },
     "profile": {
         "nostrAddress": "Nostr Adresi (NIP-05)",

@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Échec de la publication du paquet de clés",
         "keyPackageDeletedSuccess": "Paquet de clés supprimé avec succès",
         "failedToDeleteKeyPackage": "Échec de la suppression du paquet de clés",
-        "noActiveAccountFound": "Aucun compte actif trouvé"
+        "noActiveAccountFound": "Aucun compte actif trouvé",
+        "backgroundServices": "Services en arrière-plan",
+        "backgroundSyncService": "Service de synchronisation en arrière-plan"
     },
     "profile": {
         "nostrAddress": "Adresse Nostr (NIP-05)",

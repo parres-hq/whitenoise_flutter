@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Falha ao publicar pacote de chaves",
         "keyPackageDeletedSuccess": "Pacote de chaves excluído com sucesso",
         "failedToDeleteKeyPackage": "Falha ao excluir pacote de chaves",
-        "noActiveAccountFound": "Nenhuma conta ativa encontrada"
+        "noActiveAccountFound": "Nenhuma conta ativa encontrada",
+        "backgroundServices": "Serviços em segundo plano",
+        "backgroundSyncService": "Serviço de sincronização em segundo plano"
     },
     "profile": {
         "nostrAddress": "Endereço Nostr (NIP-05)",

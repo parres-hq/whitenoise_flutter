@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Errore nella pubblicazione del pacchetto chiave",
         "keyPackageDeletedSuccess": "Pacchetto chiave eliminato con successo",
         "failedToDeleteKeyPackage": "Errore nell'eliminazione del pacchetto chiave",
-        "noActiveAccountFound": "Nessun account attivo trovato"
+        "noActiveAccountFound": "Nessun account attivo trovato",
+        "backgroundServices": "Servizi in background",
+        "backgroundSyncService": "Servizio di sincronizzazione in background"
     },
     "profile": {
         "nostrAddress": "Indirizzo Nostr (NIP-05)",
