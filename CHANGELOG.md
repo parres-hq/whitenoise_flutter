@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added background sync service to fetch new messages and invites and show notifications for them
 - Added user avatars in group chat messages
 - Added localization support with multi-language support (English, German, Spanish, French, Italian, Portuguese, Russian, Turkish)
+- Added add member to existing group functionality.
 
 ### Changed
 - Renamed contact to user profile everywhere [#710](https://github.com/parres-hq/whitenoise_flutter/pull/710)
