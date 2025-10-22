@@ -153,7 +153,6 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
               ),
             ),
             body: SafeArea(
-              bottom: false,
               child: ColoredBox(
                 color: context.colors.neutral,
                 child: Column(
