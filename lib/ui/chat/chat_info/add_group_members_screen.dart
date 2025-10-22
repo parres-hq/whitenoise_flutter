@@ -139,8 +139,7 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
           final userPubkey = user.publicKey.trim().toLowerCase();
 
           // Exclude current user only
-          if (currentUserPubkey != null &&
-              userPubkey == currentUserPubkey.trim().toLowerCase()) {
+          if (currentUserPubkey != null && userPubkey == currentUserPubkey.trim().toLowerCase()) {
             return false;
           }
 
@@ -399,7 +398,7 @@ class _FollowsList extends StatelessWidget {
       // Normalize both pubkeys to hex format for comparison
       final userHexPubkey = PubkeyFormatter(pubkey: user.publicKey).toHex()?.toLowerCase();
       if (userHexPubkey == null) return false;
-      
+
       return existingMemberPubkeys.any((memberPubkey) {
         try {
           final memberHexPubkey = PubkeyFormatter(pubkey: memberPubkey).toHex()?.toLowerCase();

@@ -53,7 +53,11 @@ abstract final class Routes {
     GoRouter.of(context).push('/chats/$groupId/info/edit');
   }
 
-  static void goToAddGroupMembers(BuildContext context, String groupId, List<String> existingMemberPubkeys) {
+  static void goToAddGroupMembers(
+    BuildContext context,
+    String groupId,
+    List<String> existingMemberPubkeys,
+  ) {
     GoRouter.of(context).push('/chats/$groupId/info/add-members', extra: existingMemberPubkeys);
   }
 }

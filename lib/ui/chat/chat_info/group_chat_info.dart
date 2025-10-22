@@ -144,7 +144,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
 
   void _goToAddMembersScreen() {
     final existingMemberPubkeys = groupMembers.map((member) => member.publicKey).toList();
-    
+
     Routes.goToAddGroupMembers(
       context,
       widget.groupId,
