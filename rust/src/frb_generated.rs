@@ -3203,22 +3203,30 @@ impl SseDecode for Vec<crate::api::welcomes::Welcome> {
 impl SseDecode for crate::api::media_files::MediaFile {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_id = <String>::sse_decode(deserializer);
         let mut var_mlsGroupId = <String>::sse_decode(deserializer);
+        let mut var_accountPubkey = <String>::sse_decode(deserializer);
         let mut var_filePath = <String>::sse_decode(deserializer);
-        let mut var_fileMimeType = <String>::sse_decode(deserializer);
-        let mut var_fileMediaType = <String>::sse_decode(deserializer);
-        let mut var_fileBlossomUrl = <String>::sse_decode(deserializer);
+        let mut var_fileHash = <String>::sse_decode(deserializer);
+        let mut var_mimeType = <String>::sse_decode(deserializer);
+        let mut var_mediaType = <String>::sse_decode(deserializer);
+        let mut var_blossomUrl = <String>::sse_decode(deserializer);
+        let mut var_nostrKey = <String>::sse_decode(deserializer);
         let mut var_fileMetadata =
             <Option<crate::api::media_files::FileMetadata>>::sse_decode(deserializer);
-        let mut var_originalFilePath = <Option<String>>::sse_decode(deserializer);
+        let mut var_createdAt = <chrono::DateTime<chrono::Utc>>::sse_decode(deserializer);
         return crate::api::media_files::MediaFile {
+            id: var_id,
             mls_group_id: var_mlsGroupId,
+            account_pubkey: var_accountPubkey,
             file_path: var_filePath,
-            file_mime_type: var_fileMimeType,
-            file_media_type: var_fileMediaType,
-            file_blossom_url: var_fileBlossomUrl,
+            file_hash: var_fileHash,
+            mime_type: var_mimeType,
+            media_type: var_mediaType,
+            blossom_url: var_blossomUrl,
+            nostr_key: var_nostrKey,
             file_metadata: var_fileMetadata,
-            original_file_path: var_originalFilePath,
+            created_at: var_createdAt,
         };
     }
 }
@@ -4121,13 +4129,17 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::groups::GroupType>
 impl flutter_rust_bridge::IntoDart for crate::api::media_files::MediaFile {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
+            self.id.into_into_dart().into_dart(),
             self.mls_group_id.into_into_dart().into_dart(),
+            self.account_pubkey.into_into_dart().into_dart(),
             self.file_path.into_into_dart().into_dart(),
-            self.file_mime_type.into_into_dart().into_dart(),
-            self.file_media_type.into_into_dart().into_dart(),
-            self.file_blossom_url.into_into_dart().into_dart(),
+            self.file_hash.into_into_dart().into_dart(),
+            self.mime_type.into_into_dart().into_dart(),
+            self.media_type.into_into_dart().into_dart(),
+            self.blossom_url.into_into_dart().into_dart(),
+            self.nostr_key.into_into_dart().into_dart(),
             self.file_metadata.into_into_dart().into_dart(),
-            self.original_file_path.into_into_dart().into_dart(),
+            self.created_at.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -4846,13 +4858,17 @@ impl SseEncode for Vec<crate::api::welcomes::Welcome> {
 impl SseEncode for crate::api::media_files::MediaFile {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.id, serializer);
         <String>::sse_encode(self.mls_group_id, serializer);
+        <String>::sse_encode(self.account_pubkey, serializer);
         <String>::sse_encode(self.file_path, serializer);
-        <String>::sse_encode(self.file_mime_type, serializer);
-        <String>::sse_encode(self.file_media_type, serializer);
-        <String>::sse_encode(self.file_blossom_url, serializer);
+        <String>::sse_encode(self.file_hash, serializer);
+        <String>::sse_encode(self.mime_type, serializer);
+        <String>::sse_encode(self.media_type, serializer);
+        <String>::sse_encode(self.blossom_url, serializer);
+        <String>::sse_encode(self.nostr_key, serializer);
         <Option<crate::api::media_files::FileMetadata>>::sse_encode(self.file_metadata, serializer);
-        <Option<String>>::sse_encode(self.original_file_path, serializer);
+        <chrono::DateTime<chrono::Utc>>::sse_encode(self.created_at, serializer);
     }
 }
 

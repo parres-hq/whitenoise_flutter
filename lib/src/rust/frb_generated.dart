@@ -3062,15 +3062,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   MediaFile dco_decode_media_file(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 7) throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    if (arr.length != 11) throw Exception('unexpected arr length: expect 11 but see ${arr.length}');
     return MediaFile(
-      mlsGroupId: dco_decode_String(arr[0]),
-      filePath: dco_decode_String(arr[1]),
-      fileMimeType: dco_decode_String(arr[2]),
-      fileMediaType: dco_decode_String(arr[3]),
-      fileBlossomUrl: dco_decode_String(arr[4]),
-      fileMetadata: dco_decode_opt_box_autoadd_file_metadata(arr[5]),
-      originalFilePath: dco_decode_opt_String(arr[6]),
+      id: dco_decode_String(arr[0]),
+      mlsGroupId: dco_decode_String(arr[1]),
+      accountPubkey: dco_decode_String(arr[2]),
+      filePath: dco_decode_String(arr[3]),
+      fileHash: dco_decode_String(arr[4]),
+      mimeType: dco_decode_String(arr[5]),
+      mediaType: dco_decode_String(arr[6]),
+      blossomUrl: dco_decode_String(arr[7]),
+      nostrKey: dco_decode_String(arr[8]),
+      fileMetadata: dco_decode_opt_box_autoadd_file_metadata(arr[9]),
+      createdAt: dco_decode_Chrono_Utc(arr[10]),
     );
   }
 
@@ -3993,23 +3997,31 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   MediaFile sse_decode_media_file(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_id = sse_decode_String(deserializer);
     final var_mlsGroupId = sse_decode_String(deserializer);
+    final var_accountPubkey = sse_decode_String(deserializer);
     final var_filePath = sse_decode_String(deserializer);
-    final var_fileMimeType = sse_decode_String(deserializer);
-    final var_fileMediaType = sse_decode_String(deserializer);
-    final var_fileBlossomUrl = sse_decode_String(deserializer);
+    final var_fileHash = sse_decode_String(deserializer);
+    final var_mimeType = sse_decode_String(deserializer);
+    final var_mediaType = sse_decode_String(deserializer);
+    final var_blossomUrl = sse_decode_String(deserializer);
+    final var_nostrKey = sse_decode_String(deserializer);
     final var_fileMetadata = sse_decode_opt_box_autoadd_file_metadata(
       deserializer,
     );
-    final var_originalFilePath = sse_decode_opt_String(deserializer);
+    final var_createdAt = sse_decode_Chrono_Utc(deserializer);
     return MediaFile(
+      id: var_id,
       mlsGroupId: var_mlsGroupId,
+      accountPubkey: var_accountPubkey,
       filePath: var_filePath,
-      fileMimeType: var_fileMimeType,
-      fileMediaType: var_fileMediaType,
-      fileBlossomUrl: var_fileBlossomUrl,
+      fileHash: var_fileHash,
+      mimeType: var_mimeType,
+      mediaType: var_mediaType,
+      blossomUrl: var_blossomUrl,
+      nostrKey: var_nostrKey,
       fileMetadata: var_fileMetadata,
-      originalFilePath: var_originalFilePath,
+      createdAt: var_createdAt,
     );
   }
 
@@ -4908,13 +4920,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   void sse_encode_media_file(MediaFile self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.id, serializer);
     sse_encode_String(self.mlsGroupId, serializer);
+    sse_encode_String(self.accountPubkey, serializer);
     sse_encode_String(self.filePath, serializer);
-    sse_encode_String(self.fileMimeType, serializer);
-    sse_encode_String(self.fileMediaType, serializer);
-    sse_encode_String(self.fileBlossomUrl, serializer);
+    sse_encode_String(self.fileHash, serializer);
+    sse_encode_String(self.mimeType, serializer);
+    sse_encode_String(self.mediaType, serializer);
+    sse_encode_String(self.blossomUrl, serializer);
+    sse_encode_String(self.nostrKey, serializer);
     sse_encode_opt_box_autoadd_file_metadata(self.fileMetadata, serializer);
-    sse_encode_opt_String(self.originalFilePath, serializer);
+    sse_encode_Chrono_Utc(self.createdAt, serializer);
   }
 
   @protected

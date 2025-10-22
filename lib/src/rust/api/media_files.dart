@@ -45,44 +45,60 @@ class FileMetadata {
 }
 
 class MediaFile {
+  final String id;
   final String mlsGroupId;
+  final String accountPubkey;
   final String filePath;
-  final String fileMimeType;
-  final String fileMediaType;
-  final String fileBlossomUrl;
+  final String fileHash;
+  final String mimeType;
+  final String mediaType;
+  final String blossomUrl;
+  final String nostrKey;
   final FileMetadata? fileMetadata;
-  final String? originalFilePath;
+  final DateTime createdAt;
 
   const MediaFile({
+    required this.id,
     required this.mlsGroupId,
+    required this.accountPubkey,
     required this.filePath,
-    required this.fileMimeType,
-    required this.fileMediaType,
-    required this.fileBlossomUrl,
+    required this.fileHash,
+    required this.mimeType,
+    required this.mediaType,
+    required this.blossomUrl,
+    required this.nostrKey,
     this.fileMetadata,
-    this.originalFilePath,
+    required this.createdAt,
   });
 
   @override
   int get hashCode =>
+      id.hashCode ^
       mlsGroupId.hashCode ^
+      accountPubkey.hashCode ^
       filePath.hashCode ^
-      fileMimeType.hashCode ^
-      fileMediaType.hashCode ^
-      fileBlossomUrl.hashCode ^
+      fileHash.hashCode ^
+      mimeType.hashCode ^
+      mediaType.hashCode ^
+      blossomUrl.hashCode ^
+      nostrKey.hashCode ^
       fileMetadata.hashCode ^
-      originalFilePath.hashCode;
+      createdAt.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is MediaFile &&
           runtimeType == other.runtimeType &&
+          id == other.id &&
           mlsGroupId == other.mlsGroupId &&
+          accountPubkey == other.accountPubkey &&
           filePath == other.filePath &&
-          fileMimeType == other.fileMimeType &&
-          fileMediaType == other.fileMediaType &&
-          fileBlossomUrl == other.fileBlossomUrl &&
+          fileHash == other.fileHash &&
+          mimeType == other.mimeType &&
+          mediaType == other.mediaType &&
+          blossomUrl == other.blossomUrl &&
+          nostrKey == other.nostrKey &&
           fileMetadata == other.fileMetadata &&
-          originalFilePath == other.originalFilePath;
+          createdAt == other.createdAt;
 }
