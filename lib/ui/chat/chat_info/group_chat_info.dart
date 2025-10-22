@@ -142,6 +142,16 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
     }
   }
 
+  void _goToAddMembersScreen() {
+    final existingMemberPubkeys = groupMembers.map((member) => member.publicKey).toList();
+
+    Routes.goToAddGroupMembers(
+      context,
+      widget.groupId,
+      existingMemberPubkeys,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final groupDetails = ref.watch(groupsProvider).groupsMap?[widget.groupId];
@@ -209,11 +219,21 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             Gap(24.h),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 24.w),
-              child: WnFilledButton(
-                size: WnButtonSize.small,
-                visualState: WnButtonVisualState.secondary,
-                label: 'ui.editGroup'.tr(),
-                onPressed: () => Routes.goToEditGroup(context, widget.groupId),
+              child: Column(
+                children: [
+                  WnFilledButton(
+                    size: WnButtonSize.small,
+                    visualState: WnButtonVisualState.secondary,
+                    label: 'ui.editGroup'.tr(),
+                    onPressed: () => Routes.goToEditGroup(context, widget.groupId),
+                  ),
+                  Gap(8.h),
+                  WnFilledButton(
+                    size: WnButtonSize.small,
+                    label: 'ui.addMembers'.tr(),
+                    onPressed: () => _goToAddMembersScreen(),
+                  ),
+                ],
               ),
             ),
           ],
