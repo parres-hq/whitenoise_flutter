@@ -129,7 +129,10 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
     }
   }
 
-  List<rust_users.User> _getFilteredFollows(List<rust_users.User>? follows, String? currentUserPubkey) {
+  List<rust_users.User> _getFilteredFollows(
+    List<rust_users.User>? follows,
+    String? currentUserPubkey,
+  ) {
     if (follows == null) return [];
 
     final availableFollows =
@@ -145,23 +148,21 @@ class _AddGroupMembersScreenState extends ConsumerState<AddGroupMembersScreen> w
 
     if (_searchQuery.isEmpty) return availableFollows;
 
-    return availableFollows
-        .where(
-          (user) {
-            final displayName = user.metadata.displayName ?? user.metadata.name ?? '';
-            final nip05 = user.metadata.nip05 ?? '';
-            return displayName.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                ) ||
-                nip05.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                ) ||
-                user.pubkey.toLowerCase().contains(
-                  _searchQuery.toLowerCase(),
-                );
-          },
-        )
-        .toList();
+    return availableFollows.where(
+      (user) {
+        final displayName = user.metadata.displayName ?? user.metadata.name ?? '';
+        final nip05 = user.metadata.nip05 ?? '';
+        return displayName.toLowerCase().contains(
+              _searchQuery.toLowerCase(),
+            ) ||
+            nip05.toLowerCase().contains(
+              _searchQuery.toLowerCase(),
+            ) ||
+            user.pubkey.toLowerCase().contains(
+              _searchQuery.toLowerCase(),
+            );
+      },
+    ).toList();
   }
 
   @override
