@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
@@ -18,12 +16,10 @@ class ChatUserHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final groupsNotifier = ref.watch(groupsProvider.notifier);
-    final groupType = groupsNotifier.getCachedGroupType(group.mlsGroupId);
-
-    // If group type is not cached yet, show a loading state or default to group
+    final groupType = ref.watch(
+      groupsProvider.select((s) => s.groupTypes?[group.mlsGroupId]),
+    );
     if (groupType == null) {
-      // Default to group chat header while group type is loading
       return GroupChatHeader(group: group);
     }
 
@@ -52,18 +48,17 @@ class GroupChatHeader extends ConsumerStatefulWidget {
 class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
   @override
   Widget build(BuildContext context) {
-    final groupsNotifier = ref.watch(groupsProvider.notifier);
+    final cachedImagePath = ref.watch(
+      groupsProvider.select((s) => s.groupImagePaths?[widget.group.mlsGroupId]),
+    );
+
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
         children: [
           Gap(32.h),
           WnAvatar(
-            imageUrl:
-                groupsNotifier.getCachedGroupImagePath(
-                  widget.group.mlsGroupId,
-                ) ??
-                '',
+            imageUrl: cachedImagePath ?? '',
             displayName: widget.group.name,
             size: 96.r,
             showBorder: true,
@@ -104,41 +99,28 @@ class _GroupChatHeaderState extends ConsumerState<GroupChatHeader> {
   }
 }
 
-class DirectMessageHeader extends ConsumerStatefulWidget {
+class DirectMessageHeader extends ConsumerWidget {
   final Group group;
 
   const DirectMessageHeader({super.key, required this.group});
 
   @override
-  ConsumerState<DirectMessageHeader> createState() => _DirectMessageHeaderState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Get the other member's full data from cached members
+    final groupsNotifier = ref.watch(groupsProvider.notifier);
+    final otherMember = groupsNotifier.getOtherGroupMember(group.mlsGroupId);
 
-class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(chatProvider.notifier).preloadDMChatData(widget.group.mlsGroupId);
-    });
-  }
-
-  @override
-  void didUpdateWidget(DirectMessageHeader oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.group.mlsGroupId != widget.group.mlsGroupId) {
-      ref.read(chatProvider.notifier).preloadDMChatData(widget.group.mlsGroupId);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final chatState = ref.watch(chatProvider);
-    final dmChatData = chatState.getDMChatData(widget.group.mlsGroupId);
-    final isDataCached = chatState.isDMChatDataCached(widget.group.mlsGroupId);
-
-    if (!isDataCached || dmChatData == null) {
+    // Show nothing while waiting for data to load
+    if (otherMember == null) {
       return const SizedBox.shrink();
     }
+    final displayName = ref.watch(
+      groupsProvider.select((s) => s.groupDisplayNames?[group.mlsGroupId]),
+    );
+
+    final watchedGroupImagePath = ref.watch(
+      groupsProvider.select((s) => s.groupImagePaths?[group.mlsGroupId]),
+    );
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -146,14 +128,14 @@ class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
         children: [
           Gap(32.h),
           WnAvatar(
-            imageUrl: dmChatData.displayImage ?? '',
-            displayName: dmChatData.displayName,
+            imageUrl: watchedGroupImagePath ?? '',
+            displayName: displayName,
             size: 96.r,
             showBorder: true,
           ),
           Gap(12.h),
           Text(
-            dmChatData.displayName,
+            displayName ?? 'shared.unknownUser'.tr(),
             style: TextStyle(
               fontSize: 18.sp,
               fontWeight: FontWeight.w600,
@@ -162,7 +144,7 @@ class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
           ),
           Gap(4.h),
           Text(
-            dmChatData.nip05 ?? '',
+            otherMember.nip05,
             style: TextStyle(
               fontSize: 14.sp,
               color: context.colors.mutedForeground,
@@ -170,7 +152,7 @@ class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
           ),
           Gap(12.h),
           Text(
-            dmChatData.publicKey?.formatPublicKey() ?? '',
+            otherMember.publicKey.formatPublicKey(),
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12.sp,
@@ -181,15 +163,5 @@ class _DirectMessageHeaderState extends ConsumerState<DirectMessageHeader> {
         ],
       ),
     );
-  }
-}
-
-extension StringExtension on String? {
-  bool get nullOrEmpty => this?.isEmpty ?? true;
-  // Returns a default image path if the string is null or empty
-  String get orDefault => (this == null || this!.isEmpty) ? AssetsPaths.icUser : this!;
-  String get capitalizeFirst {
-    if (this == null || this!.isEmpty) return '';
-    return '${this![0].toUpperCase()}${this!.substring(1)}';
   }
 }

@@ -30,7 +30,7 @@ class ChatListItem {
       type: ChatListItemType.chat,
       group: group,
       lastMessage: lastMessage,
-      dateCreated: lastMessage?.createdAt ?? DateTime.now(),
+      dateCreated: lastMessage?.createdAt ?? group.lastMessageAt ?? DateTime.now(),
       isPinned: isPinned,
     );
   }

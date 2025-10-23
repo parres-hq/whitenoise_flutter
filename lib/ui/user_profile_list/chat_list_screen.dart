@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -67,7 +69,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   bool _isLoadingData = false;
   bool _isRefreshing = false;
   bool _isSearchVisible = false;
-  final int _loadingSkeletonCount = 8;
 
   @override
   void initState() {
@@ -143,10 +144,10 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   }
 
   Future<void> _loadAllProviderData() async {
+    unawaited(ref.read(relayStatusProvider.notifier).refreshStatuses());
     await Future.wait([
       ref.read(welcomesProvider.notifier).loadWelcomes(),
       ref.read(groupsProvider.notifier).loadGroups(),
-      ref.read(relayStatusProvider.notifier).refreshStatuses(),
     ]);
   }
 
@@ -168,8 +169,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   }
 
   bool get _canProcessScrollGestures => !_isLoadingData && !_isRefreshing;
-
-  bool get isInLoadingState => _isLoadingData;
 
   void _processScrollGestures(double currentOffset) {
     final pullDistance = -currentOffset;
@@ -313,6 +312,8 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
     for (final welcome in pendingWelcomes) {
       chatItems.add(ChatListItem.fromWelcome(welcome: welcome));
     }
+
+    chatItems.sort((a, b) => b.dateCreated.compareTo(a.dateCreated));
 
     // Use the separatePinnedChats method with search filtering
     final separatedChats = pinnedChatsNotifier.separatePinnedChats(
@@ -483,22 +484,14 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
                     padding: EdgeInsets.only(bottom: 32.h),
                     sliver: SliverList.separated(
                       itemBuilder: (context, index) {
-                        if (isInLoadingState) {
-                          return const ChatListTileLoading();
-                        }
                         final item = filteredChatItems[index];
                         return ChatListItemTile(
                           item: item,
                           onTap: _unfocusSearchIfNeeded,
                         );
                       },
-                      itemCount:
-                          isInLoadingState ? _loadingSkeletonCount : filteredChatItems.length,
+                      itemCount: filteredChatItems.length,
                       separatorBuilder: (context, index) {
-                        if (isInLoadingState) {
-                          return Gap(8.w);
-                        }
-
                         // Add divider between pinned and unpinned sections
                         if (index == separatedChats.pinned.length - 1 &&
                             separatedChats.unpinned.isNotEmpty) {

@@ -4,8 +4,11 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/states/welcome_state.dart';
+import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
+import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
 import 'package:whitenoise/src/rust/api/welcomes.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class WelcomesNotifier extends Notifier<WelcomesState> {
   final _logger = Logger('WelcomesNotifier');
@@ -86,6 +89,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         isLoading: false,
       );
 
+      // Load welcomer user data for all welcomes
+      await _loadWelcomerUsersData(welcomes);
+
       // Find new pending welcomes and trigger callback for the first one
       final newPendingWelcomes =
           welcomes
@@ -107,6 +113,47 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         errorMessage = e.toString();
       }
       state = state.copyWith(error: errorMessage, isLoading: false);
+    }
+  }
+
+  /// Load and cache user data for all welcomer pubkeys
+  Future<void> _loadWelcomerUsersData(List<Welcome> welcomes) async {
+    try {
+      final welcomerUsers = Map<String, User>.from(state.welcomerUsers ?? {});
+
+      for (final welcome in welcomes) {
+        final welcomerPubkey = welcome.welcomer;
+
+        // Skip if already cached
+        if (welcomerUsers.containsKey(welcomerPubkey)) {
+          continue;
+        }
+
+        try {
+          final metadata = await rust_users.userMetadata(pubkey: welcomerPubkey);
+          final npub = PubkeyFormatter(pubkey: welcomerPubkey).toNpub() ?? '';
+          final user = User.fromMetadata(metadata, npub);
+          welcomerUsers[welcomerPubkey] = user;
+        } catch (e) {
+          _logger.warning('Failed to fetch metadata for welcomer $welcomerPubkey: $e');
+          // Create a fallback user with minimal info
+          final npub = PubkeyFormatter(pubkey: welcomerPubkey).toNpub() ?? '';
+          final fallbackUser = User(
+            id: npub,
+            displayName: 'Unknown User',
+            nip05: '',
+            publicKey: npub,
+          );
+          welcomerUsers[welcomerPubkey] = fallbackUser;
+        }
+      }
+
+      // Update state with cached welcomer users
+      state = state.copyWith(welcomerUsers: welcomerUsers);
+      _logger.info('WelcomesProvider: Loaded user data for ${welcomerUsers.length} welcomers');
+    } catch (e) {
+      _logger.warning('Error loading welcomer users data: $e');
+      // Don't fail the whole operation if this fails
     }
   }
 
@@ -287,6 +334,10 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
 
   Welcome? getWelcomeById(String welcomeId) {
     return state.welcomeById?[welcomeId];
+  }
+
+  User? getWelcomerUser(String welcomerPubkey) {
+    return state.welcomerUsers?[welcomerPubkey];
   }
 
   void clearWelcome() {

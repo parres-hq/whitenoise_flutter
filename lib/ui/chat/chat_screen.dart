@@ -60,8 +60,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
         ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
-        // Preload DMChatData to ensure it's available immediately
-        ref.read(chatProvider.notifier).preloadDMChatData(widget.groupId);
       }
     });
 
@@ -76,8 +74,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     super.didUpdateWidget(oldWidget);
     if (oldWidget.groupId != widget.groupId) {
       _hasInitialScrollCompleted = false; // Reset for new chat
-      // Preload DMChatData for the new group
-      ref.read(chatProvider.notifier).preloadDMChatData(widget.groupId);
     }
   }
 
@@ -360,28 +356,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                   pinned: true,
                                   title: Consumer(
                                     builder: (context, ref, child) {
-                                      final chatState = ref.watch(chatProvider);
-                                      final dmChatData = chatState.getDMChatData(widget.groupId);
-                                      final isDataCached = chatState.isDMChatDataCached(
-                                        widget.groupId,
-                                      );
-
-                                      if (groupType == GroupType.directMessage && !isDataCached) {
-                                        return const UserProfileInfo.loading();
-                                      }
-
-                                      return UserProfileInfo(
-                                        title:
-                                            groupType == GroupType.directMessage
-                                                ? dmChatData?.displayName ?? ''
-                                                : group.name,
-                                        image:
-                                            groupType == GroupType.directMessage
-                                                ? dmChatData?.displayImage ?? ''
-                                                : groupsNotifier.getCachedGroupImagePath(
-                                                      widget.groupId,
-                                                    ) ??
-                                                    '',
+                                      return ChatGroupAppbar(
+                                        groupId: widget.groupId,
                                         onTap: () => context.push('/chats/${widget.groupId}/info'),
                                       );
                                     },

@@ -151,24 +151,16 @@ class GroupsNotifier extends Notifier<GroupsState> {
         return bTime.compareTo(aTime);
       });
 
-      // First set the groups and create groupsMap
+      // First set the groups and create groupsMap - display them immediately
       final groupsMap = <String, Group>{};
       for (final group in sortedGroups) {
         groupsMap[group.mlsGroupId] = group;
       }
       state = state.copyWith(groups: sortedGroups, groupsMap: groupsMap);
 
-      // Load members for all groups to enable proper display name calculation
-      await _loadMembersForAllGroups(groups);
-
-      // Load and cache group types for synchronous access
-      await _loadGroupTypesForAllGroups(groups);
-
-      // Load and cache group image paths
-      await _loadGroupImagePaths(groups);
-
-      // Now calculate display names with member data available
-      await _calculateDisplayNames(groups);
+      // Load group metadata (members, types, images, display names) lazily
+      // Process each group sequentially to avoid overwhelming the backend
+      await _loadGroupsMetadataLazy(sortedGroups);
 
       // Schedule message loading after the current build cycle completes
       Future.microtask(() async {
@@ -538,20 +530,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
     await _calculateDisplayNameForGroup(groupId);
   }
 
-  /// Calculate display names for all groups
-  Future<void> _calculateDisplayNames(List<Group> groups) async {
-    final Map<String, String> displayNames = Map<String, String>.from(
-      state.groupDisplayNames ?? {},
-    );
-
-    for (final group in groups) {
-      final displayName = await _getDisplayNameForGroup(group);
-      displayNames[group.mlsGroupId] = displayName;
-    }
-
-    state = state.copyWith(groupDisplayNames: displayNames);
-  }
-
   /// Calculate display name for a single group
   Future<void> _calculateDisplayNameForGroup(String groupId) async {
     final group = findGroupById(groupId);
@@ -675,30 +653,27 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
-  /// Load members for all groups (used during initial group loading)
-  Future<void> _loadMembersForAllGroups(List<Group> groups) async {
+  /// Load group metadata lazily, processing each group one at a time
+  /// This allows groups to be displayed as soon as basic metadata is available
+  /// without waiting for all groups to complete loading
+  Future<void> _loadGroupsMetadataLazy(List<Group> groups) async {
     try {
-      final List<Future<void>> loadTasks = [];
+      final activePubkey = ref.read(activePubkeyProvider);
+      if (activePubkey == null || activePubkey.isEmpty) return;
 
       for (final group in groups) {
-        // Load members for all groups, especially important for direct messages
-        // since they need member data for display names
-        loadTasks.add(
-          loadGroupMembers(group.mlsGroupId).catchError((e) {
-            _logErrorSync('Failed to load members for group ${group.mlsGroupId}', e);
-            // Don't let one group failure stop the others
-            return;
-          }),
-        );
+        try {
+          // Load metadata for this group
+          await _loadGroupMetadata(group, activePubkey);
+        } catch (e) {
+          _logErrorSync('Failed to load metadata for group ${group.mlsGroupId}', e);
+          // Continue with next group even if this one fails
+        }
       }
 
-      // Execute all member loading in parallel for better performance
-      await Future.wait(loadTasks);
-
-      _logger.info('GroupsProvider: Loaded members for ${groups.length} groups');
+      _logger.info('GroupsProvider: Loaded metadata for ${groups.length} groups');
     } catch (e) {
-      // Log the full exception details with proper ApiError unpacking
-      String logMessage = 'GroupsProvider: Error loading members for groups - Exception: ';
+      String logMessage = 'GroupsProvider: Error in lazy metadata loading - Exception: ';
       if (e is ApiError) {
         final errorDetails = await e.messageText();
         logMessage += '$errorDetails (Type: ${e.runtimeType})';
@@ -706,7 +681,57 @@ class GroupsNotifier extends Notifier<GroupsState> {
         logMessage += '$e (Type: ${e.runtimeType})';
       }
       _logger.severe(logMessage, e);
-      // Don't throw - we want to continue even if some member loading fails
+    }
+  }
+
+  /// Load and cache metadata for a single group
+  /// This includes members, group type, display name, and image path
+  Future<void> _loadGroupMetadata(Group group, String activePubkey) async {
+    // Load members first (needed for DM display names and other operations)
+    await loadGroupMembers(group.mlsGroupId);
+
+    // Load group type in parallel with image path
+    final groupTypeTask = _loadGroupType(group, activePubkey);
+    final imagePathTask = _loadGroupImagePathForGroup(group, activePubkey);
+
+    await Future.wait([groupTypeTask, imagePathTask]);
+
+    // Calculate display name now that we have members and group type
+    await _calculateDisplayNameForGroup(group.mlsGroupId);
+  }
+
+  /// Load and cache group type for a single group
+  Future<void> _loadGroupType(Group group, String activePubkey) async {
+    try {
+      final groupType = await group.groupType(accountPubkey: activePubkey);
+      final groupTypes = Map<String, GroupType>.from(state.groupTypes ?? {});
+      groupTypes[group.mlsGroupId] = groupType;
+      state = state.copyWith(groupTypes: groupTypes);
+    } catch (e) {
+      _logErrorSync('Failed to load group type for group ${group.mlsGroupId}', e);
+      // Set a default fallback type
+      final groupTypes = Map<String, GroupType>.from(state.groupTypes ?? {});
+      groupTypes[group.mlsGroupId] = GroupType.group;
+      state = state.copyWith(groupTypes: groupTypes);
+    }
+  }
+
+  /// Load and cache group image path for a single group
+  Future<void> _loadGroupImagePathForGroup(Group group, String activePubkey) async {
+    try {
+      final imagePath = await getGroupImagePath(
+        accountPubkey: activePubkey,
+        groupId: group.mlsGroupId,
+      );
+
+      if (imagePath != null && imagePath.isNotEmpty) {
+        final groupImagePaths = Map<String, String>.from(state.groupImagePaths ?? {});
+        groupImagePaths[group.mlsGroupId] = imagePath;
+        state = state.copyWith(groupImagePaths: groupImagePaths);
+      }
+    } catch (e) {
+      _logErrorSync('Failed to load image path for group ${group.mlsGroupId}', e);
+      // Skip this group if image loading fails - it's not critical
     }
   }
 
