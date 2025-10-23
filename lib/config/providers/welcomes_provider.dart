@@ -114,16 +114,24 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
 
   /// Process welcomer metadata in batches with customizable error handling
   /// Used by both initial loading and retry logic to fetch user metadata
+  /// Validates active account hasn't changed before each state update
   Future<List<String>> _processBatchedWelcomers({
     required List<String> pubkeys,
     required Map<String, User> welcomerUsers,
     required bool createFallbacks,
     required String? batchLogContext,
+    required String activePubkey,
   }) async {
     const batchSize = 6;
     final failedPubkeys = <String>[];
 
     for (int i = 0; i < pubkeys.length; i += batchSize) {
+      // Abort if active account changed during batch processing
+      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        _logger.info('Active pubkey changed during batch processing, aborting');
+        return failedPubkeys;
+      }
+
       final end = (i + batchSize).clamp(0, pubkeys.length);
       final batch = pubkeys.sublist(i, end);
 
@@ -180,11 +188,18 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         welcomerUsers: welcomerUsers,
         createFallbacks: false,
         batchLogContext: 'Loaded',
+        activePubkey: activePubkey,
       );
 
       if (failedWelcomers.isNotEmpty) {
         _logger.info('WelcomesProvider: Retrying ${failedWelcomers.length} failed welcomers');
-        await _retryFailedWelcomers(failedWelcomers, welcomerUsers);
+        await _retryFailedWelcomers(failedWelcomers, welcomerUsers, activePubkey);
+      }
+
+      // Final check before logging completion - active account could have changed during async ops
+      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        _logger.info('Active pubkey changed during welcomer loading, discarding results');
+        return;
       }
 
       _logger.info(
@@ -197,9 +212,11 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
 
   /// Retry failed welcomer metadata loads with exponential backoff
   /// Uses batch processing with eventual fallback creation for persistent failures
+  /// Validates active account hasn't changed during retry delays
   Future<void> _retryFailedWelcomers(
     List<String> failedWelcomers,
     Map<String, User> welcomerUsers,
+    String activePubkey,
   ) async {
     const maxRetries = 2;
     var remainingWelcomers = failedWelcomers;
@@ -208,12 +225,19 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       final delayMs = 500 * attempt;
       await Future.delayed(Duration(milliseconds: delayMs));
 
+      // Abort retries if account changed during delay
+      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        _logger.info('Active pubkey changed during retry attempt $attempt, aborting');
+        return;
+      }
+
       // Batch process with fallback creation on final attempt
       final stillFailed = await _processBatchedWelcomers(
         pubkeys: remainingWelcomers,
         welcomerUsers: welcomerUsers,
         createFallbacks: attempt == maxRetries, // Create fallbacks on last attempt
         batchLogContext: 'Retry $attempt:',
+        activePubkey: activePubkey,
       );
 
       remainingWelcomers = stillFailed;
@@ -459,7 +483,14 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         welcomerUsers: welcomerUsers,
         createFallbacks: false,
         batchLogContext: 'Refreshed',
+        activePubkey: activePubkey,
       );
+
+      // Final check before logging completion - active account could have changed during refresh
+      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        _logger.info('Active pubkey changed during welcomer refresh, discarding results');
+        return;
+      }
 
       _logger.info('WelcomesProvider: Refreshed metadata for ${uniqueWelcomers.length} welcomers');
     } catch (e) {
