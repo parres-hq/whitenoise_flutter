@@ -7,15 +7,7 @@ import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
-
-class MockActivePubkeyNotifier extends ActivePubkeyNotifier {
-  final String? _pubkey;
-
-  MockActivePubkeyNotifier(this._pubkey) : super(storage: null, pubkeyFormatter: null);
-
-  @override
-  String? build() => _pubkey;
-}
+import '../../shared/mocks/mock_active_pubkey_notifier.dart';
 
 class MockUserProfileNotifier extends UserProfileNotifier {
   final Map<String, UserProfile> _userProfiles;
