@@ -284,6 +284,7 @@
         "groupChatInvitation": "Invitation de conversation de groupe • ",
         "membersCount": "{count} membres",
         "invitedToSecureChat": "{name} vous a invité à une conversation sécurisée.",
+        "invitedYouToSecureChat": "vous a invité à une conversation sécurisée",
         "createGroupToContinue": "Créer un groupe pour continuer",
         "noGroupsCreateDescription": "Vous n'êtes membre d'aucun groupe. Créez un nouveau groupe pour ajouter quelqu'un.",
         "groupChatName": "Nom du chat de groupe",

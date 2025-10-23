@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/config/states/welcome_state.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
-import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 
 class WelcomesNotifier extends Notifier<WelcomesState> {
@@ -85,7 +85,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         isLoading: false,
       );
 
-      Future.microtask(() => _loadWelcomerUsersDataIncrementally(welcomes));
+      final activePubkeySnapshot = activePubkey;
+      Future.microtask(() => _loadWelcomerUsersDataIncrementally(welcomes, activePubkeySnapshot));
 
       final newPendingWelcomes =
           welcomes
@@ -111,8 +112,15 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
   }
 
   /// Load welcomer metadata in batches so welcomes appear incrementally (6 per batch)
-  Future<void> _loadWelcomerUsersDataIncrementally(List<Welcome> welcomes) async {
+  Future<void> _loadWelcomerUsersDataIncrementally(
+    List<Welcome> welcomes,
+    String activePubkey,
+  ) async {
     try {
+      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        return;
+      }
+
       final welcomerUsers = Map<String, User>.from(state.welcomerUsers ?? {});
 
       final uniqueWelcomers =
@@ -130,8 +138,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         await Future.wait(
           batch.map((welcomerPubkey) async {
             try {
-              final metadata = await rust_users.userMetadata(pubkey: welcomerPubkey);
-              final user = User.fromMetadata(metadata, welcomerPubkey);
+              final rustUser = await ref.read(userProfileProvider.notifier).getUser(welcomerPubkey);
+              final user = User.fromMetadata(rustUser.metadata, welcomerPubkey);
               welcomerUsers[welcomerPubkey] = user;
             } catch (e) {
               _logger.warning('Failed to fetch metadata for welcomer $welcomerPubkey: $e');
@@ -173,8 +181,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
 
       for (final welcomerPubkey in remainingWelcomers) {
         try {
-          final metadata = await rust_users.userMetadata(pubkey: welcomerPubkey);
-          final user = User.fromMetadata(metadata, welcomerPubkey);
+          final rustUser = await ref.read(userProfileProvider.notifier).getUser(welcomerPubkey);
+          final user = User.fromMetadata(rustUser.metadata, welcomerPubkey);
           welcomerUsers[welcomerPubkey] = user;
           _logger.info(
             'WelcomesProvider: Successfully loaded welcomer $welcomerPubkey on retry $attempt',
@@ -416,6 +424,49 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
   }
 
+  /// Refresh welcomer metadata for all welcomes to catch profile updates
+  /// Forces refresh even for cached welcomers
+  Future<void> _refreshWelcomerMetadata(List<Welcome> welcomes, String activePubkey) async {
+    try {
+      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        return;
+      }
+
+      final welcomerUsers = Map<String, User>.from(state.welcomerUsers ?? {});
+
+      final uniqueWelcomers =
+          <String>{
+            for (final w in welcomes) w.welcomer,
+          }.toList();
+
+      const batchSize = 6;
+
+      for (int i = 0; i < uniqueWelcomers.length; i += batchSize) {
+        final end = (i + batchSize).clamp(0, uniqueWelcomers.length);
+        final batch = uniqueWelcomers.sublist(i, end);
+
+        await Future.wait(
+          batch.map((welcomerPubkey) async {
+            try {
+              final rustUser = await ref.read(userProfileProvider.notifier).getUser(welcomerPubkey);
+              final user = User.fromMetadata(rustUser.metadata, welcomerPubkey);
+              welcomerUsers[welcomerPubkey] = user;
+            } catch (e) {
+              _logger.warning('Failed to refresh metadata for welcomer $welcomerPubkey: $e');
+            }
+          }),
+        );
+
+        state = state.copyWith(welcomerUsers: welcomerUsers);
+        _logger.info('WelcomesProvider: Refreshed batch of ${batch.length} welcomers');
+      }
+
+      _logger.info('WelcomesProvider: Refreshed metadata for ${uniqueWelcomers.length} welcomers');
+    } catch (e) {
+      _logger.warning('Error refreshing welcomer metadata: $e');
+    }
+  }
+
   /// Check for new welcomes and add them incrementally (for polling)
   Future<void> checkForNewWelcomes() async {
     if (!_isAuthAvailable()) {
@@ -453,7 +504,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
           welcomeById: welcomeByData,
         );
 
-        Future.microtask(() => _loadWelcomerUsersDataIncrementally(actuallyNewWelcomes));
+        Future.microtask(
+          () => _loadWelcomerUsersDataIncrementally(actuallyNewWelcomes, activePubkey),
+        );
 
         final newPendingWelcomes =
             actuallyNewWelcomes.where((w) => w.state == WelcomeState.pending).toList();
@@ -465,6 +518,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
 
         _logger.info('WelcomesProvider: Added ${actuallyNewWelcomes.length} new welcomes');
       }
+
+      // Refresh metadata for all welcomers to catch profile updates from polling
+      Future.microtask(() => _refreshWelcomerMetadata(newWelcomes, activePubkey));
     } catch (e, st) {
       _logger.severe('WelcomesProvider.checkForNewWelcomes', e, st);
     }

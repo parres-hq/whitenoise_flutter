@@ -7,12 +7,12 @@ import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/config/states/group_state.dart';
 import 'package:whitenoise/domain/models/user_model.dart' as domain_user;
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
-import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
 import 'package:whitenoise/utils/error_handling.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
@@ -342,8 +342,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
           }
 
           try {
-            final metadata = await rust_users.userMetadata(pubkey: memberPubkey);
-            final user = domain_user.User.fromMetadata(metadata, npub);
+            final rustUser = await ref.read(userProfileProvider.notifier).getUser(memberPubkey);
+            final user = domain_user.User.fromMetadata(rustUser.metadata, npub);
             members.add(user);
           } catch (metadataError) {
             String logMessage = 'Failed to fetch metadata for member - Exception: ';
@@ -419,8 +419,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
           final npub = _pubkeyFormatter(pubkey: adminPubkey).toNpub() ?? '';
 
           try {
-            final metadata = await rust_users.userMetadata(pubkey: adminPubkey);
-            final user = domain_user.User.fromMetadata(metadata, npub);
+            final rustUser = await ref.read(userProfileProvider.notifier).getUser(adminPubkey);
+            final user = domain_user.User.fromMetadata(rustUser.metadata, npub);
             admins.add(user);
           } catch (metadataError) {
             // Log the full exception details with proper ApiError unpacking
@@ -953,6 +953,38 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
+  /// Refresh group metadata for all groups to catch profile/name updates
+  /// Forces refresh of members, types, images, and display names
+  Future<void> _refreshGroupMetadata(List<Group> groups, String activePubkey) async {
+    try {
+      const batchSize = 6;
+
+      for (int i = 0; i < groups.length; i += batchSize) {
+        final end = (i + batchSize).clamp(0, groups.length);
+        final batch = groups.sublist(i, end);
+
+        await Future.wait(
+          batch.map((group) async {
+            try {
+              await loadGroupMembers(group.mlsGroupId);
+              await _loadGroupType(group, activePubkey);
+              await _loadGroupImagePathForGroup(group, activePubkey);
+              await _calculateDisplayNameForGroup(group.mlsGroupId);
+            } catch (e) {
+              _logger.warning('Failed to refresh metadata for group ${group.mlsGroupId}: $e');
+            }
+          }),
+        );
+
+        _logger.info('GroupsProvider: Refreshed batch of ${batch.length} groups');
+      }
+
+      _logger.info('GroupsProvider: Refreshed metadata for ${groups.length} groups');
+    } catch (e) {
+      _logger.warning('Error refreshing group metadata: $e');
+    }
+  }
+
   /// Check for new groups and add them incrementally (for polling)
   Future<void> checkForNewGroups() async {
     if (!_isAuthAvailable()) {
@@ -971,26 +1003,21 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final currentGroupIds =
           currentGroups.map((g) => (g as Group?)?.mlsGroupId).whereType<String>().toSet();
 
-      // Find truly new groups
       final actuallyNewGroups =
           newGroups.where((group) => !currentGroupIds.contains(group.mlsGroupId)).toList();
 
       if (actuallyNewGroups.isNotEmpty) {
-        // Add new groups to existing list and sort by lastMessageAt (newest first)
         final updatedGroups = [...currentGroups, ...actuallyNewGroups]..sort((a, b) {
           final aTime = (a as Group?)?.lastMessageAt;
           final bTime = (b as Group?)?.lastMessageAt;
 
-          // Handle null values - groups without messages go to the end
           if (aTime == null && bTime == null) return 0;
           if (aTime == null) return 1;
           if (bTime == null) return -1;
 
-          // Sort by descending order (newest first)
           return bTime.compareTo(aTime);
         });
 
-        // Update groupsMap with all groups
         final updatedGroupsMap = Map<String, Group>.from(state.groupsMap ?? {});
         for (final group in updatedGroups) {
           updatedGroupsMap[group.mlsGroupId] = group;
@@ -998,22 +1025,17 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
         state = state.copyWith(groups: updatedGroups, groupsMap: updatedGroupsMap);
 
-        // Load members for new groups only
         await _loadMembersForSpecificGroups(actuallyNewGroups);
-
-        // Load and cache group types for new groups
         await _loadGroupTypesForAllGroups(actuallyNewGroups);
-
-        // Load and cache group image paths for new groups
         await _loadGroupImagePaths(actuallyNewGroups);
-
-        // Calculate display names for new groups
         await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups);
 
         _logger.info('GroupsProvider: Added ${actuallyNewGroups.length} new groups');
       }
+
+      // Refresh metadata for all groups to catch profile/name updates from polling
+      Future.microtask(() => _refreshGroupMetadata(newGroups, activePubkey));
     } catch (e, st) {
-      // Log the full exception details with proper ApiError unpacking
       String logMessage = 'GroupsProvider.checkForNewGroups - Exception: ';
       if (e is ApiError) {
         final errorDetails = e.messageText();

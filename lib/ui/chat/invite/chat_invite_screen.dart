@@ -13,6 +13,7 @@ import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ChatInviteScreen extends ConsumerStatefulWidget {
@@ -241,6 +242,8 @@ class DMInviteHeader extends ConsumerWidget {
     }
 
     final welcomerName = welcomerUser.displayName;
+    final welcomerNpub =
+        PubkeyFormatter(pubkey: welcomerUser.publicKey).toNpub()?.formatPublicKey();
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
@@ -273,7 +276,7 @@ class DMInviteHeader extends ConsumerWidget {
             ),
           Gap(12.h),
           Text(
-            welcomerUser.publicKey.formatPublicKey(),
+            welcomerNpub ?? '',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12.sp,
@@ -285,7 +288,7 @@ class DMInviteHeader extends ConsumerWidget {
             TextSpan(
               children: [
                 TextSpan(
-                  text: welcomerName,
+                  text: '$welcomerName ',
                   style: TextStyle(
                     fontSize: 14.sp,
                     color: context.colors.primary,
