@@ -12,12 +12,10 @@ import 'package:whitenoise/src/rust/api/welcomes.dart';
 class WelcomesNotifier extends Notifier<WelcomesState> {
   final _logger = Logger('WelcomesNotifier');
 
-  // Callback for when a new pending welcome is available
   void Function(Welcome)? _onNewWelcomeCallback;
 
   @override
   WelcomesState build() {
-    // Listen to active account changes and refresh welcomes automatically
     ref.listen<String?>(activePubkeyProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
         // Schedule state changes after the build phase to avoid provider modification errors
@@ -79,7 +77,6 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         welcomeByData[welcome.id] = welcome;
       }
 
-      // Get current pending welcomes to compare
       final previousPendingIds = getPendingWelcomes().map((w) => w.id).toSet();
 
       state = state.copyWith(
@@ -88,10 +85,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         isLoading: false,
       );
 
-      // Load welcomer user data for all welcomes
-      await _loadWelcomerUsersData(welcomes);
+      Future.microtask(() => _loadWelcomerUsersDataIncrementally(welcomes));
 
-      // Find new pending welcomes and trigger callback for the first one
       final newPendingWelcomes =
           welcomes
               .where((w) => w.state == WelcomeState.pending && !previousPendingIds.contains(w.id))
@@ -115,43 +110,97 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
   }
 
-  /// Load and cache user data for all welcomer pubkeys
-  Future<void> _loadWelcomerUsersData(List<Welcome> welcomes) async {
+  /// Load welcomer metadata in batches so welcomes appear incrementally (6 per batch)
+  Future<void> _loadWelcomerUsersDataIncrementally(List<Welcome> welcomes) async {
     try {
       final welcomerUsers = Map<String, User>.from(state.welcomerUsers ?? {});
 
-      // Batch fetch metadata for all uncached welcomers
-      final toFetch =
+      final uniqueWelcomers =
           <String>{
             for (final w in welcomes) w.welcomer,
           }.where((k) => !welcomerUsers.containsKey(k)).toList();
 
-      await Future.wait(
-        toFetch.map((welcomerPubkey) async {
-          try {
-            final metadata = await rust_users.userMetadata(pubkey: welcomerPubkey);
-            final user = User.fromMetadata(metadata, welcomerPubkey);
-            welcomerUsers[welcomerPubkey] = user;
-          } catch (e) {
-            _logger.warning('Failed to fetch metadata for welcomer $welcomerPubkey: $e');
-            // Create a fallback user with minimal info (store hex format, not npub)
-            final fallbackUser = User(
-              id: welcomerPubkey,
-              displayName: 'Unknown User',
-              nip05: '',
-              publicKey: welcomerPubkey,
-            );
-            welcomerUsers[welcomerPubkey] = fallbackUser;
-          }
-        }),
-      );
+      const batchSize = 6;
+      final failedWelcomers = <String>[];
 
-      // Update state with cached welcomer users
-      state = state.copyWith(welcomerUsers: welcomerUsers);
-      _logger.info('WelcomesProvider: Loaded user data for ${welcomerUsers.length} welcomers');
+      for (int i = 0; i < uniqueWelcomers.length; i += batchSize) {
+        final end = (i + batchSize).clamp(0, uniqueWelcomers.length);
+        final batch = uniqueWelcomers.sublist(i, end);
+
+        await Future.wait(
+          batch.map((welcomerPubkey) async {
+            try {
+              final metadata = await rust_users.userMetadata(pubkey: welcomerPubkey);
+              final user = User.fromMetadata(metadata, welcomerPubkey);
+              welcomerUsers[welcomerPubkey] = user;
+            } catch (e) {
+              _logger.warning('Failed to fetch metadata for welcomer $welcomerPubkey: $e');
+              failedWelcomers.add(welcomerPubkey);
+            }
+          }),
+        );
+
+        state = state.copyWith(welcomerUsers: welcomerUsers);
+        _logger.info('WelcomesProvider: Loaded batch of ${batch.length} welcomers');
+      }
+
+      if (failedWelcomers.isNotEmpty) {
+        _logger.info('WelcomesProvider: Retrying ${failedWelcomers.length} failed welcomers');
+        await _retryFailedWelcomers(failedWelcomers, welcomerUsers);
+      }
+
+      _logger.info(
+        'WelcomesProvider: Batch loading complete for ${uniqueWelcomers.length} welcomers (${failedWelcomers.length} retried)',
+      );
     } catch (e) {
-      _logger.warning('Error loading welcomer users data: $e');
-      // Don't fail the whole operation if this fails
+      _logger.warning('Error in batch welcomer loading: $e');
+    }
+  }
+
+  /// Retry failed welcomer metadata loads with exponential backoff
+  Future<void> _retryFailedWelcomers(
+    List<String> failedWelcomers,
+    Map<String, User> welcomerUsers,
+  ) async {
+    const maxRetries = 2;
+    var remainingWelcomers = failedWelcomers;
+
+    for (int attempt = 1; attempt <= maxRetries && remainingWelcomers.isNotEmpty; attempt++) {
+      final delayMs = 500 * attempt;
+      await Future.delayed(Duration(milliseconds: delayMs));
+
+      final nextRetry = <String>[];
+
+      for (final welcomerPubkey in remainingWelcomers) {
+        try {
+          final metadata = await rust_users.userMetadata(pubkey: welcomerPubkey);
+          final user = User.fromMetadata(metadata, welcomerPubkey);
+          welcomerUsers[welcomerPubkey] = user;
+          _logger.info(
+            'WelcomesProvider: Successfully loaded welcomer $welcomerPubkey on retry $attempt',
+          );
+        } catch (e) {
+          _logger.warning('Retry $attempt failed for welcomer $welcomerPubkey: $e');
+          final fallbackUser = User(
+            id: welcomerPubkey,
+            displayName: 'Unknown User',
+            nip05: '',
+            publicKey: welcomerPubkey,
+          );
+          welcomerUsers[welcomerPubkey] = fallbackUser;
+          nextRetry.add(welcomerPubkey);
+        }
+      }
+
+      state = state.copyWith(welcomerUsers: welcomerUsers);
+      remainingWelcomers = nextRetry;
+    }
+
+    if (remainingWelcomers.isNotEmpty) {
+      _logger.warning(
+        'WelcomesProvider: Failed to load ${remainingWelcomers.length} welcomers after $maxRetries retries: '
+        '${remainingWelcomers.join(", ")}',
+      );
     }
   }
 
@@ -212,7 +261,6 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return false;
       }
 
-      // Update the welcome state to accepted
       await _updateWelcomeState(welcomeEventId, WelcomeState.accepted);
 
       _logger.info('WelcomesProvider: Welcome accepted successfully - $welcomeEventId');
@@ -248,7 +296,6 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return false;
       }
 
-      // Update the welcome state to declined
       await _updateWelcomeState(welcomeEventId, WelcomeState.declined);
 
       _logger.info('WelcomesProvider: Welcome declined successfully - $welcomeEventId');
@@ -269,7 +316,6 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
   /// Mark a welcome as ignored (dismissed without action)
   Future<bool> ignoreWelcome(String welcomeEventId) async {
     try {
-      // Update the welcome state to ignored locally
       await _updateWelcomeState(welcomeEventId, WelcomeState.ignored);
       _logger.info('WelcomesProvider: Welcome ignored - $welcomeEventId');
       return true;
@@ -391,15 +437,12 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       final currentWelcomes = state.welcomes ?? [];
       final currentWelcomeIds = currentWelcomes.map((w) => w.id).toSet();
 
-      // Find truly new welcomes
       final actuallyNewWelcomes =
           newWelcomes.where((welcome) => !currentWelcomeIds.contains(welcome.id)).toList();
 
       if (actuallyNewWelcomes.isNotEmpty) {
-        // Add new welcomes to existing list
         final updatedWelcomes = [...currentWelcomes, ...actuallyNewWelcomes];
 
-        // Update welcomeById map
         final welcomeByData = Map<String, Welcome>.from(state.welcomeById ?? {});
         for (final welcome in actuallyNewWelcomes) {
           welcomeByData[welcome.id] = welcome;
@@ -410,10 +453,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
           welcomeById: welcomeByData,
         );
 
-        // Preload welcomer user data for newly discovered welcomes
-        await _loadWelcomerUsersData(actuallyNewWelcomes);
+        Future.microtask(() => _loadWelcomerUsersDataIncrementally(actuallyNewWelcomes));
 
-        // Trigger callback for new pending welcomes
         final newPendingWelcomes =
             actuallyNewWelcomes.where((w) => w.state == WelcomeState.pending).toList();
 
