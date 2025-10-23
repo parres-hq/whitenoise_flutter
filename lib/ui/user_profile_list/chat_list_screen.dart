@@ -144,7 +144,14 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   }
 
   Future<void> _loadAllProviderData() async {
-    unawaited(ref.read(relayStatusProvider.notifier).refreshStatuses());
+    unawaited(
+      ref
+          .read(relayStatusProvider.notifier)
+          .refreshStatuses()
+          .catchError(
+            (e, st) => _log.warning('refreshStatuses failed: $e', e, st),
+          ),
+    );
     await Future.wait([
       ref.read(welcomesProvider.notifier).loadWelcomes(),
       ref.read(groupsProvider.notifier).loadGroups(),

@@ -85,22 +85,18 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   @override
   GroupsState build() {
-    // Listen to active account changes and refresh groups automatically
     ref.listen<String?>(activePubkeyProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
-        // Account switched, clear current groups and load for new account
         // Schedule state changes after the build phase to avoid provider modification errors
         WidgetsBinding.instance.addPostFrameCallback((_) {
           clearGroup();
           loadGroups();
         });
       } else if (previous != null && next == null) {
-        // Account logged out, clear groups
         WidgetsBinding.instance.addPostFrameCallback((_) {
           clearGroup();
         });
       } else if (previous == null && next != null) {
-        // Account logged in, load groups
         WidgetsBinding.instance.addPostFrameCallback((_) {
           loadGroups();
         });
@@ -137,32 +133,23 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       final groups = await activeGroups(pubkey: activePubkey);
 
-      // Sort groups by lastMessageAt in descending order (newest first)
       final sortedGroups = [...groups]..sort((a, b) {
         final aTime = a.lastMessageAt;
         final bTime = b.lastMessageAt;
-
-        // Handle null values - groups without messages go to the end
         if (aTime == null && bTime == null) return 0;
         if (aTime == null) return 1;
         if (bTime == null) return -1;
-
-        // Sort by descending order (newest first)
         return bTime.compareTo(aTime);
       });
 
-      // First set the groups and create groupsMap - display them immediately
       final groupsMap = <String, Group>{};
       for (final group in sortedGroups) {
         groupsMap[group.mlsGroupId] = group;
       }
       state = state.copyWith(groups: sortedGroups, groupsMap: groupsMap);
 
-      // Load group metadata (members, types, images, display names) lazily
-      // Process each group sequentially to avoid overwhelming the backend
-      await _loadGroupsMetadataLazy(sortedGroups);
+      Future.microtask(() => _loadGroupsMetadataLazy(sortedGroups));
 
-      // Schedule message loading after the current build cycle completes
       Future.microtask(() async {
         await ref
             .read(chatProvider.notifier)
@@ -173,7 +160,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       state = state.copyWith(isLoading: false);
     } catch (e, st) {
-      // Log the full exception details with proper Whitenoise ApiError unpacking
       String logMessage = 'GroupsProvider.loadGroups - Exception: ';
       if (e is ApiError) {
         final errorDetails = await e.messageText();
@@ -247,8 +233,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
         return null;
       }
 
-      // Check if this is a direct message (2 members only: current user + 1 other)
-      // Only check for existing DMs when explicitly creating a DM
       if (isDm && memberPublicKeyHexs.length == 1) {
         final otherUserPubkeyHex = memberPublicKeyHexs.first.trim();
         final existingDM = await _findExistingDirectMessage(otherUserPubkeyHex);
@@ -260,7 +244,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         }
       }
 
-      // Filter out the creator from the members list since they shouldn't be explicitly included
+      // Creator shouldn't be explicitly included in the members list
       final creatorPubkeyHex = activePubkey.trim();
       final filteredMemberHexs =
           memberPublicKeyHexs.where((hex) => hex.trim() != creatorPubkeyHex).toList();
@@ -274,13 +258,9 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final combinedAdminKeys = {activePubkey, ...resolvedAdminPublicKeys}.toList();
       _logger.info('GroupsProvider: Admin pubkeys loaded - ${combinedAdminKeys.length}');
 
-      // Debug logging before the createGroup call
-      _logger.info('GroupsProvider: Creating group with the following parameters:');
-      _logger.info('  - Group name: "$groupName"');
-      _logger.info('  - Group description: "$groupDescription"');
-      _logger.info('  - Creator pubkey: $activePubkey');
-      _logger.info('  - Members count (filtered): ${filteredMemberPubkeys.length}');
-      _logger.info('  - Admins count: ${combinedAdminKeys.length}');
+      _logger.info(
+        'GroupsProvider: Creating group with parameters: name="$groupName", members=${filteredMemberPubkeys.length}, admins=${combinedAdminKeys.length}',
+      );
       _logger.info('  - Member pubkeys (filtered): $filteredMemberHexs');
       _logger.info('  - Admin pubkeys: $adminPublicKeyHexs');
 
@@ -295,15 +275,11 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       _logger.info('GroupsProvider: Group created successfully - ${newGroup.name}');
 
-      // Instead of calling loadGroups(), update the group's lastMessageAt to put it at the top
       await loadGroups();
-
-      // Set the new group's activity time to now to ensure it appears at the top
       updateGroupActivityTime(newGroup.mlsGroupId, DateTime.now());
 
       return newGroup;
     } catch (e, st) {
-      // Log the full exception details with proper Whitenoise ApiError unpacking
       String logMessage = 'GroupsProvider.createNewGroup - Exception: ';
       if (e is ApiError) {
         final errorDetails = e.messageText();
@@ -313,7 +289,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
       }
       _logger.severe(logMessage, e, st);
 
-      // Try to get a user-friendly error message, but with fallback
       String errorMessage;
       try {
         errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
@@ -323,12 +298,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
           context: 'createNewGroup',
         );
       } catch (errorHandlingError) {
-        // If error handling fails, use a simple fallback
         _logger.severe(
           'GroupsProvider.createNewGroup - Error handling failed: $errorHandlingError',
           errorHandlingError,
         );
-
         errorMessage = 'Failed to create group due to an internal error. Please try again.';
       }
 
@@ -353,31 +326,26 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       _logger.info('GroupsProvider: Loaded ${memberPubkeys.length} members for group $groupId');
 
-      // Fetch metadata for each member and create User objects
       final List<domain_user.User> members = [];
       for (final memberPubkey in memberPubkeys) {
         try {
           final npub = _pubkeyFormatter(pubkey: memberPubkey).toNpub() ?? '';
 
-          // First try to get from follows
           final followsNotifier = ref.read(followsProvider.notifier);
           final existingFollow = followsNotifier.findFollowByPubkey(memberPubkey);
 
           if (existingFollow != null) {
             _logger.info('Found member $npub in follows cache');
-            // Convert Rust User to domain User
             final domainUser = domain_user.User.fromMetadata(existingFollow.metadata, npub);
             members.add(domainUser);
             continue;
           }
 
-          // If not in follows, fetch directly from API
           try {
             final metadata = await rust_users.userMetadata(pubkey: memberPubkey);
             final user = domain_user.User.fromMetadata(metadata, npub);
             members.add(user);
           } catch (metadataError) {
-            // Log the full exception details with proper Whitenoise ApiError unpacking
             String logMessage = 'Failed to fetch metadata for member - Exception: ';
             if (metadataError is ApiError) {
               final errorDetails = await metadataError.messageText();
@@ -386,7 +354,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
               logMessage += '$metadataError (Type: ${metadataError.runtimeType})';
             }
             _logger.warning(logMessage, metadataError);
-            // Create a fallback user with minimal info
             final fallbackUser = domain_user.User(
               id: npub,
               displayName: 'shared.unknownUser'.tr(),
@@ -396,7 +363,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
             members.add(fallbackUser);
           }
         } catch (e) {
-          // Log the full exception details with proper ApiError unpacking
           String logMessage = 'Failed to process member pubkey - Exception: ';
           if (e is ApiError) {
             final errorDetails = await e.messageText();
@@ -405,7 +371,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
             logMessage += '$e (Type: ${e.runtimeType})';
           }
           _logger.severe(logMessage, e);
-          // Skip this member if we can't even get the pubkey string
         }
       }
 
@@ -653,25 +618,42 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
-  /// Load group metadata lazily, processing each group one at a time
-  /// This allows groups to be displayed as soon as basic metadata is available
-  /// without waiting for all groups to complete loading
+  /// Load group metadata lazily in batches to balance speed and backend load
+  /// Processes groups concurrently in batches, with automatic retry for failed groups
   Future<void> _loadGroupsMetadataLazy(List<Group> groups) async {
     try {
       final activePubkey = ref.read(activePubkeyProvider);
       if (activePubkey == null || activePubkey.isEmpty) return;
 
-      for (final group in groups) {
-        try {
-          // Load metadata for this group
-          await _loadGroupMetadata(group, activePubkey);
-        } catch (e) {
-          _logErrorSync('Failed to load metadata for group ${group.mlsGroupId}', e);
-          // Continue with next group even if this one fails
-        }
+      const batchSize = 6;
+      final failedGroups = <Group>[];
+
+      // Process groups in batches using Future.wait()
+      for (int i = 0; i < groups.length; i += batchSize) {
+        final end = (i + batchSize).clamp(0, groups.length);
+        final batch = groups.sublist(i, end);
+
+        // Load all groups in this batch concurrently
+        await Future.wait(
+          batch.map((group) async {
+            try {
+              await _loadGroupMetadata(group, activePubkey);
+            } catch (e) {
+              _logger.warning('Failed to load metadata for group ${group.mlsGroupId}: $e');
+              failedGroups.add(group);
+            }
+          }),
+        );
       }
 
-      _logger.info('GroupsProvider: Loaded metadata for ${groups.length} groups');
+      if (failedGroups.isNotEmpty) {
+        _logger.info('Retrying ${failedGroups.length} failed groups');
+        await _retryFailedGroupsMetadata(failedGroups, activePubkey);
+      }
+
+      _logger.info(
+        'GroupsProvider: Loaded metadata for ${groups.length} groups (${failedGroups.length} retried)',
+      );
     } catch (e) {
       String logMessage = 'GroupsProvider: Error in lazy metadata loading - Exception: ';
       if (e is ApiError) {
@@ -684,19 +666,47 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
-  /// Load and cache metadata for a single group
-  /// This includes members, group type, display name, and image path
+  /// Retry failed group metadata loads with exponential backoff
+  /// Processes failed groups sequentially with delays between retries
+  Future<void> _retryFailedGroupsMetadata(List<Group> failedGroups, String activePubkey) async {
+    const maxRetries = 2;
+    var remainingGroups = failedGroups;
+
+    for (int attempt = 1; attempt <= maxRetries && remainingGroups.isNotEmpty; attempt++) {
+      final delayMs = 500 * attempt;
+      await Future.delayed(Duration(milliseconds: delayMs));
+
+      final nextRetry = <Group>[];
+
+      for (final group in remainingGroups) {
+        try {
+          await _loadGroupMetadata(group, activePubkey);
+          _logger.info('Successfully loaded group ${group.mlsGroupId} on retry $attempt');
+        } catch (e) {
+          _logger.warning('Retry $attempt failed for group ${group.mlsGroupId}: $e');
+          nextRetry.add(group);
+        }
+      }
+
+      remainingGroups = nextRetry;
+    }
+
+    if (remainingGroups.isNotEmpty) {
+      _logger.warning(
+        'GroupsProvider: Failed to load metadata for ${remainingGroups.length} groups after $maxRetries retries: '
+        '${remainingGroups.map((g) => g.mlsGroupId).join(", ")}',
+      );
+    }
+  }
+
+  /// Load and cache metadata for a single group (members, type, display name, image path)
   Future<void> _loadGroupMetadata(Group group, String activePubkey) async {
-    // Load members first (needed for DM display names and other operations)
     await loadGroupMembers(group.mlsGroupId);
 
-    // Load group type in parallel with image path
     final groupTypeTask = _loadGroupType(group, activePubkey);
     final imagePathTask = _loadGroupImagePathForGroup(group, activePubkey);
 
     await Future.wait([groupTypeTask, imagePathTask]);
-
-    // Calculate display name now that we have members and group type
     await _calculateDisplayNameForGroup(group.mlsGroupId);
   }
 
@@ -709,7 +719,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
       state = state.copyWith(groupTypes: groupTypes);
     } catch (e) {
       _logErrorSync('Failed to load group type for group ${group.mlsGroupId}', e);
-      // Set a default fallback type
       final groupTypes = Map<String, GroupType>.from(state.groupTypes ?? {});
       groupTypes[group.mlsGroupId] = GroupType.group;
       state = state.copyWith(groupTypes: groupTypes);
@@ -731,13 +740,11 @@ class GroupsNotifier extends Notifier<GroupsState> {
       }
     } catch (e) {
       _logErrorSync('Failed to load image path for group ${group.mlsGroupId}', e);
-      // Skip this group if image loading fails - it's not critical
     }
   }
 
   /// Get the appropriate display name for a group
   Future<String> _getDisplayNameForGroup(Group group) async {
-    // For direct messages, use the other member's name
     final activePubkey = ref.read(activePubkeyProvider);
     if (activePubkey == null || activePubkey.isEmpty) return '';
     final groupInformation = await getGroupInformation(
@@ -773,7 +780,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
       }
     }
 
-    // For regular groups, use the group name
     return group.name;
   }
 
@@ -795,9 +801,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
   Future<List<Group>> getGroupsByType(GroupType type) async {
     final groups = state.groups;
     if (groups == null) return [];
-
     final groupInformationsMap = await _getGroupInformationsMap(groups);
-
     return groups
         .where((group) => groupInformationsMap[group.mlsGroupId]?.groupType == type)
         .toList();
@@ -821,14 +825,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   Group? findGroupById(String groupId) {
-    // First try to get from groupsMap for faster lookup
     final groupsMap = state.groupsMap;
     if (groupsMap != null) {
       final group = groupsMap[groupId];
       if (group != null) return group;
     }
 
-    // Fallback to searching through groups list
     final groups = state.groups;
     if (groups == null) return null;
 

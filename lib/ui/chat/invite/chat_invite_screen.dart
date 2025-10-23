@@ -263,13 +263,14 @@ class DMInviteHeader extends ConsumerWidget {
             ),
           ),
           Gap(4.h),
-          Text(
-            welcomerUser.nip05,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: context.colors.mutedForeground,
+          if ((welcomerUser.nip05).isNotEmpty)
+            Text(
+              welcomerUser.nip05,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: context.colors.mutedForeground,
+              ),
             ),
-          ),
           Gap(12.h),
           Text(
             welcomerUser.publicKey.formatPublicKey(),
@@ -292,7 +293,7 @@ class DMInviteHeader extends ConsumerWidget {
                   ),
                 ),
                 TextSpan(
-                  text: ' invited you to a secure chat.',
+                  text: 'ui.invitedYouToSecureChat'.tr(),
                   style: TextStyle(
                     fontSize: 14.sp,
                     color: context.colors.mutedForeground,

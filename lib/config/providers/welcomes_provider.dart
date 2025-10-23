@@ -8,7 +8,6 @@ import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/users.dart' as rust_users;
 import 'package:whitenoise/src/rust/api/welcomes.dart';
-import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class WelcomesNotifier extends Notifier<WelcomesState> {
   final _logger = Logger('WelcomesNotifier');
@@ -121,32 +120,31 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     try {
       final welcomerUsers = Map<String, User>.from(state.welcomerUsers ?? {});
 
-      for (final welcome in welcomes) {
-        final welcomerPubkey = welcome.welcomer;
+      // Batch fetch metadata for all uncached welcomers
+      final toFetch =
+          <String>{
+            for (final w in welcomes) w.welcomer,
+          }.where((k) => !welcomerUsers.containsKey(k)).toList();
 
-        // Skip if already cached
-        if (welcomerUsers.containsKey(welcomerPubkey)) {
-          continue;
-        }
-
-        try {
-          final metadata = await rust_users.userMetadata(pubkey: welcomerPubkey);
-          final npub = PubkeyFormatter(pubkey: welcomerPubkey).toNpub() ?? '';
-          final user = User.fromMetadata(metadata, npub);
-          welcomerUsers[welcomerPubkey] = user;
-        } catch (e) {
-          _logger.warning('Failed to fetch metadata for welcomer $welcomerPubkey: $e');
-          // Create a fallback user with minimal info
-          final npub = PubkeyFormatter(pubkey: welcomerPubkey).toNpub() ?? '';
-          final fallbackUser = User(
-            id: npub,
-            displayName: 'Unknown User',
-            nip05: '',
-            publicKey: npub,
-          );
-          welcomerUsers[welcomerPubkey] = fallbackUser;
-        }
-      }
+      await Future.wait(
+        toFetch.map((welcomerPubkey) async {
+          try {
+            final metadata = await rust_users.userMetadata(pubkey: welcomerPubkey);
+            final user = User.fromMetadata(metadata, welcomerPubkey);
+            welcomerUsers[welcomerPubkey] = user;
+          } catch (e) {
+            _logger.warning('Failed to fetch metadata for welcomer $welcomerPubkey: $e');
+            // Create a fallback user with minimal info (store hex format, not npub)
+            final fallbackUser = User(
+              id: welcomerPubkey,
+              displayName: 'Unknown User',
+              nip05: '',
+              publicKey: welcomerPubkey,
+            );
+            welcomerUsers[welcomerPubkey] = fallbackUser;
+          }
+        }),
+      );
 
       // Update state with cached welcomer users
       state = state.copyWith(welcomerUsers: welcomerUsers);
@@ -411,6 +409,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
           welcomes: updatedWelcomes,
           welcomeById: welcomeByData,
         );
+
+        // Preload welcomer user data for newly discovered welcomes
+        await _loadWelcomerUsersData(actuallyNewWelcomes);
 
         // Trigger callback for new pending welcomes
         final newPendingWelcomes =

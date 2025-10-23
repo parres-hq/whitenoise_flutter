@@ -20,7 +20,7 @@ class ChatUserHeader extends ConsumerWidget {
       groupsProvider.select((s) => s.groupTypes?[group.mlsGroupId]),
     );
     if (groupType == null) {
-      return GroupChatHeader(group: group);
+      return const SizedBox.shrink();
     }
 
     final isGroupChat = groupType == GroupType.group;

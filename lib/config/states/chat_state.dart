@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 
 part 'chat_state.freezed.dart';
@@ -25,8 +24,6 @@ class ChatState with _$ChatState {
     @Default({}) Map<String, MessageModel?> replyingTo,
     // Message being edited per group
     @Default({}) Map<String, MessageModel?> editingMessage,
-    // Cached DMChatData per group
-    @Default({}) Map<String, DMChatData?> dmChatDataCache,
   }) = _ChatState;
 
   const ChatState._();
@@ -82,15 +79,5 @@ class ChatState with _$ChatState {
   /// Check if currently editing a message in a group
   bool isEditing(String groupId) {
     return editingMessage[groupId] != null;
-  }
-
-  /// Get cached DMChatData for a group
-  DMChatData? getDMChatData(String groupId) {
-    return dmChatDataCache[groupId];
-  }
-
-  /// Check if DMChatData is cached for a group
-  bool isDMChatDataCached(String groupId) {
-    return dmChatDataCache.containsKey(groupId);
   }
 }
