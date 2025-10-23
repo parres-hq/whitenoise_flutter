@@ -3,7 +3,7 @@ import 'package:whitenoise/domain/models/message_model.dart';
 
 part 'chat_state.freezed.dart';
 
-@freezed
+@Freezed(toStringOverride: false)
 class ChatState with _$ChatState {
   const factory ChatState({
     // Map of groupId -> list of messages
