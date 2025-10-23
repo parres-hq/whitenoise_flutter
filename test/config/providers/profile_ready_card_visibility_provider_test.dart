@@ -3,17 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
-
-class MockActivePubkeyNotifier extends ActivePubkeyNotifier {
-  final String? _mockValue;
-
-  MockActivePubkeyNotifier(this._mockValue);
-
-  @override
-  String? build() {
-    return _mockValue;
-  }
-}
+import '../../shared/mocks/mock_active_pubkey_notifier.dart';
 
 class _MockFailingSharedPreferences implements SharedPreferences {
   @override
