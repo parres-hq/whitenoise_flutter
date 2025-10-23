@@ -8,6 +8,7 @@ import 'package:whitenoise/config/states/welcome_state.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/welcomes.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class WelcomesNotifier extends Notifier<WelcomesState> {
   final _logger = Logger('WelcomesNotifier');
@@ -191,7 +192,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
           _logger.warning('Retry $attempt failed for welcomer $welcomerPubkey: $e');
           final fallbackUser = User(
             id: welcomerPubkey,
-            displayName: 'Unknown User',
+            displayName: 'shared.unknownUser'.tr(),
             nip05: '',
             publicKey: welcomerPubkey,
           );
