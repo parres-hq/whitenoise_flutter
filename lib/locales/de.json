@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Fehler beim Veröffentlichen des Schlüsselpakets",
         "keyPackageDeletedSuccess": "Schlüsselpaket erfolgreich gelöscht",
         "failedToDeleteKeyPackage": "Fehler beim Löschen des Schlüsselpakets",
-        "noActiveAccountFound": "Kein aktives Konto gefunden"
+        "noActiveAccountFound": "Kein aktives Konto gefunden",
+        "backgroundServices": "Hintergrunddienste",
+        "backgroundSyncService": "Hintergrund-Synchronisationsdienst"
     },
     "profile": {
         "nostrAddress": "Nostr-Adresse (NIP-05)",
@@ -294,7 +296,12 @@
         "invitingMembers": "Mitglieder werden eingeladen:",
         "groupNameHint": "Freie Bürger Gruppe",
         "groupDescriptionHint": "Schreibe etwas über die Gruppe",
-        "uploadingImage": "Bild wird hochgeladen..."
+        "uploadingImage": "Bild wird hochgeladen...",
+        "addMembers": "Mitglieder hinzufügen",
+        "membersAddedSuccess": "Mitglieder erfolgreich hinzugefügt",
+        "failedToAddMembers": "Fehler beim Hinzufügen von Mitgliedern",
+        "addingMembers": "Mitglieder werden hinzugefügt...",
+        "selectedCount": "{count} ausgewählt"
     },
     "errors": {
         "errorOccurred": "Ein Fehler ist aufgetreten",
