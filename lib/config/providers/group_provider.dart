@@ -1,5 +1,7 @@
 // ignore_for_file: avoid_redundant_argument_values
 
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
@@ -151,9 +153,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       }
       state = state.copyWith(groups: sortedGroups, groupsMap: groupsMap);
 
-      Future.microtask(() {
-        _metadataRefreshInProgress = _loadGroupsMetadataLazy(sortedGroups);
-      });
+      Future.microtask(() => _loadGroupsMetadataLazy(sortedGroups));
 
       Future.microtask(() async {
         await ref
@@ -626,12 +626,16 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Load group metadata lazily in batches to balance speed and backend load
   /// Processes groups concurrently in batches, with automatic retry for failed groups
   Future<void> _loadGroupsMetadataLazy(List<Group> groups) async {
-    try {
-      // Wait for any ongoing refresh to complete to prevent concurrent state mutations
-      if (_metadataRefreshInProgress != null) {
-        await _metadataRefreshInProgress;
-      }
+    // Wait for any ongoing refresh to complete to prevent concurrent state mutations
+    if (_metadataRefreshInProgress != null) {
+      await _metadataRefreshInProgress;
+    }
 
+    // Atomically acquire the guard to serialize with _refreshGroupMetadata
+    final completer = Completer<void>();
+    _metadataRefreshInProgress = completer.future;
+
+    try {
       final activePubkey = ref.read(activePubkeyProvider);
       if (activePubkey == null || activePubkey.isEmpty) return;
 
@@ -674,6 +678,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       }
       _logger.severe(logMessage, e);
     } finally {
+      completer.complete();
       _metadataRefreshInProgress = null;
     }
   }
@@ -969,12 +974,16 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Forces refresh of members, types, images, and display names
   /// Serializes with _loadGroupsMetadataLazy to prevent concurrent state mutations
   Future<void> _refreshGroupMetadata(List<Group> groups, String activePubkey) async {
-    try {
-      // Wait for any ongoing lazy load to complete to prevent concurrent state mutations
-      if (_metadataRefreshInProgress != null) {
-        await _metadataRefreshInProgress;
-      }
+    // Wait for any ongoing lazy load to complete to prevent concurrent state mutations
+    if (_metadataRefreshInProgress != null) {
+      await _metadataRefreshInProgress;
+    }
 
+    // Atomically acquire the guard to serialize with _loadGroupsMetadataLazy
+    final completer = Completer<void>();
+    _metadataRefreshInProgress = completer.future;
+
+    try {
       // Validate pubkey hasn't changed during wait
       if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
         return;
@@ -1006,6 +1015,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     } catch (e) {
       _logger.warning('Error refreshing group metadata: $e');
     } finally {
+      completer.complete();
       _metadataRefreshInProgress = null;
     }
   }
@@ -1059,9 +1069,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       }
 
       // Refresh metadata for all groups to catch profile/name updates from polling
-      Future.microtask(() {
-        _metadataRefreshInProgress = _refreshGroupMetadata(newGroups, activePubkey);
-      });
+      Future.microtask(() => _refreshGroupMetadata(newGroups, activePubkey));
     } catch (e, st) {
       String logMessage = 'GroupsProvider.checkForNewGroups - Exception: ';
       if (e is ApiError) {
