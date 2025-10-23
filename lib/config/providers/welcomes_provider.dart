@@ -112,6 +112,52 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
   }
 
+  /// Process welcomer metadata in batches with customizable error handling
+  /// Used by both initial loading and retry logic to fetch user metadata
+  Future<List<String>> _processBatchedWelcomers({
+    required List<String> pubkeys,
+    required Map<String, User> welcomerUsers,
+    required bool createFallbacks,
+    required String? batchLogContext,
+  }) async {
+    const batchSize = 6;
+    final failedPubkeys = <String>[];
+
+    for (int i = 0; i < pubkeys.length; i += batchSize) {
+      final end = (i + batchSize).clamp(0, pubkeys.length);
+      final batch = pubkeys.sublist(i, end);
+
+      await Future.wait(
+        batch.map((welcomerPubkey) async {
+          try {
+            final rustUser = await ref.read(userProfileProvider.notifier).getUser(welcomerPubkey);
+            final user = User.fromMetadata(rustUser.metadata, welcomerPubkey);
+            welcomerUsers[welcomerPubkey] = user;
+          } catch (e) {
+            _logger.warning('Failed to fetch metadata for welcomer $welcomerPubkey: $e');
+            if (createFallbacks) {
+              welcomerUsers[welcomerPubkey] = User(
+                id: welcomerPubkey,
+                displayName: 'shared.unknownUser'.tr(),
+                nip05: '',
+                publicKey: welcomerPubkey,
+              );
+            } else {
+              failedPubkeys.add(welcomerPubkey);
+            }
+          }
+        }),
+      );
+
+      state = state.copyWith(welcomerUsers: welcomerUsers);
+      if (batchLogContext != null) {
+        _logger.info('WelcomesProvider: $batchLogContext batch of ${batch.length} welcomers');
+      }
+    }
+
+    return failedPubkeys;
+  }
+
   /// Load welcomer metadata in batches so welcomes appear incrementally (6 per batch)
   Future<void> _loadWelcomerUsersDataIncrementally(
     List<Welcome> welcomes,
@@ -129,29 +175,12 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
             for (final w in welcomes) w.welcomer,
           }.where((k) => !welcomerUsers.containsKey(k)).toList();
 
-      const batchSize = 6;
-      final failedWelcomers = <String>[];
-
-      for (int i = 0; i < uniqueWelcomers.length; i += batchSize) {
-        final end = (i + batchSize).clamp(0, uniqueWelcomers.length);
-        final batch = uniqueWelcomers.sublist(i, end);
-
-        await Future.wait(
-          batch.map((welcomerPubkey) async {
-            try {
-              final rustUser = await ref.read(userProfileProvider.notifier).getUser(welcomerPubkey);
-              final user = User.fromMetadata(rustUser.metadata, welcomerPubkey);
-              welcomerUsers[welcomerPubkey] = user;
-            } catch (e) {
-              _logger.warning('Failed to fetch metadata for welcomer $welcomerPubkey: $e');
-              failedWelcomers.add(welcomerPubkey);
-            }
-          }),
-        );
-
-        state = state.copyWith(welcomerUsers: welcomerUsers);
-        _logger.info('WelcomesProvider: Loaded batch of ${batch.length} welcomers');
-      }
+      final failedWelcomers = await _processBatchedWelcomers(
+        pubkeys: uniqueWelcomers,
+        welcomerUsers: welcomerUsers,
+        createFallbacks: false,
+        batchLogContext: 'Loaded',
+      );
 
       if (failedWelcomers.isNotEmpty) {
         _logger.info('WelcomesProvider: Retrying ${failedWelcomers.length} failed welcomers');
@@ -167,6 +196,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
   }
 
   /// Retry failed welcomer metadata loads with exponential backoff
+  /// Uses batch processing with eventual fallback creation for persistent failures
   Future<void> _retryFailedWelcomers(
     List<String> failedWelcomers,
     Map<String, User> welcomerUsers,
@@ -178,31 +208,15 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       final delayMs = 500 * attempt;
       await Future.delayed(Duration(milliseconds: delayMs));
 
-      final nextRetry = <String>[];
+      // Batch process with fallback creation on final attempt
+      final stillFailed = await _processBatchedWelcomers(
+        pubkeys: remainingWelcomers,
+        welcomerUsers: welcomerUsers,
+        createFallbacks: attempt == maxRetries, // Create fallbacks on last attempt
+        batchLogContext: 'Retry $attempt:',
+      );
 
-      for (final welcomerPubkey in remainingWelcomers) {
-        try {
-          final rustUser = await ref.read(userProfileProvider.notifier).getUser(welcomerPubkey);
-          final user = User.fromMetadata(rustUser.metadata, welcomerPubkey);
-          welcomerUsers[welcomerPubkey] = user;
-          _logger.info(
-            'WelcomesProvider: Successfully loaded welcomer $welcomerPubkey on retry $attempt',
-          );
-        } catch (e) {
-          _logger.warning('Retry $attempt failed for welcomer $welcomerPubkey: $e');
-          final fallbackUser = User(
-            id: welcomerPubkey,
-            displayName: 'shared.unknownUser'.tr(),
-            nip05: '',
-            publicKey: welcomerPubkey,
-          );
-          welcomerUsers[welcomerPubkey] = fallbackUser;
-          nextRetry.add(welcomerPubkey);
-        }
-      }
-
-      state = state.copyWith(welcomerUsers: welcomerUsers);
-      remainingWelcomers = nextRetry;
+      remainingWelcomers = stillFailed;
     }
 
     if (remainingWelcomers.isNotEmpty) {
@@ -426,7 +440,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
   }
 
   /// Refresh welcomer metadata for all welcomes to catch profile updates
-  /// Forces refresh even for cached welcomers
+  /// Forces refresh even for cached welcomers using batch processing
   Future<void> _refreshWelcomerMetadata(List<Welcome> welcomes, String activePubkey) async {
     try {
       if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
@@ -440,27 +454,12 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
             for (final w in welcomes) w.welcomer,
           }.toList();
 
-      const batchSize = 6;
-
-      for (int i = 0; i < uniqueWelcomers.length; i += batchSize) {
-        final end = (i + batchSize).clamp(0, uniqueWelcomers.length);
-        final batch = uniqueWelcomers.sublist(i, end);
-
-        await Future.wait(
-          batch.map((welcomerPubkey) async {
-            try {
-              final rustUser = await ref.read(userProfileProvider.notifier).getUser(welcomerPubkey);
-              final user = User.fromMetadata(rustUser.metadata, welcomerPubkey);
-              welcomerUsers[welcomerPubkey] = user;
-            } catch (e) {
-              _logger.warning('Failed to refresh metadata for welcomer $welcomerPubkey: $e');
-            }
-          }),
-        );
-
-        state = state.copyWith(welcomerUsers: welcomerUsers);
-        _logger.info('WelcomesProvider: Refreshed batch of ${batch.length} welcomers');
-      }
+      await _processBatchedWelcomers(
+        pubkeys: uniqueWelcomers,
+        welcomerUsers: welcomerUsers,
+        createFallbacks: false,
+        batchLogContext: 'Refreshed',
+      );
 
       _logger.info('WelcomesProvider: Refreshed metadata for ${uniqueWelcomers.length} welcomers');
     } catch (e) {

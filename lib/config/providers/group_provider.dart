@@ -623,6 +623,43 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
+  /// Process group metadata in batches with customizable operation and error handling
+  /// Used by both lazy loading and refresh operations to process groups concurrently
+  Future<List<Group>> _processBatchedGroups({
+    required List<Group> groups,
+    required Future<void> Function(Group, String) operation,
+    required String activePubkey,
+    required bool collectFailures,
+    required String? batchLogContext,
+  }) async {
+    const batchSize = 6;
+    final failedGroups = <Group>[];
+
+    for (int i = 0; i < groups.length; i += batchSize) {
+      final end = (i + batchSize).clamp(0, groups.length);
+      final batch = groups.sublist(i, end);
+
+      await Future.wait(
+        batch.map((group) async {
+          try {
+            await operation(group, activePubkey);
+          } catch (e) {
+            _logger.warning('Failed to process metadata for group ${group.mlsGroupId}: $e');
+            if (collectFailures) {
+              failedGroups.add(group);
+            }
+          }
+        }),
+      );
+
+      if (batchLogContext != null) {
+        _logger.info('GroupsProvider: $batchLogContext batch of ${batch.length} groups');
+      }
+    }
+
+    return failedGroups;
+  }
+
   /// Load group metadata lazily in batches to balance speed and backend load
   /// Processes groups concurrently in batches, with automatic retry for failed groups
   Future<void> _loadGroupsMetadataLazy(List<Group> groups) async {
@@ -639,26 +676,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final activePubkey = ref.read(activePubkeyProvider);
       if (activePubkey == null || activePubkey.isEmpty) return;
 
-      const batchSize = 6;
-      final failedGroups = <Group>[];
-
-      // Process groups in batches using Future.wait()
-      for (int i = 0; i < groups.length; i += batchSize) {
-        final end = (i + batchSize).clamp(0, groups.length);
-        final batch = groups.sublist(i, end);
-
-        // Load all groups in this batch concurrently
-        await Future.wait(
-          batch.map((group) async {
-            try {
-              await _loadGroupMetadata(group, activePubkey);
-            } catch (e) {
-              _logger.warning('Failed to load metadata for group ${group.mlsGroupId}: $e');
-              failedGroups.add(group);
-            }
-          }),
-        );
-      }
+      final failedGroups = await _processBatchedGroups(
+        groups: groups,
+        operation: _loadGroupMetadata,
+        activePubkey: activePubkey,
+        collectFailures: true,
+        batchLogContext: 'Loaded',
+      );
 
       if (failedGroups.isNotEmpty) {
         _logger.info('Retrying ${failedGroups.length} failed groups');
@@ -989,27 +1013,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
         return;
       }
 
-      const batchSize = 6;
-
-      for (int i = 0; i < groups.length; i += batchSize) {
-        final end = (i + batchSize).clamp(0, groups.length);
-        final batch = groups.sublist(i, end);
-
-        await Future.wait(
-          batch.map((group) async {
-            try {
-              await loadGroupMembers(group.mlsGroupId);
-              await _loadGroupType(group, activePubkey);
-              await _loadGroupImagePathForGroup(group, activePubkey);
-              await _calculateDisplayNameForGroup(group.mlsGroupId);
-            } catch (e) {
-              _logger.warning('Failed to refresh metadata for group ${group.mlsGroupId}: $e');
-            }
-          }),
-        );
-
-        _logger.info('GroupsProvider: Refreshed batch of ${batch.length} groups');
-      }
+      await _processBatchedGroups(
+        groups: groups,
+        operation: _loadGroupMetadata,
+        activePubkey: activePubkey,
+        collectFailures: false,
+        batchLogContext: 'Refreshed',
+      );
 
       _logger.info('GroupsProvider: Refreshed metadata for ${groups.length} groups');
     } catch (e) {
