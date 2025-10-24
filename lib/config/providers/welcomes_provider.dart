@@ -3,19 +3,20 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/config/states/welcome_state.dart';
+import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/welcomes.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class WelcomesNotifier extends Notifier<WelcomesState> {
   final _logger = Logger('WelcomesNotifier');
 
-  // Callback for when a new pending welcome is available
   void Function(Welcome)? _onNewWelcomeCallback;
 
   @override
   WelcomesState build() {
-    // Listen to active account changes and refresh welcomes automatically
     ref.listen<String?>(activePubkeyProvider, (previous, next) {
       if (previous != null && next != null && previous != next) {
         // Schedule state changes after the build phase to avoid provider modification errors
@@ -77,7 +78,6 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         welcomeByData[welcome.id] = welcome;
       }
 
-      // Get current pending welcomes to compare
       final previousPendingIds = getPendingWelcomes().map((w) => w.id).toSet();
 
       state = state.copyWith(
@@ -86,7 +86,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         isLoading: false,
       );
 
-      // Find new pending welcomes and trigger callback for the first one
+      final activePubkeySnapshot = activePubkey;
+      Future.microtask(() => _loadWelcomerUsersDataIncrementally(welcomes, activePubkeySnapshot));
+
       final newPendingWelcomes =
           welcomes
               .where((w) => w.state == WelcomeState.pending && !previousPendingIds.contains(w.id))
@@ -107,6 +109,145 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         errorMessage = e.toString();
       }
       state = state.copyWith(error: errorMessage, isLoading: false);
+    }
+  }
+
+  /// Process welcomer metadata in batches with customizable error handling
+  /// Used by both initial loading and retry logic to fetch user metadata
+  /// Validates active account hasn't changed before each state update
+  Future<List<String>> _processBatchedWelcomers({
+    required List<String> pubkeys,
+    required Map<String, User> welcomerUsers,
+    required bool createFallbacks,
+    required String? batchLogContext,
+    required String activePubkey,
+  }) async {
+    const batchSize = 6;
+    final failedPubkeys = <String>[];
+
+    for (int i = 0; i < pubkeys.length; i += batchSize) {
+      // Abort if active account changed during batch processing
+      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        _logger.info('Active pubkey changed during batch processing, aborting');
+        return failedPubkeys;
+      }
+
+      final end = (i + batchSize).clamp(0, pubkeys.length);
+      final batch = pubkeys.sublist(i, end);
+
+      await Future.wait(
+        batch.map((welcomerPubkey) async {
+          try {
+            final rustUser = await ref.read(userProfileProvider.notifier).getUser(welcomerPubkey);
+            final user = User.fromMetadata(rustUser.metadata, welcomerPubkey);
+            welcomerUsers[welcomerPubkey] = user;
+          } catch (e) {
+            _logger.warning('Failed to fetch metadata for welcomer $welcomerPubkey: $e');
+            if (createFallbacks) {
+              welcomerUsers[welcomerPubkey] = User(
+                id: welcomerPubkey,
+                displayName: 'shared.unknownUser'.tr(),
+                nip05: '',
+                publicKey: welcomerPubkey,
+              );
+            } else {
+              failedPubkeys.add(welcomerPubkey);
+            }
+          }
+        }),
+      );
+
+      state = state.copyWith(welcomerUsers: welcomerUsers);
+      if (batchLogContext != null) {
+        _logger.info('WelcomesProvider: $batchLogContext batch of ${batch.length} welcomers');
+      }
+    }
+
+    return failedPubkeys;
+  }
+
+  /// Load welcomer metadata in batches so welcomes appear incrementally (6 per batch)
+  Future<void> _loadWelcomerUsersDataIncrementally(
+    List<Welcome> welcomes,
+    String activePubkey,
+  ) async {
+    try {
+      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        return;
+      }
+
+      final welcomerUsers = Map<String, User>.from(state.welcomerUsers ?? {});
+
+      final uniqueWelcomers =
+          <String>{
+            for (final w in welcomes) w.welcomer,
+          }.where((k) => !welcomerUsers.containsKey(k)).toList();
+
+      final failedWelcomers = await _processBatchedWelcomers(
+        pubkeys: uniqueWelcomers,
+        welcomerUsers: welcomerUsers,
+        createFallbacks: false,
+        batchLogContext: 'Loaded',
+        activePubkey: activePubkey,
+      );
+
+      if (failedWelcomers.isNotEmpty) {
+        _logger.info('WelcomesProvider: Retrying ${failedWelcomers.length} failed welcomers');
+        await _retryFailedWelcomers(failedWelcomers, welcomerUsers, activePubkey);
+      }
+
+      // Final check before logging completion - active account could have changed during async ops
+      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        _logger.info('Active pubkey changed during welcomer loading, discarding results');
+        return;
+      }
+
+      _logger.info(
+        'WelcomesProvider: Batch loading complete for ${uniqueWelcomers.length} welcomers (${failedWelcomers.length} retried)',
+      );
+    } catch (e) {
+      _logger.warning('Error in batch welcomer loading: $e');
+    }
+  }
+
+  /// Retry failed welcomer metadata loads with exponential backoff
+  /// Uses batch processing with eventual fallback creation for persistent failures
+  /// Validates active account hasn't changed during retry delays
+  Future<void> _retryFailedWelcomers(
+    List<String> failedWelcomers,
+    Map<String, User> welcomerUsers,
+    String activePubkey,
+  ) async {
+    const maxRetries = 2;
+    var remainingWelcomers = failedWelcomers;
+
+    for (int attempt = 1; attempt <= maxRetries && remainingWelcomers.isNotEmpty; attempt++) {
+      final delayMs = 500 * attempt;
+      await Future.delayed(Duration(milliseconds: delayMs));
+
+      // Abort retries if account changed during delay
+      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        _logger.info('Active pubkey changed during retry attempt $attempt, aborting');
+        return;
+      }
+
+      // Batch process with fallback creation on final attempt
+      final stillFailed = await _processBatchedWelcomers(
+        pubkeys: remainingWelcomers,
+        welcomerUsers: welcomerUsers,
+        createFallbacks: attempt == maxRetries, // Create fallbacks on last attempt
+        batchLogContext: 'Retry $attempt:',
+        activePubkey: activePubkey,
+      );
+
+      remainingWelcomers = stillFailed;
+    }
+
+    if (remainingWelcomers.isNotEmpty) {
+      _logger.warning(
+        'WelcomesProvider: Failed to load ${remainingWelcomers.length} welcomers after $maxRetries retries: '
+        '${remainingWelcomers.join(", ")}',
+      );
     }
   }
 
@@ -167,7 +308,6 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return false;
       }
 
-      // Update the welcome state to accepted
       await _updateWelcomeState(welcomeEventId, WelcomeState.accepted);
 
       _logger.info('WelcomesProvider: Welcome accepted successfully - $welcomeEventId');
@@ -203,7 +343,6 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return false;
       }
 
-      // Update the welcome state to declined
       await _updateWelcomeState(welcomeEventId, WelcomeState.declined);
 
       _logger.info('WelcomesProvider: Welcome declined successfully - $welcomeEventId');
@@ -224,7 +363,6 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
   /// Mark a welcome as ignored (dismissed without action)
   Future<bool> ignoreWelcome(String welcomeEventId) async {
     try {
-      // Update the welcome state to ignored locally
       await _updateWelcomeState(welcomeEventId, WelcomeState.ignored);
       _logger.info('WelcomesProvider: Welcome ignored - $welcomeEventId');
       return true;
@@ -289,6 +427,10 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     return state.welcomeById?[welcomeId];
   }
 
+  User? getWelcomerUser(String welcomerPubkey) {
+    return state.welcomerUsers?[welcomerPubkey];
+  }
+
   void clearWelcome() {
     state = const WelcomesState();
   }
@@ -321,6 +463,41 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
   }
 
+  /// Refresh welcomer metadata for all welcomes to catch profile updates
+  /// Forces refresh even for cached welcomers using batch processing
+  Future<void> _refreshWelcomerMetadata(List<Welcome> welcomes, String activePubkey) async {
+    try {
+      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        return;
+      }
+
+      final welcomerUsers = Map<String, User>.from(state.welcomerUsers ?? {});
+
+      final uniqueWelcomers =
+          <String>{
+            for (final w in welcomes) w.welcomer,
+          }.toList();
+
+      await _processBatchedWelcomers(
+        pubkeys: uniqueWelcomers,
+        welcomerUsers: welcomerUsers,
+        createFallbacks: false,
+        batchLogContext: 'Refreshed',
+        activePubkey: activePubkey,
+      );
+
+      // Final check before logging completion - active account could have changed during refresh
+      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
+        _logger.info('Active pubkey changed during welcomer refresh, discarding results');
+        return;
+      }
+
+      _logger.info('WelcomesProvider: Refreshed metadata for ${uniqueWelcomers.length} welcomers');
+    } catch (e) {
+      _logger.warning('Error refreshing welcomer metadata: $e');
+    }
+  }
+
   /// Check for new welcomes and add them incrementally (for polling)
   Future<void> checkForNewWelcomes() async {
     if (!_isAuthAvailable()) {
@@ -342,15 +519,12 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       final currentWelcomes = state.welcomes ?? [];
       final currentWelcomeIds = currentWelcomes.map((w) => w.id).toSet();
 
-      // Find truly new welcomes
       final actuallyNewWelcomes =
           newWelcomes.where((welcome) => !currentWelcomeIds.contains(welcome.id)).toList();
 
       if (actuallyNewWelcomes.isNotEmpty) {
-        // Add new welcomes to existing list
         final updatedWelcomes = [...currentWelcomes, ...actuallyNewWelcomes];
 
-        // Update welcomeById map
         final welcomeByData = Map<String, Welcome>.from(state.welcomeById ?? {});
         for (final welcome in actuallyNewWelcomes) {
           welcomeByData[welcome.id] = welcome;
@@ -361,7 +535,10 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
           welcomeById: welcomeByData,
         );
 
-        // Trigger callback for new pending welcomes
+        Future.microtask(
+          () => _loadWelcomerUsersDataIncrementally(actuallyNewWelcomes, activePubkey),
+        );
+
         final newPendingWelcomes =
             actuallyNewWelcomes.where((w) => w.state == WelcomeState.pending).toList();
 
@@ -372,6 +549,9 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
 
         _logger.info('WelcomesProvider: Added ${actuallyNewWelcomes.length} new welcomes');
       }
+
+      // Refresh metadata for all welcomers to catch profile updates from polling
+      Future.microtask(() => _refreshWelcomerMetadata(newWelcomes, activePubkey));
     } catch (e, st) {
       _logger.severe('WelcomesProvider.checkForNewWelcomes', e, st);
     }

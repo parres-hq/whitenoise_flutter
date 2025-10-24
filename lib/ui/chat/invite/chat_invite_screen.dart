@@ -5,7 +5,6 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/toast_message_provider.dart';
-import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/chat/widgets/user_profile_info.dart';
@@ -54,10 +53,9 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
       appBar: WnAppBar(
         title:
             isDMInvite
-                ? DMAppBarTitle(welcome: welcome)
-                : UserProfileInfo(
-                  title: welcome.groupName,
-                  image: '',
+                ? WelcomeAppbar(welcome: welcome)
+                : ChatGroupAppbar(
+                  groupId: widget.groupId,
                 ),
       ),
       body: Column(
@@ -233,114 +231,130 @@ class DMInviteHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProfileNotifier = ref.read(userProfileProvider.notifier);
+    // Watch cached welcomer user data from welcomes provider
+    final welcomerUser = ref.watch(
+      welcomesProvider.select((s) => s.welcomerUsers?[welcome.welcomer]),
+    );
 
-    return FutureBuilder(
-      future: userProfileNotifier.getUserProfile(welcome.welcomer),
-      builder: (context, snapshot) {
-        final welcomerUser = snapshot.data;
-        final welcomerName = welcomerUser?.displayName ?? 'shared.unknownUser'.tr();
-        final welcomerImageUrl = welcomerUser?.imagePath ?? '';
+    // Show nothing while waiting for data to load
+    if (welcomerUser == null) {
+      return const SizedBox.shrink();
+    }
 
-        return Container(
-          padding: EdgeInsets.symmetric(horizontal: 24.w),
-          child: Column(
-            children: [
-              Gap(32.h),
-              WnAvatar(
-                imageUrl: welcomerImageUrl,
-                displayName: welcomerName,
-                size: 96.r,
-                showBorder: true,
-              ),
-              Gap(12.h),
-              Text(
-                welcomerName.capitalizeFirst,
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w600,
-                  color: context.colors.primary,
-                ),
-              ),
-              Gap(4.h),
-              Text(
-                welcomerUser?.nip05 ?? '',
-                style: TextStyle(
-                  fontSize: 14.sp,
-                  color: context.colors.mutedForeground,
-                ),
-              ),
-              Gap(12.h),
-              Text(
-                PubkeyFormatter(pubkey: welcome.welcomer).toNpub()?.formatPublicKey() ?? '',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12.sp,
-                  color: context.colors.mutedForeground,
-                ),
-              ),
-              Gap(32.h),
-              Text.rich(
-                TextSpan(
-                  children: [
-                    TextSpan(
-                      text: welcomerName,
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: context.colors.primary,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    TextSpan(
-                      text: ' invited you to a secure chat.',
-                      style: TextStyle(
-                        fontSize: 14.sp,
-                        color: context.colors.mutedForeground,
-                      ),
-                    ),
-                  ],
-                ),
-                textAlign: TextAlign.center,
-              ),
-              Gap(32.h),
-            ],
+    final welcomerName = welcomerUser.displayName;
+    final welcomerNpub =
+        PubkeyFormatter(pubkey: welcomerUser.publicKey).toNpub()?.formatPublicKey();
+
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 24.w),
+      child: Column(
+        children: [
+          Gap(32.h),
+          WnAvatar(
+            imageUrl: welcomerUser.imagePath ?? '',
+            displayName: welcomerName,
+            size: 96.r,
+            showBorder: true,
           ),
-        );
-      },
+          Gap(12.h),
+          Text(
+            welcomerName,
+            style: TextStyle(
+              fontSize: 18.sp,
+              fontWeight: FontWeight.w600,
+              color: context.colors.primary,
+            ),
+          ),
+          Gap(4.h),
+          if ((welcomerUser.nip05).isNotEmpty)
+            Text(
+              welcomerUser.nip05,
+              style: TextStyle(
+                fontSize: 14.sp,
+                color: context.colors.mutedForeground,
+              ),
+            ),
+          Gap(12.h),
+          Text(
+            welcomerNpub ?? '',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 12.sp,
+              color: context.colors.mutedForeground,
+            ),
+          ),
+          Gap(32.h),
+          Text.rich(
+            TextSpan(
+              children: [
+                TextSpan(
+                  text: '$welcomerName ',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: context.colors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                TextSpan(
+                  text: 'ui.invitedYouToSecureChat'.tr(),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    color: context.colors.mutedForeground,
+                  ),
+                ),
+              ],
+            ),
+            textAlign: TextAlign.center,
+          ),
+          Gap(32.h),
+        ],
+      ),
     );
   }
 }
 
-class DMAppBarTitle extends ConsumerWidget {
+class WelcomeAppbar extends ConsumerWidget {
   final Welcome welcome;
 
-  const DMAppBarTitle({
+  const WelcomeAppbar({
     super.key,
     required this.welcome,
   });
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userProfileNotifier = ref.read(userProfileProvider.notifier);
+    // Watch cached welcomer user data from welcomes provider
+    final welcomerUser = ref.watch(
+      welcomesProvider.select((s) => s.welcomerUsers?[welcome.welcomer]),
+    );
 
-    return FutureBuilder(
-      future: userProfileNotifier.getUserProfile(welcome.welcomer),
-      builder: (context, snapshot) {
-        final isLoading = snapshot.connectionState == ConnectionState.waiting;
+    // Show nothing while waiting for data to load
+    if (welcomerUser == null) {
+      return const SizedBox.shrink();
+    }
 
-        if (isLoading) {
-          return const UserProfileInfo.loading();
-        }
-
-        final welcomerUser = snapshot.data;
-        final welcomerName = welcomerUser?.displayName ?? 'shared.unknownUser'.tr();
-        final welcomerImageUrl = welcomerUser?.imagePath ?? '';
-
-        return UserProfileInfo(
-          title: welcomerName,
-          image: welcomerImageUrl,
-        );
-      },
+    return Row(
+      children: [
+        WnAvatar(
+          imageUrl: welcomerUser.imagePath ?? '',
+          displayName: welcomerUser.displayName,
+          size: 36.r,
+          showBorder: true,
+        ),
+        Gap(8.w),
+        Expanded(
+          child: Text(
+            welcomerUser.displayName,
+            style: context.textTheme.bodyMedium?.copyWith(
+              color: context.colors.solidPrimary,
+              fontSize: 16.sp,
+              fontWeight: FontWeight.w600,
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 }

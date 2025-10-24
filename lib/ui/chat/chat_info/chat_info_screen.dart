@@ -10,9 +10,7 @@ import 'package:whitenoise/config/providers/follow_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/group_state.dart';
-import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
-import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/chat_info/widgets/group_member_bottom_sheet.dart';
@@ -60,59 +58,47 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final groupsNotifier = ref.watch(groupsProvider.notifier);
-
+    final groupType = ref.watch(groupsProvider.select((s) => s.groupTypes?[widget.groupId]));
     return Scaffold(
-      body: FutureBuilder<GroupType>(
-        future: groupsNotifier.getGroupTypeById(widget.groupId),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final groupType = snapshot.data!;
-
-          return Column(
-            children: [
-              Container(
-                margin: EdgeInsets.only(bottom: 16.h),
-                height: MediaQuery.of(context).padding.top,
-                color: context.colors.appBarBackground,
-              ),
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16.w),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      groupType == GroupType.directMessage
-                          ? 'chats.chatInformation'.tr()
-                          : 'chats.groupInformation'.tr(),
-                      style: context.textTheme.bodyMedium?.copyWith(
-                        color: context.colors.mutedForeground,
-                        fontSize: 18.sp,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        Icons.close,
-                        color: context.colors.primary,
-                        size: 24.sp,
-                      ),
-                      onPressed: () => Navigator.of(context).pop(),
-                    ),
-                  ],
+      body: Column(
+        children: [
+          Container(
+            margin: EdgeInsets.only(bottom: 16.h),
+            height: MediaQuery.of(context).padding.top,
+            color: context.colors.appBarBackground,
+          ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16.w),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  groupType == GroupType.directMessage
+                      ? 'chats.chatInformation'.tr()
+                      : 'chats.groupInformation'.tr(),
+                  style: context.textTheme.bodyMedium?.copyWith(
+                    color: context.colors.mutedForeground,
+                    fontSize: 18.sp,
+                  ),
                 ),
-              ),
-              Expanded(
-                child:
-                    groupType == GroupType.directMessage
-                        ? DMChatInfo(groupId: widget.groupId)
-                        : GroupChatInfo(groupId: widget.groupId),
-              ),
-            ],
-          );
-        },
+                IconButton(
+                  icon: Icon(
+                    Icons.close,
+                    color: context.colors.primary,
+                    size: 24.sp,
+                  ),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child:
+                groupType == GroupType.directMessage
+                    ? DMChatInfo(groupId: widget.groupId)
+                    : GroupChatInfo(groupId: widget.groupId),
+          ),
+        ],
       ),
     );
   }

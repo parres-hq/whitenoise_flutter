@@ -284,6 +284,7 @@
         "groupChatInvitation": "Grup Sohbet Daveti • ",
         "membersCount": "{count} üye",
         "invitedToSecureChat": "{name} sizi güvenli bir sohbete davet etti.",
+        "invitedYouToSecureChat": "sizi güvenli bir sohbete davet etti",
         "createGroupToContinue": "Devam Etmek İçin Grup Oluşturun",
         "noGroupsCreateDescription": "Herhangi bir grubun üyesi değilsiniz. Birini eklemek için yeni bir grup oluşturun.",
         "groupChatName": "Grup sohbet adı",

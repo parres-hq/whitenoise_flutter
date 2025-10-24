@@ -8,9 +8,7 @@ import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/group_messages_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
-import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/services/last_read_manager.dart';
 import 'package:whitenoise/domain/services/message_merger_service.dart';
@@ -24,8 +22,6 @@ import 'package:whitenoise/utils/pubkey_formatter.dart';
 class ChatNotifier extends Notifier<ChatState> {
   final _logger = Logger('ChatNotifier');
   final _messageSenderService = MessageSenderService();
-
-  final Map<String, Future<DMChatData?>> _dmChatDataLoadingFutures = {};
 
   @override
   ChatState build() {
@@ -750,114 +746,6 @@ class ChatNotifier extends Notifier<ChatState> {
     final now = DateTime.now();
 
     await ref.read(groupsProvider.notifier).updateGroupActivityTime(groupId, now);
-  }
-
-  /// Get cached DMChatData for a group, or load it if not cached
-  Future<DMChatData?> getDMChatData(String groupId) async {
-    // Return cached data if available
-    if (state.isDMChatDataCached(groupId)) {
-      return state.getDMChatData(groupId);
-    }
-
-    if (_dmChatDataLoadingFutures.containsKey(groupId)) {
-      return _dmChatDataLoadingFutures[groupId];
-    }
-
-    // Load data asynchronously and cache it
-    try {
-      _logger.info('Loading DMChatData for group: $groupId');
-      final future = _loadDMChatData(groupId);
-      _dmChatDataLoadingFutures[groupId] = future;
-      final dmChatData = await future;
-      _dmChatDataLoadingFutures.remove(groupId);
-
-      // Update state with cached data
-      state = state.copyWith(
-        dmChatDataCache: {
-          ...state.dmChatDataCache,
-          groupId: dmChatData,
-        },
-      );
-
-      return dmChatData;
-    } catch (e, st) {
-      _logger.severe('Failed to load DMChatData for group $groupId', e, st);
-      _dmChatDataLoadingFutures.remove(groupId);
-      // Cache null result to avoid repeated failed attempts
-      state = state.copyWith(
-        dmChatDataCache: {
-          ...state.dmChatDataCache,
-          groupId: null,
-        },
-      );
-      return null;
-    }
-  }
-
-  /// Preload DMChatData for a group to ensure it's available immediately
-  Future<void> preloadDMChatData(String groupId) async {
-    if (!state.isDMChatDataCached(groupId)) {
-      await getDMChatData(groupId);
-    }
-  }
-
-  /// Get cached DMChatData synchronously (returns null if not cached)
-  DMChatData? getCachedDMChatData(String groupId) {
-    return state.getDMChatData(groupId);
-  }
-
-  /// Clear cached DMChatData for a specific group
-  void clearDMChatDataForGroup(String groupId) {
-    if (state.isDMChatDataCached(groupId)) {
-      final newCache = Map<String, DMChatData?>.from(state.dmChatDataCache);
-      newCache.remove(groupId);
-      state = state.copyWith(dmChatDataCache: newCache);
-    }
-  }
-
-  /// Helper method to load DMChatData using the NotifierProviderRef with retry strategy
-  Future<DMChatData?> _loadDMChatData(String groupId) async {
-    const maxRetries = 2;
-    int attempt = 0;
-
-    while (attempt <= maxRetries) {
-      try {
-        final otherMember = ref.read(groupsProvider.notifier).getOtherGroupMember(groupId);
-
-        if (otherMember != null) {
-          final userProfile = await ref
-              .read(userProfileProvider.notifier)
-              .getUserProfile(otherMember.publicKey);
-          final displayName = userProfile.displayName;
-          final displayImage = userProfile.imagePath ?? (otherMember.imagePath ?? '');
-          final nip05 = userProfile.nip05 ?? '';
-          final npub = userProfile.publicKey;
-          return DMChatData(
-            displayName: displayName,
-            displayImage: displayImage,
-            nip05: nip05,
-            publicKey: npub,
-          );
-        }
-
-        return null;
-      } catch (e) {
-        attempt++;
-        if (attempt <= maxRetries) {
-          _logger.warning(
-            'Error in _loadDMChatData for group $groupId (attempt $attempt/$maxRetries): $e',
-          );
-          await Future.delayed(Duration(milliseconds: 500 * attempt));
-        } else {
-          _logger.severe(
-            'Failed to load DMChatData for group $groupId after $maxRetries retries: $e',
-          );
-          return null;
-        }
-      }
-    }
-
-    return null;
   }
 }
 
