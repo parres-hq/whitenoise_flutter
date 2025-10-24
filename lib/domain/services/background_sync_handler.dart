@@ -138,8 +138,11 @@ class BackgroundSyncHandler extends TaskHandler {
       final welcomes = await pendingWelcomes(pubkey: accountPubkey);
 
       if (welcomes.isEmpty) {
+        _log.fine('No pending welcomes found for account $accountPubkey');
         return;
       }
+
+      _log.fine('Found ${welcomes.length} pending welcome(s) for account $accountPubkey');
 
       final newWelcomes = await MessageSyncService.filterNewInvites(
         activePubkey: accountPubkey,
@@ -147,7 +150,7 @@ class BackgroundSyncHandler extends TaskHandler {
       );
 
       if (newWelcomes.isNotEmpty) {
-        _log.info('Found ${newWelcomes.length} new invite(s) for account $accountPubkey');
+        _log.info('Found ${newWelcomes.length} new invite(s) for account $accountPubkey (${welcomes.length} total pending)');
 
         await MessageSyncService.notifyNewInvites(
           newWelcomes: newWelcomes,
@@ -166,6 +169,8 @@ class BackgroundSyncHandler extends TaskHandler {
             stackTrace,
           );
         }
+      } else {
+        _log.fine('No new invite(s) found for account $accountPubkey after filtering');
       }
     } catch (e, stackTrace) {
       _log.warning('Error syncing invites for account $accountPubkey: $e', e, stackTrace);

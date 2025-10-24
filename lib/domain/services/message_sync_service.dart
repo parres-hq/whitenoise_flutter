@@ -21,6 +21,7 @@ class MessageSyncService {
   static SharedPreferences? _prefs;
   static const Duration _messageSyncBuffer = Duration(seconds: 1);
   static const Duration _defaultLookbackWindow = Duration(hours: 1);
+  static const Duration _defaultInviteLookbackWindow = Duration(hours: 24);
   static const int _pubkeyDisplayLength = 8;
 
   static Future<SharedPreferences> get _preferences async {
@@ -238,12 +239,23 @@ class MessageSyncService {
   }) async {
     for (final welcome in newWelcomes) {
       try {
+        // Try to fetch welcomer display name for richer notification
+        String welcomerDisplayName = _formatMemberDisplayName(welcome.welcomer);
+        try {
+          final metadata = await userMetadata(pubkey: welcome.welcomer);
+          if (metadata.displayName?.isNotEmpty == true) {
+            welcomerDisplayName = metadata.displayName!;
+          }
+        } catch (e) {
+          _logger.fine('Could not fetch welcomer metadata for ${welcome.welcomer}: $e');
+        }
+
         await NotificationService.showInviteNotification(
           id: await NotificationIdService.getIdFor(
             key: 'invites_sync:${welcome.id}',
           ),
-          title: 'New Invitations',
-          body: 'New group invitation',
+          title: 'New Invitation',
+          body: '$welcomerDisplayName invited you to a secure chat',
           groupKey: 'invites',
           payload: jsonEncode({
             'type': 'invites_sync',
@@ -310,9 +322,12 @@ class MessageSyncService {
 
   /// Filters invites to find new ones that should trigger notifications.
   ///
-  /// Excludes invites that have already been processed based on the last sync timestamp.
-  /// Uses the same pattern as message filtering for consistency.
+  /// Excludes:
+  /// - Invites from the current user (self-invites)
+  /// - Already-processed invites (older than last sync timestamp)
+  /// - Invites in non-pending states (accepted, declined, ignored)
   ///
+  /// Uses a 24-hour lookback window on first sync to catch recent invites.
   /// Returns an empty list for invalid inputs.
   static Future<List<Welcome>> filterNewInvites({
     required String activePubkey,
@@ -326,13 +341,17 @@ class MessageSyncService {
     try {
       final lastSyncTime = await getLastInviteSyncTime(activePubkey: activePubkey);
 
-      // If no previous sync, use default lookback window to avoid notifying old invites
-      final cutoffTime = lastSyncTime ?? DateTime.now().subtract(_defaultLookbackWindow);
+      // If no previous sync, use 24-hour lookback window to catch recent invites
+      final cutoffTime = lastSyncTime ?? DateTime.now().subtract(_defaultInviteLookbackWindow);
       final cutoffMillis = BigInt.from(cutoffTime.millisecondsSinceEpoch);
 
       final newWelcomes =
           welcomes.where((welcome) {
-            // Compare BigInt timestamps directly
+            // Exclude self-invites (user inviting themselves)
+            if (welcome.welcomer == activePubkey) return false;
+            // Only notify for pending invites
+            if (welcome.state != WelcomeState.pending) return false;
+            // Only include invites after the last sync time
             return welcome.createdAt > cutoffMillis;
           }).toList();
 
