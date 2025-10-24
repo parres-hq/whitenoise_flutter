@@ -1,24 +1,42 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/domain/models/media_file_upload.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/domain/services/image_picker_service.dart';
+import 'package:whitenoise/src/rust/api/media_files.dart' as rust_media_files;
 import 'package:whitenoise/ui/chat/states/chat_input_state.dart';
+
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
   ChatInputNotifier({
     ImagePickerService? imagePickerService,
     DraftMessageService? draftMessageService,
     Duration draftSaveDelay = const Duration(milliseconds: 500),
+    Future<rust_media_files.MediaFile> Function({
+      required String accountPubkey,
+      required String groupId,
+      required String filePath,
+    })?
+    uploadMediaFn,
   }) : _imagePickerService = imagePickerService ?? ImagePickerService(),
        _draftMessageService = draftMessageService ?? DraftMessageService(),
-       _draftSaveDelay = draftSaveDelay;
+       _draftSaveDelay = draftSaveDelay,
+       _uploadMediaFn = uploadMediaFn ?? rust_media_files.uploadChatMedia;
 
   static final _logger = Logger('ChatInputNotifier');
   late final String _groupId;
   final ImagePickerService _imagePickerService;
   final DraftMessageService _draftMessageService;
   final Duration _draftSaveDelay;
+  final Future<rust_media_files.MediaFile> Function({
+    required String accountPubkey,
+    required String groupId,
+    required String filePath,
+  })
+  _uploadMediaFn;
   Timer? _draftSaveTimer;
 
   @override
@@ -66,30 +84,85 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
   }
 
   Future<void> handleImagesSelected() async {
+    final accountPubkey = ref.read(activePubkeyProvider);
+    final accountHexPubkey = PubkeyFormatter(pubkey: accountPubkey).toHex() ?? '';
+    if (accountHexPubkey.isEmpty) {
+      state = state.copyWith(showMediaSelector: false);
+      return;
+    }
     try {
       final imagePaths = await _imagePickerService.pickMultipleImages();
-      if (imagePaths.isNotEmpty) {
-        state = state.copyWith(
-          showMediaSelector: false,
-          selectedImages: [...state.selectedImages, ...imagePaths],
-        );
-      } else {
+      if (imagePaths.isEmpty) {
         state = state.copyWith(showMediaSelector: false);
+        return;
+      }
+      final uploadingItems =
+          imagePaths
+              .map(
+                (path) => MediaFileUpload.uploading(filePath: path),
+              )
+              .toList();
+
+      state = state.copyWith(
+        showMediaSelector: false,
+        selectedMedia: [...state.selectedMedia, ...uploadingItems],
+      );
+      for (final path in imagePaths) {
+        unawaited(_uploadImage(filePath: path, accountHexPubkey: accountHexPubkey));
       }
     } catch (e) {
       _logger.warning('Failed to select images for group $_groupId', e);
       state = state.copyWith(showMediaSelector: false);
+      return;
+    }
+  }
+
+  Future<void> _uploadImage({required String filePath, required String accountHexPubkey}) async {
+    try {
+      final mediaFile = await _uploadMediaFn(
+        accountPubkey: accountHexPubkey,
+        groupId: _groupId,
+        filePath: filePath,
+      );
+      final updatedMedia =
+          state.selectedMedia.map((item) {
+            return item.maybeWhen(
+              uploading:
+                  (path) =>
+                      path == filePath
+                          ? MediaFileUpload.uploaded(file: mediaFile, originalFilePath: filePath)
+                          : item,
+              orElse: () => item,
+            );
+          }).toList();
+
+      state = state.copyWith(selectedMedia: updatedMedia);
+    } catch (e, st) {
+      _logger.severe('Failed to upload image: $filePath', e, st);
+      final updatedMedia =
+          state.selectedMedia.map((item) {
+            return item.maybeWhen(
+              uploading:
+                  (path) =>
+                      path == filePath
+                          ? MediaFileUpload.failed(filePath: path, error: e.toString())
+                          : item,
+              orElse: () => item,
+            );
+          }).toList();
+
+      state = state.copyWith(selectedMedia: updatedMedia);
     }
   }
 
   void removeImage(int index) {
-    if (index < 0 || index >= state.selectedImages.length) {
+    if (index < 0 || index >= state.selectedMedia.length) {
       _logger.warning('Invalid image index: $index');
       return;
     }
-    final updatedImages = List<String>.from(state.selectedImages);
-    updatedImages.removeAt(index);
-    state = state.copyWith(selectedImages: updatedImages);
+    final updatedMedia = List<MediaFileUpload>.from(state.selectedMedia);
+    updatedMedia.removeAt(index);
+    state = state.copyWith(selectedMedia: updatedMedia);
   }
 
   void setSingleLineHeight(double height) {
@@ -109,7 +182,7 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
       showMediaSelector: false,
       isLoadingDraft: false,
       previousEditingMessageContent: null,
-      selectedImages: [],
+      selectedMedia: [],
     );
   }
 }

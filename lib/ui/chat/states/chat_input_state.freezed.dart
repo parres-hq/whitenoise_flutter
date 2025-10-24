@@ -19,7 +19,7 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$ChatInputState {
   bool get isLoadingDraft => throw _privateConstructorUsedError;
   bool get showMediaSelector => throw _privateConstructorUsedError;
-  List<String> get selectedImages => throw _privateConstructorUsedError;
+  List<MediaFileUpload> get selectedMedia => throw _privateConstructorUsedError;
   double? get singleLineHeight => throw _privateConstructorUsedError;
   String? get previousEditingMessageContent => throw _privateConstructorUsedError;
 
@@ -39,7 +39,7 @@ abstract class $ChatInputStateCopyWith<$Res> {
   $Res call({
     bool isLoadingDraft,
     bool showMediaSelector,
-    List<String> selectedImages,
+    List<MediaFileUpload> selectedMedia,
     double? singleLineHeight,
     String? previousEditingMessageContent,
   });
@@ -62,7 +62,7 @@ class _$ChatInputStateCopyWithImpl<$Res, $Val extends ChatInputState>
   $Res call({
     Object? isLoadingDraft = null,
     Object? showMediaSelector = null,
-    Object? selectedImages = null,
+    Object? selectedMedia = null,
     Object? singleLineHeight = freezed,
     Object? previousEditingMessageContent = freezed,
   }) {
@@ -78,11 +78,11 @@ class _$ChatInputStateCopyWithImpl<$Res, $Val extends ChatInputState>
                     ? _value.showMediaSelector
                     : showMediaSelector // ignore: cast_nullable_to_non_nullable
                         as bool,
-            selectedImages:
-                null == selectedImages
-                    ? _value.selectedImages
-                    : selectedImages // ignore: cast_nullable_to_non_nullable
-                        as List<String>,
+            selectedMedia:
+                null == selectedMedia
+                    ? _value.selectedMedia
+                    : selectedMedia // ignore: cast_nullable_to_non_nullable
+                        as List<MediaFileUpload>,
             singleLineHeight:
                 freezed == singleLineHeight
                     ? _value.singleLineHeight
@@ -110,7 +110,7 @@ abstract class _$$ChatInputStateImplCopyWith<$Res> implements $ChatInputStateCop
   $Res call({
     bool isLoadingDraft,
     bool showMediaSelector,
-    List<String> selectedImages,
+    List<MediaFileUpload> selectedMedia,
     double? singleLineHeight,
     String? previousEditingMessageContent,
   });
@@ -132,7 +132,7 @@ class __$$ChatInputStateImplCopyWithImpl<$Res>
   $Res call({
     Object? isLoadingDraft = null,
     Object? showMediaSelector = null,
-    Object? selectedImages = null,
+    Object? selectedMedia = null,
     Object? singleLineHeight = freezed,
     Object? previousEditingMessageContent = freezed,
   }) {
@@ -148,11 +148,11 @@ class __$$ChatInputStateImplCopyWithImpl<$Res>
                 ? _value.showMediaSelector
                 : showMediaSelector // ignore: cast_nullable_to_non_nullable
                     as bool,
-        selectedImages:
-            null == selectedImages
-                ? _value._selectedImages
-                : selectedImages // ignore: cast_nullable_to_non_nullable
-                    as List<String>,
+        selectedMedia:
+            null == selectedMedia
+                ? _value._selectedMedia
+                : selectedMedia // ignore: cast_nullable_to_non_nullable
+                    as List<MediaFileUpload>,
         singleLineHeight:
             freezed == singleLineHeight
                 ? _value.singleLineHeight
@@ -174,10 +174,10 @@ class _$ChatInputStateImpl implements _ChatInputState {
   const _$ChatInputStateImpl({
     this.isLoadingDraft = false,
     this.showMediaSelector = false,
-    final List<String> selectedImages = const [],
+    final List<MediaFileUpload> selectedMedia = const [],
     this.singleLineHeight,
     this.previousEditingMessageContent,
-  }) : _selectedImages = selectedImages;
+  }) : _selectedMedia = selectedMedia;
 
   @override
   @JsonKey()
@@ -185,13 +185,13 @@ class _$ChatInputStateImpl implements _ChatInputState {
   @override
   @JsonKey()
   final bool showMediaSelector;
-  final List<String> _selectedImages;
+  final List<MediaFileUpload> _selectedMedia;
   @override
   @JsonKey()
-  List<String> get selectedImages {
-    if (_selectedImages is EqualUnmodifiableListView) return _selectedImages;
+  List<MediaFileUpload> get selectedMedia {
+    if (_selectedMedia is EqualUnmodifiableListView) return _selectedMedia;
     // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_selectedImages);
+    return EqualUnmodifiableListView(_selectedMedia);
   }
 
   @override
@@ -201,7 +201,7 @@ class _$ChatInputStateImpl implements _ChatInputState {
 
   @override
   String toString() {
-    return 'ChatInputState(isLoadingDraft: $isLoadingDraft, showMediaSelector: $showMediaSelector, selectedImages: $selectedImages, singleLineHeight: $singleLineHeight, previousEditingMessageContent: $previousEditingMessageContent)';
+    return 'ChatInputState(isLoadingDraft: $isLoadingDraft, showMediaSelector: $showMediaSelector, selectedMedia: $selectedMedia, singleLineHeight: $singleLineHeight, previousEditingMessageContent: $previousEditingMessageContent)';
   }
 
   @override
@@ -214,8 +214,8 @@ class _$ChatInputStateImpl implements _ChatInputState {
             (identical(other.showMediaSelector, showMediaSelector) ||
                 other.showMediaSelector == showMediaSelector) &&
             const DeepCollectionEquality().equals(
-              other._selectedImages,
-              _selectedImages,
+              other._selectedMedia,
+              _selectedMedia,
             ) &&
             (identical(other.singleLineHeight, singleLineHeight) ||
                 other.singleLineHeight == singleLineHeight) &&
@@ -231,7 +231,7 @@ class _$ChatInputStateImpl implements _ChatInputState {
     runtimeType,
     isLoadingDraft,
     showMediaSelector,
-    const DeepCollectionEquality().hash(_selectedImages),
+    const DeepCollectionEquality().hash(_selectedMedia),
     singleLineHeight,
     previousEditingMessageContent,
   );
@@ -252,7 +252,7 @@ abstract class _ChatInputState implements ChatInputState {
   const factory _ChatInputState({
     final bool isLoadingDraft,
     final bool showMediaSelector,
-    final List<String> selectedImages,
+    final List<MediaFileUpload> selectedMedia,
     final double? singleLineHeight,
     final String? previousEditingMessageContent,
   }) = _$ChatInputStateImpl;
@@ -262,7 +262,7 @@ abstract class _ChatInputState implements ChatInputState {
   @override
   bool get showMediaSelector;
   @override
-  List<String> get selectedImages;
+  List<MediaFileUpload> get selectedMedia;
   @override
   double? get singleLineHeight;
   @override

@@ -9,19 +9,9 @@ import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
+import '../../shared/mocks/mock_active_pubkey_notifier.dart';
 
 import 'group_provider_test.mocks.dart';
-
-class MockActivePubkeyNotifier extends ActivePubkeyNotifier {
-  final String? _mockValue;
-
-  MockActivePubkeyNotifier(this._mockValue);
-
-  @override
-  String? build() {
-    return _mockValue;
-  }
-}
 
 class MockAuthNotifier extends AuthNotifier {
   final AuthState _mockState;
