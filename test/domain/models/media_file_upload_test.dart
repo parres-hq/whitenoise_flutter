@@ -36,7 +36,6 @@ void main() {
 
       test('is not failed', () {
         expect(upload.isFailed, false);
-        expect(upload.uploadedFile, isNull);
       });
 
       test('does not have uploaded file', () {
