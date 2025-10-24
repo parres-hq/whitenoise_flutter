@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added background sync service to fetch new messages and invites and show notifications for them
 - Added user avatars in group chat messages
 - Added localization support with multi-language support (English, German, Spanish, French, Italian, Portuguese, Russian, Turkish)
+- Added add member to existing group functionality.
 
 ### Changed
 - Renamed contact to user profile everywhere [#710](https://github.com/parres-hq/whitenoise_flutter/pull/710)
@@ -32,8 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed broken profile image upload [#701](https://github.com/parres-hq/whitenoise_flutter/pull/701)
 - Fixed double rendering issue for some messages [#654](https://github.com/parres-hq/whitenoise_flutter/pull/654)
 - Fixed message bubble jumping to another location on context screen.
-
 - Fixed status bar icons invisibility in auth screens (iOS and Android).
+- Fixed start chat button cut off (and other bottom sheets).
 
 ### Security
 

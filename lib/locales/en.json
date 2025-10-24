@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Failed to publish key package",
         "keyPackageDeletedSuccess": "Key package deleted successfully",
         "failedToDeleteKeyPackage": "Failed to delete key package",
-        "noActiveAccountFound": "No active account found"
+        "noActiveAccountFound": "No active account found",
+        "backgroundServices": "Background Services",
+        "backgroundSyncService": "Background Sync Service"
     },
     "profile": {
         "nostrAddress": "Nostr Address (NIP-05)",
@@ -294,7 +296,12 @@
         "invitingMembers": "Inviting Members:",
         "groupNameHint": "Free Citizen Group",
         "groupDescriptionHint": "Write something about the group",
-        "uploadingImage": "Uploading Image..."
+        "uploadingImage": "Uploading Image...",
+        "addMembers": "Add Members",
+        "membersAddedSuccess": "Members added successfully",
+        "failedToAddMembers": "Failed to add members",
+        "addingMembers": "Adding members...",
+        "selectedCount": "{count} selected"
     },
     "errors": {
         "errorOccurred": "An error occurred",

@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Errore nella pubblicazione del pacchetto chiave",
         "keyPackageDeletedSuccess": "Pacchetto chiave eliminato con successo",
         "failedToDeleteKeyPackage": "Errore nell'eliminazione del pacchetto chiave",
-        "noActiveAccountFound": "Nessun account attivo trovato"
+        "noActiveAccountFound": "Nessun account attivo trovato",
+        "backgroundServices": "Servizi in background",
+        "backgroundSyncService": "Servizio di sincronizzazione in background"
     },
     "profile": {
         "nostrAddress": "Indirizzo Nostr (NIP-05)",
@@ -294,7 +296,12 @@
         "invitingMembers": "Invitando Membri:",
         "groupNameHint": "Gruppo Cittadini Liberi",
         "groupDescriptionHint": "Scrivi qualcosa sul gruppo",
-        "uploadingImage": "Caricamento Immagine..."
+        "uploadingImage": "Caricamento Immagine...",
+        "addMembers": "Aggiungi membri",
+        "membersAddedSuccess": "Membri aggiunti con successo",
+        "failedToAddMembers": "Impossibile aggiungere membri",
+        "addingMembers": "Aggiunta membri...",
+        "selectedCount": "{count} selezionati"
     },
     "errors": {
         "errorOccurred": "Si è verificato un errore",

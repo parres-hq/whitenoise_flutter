@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Error al publicar el paquete de llaves",
         "keyPackageDeletedSuccess": "Paquete de llaves eliminado exitosamente",
         "failedToDeleteKeyPackage": "Error al eliminar el paquete de llaves",
-        "noActiveAccountFound": "No se encontró una cuenta activa"
+        "noActiveAccountFound": "No se encontró una cuenta activa",
+        "backgroundServices": "Servicios en segundo plano",
+        "backgroundSyncService": "Servicio de sincronización en segundo plano"
     },
     "profile": {
         "nostrAddress": "Dirección Nostr (NIP-05)",
@@ -294,7 +296,12 @@
         "invitingMembers": "Invitando Miembros:",
         "groupNameHint": "Grupo Ciudadanos Libres",
         "groupDescriptionHint": "Escribe algo sobre el grupo",
-        "uploadingImage": "Subiendo Imagen..."
+        "uploadingImage": "Subiendo Imagen...",
+        "addMembers": "Agregar miembros",
+        "membersAddedSuccess": "Miembros agregados exitosamente",
+        "failedToAddMembers": "Error al agregar miembros",
+        "addingMembers": "Agregando miembros...",
+        "selectedCount": "{count} seleccionados"
     },
     "errors": {
         "errorOccurred": "Ocurrió un error",
