@@ -74,6 +74,7 @@ dependencies:
     workmanager: ^0.9.0+3
     synchronized: ^3.4.0    
     flutter_slidable: ^4.0.3
+    flutter_foreground_task: ^9.1.0
 
 dev_dependencies:
     flutter_test:

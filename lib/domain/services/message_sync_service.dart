@@ -21,6 +21,7 @@ class MessageSyncService {
   static SharedPreferences? _prefs;
   static const Duration _messageSyncBuffer = Duration(seconds: 1);
   static const Duration _defaultLookbackWindow = Duration(hours: 1);
+  static const Duration _defaultInviteLookbackWindow = Duration(hours: 24);
   static const int _pubkeyDisplayLength = 8;
 
   static Future<SharedPreferences> get _preferences async {
@@ -218,6 +219,7 @@ class MessageSyncService {
           ),
           title: groupDisplayName,
           body: message.content,
+          groupKey: groupId,
           payload: jsonEncode({
             'type': 'new_message',
             'groupId': groupId,
@@ -237,12 +239,24 @@ class MessageSyncService {
   }) async {
     for (final welcome in newWelcomes) {
       try {
+        // Try to fetch welcomer display name for richer notification
+        String welcomerDisplayName = _formatMemberDisplayName(welcome.welcomer);
+        try {
+          final metadata = await userMetadata(pubkey: welcome.welcomer);
+          if (metadata.displayName?.isNotEmpty == true) {
+            welcomerDisplayName = metadata.displayName!;
+          }
+        } catch (e) {
+          _logger.fine('Could not fetch welcomer metadata for ${welcome.welcomer}: $e');
+        }
+
         await NotificationService.showInviteNotification(
           id: await NotificationIdService.getIdFor(
             key: 'invites_sync:${welcome.id}',
           ),
-          title: 'New Invitations',
-          body: 'New group invitation',
+          title: 'New Invitation',
+          body: '$welcomerDisplayName invited you to a secure chat',
+          groupKey: 'invites',
           payload: jsonEncode({
             'type': 'invites_sync',
             'welcomeId': welcome.id,
@@ -303,6 +317,100 @@ class MessageSyncService {
       _logger.info('Last sync time for group $groupId Set to ${time.toLocal()}');
     } catch (e) {
       _logger.warning('Failed to set last sync time for group $groupId', e);
+    }
+  }
+
+  /// Filters invites to find new ones that should trigger notifications.
+  ///
+  /// Excludes:
+  /// - Invites from the current user (self-invites)
+  /// - Already-processed invites (older than last sync timestamp)
+  /// - Invites in non-pending states (accepted, declined, ignored)
+  ///
+  /// Uses a 24-hour lookback window on first sync to catch recent invites.
+  /// Returns an empty list for invalid inputs.
+  static Future<List<Welcome>> filterNewInvites({
+    required String activePubkey,
+    required List<Welcome> welcomes,
+  }) async {
+    if (activePubkey.isEmpty) {
+      _logger.warning('Empty activePubkey provided to filterNewInvites');
+      return [];
+    }
+
+    try {
+      final lastSyncTime = await getLastInviteSyncTime(activePubkey: activePubkey);
+
+      // If no previous sync, use 24-hour lookback window to catch recent invites
+      final cutoffTime = lastSyncTime ?? DateTime.now().subtract(_defaultInviteLookbackWindow);
+      final cutoffMillis = BigInt.from(cutoffTime.millisecondsSinceEpoch);
+
+      final newWelcomes =
+          welcomes.where((welcome) {
+            // Exclude self-invites (user inviting themselves)
+            if (welcome.welcomer == activePubkey) return false;
+            // Only notify for pending invites
+            if (welcome.state != WelcomeState.pending) return false;
+            // Only include invites after the last sync time
+            return welcome.createdAt > cutoffMillis;
+          }).toList();
+
+      _logger.fine(
+        'Filtered ${newWelcomes.length} new invite(s) from ${welcomes.length} total for account $activePubkey '
+        '(lastSyncTime: $lastSyncTime, cutoffTime: $cutoffTime)',
+      );
+
+      return newWelcomes;
+    } catch (e) {
+      _logger.warning('Failed to filter new invites for account $activePubkey', e);
+      return [];
+    }
+  }
+
+  /// Gets the last invite sync timestamp for an account.
+  ///
+  /// Returns null if no previous sync has been recorded.
+  static Future<DateTime?> getLastInviteSyncTime({
+    required String activePubkey,
+  }) async {
+    if (activePubkey.isEmpty) {
+      _logger.warning('Empty activePubkey provided to getLastInviteSyncTime');
+      return null;
+    }
+
+    try {
+      final prefs = await _preferences;
+      final timestamp = prefs.getInt('bg_sync_last_invite_$activePubkey');
+      final dateTime = timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
+      _logger.info('Last invite sync time for account $activePubkey: ${dateTime?.toLocal()}');
+      return dateTime;
+    } catch (e) {
+      _logger.warning('Failed to get last invite sync time for account $activePubkey', e);
+      return null;
+    }
+  }
+
+  /// Sets the last invite sync timestamp for an account.
+  ///
+  /// This timestamp is used to filter out already-notified invites on the next sync.
+  static Future<void> setLastInviteSyncTime({
+    required String activePubkey,
+    required DateTime time,
+  }) async {
+    if (activePubkey.isEmpty) {
+      _logger.warning('Empty activePubkey provided to setLastInviteSyncTime');
+      return;
+    }
+
+    try {
+      final prefs = await _preferences;
+      await prefs.setInt(
+        'bg_sync_last_invite_$activePubkey',
+        time.millisecondsSinceEpoch,
+      );
+      _logger.info('Last invite sync time for account $activePubkey set to ${time.toLocal()}');
+    } catch (e) {
+      _logger.warning('Failed to set last invite sync time for account $activePubkey', e);
     }
   }
 }
