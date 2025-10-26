@@ -57,6 +57,9 @@ RUST_FFI_GUIDE.md
 # Generated Cargo config (auto-generated per environment)
 rust/.cargo/config.toml
 
+# Rust build artifacts (Cargo/rust-analyzer)
+target/
+
 # AI
 **/.repomix-*
 .goose/**
