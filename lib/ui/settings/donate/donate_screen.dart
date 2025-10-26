@@ -42,8 +42,7 @@ class DonateScreen extends ConsumerWidget {
               onPressed: () => context.pop(),
               icon: WnImage(
                 AssetsPaths.icChevronLeft,
-                width: 24.w,
-                height: 24.w,
+                size: 15.w,
                 color: context.colors.solidPrimary,
               ),
             ),
