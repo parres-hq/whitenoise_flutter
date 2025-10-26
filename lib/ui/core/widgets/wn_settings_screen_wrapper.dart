@@ -56,16 +56,17 @@ class WnSettingsScreenWrapper extends StatelessWidget {
             ),
           ),
           title: RepaintBoundary(
-            child: title is String
-                ? Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.solidPrimary,
-                    ),
-                  )
-                : title as Widget,
+            child:
+                title is String
+                    ? Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 18.sp,
+                        fontWeight: FontWeight.w600,
+                        color: context.colors.solidPrimary,
+                      ),
+                    )
+                    : title as Widget,
           ),
         ),
         body: SafeArea(

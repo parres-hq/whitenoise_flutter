@@ -28,101 +28,100 @@ class DonateScreen extends ConsumerWidget {
       title: 'settings.donateToWhiteNoise'.tr(),
       safeAreaBottom: false,
       body: Column(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24.h),
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          left: 16.w,
-                          right: 16.w,
-                          bottom: 24.w,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'donate.description'.tr(),
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w500,
-                                color: context.colors.mutedForeground,
-                                height: 1.4,
-                              ),
-                            ),
-                            Gap(32.h),
-                            Text(
-                              'donate.lightningAddress'.tr(),
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            Gap(10.h),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: WnTextFormField(
-                                    controller: TextEditingController(
-                                      text: kLightningAddress,
-                                    ),
-                                    readOnly: true,
-                                  ),
-                                ),
-                                Gap(4.w),
-                                WnIconButton(
-                                  onTap:
-                                      () => _copyToClipboard(ref, 'lightning', kLightningAddress),
-                                  iconPath: AssetsPaths.icCopy,
-                                  size: 56.h,
-                                  padding: 20.w,
-                                ),
-                              ],
-                            ),
-                            Gap(32.h),
-                            Text(
-                              'donate.bitcoinSilentPaymentAddress'.tr(),
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            Gap(10.h),
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: WnTextFormField(
-                                    controller: TextEditingController(
-                                      text: kBitcoinAddress,
-                                    ),
-                                    readOnly: true,
-                                  ),
-                                ),
-                                Gap(4.w),
-                                WnIconButton(
-                                  onTap:
-                                      () => _copyToClipboard(
-                                        ref,
-                                        'bitcoin',
-                                        kBitcoinAddress,
-                                      ),
-                                  iconPath: AssetsPaths.icCopy,
-                                  size: 56.h,
-                                  padding: 20.w,
-                                ),
-                              ],
-                            ),
-                          ],
+        children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 24.h),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: 16.w,
+                    right: 16.w,
+                    bottom: 24.w,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'donate.description'.tr(),
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w500,
+                          color: context.colors.mutedForeground,
+                          height: 1.4,
                         ),
                       ),
-                    ),
+                      Gap(32.h),
+                      Text(
+                        'donate.lightningAddress'.tr(),
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.primary,
+                        ),
+                      ),
+                      Gap(10.h),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: WnTextFormField(
+                              controller: TextEditingController(
+                                text: kLightningAddress,
+                              ),
+                              readOnly: true,
+                            ),
+                          ),
+                          Gap(4.w),
+                          WnIconButton(
+                            onTap: () => _copyToClipboard(ref, 'lightning', kLightningAddress),
+                            iconPath: AssetsPaths.icCopy,
+                            size: 56.h,
+                            padding: 20.w,
+                          ),
+                        ],
+                      ),
+                      Gap(32.h),
+                      Text(
+                        'donate.bitcoinSilentPaymentAddress'.tr(),
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.primary,
+                        ),
+                      ),
+                      Gap(10.h),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: WnTextFormField(
+                              controller: TextEditingController(
+                                text: kBitcoinAddress,
+                              ),
+                              readOnly: true,
+                            ),
+                          ),
+                          Gap(4.w),
+                          WnIconButton(
+                            onTap:
+                                () => _copyToClipboard(
+                                  ref,
+                                  'bitcoin',
+                                  kBitcoinAddress,
+                                ),
+                            iconPath: AssetsPaths.icCopy,
+                            size: 56.h,
+                            padding: 20.w,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
+          ),
+        ],
+      ),
     );
   }
 }

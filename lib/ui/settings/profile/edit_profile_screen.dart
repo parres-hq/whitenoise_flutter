@@ -87,217 +87,215 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
     return WnSettingsScreenWrapper(
       title: 'settings.editProfile'.tr(),
       body: profileState.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error:
-                  (error, _) => Center(
-                    child: Text(
-                      '${'profile.errorLoadingProfile'.tr()}: $error',
-                      style: TextStyle(color: context.colors.destructive),
-                    ),
-                  ),
-              data:
-                  (profile) => Column(
-                    children: [
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.only(top: 24.h),
-                          child: SingleChildScrollView(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 16.w),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Stack(
-                                    alignment: Alignment.bottomCenter,
-                                    children: [
-                                      ValueListenableBuilder<TextEditingValue>(
-                                        valueListenable: _displayNameController,
-                                        builder: (context, value, child) {
-                                          final imageUrl = _getProfileImageUrl(profile);
-                                          final displayName = value.text.trim();
-                                          return WnAvatar(
-                                            imageUrl: imageUrl,
-                                            displayName: displayName,
-                                            size: 96.w,
-                                            showBorder: imageUrl.isEmpty,
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error:
+            (error, _) => Center(
+              child: Text(
+                '${'profile.errorLoadingProfile'.tr()}: $error',
+                style: TextStyle(color: context.colors.destructive),
+              ),
+            ),
+        data:
+            (profile) => Column(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 24.h),
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Stack(
+                              alignment: Alignment.bottomCenter,
+                              children: [
+                                ValueListenableBuilder<TextEditingValue>(
+                                  valueListenable: _displayNameController,
+                                  builder: (context, value, child) {
+                                    final imageUrl = _getProfileImageUrl(profile);
+                                    final displayName = value.text.trim();
+                                    return WnAvatar(
+                                      imageUrl: imageUrl,
+                                      displayName: displayName,
+                                      size: 96.w,
+                                      showBorder: imageUrl.isEmpty,
+                                    );
+                                  },
+                                ),
+                                Positioned(
+                                  left: 1.sw * 0.5,
+                                  bottom: 4.h,
+                                  width: 28.w,
+                                  child: WnEditIconWidget(
+                                    onTap: () async {
+                                      try {
+                                        await ref
+                                            .read(editProfileScreenProvider.notifier)
+                                            .pickProfileImage();
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          ref.showErrorToast(
+                                            'profile.failedToPickProfileImage'.tr(),
                                           );
-                                        },
-                                      ),
-                                      Positioned(
-                                        left: 1.sw * 0.5,
-                                        bottom: 4.h,
-                                        width: 28.w,
-                                        child: WnEditIconWidget(
-                                          onTap: () async {
-                                            try {
-                                              await ref
-                                                  .read(editProfileScreenProvider.notifier)
-                                                  .pickProfileImage();
-                                            } catch (e) {
-                                              if (context.mounted) {
-                                                ref.showErrorToast(
-                                                  'profile.failedToPickProfileImage'.tr(),
-                                                );
-                                              }
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Gap(36.h),
-                                  Text(
-                                    'profile.profileName'.tr(),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14.sp,
-                                      color: context.colors.primary,
-                                    ),
-                                  ),
-                                  Gap(10.h),
-                                  WnTextFormField(
-                                    controller: _displayNameController,
-                                    hintText: 'auth.yourName'.tr(),
-                                    onChanged: (value) {
-                                      ref
-                                          .read(editProfileScreenProvider.notifier)
-                                          .updateLocalProfile(displayName: value);
+                                        }
+                                      }
                                     },
                                   ),
-                                  Gap(36.h),
-                                  Text(
-                                    'profile.nostrAddress'.tr(),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14.sp,
-                                      color: context.colors.primary,
-                                    ),
-                                  ),
-                                  Gap(10.h),
-                                  WnTextFormField(
-                                    controller: _nostrAddressController,
-                                    hintText: 'profile.nostrAddressExample'.tr(),
-                                    onChanged: (value) {
-                                      ref
-                                          .read(editProfileScreenProvider.notifier)
-                                          .updateLocalProfile(nip05: value);
-                                    },
-                                  ),
-                                  Gap(36.h),
-                                  Text(
-                                    'profile.aboutYou'.tr(),
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 14.sp,
-                                      color: context.colors.primary,
-                                    ),
-                                  ),
-                                  Gap(10.h),
-                                  WnTextFormField(
-                                    controller: _aboutController,
-                                    hintText: 'auth.writeSomethingAboutYourself'.tr(),
-                                    minLines: 3,
-                                    maxLines: 3,
-                                    keyboardType: TextInputType.multiline,
-                                    onChanged: (value) {
-                                      ref
-                                          .read(editProfileScreenProvider.notifier)
-                                          .updateLocalProfile(about: value);
-                                    },
-                                  ),
-                                  Gap(16.h),
-                                ],
+                                ),
+                              ],
+                            ),
+                            Gap(36.h),
+                            Text(
+                              'profile.profileName'.tr(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                                color: context.colors.primary,
                               ),
                             ),
-                          ),
+                            Gap(10.h),
+                            WnTextFormField(
+                              controller: _displayNameController,
+                              hintText: 'auth.yourName'.tr(),
+                              onChanged: (value) {
+                                ref
+                                    .read(editProfileScreenProvider.notifier)
+                                    .updateLocalProfile(displayName: value);
+                              },
+                            ),
+                            Gap(36.h),
+                            Text(
+                              'profile.nostrAddress'.tr(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                                color: context.colors.primary,
+                              ),
+                            ),
+                            Gap(10.h),
+                            WnTextFormField(
+                              controller: _nostrAddressController,
+                              hintText: 'profile.nostrAddressExample'.tr(),
+                              onChanged: (value) {
+                                ref
+                                    .read(editProfileScreenProvider.notifier)
+                                    .updateLocalProfile(nip05: value);
+                              },
+                            ),
+                            Gap(36.h),
+                            Text(
+                              'profile.aboutYou'.tr(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                                color: context.colors.primary,
+                              ),
+                            ),
+                            Gap(10.h),
+                            WnTextFormField(
+                              controller: _aboutController,
+                              hintText: 'auth.writeSomethingAboutYourself'.tr(),
+                              minLines: 3,
+                              maxLines: 3,
+                              keyboardType: TextInputType.multiline,
+                              onChanged: (value) {
+                                ref
+                                    .read(editProfileScreenProvider.notifier)
+                                    .updateLocalProfile(about: value);
+                              },
+                            ),
+                            Gap(16.h),
+                          ],
                         ),
                       ),
-                      Padding(
-                        padding: EdgeInsets.only(
-                          left: 16.w,
-                          right: 16.w,
-                          bottom: 16.h,
-                        ),
-                        child: profileState.when(
-                          data:
-                              (profile) => Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (profile.isDirty) ...[
-                                    WnFilledButton(
-                                      onPressed:
-                                          () => showDialog(
-                                            context: context,
-                                            builder:
-                                                (dialogContext) => WnDialog(
-                                                  title: 'shared.unsavedChanges'.tr(),
-                                                  content: 'profile.unsavedChangesQuestion'.tr(),
-                                                  actions: Row(
-                                                    children: [
-                                                      Expanded(
-                                                        child: WnFilledButton(
-                                                          onPressed: () {
-                                                            ref
-                                                                .read(
-                                                                  editProfileScreenProvider
-                                                                      .notifier,
-                                                                )
-                                                                .discardChanges();
-                                                            Navigator.of(dialogContext).pop();
-                                                          },
-                                                          visualState:
-                                                              WnButtonVisualState.secondaryWarning,
-                                                          size: WnButtonSize.small,
-                                                          label: 'shared.discardChanges'.tr(),
-                                                        ),
-                                                      ),
-                                                      Gap(10.w),
-                                                      Expanded(
-                                                        child: WnFilledButton(
-                                                          onPressed: () async {
-                                                            await ref
-                                                                .read(
-                                                                  editProfileScreenProvider
-                                                                      .notifier,
-                                                                )
-                                                                .updateProfileData();
-                                                            if (context.mounted) {
-                                                              Navigator.of(dialogContext).pop();
-                                                            }
-                                                          },
-                                                          label: 'shared.save'.tr(),
-                                                          size: WnButtonSize.small,
-                                                        ),
-                                                      ),
-                                                    ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.only(
+                    left: 16.w,
+                    right: 16.w,
+                    bottom: 16.h,
+                  ),
+                  child: profileState.when(
+                    data:
+                        (profile) => Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (profile.isDirty) ...[
+                              WnFilledButton(
+                                onPressed:
+                                    () => showDialog(
+                                      context: context,
+                                      builder:
+                                          (dialogContext) => WnDialog(
+                                            title: 'shared.unsavedChanges'.tr(),
+                                            content: 'profile.unsavedChangesQuestion'.tr(),
+                                            actions: Row(
+                                              children: [
+                                                Expanded(
+                                                  child: WnFilledButton(
+                                                    onPressed: () {
+                                                      ref
+                                                          .read(
+                                                            editProfileScreenProvider.notifier,
+                                                          )
+                                                          .discardChanges();
+                                                      Navigator.of(dialogContext).pop();
+                                                    },
+                                                    visualState:
+                                                        WnButtonVisualState.secondaryWarning,
+                                                    size: WnButtonSize.small,
+                                                    label: 'shared.discardChanges'.tr(),
                                                   ),
                                                 ),
+                                                Gap(10.w),
+                                                Expanded(
+                                                  child: WnFilledButton(
+                                                    onPressed: () async {
+                                                      await ref
+                                                          .read(
+                                                            editProfileScreenProvider.notifier,
+                                                          )
+                                                          .updateProfileData();
+                                                      if (context.mounted) {
+                                                        Navigator.of(dialogContext).pop();
+                                                      }
+                                                    },
+                                                    label: 'shared.save'.tr(),
+                                                    size: WnButtonSize.small,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                      label: 'shared.discardChanges'.tr(),
-                                      visualState: WnButtonVisualState.secondary,
                                     ),
-                                    Gap(8.h),
-                                  ],
-                                  WnFilledButton(
-                                    onPressed:
-                                        profile.isDirty && !profile.isSaving
-                                            ? () async =>
-                                                await ref
-                                                    .read(editProfileScreenProvider.notifier)
-                                                    .updateProfileData()
-                                            : null,
-                                    loading: profile.isSaving,
-                                    label: 'shared.save'.tr(),
-                                  ),
-                                ],
+                                label: 'shared.discardChanges'.tr(),
+                                visualState: WnButtonVisualState.secondary,
                               ),
-                          loading: () => const SizedBox.shrink(),
-                          error: (_, _) => const SizedBox.shrink(),
+                              Gap(8.h),
+                            ],
+                            WnFilledButton(
+                              onPressed:
+                                  profile.isDirty && !profile.isSaving
+                                      ? () async =>
+                                          await ref
+                                              .read(editProfileScreenProvider.notifier)
+                                              .updateProfileData()
+                                      : null,
+                              loading: profile.isSaving,
+                              label: 'shared.save'.tr(),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                    loading: () => const SizedBox.shrink(),
+                    error: (_, _) => const SizedBox.shrink(),
                   ),
+                ),
+              ],
             ),
+      ),
     );
   }
 }

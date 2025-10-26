@@ -183,72 +183,72 @@ class AppSettingsScreen extends ConsumerWidget {
       ),
       safeAreaBottom: false,
       body: Column(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24.h),
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          left: 16.w,
-                          right: 16.w,
-                          bottom: 24.w,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            LocalizedText(
-                              'settings.theme',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            Gap(10.h),
-                            _ThemeDropdown(
-                              currentTheme: themeMode,
-                              onThemeChanged: (newMode) {
-                                ref.read(themeProvider.notifier).setThemeMode(newMode);
-                              },
-                            ),
-                            Gap(24.h),
-                            LocalizedText(
-                              'settings.language',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            Gap(10.h),
-                            const LanguageSelectorDropdown(),
-                            Gap(24.h),
-                            LocalizedText(
-                              'settings.dangerZone',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            Gap(10.h),
-                            WnFilledButton(
-                              label: 'settings.deleteAllData'.tr(),
-                              labelTextStyle: WnButtonSize.large.textStyle().copyWith(
-                                color: context.colors.solidNeutralWhite,
-                              ),
-                              visualState: WnButtonVisualState.destructive,
-                              onPressed: () => _deleteAllData(context, ref),
-                            ),
-                          ],
+        children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 24.h),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: 16.w,
+                    right: 16.w,
+                    bottom: 24.w,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      LocalizedText(
+                        'settings.theme',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.primary,
                         ),
                       ),
-                    ),
+                      Gap(10.h),
+                      _ThemeDropdown(
+                        currentTheme: themeMode,
+                        onThemeChanged: (newMode) {
+                          ref.read(themeProvider.notifier).setThemeMode(newMode);
+                        },
+                      ),
+                      Gap(24.h),
+                      LocalizedText(
+                        'settings.language',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.primary,
+                        ),
+                      ),
+                      Gap(10.h),
+                      const LanguageSelectorDropdown(),
+                      Gap(24.h),
+                      LocalizedText(
+                        'settings.dangerZone',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.primary,
+                        ),
+                      ),
+                      Gap(10.h),
+                      WnFilledButton(
+                        label: 'settings.deleteAllData'.tr(),
+                        labelTextStyle: WnButtonSize.large.textStyle().copyWith(
+                          color: context.colors.solidNeutralWhite,
+                        ),
+                        visualState: WnButtonVisualState.destructive,
+                        onPressed: () => _deleteAllData(context, ref),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
+          ),
+        ],
+      ),
     );
   }
 }

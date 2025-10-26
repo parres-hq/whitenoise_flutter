@@ -118,79 +118,79 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
       title: 'Background Sync Service',
       safeAreaBottom: false,
       body: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RepaintBoundary(
-                      child: Text(
-                        'Available Tasks',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.primary,
-                        ),
-                      ),
-                    ),
-                    Gap(10.h),
-                    ...List.generate(
-                      BackgroundSyncService.allTasks.length,
-                      (index) {
-                        final task = BackgroundSyncService.allTasks[index];
-                        final isScheduled = _taskScheduledStatus[task.uniqueName] ?? false;
-                        return Column(
-                          children: [
-                            RepaintBoundary(
-                              child: _TaskItem(
-                                name: task.displayName,
-                                frequency: task.frequencyDisplay,
-                                isLoading: _isLoading,
-                                isScheduled: isScheduled,
-                                onTrigger: () => _registerTask(task),
-                              ),
-                            ),
-                            if (index < BackgroundSyncService.allTasks.length - 1) Gap(8.h),
-                          ],
-                        );
-                      },
-                    ),
-                    Gap(24.h),
-                    RepaintBoundary(
-                      child: Text(
-                        'Task Management',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.primary,
-                        ),
-                      ),
-                    ),
-                    Gap(10.h),
-                    RepaintBoundary(
-                      child: WnFilledButton(
-                        label: 'Register All Tasks',
-                        onPressed: _isLoading ? null : _registerAllTasks,
-                        loading: _isLoading,
-                      ),
-                    ),
-                    Gap(8.h),
-                    RepaintBoundary(
-                      child: WnFilledButton(
-                        label: 'Cancel All Tasks',
-                        visualState: WnButtonVisualState.destructive,
-                        onPressed: _isLoading ? null : _cancelAllTasks,
-                        loading: _isLoading,
-                        labelTextStyle: WnButtonSize.large.textStyle().copyWith(
-                          color: context.colors.solidNeutralWhite,
-                        ),
-                      ),
-                    ),
-                    Gap(MediaQuery.of(context).padding.bottom),
-                  ],
+        padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RepaintBoundary(
+                child: Text(
+                  'Available Tasks',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.primary,
+                  ),
                 ),
               ),
-            ),
+              Gap(10.h),
+              ...List.generate(
+                BackgroundSyncService.allTasks.length,
+                (index) {
+                  final task = BackgroundSyncService.allTasks[index];
+                  final isScheduled = _taskScheduledStatus[task.uniqueName] ?? false;
+                  return Column(
+                    children: [
+                      RepaintBoundary(
+                        child: _TaskItem(
+                          name: task.displayName,
+                          frequency: task.frequencyDisplay,
+                          isLoading: _isLoading,
+                          isScheduled: isScheduled,
+                          onTrigger: () => _registerTask(task),
+                        ),
+                      ),
+                      if (index < BackgroundSyncService.allTasks.length - 1) Gap(8.h),
+                    ],
+                  );
+                },
+              ),
+              Gap(24.h),
+              RepaintBoundary(
+                child: Text(
+                  'Task Management',
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.primary,
+                  ),
+                ),
+              ),
+              Gap(10.h),
+              RepaintBoundary(
+                child: WnFilledButton(
+                  label: 'Register All Tasks',
+                  onPressed: _isLoading ? null : _registerAllTasks,
+                  loading: _isLoading,
+                ),
+              ),
+              Gap(8.h),
+              RepaintBoundary(
+                child: WnFilledButton(
+                  label: 'Cancel All Tasks',
+                  visualState: WnButtonVisualState.destructive,
+                  onPressed: _isLoading ? null : _cancelAllTasks,
+                  loading: _isLoading,
+                  labelTextStyle: WnButtonSize.large.textStyle().copyWith(
+                    color: context.colors.solidNeutralWhite,
+                  ),
+                ),
+              ),
+              Gap(MediaQuery.of(context).padding.bottom),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
