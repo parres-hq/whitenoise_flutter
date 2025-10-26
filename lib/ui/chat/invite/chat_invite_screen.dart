@@ -58,6 +58,7 @@ class _ChatInviteScreenState extends ConsumerState<ChatInviteScreen> {
                 : ContactInfo(
                   title: welcome.groupName,
                   image: '',
+                  pubkey: welcome.nostrGroupId,
                 ),
       ),
       body: Column(
@@ -166,6 +167,7 @@ class GroupInviteHeader extends StatelessWidget {
             imageUrl: '',
             displayName: welcome.groupName,
             size: 96.r,
+            pubkey: welcome.nostrGroupId,
             showBorder: true,
           ),
           Gap(12.h),
@@ -250,7 +252,7 @@ class DMInviteHeader extends ConsumerWidget {
         final welcomerContact = snapshot.data;
         final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
         final welcomerImageUrl = welcomerContact?.imagePath ?? '';
-
+        final welcomerPubkey = welcomerContact?.publicKey;
         return Container(
           padding: EdgeInsets.symmetric(horizontal: 24.w),
           child: Column(
@@ -261,6 +263,7 @@ class DMInviteHeader extends ConsumerWidget {
                 displayName: welcomerName,
                 size: 96.r,
                 showBorder: true,
+                pubkey: welcomerPubkey,
               ),
               Gap(12.h),
               Text(
@@ -344,10 +347,12 @@ class DMAppBarTitle extends ConsumerWidget {
         final welcomerContact = snapshot.data;
         final welcomerName = welcomerContact?.displayName ?? 'Unknown User';
         final welcomerImageUrl = welcomerContact?.imagePath ?? '';
+        final welcomerPubkey = welcomerContact?.publicKey;
 
         return ContactInfo(
           title: welcomerName,
           image: welcomerImageUrl,
+          pubkey: welcomerPubkey,
         );
       },
     );

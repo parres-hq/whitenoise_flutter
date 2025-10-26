@@ -35,6 +35,7 @@ class WelcomeTile extends ConsumerWidget {
         final welcomerContact = snapshot.data;
         final welcomerName = welcomerContact?.displayName ?? 'chats.unknownUser'.tr();
         final welcomerImageUrl = welcomerContact?.imagePath ?? '';
+        final welcomerPubkey = welcomerContact?.publicKey;
 
         return InkWell(
           onTap: () => Routes.goToChat(context, welcome.mlsGroupId, inviteId: welcome.id),
@@ -46,6 +47,8 @@ class WelcomeTile extends ConsumerWidget {
                   imageUrl: welcomerImageUrl,
                   displayName: welcomerName,
                   size: 56.r,
+                  pubkey: welcomerPubkey,
+                  showBorder: true,
                 ),
                 Gap(8.w),
                 Expanded(
