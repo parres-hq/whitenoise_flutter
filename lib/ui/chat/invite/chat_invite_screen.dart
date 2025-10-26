@@ -164,6 +164,7 @@ class GroupInviteHeader extends StatelessWidget {
             imageUrl: '',
             displayName: welcome.groupName,
             size: 96.r,
+            pubkey: welcome.nostrGroupId,
             showBorder: true,
           ),
           Gap(12.h),
@@ -244,7 +245,7 @@ class DMInviteHeader extends ConsumerWidget {
     final welcomerName = welcomerUser.displayName;
     final welcomerNpub =
         PubkeyFormatter(pubkey: welcomerUser.publicKey).toNpub()?.formatPublicKey();
-
+        final welcomerPubkey = welcomerUser.publicKey;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
@@ -255,6 +256,7 @@ class DMInviteHeader extends ConsumerWidget {
             displayName: welcomerName,
             size: 96.r,
             showBorder: true,
+                pubkey: welcomerPubkey,
           ),
           Gap(12.h),
           Text(
@@ -332,6 +334,7 @@ class WelcomeAppbar extends ConsumerWidget {
     if (welcomerUser == null) {
       return const SizedBox.shrink();
     }
+    final welcomerPubkey = welcomerUser.publicKey;
 
     return Row(
       children: [
@@ -340,6 +343,7 @@ class WelcomeAppbar extends ConsumerWidget {
           displayName: welcomerUser.displayName,
           size: 36.r,
           showBorder: true,
+          pubkey: welcomerPubkey,
         ),
         Gap(8.w),
         Expanded(
