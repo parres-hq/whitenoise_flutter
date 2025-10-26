@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
@@ -73,42 +71,10 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
   Widget build(BuildContext context) {
     final nostrKeys = ref.watch(nostrKeysProvider);
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
-        backgroundColor: context.colors.neutral,
-        appBar: WnAppBar(
-          automaticallyImplyLeading: false,
-          leading: RepaintBoundary(
-            child: IconButton(
-              onPressed: () => context.pop(),
-              icon: WnImage(
-                AssetsPaths.icChevronLeft,
-                size: 15.w,
-                color: context.colors.solidPrimary,
-              ),
-            ),
-          ),
-          title: RepaintBoundary(
-            child: Text(
-              'settings.profileKeys'.tr(),
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-                color: context.colors.solidPrimary,
-              ),
-            ),
-          ),
-        ),
-        body: SafeArea(
-          bottom: false,
-          child: ColoredBox(
-            color: context.colors.neutral,
-            child: Column(
+    return WnSettingsScreenWrapper(
+      title: 'settings.profileKeys'.tr(),
+      safeAreaBottom: false,
+      body: Column(
               children: [
                 Expanded(
                   child: Padding(
@@ -312,9 +278,6 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                 ),
               ],
             ),
-          ),
-        ),
-      ),
     );
   }
 }

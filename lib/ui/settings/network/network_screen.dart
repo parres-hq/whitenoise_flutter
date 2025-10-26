@@ -1,15 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
-import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
+import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_section.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
@@ -106,55 +102,24 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
     final inboxRelaysState = ref.watch(inboxRelaysProvider);
     final keyPackageRelaysState = ref.watch(keyPackageRelaysProvider);
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: PopScope(
-        onPopInvokedWithResult: (didPop, result) {
-          if (didPop) {
-            WnTooltip.hide();
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          WnTooltip.hide();
+          _currentOpenTooltipKey = null;
+        }
+      },
+      child: GestureDetector(
+        onTap: () {
+          WnTooltip.hide();
+          setState(() {
             _currentOpenTooltipKey = null;
-          }
+          });
         },
-        child: GestureDetector(
-          onTap: () {
-            WnTooltip.hide();
-            setState(() {
-              _currentOpenTooltipKey = null;
-            });
-          },
-          child: Scaffold(
-            backgroundColor: context.colors.neutral,
-            appBar: WnAppBar(
-              automaticallyImplyLeading: false,
-              leading: RepaintBoundary(
-                child: IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: WnImage(
-                    AssetsPaths.icChevronLeft,
-                    size: 15.w,
-                    color: context.colors.solidPrimary,
-                  ),
-                ),
-              ),
-              title: RepaintBoundary(
-                child: Text(
-                  'settings.networkRelays'.tr(),
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.solidPrimary,
-                  ),
-                ),
-              ),
-            ),
-            body: SafeArea(
-              child: ColoredBox(
-                color: context.colors.neutral,
-                child: Column(
+        child: WnSettingsScreenWrapper(
+          title: 'settings.networkRelays'.tr(),
+          onBackPressed: () => Navigator.of(context).pop(),
+          body: Column(
                   children: [
                     Expanded(
                       child: Padding(
@@ -209,9 +174,6 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
                     ),
                   ],
                 ),
-              ),
-            ),
-          ),
         ),
       ),
     );

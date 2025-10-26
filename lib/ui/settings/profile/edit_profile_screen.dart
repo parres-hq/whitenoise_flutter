@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/edit_profile_screen_provider.dart';
 import 'package:whitenoise/config/states/profile_state.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
-import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
 import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
@@ -88,41 +84,9 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
 
     final profileState = ref.watch(editProfileScreenProvider);
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
-        backgroundColor: context.colors.neutral,
-        appBar: WnAppBar(
-          automaticallyImplyLeading: false,
-          leading: RepaintBoundary(
-            child: IconButton(
-              onPressed: () => context.pop(),
-              icon: WnImage(
-                AssetsPaths.icChevronLeft,
-                size: 15.w,
-                color: context.colors.solidPrimary,
-              ),
-            ),
-          ),
-          title: RepaintBoundary(
-            child: Text(
-              'settings.editProfile'.tr(),
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-                color: context.colors.solidPrimary,
-              ),
-            ),
-          ),
-        ),
-        body: SafeArea(
-          child: ColoredBox(
-            color: context.colors.neutral,
-            child: profileState.when(
+    return WnSettingsScreenWrapper(
+      title: 'settings.editProfile'.tr(),
+      body: profileState.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error:
                   (error, _) => Center(
@@ -334,9 +298,6 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                     ],
                   ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

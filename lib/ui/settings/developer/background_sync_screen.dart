@@ -1,19 +1,15 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/domain/models/background_task_config.dart';
 import 'package:whitenoise/domain/services/background_sync_service.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
-import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
 
 //TODO: remove this screen later (this is a temporary screen for testing the background sync service)
 class BackgroundSyncScreen extends ConsumerStatefulWidget {
@@ -118,42 +114,10 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
-        backgroundColor: context.colors.neutral,
-        appBar: WnAppBar(
-          automaticallyImplyLeading: false,
-          leading: RepaintBoundary(
-            child: IconButton(
-              onPressed: () => context.pop(),
-              icon: WnImage(
-                AssetsPaths.icChevronLeft,
-                size: 15.w,
-                color: context.colors.solidPrimary,
-              ),
-            ),
-          ),
-          title: RepaintBoundary(
-            child: Text(
-              'Background Sync Service',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-                color: context.colors.solidPrimary,
-              ),
-            ),
-          ),
-        ),
-        body: SafeArea(
-          bottom: false,
-          child: ColoredBox(
-            color: context.colors.neutral,
-            child: Padding(
+    return WnSettingsScreenWrapper(
+      title: 'Background Sync Service',
+      safeAreaBottom: false,
+      body: Padding(
               padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
               child: SingleChildScrollView(
                 child: Column(
@@ -227,9 +191,6 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
                 ),
               ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }
