@@ -368,7 +368,7 @@ pub async fn upload_group_image(
     let server = Url::parse(&server_url)?;
 
     let (encrypted_hash, image_key, image_nonce) = whitenoise
-        .upload_group_image(&account, &group_id, &file_path, server, None)
+        .upload_group_image(&account, &group_id, &file_path, Some(server), None)
         .await?;
 
     Ok(UploadGroupImageResult {
