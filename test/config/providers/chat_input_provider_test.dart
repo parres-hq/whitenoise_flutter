@@ -2,8 +2,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/chat_input_provider.dart';
+import 'package:whitenoise/config/providers/chat_provider.dart';
+import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/media_file_upload.dart';
+import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/domain/models/user_model.dart' show User;
 import 'package:whitenoise/src/rust/api/media_files.dart' as rust_media_files;
+import 'package:whitenoise/src/rust/api/messages.dart' show MessageWithTokens;
 
 import '../../shared/mocks/mock_active_pubkey_notifier.dart';
 import '../../shared/mocks/mock_draft_message_service.dart';
@@ -73,6 +78,84 @@ rust_media_files.MediaFile createMockMediaFile({
   );
 }
 
+class MockChatProvider extends ChatNotifier {
+  MessageWithTokens? _messageToReturn;
+  final List<Map<String, dynamic>> _sendMessageCalls = [];
+  final List<Map<String, dynamic>> _sendReplyMessageCalls = [];
+  ChatState _currentState = const ChatState();
+
+  void setMessageToReturn(MessageWithTokens message) {
+    _messageToReturn = message;
+  }
+
+  void setChatState(ChatState newState) {
+    _currentState = newState;
+  }
+
+  List<Map<String, dynamic>> get sendMessageCalls => _sendMessageCalls;
+  List<Map<String, dynamic>> get sendReplyMessageCalls => _sendReplyMessageCalls;
+
+  @override
+  ChatState build() {
+    return _currentState;
+  }
+
+  @override
+  Future<MessageWithTokens?> sendMessage({
+    required String groupId,
+    required String message,
+    required List<rust_media_files.MediaFile> mediaFiles,
+    bool isEditing = false,
+    void Function()? onMessageSent,
+  }) async {
+    _sendMessageCalls.add({
+      'groupId': groupId,
+      'message': message,
+      'mediaFiles': mediaFiles,
+      'isEditing': isEditing,
+    });
+    return _messageToReturn;
+  }
+
+  @override
+  Future<MessageWithTokens?> sendReplyMessage({
+    required String groupId,
+    required String replyToMessageId,
+    required String message,
+    void Function()? onMessageSent,
+    required List<rust_media_files.MediaFile> mediaFiles,
+  }) async {
+    _sendReplyMessageCalls.add({
+      'groupId': groupId,
+      'replyToMessageId': replyToMessageId,
+      'message': message,
+      'mediaFiles': mediaFiles,
+    });
+    return _messageToReturn;
+  }
+
+  void reset() {
+    _sendMessageCalls.clear();
+    _sendReplyMessageCalls.clear();
+    _messageToReturn = null;
+    _currentState = const ChatState();
+  }
+}
+
+MessageWithTokens createMessageWithTokens({
+  required String id,
+  required String pubkey,
+}) {
+  return MessageWithTokens(
+    id: id,
+    pubkey: pubkey,
+    kind: 9,
+    createdAt: DateTime(2025, 1, 3),
+    content: 'Test message',
+    tokens: [],
+  );
+}
+
 void main() {
   group('ChatInputProvider Tests', () {
     late ProviderContainer container;
@@ -80,6 +163,7 @@ void main() {
     late MockImagePickerService mockImagePicker;
     late MockDraftMessageService mockDraftMessageService;
     late MockUploadMediaFn mockUploadMedia;
+    late MockChatProvider mockChatProvider;
     const testGroupId = 'test-group-id';
     const testAccountPubkey = 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
     const testDraftSaveDelay = Duration(milliseconds: 5);
@@ -92,10 +176,12 @@ void main() {
       mockImagePicker = MockImagePickerService();
       mockDraftMessageService = MockDraftMessageService();
       mockUploadMedia = MockUploadMediaFn();
+      mockChatProvider = MockChatProvider();
 
       container = ProviderContainer(
         overrides: [
           activePubkeyProvider.overrideWith(() => MockActivePubkeyNotifier(testAccountPubkey)),
+          chatProvider.overrideWith(() => mockChatProvider),
           chatInputProvider.overrideWith(
             () => ChatInputNotifier(
               imagePickerService: mockImagePicker,
@@ -111,6 +197,7 @@ void main() {
 
     tearDown(() {
       mockUploadMedia.reset();
+      mockChatProvider.reset();
       container.dispose();
     });
 
@@ -610,6 +697,210 @@ void main() {
 
         await Future.delayed(const Duration(milliseconds: 10));
         expect(mockDraftMessageService.savedDrafts, ['immediate draft']);
+      });
+    });
+
+    group('sendMessage', () {
+      group('when not replying', () {
+        setUp(() {
+          final mockMessage = MessageWithTokens(
+            id: 'sent-message-id',
+            pubkey: testAccountPubkey,
+            kind: 9,
+            createdAt: DateTime(2025, 1, 3),
+            content: 'Test message',
+            tokens: [],
+          );
+          mockChatProvider.setMessageToReturn(mockMessage);
+        });
+
+        test('sends message', () async {
+          await notifier.sendMessage(message: 'Hello world');
+          expect(mockChatProvider.sendMessageCalls.length, 1);
+        });
+
+        test('sends message with expected arguments', () async {
+          await notifier.sendMessage(message: 'Hello world');
+          final sendMessageCall = mockChatProvider.sendMessageCalls[0];
+          expect(
+            sendMessageCall,
+            equals({
+              'groupId': testGroupId,
+              'message': 'Hello world',
+              'mediaFiles': isEmpty,
+              'isEditing': false,
+            }),
+          );
+        });
+
+        test('returns sent message', () async {
+          final result = await notifier.sendMessage(message: 'Hello world');
+          expect(result?.id, 'sent-message-id');
+          expect(result?.pubkey, testAccountPubkey);
+        });
+
+        test('clears draft after sending', () async {
+          mockDraftMessageService.reset();
+          await notifier.sendMessage(message: 'Hello world');
+          expect(mockDraftMessageService.clearedChats, [testGroupId]);
+        });
+
+        group('when editing a message', () {
+          test('sends message with isEditing flag set to true', () async {
+            await notifier.sendMessage(message: 'Hello world', isEditing: true);
+            final sendMessageCall = mockChatProvider.sendMessageCalls[0];
+            expect(sendMessageCall['isEditing'], true);
+          });
+        });
+
+        group('with media files', () {
+          setUp(() async {
+            const imagePathA = '/path/to/imageAjpg';
+            const imagePathB = '/path/to/imageB.jpg';
+            mockImagePicker.imagesToReturn = [imagePathA, imagePathB];
+            mockUploadMedia.setUploadResult(
+              imagePathA,
+              createMockMediaFile(filePath: imagePathA, id: 'id-1', groupId: testGroupId),
+            );
+            mockUploadMedia.setUploadResult(
+              imagePathB,
+              createMockMediaFile(filePath: imagePathB, id: 'id-2', groupId: testGroupId),
+            );
+            await notifier.handleImagesSelected();
+            await waitForUploadsToComplete();
+          });
+          test('sends message with selected media files', () async {
+            await notifier.sendMessage(message: 'Check this out');
+            final call = mockChatProvider.sendMessageCalls[0];
+            expect(call['mediaFiles'], hasLength(2));
+          });
+
+          test('clears selected media after sending', () async {
+            final previousState = container.read(chatInputProvider(testGroupId));
+            expect(previousState.selectedMedia.length, 2);
+            await notifier.sendMessage(message: 'Check this out');
+            final state = container.read(chatInputProvider(testGroupId));
+            expect(state.selectedMedia, isEmpty);
+          });
+        });
+      });
+
+      group('when replying', () {
+        const replyToMessageId = 'original-message-id';
+        late MessageModel replyToMessage;
+
+        setUp(() {
+          final testSender = User(
+            id: testAccountPubkey,
+            displayName: 'Test User',
+            nip05: '',
+            publicKey: testAccountPubkey,
+          );
+
+          replyToMessage = MessageModel(
+            id: replyToMessageId,
+            type: MessageType.text,
+            createdAt: DateTime(2025, 1, 3),
+            content: 'Original message content',
+            sender: testSender,
+            isMe: true,
+          );
+
+          final chatStateWithReply = ChatState(
+            replyingTo: {testGroupId: replyToMessage},
+          );
+          mockChatProvider.setChatState(chatStateWithReply);
+
+          final mockMessage = MessageWithTokens(
+            id: 'reply-message-id',
+            pubkey: testAccountPubkey,
+            kind: 9,
+            createdAt: DateTime(2025, 1, 3),
+            content: 'Reply message',
+            tokens: [],
+          );
+          mockChatProvider.setMessageToReturn(mockMessage);
+        });
+
+        test('sends reply message', () async {
+          await notifier.sendMessage(message: 'This is a reply');
+          expect(mockChatProvider.sendReplyMessageCalls.length, 1);
+        });
+
+        test('sends reply with expected arguments', () async {
+          await notifier.sendMessage(message: 'This is a reply');
+          final sendReplyCall = mockChatProvider.sendReplyMessageCalls[0];
+          expect(
+            sendReplyCall,
+            equals({
+              'groupId': testGroupId,
+              'replyToMessageId': replyToMessageId,
+              'message': 'This is a reply',
+              'mediaFiles': isEmpty,
+            }),
+          );
+        });
+
+        test('does not call regular sendMessage when replying', () async {
+          await notifier.sendMessage(message: 'This is a reply');
+          expect(mockChatProvider.sendMessageCalls, isEmpty);
+        });
+
+        test('returns sent reply message', () async {
+          final result = await notifier.sendMessage(message: 'This is a reply');
+          expect(result?.id, 'reply-message-id');
+        });
+
+        test('clears draft after sending reply', () async {
+          mockDraftMessageService.reset();
+          await notifier.sendMessage(message: 'This is a reply');
+          expect(mockDraftMessageService.clearedChats, [testGroupId]);
+        });
+
+        group('with media files', () {
+          setUp(() async {
+            const imagePathA = '/path/to/replyImageA.jpg';
+            const imagePathB = '/path/to/replyImageB.jpg';
+            mockImagePicker.imagesToReturn = [imagePathA, imagePathB];
+            mockUploadMedia.setUploadResult(
+              imagePathA,
+              createMockMediaFile(filePath: imagePathA, id: 'reply-id-1', groupId: testGroupId),
+            );
+            mockUploadMedia.setUploadResult(
+              imagePathB,
+              createMockMediaFile(filePath: imagePathB, id: 'reply-id-2', groupId: testGroupId),
+            );
+            await notifier.handleImagesSelected();
+            await waitForUploadsToComplete();
+          });
+
+          test('sends reply message once', () async {
+            await notifier.sendMessage(message: 'Reply with images');
+            expect(mockChatProvider.sendReplyMessageCalls.length, 1);
+          });
+
+          test('sends reply with expected amount of media files', () async {
+            await notifier.sendMessage(message: 'Reply with images');
+            final call = mockChatProvider.sendReplyMessageCalls[0];
+            expect(
+              call,
+              equals({
+                'groupId': testGroupId,
+                'replyToMessageId': replyToMessageId,
+                'message': 'Reply with images',
+                'mediaFiles': hasLength(2),
+              }),
+            );
+          });
+
+          test('clears selected media after sending reply', () async {
+            final previousState = container.read(chatInputProvider(testGroupId));
+            expect(previousState.selectedMedia.length, 2);
+            await notifier.sendMessage(message: 'Reply with images');
+            final state = container.read(chatInputProvider(testGroupId));
+            expect(state.selectedMedia, isEmpty);
+          });
+        });
       });
     });
   });
