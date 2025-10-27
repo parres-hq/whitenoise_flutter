@@ -75,7 +75,7 @@ class BackgroundSyncHandler extends TaskHandler {
     required String groupId,
   }) async {
     try {
-      final lastSyncTime = await MessageSyncService.getLastSyncTime(
+      final lastSyncTime = await MessageSyncService.getLastMessageSyncTime(
         activePubkey: accountPubkey,
         groupId: groupId,
       );
@@ -98,7 +98,7 @@ class BackgroundSyncHandler extends TaskHandler {
           newMessages: newMessages,
         );
         try {
-          await MessageSyncService.setLastSyncTime(
+          await MessageSyncService.setLastMessageSyncTime(
             activePubkey: accountPubkey,
             groupId: groupId,
             time: DateTime.now(),
@@ -135,15 +135,19 @@ class BackgroundSyncHandler extends TaskHandler {
 
   Future<void> _syncInvitesForAccount(String accountPubkey) async {
     try {
+      final lastSyncTime = await MessageSyncService.getLastInviteSyncTime(
+        activePubkey: accountPubkey,
+      );
       final welcomes = await pendingWelcomes(pubkey: accountPubkey);
-
       if (welcomes.isEmpty) {
+        _log.fine('No pending invites found for account $accountPubkey, skipping invite sync');
         return;
       }
 
       final newWelcomes = await MessageSyncService.filterNewInvites(
-        activePubkey: accountPubkey,
         welcomes: welcomes,
+        currentUserPubkey: accountPubkey,
+        lastSyncTime: lastSyncTime,
       );
 
       if (newWelcomes.isNotEmpty) {
@@ -153,25 +157,11 @@ class BackgroundSyncHandler extends TaskHandler {
           newWelcomes: newWelcomes,
         );
 
-        try {
-          await MessageSyncService.markInvitesAsNotified(
-            activePubkey: accountPubkey,
-            inviteIds: newWelcomes.map((w) => w.id).toList(),
-          );
-        } catch (e, stackTrace) {
-          _log.warning(
-            'Failed to mark invites as notified for account $accountPubkey after notification. '
-            'This may cause duplicate notifications on next sync: $e',
-            e,
-            stackTrace,
-          );
-        }
+        await MessageSyncService.setLastInviteSyncTime(
+          activePubkey: accountPubkey,
+          time: DateTime.now(),
+        );
       }
-
-      await MessageSyncService.cleanupNotifiedInvites(
-        activePubkey: accountPubkey,
-        currentPendingIds: welcomes.map((w) => w.id).toSet(),
-      );
     } catch (e, stackTrace) {
       _log.warning('Error syncing invites for account $accountPubkey: $e', e, stackTrace);
     }

@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:synchronized/synchronized.dart';
 import 'package:whitenoise/domain/services/last_read_service.dart';
 import 'package:whitenoise/domain/services/notification_id_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
@@ -24,76 +23,9 @@ class MessageSyncService {
   static const Duration _defaultLookbackWindow = Duration(hours: 1);
   static const int _pubkeyDisplayLength = 8;
 
-  // Lock to prevent race conditions in SharedPreferences read-modify-write operations
-  static final _inviteTrackingLock = Lock();
-
   static Future<SharedPreferences> get _preferences async {
     _prefs ??= await SharedPreferences.getInstance();
     return _prefs!;
-  }
-
-  static Future<String> getGroupDisplayName(String groupId, String activePubkey) async {
-    if (groupId.isEmpty) {
-      _logger.warning('Empty groupId provided to getGroupDisplayName');
-      return 'Unknown Group';
-    }
-    if (activePubkey.isEmpty) {
-      _logger.warning('Empty activePubkey provided to getGroupDisplayName');
-      return 'Unknown Group';
-    }
-
-    try {
-      final groups = await activeGroups(pubkey: activePubkey);
-      final matching = groups.where((g) => g.mlsGroupId == groupId);
-      if (matching.isEmpty) {
-        _logger.warning('Group not found for $groupId');
-        return 'Group Chat';
-      }
-      final group = matching.first;
-
-      final isDM = await group.isDirectMessageType(accountPubkey: activePubkey);
-      return isDM
-          ? await _resolveDmDisplayName(activePubkey, groupId, group)
-          : _resolveGroupChatDisplayName(group);
-    } catch (e) {
-      _logger.warning('Get group name for $groupId', e);
-      return 'Group Chat';
-    }
-  }
-
-  static Future<String> _resolveDmDisplayName(
-    String activePubkey,
-    String groupId,
-    dynamic group,
-  ) async {
-    final members = await groupMembers(pubkey: activePubkey, groupId: groupId);
-    if (members.isEmpty) {
-      return 'Direct Message';
-    }
-
-    final otherMemberPubkey = members.firstWhere(
-      (memberPubkey) => memberPubkey != activePubkey,
-      orElse: () => members.first,
-    );
-
-    try {
-      final metadata = await userMetadata(pubkey: otherMemberPubkey);
-      if (metadata.displayName?.isNotEmpty == true) {
-        return metadata.displayName!;
-      }
-    } catch (e) {
-      _logger.warning('Get user metadata for $otherMemberPubkey', e);
-    }
-
-    return _formatMemberDisplayName(otherMemberPubkey);
-  }
-
-  static String _resolveGroupChatDisplayName(dynamic group) {
-    return group.name.isNotEmpty ? group.name : 'Unknown Group';
-  }
-
-  static String _formatMemberDisplayName(String pubkey) {
-    return pubkey.substring(0, _pubkeyDisplayLength);
   }
 
   /// Filters messages to find new ones that should trigger notifications.
@@ -160,44 +92,6 @@ class MessageSyncService {
     return filteredMessages;
   }
 
-  static DateTime _getMostRecentTime(List<DateTime?> times) {
-    final validTimes = times.where((time) => time != null).cast<DateTime>();
-    if (validTimes.isEmpty) return DateTime.now().subtract(_defaultLookbackWindow);
-    return validTimes.reduce((a, b) => a.isAfter(b) ? a : b);
-  }
-
-  static int _binarySearchAfter(List<ChatMessage> messages, DateTime target) {
-    int left = 0;
-    int right = messages.length;
-
-    while (left < right) {
-      final mid = (left + right) ~/ 2;
-      if (messages[mid].createdAt.isAfter(target)) {
-        right = mid;
-      } else {
-        left = mid + 1;
-      }
-    }
-
-    return left;
-  }
-
-  static int _binarySearchBefore(List<ChatMessage> messages, DateTime target) {
-    int left = 0;
-    int right = messages.length;
-
-    while (left < right) {
-      final mid = (left + right) ~/ 2;
-      if (messages[mid].createdAt.isBefore(target)) {
-        left = mid + 1;
-      } else {
-        right = mid;
-      }
-    }
-
-    return left;
-  }
-
   static Future<void> notifyNewMessages({
     required String groupId,
     required String activePubkey,
@@ -237,56 +131,7 @@ class MessageSyncService {
     }
   }
 
-  static Future<void> notifyNewInvites({
-    required List<Welcome> newWelcomes,
-  }) async {
-    for (final welcome in newWelcomes) {
-      try {
-        await NotificationService.showInviteNotification(
-          id: await NotificationIdService.getIdFor(
-            key: 'invites_sync:${welcome.id}',
-          ),
-          title: 'New Invitations',
-          body: 'New group invitation',
-          groupKey: 'invites',
-          payload: jsonEncode({
-            'type': 'invites_sync',
-            'welcomeId': welcome.id,
-          }),
-        );
-        _logger.info('Notification shown for welcome ${welcome.id}');
-      } catch (e) {
-        _logger.warning('Failed to show notification for welcome ${welcome.id}', e);
-      }
-    }
-  }
-
-  static Future<DateTime?> getLastSyncTime({
-    required String activePubkey,
-    required String groupId,
-  }) async {
-    if (activePubkey.isEmpty) {
-      _logger.warning('Empty activePubkey provided to getLastSyncTime');
-      return null;
-    }
-    if (groupId.isEmpty) {
-      _logger.warning('Empty groupId provided to getLastSyncTime');
-      return null;
-    }
-
-    try {
-      final prefs = await _preferences;
-      final timestamp = prefs.getInt('bg_sync_last_${activePubkey}_$groupId');
-      final dateTime = timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
-      _logger.info('Last sync time for group $groupId: ${dateTime?.toLocal()}');
-      return dateTime;
-    } catch (e) {
-      _logger.warning('Failed to get last sync time for group $groupId', e);
-      return null;
-    }
-  }
-
-  static Future<void> setLastSyncTime({
+  static Future<void> setLastMessageSyncTime({
     required String activePubkey,
     required String groupId,
     required DateTime time,
@@ -312,106 +157,221 @@ class MessageSyncService {
     }
   }
 
+  static Future<DateTime?> getLastMessageSyncTime({
+    required String activePubkey,
+    required String groupId,
+  }) async {
+    if (activePubkey.isEmpty) {
+      _logger.warning('Empty activePubkey provided to getLastSyncTime');
+      return null;
+    }
+    if (groupId.isEmpty) {
+      _logger.warning('Empty groupId provided to getLastSyncTime');
+      return null;
+    }
+
+    try {
+      final prefs = await _preferences;
+      final timestamp = prefs.getInt('bg_sync_last_${activePubkey}_$groupId');
+      final dateTime = timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
+      _logger.info('Last sync time for group $groupId: ${dateTime?.toLocal()}');
+      return dateTime;
+    } catch (e) {
+      _logger.warning('Failed to get last sync time for group $groupId', e);
+      return null;
+    }
+  }
+
   /// Filters invites to find new ones that should trigger notifications.
   ///
   /// Excludes invites that have already been notified about.
   ///
   /// Returns an empty list for invalid inputs.
   static Future<List<Welcome>> filterNewInvites({
-    required String activePubkey,
     required List<Welcome> welcomes,
+    required String currentUserPubkey,
+    DateTime? lastSyncTime,
+  }) async {
+    if (currentUserPubkey.isEmpty) {
+      _logger.warning('Empty currentUserPubkey provided to filterNewMessages');
+      return [];
+    }
+
+    final sortedWelcomes = List<Welcome>.from(welcomes)
+      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+    final filteredWelcomes =
+        sortedWelcomes.where((welcome) {
+          return DateTime.fromMillisecondsSinceEpoch(welcome.createdAt.toInt() * 1000).isAfter(
+            lastSyncTime ?? DateTime.now().subtract(_defaultLookbackWindow),
+          );
+        }).toList();
+
+    return filteredWelcomes;
+  }
+
+  static Future<void> notifyNewInvites({
+    required List<Welcome> newWelcomes,
+  }) async {
+    for (final welcome in newWelcomes) {
+      try {
+        await NotificationService.showInviteNotification(
+          id: await NotificationIdService.getIdFor(
+            key: 'invites_sync:${welcome.id}',
+          ),
+          title: 'New Invitations',
+          body: 'New group invitation',
+          groupKey: 'invites',
+          payload: jsonEncode({
+            'type': 'invites_sync',
+            'welcomeId': welcome.id,
+          }),
+        );
+        _logger.info('Notification shown for welcome ${welcome.id}');
+      } catch (e) {
+        _logger.warning('Failed to show notification for welcome ${welcome.id}', e);
+      }
+    }
+  }
+
+  static Future<void> setLastInviteSyncTime({
+    required String activePubkey,
+    required DateTime time,
   }) async {
     if (activePubkey.isEmpty) {
-      _logger.warning('Empty activePubkey provided to filterNewInvites');
-      return [];
+      _logger.warning('Empty activePubkey provided to setLastInviteSyncTime');
+      return;
+    }
+    try {
+      final prefs = await _preferences;
+      await prefs.setInt(
+        'bg_sync_last_invite_$activePubkey',
+        time.millisecondsSinceEpoch,
+      );
+      _logger.info('Last invite sync time for account $activePubkey Set to ${time.toLocal()}');
+    } catch (e) {
+      _logger.warning('Failed to set last invite sync time for account $activePubkey', e);
+    }
+  }
+
+  static Future<DateTime?> getLastInviteSyncTime({
+    required String activePubkey,
+  }) async {
+    if (activePubkey.isEmpty) {
+      _logger.warning('Empty activePubkey provided to getLastInviteSyncTime');
+      return null;
+    }
+    try {
+      final prefs = await _preferences;
+      final timestamp = prefs.getInt('bg_sync_last_invite_$activePubkey');
+      final dateTime = timestamp != null ? DateTime.fromMillisecondsSinceEpoch(timestamp) : null;
+      _logger.info('Last invite sync time for account $activePubkey: ${dateTime?.toLocal()}');
+      return dateTime;
+    } catch (e) {
+      _logger.warning('Failed to get last invite sync time for account $activePubkey', e);
+      return null;
+    }
+  }
+
+  static Future<String> getGroupDisplayName(String groupId, String activePubkey) async {
+    if (groupId.isEmpty) {
+      _logger.warning('Empty groupId provided to getGroupDisplayName');
+      return 'Unknown Group';
+    }
+    if (activePubkey.isEmpty) {
+      _logger.warning('Empty activePubkey provided to getGroupDisplayName');
+      return 'Unknown Group';
     }
 
     try {
-      final prefs = await _preferences;
-      final notifiedIds = prefs.getStringList('bg_sync_notified_invites_$activePubkey') ?? [];
-      final notifiedSet = notifiedIds.toSet();
+      final groups = await activeGroups(pubkey: activePubkey);
+      final matching = groups.where((g) => g.mlsGroupId == groupId);
+      if (matching.isEmpty) {
+        _logger.warning('Group not found for $groupId');
+        return 'Group Chat';
+      }
+      final group = matching.first;
 
-      final newWelcomes = welcomes.where((welcome) => !notifiedSet.contains(welcome.id)).toList();
-
-      _logger.fine(
-        'Filtered ${newWelcomes.length} new invite(s) from ${welcomes.length} total for account $activePubkey',
-      );
-
-      return newWelcomes;
+      final isDM = await group.isDirectMessageType(accountPubkey: activePubkey);
+      return isDM
+          ? await _resolveDmDisplayName(activePubkey, groupId, group)
+          : _resolveGroupChatDisplayName(group);
     } catch (e) {
-      _logger.warning('Failed to filter new invites for account $activePubkey', e);
-      return [];
+      _logger.warning('Get group name for $groupId', e);
+      return 'Group Chat';
     }
   }
 
-  /// Marks invites as notified to prevent duplicate notifications.
-  ///
-  /// Uses a lock to ensure atomic read-modify-write operations.
-  static Future<void> markInvitesAsNotified({
-    required String activePubkey,
-    required List<String> inviteIds,
-  }) async {
-    if (activePubkey.isEmpty) {
-      _logger.warning('Empty activePubkey provided to markInvitesAsNotified');
-      return;
+  static Future<String> _resolveDmDisplayName(
+    String activePubkey,
+    String groupId,
+    dynamic group,
+  ) async {
+    final members = await groupMembers(pubkey: activePubkey, groupId: groupId);
+    if (members.isEmpty) {
+      return 'Direct Message';
     }
 
-    if (inviteIds.isEmpty) {
-      return;
-    }
+    final otherMemberPubkey = members.firstWhere(
+      (memberPubkey) => memberPubkey != activePubkey,
+      orElse: () => members.first,
+    );
 
-    await _inviteTrackingLock.synchronized(() async {
-      try {
-        final prefs = await _preferences;
-        final key = 'bg_sync_notified_invites_$activePubkey';
-        final notifiedIds = prefs.getStringList(key) ?? [];
-        final updatedIds = {...notifiedIds, ...inviteIds}.toList();
-
-        await prefs.setStringList(key, updatedIds);
-        _logger.fine('Marked ${inviteIds.length} invite(s) as notified for account $activePubkey');
-      } catch (e) {
-        _logger.warning('Failed to mark invites as notified for account $activePubkey', e);
+    try {
+      final metadata = await userMetadata(pubkey: otherMemberPubkey);
+      if (metadata.displayName?.isNotEmpty == true) {
+        return metadata.displayName!;
       }
-    });
+    } catch (e) {
+      _logger.warning('Get user metadata for $otherMemberPubkey', e);
+    }
+
+    return _formatMemberDisplayName(otherMemberPubkey);
   }
 
-  /// Cleans up notified invite IDs that are no longer pending.
-  ///
-  /// This prevents the stored list from growing indefinitely.
-  /// Uses a lock to ensure atomic read-modify-write operations.
-  static Future<void> cleanupNotifiedInvites({
-    required String activePubkey,
-    required Set<String> currentPendingIds,
-  }) async {
-    if (activePubkey.isEmpty) {
-      _logger.warning('Empty activePubkey provided to cleanupNotifiedInvites');
-      return;
+  static String _resolveGroupChatDisplayName(dynamic group) {
+    return group.name.isNotEmpty ? group.name : 'Unknown Group';
+  }
+
+  static String _formatMemberDisplayName(String pubkey) {
+    return pubkey.substring(0, _pubkeyDisplayLength);
+  }
+
+  static DateTime _getMostRecentTime(List<DateTime?> times) {
+    final validTimes = times.where((time) => time != null).cast<DateTime>();
+    if (validTimes.isEmpty) return DateTime.now().subtract(_defaultLookbackWindow);
+    return validTimes.reduce((a, b) => a.isAfter(b) ? a : b);
+  }
+
+  static int _binarySearchAfter(List<ChatMessage> messages, DateTime target) {
+    int left = 0;
+    int right = messages.length;
+
+    while (left < right) {
+      final mid = (left + right) ~/ 2;
+      if (messages[mid].createdAt.isAfter(target)) {
+        right = mid;
+      } else {
+        left = mid + 1;
+      }
     }
 
-    await _inviteTrackingLock.synchronized(() async {
-      try {
-        final prefs = await _preferences;
-        final key = 'bg_sync_notified_invites_$activePubkey';
-        final notifiedIds = prefs.getStringList(key) ?? [];
+    return left;
+  }
 
-        if (notifiedIds.isEmpty) {
-          return;
-        }
+  static int _binarySearchBefore(List<ChatMessage> messages, DateTime target) {
+    int left = 0;
+    int right = messages.length;
 
-        final notifiedSet = notifiedIds.toSet();
-
-        final cleanedIds = notifiedSet.intersection(currentPendingIds).toList();
-
-        if (cleanedIds.length != notifiedIds.length) {
-          await prefs.setStringList(key, cleanedIds);
-          _logger.fine(
-            'Cleaned up ${notifiedIds.length - cleanedIds.length} notified invite ID(s) for account $activePubkey '
-            '(${cleanedIds.isEmpty ? "cleared all" : "${cleanedIds.length} remaining"})',
-          );
-        }
-      } catch (e) {
-        _logger.warning('Failed to cleanup notified invites for account $activePubkey', e);
+    while (left < right) {
+      final mid = (left + right) ~/ 2;
+      if (messages[mid].createdAt.isBefore(target)) {
+        left = mid + 1;
+      } else {
+        right = mid;
       }
-    });
+    }
+
+    return left;
   }
 }

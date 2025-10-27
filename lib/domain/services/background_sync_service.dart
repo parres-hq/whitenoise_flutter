@@ -106,7 +106,7 @@ class BackgroundSyncService {
             ForegroundServiceTypes.remoteMessaging,
           ],
           serviceId: 303,
-          notificationTitle: 'Background Service',
+          notificationTitle: 'Connected to relays',
           notificationText: 'Tap to return to the app',
           notificationInitialRoute: '/',
           callback: startCallback,
