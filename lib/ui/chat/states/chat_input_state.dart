@@ -5,6 +5,8 @@ part 'chat_input_state.freezed.dart';
 
 @freezed
 class ChatInputState with _$ChatInputState {
+  const ChatInputState._();
+
   const factory ChatInputState({
     @Default(false) bool isLoadingDraft,
     @Default(false) bool showMediaSelector,
@@ -12,4 +14,6 @@ class ChatInputState with _$ChatInputState {
     double? singleLineHeight,
     String? previousEditingMessageContent,
   }) = _ChatInputState;
+
+  bool get hasUploadingMedia => selectedMedia.any((media) => media.isUploading);
 }

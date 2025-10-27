@@ -166,7 +166,10 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
 
     final isEditing = chatState.editingMessage[widget.groupId] != null;
     final content = _textController.text.trim();
-    if (content.isEmpty && chatInputState.selectedMedia.isEmpty) return;
+    if ((content.isEmpty && chatInputState.selectedMedia.isEmpty) ||
+        chatInputState.hasUploadingMedia) {
+      return;
+    }
 
     widget.onSend(content, isEditing);
 
@@ -278,6 +281,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                         singleLineHeight: chatInputState.singleLineHeight,
                         onSend: _sendMessage,
                         hasImages: chatInputState.selectedMedia.isNotEmpty,
+                        isDisabled: chatInputState.hasUploadingMedia,
                       ),
                     ],
                   ),

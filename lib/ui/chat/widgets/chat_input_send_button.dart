@@ -13,12 +13,14 @@ class ChatInputSendButton extends StatefulWidget {
     required this.singleLineHeight,
     required this.onSend,
     this.hasImages = false,
+    this.isDisabled = false,
   });
 
   final TextEditingController textController;
   final double? singleLineHeight;
   final VoidCallback onSend;
   final bool hasImages;
+  final bool isDisabled;
 
   @override
   State<ChatInputSendButton> createState() => ChatInputSendButtonState();
@@ -53,7 +55,9 @@ class ChatInputSendButtonState extends State<ChatInputSendButton> {
 
   @override
   Widget build(BuildContext context) {
-    final hasContent = widget.textController.text.isNotEmpty || widget.hasImages;
+    final hasContent = (widget.textController.text.isNotEmpty || widget.hasImages);
+    final buttonColor =
+        widget.isDisabled ? context.colors.primary.withValues(alpha: 0.6) : context.colors.primary;
     return AnimatedSize(
       duration: const Duration(milliseconds: 250),
       curve: Curves.easeInOut,
@@ -68,8 +72,9 @@ class ChatInputSendButtonState extends State<ChatInputSendButton> {
                         padding: 14.w,
                         size: widget.singleLineHeight ?? 44.h,
                         onTap: widget.onSend,
-                        buttonColor: context.colors.primary,
+                        buttonColor: buttonColor,
                         iconColor: context.colors.primaryForeground,
+                        isDisabled: widget.isDisabled,
                       )
                       .animate()
                       .fadeIn(
