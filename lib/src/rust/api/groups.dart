@@ -226,19 +226,31 @@ class Group {
 }
 
 class GroupInformation {
+  final String mlsGroupId;
   final GroupType groupType;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   const GroupInformation({
+    required this.mlsGroupId,
     required this.groupType,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
   @override
-  int get hashCode => groupType.hashCode;
+  int get hashCode =>
+      mlsGroupId.hashCode ^ groupType.hashCode ^ createdAt.hashCode ^ updatedAt.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is GroupInformation && runtimeType == other.runtimeType && groupType == other.groupType;
+      other is GroupInformation &&
+          runtimeType == other.runtimeType &&
+          mlsGroupId == other.mlsGroupId &&
+          groupType == other.groupType &&
+          createdAt == other.createdAt &&
+          updatedAt == other.updatedAt;
 }
 
 enum GroupState {

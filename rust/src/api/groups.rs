@@ -180,14 +180,20 @@ impl From<WhitenoiseGroupType> for GroupType {
 #[frb(non_opaque)]
 #[derive(Debug, Clone)]
 pub struct GroupInformation {
+    pub mls_group_id: String,
     pub group_type: GroupType,
+    pub created_at: DateTime<Utc>,
+    pub updated_at: DateTime<Utc>,
 }
 
 // Implement conversion from the whitenoise crate's GroupInformation to our GroupInformation
 impl From<WhitenoiseGroupInformation> for GroupInformation {
     fn from(whitenoise_info: WhitenoiseGroupInformation) -> Self {
         Self {
+            mls_group_id: group_id_to_string(&whitenoise_info.mls_group_id),
             group_type: whitenoise_info.group_type.into(),
+            created_at: whitenoise_info.created_at,
+            updated_at: whitenoise_info.updated_at,
         }
     }
 }
@@ -368,7 +374,7 @@ pub async fn upload_group_image(
     let server = Url::parse(&server_url)?;
 
     let (encrypted_hash, image_key, image_nonce) = whitenoise
-        .upload_group_image(&account, &group_id, &file_path, server, None)
+        .upload_group_image(&account, &group_id, &file_path, Some(server), None)
         .await?;
 
     Ok(UploadGroupImageResult {
