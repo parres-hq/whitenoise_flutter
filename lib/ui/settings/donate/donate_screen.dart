@@ -65,9 +65,7 @@ class DonateScreen extends ConsumerWidget {
                         children: [
                           Expanded(
                             child: WnTextFormField(
-                              controller: TextEditingController(
-                                text: kLightningAddress,
-                              ),
+                              initialValue: kLightningAddress,
                               readOnly: true,
                             ),
                           ),
@@ -94,9 +92,7 @@ class DonateScreen extends ConsumerWidget {
                         children: [
                           Expanded(
                             child: WnTextFormField(
-                              controller: TextEditingController(
-                                text: kBitcoinAddress,
-                              ),
+                              initialValue: kBitcoinAddress,
                               readOnly: true,
                             ),
                           ),
