@@ -80,4 +80,9 @@ class ChatState with _$ChatState {
   bool isEditing(String groupId) {
     return editingMessage[groupId] != null;
   }
+
+  /// Check if messages have been loaded for a group
+  bool areMessagesLoaded(String groupId) {
+    return groupMessages.containsKey(groupId);
+  }
 }

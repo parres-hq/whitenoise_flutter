@@ -33,7 +33,9 @@ class ChatListItemsNotifier extends Notifier<List<ChatListItem>> {
   }
 
   List<ChatListItem> _computeItems() {
-    final groupList = ref.read(groupsProvider).groups ?? [];
+    final groupsState = ref.read(groupsProvider);
+    final groupList = groupsState.groups ?? [];
+    final groupCreatedAts = groupsState.groupCreatedAts ?? {};
     final welcomesList = ref.read(welcomesProvider).welcomes ?? [];
     final chatState = ref.read(chatProvider);
     final pinnedChats = ref.read(pinnedChatsProvider);
@@ -43,11 +45,13 @@ class ChatListItemsNotifier extends Notifier<List<ChatListItem>> {
     for (final group in groupList) {
       final lastMessage = chatState.getLatestMessageForGroup(group.mlsGroupId);
       final isPinned = pinnedChats.contains(group.mlsGroupId);
+      final createdAt = groupCreatedAts[group.mlsGroupId];
       chatItems.add(
         ChatListItem.fromGroup(
           group: group,
           lastMessage: lastMessage,
           isPinned: isPinned,
+          createdAt: createdAt,
         ),
       );
     }

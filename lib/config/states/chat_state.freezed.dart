@@ -20,23 +20,28 @@ mixin _$ChatState {
   // Map of groupId -> list of messages
   Map<String, List<MessageModel>> get groupMessages =>
       throw _privateConstructorUsedError; // Currently selected group ID
-  String? get selectedGroupId => throw _privateConstructorUsedError; // Loading states per group
+  String? get selectedGroupId =>
+      throw _privateConstructorUsedError; // Loading states per group
   Map<String, bool> get groupLoadingStates =>
       throw _privateConstructorUsedError; // Error states per group
   Map<String, String?> get groupErrorStates =>
       throw _privateConstructorUsedError; // Global loading state
-  bool get isLoading => throw _privateConstructorUsedError; // Global error state
-  String? get error => throw _privateConstructorUsedError; // Sending message states per group
+  bool get isLoading =>
+      throw _privateConstructorUsedError; // Global error state
+  String? get error =>
+      throw _privateConstructorUsedError; // Sending message states per group
   Map<String, bool> get sendingStates =>
       throw _privateConstructorUsedError; // Message being replied to per group
   Map<String, MessageModel?> get replyingTo =>
       throw _privateConstructorUsedError; // Message being edited per group
-  Map<String, MessageModel?> get editingMessage => throw _privateConstructorUsedError;
+  Map<String, MessageModel?> get editingMessage =>
+      throw _privateConstructorUsedError;
 
   /// Create a copy of ChatState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ChatStateCopyWith<ChatState> get copyWith => throw _privateConstructorUsedError;
+  $ChatStateCopyWith<ChatState> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -58,7 +63,8 @@ abstract class $ChatStateCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStateCopyWith<$Res> {
+class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState>
+    implements $ChatStateCopyWith<$Res> {
   _$ChatStateCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -135,7 +141,8 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStat
 }
 
 /// @nodoc
-abstract class _$$ChatStateImplCopyWith<$Res> implements $ChatStateCopyWith<$Res> {
+abstract class _$$ChatStateImplCopyWith<$Res>
+    implements $ChatStateCopyWith<$Res> {
   factory _$$ChatStateImplCopyWith(
     _$ChatStateImpl value,
     $Res Function(_$ChatStateImpl) then,
@@ -156,7 +163,8 @@ abstract class _$$ChatStateImplCopyWith<$Res> implements $ChatStateCopyWith<$Res
 }
 
 /// @nodoc
-class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, _$ChatStateImpl>
+class __$$ChatStateImplCopyWithImpl<$Res>
+    extends _$ChatStateCopyWithImpl<$Res, _$ChatStateImpl>
     implements _$$ChatStateImplCopyWith<$Res> {
   __$$ChatStateImplCopyWithImpl(
     _$ChatStateImpl _value,
@@ -271,7 +279,8 @@ class _$ChatStateImpl extends _ChatState {
   @override
   @JsonKey()
   Map<String, bool> get groupLoadingStates {
-    if (_groupLoadingStates is EqualUnmodifiableMapView) return _groupLoadingStates;
+    if (_groupLoadingStates is EqualUnmodifiableMapView)
+      return _groupLoadingStates;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_groupLoadingStates);
   }
@@ -328,11 +337,6 @@ class _$ChatStateImpl extends _ChatState {
   }
 
   @override
-  String toString() {
-    return 'ChatState(groupMessages: $groupMessages, selectedGroupId: $selectedGroupId, groupLoadingStates: $groupLoadingStates, groupErrorStates: $groupErrorStates, isLoading: $isLoading, error: $error, sendingStates: $sendingStates, replyingTo: $replyingTo, editingMessage: $editingMessage)';
-  }
-
-  @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
@@ -351,7 +355,8 @@ class _$ChatStateImpl extends _ChatState {
               other._groupErrorStates,
               _groupErrorStates,
             ) &&
-            (identical(other.isLoading, isLoading) || other.isLoading == isLoading) &&
+            (identical(other.isLoading, isLoading) ||
+                other.isLoading == isLoading) &&
             (identical(other.error, error) || other.error == error) &&
             const DeepCollectionEquality().equals(
               other._sendingStates,
@@ -428,5 +433,6 @@ abstract class _ChatState extends ChatState {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$ChatStateImplCopyWith<_$ChatStateImpl> get copyWith => throw _privateConstructorUsedError;
+  _$$ChatStateImplCopyWith<_$ChatStateImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }

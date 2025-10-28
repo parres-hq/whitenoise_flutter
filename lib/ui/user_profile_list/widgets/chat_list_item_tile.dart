@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/pinned_chats_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
@@ -65,7 +66,9 @@ class ChatListItemTile extends ConsumerWidget {
         final pinnedChats = ref.watch(pinnedChatsProvider);
         final pinnedChatsNotifier = ref.watch(pinnedChatsProvider.notifier);
         final isPinned = pinnedChats.contains(group.mlsGroupId);
-        final shouldShowMessageSkeleton = group.lastMessageAt != null;
+        final chatState = ref.watch(chatProvider);
+        final hasMessages = chatState.areMessagesLoaded(group.mlsGroupId);
+        final shouldShowMessageSkeleton = !hasMessages && group.lastMessageAt != null;
 
         return Slidable(
           key: ValueKey(group.mlsGroupId),
@@ -194,7 +197,9 @@ class ChatListItemTile extends ConsumerWidget {
         final pinnedChats = ref.watch(pinnedChatsProvider);
         final pinnedChatsNotifier = ref.watch(pinnedChatsProvider.notifier);
         final isPinned = pinnedChats.contains(group.mlsGroupId);
-        final shouldShowMessageSkeleton = item.lastMessage == null && group.lastMessageAt != null;
+        final chatState = ref.watch(chatProvider);
+        final hasMessages = chatState.areMessagesLoaded(group.mlsGroupId);
+        final shouldShowMessageSkeleton = !hasMessages && group.lastMessageAt != null;
 
         return Slidable(
           key: ValueKey(group.mlsGroupId),

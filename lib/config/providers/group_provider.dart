@@ -138,22 +138,23 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       final groups = await activeGroups(pubkey: activePubkey);
 
-      final sortedGroups = [...groups]..sort((a, b) {
-        final aTime = a.lastMessageAt;
-        final bTime = b.lastMessageAt;
-        if (aTime == null && bTime == null) return 0;
-        if (aTime == null) return 1;
-        if (bTime == null) return -1;
-        return bTime.compareTo(aTime);
-      });
+      final groupIds = groups.map((g) => g.mlsGroupId).toList();
+      final groupInformations = await _getGroupsInformationFn(
+        accountPubkey: activePubkey,
+        groupIds: groupIds,
+      );
+      final createdAtMap = <String, DateTime>{};
+      for (int i = 0; i < groupIds.length && i < groupInformations.length; i++) {
+        createdAtMap[groupIds[i]] = groupInformations[i].createdAt;
+      }
 
       final groupsMap = <String, Group>{};
-      for (final group in sortedGroups) {
+      for (final group in groups) {
         groupsMap[group.mlsGroupId] = group;
       }
-      state = state.copyWith(groups: sortedGroups, groupsMap: groupsMap);
+      state = state.copyWith(groups: groups, groupsMap: groupsMap, groupCreatedAts: createdAtMap);
 
-      Future.microtask(() => _loadGroupsMetadataLazy(sortedGroups));
+      Future.microtask(() => _loadGroupsMetadataLazy(groups));
 
       Future.microtask(() async {
         await ref
@@ -1052,23 +1053,28 @@ class GroupsNotifier extends Notifier<GroupsState> {
           newGroups.where((group) => !currentGroupIds.contains(group.mlsGroupId)).toList();
 
       if (actuallyNewGroups.isNotEmpty) {
-        final updatedGroups = [...currentGroups, ...actuallyNewGroups]..sort((a, b) {
-          final aTime = (a as Group?)?.lastMessageAt;
-          final bTime = (b as Group?)?.lastMessageAt;
+        final newGroupIds = actuallyNewGroups.map((g) => g.mlsGroupId).toList();
+        final groupInformations = await _getGroupsInformationFn(
+          accountPubkey: activePubkey,
+          groupIds: newGroupIds,
+        );
+        final updatedCreatedAts = Map<String, DateTime>.from(state.groupCreatedAts ?? {});
+        for (int i = 0; i < newGroupIds.length && i < groupInformations.length; i++) {
+          updatedCreatedAts[newGroupIds[i]] = groupInformations[i].createdAt;
+        }
 
-          if (aTime == null && bTime == null) return 0;
-          if (aTime == null) return 1;
-          if (bTime == null) return -1;
-
-          return bTime.compareTo(aTime);
-        });
+        final updatedGroups = [...currentGroups, ...actuallyNewGroups];
 
         final updatedGroupsMap = Map<String, Group>.from(state.groupsMap ?? {});
         for (final group in updatedGroups) {
           updatedGroupsMap[group.mlsGroupId] = group;
         }
 
-        state = state.copyWith(groups: updatedGroups, groupsMap: updatedGroupsMap);
+        state = state.copyWith(
+          groups: updatedGroups,
+          groupsMap: updatedGroupsMap,
+          groupCreatedAts: updatedCreatedAts,
+        );
 
         await _loadMembersForSpecificGroups(actuallyNewGroups);
         await _loadGroupTypesForAllGroups(actuallyNewGroups);
@@ -1268,18 +1274,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
           }
           return group;
         }).toList();
-
-    updatedGroups.sort((a, b) {
-      final aTime = (a).lastMessageAt;
-      final bTime = (b).lastMessageAt;
-
-      if (aTime == null && bTime == null) return 0;
-      if (aTime == null) return 1;
-      if (bTime == null) return -1;
-
-      // Sort by descending order (newest first)
-      return bTime.compareTo(aTime);
-    });
 
     // Update groupsMap with the updated groups
     final updatedGroupsMap = <String, Group>{};
