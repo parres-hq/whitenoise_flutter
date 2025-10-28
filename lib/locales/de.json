@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Fehler beim Veröffentlichen des Schlüsselpakets",
         "keyPackageDeletedSuccess": "Schlüsselpaket erfolgreich gelöscht",
         "failedToDeleteKeyPackage": "Fehler beim Löschen des Schlüsselpakets",
-        "noActiveAccountFound": "Kein aktives Konto gefunden"
+        "noActiveAccountFound": "Kein aktives Konto gefunden",
+        "backgroundServices": "Hintergrunddienste",
+        "backgroundSyncService": "Hintergrund-Synchronisationsdienst"
     },
     "profile": {
         "nostrAddress": "Nostr-Adresse (NIP-05)",
@@ -200,7 +202,8 @@
         "removeFromGroupConfirmation": "Bist du sicher, dass du {name} aus der Gruppe entfernen möchtest? Sie verlieren den Zugang zu allen Nachrichten und Gruppenaktivitäten. Du musst sie erneut einladen, wenn du sie zurückholen möchtest.",
         "removedFromGroupSuccess": "{name} aus Gruppe entfernt",
         "failedToRemoveMember": "Fehler beim Entfernen des Mitglieds",
-        "noUserToStartChatWith": "Kein Benutzer zum Chatten"
+        "noUserToStartChatWith": "Kein Benutzer zum Chatten",
+        "photos": "Fotos"
     },
     "clipboard": {
         "emptyTextError": "Kein Text in der Zwischenablage gefunden",
@@ -293,7 +296,12 @@
         "invitingMembers": "Mitglieder werden eingeladen:",
         "groupNameHint": "Freie Bürger Gruppe",
         "groupDescriptionHint": "Schreibe etwas über die Gruppe",
-        "uploadingImage": "Bild wird hochgeladen..."
+        "uploadingImage": "Bild wird hochgeladen...",
+        "addMembers": "Mitglieder hinzufügen",
+        "membersAddedSuccess": "Mitglieder erfolgreich hinzugefügt",
+        "failedToAddMembers": "Fehler beim Hinzufügen von Mitgliedern",
+        "addingMembers": "Mitglieder werden hinzugefügt...",
+        "selectedCount": "{count} ausgewählt"
     },
     "errors": {
         "errorOccurred": "Ein Fehler ist aufgetreten",

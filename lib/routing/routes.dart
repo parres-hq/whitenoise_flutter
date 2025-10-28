@@ -6,6 +6,7 @@ abstract final class Routes {
   // Auth
   static const login = '/login';
   static const createProfile = '/create-profile';
+  static const qrScanner = '/qr-scanner';
 
   // Chats
   static const chats = '/chats';
@@ -13,6 +14,7 @@ abstract final class Routes {
   static const newChat = '/chats/new';
   static const chatInfo = '/chats/:id/info';
   static const editGroup = '/chats/:id/info/edit';
+  static const addGroupMembers = '/chats/:id/info/add-members';
 
   // Users
   static const users = '/users';
@@ -49,5 +51,13 @@ abstract final class Routes {
 
   static void goToEditGroup(BuildContext context, String groupId) {
     GoRouter.of(context).push('/chats/$groupId/info/edit');
+  }
+
+  static void goToAddGroupMembers(
+    BuildContext context,
+    String groupId,
+    List<String> existingMemberPubkeys,
+  ) {
+    GoRouter.of(context).push('/chats/$groupId/info/add-members', extra: existingMemberPubkeys);
   }
 }

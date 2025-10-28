@@ -7,7 +7,9 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/auth_flow/create_profile_screen.dart';
 import 'package:whitenoise/ui/auth_flow/info_screen.dart';
 import 'package:whitenoise/ui/auth_flow/login_screen.dart';
+import 'package:whitenoise/ui/auth_flow/qr_scanner_screen.dart';
 import 'package:whitenoise/ui/auth_flow/welcome_screen.dart';
+import 'package:whitenoise/ui/chat/chat_info/add_group_members_screen.dart';
 import 'package:whitenoise/ui/chat/chat_info/chat_info_screen.dart';
 import 'package:whitenoise/ui/chat/chat_info/edit_group_screen.dart';
 import 'package:whitenoise/ui/chat/chat_management/add_to_group_screen.dart';
@@ -122,6 +124,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
 
       GoRoute(
+        path: Routes.qrScanner,
+        builder: (context, state) => const QRScannerScreen(),
+      ),
+
+      GoRoute(
         path: Routes.users,
         builder: (context, state) => const ChatListScreen(),
         routes: [
@@ -161,6 +168,17 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) {
                   final groupId = state.pathParameters['id']!;
                   return EditGroupScreen(groupId: groupId);
+                },
+              ),
+              GoRoute(
+                path: 'add-members',
+                builder: (context, state) {
+                  final groupId = state.pathParameters['id']!;
+                  final existingMemberPubkeys = state.extra as List<String>? ?? [];
+                  return AddGroupMembersScreen(
+                    groupId: groupId,
+                    existingMemberPubkeys: existingMemberPubkeys,
+                  );
                 },
               ),
             ],

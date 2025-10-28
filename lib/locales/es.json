@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Error al publicar el paquete de llaves",
         "keyPackageDeletedSuccess": "Paquete de llaves eliminado exitosamente",
         "failedToDeleteKeyPackage": "Error al eliminar el paquete de llaves",
-        "noActiveAccountFound": "No se encontró una cuenta activa"
+        "noActiveAccountFound": "No se encontró una cuenta activa",
+        "backgroundServices": "Servicios en segundo plano",
+        "backgroundSyncService": "Servicio de sincronización en segundo plano"
     },
     "profile": {
         "nostrAddress": "Dirección Nostr (NIP-05)",
@@ -200,7 +202,8 @@
         "removeFromGroupConfirmation": "¿Estás seguro de que quieres remover a {name} del grupo? Perderán acceso a todos los mensajes y actividad del grupo. Tendrás que invitarlos de nuevo si los quieres de vuelta.",
         "removedFromGroupSuccess": "{name} removido del grupo",
         "failedToRemoveMember": "Error al remover miembro",
-        "noUserToStartChatWith": "No hay usuario para iniciar chat"
+        "noUserToStartChatWith": "No hay usuario para iniciar chat",
+        "photos": "Fotos"
     },
     "clipboard": {
         "emptyTextError": "No se encontró texto en el portapapeles",
@@ -293,7 +296,12 @@
         "invitingMembers": "Invitando Miembros:",
         "groupNameHint": "Grupo Ciudadanos Libres",
         "groupDescriptionHint": "Escribe algo sobre el grupo",
-        "uploadingImage": "Subiendo Imagen..."
+        "uploadingImage": "Subiendo Imagen...",
+        "addMembers": "Agregar miembros",
+        "membersAddedSuccess": "Miembros agregados exitosamente",
+        "failedToAddMembers": "Error al agregar miembros",
+        "addingMembers": "Agregando miembros...",
+        "selectedCount": "{count} seleccionados"
     },
     "errors": {
         "errorOccurred": "Ocurrió un error",

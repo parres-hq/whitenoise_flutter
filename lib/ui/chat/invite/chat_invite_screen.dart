@@ -177,15 +177,6 @@ class GroupInviteHeader extends StatelessWidget {
               color: context.colors.primary,
             ),
           ),
-          Gap(16.h),
-          Text(
-            PubkeyFormatter(pubkey: welcome.nostrGroupId).toNpub()?.formatPublicKey() ?? '',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 14.sp,
-              color: context.colors.mutedForeground,
-            ),
-          ),
           Gap(12.h),
           if (welcome.groupDescription.isNotEmpty) ...[
             Text(

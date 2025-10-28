@@ -164,6 +164,9 @@ class GroupsNotifier extends Notifier<GroupsState> {
       // Load and cache group types for synchronous access
       await _loadGroupTypesForAllGroups(groups);
 
+      // Load and cache group image paths
+      await _loadGroupImagePaths(groups);
+
       // Now calculate display names with member data available
       await _calculateDisplayNames(groups);
 
@@ -622,6 +625,56 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
+  /// Load and cache group image paths for all groups
+  Future<void> _loadGroupImagePaths(List<Group> groups) async {
+    try {
+      final Map<String, String> groupImagePaths = Map<String, String>.from(
+        state.groupImagePaths ?? {},
+      );
+
+      final List<Future<void>> loadTasks = [];
+      final activePubkey = ref.read(activePubkeyProvider);
+      if (activePubkey == null || activePubkey.isEmpty) return;
+
+      for (final group in groups) {
+        loadTasks.add(
+          getGroupImagePath(
+                accountPubkey: activePubkey,
+                groupId: group.mlsGroupId,
+              )
+              .then((imagePath) {
+                if (imagePath != null && imagePath.isNotEmpty) {
+                  groupImagePaths[group.mlsGroupId] = imagePath;
+                }
+              })
+              .catchError((e) {
+                _logErrorSync('Failed to load image path for group ${group.mlsGroupId}', e);
+                // Skip this group if image loading fails
+              }),
+        );
+      }
+
+      // Execute all image path loading in parallel for better performance
+      await Future.wait(loadTasks);
+
+      // Update state with the cached image paths
+      state = state.copyWith(groupImagePaths: groupImagePaths);
+
+      _logger.info('GroupsProvider: Loaded image paths for ${groupImagePaths.length} groups');
+    } catch (e) {
+      // Log the full exception details with proper ApiError unpacking
+      String logMessage = 'GroupsProvider: Error loading group image paths - Exception: ';
+      if (e is ApiError) {
+        final errorDetails = await e.messageText();
+        logMessage += '$errorDetails (Type: ${e.runtimeType})';
+      } else {
+        logMessage += '$e (Type: ${e.runtimeType})';
+      }
+      _logger.severe(logMessage, e);
+      // Don't throw - we want to continue even if some image loading fails
+    }
+  }
+
   /// Load members for all groups (used during initial group loading)
   Future<void> _loadMembersForAllGroups(List<Group> groups) async {
     try {
@@ -805,6 +858,35 @@ class GroupsNotifier extends Notifier<GroupsState> {
     return state.groupTypes?[groupId];
   }
 
+  /// Get cached group image path synchronously
+  /// Returns null if group image path is not cached yet
+  String? getCachedGroupImagePath(String groupId) {
+    return state.groupImagePaths?[groupId];
+  }
+
+  /// Reload image path for a specific group
+  /// Useful when a group's image has been updated
+  Future<void> reloadGroupImagePath(String groupId) async {
+    final activePubkey = ref.read(activePubkeyProvider);
+    if (activePubkey == null || activePubkey.isEmpty) return;
+
+    try {
+      final imagePath = await getGroupImagePath(
+        accountPubkey: activePubkey,
+        groupId: groupId,
+      );
+
+      if (imagePath != null && imagePath.isNotEmpty) {
+        final updatedPaths = Map<String, String>.from(state.groupImagePaths ?? {});
+        updatedPaths[groupId] = imagePath;
+        state = state.copyWith(groupImagePaths: updatedPaths);
+        _logger.info('Reloaded image path for group $groupId');
+      }
+    } catch (e) {
+      _logger.warning('Failed to reload image path for group $groupId: $e');
+    }
+  }
+
   Future<bool> isCurrentUserAdmin(String groupId) async {
     try {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
@@ -894,6 +976,9 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
         // Load and cache group types for new groups
         await _loadGroupTypesForAllGroups(actuallyNewGroups);
+
+        // Load and cache group image paths for new groups
+        await _loadGroupImagePaths(actuallyNewGroups);
 
         // Calculate display names for new groups
         await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups);
@@ -1248,7 +1333,7 @@ extension GroupMemberUtils on GroupsNotifier {
 
   /// Get the display image for a group based on its type
   /// For direct messages, returns the other member's image
-  /// For regular groups, returns null (can be extended for group avatars)
+  /// For regular groups, returns the cached group image path
   String? getGroupDisplayImage(String groupId) {
     final group = findGroupById(groupId);
     if (group == null) return null;
@@ -1269,7 +1354,7 @@ extension GroupMemberUtils on GroupsNotifier {
       return otherMember?.imagePath;
     }
 
-    // For regular groups, could return group avatar in the future
-    return null;
+    // For regular groups, return the cached group image path
+    return getCachedGroupImagePath(groupId);
   }
 }

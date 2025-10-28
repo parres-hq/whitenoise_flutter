@@ -63,7 +63,9 @@
         "failedToPublishKeyPackage": "Failed to publish key package",
         "keyPackageDeletedSuccess": "Key package deleted successfully",
         "failedToDeleteKeyPackage": "Failed to delete key package",
-        "noActiveAccountFound": "No active account found"
+        "noActiveAccountFound": "No active account found",
+        "backgroundServices": "Background Services",
+        "backgroundSyncService": "Background Sync Service"
     },
     "profile": {
         "nostrAddress": "Nostr Address (NIP-05)",
@@ -200,7 +202,8 @@
         "removeFromGroupConfirmation": "Are you sure you want to remove {name} from the group? They'll lose access to all messages and group activity. You'll need to invite them again if you want them back.",
         "removedFromGroupSuccess": "{name} removed from group",
         "failedToRemoveMember": "Failed to remove member",
-        "noUserToStartChatWith": "No user to start chat with"
+        "noUserToStartChatWith": "No user to start chat with",
+        "photos": "Photos"
     },
     "clipboard": {
         "emptyTextError": "No text found in clipboard",
@@ -293,7 +296,12 @@
         "invitingMembers": "Inviting Members:",
         "groupNameHint": "Free Citizen Group",
         "groupDescriptionHint": "Write something about the group",
-        "uploadingImage": "Uploading Image..."
+        "uploadingImage": "Uploading Image...",
+        "addMembers": "Add Members",
+        "membersAddedSuccess": "Members added successfully",
+        "failedToAddMembers": "Failed to add members",
+        "addingMembers": "Adding members...",
+        "selectedCount": "{count} selected"
     },
     "errors": {
         "errorOccurred": "An error occurred",

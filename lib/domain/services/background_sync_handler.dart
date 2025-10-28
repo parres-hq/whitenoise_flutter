@@ -144,6 +144,8 @@ class BackgroundSyncHandler extends TaskHandler {
         return;
       }
 
+      _log.fine('Found ${welcomes.length} pending welcome(s) for account $accountPubkey');
+
       final newWelcomes = await MessageSyncService.filterNewInvites(
         welcomes: welcomes,
         currentUserPubkey: accountPubkey,
@@ -151,7 +153,7 @@ class BackgroundSyncHandler extends TaskHandler {
       );
 
       if (newWelcomes.isNotEmpty) {
-        _log.info('Found ${newWelcomes.length} new invite(s) for account $accountPubkey');
+        _log.info('Found ${newWelcomes.length} new invite(s) for account $accountPubkey (${welcomes.length} total pending)');
 
         await MessageSyncService.notifyNewInvites(
           newWelcomes: newWelcomes,

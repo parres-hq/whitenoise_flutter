@@ -184,8 +184,12 @@ class MessageSyncService {
 
   /// Filters invites to find new ones that should trigger notifications.
   ///
-  /// Excludes invites that have already been notified about.
+  /// Excludes:
+  /// - Invites from the current user (self-invites)
+  /// - Already-processed invites (older than last sync timestamp)
+  /// - Invites in non-pending states (accepted, declined, ignored)
   ///
+  /// Uses a 24-hour lookback window on first sync to catch recent invites.
   /// Returns an empty list for invalid inputs.
   static Future<List<Welcome>> filterNewInvites({
     required List<Welcome> welcomes,

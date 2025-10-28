@@ -50,6 +50,7 @@ class WnTextFormField extends StatefulWidget {
     this.autovalidateMode = AutovalidateMode.onUserInteraction,
     this.inputFormatters,
     this.size = FieldSize.regular,
+    this.isBorderHidden = false,
   });
 
   final Key? formKey;
@@ -84,6 +85,7 @@ class WnTextFormField extends StatefulWidget {
   final FormFieldValidator<String?>? validator;
   final InputDecoration? decoration;
   final FieldSize size;
+  final bool isBorderHidden;
 
   @override
   State<WnTextFormField> createState() => _WnTextFormFieldState();
@@ -160,18 +162,25 @@ class _WnTextFormFieldState extends State<WnTextFormField> {
       contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: isSmall ? 13.5.h : 19.5.h),
       prefixIconConstraints: BoxConstraints.tightFor(height: targetHeight),
       suffixIconConstraints: BoxConstraints.tightFor(height: targetHeight),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
-        borderSide: BorderSide(
-          color: context.colors.input,
-        ),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.zero,
-        borderSide: BorderSide(
-          color: context.colors.input,
-        ),
-      ),
+      border:
+          widget.isBorderHidden
+              ? InputBorder.none
+              : OutlineInputBorder(
+                borderRadius: BorderRadius.zero,
+                borderSide: BorderSide(
+                  color: context.colors.input,
+                ),
+              ),
+      enabledBorder:
+          widget.isBorderHidden
+              ? InputBorder.none
+              : OutlineInputBorder(
+                borderRadius: BorderRadius.zero,
+                borderSide: BorderSide(
+                  color: context.colors.input,
+                ),
+              ),
+      focusedBorder: widget.isBorderHidden ? InputBorder.none : null,
       filled: true,
     );
 
