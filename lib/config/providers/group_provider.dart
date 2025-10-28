@@ -1,6 +1,5 @@
-// ignore_for_file: avoid_redundant_argument_values
-
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -643,7 +642,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     final failedGroups = <Group>[];
 
     for (int i = 0; i < groups.length; i += _batchSize) {
-      final end = (i + _batchSize).clamp(0, groups.length);
+      final int end = math.min(i + _batchSize, groups.length);
       final batch = groups.sublist(i, end);
 
       await Future.wait(
