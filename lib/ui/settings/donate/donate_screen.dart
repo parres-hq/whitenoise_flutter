@@ -37,7 +37,7 @@ class DonateScreen extends ConsumerWidget {
                   padding: EdgeInsets.only(
                     left: 16.w,
                     right: 16.w,
-                    bottom: 24.w,
+                    bottom: 24.h,
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
