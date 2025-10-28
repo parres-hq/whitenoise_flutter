@@ -58,7 +58,14 @@ class _ChatInfoScreenState extends ConsumerState<ChatInfoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final groupType = ref.watch(groupsProvider.select((s) => s.groupTypes?[widget.groupId]));
+    final groupType = ref.watch(
+      groupsProvider.select((s) => s.groupTypes?[widget.groupId]),
+    );
+
+    if (groupType == null) {
+      return const SizedBox.shrink();
+    }
+
     return Scaffold(
       body: Column(
         children: [

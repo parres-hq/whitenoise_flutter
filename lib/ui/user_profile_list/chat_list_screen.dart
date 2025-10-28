@@ -8,10 +8,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/chat_list_items_provider.dart';
 import 'package:whitenoise/config/providers/delayed_relay_error_provider.dart';
+import 'package:whitenoise/config/providers/filtered_chat_items_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/pinned_chats_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
@@ -287,17 +286,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
 
   @override
   Widget build(BuildContext context) {
-    // Watch pre-computed chat list items (provider handles grouping, sorting, etc.)
-    final chatItems = ref.watch(chatListItemsProvider);
-    final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
-    final pinnedChatsNotifier = ref.watch(pinnedChatsProvider.notifier);
-
-    // Use the separatePinnedChats method with search filtering
-    final separatedChats = pinnedChatsNotifier.separatePinnedChats(
-      chatItems,
-      searchQuery: _searchQuery,
-    );
+    final separatedChats = ref.watch(filteredChatItemsProvider(_searchQuery));
     final filteredChatItems = [...separatedChats.pinned, ...separatedChats.unpinned];
+    final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
 
     final delayedRelayErrorState = ref.watch(delayedRelayErrorProvider);
     final shouldShowRelayError = delayedRelayErrorState.shouldShowBanner;
@@ -365,7 +356,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
                         ).animate().fadeIn(),
                   ),
 
-                if (chatItems.isEmpty)
+                if (filteredChatItems.isEmpty)
                   const SliverFillRemaining(
                     hasScrollBody: false,
                     child: _EmptyGroupList(),
@@ -487,7 +478,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
                 ],
               ],
             ),
-            if (chatItems.isNotEmpty)
+            if (filteredChatItems.isNotEmpty)
               Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const WnBottomFade()),
           ],
         ),

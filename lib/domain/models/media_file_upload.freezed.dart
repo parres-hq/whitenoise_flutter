@@ -133,8 +133,7 @@ class _$MediaFileUploadingImpl implements MediaFileUploading {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$MediaFileUploadingImpl &&
-            (identical(other.filePath, filePath) ||
-                other.filePath == filePath));
+            (identical(other.filePath, filePath) || other.filePath == filePath));
   }
 
   @override
@@ -221,8 +220,7 @@ class _$MediaFileUploadingImpl implements MediaFileUploading {
 }
 
 abstract class MediaFileUploading implements MediaFileUpload {
-  const factory MediaFileUploading({required final String filePath}) =
-      _$MediaFileUploadingImpl;
+  const factory MediaFileUploading({required final String filePath}) = _$MediaFileUploadingImpl;
 
   String get filePath;
 
@@ -465,8 +463,7 @@ class _$MediaFileUploadFailedImpl implements MediaFileUploadFailed {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$MediaFileUploadFailedImpl &&
-            (identical(other.filePath, filePath) ||
-                other.filePath == filePath) &&
+            (identical(other.filePath, filePath) || other.filePath == filePath) &&
             (identical(other.error, error) || other.error == error));
   }
 
@@ -478,8 +475,7 @@ class _$MediaFileUploadFailedImpl implements MediaFileUploadFailed {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$MediaFileUploadFailedImplCopyWith<_$MediaFileUploadFailedImpl>
-  get copyWith =>
+  _$$MediaFileUploadFailedImplCopyWith<_$MediaFileUploadFailedImpl> get copyWith =>
       __$$MediaFileUploadFailedImplCopyWithImpl<_$MediaFileUploadFailedImpl>(
         this,
         _$identity,
@@ -566,6 +562,6 @@ abstract class MediaFileUploadFailed implements MediaFileUpload {
   /// Create a copy of MediaFileUpload
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MediaFileUploadFailedImplCopyWith<_$MediaFileUploadFailedImpl>
-  get copyWith => throw _privateConstructorUsedError;
+  _$$MediaFileUploadFailedImplCopyWith<_$MediaFileUploadFailedImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }

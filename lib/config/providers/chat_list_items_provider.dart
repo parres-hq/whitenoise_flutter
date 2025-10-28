@@ -9,30 +9,11 @@ import 'package:whitenoise/src/rust/api/welcomes.dart';
 class ChatListItemsNotifier extends Notifier<List<ChatListItem>> {
   @override
   List<ChatListItem> build() {
-    ref.listen(groupsProvider, (previous, next) {
-      _recompute();
-    });
+    ref.watch(groupsProvider);
+    ref.watch(welcomesProvider);
+    ref.watch(chatProvider);
+    ref.watch(pinnedChatsProvider);
 
-    ref.listen(welcomesProvider, (previous, next) {
-      _recompute();
-    });
-
-    ref.listen(chatProvider, (previous, next) {
-      _recompute();
-    });
-
-    ref.listen(pinnedChatsProvider, (previous, next) {
-      _recompute();
-    });
-
-    return _computeItems();
-  }
-
-  void _recompute() {
-    state = _computeItems();
-  }
-
-  List<ChatListItem> _computeItems() {
     final groupsState = ref.read(groupsProvider);
     final groupList = groupsState.groups ?? [];
     final groupCreatedAts = groupsState.groupCreatedAts ?? {};

@@ -27,7 +27,14 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
 
       _groupsSubscription = ref.listenManual(groupsProvider, (previous, next) {
         if (mounted) {
-          _loadMembers();
+          final prevMembers = previous?.groupMembers?[widget.groupId];
+          final nextMembers = next.groupMembers?[widget.groupId];
+          final prevAdmins = previous?.groupAdmins?[widget.groupId];
+          final nextAdmins = next.groupAdmins?[widget.groupId];
+
+          if (prevMembers != nextMembers || prevAdmins != nextAdmins) {
+            _loadMembers();
+          }
         }
       });
     });

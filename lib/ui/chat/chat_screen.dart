@@ -452,14 +452,6 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                           height: 20.h,
                           child: const WnBottomFade().animate().fadeIn(),
                         ),
-                      if (messages.isNotEmpty)
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          height: 20.h,
-                          child: const WnBottomFade().animate().fadeIn(),
-                        ),
                     ],
                   ),
                 ),

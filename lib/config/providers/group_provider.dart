@@ -70,6 +70,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   final _logger = Logger('GroupsNotifier');
 
+  // Retry configuration constants
+  static const int _maxMetadataRetries = 2;
+  static const int _retryBaseDelayMs = 500;
+
+  // Batch processing configuration
+  static const int _batchSize = 6;
+
   /// Guard to prevent concurrent metadata updates from interleaving state changes
   Future<void>? _metadataRefreshInProgress;
 
@@ -288,7 +295,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     } catch (e, st) {
       String logMessage = 'GroupsProvider.createNewGroup - Exception: ';
       if (e is ApiError) {
-        final errorDetails = e.messageText();
+        final errorDetails = await e.messageText();
         logMessage += '$errorDetails (Type: ${e.runtimeType})';
       } else {
         logMessage += '$e (Type: ${e.runtimeType})';
@@ -633,11 +640,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
     required bool collectFailures,
     required String? batchLogContext,
   }) async {
-    const batchSize = 6;
     final failedGroups = <Group>[];
 
-    for (int i = 0; i < groups.length; i += batchSize) {
-      final end = (i + batchSize).clamp(0, groups.length);
+    for (int i = 0; i < groups.length; i += _batchSize) {
+      final end = (i + _batchSize).clamp(0, groups.length);
       final batch = groups.sublist(i, end);
 
       await Future.wait(
@@ -708,14 +714,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
-  /// Retry failed group metadata loads with exponential backoff
+  /// Retry failed group metadata loads with linear backoff
   /// Processes failed groups sequentially with delays between retries
   Future<void> _retryFailedGroupsMetadata(List<Group> failedGroups, String activePubkey) async {
-    const maxRetries = 2;
     var remainingGroups = failedGroups;
 
-    for (int attempt = 1; attempt <= maxRetries && remainingGroups.isNotEmpty; attempt++) {
-      final delayMs = 500 * attempt;
+    for (int attempt = 1; attempt <= _maxMetadataRetries && remainingGroups.isNotEmpty; attempt++) {
+      final delayMs = _retryBaseDelayMs * attempt;
       await Future.delayed(Duration(milliseconds: delayMs));
 
       final nextRetry = <Group>[];
@@ -735,7 +740,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
     if (remainingGroups.isNotEmpty) {
       _logger.warning(
-        'GroupsProvider: Failed to load metadata for ${remainingGroups.length} groups after $maxRetries retries: '
+        'GroupsProvider: Failed to load metadata for ${remainingGroups.length} groups after $_maxMetadataRetries retries: '
         '${remainingGroups.map((g) => g.mlsGroupId).join(", ")}',
       );
     }

@@ -118,7 +118,7 @@ class DirectMessageHeader extends ConsumerWidget {
       groupsProvider.select((s) => s.groupDisplayNames?[group.mlsGroupId]),
     );
 
-    final watchedGroupImagePath = ref.watch(
+    final cachedImagePath = ref.watch(
       groupsProvider.select((s) => s.groupImagePaths?[group.mlsGroupId]),
     );
 
@@ -128,7 +128,7 @@ class DirectMessageHeader extends ConsumerWidget {
         children: [
           Gap(32.h),
           WnAvatar(
-            imageUrl: watchedGroupImagePath ?? '',
+            imageUrl: cachedImagePath ?? '',
             displayName: displayName,
             size: 96.r,
             showBorder: true,

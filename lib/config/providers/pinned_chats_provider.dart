@@ -154,6 +154,10 @@ class PinnedChatsNotifier extends Notifier<Set<String>> {
       }
     }
 
+    // Sort each list by date created (most recent first)
+    pinnedChats.sort((a, b) => b.dateCreated.compareTo(a.dateCreated));
+    unpinnedChats.sort((a, b) => b.dateCreated.compareTo(a.dateCreated));
+
     return (pinned: pinnedChats, unpinned: unpinnedChats);
   }
 }
