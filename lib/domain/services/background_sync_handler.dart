@@ -153,7 +153,9 @@ class BackgroundSyncHandler extends TaskHandler {
       );
 
       if (newWelcomes.isNotEmpty) {
-        _log.info('Found ${newWelcomes.length} new invite(s) for account $accountPubkey (${welcomes.length} total pending)');
+        _log.info(
+          'Found ${newWelcomes.length} new invite(s) for account $accountPubkey (${welcomes.length} total pending)',
+        );
 
         await MessageSyncService.notifyNewInvites(
           newWelcomes: newWelcomes,
