@@ -457,7 +457,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
           // Log the full exception details with proper ApiError unpacking
           String logMessage = 'Failed to process admin pubkey - Exception: ';
           if (e is ApiError) {
-            final errorDetails = e.messageText();
+            final errorDetails = await e.messageText();
             logMessage += '$errorDetails (Type: ${e.runtimeType})';
           } else {
             logMessage += '$e (Type: ${e.runtimeType})';
@@ -1093,7 +1093,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     } catch (e, st) {
       String logMessage = 'GroupsProvider.checkForNewGroups - Exception: ';
       if (e is ApiError) {
-        final errorDetails = e.messageText();
+        final errorDetails = await e.messageText();
         logMessage += '$errorDetails (Type: ${e.runtimeType})';
       } else {
         logMessage += '$e (Type: ${e.runtimeType})';
