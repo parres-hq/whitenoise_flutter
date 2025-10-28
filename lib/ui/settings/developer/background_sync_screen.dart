@@ -10,6 +10,7 @@ import 'package:whitenoise/domain/services/background_sync_service.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 //TODO: remove this screen later (this is a temporary screen for testing the background sync service)
 class BackgroundSyncScreen extends ConsumerStatefulWidget {
@@ -115,7 +116,7 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
   @override
   Widget build(BuildContext context) {
     return WnSettingsScreenWrapper(
-      title: 'Background Sync Service',
+      title: 'settings.backgroundSyncService'.tr(),
       safeAreaBottom: false,
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),

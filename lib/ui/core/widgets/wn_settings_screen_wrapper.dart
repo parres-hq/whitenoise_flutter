@@ -21,8 +21,8 @@ class WnSettingsScreenWrapper extends StatelessWidget {
     super.key,
   });
 
-  /// The title to display in the app bar (can be String or Widget)
-  final dynamic title;
+  /// The title to display in the app bar
+  final String title;
 
   /// The main content of the screen (replaces ColoredBox's child)
   final Widget body;
@@ -56,17 +56,14 @@ class WnSettingsScreenWrapper extends StatelessWidget {
             ),
           ),
           title: RepaintBoundary(
-            child:
-                title is String
-                    ? Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 18.sp,
-                        fontWeight: FontWeight.w600,
-                        color: context.colors.solidPrimary,
-                      ),
-                    )
-                    : title as Widget,
+            child: Text(
+              title,
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.w600,
+                color: context.colors.solidPrimary,
+              ),
+            ),
           ),
         ),
         body: SafeArea(
