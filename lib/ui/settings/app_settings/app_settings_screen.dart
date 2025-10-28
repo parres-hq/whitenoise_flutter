@@ -173,14 +173,7 @@ class AppSettingsScreen extends ConsumerWidget {
     final themeMode = ref.watch(themeProvider).themeMode;
 
     return WnSettingsScreenWrapper(
-      title: LocalizedText(
-        'settings.appSettings',
-        style: TextStyle(
-          fontSize: 18.sp,
-          fontWeight: FontWeight.w600,
-          color: context.colors.solidPrimary,
-        ),
-      ),
+      title: 'settings.appSettings'.tr(),
       safeAreaBottom: false,
       body: Column(
         children: [
