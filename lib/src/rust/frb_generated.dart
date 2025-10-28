@@ -2931,9 +2931,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   GroupInformation dco_decode_group_information(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 1) throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    if (arr.length != 4) throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
     return GroupInformation(
-      groupType: dco_decode_group_type(arr[0]),
+      mlsGroupId: dco_decode_String(arr[0]),
+      groupType: dco_decode_group_type(arr[1]),
+      createdAt: dco_decode_Chrono_Utc(arr[2]),
+      updatedAt: dco_decode_Chrono_Utc(arr[3]),
     );
   }
 
@@ -3770,8 +3773,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   @protected
   GroupInformation sse_decode_group_information(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
+    final var_mlsGroupId = sse_decode_String(deserializer);
     final var_groupType = sse_decode_group_type(deserializer);
-    return GroupInformation(groupType: var_groupType);
+    final var_createdAt = sse_decode_Chrono_Utc(deserializer);
+    final var_updatedAt = sse_decode_Chrono_Utc(deserializer);
+    return GroupInformation(
+      mlsGroupId: var_mlsGroupId,
+      groupType: var_groupType,
+      createdAt: var_createdAt,
+      updatedAt: var_updatedAt,
+    );
   }
 
   @protected
@@ -4727,7 +4738,10 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     SseSerializer serializer,
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.mlsGroupId, serializer);
     sse_encode_group_type(self.groupType, serializer);
+    sse_encode_Chrono_Utc(self.createdAt, serializer);
+    sse_encode_Chrono_Utc(self.updatedAt, serializer);
   }
 
   @protected
