@@ -13,6 +13,7 @@ import 'api.dart';
 import 'api/accounts.dart';
 import 'api/error.dart';
 import 'api/groups.dart';
+import 'api/media_files.dart';
 import 'api/messages.dart';
 import 'api/metadata.dart';
 import 'api/relays.dart';
@@ -149,6 +150,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ApiError dco_decode_box_autoadd_api_error(dynamic raw);
 
   @protected
+  FileMetadata dco_decode_box_autoadd_file_metadata(dynamic raw);
+
+  @protected
   FlutterEvent dco_decode_box_autoadd_flutter_event(dynamic raw);
 
   @protected
@@ -170,6 +174,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   EmojiReaction dco_decode_emoji_reaction(dynamic raw);
+
+  @protected
+  FileMetadata dco_decode_file_metadata(dynamic raw);
 
   @protected
   FlutterEvent dco_decode_flutter_event(dynamic raw);
@@ -247,6 +254,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<Welcome> dco_decode_list_welcome(dynamic raw);
 
   @protected
+  MediaFile dco_decode_media_file(dynamic raw);
+
+  @protected
   MessageWithTokens dco_decode_message_with_tokens(dynamic raw);
 
   @protected
@@ -254,6 +264,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   DateTime? dco_decode_opt_box_autoadd_Chrono_Utc(dynamic raw);
+
+  @protected
+  FileMetadata? dco_decode_opt_box_autoadd_file_metadata(dynamic raw);
 
   @protected
   FlutterEvent? dco_decode_opt_box_autoadd_flutter_event(dynamic raw);
@@ -430,6 +443,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ApiError sse_decode_box_autoadd_api_error(SseDeserializer deserializer);
 
   @protected
+  FileMetadata sse_decode_box_autoadd_file_metadata(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   FlutterEvent sse_decode_box_autoadd_flutter_event(
     SseDeserializer deserializer,
   );
@@ -457,6 +475,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   EmojiReaction sse_decode_emoji_reaction(SseDeserializer deserializer);
+
+  @protected
+  FileMetadata sse_decode_file_metadata(SseDeserializer deserializer);
 
   @protected
   FlutterEvent sse_decode_flutter_event(SseDeserializer deserializer);
@@ -548,6 +569,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<Welcome> sse_decode_list_welcome(SseDeserializer deserializer);
 
   @protected
+  MediaFile sse_decode_media_file(SseDeserializer deserializer);
+
+  @protected
   MessageWithTokens sse_decode_message_with_tokens(
     SseDeserializer deserializer,
   );
@@ -557,6 +581,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   DateTime? sse_decode_opt_box_autoadd_Chrono_Utc(SseDeserializer deserializer);
+
+  @protected
+  FileMetadata? sse_decode_opt_box_autoadd_file_metadata(
+    SseDeserializer deserializer,
+  );
 
   @protected
   FlutterEvent? sse_decode_opt_box_autoadd_flutter_event(
@@ -757,6 +786,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_file_metadata(
+    FileMetadata self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_flutter_event(
     FlutterEvent self,
     SseSerializer serializer,
@@ -788,6 +823,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_emoji_reaction(EmojiReaction self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_file_metadata(FileMetadata self, SseSerializer serializer);
 
   @protected
   void sse_encode_flutter_event(FlutterEvent self, SseSerializer serializer);
@@ -898,6 +936,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_list_welcome(List<Welcome> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_media_file(MediaFile self, SseSerializer serializer);
+
+  @protected
   void sse_encode_message_with_tokens(
     MessageWithTokens self,
     SseSerializer serializer,
@@ -909,6 +950,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_opt_box_autoadd_Chrono_Utc(
     DateTime? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_file_metadata(
+    FileMetadata? self,
     SseSerializer serializer,
   );
 
