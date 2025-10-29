@@ -65,7 +65,15 @@
         "failedToDeleteKeyPackage": "Не удалось удалить пакет ключей",
         "noActiveAccountFound": "Активный аккаунт не найден",
         "backgroundServices": "Фоновые службы",
-        "backgroundSyncService": "Служба фоновой синхронизации"
+        "backgroundSyncService": "Служба фоновой синхронизации",
+        "availableTasks": "Доступные Задачи",
+        "taskManagement": "Управление Задачами",
+        "cancelAllTasks": "Отменить Все Задачи",
+        "scheduled": "Запланирована",
+        "notScheduled": "Не Запланирована",
+        "unknownState": "Неизвестное состояние",
+        "runsEvery": "Выполняется каждые {frequency}",
+        "scheduleNow": "Запланировать Сейчас"
     },
     "profile": {
         "nostrAddress": "Адрес Nostr (NIP-05)",

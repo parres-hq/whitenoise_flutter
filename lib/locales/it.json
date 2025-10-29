@@ -65,7 +65,15 @@
         "failedToDeleteKeyPackage": "Errore nell'eliminazione del pacchetto chiave",
         "noActiveAccountFound": "Nessun account attivo trovato",
         "backgroundServices": "Servizi in background",
-        "backgroundSyncService": "Servizio di sincronizzazione in background"
+        "backgroundSyncService": "Servizio di sincronizzazione in background",
+        "availableTasks": "Attività Disponibili",
+        "taskManagement": "Gestione Attività",
+        "cancelAllTasks": "Annulla Tutte le Attività",
+        "scheduled": "Programmata",
+        "notScheduled": "Non Programmata",
+        "unknownState": "Stato sconosciuto",
+        "runsEvery": "Esegue ogni {frequency}",
+        "scheduleNow": "Programma Ora"
     },
     "profile": {
         "nostrAddress": "Indirizzo Nostr (NIP-05)",

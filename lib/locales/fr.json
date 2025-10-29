@@ -65,7 +65,15 @@
         "failedToDeleteKeyPackage": "Échec de la suppression du paquet de clés",
         "noActiveAccountFound": "Aucun compte actif trouvé",
         "backgroundServices": "Services en arrière-plan",
-        "backgroundSyncService": "Service de synchronisation en arrière-plan"
+        "backgroundSyncService": "Service de synchronisation en arrière-plan",
+        "availableTasks": "Tâches Disponibles",
+        "taskManagement": "Gestion des Tâches",
+        "cancelAllTasks": "Annuler Toutes les Tâches",
+        "scheduled": "Programmée",
+        "notScheduled": "Non Programmée",
+        "unknownState": "État inconnu",
+        "runsEvery": "S'exécute toutes les {frequency}",
+        "scheduleNow": "Programmer Maintenant"
     },
     "profile": {
         "nostrAddress": "Adresse Nostr (NIP-05)",

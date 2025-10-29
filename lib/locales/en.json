@@ -65,7 +65,15 @@
         "failedToDeleteKeyPackage": "Failed to delete key package",
         "noActiveAccountFound": "No active account found",
         "backgroundServices": "Background Services",
-        "backgroundSyncService": "Background Sync Service"
+        "backgroundSyncService": "Background Sync Service",
+        "availableTasks": "Available Tasks",
+        "taskManagement": "Task Management",
+        "cancelAllTasks": "Cancel All Tasks",
+        "scheduled": "Scheduled",
+        "notScheduled": "Not Scheduled",
+        "unknownState": "Unknown state",
+        "runsEvery": "Runs every {frequency}",
+        "scheduleNow": "Schedule Now"
     },
     "profile": {
         "nostrAddress": "Nostr Address (NIP-05)",

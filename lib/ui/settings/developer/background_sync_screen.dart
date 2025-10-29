@@ -100,7 +100,7 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
             children: [
               RepaintBoundary(
                 child: Text(
-                  'Available Tasks',
+                  'settings.availableTasks'.tr(),
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
@@ -133,7 +133,7 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
               Gap(24.h),
               RepaintBoundary(
                 child: Text(
-                  'Task Management',
+                  'settings.taskManagement'.tr(),
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
@@ -144,7 +144,7 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
               Gap(10.h),
               RepaintBoundary(
                 child: WnFilledButton(
-                  label: 'Cancel All Tasks',
+                  label: 'settings.cancelAllTasks'.tr(),
                   visualState: WnButtonVisualState.destructive,
                   onPressed: _isLoading ? null : _cancelBackgroundTasks,
                   loading: _isLoading,
@@ -222,10 +222,10 @@ class _TaskItem extends StatelessWidget {
                           ),
                           child: Text(
                             isScheduled
-                                ? 'Scheduled'
+                                ? 'settings.scheduled'.tr()
                                 : Platform.isAndroid
-                                ? 'Not Scheduled'
-                                : 'Unknown state',
+                                ? 'settings.notScheduled'.tr()
+                                : 'settings.unknownState'.tr(),
                             style: TextStyle(
                               fontSize: 10.sp,
                               fontWeight: FontWeight.w600,
@@ -240,7 +240,7 @@ class _TaskItem extends StatelessWidget {
                     ),
                     Gap(4.h),
                     Text(
-                      'Runs every $frequency',
+                      'settings.runsEvery'.tr({'frequency': frequency}),
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: context.colors.mutedForeground,
@@ -254,7 +254,7 @@ class _TaskItem extends StatelessWidget {
           ),
           Gap(8.h),
           WnFilledButton(
-            label: 'Schedule Now',
+            label: 'settings.scheduleNow'.tr(),
             onPressed: (isLoading || isScheduled) ? null : onTrigger,
             visualState: WnButtonVisualState.secondary,
             size: WnButtonSize.small,
