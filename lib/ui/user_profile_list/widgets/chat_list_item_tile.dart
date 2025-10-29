@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/pinned_chats_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
-import 'package:whitenoise/domain/models/dm_chat_data.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
-import 'package:whitenoise/domain/services/dm_chat_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -42,15 +41,11 @@ class ChatListItemTile extends ConsumerWidget {
   }
 
   Widget _buildChatTile(BuildContext context, WidgetRef ref) {
-    final groupsNotifier = ref.watch(groupsProvider.notifier);
     final group = item.group;
     if (group == null) {
       return const SizedBox.shrink();
     }
-    // Watch specific pieces of state so this tile rebuilds when they change
-    final watchedGroupType = ref.watch(
-      groupsProvider.select((s) => s.groupTypes?[group.mlsGroupId]),
-    );
+
     final watchedDisplayName = ref.watch(
       groupsProvider.select((s) => s.groupDisplayNames?[group.mlsGroupId]),
     );
@@ -58,89 +53,136 @@ class ChatListItemTile extends ConsumerWidget {
       groupsProvider.select((s) => s.groupImagePaths?[group.mlsGroupId]),
     );
 
-    final groupType = watchedGroupType ?? groupsNotifier.getCachedGroupType(group.mlsGroupId);
-    // If group type is not cached yet, use FutureBuilder to handle the async loading
-    if (groupType == null) {
-      return FutureBuilder<GroupType>(
-        future: groupsNotifier.getGroupTypeById(group.mlsGroupId),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            // Show loading state with basic info while determining group type
-            final displayName =
-                (watchedDisplayName ?? groupsNotifier.getGroupDisplayName(group.mlsGroupId)) ??
-                group.name;
-            // Prefer watched image path so we rebuild when it becomes available
-            final displayImage =
-                watchedGroupImagePath ?? groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
-            return _buildChatTileContent(context, displayName, displayImage, group);
-          }
-
-          final resolvedGroupType = snapshot.data ?? GroupType.group;
-          return _buildChatTileForType(context, ref, group, resolvedGroupType);
-        },
-      );
+    if (watchedDisplayName == null) {
+      return _buildChatTileLoading(context, group);
     }
 
-    return _buildChatTileForType(context, ref, group, groupType);
+    return _buildChatTileContent(context, watchedDisplayName, watchedGroupImagePath, group);
   }
 
-  Widget _buildChatTileForType(
-    BuildContext context,
-    WidgetRef ref,
-    Group group,
-    GroupType groupType,
-  ) {
-    final groupsNotifier = ref.watch(groupsProvider.notifier);
-    final fallbackName =
-        ref.watch(
-          groupsProvider.select((s) => s.groupDisplayNames?[group.mlsGroupId]),
-        ) ??
-        groupsNotifier.getGroupDisplayName(group.mlsGroupId) ??
-        group.name;
-    // For non-DM groups, watch the cached image path so the tile updates when it arrives
-    final watchedGroupImagePath = ref.watch(
-      groupsProvider.select((s) => s.groupImagePaths?[group.mlsGroupId]),
-    );
-    final fallbackImage =
-        groupType != GroupType.directMessage
-            ? watchedGroupImagePath
-            : groupsNotifier.getGroupDisplayImage(group.mlsGroupId);
+  Widget _buildChatTileLoading(BuildContext context, Group group) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final pinnedChats = ref.watch(pinnedChatsProvider);
+        final pinnedChatsNotifier = ref.watch(pinnedChatsProvider.notifier);
+        final isPinned = pinnedChats.contains(group.mlsGroupId);
+        final chatState = ref.watch(chatProvider);
+        final hasMessages = chatState.areMessagesLoaded(group.mlsGroupId);
+        final shouldShowMessageSkeleton = !hasMessages && group.lastMessageAt != null;
 
-    // Non-DM chats use fallback data directly
-    if (groupType != GroupType.directMessage) {
-      return _buildChatTileContent(context, fallbackName, fallbackImage, group);
-    }
-
-    // DM chats get enhanced user info
-    return FutureBuilder<DMChatData?>(
-      future: ref.getDMChatData(group.mlsGroupId),
-      builder: (context, snapshot) {
-        final data = snapshot.data;
-
-        final displayName = _getDisplayName(snapshot, data, fallbackName);
-        final displayImage = _getDisplayImage(snapshot, data, fallbackImage);
-
-        return _buildChatTileContent(context, displayName, displayImage, group);
+        return Slidable(
+          key: ValueKey(group.mlsGroupId),
+          startActionPane: ActionPane(
+            motion: const DrawerMotion(),
+            extentRatio: 80.w / MediaQuery.of(context).size.width,
+            children: [
+              CustomSlidableAction(
+                onPressed: (context) {
+                  pinnedChatsNotifier.togglePin(group.mlsGroupId);
+                },
+                backgroundColor: context.colors.secondary,
+                child: Container(
+                  width: 80.w,
+                  height: 80.w,
+                  color: context.colors.secondary,
+                  child: Center(
+                    child: WnImage(
+                      isPinned ? AssetsPaths.icUnpin : AssetsPaths.icPin,
+                      size: 18.w,
+                      color: context.colors.primary,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          child: InkWell(
+            onTap: () {
+              if (onTap != null) {
+                onTap!();
+              }
+              Routes.goToChat(context, group.mlsGroupId);
+            },
+            child: Container(
+              padding: EdgeInsets.only(left: 8.w, right: 16.w, top: 12.h, bottom: 12.h),
+              child: Row(
+                children: [
+                  WnSkeletonContainer(
+                    shape: BoxShape.circle,
+                    width: 56.r,
+                    height: 56.r,
+                  ),
+                  Gap(8.w),
+                  Expanded(
+                    flex: 5,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: WnSkeletonContainer(
+                                width: 183.w,
+                                height: 20.h,
+                              ),
+                            ),
+                            Text(
+                              item.lastMessage?.createdAt.timeago().capitalizeFirst ?? '',
+                              style: TextStyle(
+                                fontSize: 14.sp,
+                                color: context.colors.mutedForeground,
+                              ),
+                            ),
+                          ],
+                        ),
+                        Gap(4.h),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          spacing: 32.w,
+                          children: [
+                            if (item.lastMessage != null)
+                              Expanded(
+                                child: Text(
+                                  _getMessagePreview(item.lastMessage!),
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
+                                    color: context.colors.mutedForeground,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              )
+                            else if (shouldShowMessageSkeleton)
+                              Expanded(
+                                child: WnSkeletonContainer(
+                                  width: 244.w,
+                                  height: 32.h,
+                                ),
+                              ),
+                            if (item.lastMessage != null)
+                              const MessageReadStatus(
+                                unreadCount: 0,
+                              )
+                            else if (shouldShowMessageSkeleton)
+                              WnSkeletonContainer(
+                                width: 20.w,
+                                height: 20.w,
+                                shape: BoxShape.circle,
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
       },
     );
-  }
-
-  String _getDisplayName(AsyncSnapshot<DMChatData?> snapshot, DMChatData? data, String fallback) {
-    if (snapshot.connectionState == ConnectionState.waiting) {
-      return fallback.isEmpty ? 'shared.loading'.tr() : fallback;
-    }
-    final String name = data?.displayName ?? '';
-    return name.isNotEmpty ? name : fallback;
-  }
-
-  String? _getDisplayImage(
-    AsyncSnapshot<DMChatData?> snapshot,
-    DMChatData? data,
-    String? fallback,
-  ) {
-    return snapshot.connectionState == ConnectionState.waiting
-        ? fallback
-        : (data?.displayImage ?? fallback);
   }
 
   Widget _buildChatTileContent(
@@ -155,6 +197,9 @@ class ChatListItemTile extends ConsumerWidget {
         final pinnedChats = ref.watch(pinnedChatsProvider);
         final pinnedChatsNotifier = ref.watch(pinnedChatsProvider.notifier);
         final isPinned = pinnedChats.contains(group.mlsGroupId);
+        final chatState = ref.watch(chatProvider);
+        final hasMessages = chatState.areMessagesLoaded(group.mlsGroupId);
+        final shouldShowMessageSkeleton = !hasMessages && group.lastMessageAt != null;
 
         return Slidable(
           key: ValueKey(group.mlsGroupId),
@@ -224,16 +269,28 @@ class ChatListItemTile extends ConsumerWidget {
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
-                            Text(
-                              item.lastMessage?.createdAt.timeago().capitalizeFirst ?? '',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                color: context.colors.mutedForeground,
+                            if (shouldShowMessageSkeleton)
+                              WnSkeletonContainer(
+                                width: 30.w,
+                                height: 20.h,
+                              )
+                            else
+                              Text(
+                                item.lastMessage?.createdAt.timeago().capitalizeFirst ?? '',
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: context.colors.mutedForeground,
+                                ),
                               ),
-                            ),
                           ],
                         ),
-                        if (item.lastMessage != null) ...[
+                        if (shouldShowMessageSkeleton) ...[
+                          Gap(4.h),
+                          WnSkeletonContainer(
+                            width: 244.w,
+                            height: 32.h,
+                          ),
+                        ] else if (item.lastMessage != null) ...[
                           Gap(4.h),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -276,62 +333,5 @@ class ChatListItemTile extends ConsumerWidget {
       return 'chats.youMessage'.tr({'content': content});
     }
     return content;
-  }
-}
-
-class ChatListTileLoading extends StatelessWidget {
-  const ChatListTileLoading({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 16.w),
-      child: Row(
-        children: [
-          WnSkeletonContainer(
-            shape: BoxShape.circle,
-            width: 56.w,
-            height: 56.w,
-          ),
-          Gap(12.w),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    WnSkeletonContainer(
-                      width: 183.w,
-                      height: 20.h,
-                    ),
-                    WnSkeletonContainer(
-                      width: 30.w,
-                      height: 20.h,
-                    ),
-                  ],
-                ),
-                Gap(6.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    WnSkeletonContainer(
-                      width: 244.w,
-                      height: 32.h,
-                    ),
-                    WnSkeletonContainer(
-                      width: 20.w,
-                      height: 20.w,
-                      shape: BoxShape.circle,
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
   }
 }

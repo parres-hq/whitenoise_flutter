@@ -1,65 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
-class UserProfileInfo extends StatelessWidget {
-  final String? image;
-  final String? title;
-  final VoidCallback? onTap;
-  final bool isLoading;
-
-  const UserProfileInfo({
+class ChatGroupAppbar extends ConsumerWidget {
+  const ChatGroupAppbar({
     super.key,
-    required this.title,
-    required this.image,
+    required this.groupId,
     this.onTap,
-  }) : isLoading = false;
+  });
 
-  const UserProfileInfo.loading({super.key})
-    : image = null,
-      title = null,
-      onTap = null,
-      isLoading = true;
-
+  final String groupId;
+  final VoidCallback? onTap;
   @override
-  Widget build(BuildContext context) {
-    if (isLoading) {
-      return Row(
-        children: [
-          Container(
-            width: 36.w,
-            height: 36.w,
-            decoration: BoxDecoration(
-              color: context.colors.mutedForeground.withValues(
-                alpha: 0.2,
-              ),
-              shape: BoxShape.circle,
-            ),
-          ),
-          Gap(8.w),
-          Container(
-            height: 16.h,
-            constraints: BoxConstraints(maxWidth: 200.w, minWidth: 90.w),
-            color: context.colors.mutedForeground.withValues(
-              alpha: 0.2,
-            ),
-          ),
-        ],
-      );
-    }
+  Widget build(BuildContext context, WidgetRef ref) {
+    final watchedGroupImagePath = ref.watch(
+      groupsProvider.select((s) => s.groupImagePaths?[groupId]),
+    );
+    final watchedGroupDisplayName = ref.watch(
+      groupsProvider.select((s) => s.groupDisplayNames?[groupId]),
+    );
 
     final content = Row(
       children: [
         WnAvatar(
-          imageUrl: image!,
-          displayName: title!,
+          imageUrl: watchedGroupImagePath ?? '',
+          displayName: watchedGroupDisplayName ?? 'shared.unknownUser'.tr(),
           size: 36.r,
           showBorder: true,
         ),
         Gap(8.w),
         Text(
-          title!,
+          watchedGroupDisplayName ?? 'shared.unknownUser'.tr(),
           style: context.textTheme.bodyMedium?.copyWith(
             color: context.colors.solidPrimary,
             fontSize: 16.sp,
