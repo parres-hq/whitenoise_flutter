@@ -4,6 +4,7 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api show Account;
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
+import '../../shared/mocks/mock_active_pubkey_notifier.dart';
 
 class MockWnImageUtils implements WnImageUtils {
   String? _mimeType = 'image/jpeg';
@@ -121,23 +122,6 @@ class MockWnAccountsApi implements WnAccountsApi {
     }
 
     return 'https://example.com/profile-pictures/$pubkey.jpg';
-  }
-}
-
-class MockActivePubkeyNotifier extends ActivePubkeyNotifier {
-  String? _pubkey;
-
-  MockActivePubkeyNotifier(this._pubkey);
-
-  @override
-  String? build() {
-    return _pubkey;
-  }
-
-  @override
-  Future<void> setActivePubkey(String pubkey) async {
-    _pubkey = pubkey;
-    state = pubkey;
   }
 }
 

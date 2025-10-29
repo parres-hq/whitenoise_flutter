@@ -1,55 +1,76 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/chat_input_provider.dart';
-import 'package:whitenoise/domain/services/draft_message_service.dart';
-import 'package:whitenoise/domain/services/image_picker_service.dart';
-import 'package:whitenoise/ui/chat/states/chat_input_state.dart';
+import 'package:whitenoise/domain/models/media_file_upload.dart';
+import 'package:whitenoise/src/rust/api/media_files.dart' as rust_media_files;
 
-class MockImagePickerService extends ImagePickerService {
-  List<String>? imagesToReturn;
-  Exception? errorToThrow;
+import '../../shared/mocks/mock_active_pubkey_notifier.dart';
+import '../../shared/mocks/mock_draft_message_service.dart';
+import '../../shared/mocks/mock_image_picker_service.dart';
 
-  @override
-  Future<List<String>> pickMultipleImages() async {
-    if (errorToThrow != null) {
-      throw errorToThrow!;
-    }
-    return imagesToReturn ?? [];
-  }
-}
+class MockUploadMediaFn {
+  final Map<String, rust_media_files.MediaFile> _uploadResults = {};
+  final List<String> _failingPaths = [];
+  final List<Map<String, String>> _uploadCalls = [];
 
-class MockDraftMessageService extends DraftMessageService {
-  String? draftToReturn;
-  final List<String> savedDrafts = [];
-  final List<String> clearedChats = [];
-
-  @override
-  Future<String?> loadDraft({required String chatId, FlutterSecureStorage? storage}) async {
-    return draftToReturn;
+  void setUploadResult(String filePath, rust_media_files.MediaFile result) {
+    _uploadResults[filePath] = result;
   }
 
-  @override
-  Future<void> saveDraft({
-    required String chatId,
-    required String message,
-    FlutterSecureStorage? storage,
+  void setUploadFailure(String filePath) {
+    _failingPaths.add(filePath);
+  }
+
+  List<Map<String, String>> get uploadCalls => _uploadCalls;
+
+  Future<rust_media_files.MediaFile> call({
+    required String accountPubkey,
+    required String groupId,
+    required String filePath,
   }) async {
-    savedDrafts.add(message);
-    draftToReturn = message;
-  }
+    _uploadCalls.add({
+      'accountPubkey': accountPubkey,
+      'groupId': groupId,
+      'filePath': filePath,
+    });
 
-  @override
-  Future<void> clearDraft({required String chatId, FlutterSecureStorage? storage}) async {
-    clearedChats.add(chatId);
-    draftToReturn = null;
+    if (_failingPaths.contains(filePath)) {
+      throw Exception('Upload failed for $filePath');
+    }
+
+    final result = _uploadResults[filePath];
+    if (result == null) {
+      throw Exception('No upload result configured for $filePath');
+    }
+
+    return result;
   }
 
   void reset() {
-    savedDrafts.clear();
-    clearedChats.clear();
-    draftToReturn = null;
+    _uploadResults.clear();
+    _failingPaths.clear();
+    _uploadCalls.clear();
   }
+}
+
+rust_media_files.MediaFile createMockMediaFile({
+  required String id,
+  required String groupId,
+  required String filePath,
+}) {
+  return rust_media_files.MediaFile(
+    id: id,
+    mlsGroupId: groupId,
+    accountPubkey: 'test-account-pubkey-hex',
+    filePath: filePath,
+    fileHash: 'test-hash-$id',
+    mimeType: 'image/jpeg',
+    mediaType: 'image',
+    blossomUrl: 'https://test.com/media/$id',
+    nostrKey: 'test-nostr-key-$id',
+    createdAt: DateTime(2025, 1, 3),
+  );
 }
 
 void main() {
@@ -58,19 +79,29 @@ void main() {
     late ChatInputNotifier notifier;
     late MockImagePickerService mockImagePicker;
     late MockDraftMessageService mockDraftMessageService;
+    late MockUploadMediaFn mockUploadMedia;
     const testGroupId = 'test-group-id';
+    const testAccountPubkey = 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
     const testDraftSaveDelay = Duration(milliseconds: 5);
+
+    Future<void> waitForUploadsToComplete() async {
+      await Future.delayed(Duration.zero); // just yield to let the event loop process
+    }
 
     setUp(() {
       mockImagePicker = MockImagePickerService();
       mockDraftMessageService = MockDraftMessageService();
+      mockUploadMedia = MockUploadMediaFn();
+
       container = ProviderContainer(
         overrides: [
+          activePubkeyProvider.overrideWith(() => MockActivePubkeyNotifier(testAccountPubkey)),
           chatInputProvider.overrideWith(
             () => ChatInputNotifier(
               imagePickerService: mockImagePicker,
               draftMessageService: mockDraftMessageService,
               draftSaveDelay: testDraftSaveDelay,
+              uploadMediaFn: mockUploadMedia.call,
             ),
           ),
         ],
@@ -79,18 +110,40 @@ void main() {
     });
 
     tearDown(() {
+      mockUploadMedia.reset();
       container.dispose();
     });
 
-    test('has expected initial state', () {
-      final testContainer = ProviderContainer();
-      final state = testContainer.read(chatInputProvider('test-group-123'));
-      expect(state, isA<ChatInputState>());
-      expect(state.isLoadingDraft, false);
-      expect(state.showMediaSelector, false);
-      expect(state.selectedImages, isEmpty);
-      expect(state.singleLineHeight, isNull);
-      expect(state.previousEditingMessageContent, isNull);
+    group('initial state', () {
+      test('is not loading draft', () {
+        final testContainer = ProviderContainer();
+        final state = testContainer.read(chatInputProvider('test-group-123'));
+        expect(state.isLoadingDraft, false);
+      });
+
+      test('is not showing media selector', () {
+        final testContainer = ProviderContainer();
+        final state = testContainer.read(chatInputProvider('test-group-123'));
+        expect(state.showMediaSelector, false);
+      });
+
+      test('selected media is empty', () {
+        final testContainer = ProviderContainer();
+        final state = testContainer.read(chatInputProvider('test-group-123'));
+        expect(state.selectedMedia, isEmpty);
+      });
+
+      test('single line height is null', () {
+        final testContainer = ProviderContainer();
+        final state = testContainer.read(chatInputProvider('test-group-123'));
+        expect(state.singleLineHeight, isNull);
+      });
+
+      test('previous editing message content is null', () {
+        final testContainer = ProviderContainer();
+        final state = testContainer.read(chatInputProvider('test-group-123'));
+        expect(state.previousEditingMessageContent, isNull);
+      });
     });
 
     group('toggleMediaSelector', () {
@@ -123,12 +176,31 @@ void main() {
         setUp(() {
           mockImagePicker.imagesToReturn = ['/path/to/image1.jpg', '/path/to/image2.jpg'];
         });
-        test('adds images to selectedImages', () async {
+
+        test('adds expected amount of media file upload items', () async {
           await notifier.handleImagesSelected();
           final state = container.read(chatInputProvider(testGroupId));
-          expect(state.selectedImages.length, 2);
-          expect(state.selectedImages, contains('/path/to/image1.jpg'));
-          expect(state.selectedImages, contains('/path/to/image2.jpg'));
+          expect(state.selectedMedia.length, 2);
+        });
+
+        test('adds media file uploads in uploading state', () async {
+          await notifier.handleImagesSelected();
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia.length, 2);
+          final firstMediaUpload = state.selectedMedia[0];
+          final secondMediaUpload = state.selectedMedia[1];
+          expect(firstMediaUpload.isUploading, true);
+          expect(secondMediaUpload.isUploading, true);
+        });
+
+        test('adds media file upload items with expected file paths', () async {
+          await notifier.handleImagesSelected();
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia.length, 2);
+          final firstMediaUpload = state.selectedMedia[0];
+          final secondMediaUpload = state.selectedMedia[1];
+          expect(firstMediaUpload.filePath, '/path/to/image1.jpg');
+          expect(secondMediaUpload.filePath, '/path/to/image2.jpg');
         });
 
         test('sets showMediaSelector back to false', () async {
@@ -142,11 +214,13 @@ void main() {
         setUp(() {
           mockImagePicker.imagesToReturn = [];
         });
-        test('keeps selectedImages empty', () async {
+
+        test('keeps selectedMedia empty', () async {
           await notifier.handleImagesSelected();
           final state = container.read(chatInputProvider(testGroupId));
-          expect(state.selectedImages.length, 0);
+          expect(state.selectedMedia.length, 0);
         });
+
         test('sets showMediaSelector to false', () async {
           await notifier.handleImagesSelected();
           final state = container.read(chatInputProvider(testGroupId));
@@ -154,21 +228,40 @@ void main() {
         });
       });
 
-      group('with previously selected images', () {
+      group('with previously selected media', () {
         setUp(() async {
           mockImagePicker.imagesToReturn = ['/path/to/image1.jpg', '/path/to/image2.jpg'];
           await notifier.handleImagesSelected();
         });
 
-        test('appends new images to existing selection selectedImages', () async {
+        test('appends new media to existing selection', () async {
           mockImagePicker.imagesToReturn = ['/path/to/image3.jpg'];
           await notifier.handleImagesSelected();
 
           final state = container.read(chatInputProvider(testGroupId));
-          expect(state.selectedImages.length, 3);
-          expect(state.selectedImages[0], '/path/to/image1.jpg');
-          expect(state.selectedImages[1], '/path/to/image2.jpg');
-          expect(state.selectedImages[2], '/path/to/image3.jpg');
+          expect(state.selectedMedia.length, 3);
+          expect(state.selectedMedia[0].originalFilePath, '/path/to/image1.jpg');
+          expect(state.selectedMedia[1].originalFilePath, '/path/to/image2.jpg');
+          expect(state.selectedMedia[2].originalFilePath, '/path/to/image3.jpg');
+        });
+      });
+
+      group('when there is no active account', () {
+        setUp(() {
+          mockImagePicker.imagesToReturn = ['/path/to/image1.jpg', '/path/to/image2.jpg'];
+          container.read(activePubkeyProvider.notifier).state = null;
+        });
+
+        test('keeps selectedMedia empty', () async {
+          await notifier.handleImagesSelected();
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia, isEmpty);
+        });
+
+        test('sets showMediaSelector to false', () async {
+          await notifier.handleImagesSelected();
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.showMediaSelector, false);
         });
       });
 
@@ -177,10 +270,10 @@ void main() {
           mockImagePicker.errorToThrow = Exception('Image picker failed');
         });
 
-        test('keeps selectedImages empty', () async {
+        test('keeps selectedMedia empty', () async {
           await notifier.handleImagesSelected();
           final state = container.read(chatInputProvider(testGroupId));
-          expect(state.selectedImages, isEmpty);
+          expect(state.selectedMedia, isEmpty);
         });
 
         test('sets showMediaSelector to false', () async {
@@ -189,7 +282,7 @@ void main() {
           expect(state.showMediaSelector, false);
         });
 
-        test('does not add images when error occurs with previous images', () async {
+        test('does not add media when error occurs with previous media', () async {
           mockImagePicker.errorToThrow = null;
           mockImagePicker.imagesToReturn = ['/path/to/image1.jpg'];
           await notifier.handleImagesSelected();
@@ -198,9 +291,143 @@ void main() {
           await notifier.handleImagesSelected();
 
           final state = container.read(chatInputProvider(testGroupId));
-          expect(state.selectedImages.length, 1);
-          expect(state.selectedImages[0], '/path/to/image1.jpg');
+          expect(state.selectedMedia.length, 1);
+          expect(state.selectedMedia[0].originalFilePath, '/path/to/image1.jpg');
         });
+      });
+
+      group('when upload to blossom server succeeds', () {
+        const originalImagePath = '/path/to/image1.jpg';
+        const uploadeddImagePath = '/path/to/uploaded/image1.jpg';
+
+        setUp(() {
+          mockImagePicker.imagesToReturn = [originalImagePath];
+          mockUploadMedia.setUploadResult(
+            originalImagePath,
+            createMockMediaFile(
+              filePath: uploadeddImagePath,
+              id: 'uploaded-id-1',
+              groupId: testGroupId,
+            ),
+          );
+        });
+        test('transitions from uploading to uploaded', () async {
+          await notifier.handleImagesSelected();
+          var state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia[0].isUploading, true);
+          await waitForUploadsToComplete();
+          state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia[0].isUploaded, true);
+        });
+
+        test('includes original file path', () async {
+          await notifier.handleImagesSelected();
+          await waitForUploadsToComplete();
+
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia[0].originalFilePath, originalImagePath);
+        });
+
+        test('media file has uploaded path', () async {
+          await notifier.handleImagesSelected();
+          await waitForUploadsToComplete();
+
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia[0].uploadedFile?.filePath, uploadeddImagePath);
+        });
+      });
+      group('when upload to blossom server fails', () {
+        setUp(() {
+          const imagePath = '/path/to/failing-image.jpg';
+          mockImagePicker.imagesToReturn = [imagePath];
+          mockUploadMedia.setUploadFailure(imagePath);
+        });
+        test('transitions from uploading to failed', () async {
+          await notifier.handleImagesSelected();
+          var state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia[0].isUploading, true);
+          await waitForUploadsToComplete();
+          state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia[0].isFailed, true);
+        });
+      });
+
+      group('when some images upload succeeds and some fail', () {
+        setUp(() async {
+          const image1 = '/path/to/image1.jpg';
+          const image2 = '/path/to/image2.jpg';
+          const image3 = '/path/to/image3.jpg';
+          mockImagePicker.imagesToReturn = [image1, image2, image3];
+          mockUploadMedia.setUploadResult(
+            image1,
+            createMockMediaFile(filePath: image1, id: 'id-1', groupId: testGroupId),
+          );
+          mockUploadMedia.setUploadResult(
+            image2,
+            createMockMediaFile(filePath: image2, id: 'id-2', groupId: testGroupId),
+          );
+          mockUploadMedia.setUploadFailure(image3);
+          await notifier.handleImagesSelected();
+        });
+
+        test('handles upload states independently', () async {
+          var state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia.every((mediaFileUpload) => mediaFileUpload.isUploading), true);
+          await waitForUploadsToComplete();
+          state = container.read(chatInputProvider(testGroupId));
+          expect(state.selectedMedia[0].isUploaded, true);
+          expect(state.selectedMedia[1].isUploaded, true);
+          expect(state.selectedMedia[2].isFailed, true);
+        });
+
+        group('with multiple selections', () {
+          setUp(() async {
+            mockImagePicker.imagesToReturn = ['/image1.jpg'];
+            mockUploadMedia.setUploadResult(
+              '/image1.jpg',
+              createMockMediaFile(filePath: '/image1.jpg', id: 'id-1', groupId: testGroupId),
+            );
+            await notifier.handleImagesSelected();
+            await waitForUploadsToComplete();
+
+            mockImagePicker.imagesToReturn = ['/image2.jpg'];
+            mockUploadMedia.setUploadFailure('/image2.jpg');
+            await notifier.handleImagesSelected();
+            await waitForUploadsToComplete();
+
+            mockImagePicker.imagesToReturn = ['/image3.jpg'];
+            mockUploadMedia.setUploadResult(
+              '/image3.jpg',
+              createMockMediaFile(filePath: '/image3.jpg', id: 'id-3', groupId: testGroupId),
+            );
+            await notifier.handleImagesSelected();
+          });
+          test('considers uploads of all selections', () async {
+            final state = container.read(chatInputProvider(testGroupId));
+            expect(state.selectedMedia.length, 6);
+            expect(state.selectedMedia[3].isUploaded, true);
+            expect(state.selectedMedia[4].isFailed, true);
+            expect(state.selectedMedia[5].isUploading, true);
+          });
+        });
+      });
+
+      test('calls upload function with correct parameters', () async {
+        const imagePath = '/path/to/image.jpg';
+        mockImagePicker.imagesToReturn = [imagePath];
+        mockUploadMedia.setUploadResult(
+          imagePath,
+          createMockMediaFile(filePath: imagePath, id: 'id-1', groupId: testGroupId),
+        );
+
+        await notifier.handleImagesSelected();
+        await waitForUploadsToComplete();
+
+        expect(mockUploadMedia.uploadCalls.length, 1);
+        final call = mockUploadMedia.uploadCalls[0];
+        expect(call['groupId'], testGroupId);
+        expect(call['filePath'], imagePath);
+        expect(call['accountPubkey'], testAccountPubkey);
       });
     });
 
@@ -211,44 +438,94 @@ void main() {
           '/path/to/image2.jpg',
           '/path/to/image3.jpg',
         ];
+        for (final path in mockImagePicker.imagesToReturn!) {
+          mockUploadMedia.setUploadResult(
+            path,
+            createMockMediaFile(filePath: path, id: '4', groupId: testGroupId),
+          );
+        }
       });
-      test('removes image at valid index', () async {
+
+      test('removes media at valid index', () async {
         await notifier.handleImagesSelected();
         notifier.removeImage(1);
         final state = container.read(chatInputProvider(testGroupId));
-        expect(state.selectedImages.length, 2);
-        expect(state.selectedImages[0], '/path/to/image1.jpg');
-        expect(state.selectedImages[1], '/path/to/image3.jpg');
+        expect(state.selectedMedia.length, 2);
+        expect(state.selectedMedia[0].originalFilePath, '/path/to/image1.jpg');
+        expect(state.selectedMedia[1].originalFilePath, '/path/to/image3.jpg');
       });
 
-      test('does not remove image at invalid index', () async {
+      test('does not remove media at invalid index', () async {
         await notifier.handleImagesSelected();
         notifier.removeImage(5);
 
         final state = container.read(chatInputProvider(testGroupId));
-        expect(state.selectedImages.length, 3);
+        expect(state.selectedMedia.length, 3);
       });
 
-      test('does not remove image at negative index', () async {
+      test('does not remove media at negative index', () async {
         await notifier.handleImagesSelected();
         notifier.removeImage(-1);
         final state = container.read(chatInputProvider(testGroupId));
-        expect(state.selectedImages.length, 3);
+        expect(state.selectedMedia.length, 3);
+      });
+
+      test('removes media in uploading state', () async {
+        await notifier.handleImagesSelected();
+
+        final stateBefore = container.read(chatInputProvider(testGroupId));
+        expect(stateBefore.selectedMedia[1].isUploading, true);
+
+        notifier.removeImage(1); // does not wait for upload to complete
+
+        final stateAfter = container.read(chatInputProvider(testGroupId));
+        expect(stateAfter.selectedMedia.length, 2);
+      });
+
+      test('removes media in uploaded state', () async {
+        await notifier.handleImagesSelected();
+        await waitForUploadsToComplete();
+        var state = container.read(chatInputProvider(testGroupId));
+        expect(state.selectedMedia[0].isUploaded, true);
+        notifier.removeImage(0);
+        state = container.read(chatInputProvider(testGroupId));
+        expect(state.selectedMedia.length, 2);
+      });
+
+      test('removes media in failed state', () async {
+        mockUploadMedia.setUploadFailure('/path/to/image2.jpg');
+        await notifier.handleImagesSelected();
+        await waitForUploadsToComplete();
+        var state = container.read(chatInputProvider(testGroupId));
+        expect(state.selectedMedia[1].isFailed, true);
+        notifier.removeImage(1);
+        state = container.read(chatInputProvider(testGroupId));
+        expect(state.selectedMedia.length, 2);
+        expect(state.selectedMedia.every((m) => m.isUploaded), true);
       });
     });
 
     group('clear', () {
       setUp(() async {
         mockImagePicker.imagesToReturn = ['/path/to/image1.jpg', '/path/to/image2.jpg'];
+        for (final path in mockImagePicker.imagesToReturn!) {
+          mockUploadMedia.setUploadResult(
+            path,
+            createMockMediaFile(filePath: path, id: '3', groupId: testGroupId),
+          );
+        }
         await notifier.handleImagesSelected();
       });
 
-      test('clears all state', () async {
+      test('clears all state including media', () async {
         mockDraftMessageService.reset();
+        final stateBefore = container.read(chatInputProvider(testGroupId));
+        expect(stateBefore.selectedMedia.length, 2);
+
         await notifier.clear();
         final state = container.read(chatInputProvider(testGroupId));
 
-        expect(state.selectedImages, isEmpty);
+        expect(state.selectedMedia, isEmpty);
         expect(state.showMediaSelector, false);
         expect(state.isLoadingDraft, false);
         expect(state.previousEditingMessageContent, isNull);
