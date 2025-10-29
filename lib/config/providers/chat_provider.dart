@@ -125,6 +125,7 @@ class ChatNotifier extends Notifier<ChatState> {
       content: message,
       currentUserPublicKey: activePubkey,
       groupId: groupId,
+      mediaFiles: mediaFiles,
     );
     final optimisticId = optimisticMessageModel.id;
 
@@ -550,6 +551,7 @@ class ChatNotifier extends Notifier<ChatState> {
       currentUserPublicKey: activePubkey,
       groupId: groupId,
       replyToMessage: replyToMessage,
+      mediaFiles: mediaFiles,
     );
     final optimisticId = optimisticMessageModel.id;
 
