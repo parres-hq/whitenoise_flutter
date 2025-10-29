@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:logging/logging.dart';
 
@@ -83,33 +85,37 @@ class NotificationService {
 
   static Future<bool> requestPermissions() async {
     try {
-      // Request Android permissions
-      final androidPlugin =
-          _flutterLocalNotificationsPlugin
-              .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final NotificationPermission notificationPermission =
+          await FlutterForegroundTask.checkNotificationPermission();
 
-      if (androidPlugin != null) {
-        final granted = await androidPlugin.requestNotificationsPermission();
-        _logger.info('Android notification permission granted: $granted');
-        return granted ?? false;
+      if (notificationPermission == NotificationPermission.permanently_denied) {
+        _logger.warning('Notification permission permanently denied');
+        // TODO: Show UI feedback to user to open device settings, if needed.
+        // TODO: UI feedback design needed (good UX to make it not too intrusive)
+        return false;
+      }
+      if (notificationPermission != NotificationPermission.granted) {
+        final status = await FlutterForegroundTask.requestNotificationPermission();
+        if (status != NotificationPermission.granted) {
+          _logger.warning('Notification permission denied');
+          return false;
+        }
       }
 
-      // Request iOS permissions
-      final iosPlugin =
-          _flutterLocalNotificationsPlugin
-              .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
-
-      if (iosPlugin != null) {
-        final granted = await iosPlugin.requestPermissions(
-          alert: true,
-          badge: true,
-          sound: true,
-        );
-        _logger.info('iOS notification permission granted: $granted');
-        return granted ?? false;
+      if (Platform.isAndroid) {
+        try {
+          if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
+            await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+          }
+          if (!await FlutterForegroundTask.canScheduleExactAlarms) {
+            await FlutterForegroundTask.openAlarmsAndRemindersSettings();
+          }
+        } catch (e) {
+          _logger.warning('Failed to configure Android-specific settings: $e');
+        }
       }
 
-      return false;
+      return true;
     } catch (e) {
       _logger.severe('Failed to request notification permissions: $e');
       return false;
@@ -121,6 +127,7 @@ class NotificationService {
     required String title,
     required String body,
     String? payload,
+    String? groupKey,
   }) async {
     if (!_isInitialized) {
       _logger.warning('NotificationService not initialized, cannot show notification');
@@ -128,18 +135,23 @@ class NotificationService {
     }
 
     try {
-      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
         'messages',
         'Messages',
         channelDescription: 'Notifications for new messages',
         importance: Importance.high,
         priority: Priority.high,
         icon: '@mipmap/ic_launcher',
+        groupKey: groupKey,
       );
 
-      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
+      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
 
-      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      final NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );
@@ -163,24 +175,30 @@ class NotificationService {
     required String title,
     required String body,
     String? payload,
+    String? groupKey,
   }) async {
     if (!_isInitialized) {
       _logger.warning('NotificationService not initialized, cannot show notification');
       return;
     }
     try {
-      const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+      final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
         'invites',
         'Invites',
         channelDescription: 'Notifications for new invites',
         importance: Importance.high,
         priority: Priority.high,
         icon: '@mipmap/ic_launcher',
+        groupKey: groupKey,
       );
 
-      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails();
+      const DarwinNotificationDetails iosDetails = DarwinNotificationDetails(
+        presentAlert: true,
+        presentBadge: true,
+        presentSound: true,
+      );
 
-      const NotificationDetails platformChannelSpecifics = NotificationDetails(
+      final NotificationDetails platformChannelSpecifics = NotificationDetails(
         android: androidDetails,
         iOS: iosDetails,
       );

@@ -26,6 +26,10 @@ class UserProfileNotifier extends Notifier<void> {
     final userProfile = _getUserProfileFromMetadata(pubkey: pubkey, metadata: user.metadata);
     return userProfile;
   }
+
+  Future<User> getUser(String pubkey) async {
+    return _wnApiGetUser(pubkey: pubkey);
+  }
 }
 
 final userProfileProvider = NotifierProvider<UserProfileNotifier, void>(

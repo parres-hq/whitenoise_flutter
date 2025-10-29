@@ -25,12 +25,13 @@ class ChatListItem {
     required Group group,
     MessageModel? lastMessage,
     bool isPinned = false,
+    DateTime? createdAt,
   }) {
     return ChatListItem(
       type: ChatListItemType.chat,
       group: group,
       lastMessage: lastMessage,
-      dateCreated: lastMessage?.createdAt ?? DateTime.now(),
+      dateCreated: group.lastMessageAt ?? createdAt ?? DateTime.now(),
       isPinned: isPinned,
     );
   }

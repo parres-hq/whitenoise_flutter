@@ -29,6 +29,8 @@ mixin _$GroupsState {
       throw _privateConstructorUsedError; // groupId -> GroupType (cached for synchronous access)
   Map<String, String>? get groupImagePaths =>
       throw _privateConstructorUsedError; // groupId -> image file path
+  Map<String, DateTime>? get groupCreatedAts =>
+      throw _privateConstructorUsedError; // groupId -> createdAt (for sorting fallback)
   bool get isLoading => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
@@ -53,6 +55,7 @@ abstract class $GroupsStateCopyWith<$Res> {
     Map<String, String>? groupDisplayNames,
     Map<String, GroupType>? groupTypes,
     Map<String, String>? groupImagePaths,
+    Map<String, DateTime>? groupCreatedAts,
     bool isLoading,
     String? error,
   });
@@ -80,6 +83,7 @@ class _$GroupsStateCopyWithImpl<$Res, $Val extends GroupsState>
     Object? groupDisplayNames = freezed,
     Object? groupTypes = freezed,
     Object? groupImagePaths = freezed,
+    Object? groupCreatedAts = freezed,
     Object? isLoading = null,
     Object? error = freezed,
   }) {
@@ -120,6 +124,11 @@ class _$GroupsStateCopyWithImpl<$Res, $Val extends GroupsState>
                     ? _value.groupImagePaths
                     : groupImagePaths // ignore: cast_nullable_to_non_nullable
                         as Map<String, String>?,
+            groupCreatedAts:
+                freezed == groupCreatedAts
+                    ? _value.groupCreatedAts
+                    : groupCreatedAts // ignore: cast_nullable_to_non_nullable
+                        as Map<String, DateTime>?,
             isLoading:
                 null == isLoading
                     ? _value.isLoading
@@ -152,6 +161,7 @@ abstract class _$$GroupsStateImplCopyWith<$Res> implements $GroupsStateCopyWith<
     Map<String, String>? groupDisplayNames,
     Map<String, GroupType>? groupTypes,
     Map<String, String>? groupImagePaths,
+    Map<String, DateTime>? groupCreatedAts,
     bool isLoading,
     String? error,
   });
@@ -178,6 +188,7 @@ class __$$GroupsStateImplCopyWithImpl<$Res>
     Object? groupDisplayNames = freezed,
     Object? groupTypes = freezed,
     Object? groupImagePaths = freezed,
+    Object? groupCreatedAts = freezed,
     Object? isLoading = null,
     Object? error = freezed,
   }) {
@@ -218,6 +229,11 @@ class __$$GroupsStateImplCopyWithImpl<$Res>
                 ? _value._groupImagePaths
                 : groupImagePaths // ignore: cast_nullable_to_non_nullable
                     as Map<String, String>?,
+        groupCreatedAts:
+            freezed == groupCreatedAts
+                ? _value._groupCreatedAts
+                : groupCreatedAts // ignore: cast_nullable_to_non_nullable
+                    as Map<String, DateTime>?,
         isLoading:
             null == isLoading
                 ? _value.isLoading
@@ -244,6 +260,7 @@ class _$GroupsStateImpl implements _GroupsState {
     final Map<String, String>? groupDisplayNames,
     final Map<String, GroupType>? groupTypes,
     final Map<String, String>? groupImagePaths,
+    final Map<String, DateTime>? groupCreatedAts,
     this.isLoading = false,
     this.error,
   }) : _groups = groups,
@@ -252,7 +269,8 @@ class _$GroupsStateImpl implements _GroupsState {
        _groupAdmins = groupAdmins,
        _groupDisplayNames = groupDisplayNames,
        _groupTypes = groupTypes,
-       _groupImagePaths = groupImagePaths;
+       _groupImagePaths = groupImagePaths,
+       _groupCreatedAts = groupCreatedAts;
 
   final List<Group>? _groups;
   @override
@@ -335,6 +353,18 @@ class _$GroupsStateImpl implements _GroupsState {
   }
 
   // groupId -> image file path
+  final Map<String, DateTime>? _groupCreatedAts;
+  // groupId -> image file path
+  @override
+  Map<String, DateTime>? get groupCreatedAts {
+    final value = _groupCreatedAts;
+    if (value == null) return null;
+    if (_groupCreatedAts is EqualUnmodifiableMapView) return _groupCreatedAts;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
+  // groupId -> createdAt (for sorting fallback)
   @override
   @JsonKey()
   final bool isLoading;
@@ -343,7 +373,7 @@ class _$GroupsStateImpl implements _GroupsState {
 
   @override
   String toString() {
-    return 'GroupsState(groups: $groups, groupsMap: $groupsMap, groupMembers: $groupMembers, groupAdmins: $groupAdmins, groupDisplayNames: $groupDisplayNames, groupTypes: $groupTypes, groupImagePaths: $groupImagePaths, isLoading: $isLoading, error: $error)';
+    return 'GroupsState(groups: $groups, groupsMap: $groupsMap, groupMembers: $groupMembers, groupAdmins: $groupAdmins, groupDisplayNames: $groupDisplayNames, groupTypes: $groupTypes, groupImagePaths: $groupImagePaths, groupCreatedAts: $groupCreatedAts, isLoading: $isLoading, error: $error)';
   }
 
   @override
@@ -376,6 +406,10 @@ class _$GroupsStateImpl implements _GroupsState {
               other._groupImagePaths,
               _groupImagePaths,
             ) &&
+            const DeepCollectionEquality().equals(
+              other._groupCreatedAts,
+              _groupCreatedAts,
+            ) &&
             (identical(other.isLoading, isLoading) || other.isLoading == isLoading) &&
             (identical(other.error, error) || other.error == error));
   }
@@ -390,6 +424,7 @@ class _$GroupsStateImpl implements _GroupsState {
     const DeepCollectionEquality().hash(_groupDisplayNames),
     const DeepCollectionEquality().hash(_groupTypes),
     const DeepCollectionEquality().hash(_groupImagePaths),
+    const DeepCollectionEquality().hash(_groupCreatedAts),
     isLoading,
     error,
   );
@@ -412,6 +447,7 @@ abstract class _GroupsState implements GroupsState {
     final Map<String, String>? groupDisplayNames,
     final Map<String, GroupType>? groupTypes,
     final Map<String, String>? groupImagePaths,
+    final Map<String, DateTime>? groupCreatedAts,
     final bool isLoading,
     final String? error,
   }) = _$GroupsStateImpl;
@@ -430,6 +466,8 @@ abstract class _GroupsState implements GroupsState {
   Map<String, GroupType>? get groupTypes; // groupId -> GroupType (cached for synchronous access)
   @override
   Map<String, String>? get groupImagePaths; // groupId -> image file path
+  @override
+  Map<String, DateTime>? get groupCreatedAts; // groupId -> createdAt (for sorting fallback)
   @override
   bool get isLoading;
   @override

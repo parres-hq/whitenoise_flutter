@@ -15,7 +15,6 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
   List<User> groupAdmins = [];
   bool isLoadingMembers = false;
   String? currentUserNpub;
-  String? groupImagePath;
   ProviderSubscription<GroupsState>? _groupsSubscription;
 
   @override
@@ -26,13 +25,16 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
       _loadMembers();
       _loadCurrentUserNpub();
 
-      setState(() {
-        groupImagePath = ref.read(groupsProvider.notifier).getCachedGroupImagePath(widget.groupId);
-      });
-
       _groupsSubscription = ref.listenManual(groupsProvider, (previous, next) {
         if (mounted) {
-          _loadMembers();
+          final prevMembers = previous?.groupMembers?[widget.groupId];
+          final nextMembers = next.groupMembers?[widget.groupId];
+          final prevAdmins = previous?.groupAdmins?[widget.groupId];
+          final nextAdmins = next.groupAdmins?[widget.groupId];
+
+          if (prevMembers != nextMembers || prevAdmins != nextAdmins) {
+            _loadMembers();
+          }
         }
       });
     });
@@ -155,6 +157,9 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
   @override
   Widget build(BuildContext context) {
     final groupDetails = ref.watch(groupsProvider).groupsMap?[widget.groupId];
+    final cachedGroupImagePath = ref.watch(
+      groupsProvider.select((s) => s.groupImagePaths?[widget.groupId]),
+    );
     final isAdmin = groupAdmins.any((admin) {
       if (currentUserNpub == null) {
         return false;
@@ -171,7 +176,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
         children: [
           Gap(64.h),
           WnAvatar(
-            imageUrl: groupImagePath ?? '',
+            imageUrl: cachedGroupImagePath ?? '',
             displayName: groupDetails?.name ?? 'chats.unknownGroup'.tr(),
             size: 96.w,
             showBorder: true,
