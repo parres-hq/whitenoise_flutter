@@ -286,7 +286,7 @@ void main() {
           expect(call.message, '');
         });
 
-        test('sends message with ones media tag', () async {
+        test('sends message with one media tag', () async {
           final call = capturedCalls.first;
           expect(call.tags?.length, 1);
         });
