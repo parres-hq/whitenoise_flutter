@@ -722,15 +722,10 @@ void main() {
         test('sends message with expected arguments', () async {
           await notifier.sendMessage(message: 'Hello world');
           final sendMessageCall = mockChatProvider.sendMessageCalls[0];
-          expect(
-            sendMessageCall,
-            equals({
-              'groupId': testGroupId,
-              'message': 'Hello world',
-              'mediaFiles': isEmpty,
-              'isEditing': false,
-            }),
-          );
+          expect(sendMessageCall['groupId'], testGroupId);
+          expect(sendMessageCall['message'], 'Hello world');
+          expect(sendMessageCall['isEditing'], false);
+          expect(sendMessageCall['mediaFiles'], isEmpty);
         });
 
         test('returns sent message', () async {
@@ -927,15 +922,10 @@ void main() {
         test('sends reply with expected arguments', () async {
           await notifier.sendMessage(message: 'This is a reply');
           final sendReplyCall = mockChatProvider.sendReplyMessageCalls[0];
-          expect(
-            sendReplyCall,
-            equals({
-              'groupId': testGroupId,
-              'replyToMessageId': replyToMessageId,
-              'message': 'This is a reply',
-              'mediaFiles': isEmpty,
-            }),
-          );
+          expect(sendReplyCall['groupId'], testGroupId);
+          expect(sendReplyCall['replyToMessageId'], replyToMessageId);
+          expect(sendReplyCall['message'], 'This is a reply');
+          expect(sendReplyCall['mediaFiles'], isEmpty);
         });
 
         test('does not call regular sendMessage when replying', () async {
@@ -989,15 +979,10 @@ void main() {
           test('sends reply with expected amount of media files', () async {
             await notifier.sendMessage(message: 'Reply with images');
             final call = mockChatProvider.sendReplyMessageCalls[0];
-            expect(
-              call,
-              equals({
-                'groupId': testGroupId,
-                'replyToMessageId': replyToMessageId,
-                'message': 'Reply with images',
-                'mediaFiles': hasLength(2),
-              }),
-            );
+            expect(call['groupId'], testGroupId);
+            expect(call['replyToMessageId'], replyToMessageId);
+            expect(call['message'], 'Reply with images');
+            expect(call['mediaFiles'], hasLength(2));
           });
 
           test('clears selected media after sending reply', () async {
