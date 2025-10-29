@@ -84,7 +84,7 @@ class MockChatProvider extends ChatNotifier {
   final List<Map<String, dynamic>> _sendReplyMessageCalls = [];
   ChatState _currentState = const ChatState();
 
-  void setMessageToReturn(MessageWithTokens message) {
+  void setMessageToReturn(MessageWithTokens? message) {
     _messageToReturn = message;
   }
 
@@ -745,6 +745,62 @@ void main() {
           expect(mockDraftMessageService.clearedChats, [testGroupId]);
         });
 
+        group('when media is still uploading', () {
+          setUp(() async {
+            const imagePathA = '/path/to/uploadingImage.jpg';
+            mockImagePicker.imagesToReturn = [imagePathA];
+            mockUploadMedia.setUploadResult(
+              imagePathA,
+              createMockMediaFile(filePath: imagePathA, id: 'id-1', groupId: testGroupId),
+            );
+
+            await notifier.handleImagesSelected();
+          });
+          test('does not send message', () async {
+            final result = await notifier.sendMessage(message: 'Hello world');
+
+            expect(result, isNull);
+            expect(mockChatProvider.sendMessageCalls, isEmpty);
+          });
+
+          test('does not clear chat', () async {
+            await notifier.sendMessage(message: 'Hello world');
+            expect(mockDraftMessageService.clearedChats, isEmpty);
+          });
+
+          test('does not clear selected media', () async {
+            await notifier.sendMessage(message: 'Hello world');
+            final state = container.read(chatInputProvider(testGroupId));
+            expect(state.selectedMedia, isNotEmpty);
+          });
+        });
+
+        group('when some media uploads are failed', () {
+          setUp(() async {
+            const imagePathA = '/path/to/failingImage.jpg';
+            mockImagePicker.imagesToReturn = [imagePathA];
+            mockUploadMedia.setUploadFailure(imagePathA);
+            await notifier.handleImagesSelected();
+            await waitForUploadsToComplete();
+          });
+          test('does not send message', () async {
+            final result = await notifier.sendMessage(message: 'Hello world');
+            expect(result, isNull);
+            expect(mockChatProvider.sendMessageCalls, isEmpty);
+          });
+
+          test('does not clear chat', () async {
+            await notifier.sendMessage(message: 'Hello world');
+            expect(mockDraftMessageService.clearedChats, isEmpty);
+          });
+
+          test('does not clear selected media', () async {
+            await notifier.sendMessage(message: 'Hello world');
+            final state = container.read(chatInputProvider(testGroupId));
+            expect(state.selectedMedia, isNotEmpty);
+          });
+        });
+
         group('when editing a message', () {
           test('sends message with isEditing flag set to true', () async {
             await notifier.sendMessage(message: 'Hello world', isEditing: true);
@@ -781,6 +837,47 @@ void main() {
             await notifier.sendMessage(message: 'Check this out');
             final state = container.read(chatInputProvider(testGroupId));
             expect(state.selectedMedia, isEmpty);
+          });
+        });
+
+        group('with mixed media states (some failed, some uploaded)', () {
+          setUp(() async {
+            mockDraftMessageService.reset();
+            const imagePathA = '/path/to/successImage.jpg';
+            const imagePathB = '/path/to/failedImage.jpg';
+            const imagePathC = '/path/to/anotherSuccessImage.jpg';
+
+            mockImagePicker.imagesToReturn = [imagePathA, imagePathB, imagePathC];
+            mockUploadMedia.setUploadResult(
+              imagePathA,
+              createMockMediaFile(filePath: imagePathA, id: 'id-1', groupId: testGroupId),
+            );
+            mockUploadMedia.setUploadFailure(imagePathB);
+            mockUploadMedia.setUploadResult(
+              imagePathC,
+              createMockMediaFile(filePath: imagePathC, id: 'id-3', groupId: testGroupId),
+            );
+
+            await notifier.handleImagesSelected();
+            await waitForUploadsToComplete();
+          });
+
+          test('does not send message', () async {
+            final result = await notifier.sendMessage(message: 'Partial upload');
+
+            expect(mockChatProvider.sendMessageCalls, isEmpty);
+            expect(result, isNull);
+          });
+
+          test('does not clear chat', () async {
+            await notifier.sendMessage(message: 'Partial upload');
+            expect(mockDraftMessageService.clearedChats, isEmpty);
+          });
+
+          test('does not clear selected media', () async {
+            await notifier.sendMessage(message: 'Partial upload');
+            final state = container.read(chatInputProvider(testGroupId));
+            expect(state.selectedMedia, isNotEmpty);
           });
         });
       });
@@ -855,6 +952,16 @@ void main() {
           mockDraftMessageService.reset();
           await notifier.sendMessage(message: 'This is a reply');
           expect(mockDraftMessageService.clearedChats, [testGroupId]);
+        });
+
+        test('does not clear state when reply send fails', () async {
+          mockChatProvider.setMessageToReturn(null); // Simulate send failure
+          mockDraftMessageService.reset();
+
+          final result = await notifier.sendMessage(message: 'This is a reply');
+
+          expect(result, isNull);
+          expect(mockDraftMessageService.clearedChats, isEmpty);
         });
 
         group('with media files', () {

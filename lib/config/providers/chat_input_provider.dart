@@ -181,6 +181,14 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
     required String message,
     bool isEditing = false,
   }) async {
+    if (state.hasUploadingMedia || state.hasFailedMedia) return null;
+
+    final uploadedMediaFiles =
+        state.selectedMedia
+            .where((media) => media.uploadedFile != null)
+            .map((media) => media.uploadedFile!)
+            .toList();
+
     final chatProviderState = ref.read(chatProvider);
     final replyingTo = chatProviderState.replyingTo[_groupId];
     final chatNotifier = ref.read(chatProvider.notifier);
@@ -190,17 +198,21 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
         groupId: _groupId,
         replyToMessageId: replyingTo.id,
         message: message,
-        mediaFiles: state.selectedMedia.map((media) => media.uploadedFile!).toList(),
+        mediaFiles: uploadedMediaFiles,
       );
     } else {
       messageSent = await chatNotifier.sendMessage(
         groupId: _groupId,
         message: message,
         isEditing: isEditing,
-        mediaFiles: state.selectedMedia.map((media) => media.uploadedFile!).toList(),
+        mediaFiles: uploadedMediaFiles,
       );
     }
-    await clear();
+
+    if (messageSent != null) {
+      await clear();
+    }
+
     return messageSent;
   }
 

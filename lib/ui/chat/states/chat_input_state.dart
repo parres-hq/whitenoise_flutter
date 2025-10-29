@@ -16,4 +16,6 @@ class ChatInputState with _$ChatInputState {
   }) = _ChatInputState;
 
   bool get hasUploadingMedia => selectedMedia.any((media) => media.isUploading);
+
+  bool get hasFailedMedia => selectedMedia.any((media) => media.isFailed);
 }
