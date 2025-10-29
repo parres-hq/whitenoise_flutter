@@ -65,7 +65,15 @@
         "failedToDeleteKeyPackage": "Anahtar paketi silme başarısız",
         "noActiveAccountFound": "Aktif hesap bulunamadı",
         "backgroundServices": "Arka plan hizmetleri",
-        "backgroundSyncService": "Arka plan senkronizasyon hizmeti"
+        "backgroundSyncService": "Arka plan senkronizasyon hizmeti",
+        "availableTasks": "Mevcut Görevler",
+        "taskManagement": "Görev Yönetimi",
+        "cancelAllTasks": "Tüm Görevleri İptal Et",
+        "scheduled": "Zamanlanmış",
+        "notScheduled": "Zamanlanmamış",
+        "unknownState": "Bilinmeyen durum",
+        "runsEvery": "Her {frequency} çalışır",
+        "scheduleNow": "Şimdi Zamanla"
     },
     "profile": {
         "nostrAddress": "Nostr Adresi (NIP-05)",

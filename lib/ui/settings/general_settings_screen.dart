@@ -13,10 +13,10 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts;
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/widgets/active_account_tile.dart';
@@ -174,32 +174,8 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.colors.neutral,
-      appBar: WnAppBar(
-        automaticallyImplyLeading: false,
-        leading: RepaintBoundary(
-          child: IconButton(
-            onPressed: () => context.pop(),
-            icon: WnImage(
-              AssetsPaths.icChevronLeft,
-              width: 24.w,
-              height: 24.w,
-              color: context.colors.solidPrimary,
-            ),
-          ),
-        ),
-        title: RepaintBoundary(
-          child: Text(
-            'settings.title'.tr(),
-            style: TextStyle(
-              fontSize: 18.sp,
-              fontWeight: FontWeight.w600,
-              color: context.colors.solidPrimary,
-            ),
-          ),
-        ),
-      ),
+    return WnSettingsScreenWrapper(
+      title: 'settings.title'.tr(),
       body: ListView(
         padding: EdgeInsets.symmetric(vertical: 24.h),
         children: [

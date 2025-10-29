@@ -65,7 +65,15 @@
         "failedToDeleteKeyPackage": "Falha ao excluir pacote de chaves",
         "noActiveAccountFound": "Nenhuma conta ativa encontrada",
         "backgroundServices": "Serviços em segundo plano",
-        "backgroundSyncService": "Serviço de sincronização em segundo plano"
+        "backgroundSyncService": "Serviço de sincronização em segundo plano",
+        "availableTasks": "Tarefas Disponíveis",
+        "taskManagement": "Gerenciamento de Tarefas",
+        "cancelAllTasks": "Cancelar Todas as Tarefas",
+        "scheduled": "Agendada",
+        "notScheduled": "Não Agendada",
+        "unknownState": "Estado desconhecido",
+        "runsEvery": "Executa a cada {frequency}",
+        "scheduleNow": "Agendar Agora"
     },
     "profile": {
         "nostrAddress": "Endereço Nostr (NIP-05)",

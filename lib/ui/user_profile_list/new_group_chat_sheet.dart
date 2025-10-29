@@ -111,7 +111,7 @@ class _NewGroupChatSheetState extends ConsumerState<NewGroupChatSheet> {
     }
 
     return ListView.builder(
-      padding: EdgeInsets.zero,
+      padding: EdgeInsets.only(top: 16.h),
       itemCount: filteredUserProfiles.length,
       itemBuilder: (context, index) {
         final userProfile = filteredUserProfiles[index];

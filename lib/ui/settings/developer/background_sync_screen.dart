@@ -1,18 +1,15 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/domain/services/background_sync_service.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
-import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 //TODO: remove this screen later (this is a temporary screen for testing the background sync service)
 class BackgroundSyncScreen extends ConsumerStatefulWidget {
@@ -92,108 +89,72 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
-        backgroundColor: context.colors.neutral,
-        appBar: WnAppBar(
-          automaticallyImplyLeading: false,
-          leading: RepaintBoundary(
-            child: IconButton(
-              onPressed: () => context.pop(),
-              icon: WnImage(
-                AssetsPaths.icChevronLeft,
-                width: 24.w,
-                height: 24.w,
-                color: context.colors.solidPrimary,
-              ),
-            ),
-          ),
-          title: RepaintBoundary(
-            child: Text(
-              'Background Sync Service',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-                color: context.colors.solidPrimary,
-              ),
-            ),
-          ),
-        ),
-        body: SafeArea(
-          bottom: false,
-          child: ColoredBox(
-            color: context.colors.neutral,
-            child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
-              child: SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    RepaintBoundary(
-                      child: Text(
-                        'Available Tasks',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.primary,
-                        ),
-                      ),
-                    ),
-                    Gap(10.h),
-                    ...List.generate(
-                      BackgroundSyncService.allTasks.length,
-                      (index) {
-                        final task = BackgroundSyncService.allTasks[index];
-                        final isScheduled = _taskScheduledStatus[task.uniqueName] ?? false;
-                        return Column(
-                          children: [
-                            RepaintBoundary(
-                              child: _TaskItem(
-                                name: task.displayName,
-                                frequency: task.frequencyDisplay,
-                                isLoading: _isLoading,
-                                isScheduled: isScheduled,
-                                onTrigger: () => _registerTask(),
-                              ),
-                            ),
-                            if (index < BackgroundSyncService.allTasks.length - 1) Gap(8.h),
-                          ],
-                        );
-                      },
-                    ),
-                    Gap(24.h),
-                    RepaintBoundary(
-                      child: Text(
-                        'Task Management',
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.primary,
-                        ),
-                      ),
-                    ),
-                    Gap(10.h),
-                    RepaintBoundary(
-                      child: WnFilledButton(
-                        label: 'Cancel All Tasks',
-                        visualState: WnButtonVisualState.destructive,
-                        onPressed: _isLoading ? null : _cancelBackgroundTasks,
-                        loading: _isLoading,
-                        labelTextStyle: WnButtonSize.large.textStyle().copyWith(
-                          color: context.colors.solidNeutralWhite,
-                        ),
-                      ),
-                    ),
-                    Gap(MediaQuery.of(context).padding.bottom),
-                  ],
+    return WnSettingsScreenWrapper(
+      title: 'settings.backgroundSyncService'.tr(),
+      safeAreaBottom: false,
+      body: Padding(
+        padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              RepaintBoundary(
+                child: Text(
+                  'settings.availableTasks'.tr(),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.primary,
+                  ),
                 ),
               ),
-            ),
+              Gap(10.h),
+              ...List.generate(
+                BackgroundSyncService.allTasks.length,
+                (index) {
+                  final task = BackgroundSyncService.allTasks[index];
+                  final isScheduled = _taskScheduledStatus[task.uniqueName] ?? false;
+                  return Column(
+                    children: [
+                      RepaintBoundary(
+                        child: _TaskItem(
+                          name: task.displayName,
+                          frequency: task.frequencyDisplay,
+                          isLoading: _isLoading,
+                          isScheduled: isScheduled,
+                          onTrigger: () => _registerTask(),
+                        ),
+                      ),
+                      if (index < BackgroundSyncService.allTasks.length - 1) Gap(8.h),
+                    ],
+                  );
+                },
+              ),
+              Gap(24.h),
+              RepaintBoundary(
+                child: Text(
+                  'settings.taskManagement'.tr(),
+                  style: TextStyle(
+                    fontSize: 14.sp,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.primary,
+                  ),
+                ),
+              ),
+              Gap(10.h),
+              RepaintBoundary(
+                child: WnFilledButton(
+                  label: 'settings.cancelAllTasks'.tr(),
+                  visualState: WnButtonVisualState.destructive,
+                  onPressed: _isLoading ? null : _cancelBackgroundTasks,
+                  loading: _isLoading,
+                  labelTextStyle: WnButtonSize.large.textStyle().copyWith(
+                    color: context.colors.solidNeutralWhite,
+                  ),
+                ),
+              ),
+              Gap(MediaQuery.of(context).padding.bottom),
+            ],
           ),
         ),
       ),
@@ -261,10 +222,10 @@ class _TaskItem extends StatelessWidget {
                           ),
                           child: Text(
                             isScheduled
-                                ? 'Scheduled'
+                                ? 'settings.scheduled'.tr()
                                 : Platform.isAndroid
-                                ? 'Not Scheduled'
-                                : 'Unknown state',
+                                ? 'settings.notScheduled'.tr()
+                                : 'settings.unknownState'.tr(),
                             style: TextStyle(
                               fontSize: 10.sp,
                               fontWeight: FontWeight.w600,
@@ -279,7 +240,7 @@ class _TaskItem extends StatelessWidget {
                     ),
                     Gap(4.h),
                     Text(
-                      'Runs every $frequency',
+                      'settings.runsEvery'.tr({'frequency': frequency}),
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: context.colors.mutedForeground,
@@ -293,7 +254,7 @@ class _TaskItem extends StatelessWidget {
           ),
           Gap(8.h),
           WnFilledButton(
-            label: 'Schedule Now',
+            label: 'settings.scheduleNow'.tr(),
             onPressed: (isLoading || isScheduled) ? null : onTrigger,
             visualState: WnButtonVisualState.secondary,
             size: WnButtonSize.small,

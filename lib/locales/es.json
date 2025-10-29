@@ -65,7 +65,15 @@
         "failedToDeleteKeyPackage": "Error al eliminar el paquete de llaves",
         "noActiveAccountFound": "No se encontró una cuenta activa",
         "backgroundServices": "Servicios en segundo plano",
-        "backgroundSyncService": "Servicio de sincronización en segundo plano"
+        "backgroundSyncService": "Servicio de sincronización en segundo plano",
+        "availableTasks": "Tareas Disponibles",
+        "taskManagement": "Gestión de Tareas",
+        "cancelAllTasks": "Cancelar Todas las Tareas",
+        "scheduled": "Programada",
+        "notScheduled": "No Programada",
+        "unknownState": "Estado desconocido",
+        "runsEvery": "Se ejecuta cada {frequency}",
+        "scheduleNow": "Programar Ahora"
     },
     "profile": {
         "nostrAddress": "Dirección Nostr (NIP-05)",

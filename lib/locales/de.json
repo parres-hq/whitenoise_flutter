@@ -65,7 +65,15 @@
         "failedToDeleteKeyPackage": "Fehler beim Löschen des Schlüsselpakets",
         "noActiveAccountFound": "Kein aktives Konto gefunden",
         "backgroundServices": "Hintergrunddienste",
-        "backgroundSyncService": "Hintergrund-Synchronisationsdienst"
+        "backgroundSyncService": "Hintergrund-Synchronisationsdienst",
+        "availableTasks": "Verfügbare Aufgaben",
+        "taskManagement": "Aufgabenverwaltung",
+        "cancelAllTasks": "Alle Aufgaben Abbrechen",
+        "scheduled": "Geplant",
+        "notScheduled": "Nicht Geplant",
+        "unknownState": "Unbekannter Zustand",
+        "runsEvery": "Läuft alle {frequency}",
+        "scheduleNow": "Jetzt Planen"
     },
     "profile": {
         "nostrAddress": "Nostr-Adresse (NIP-05)",
