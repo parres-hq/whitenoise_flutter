@@ -7,7 +7,6 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/create_group_provider.dart';
 import 'package:whitenoise/config/states/create_group_state.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
-import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -54,7 +53,7 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
 class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> with SafeToastMixin {
   final TextEditingController _groupNameController = TextEditingController();
   final TextEditingController _groupDescriptionController = TextEditingController();
-  Group? createdGroup;
+
   @override
   void initState() {
     super.initState();
@@ -79,16 +78,18 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
     await ref.read(createGroupProvider.notifier).pickGroupImage();
   }
 
-  void _createGroupChat() async {
+  void _onGroupCreated(Group? group) {
+    if (group != null && mounted) {
+      widget.onGroupCreated?.call(group);
+      context.pop();
+    }
+  }
+
+  void _createGroupChatAsync() async {
     await ref
         .read(createGroupProvider.notifier)
         .createGroup(
-          onGroupCreated: (createdGroup) {
-            if (createdGroup != null && mounted) {
-              this.createdGroup = createdGroup;
-              context.pop();
-            }
-          },
+          onGroupCreated: _onGroupCreated,
         );
   }
 
@@ -108,18 +109,6 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         }
       }
     });
-  }
-
-  void _goToChat() {
-    if (createdGroup != null) {
-      WidgetsBinding.instance.addPostFrameCallback(
-        (_) async {
-          if (mounted) {
-            Routes.goToChat(context, createdGroup!.mlsGroupId);
-          }
-        },
-      );
-    }
   }
 
   @override
@@ -148,7 +137,6 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
       onPopInvokedWithResult: (didPop, _) {
         if (didPop) {
           ref.read(createGroupProvider.notifier).discardChanges();
-          _goToChat();
         }
       },
       child: Column(
@@ -286,7 +274,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
           ),
           const Spacer(),
           WnFilledButton(
-            onPressed: state.canCreateGroup ? _createGroupChat : null,
+            onPressed: state.canCreateGroup ? _createGroupChatAsync : null,
             loading: state.isCreatingGroup || state.isUploadingImage,
             label:
                 state.isUploadingImage

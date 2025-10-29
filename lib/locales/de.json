@@ -65,7 +65,15 @@
         "failedToDeleteKeyPackage": "Fehler beim Löschen des Schlüsselpakets",
         "noActiveAccountFound": "Kein aktives Konto gefunden",
         "backgroundServices": "Hintergrunddienste",
-        "backgroundSyncService": "Hintergrund-Synchronisationsdienst"
+        "backgroundSyncService": "Hintergrund-Synchronisationsdienst",
+        "availableTasks": "Verfügbare Aufgaben",
+        "taskManagement": "Aufgabenverwaltung",
+        "cancelAllTasks": "Alle Aufgaben Abbrechen",
+        "scheduled": "Geplant",
+        "notScheduled": "Nicht Geplant",
+        "unknownState": "Unbekannter Zustand",
+        "runsEvery": "Läuft alle {frequency}",
+        "scheduleNow": "Jetzt Planen"
     },
     "profile": {
         "nostrAddress": "Nostr-Adresse (NIP-05)",
@@ -284,6 +292,7 @@
         "groupChatInvitation": "Gruppenchat-Einladung • ",
         "membersCount": "{count} Mitglieder",
         "invitedToSecureChat": "{name} hat Sie zu einem sicheren Chat eingeladen.",
+        "invitedYouToSecureChat": "hat Sie zu einem sicheren Chat eingeladen",
         "createGroupToContinue": "Eine Gruppe erstellen, um fortzufahren",
         "noGroupsCreateDescription": "Sie sind Mitglied keiner Gruppen. Erstellen Sie eine neue Gruppe, um jemanden hinzuzufügen.",
         "groupChatName": "Gruppenchat-Name",

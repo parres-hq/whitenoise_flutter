@@ -337,7 +337,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
         // Gap after main options
         if (index == currentIndex) {
-          return Gap(26.h);
+          return Gap(12.h);
         }
         currentIndex++;
 

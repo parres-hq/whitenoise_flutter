@@ -65,7 +65,15 @@
         "failedToDeleteKeyPackage": "Не удалось удалить пакет ключей",
         "noActiveAccountFound": "Активный аккаунт не найден",
         "backgroundServices": "Фоновые службы",
-        "backgroundSyncService": "Служба фоновой синхронизации"
+        "backgroundSyncService": "Служба фоновой синхронизации",
+        "availableTasks": "Доступные Задачи",
+        "taskManagement": "Управление Задачами",
+        "cancelAllTasks": "Отменить Все Задачи",
+        "scheduled": "Запланирована",
+        "notScheduled": "Не Запланирована",
+        "unknownState": "Неизвестное состояние",
+        "runsEvery": "Выполняется каждые {frequency}",
+        "scheduleNow": "Запланировать Сейчас"
     },
     "profile": {
         "nostrAddress": "Адрес Nostr (NIP-05)",
@@ -284,6 +292,7 @@
         "groupChatInvitation": "Приглашение в групповой чат • ",
         "membersCount": "{count} участников",
         "invitedToSecureChat": "{name} пригласил вас в безопасный чат.",
+        "invitedYouToSecureChat": "пригласил вас в безопасный чат",
         "createGroupToContinue": "Создать группу для продолжения",
         "noGroupsCreateDescription": "Вы не состоите ни в одной группе. Создайте новую группу, чтобы добавить кого-то.",
         "groupChatName": "Название группового чата",

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -6,19 +8,16 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/delayed_relay_error_provider.dart';
+import 'package:whitenoise/config/providers/filtered_chat_items_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/providers/pinned_chats_provider.dart';
 import 'package:whitenoise/config/providers/polling_provider.dart';
 import 'package:whitenoise/config/providers/profile_ready_card_visibility_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
-import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/domain/services/background_sync_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api/welcomes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
@@ -67,7 +66,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   bool _isLoadingData = false;
   bool _isRefreshing = false;
   bool _isSearchVisible = false;
-  final int _loadingSkeletonCount = 8;
 
   @override
   void initState() {
@@ -77,24 +75,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
     _initializeControllers();
     _setupScrollListener();
     _scheduleInitialSetup();
-    _requestNotificationsPermission();
-    _initializeBackgroundSync();
+    _setUpForegroundNotification();
   }
 
-  Future<void> _initializeBackgroundSync() async {
+  Future<void> _setUpForegroundNotification() async {
     try {
-      await BackgroundSyncService.initialize();
-      await BackgroundSyncService.registerAllTasks();
-    } catch (e) {
-      _log.severe('Failed to initialize background sync: $e');
-    }
-  }
-
-  Future<void> _requestNotificationsPermission() async {
-    try {
-      await NotificationService.requestPermissions();
+      final isGranted = await NotificationService.requestPermissions();
+      if (isGranted) {
+        await BackgroundSyncService.startForegroundTask();
+      }
     } catch (e, st) {
-      _log.severe('Failed to get notifications permission: $e $st');
+      _log.severe('Failed to set up foreground notification', e, st);
     }
   }
 
@@ -143,10 +134,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   }
 
   Future<void> _loadAllProviderData() async {
+    unawaited(
+      ref
+          .read(relayStatusProvider.notifier)
+          .refreshStatuses()
+          .catchError(
+            (e, st) => _log.warning('refreshStatuses failed: $e', e, st),
+          ),
+    );
     await Future.wait([
       ref.read(welcomesProvider.notifier).loadWelcomes(),
       ref.read(groupsProvider.notifier).loadGroups(),
-      ref.read(relayStatusProvider.notifier).refreshStatuses(),
     ]);
   }
 
@@ -168,8 +166,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   }
 
   bool get _canProcessScrollGestures => !_isLoadingData && !_isRefreshing;
-
-  bool get isInLoadingState => _isLoadingData;
 
   void _processScrollGestures(double currentOffset) {
     final pullDistance = -currentOffset;
@@ -276,50 +272,15 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // On resume, re register all tasks with update policy
-      _initializeBackgroundSync();
+      _setUpForegroundNotification();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    // Watch both groups and welcomes
-    final groupList = ref.watch(groupsProvider.select((state) => state.groups)) ?? [];
-    final welcomesList = ref.watch(welcomesProvider.select((state) => state.welcomes)) ?? [];
-    final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
-    final pinnedChats = ref.watch(pinnedChatsProvider);
-    final pinnedChatsNotifier = ref.watch(pinnedChatsProvider.notifier);
-
-    final chatItems = <ChatListItem>[];
-
-    for (final group in groupList) {
-      final lastMessage = ref.watch(
-        chatProvider.select(
-          (state) => state.getLatestMessageForGroup(group.mlsGroupId),
-        ),
-      );
-      final isPinned = pinnedChats.contains(group.mlsGroupId);
-      chatItems.add(
-        ChatListItem.fromGroup(
-          group: group,
-          lastMessage: lastMessage,
-          isPinned: isPinned,
-        ),
-      );
-    }
-
-    // Add pending welcomes as chat items
-    final pendingWelcomes = welcomesList.where((welcome) => welcome.state == WelcomeState.pending);
-    for (final welcome in pendingWelcomes) {
-      chatItems.add(ChatListItem.fromWelcome(welcome: welcome));
-    }
-
-    // Use the separatePinnedChats method with search filtering
-    final separatedChats = pinnedChatsNotifier.separatePinnedChats(
-      chatItems,
-      searchQuery: _searchQuery,
-    );
+    final separatedChats = ref.watch(filteredChatItemsProvider(_searchQuery));
     final filteredChatItems = [...separatedChats.pinned, ...separatedChats.unpinned];
+    final visibilityAsync = ref.watch(profileReadyCardVisibilityProvider);
 
     final delayedRelayErrorState = ref.watch(delayedRelayErrorProvider);
     final shouldShowRelayError = delayedRelayErrorState.shouldShowBanner;
@@ -387,7 +348,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
                         ).animate().fadeIn(),
                   ),
 
-                if (chatItems.isEmpty)
+                if (filteredChatItems.isEmpty)
                   const SliverFillRemaining(
                     hasScrollBody: false,
                     child: _EmptyGroupList(),
@@ -483,22 +444,14 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
                     padding: EdgeInsets.only(bottom: 32.h),
                     sliver: SliverList.separated(
                       itemBuilder: (context, index) {
-                        if (isInLoadingState) {
-                          return const ChatListTileLoading();
-                        }
                         final item = filteredChatItems[index];
                         return ChatListItemTile(
                           item: item,
                           onTap: _unfocusSearchIfNeeded,
                         );
                       },
-                      itemCount:
-                          isInLoadingState ? _loadingSkeletonCount : filteredChatItems.length,
+                      itemCount: filteredChatItems.length,
                       separatorBuilder: (context, index) {
-                        if (isInLoadingState) {
-                          return Gap(8.w);
-                        }
-
                         // Add divider between pinned and unpinned sections
                         if (index == separatedChats.pinned.length - 1 &&
                             separatedChats.unpinned.isNotEmpty) {
@@ -517,7 +470,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
                 ],
               ],
             ),
-            if (chatItems.isNotEmpty)
+            if (filteredChatItems.isNotEmpty)
               Positioned(bottom: 0, left: 0, right: 0, height: 54.h, child: const WnBottomFade()),
           ],
         ),

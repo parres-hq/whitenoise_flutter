@@ -1,5 +1,6 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:whitenoise/src/rust/api/metadata.dart' show FlutterMetadata;
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 class User {
   final String id;
@@ -18,7 +19,7 @@ class User {
 
   factory User.fromMetadata(FlutterMetadata metadata, String publicKey) {
     // Use display_name first, then fall back to name, then to Unknown
-    String finalDisplayName = 'Unknown';
+    String finalDisplayName = 'shared.unknownUser'.tr();
     if (metadata.displayName?.isNotEmpty == true) {
       finalDisplayName = metadata.displayName!;
     } else if (metadata.name?.isNotEmpty == true) {

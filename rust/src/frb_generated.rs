@@ -2962,9 +2962,15 @@ impl SseDecode for crate::api::groups::Group {
 impl SseDecode for crate::api::groups::GroupInformation {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_mlsGroupId = <String>::sse_decode(deserializer);
         let mut var_groupType = <crate::api::groups::GroupType>::sse_decode(deserializer);
+        let mut var_createdAt = <chrono::DateTime<chrono::Utc>>::sse_decode(deserializer);
+        let mut var_updatedAt = <chrono::DateTime<chrono::Utc>>::sse_decode(deserializer);
         return crate::api::groups::GroupInformation {
+            mls_group_id: var_mlsGroupId,
             group_type: var_groupType,
+            created_at: var_createdAt,
+            updated_at: var_updatedAt,
         };
     }
 }
@@ -4071,7 +4077,13 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::groups::Group> for crate::api
 // Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::groups::GroupInformation {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
-        [self.group_type.into_into_dart().into_dart()].into_dart()
+        [
+            self.mls_group_id.into_into_dart().into_dart(),
+            self.group_type.into_into_dart().into_dart(),
+            self.created_at.into_into_dart().into_dart(),
+            self.updated_at.into_into_dart().into_dart(),
+        ]
+        .into_dart()
     }
 }
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
@@ -4654,7 +4666,10 @@ impl SseEncode for crate::api::groups::Group {
 impl SseEncode for crate::api::groups::GroupInformation {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.mls_group_id, serializer);
         <crate::api::groups::GroupType>::sse_encode(self.group_type, serializer);
+        <chrono::DateTime<chrono::Utc>>::sse_encode(self.created_at, serializer);
+        <chrono::DateTime<chrono::Utc>>::sse_encode(self.updated_at, serializer);
     }
 }
 

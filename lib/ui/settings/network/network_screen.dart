@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
-import 'package:whitenoise/ui/core/themes/assets.dart';
-import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
-import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_tooltip.dart';
+import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
 import 'package:whitenoise/ui/settings/network/widgets/relay_section.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
@@ -106,112 +103,74 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
     final inboxRelaysState = ref.watch(inboxRelaysProvider);
     final keyPackageRelaysState = ref.watch(keyPackageRelaysProvider);
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: PopScope(
-        onPopInvokedWithResult: (didPop, result) {
-          if (didPop) {
-            WnTooltip.hide();
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          WnTooltip.hide();
+          _currentOpenTooltipKey = null;
+        }
+      },
+      child: GestureDetector(
+        onTap: () {
+          WnTooltip.hide();
+          setState(() {
             _currentOpenTooltipKey = null;
-          }
+          });
         },
-        child: GestureDetector(
-          onTap: () {
-            WnTooltip.hide();
-            setState(() {
-              _currentOpenTooltipKey = null;
-            });
-          },
-          child: Scaffold(
-            backgroundColor: context.colors.neutral,
-            appBar: WnAppBar(
-              automaticallyImplyLeading: false,
-              leading: RepaintBoundary(
-                child: IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: WnImage(
-                    AssetsPaths.icChevronLeft,
-                    width: 24.w,
-                    height: 24.w,
-                    color: context.colors.solidPrimary,
-                  ),
-                ),
-              ),
-              title: RepaintBoundary(
-                child: Text(
-                  'settings.networkRelays'.tr(),
-                  style: TextStyle(
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.solidPrimary,
-                  ),
-                ),
-              ),
-            ),
-            body: SafeArea(
-              child: ColoredBox(
-                color: context.colors.neutral,
-                child: Column(
+        child: WnSettingsScreenWrapper(
+          title: 'settings.networkRelays'.tr(),
+          onBackPressed: () => Navigator.of(context).pop(),
+          body: Column(
+            children: [
+              Expanded(
+                child: ListView(
+                  padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w),
                   children: [
-                    Expanded(
-                      child: Padding(
-                        padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w),
-                        child: ListView(
-                          padding: EdgeInsets.zero,
-                          children: [
-                            RepaintBoundary(
-                              child: RelaySection(
-                                title: 'network.myRelays'.tr(),
-                                helpIconKey: _myRelayHelpIconKey,
-                                relayState: normalRelaysState,
-                                relayNotifier: ref.read(normalRelaysProvider.notifier),
-                                onInfoTap:
-                                    () => _showHelpTooltip(
-                                      _myRelayHelpIconKey,
-                                      'network.myRelaysHelp'.tr(),
-                                    ),
-                              ),
+                    RepaintBoundary(
+                      child: RelaySection(
+                        title: 'network.myRelays'.tr(),
+                        helpIconKey: _myRelayHelpIconKey,
+                        relayState: normalRelaysState,
+                        relayNotifier: ref.read(normalRelaysProvider.notifier),
+                        onInfoTap:
+                            () => _showHelpTooltip(
+                              _myRelayHelpIconKey,
+                              'network.myRelaysHelp'.tr(),
                             ),
-                            SizedBox(height: 16.h),
-                            RepaintBoundary(
-                              child: RelaySection(
-                                title: 'network.inboxRelays'.tr(),
-                                helpIconKey: _inboxRelayHelpIconKey,
-                                relayState: inboxRelaysState,
-                                relayNotifier: ref.read(inboxRelaysProvider.notifier),
-                                onInfoTap:
-                                    () => _showHelpTooltip(
-                                      _inboxRelayHelpIconKey,
-                                      'network.inboxRelaysHelp'.tr(),
-                                    ),
-                              ),
+                      ),
+                    ),
+                    Gap(16.h),
+                    RepaintBoundary(
+                      child: RelaySection(
+                        title: 'network.inboxRelays'.tr(),
+                        helpIconKey: _inboxRelayHelpIconKey,
+                        relayState: inboxRelaysState,
+                        relayNotifier: ref.read(inboxRelaysProvider.notifier),
+                        onInfoTap:
+                            () => _showHelpTooltip(
+                              _inboxRelayHelpIconKey,
+                              'network.inboxRelaysHelp'.tr(),
                             ),
-                            SizedBox(height: 16.h),
-                            RepaintBoundary(
-                              child: RelaySection(
-                                title: 'network.keyPackageRelays'.tr(),
-                                helpIconKey: _keyPackageRelayHelpIconKey,
-                                relayState: keyPackageRelaysState,
-                                relayNotifier: ref.read(keyPackageRelaysProvider.notifier),
-                                onInfoTap:
-                                    () => _showHelpTooltip(
-                                      _keyPackageRelayHelpIconKey,
-                                      'network.keyPackageRelaysHelp'.tr(),
-                                    ),
-                              ),
+                      ),
+                    ),
+                    Gap(16.h),
+                    RepaintBoundary(
+                      child: RelaySection(
+                        title: 'network.keyPackageRelays'.tr(),
+                        helpIconKey: _keyPackageRelayHelpIconKey,
+                        relayState: keyPackageRelaysState,
+                        relayNotifier: ref.read(keyPackageRelaysProvider.notifier),
+                        onInfoTap:
+                            () => _showHelpTooltip(
+                              _keyPackageRelayHelpIconKey,
+                              'network.keyPackageRelaysHelp'.tr(),
                             ),
-                          ],
-                        ),
                       ),
                     ),
                   ],
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),

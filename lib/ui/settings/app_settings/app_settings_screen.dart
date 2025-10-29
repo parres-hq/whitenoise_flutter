@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -18,10 +17,10 @@ import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api.dart' as wn_api;
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
-import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
 import 'package:whitenoise/ui/widgets/language_selector_dropdown.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
@@ -173,111 +172,75 @@ class AppSettingsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeProvider).themeMode;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark,
-      ),
-      child: Scaffold(
-        backgroundColor: context.colors.neutral,
-        appBar: WnAppBar(
-          automaticallyImplyLeading: false,
-          leading: RepaintBoundary(
-            child: IconButton(
-              onPressed: () => context.pop(),
-              icon: WnImage(
-                AssetsPaths.icChevronLeft,
-                width: 24.w,
-                height: 24.w,
-                color: context.colors.solidPrimary,
-              ),
-            ),
-          ),
-          title: RepaintBoundary(
-            child: LocalizedText(
-              'settings.appSettings',
-              style: TextStyle(
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-                color: context.colors.solidPrimary,
-              ),
-            ),
-          ),
-        ),
-        body: SafeArea(
-          bottom: false,
-          child: ColoredBox(
-            color: context.colors.neutral,
-            child: Column(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(vertical: 24.h),
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.only(
-                          left: 16.w,
-                          right: 16.w,
-                          bottom: 24.w,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            LocalizedText(
-                              'settings.theme',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            Gap(10.h),
-                            _ThemeDropdown(
-                              currentTheme: themeMode,
-                              onThemeChanged: (newMode) {
-                                ref.read(themeProvider.notifier).setThemeMode(newMode);
-                              },
-                            ),
-                            Gap(24.h),
-                            LocalizedText(
-                              'settings.language',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            Gap(10.h),
-                            const LanguageSelectorDropdown(),
-                            Gap(24.h),
-                            LocalizedText(
-                              'settings.dangerZone',
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            Gap(10.h),
-                            WnFilledButton(
-                              label: 'settings.deleteAllData'.tr(),
-                              labelTextStyle: WnButtonSize.large.textStyle().copyWith(
-                                color: context.colors.solidNeutralWhite,
-                              ),
-                              visualState: WnButtonVisualState.destructive,
-                              onPressed: () => _deleteAllData(context, ref),
-                            ),
-                          ],
+    return WnSettingsScreenWrapper(
+      title: 'settings.appSettings'.tr(),
+      safeAreaBottom: false,
+      body: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 24.h),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    left: 16.w,
+                    right: 16.w,
+                    bottom: 24.h,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      LocalizedText(
+                        'settings.theme',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.primary,
                         ),
                       ),
-                    ),
+                      Gap(10.h),
+                      _ThemeDropdown(
+                        currentTheme: themeMode,
+                        onThemeChanged: (newMode) {
+                          ref.read(themeProvider.notifier).setThemeMode(newMode);
+                        },
+                      ),
+                      Gap(24.h),
+                      LocalizedText(
+                        'settings.language',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.primary,
+                        ),
+                      ),
+                      Gap(10.h),
+                      const LanguageSelectorDropdown(),
+                      Gap(24.h),
+                      LocalizedText(
+                        'settings.dangerZone',
+                        style: TextStyle(
+                          fontSize: 14.sp,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.primary,
+                        ),
+                      ),
+                      Gap(10.h),
+                      WnFilledButton(
+                        label: 'settings.deleteAllData'.tr(),
+                        labelTextStyle: WnButtonSize.large.textStyle().copyWith(
+                          color: context.colors.solidNeutralWhite,
+                        ),
+                        visualState: WnButtonVisualState.destructive,
+                        onPressed: () => _deleteAllData(context, ref),
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
-        ),
+        ],
       ),
     );
   }
