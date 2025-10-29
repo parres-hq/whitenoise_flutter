@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/relay_provider.dart';
 import 'package:whitenoise/config/providers/relay_status_provider.dart';
@@ -122,54 +123,51 @@ class _NetworkScreenState extends ConsumerState<NetworkScreen> {
           body: Column(
             children: [
               Expanded(
-                child: Padding(
+                child: ListView(
                   padding: EdgeInsets.only(top: 16.h, left: 16.w, right: 16.w),
-                  child: ListView(
-                    padding: EdgeInsets.zero,
-                    children: [
-                      RepaintBoundary(
-                        child: RelaySection(
-                          title: 'network.myRelays'.tr(),
-                          helpIconKey: _myRelayHelpIconKey,
-                          relayState: normalRelaysState,
-                          relayNotifier: ref.read(normalRelaysProvider.notifier),
-                          onInfoTap:
-                              () => _showHelpTooltip(
-                                _myRelayHelpIconKey,
-                                'network.myRelaysHelp'.tr(),
-                              ),
-                        ),
+                  children: [
+                    RepaintBoundary(
+                      child: RelaySection(
+                        title: 'network.myRelays'.tr(),
+                        helpIconKey: _myRelayHelpIconKey,
+                        relayState: normalRelaysState,
+                        relayNotifier: ref.read(normalRelaysProvider.notifier),
+                        onInfoTap:
+                            () => _showHelpTooltip(
+                              _myRelayHelpIconKey,
+                              'network.myRelaysHelp'.tr(),
+                            ),
                       ),
-                      SizedBox(height: 16.h),
-                      RepaintBoundary(
-                        child: RelaySection(
-                          title: 'network.inboxRelays'.tr(),
-                          helpIconKey: _inboxRelayHelpIconKey,
-                          relayState: inboxRelaysState,
-                          relayNotifier: ref.read(inboxRelaysProvider.notifier),
-                          onInfoTap:
-                              () => _showHelpTooltip(
-                                _inboxRelayHelpIconKey,
-                                'network.inboxRelaysHelp'.tr(),
-                              ),
-                        ),
+                    ),
+                    Gap(16.h),
+                    RepaintBoundary(
+                      child: RelaySection(
+                        title: 'network.inboxRelays'.tr(),
+                        helpIconKey: _inboxRelayHelpIconKey,
+                        relayState: inboxRelaysState,
+                        relayNotifier: ref.read(inboxRelaysProvider.notifier),
+                        onInfoTap:
+                            () => _showHelpTooltip(
+                              _inboxRelayHelpIconKey,
+                              'network.inboxRelaysHelp'.tr(),
+                            ),
                       ),
-                      SizedBox(height: 16.h),
-                      RepaintBoundary(
-                        child: RelaySection(
-                          title: 'network.keyPackageRelays'.tr(),
-                          helpIconKey: _keyPackageRelayHelpIconKey,
-                          relayState: keyPackageRelaysState,
-                          relayNotifier: ref.read(keyPackageRelaysProvider.notifier),
-                          onInfoTap:
-                              () => _showHelpTooltip(
-                                _keyPackageRelayHelpIconKey,
-                                'network.keyPackageRelaysHelp'.tr(),
-                              ),
-                        ),
+                    ),
+                    Gap(16.h),
+                    RepaintBoundary(
+                      child: RelaySection(
+                        title: 'network.keyPackageRelays'.tr(),
+                        helpIconKey: _keyPackageRelayHelpIconKey,
+                        relayState: keyPackageRelaysState,
+                        relayNotifier: ref.read(keyPackageRelaysProvider.notifier),
+                        onInfoTap:
+                            () => _showHelpTooltip(
+                              _keyPackageRelayHelpIconKey,
+                              'network.keyPackageRelaysHelp'.tr(),
+                            ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],

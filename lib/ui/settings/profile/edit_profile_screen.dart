@@ -99,115 +99,112 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
             (profile) => Column(
               children: [
                 Expanded(
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 24.h),
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 16.w),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            Stack(
-                              alignment: Alignment.bottomCenter,
-                              children: [
-                                ValueListenableBuilder<TextEditingValue>(
-                                  valueListenable: _displayNameController,
-                                  builder: (context, value, child) {
-                                    final imageUrl = _getProfileImageUrl(profile);
-                                    final displayName = value.text.trim();
-                                    return WnAvatar(
-                                      imageUrl: imageUrl,
-                                      displayName: displayName,
-                                      size: 96.w,
-                                      showBorder: imageUrl.isEmpty,
-                                    );
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              ValueListenableBuilder<TextEditingValue>(
+                                valueListenable: _displayNameController,
+                                builder: (context, value, child) {
+                                  final imageUrl = _getProfileImageUrl(profile);
+                                  final displayName = value.text.trim();
+                                  return WnAvatar(
+                                    imageUrl: imageUrl,
+                                    displayName: displayName,
+                                    size: 96.w,
+                                    showBorder: imageUrl.isEmpty,
+                                  );
+                                },
+                              ),
+                              Positioned(
+                                left: 1.sw * 0.5,
+                                bottom: 4.h,
+                                width: 28.w,
+                                child: WnEditIconWidget(
+                                  onTap: () async {
+                                    try {
+                                      await ref
+                                          .read(editProfileScreenProvider.notifier)
+                                          .pickProfileImage();
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        ref.showErrorToast(
+                                          'profile.failedToPickProfileImage'.tr(),
+                                        );
+                                      }
+                                    }
                                   },
                                 ),
-                                Positioned(
-                                  left: 1.sw * 0.5,
-                                  bottom: 4.h,
-                                  width: 28.w,
-                                  child: WnEditIconWidget(
-                                    onTap: () async {
-                                      try {
-                                        await ref
-                                            .read(editProfileScreenProvider.notifier)
-                                            .pickProfileImage();
-                                      } catch (e) {
-                                        if (context.mounted) {
-                                          ref.showErrorToast(
-                                            'profile.failedToPickProfileImage'.tr(),
-                                          );
-                                        }
-                                      }
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Gap(36.h),
-                            Text(
-                              'profile.profileName'.tr(),
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14.sp,
-                                color: context.colors.primary,
                               ),
+                            ],
+                          ),
+                          Gap(36.h),
+                          Text(
+                            'profile.profileName'.tr(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14.sp,
+                              color: context.colors.primary,
                             ),
-                            Gap(10.h),
-                            WnTextFormField(
-                              controller: _displayNameController,
-                              hintText: 'auth.yourName'.tr(),
-                              onChanged: (value) {
-                                ref
-                                    .read(editProfileScreenProvider.notifier)
-                                    .updateLocalProfile(displayName: value);
-                              },
+                          ),
+                          Gap(10.h),
+                          WnTextFormField(
+                            controller: _displayNameController,
+                            hintText: 'auth.yourName'.tr(),
+                            onChanged: (value) {
+                              ref
+                                  .read(editProfileScreenProvider.notifier)
+                                  .updateLocalProfile(displayName: value);
+                            },
+                          ),
+                          Gap(36.h),
+                          Text(
+                            'profile.nostrAddress'.tr(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14.sp,
+                              color: context.colors.primary,
                             ),
-                            Gap(36.h),
-                            Text(
-                              'profile.nostrAddress'.tr(),
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14.sp,
-                                color: context.colors.primary,
-                              ),
+                          ),
+                          Gap(10.h),
+                          WnTextFormField(
+                            controller: _nostrAddressController,
+                            hintText: 'profile.nostrAddressExample'.tr(),
+                            onChanged: (value) {
+                              ref
+                                  .read(editProfileScreenProvider.notifier)
+                                  .updateLocalProfile(nip05: value);
+                            },
+                          ),
+                          Gap(36.h),
+                          Text(
+                            'profile.aboutYou'.tr(),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14.sp,
+                              color: context.colors.primary,
                             ),
-                            Gap(10.h),
-                            WnTextFormField(
-                              controller: _nostrAddressController,
-                              hintText: 'profile.nostrAddressExample'.tr(),
-                              onChanged: (value) {
-                                ref
-                                    .read(editProfileScreenProvider.notifier)
-                                    .updateLocalProfile(nip05: value);
-                              },
-                            ),
-                            Gap(36.h),
-                            Text(
-                              'profile.aboutYou'.tr(),
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14.sp,
-                                color: context.colors.primary,
-                              ),
-                            ),
-                            Gap(10.h),
-                            WnTextFormField(
-                              controller: _aboutController,
-                              hintText: 'auth.writeSomethingAboutYourself'.tr(),
-                              minLines: 3,
-                              maxLines: 3,
-                              keyboardType: TextInputType.multiline,
-                              onChanged: (value) {
-                                ref
-                                    .read(editProfileScreenProvider.notifier)
-                                    .updateLocalProfile(about: value);
-                              },
-                            ),
-                            Gap(16.h),
-                          ],
-                        ),
+                          ),
+                          Gap(10.h),
+                          WnTextFormField(
+                            controller: _aboutController,
+                            hintText: 'auth.writeSomethingAboutYourself'.tr(),
+                            minLines: 3,
+                            maxLines: 3,
+                            keyboardType: TextInputType.multiline,
+                            onChanged: (value) {
+                              ref
+                                  .read(editProfileScreenProvider.notifier)
+                                  .updateLocalProfile(about: value);
+                            },
+                          ),
+                          Gap(16.h),
+                        ],
                       ),
                     ),
                   ),
