@@ -75,24 +75,17 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
     _initializeControllers();
     _setupScrollListener();
     _scheduleInitialSetup();
-    _requestNotificationsPermission();
-    _initializeBackgroundSync();
+    _setUpForegroundNotification();
   }
 
-  Future<void> _initializeBackgroundSync() async {
+  Future<void> _setUpForegroundNotification() async {
     try {
-      await BackgroundSyncService.initialize();
-      await BackgroundSyncService.registerAllTasks();
-    } catch (e) {
-      _log.severe('Failed to initialize background sync: $e');
-    }
-  }
-
-  Future<void> _requestNotificationsPermission() async {
-    try {
-      await NotificationService.requestPermissions();
+      final isGranted = await NotificationService.requestPermissions();
+      if (isGranted) {
+        await BackgroundSyncService.startForegroundTask();
+      }
     } catch (e, st) {
-      _log.severe('Failed to get notifications permission: $e $st');
+      _log.severe('Failed to set up foreground notification', e, st);
     }
   }
 
@@ -279,8 +272,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      // On resume, re register all tasks with update policy
-      _initializeBackgroundSync();
+      _setUpForegroundNotification();
     }
   }
 
