@@ -7,8 +7,8 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
-class MediaThumbnail extends StatelessWidget {
-  const MediaThumbnail({
+class MediaPreviewThumbnail extends StatelessWidget {
+  const MediaPreviewThumbnail({
     super.key,
     required this.mediaItem,
     required this.isActive,

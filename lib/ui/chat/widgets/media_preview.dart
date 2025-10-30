@@ -3,14 +3,14 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/domain/models/media_file_upload.dart';
-import 'package:whitenoise/ui/chat/widgets/media_thumbnail.dart';
+import 'package:whitenoise/ui/chat/widgets/media_preview_thumbnail.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
-class ChatInputMediaPreview extends StatefulWidget {
-  const ChatInputMediaPreview({
+class MediaPreview extends StatefulWidget {
+  const MediaPreview({
     super.key,
     required this.mediaItems,
     required this.onRemoveImage,
@@ -23,10 +23,10 @@ class ChatInputMediaPreview extends StatefulWidget {
   final VoidCallback onAddMore;
   final bool isReply;
   @override
-  State<ChatInputMediaPreview> createState() => _ChatInputMediaPreviewState();
+  State<MediaPreview> createState() => _MediaPreviewState();
 }
 
-class _ChatInputMediaPreviewState extends State<ChatInputMediaPreview> {
+class _MediaPreviewState extends State<MediaPreview> {
   static const double _imageWidth = 285.0;
   static const double _imageHeight = 250.0;
   static const double _imageSpacing = 8.0;
@@ -172,7 +172,7 @@ class _ChatInputMediaPreviewState extends State<ChatInputMediaPreview> {
                     final itemIndex = index - 1;
                     final mediaItem = widget.mediaItems[itemIndex];
 
-                    return MediaThumbnail(
+                    return MediaPreviewThumbnail(
                       mediaItem: mediaItem,
                       isActive: _activeThumbIndex == itemIndex,
                       onTap: () => _handleThumbnailTap(itemIndex),
