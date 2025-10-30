@@ -9,6 +9,7 @@ import 'package:whitenoise/config/providers/localization_provider.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_bubble/bubble.dart';
+import 'package:whitenoise/ui/chat/widgets/message_media_grid.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
@@ -134,6 +135,12 @@ class MessageWidget extends StatelessWidget {
                   onTap:
                       message.replyTo != null ? () => onReplyTap?.call(message.replyTo!.id) : null,
                 ),
+                if (message.mediaAttachments.isNotEmpty) ...[
+                  MessageMediaGrid(
+                    mediaFiles: message.mediaAttachments,
+                  ),
+                  Gap(4.h),
+                ],
                 _buildMessageWithTimestamp(
                   context,
                   constraints.maxWidth - 16.w,
@@ -156,6 +163,16 @@ class MessageWidget extends StatelessWidget {
     final messageContent = message.content ?? '';
     final timestampWidth = _getTimestampWidth(context);
     final minPadding = 8.w;
+
+    // If message content is empty, just show the timestamp
+    if (messageContent.isEmpty) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TimeAndStatus(message: message, context: context),
+        ],
+      );
+    }
 
     final textWidget = _buildHighlightedText(messageContent, textStyle, context);
 
