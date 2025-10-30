@@ -2,10 +2,12 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/domain/models/media_file_upload.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/domain/services/image_picker_service.dart';
 import 'package:whitenoise/src/rust/api/media_files.dart' as rust_media_files;
+import 'package:whitenoise/src/rust/api/messages.dart' show MessageWithTokens;
 import 'package:whitenoise/ui/chat/states/chat_input_state.dart';
 
 import 'package:whitenoise/utils/pubkey_formatter.dart';
@@ -173,6 +175,45 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
 
   void setPreviousEditingMessageContent(String? content) {
     state = state.copyWith(previousEditingMessageContent: content);
+  }
+
+  Future<MessageWithTokens?> sendMessage({
+    required String message,
+    bool isEditing = false,
+  }) async {
+    if (state.hasUploadingMedia || state.hasFailedMedia) return null;
+
+    final uploadedMediaFiles =
+        state.selectedMedia
+            .where((media) => media.uploadedFile != null)
+            .map((media) => media.uploadedFile!)
+            .toList();
+
+    final chatProviderState = ref.read(chatProvider);
+    final replyingTo = chatProviderState.replyingTo[_groupId];
+    final chatNotifier = ref.read(chatProvider.notifier);
+    late MessageWithTokens? messageSent;
+    if (replyingTo != null) {
+      messageSent = await chatNotifier.sendReplyMessage(
+        groupId: _groupId,
+        replyToMessageId: replyingTo.id,
+        message: message,
+        mediaFiles: uploadedMediaFiles,
+      );
+    } else {
+      messageSent = await chatNotifier.sendMessage(
+        groupId: _groupId,
+        message: message,
+        isEditing: isEditing,
+        mediaFiles: uploadedMediaFiles,
+      );
+    }
+
+    if (messageSent != null) {
+      await clear();
+    }
+
+    return messageSent;
   }
 
   Future<void> clear() async {

@@ -170,14 +170,15 @@ class __$$ChatInputStateImplCopyWithImpl<$Res>
 
 /// @nodoc
 
-class _$ChatInputStateImpl implements _ChatInputState {
+class _$ChatInputStateImpl extends _ChatInputState {
   const _$ChatInputStateImpl({
     this.isLoadingDraft = false,
     this.showMediaSelector = false,
     final List<MediaFileUpload> selectedMedia = const [],
     this.singleLineHeight,
     this.previousEditingMessageContent,
-  }) : _selectedMedia = selectedMedia;
+  }) : _selectedMedia = selectedMedia,
+       super._();
 
   @override
   @JsonKey()
@@ -248,7 +249,7 @@ class _$ChatInputStateImpl implements _ChatInputState {
       );
 }
 
-abstract class _ChatInputState implements ChatInputState {
+abstract class _ChatInputState extends ChatInputState {
   const factory _ChatInputState({
     final bool isLoadingDraft,
     final bool showMediaSelector,
@@ -256,6 +257,7 @@ abstract class _ChatInputState implements ChatInputState {
     final double? singleLineHeight,
     final String? previousEditingMessageContent,
   }) = _$ChatInputStateImpl;
+  const _ChatInputState._() : super._();
 
   @override
   bool get isLoadingDraft;

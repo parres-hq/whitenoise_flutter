@@ -1,3 +1,4 @@
+import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/src/rust/api/utils.dart' as utils;
 
@@ -43,5 +44,33 @@ class NostrTagBuilderService {
       await _tagFromVecFn(vec: ['p', messagePubkey]), // Author of the message being deleted
       await _tagFromVecFn(vec: ['k', messageKind.toString()]), // Kind of the message being deleted
     ];
+  }
+
+  Future<List<Tag>> buildMediaTags({
+    required List<MediaFile> mediaFiles,
+  }) async {
+    final List<Future<Tag>> tagsFutures =
+        mediaFiles.map((mediaFile) => _buildMediaTag(mediaFile: mediaFile)).toList();
+    final List<Tag> tags = await Future.wait(tagsFutures);
+    return tags;
+  }
+
+  // NIP-92: https://github.com/nostr-protocol/nips/blob/master/92.md
+  Future<Tag> _buildMediaTag({
+    required MediaFile mediaFile,
+  }) async {
+    final tag = [
+      'imeta',
+      'url ${mediaFile.blossomUrl}',
+      'm ${mediaFile.mimeType}',
+      'x ${mediaFile.fileHash}',
+    ];
+    if (mediaFile.fileMetadata?.blurhash != null) {
+      tag.add('blurhash ${mediaFile.fileMetadata?.blurhash}');
+    }
+    if (mediaFile.fileMetadata?.dimensions != null) {
+      tag.add('dim ${mediaFile.fileMetadata?.dimensions}');
+    }
+    return await _tagFromVecFn(vec: tag);
   }
 }

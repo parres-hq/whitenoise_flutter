@@ -11,6 +11,7 @@ class WnIconButton extends StatelessWidget {
   final Color? buttonColor;
   final Color? iconColor;
   final Color? borderColor;
+  final bool isDisabled;
 
   const WnIconButton({
     required this.onTap,
@@ -20,13 +21,14 @@ class WnIconButton extends StatelessWidget {
     this.buttonColor,
     this.iconColor,
     this.borderColor,
+    this.isDisabled = false,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: onTap,
+      onTap: isDisabled ? null : onTap,
       child: Container(
         height: size ?? 40.h,
         width: size,
