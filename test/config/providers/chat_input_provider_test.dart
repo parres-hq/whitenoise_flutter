@@ -806,7 +806,7 @@ void main() {
 
         group('with media files', () {
           setUp(() async {
-            const imagePathA = '/path/to/imageAjpg';
+            const imagePathA = '/path/to/imageA.jpg';
             const imagePathB = '/path/to/imageB.jpg';
             mockImagePicker.imagesToReturn = [imagePathA, imagePathB];
             mockUploadMedia.setUploadResult(
