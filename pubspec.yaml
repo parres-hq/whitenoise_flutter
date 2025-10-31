@@ -75,6 +75,7 @@ dependencies:
     synchronized: ^3.4.0    
     flutter_slidable: ^4.0.3
     flutter_foreground_task: ^9.1.0
+    flutter_blurhash: ^0.9.1
 
 dev_dependencies:
     flutter_test:

@@ -1,6 +1,7 @@
 // ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:flutter/material.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
+import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
@@ -19,6 +20,7 @@ class MessageModel {
   final String? groupId;
   final MessageStatus status;
   final int kind;
+  final List<MediaFile> mediaAttachments;
 
   MessageModel({
     required this.id,
@@ -35,6 +37,7 @@ class MessageModel {
     this.groupId,
     this.status = MessageStatus.sent,
     this.kind = 9, // Default to chat message kind (kind 9 for group chat messages)
+    this.mediaAttachments = const [],
   }) : reactions = List.unmodifiable(reactions);
 
   MessageModel copyWith({
@@ -52,6 +55,7 @@ class MessageModel {
     String? roomId,
     MessageStatus? status,
     int? kind,
+    List<MediaFile>? mediaAttachments,
   }) {
     return MessageModel(
       id: id ?? this.id,
@@ -68,6 +72,7 @@ class MessageModel {
       groupId: roomId ?? groupId,
       status: status ?? this.status,
       kind: kind ?? this.kind,
+      mediaAttachments: mediaAttachments ?? this.mediaAttachments,
     );
   }
 

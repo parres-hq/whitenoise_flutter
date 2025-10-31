@@ -1,12 +1,12 @@
-use crate::api::{error::ApiError, utils::group_id_from_string};
+use crate::api::{error::ApiError, media_files::MediaFile, utils::group_id_from_string};
 use chrono::{DateTime, TimeZone, Utc};
 use flutter_rust_bridge::frb;
 use nostr_sdk::prelude::*;
 pub use whitenoise::{
     ChatMessage as WhitenoiseChatMessage, EmojiReaction as WhitenoiseEmojiReaction,
-    MessageWithTokens as WhitenoiseMessageWithTokens, ReactionSummary as WhitenoiseReactionSummary,
-    SerializableToken as WhitenoiseSerializableToken, UserReaction as WhitenoiseUserReaction,
-    Whitenoise,
+    MediaFile as WhitenoiseMediaFile, MessageWithTokens as WhitenoiseMessageWithTokens,
+    ReactionSummary as WhitenoiseReactionSummary, SerializableToken as WhitenoiseSerializableToken,
+    UserReaction as WhitenoiseUserReaction, Whitenoise,
 };
 
 /// Flutter-compatible message with tokens
@@ -35,6 +35,7 @@ pub struct ChatMessage {
     pub is_deleted: bool,
     pub content_tokens: Vec<SerializableToken>,
     pub reactions: ReactionSummary,
+    pub media_attachments: Vec<MediaFile>,
     pub kind: u16,
 }
 
@@ -218,6 +219,12 @@ impl From<&WhitenoiseChatMessage> for ChatMessage {
             is_deleted: chat_message.is_deleted,
             content_tokens,
             reactions,
+            media_attachments: chat_message
+                .media_attachments
+                .clone()
+                .into_iter()
+                .map(|media_file| media_file.into())
+                .collect(),
             kind: chat_message.kind,
         }
     }

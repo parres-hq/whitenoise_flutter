@@ -106,6 +106,7 @@ void main() {
         contentTokens: [],
         reactions: const ReactionSummary(byEmoji: [], userReactions: []),
         kind: 9,
+        mediaAttachments: [],
       ),
       ChatMessage(
         id: 'message_3',
@@ -118,6 +119,7 @@ void main() {
         contentTokens: [],
         reactions: const ReactionSummary(byEmoji: [], userReactions: []),
         kind: 9,
+        mediaAttachments: [],
       ),
       ChatMessage(
         id: 'message_2',
@@ -130,6 +132,7 @@ void main() {
         contentTokens: [],
         reactions: const ReactionSummary(byEmoji: [], userReactions: []),
         kind: 9,
+        mediaAttachments: [],
       ),
     ];
 

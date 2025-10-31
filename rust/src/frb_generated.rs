@@ -2813,6 +2813,8 @@ impl SseDecode for crate::api::messages::ChatMessage {
         let mut var_contentTokens =
             <Vec<crate::api::messages::SerializableToken>>::sse_decode(deserializer);
         let mut var_reactions = <crate::api::messages::ReactionSummary>::sse_decode(deserializer);
+        let mut var_mediaAttachments =
+            <Vec<crate::api::media_files::MediaFile>>::sse_decode(deserializer);
         let mut var_kind = <u16>::sse_decode(deserializer);
         return crate::api::messages::ChatMessage {
             id: var_id,
@@ -2825,6 +2827,7 @@ impl SseDecode for crate::api::messages::ChatMessage {
             is_deleted: var_isDeleted,
             content_tokens: var_contentTokens,
             reactions: var_reactions,
+            media_attachments: var_mediaAttachments,
             kind: var_kind,
         };
     }
@@ -3111,6 +3114,20 @@ impl SseDecode for Vec<crate::api::groups::GroupInformation> {
         let mut ans_ = vec![];
         for idx_ in 0..len_ {
             ans_.push(<crate::api::groups::GroupInformation>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::media_files::MediaFile> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = vec![];
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::media_files::MediaFile>::sse_decode(
                 deserializer,
             ));
         }
@@ -3909,6 +3926,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::messages::ChatMessage {
             self.is_deleted.into_into_dart().into_dart(),
             self.content_tokens.into_into_dart().into_dart(),
             self.reactions.into_into_dart().into_dart(),
+            self.media_attachments.into_into_dart().into_dart(),
             self.kind.into_into_dart().into_dart(),
         ]
         .into_dart()
@@ -4583,6 +4601,7 @@ impl SseEncode for crate::api::messages::ChatMessage {
         <bool>::sse_encode(self.is_deleted, serializer);
         <Vec<crate::api::messages::SerializableToken>>::sse_encode(self.content_tokens, serializer);
         <crate::api::messages::ReactionSummary>::sse_encode(self.reactions, serializer);
+        <Vec<crate::api::media_files::MediaFile>>::sse_encode(self.media_attachments, serializer);
         <u16>::sse_encode(self.kind, serializer);
     }
 }
@@ -4796,6 +4815,16 @@ impl SseEncode for Vec<crate::api::groups::GroupInformation> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::api::groups::GroupInformation>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::media_files::MediaFile> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::media_files::MediaFile>::sse_encode(item, serializer);
         }
     }
 }

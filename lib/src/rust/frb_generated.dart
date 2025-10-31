@@ -2817,7 +2817,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ChatMessage dco_decode_chat_message(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 11) throw Exception('unexpected arr length: expect 11 but see ${arr.length}');
+    if (arr.length != 12) throw Exception('unexpected arr length: expect 12 but see ${arr.length}');
     return ChatMessage(
       id: dco_decode_String(arr[0]),
       pubkey: dco_decode_String(arr[1]),
@@ -2829,7 +2829,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       isDeleted: dco_decode_bool(arr[7]),
       contentTokens: dco_decode_list_serializable_token(arr[8]),
       reactions: dco_decode_reaction_summary(arr[9]),
-      kind: dco_decode_u_16(arr[10]),
+      mediaAttachments: dco_decode_list_media_file(arr[10]),
+      kind: dco_decode_u_16(arr[11]),
     );
   }
 
@@ -3017,6 +3018,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   List<GroupInformation> dco_decode_list_group_information(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_group_information).toList();
+  }
+
+  @protected
+  List<MediaFile> dco_decode_list_media_file(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_media_file).toList();
   }
 
   @protected
@@ -3632,6 +3639,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     final var_isDeleted = sse_decode_bool(deserializer);
     final var_contentTokens = sse_decode_list_serializable_token(deserializer);
     final var_reactions = sse_decode_reaction_summary(deserializer);
+    final var_mediaAttachments = sse_decode_list_media_file(deserializer);
     final var_kind = sse_decode_u_16(deserializer);
     return ChatMessage(
       id: var_id,
@@ -3644,6 +3652,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       isDeleted: var_isDeleted,
       contentTokens: var_contentTokens,
       reactions: var_reactions,
+      mediaAttachments: var_mediaAttachments,
       kind: var_kind,
     );
   }
@@ -3916,6 +3925,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     final ans_ = <GroupInformation>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_group_information(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<MediaFile> sse_decode_list_media_file(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    final len_ = sse_decode_i_32(deserializer);
+    final ans_ = <MediaFile>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_media_file(deserializer));
     }
     return ans_;
   }
@@ -4653,6 +4674,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self.isDeleted, serializer);
     sse_encode_list_serializable_token(self.contentTokens, serializer);
     sse_encode_reaction_summary(self.reactions, serializer);
+    sse_encode_list_media_file(self.mediaAttachments, serializer);
     sse_encode_u_16(self.kind, serializer);
   }
 
@@ -4855,6 +4877,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_group_information(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_media_file(
+    List<MediaFile> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_media_file(item, serializer);
     }
   }
 
