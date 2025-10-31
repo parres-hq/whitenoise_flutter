@@ -32,33 +32,54 @@ class _MediaPreviewState extends State<MediaPreview> {
   static const double _imageSpacing = 8.0;
   static const double _thumbnailSpacing = 12.0;
 
-  final _scrollController = ScrollController();
-  int? _activeThumbIndex;
+  final _pageController = PageController();
+  int _currentMediaIndex = 0;
+  bool _isDeleteEnabled = false;
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(MediaPreview oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.mediaItems.isEmpty) {
+      setState(() {
+        _currentMediaIndex = 0;
+        _isDeleteEnabled = false;
+      });
+    } else if (_currentMediaIndex >= widget.mediaItems.length && widget.mediaItems.isNotEmpty) {
+      setState(() {
+        _currentMediaIndex = widget.mediaItems.length - 1;
+        _isDeleteEnabled = false;
+      });
+      _pageController.jumpToPage(_currentMediaIndex);
+    }
+  }
+
   void _handleThumbnailTap(int index) {
-    if (_activeThumbIndex == index) {
+    if (_currentMediaIndex == index && _isDeleteEnabled) {
       widget.onRemoveImage(index);
       setState(() {
-        _activeThumbIndex = null;
+        _isDeleteEnabled = false;
+      });
+    } else if (_currentMediaIndex == index) {
+      setState(() {
+        _isDeleteEnabled = true;
       });
     } else {
       setState(() {
-        _activeThumbIndex = index;
+        _isDeleteEnabled = false;
       });
       _scrollToImage(index);
     }
   }
 
   void _scrollToImage(int index) {
-    final scrollPosition = index * (_imageWidth.w + _imageSpacing.w);
-    _scrollController.animateTo(
-      scrollPosition,
+    _pageController.animateToPage(
+      index,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
     );
@@ -74,76 +95,83 @@ class _MediaPreviewState extends State<MediaPreview> {
         height: _imageHeight.h,
         child: Stack(
           children: [
-            ListView.separated(
-              controller: _scrollController,
-              scrollDirection: Axis.horizontal,
+            PageView.builder(
+              controller: _pageController,
               itemCount: widget.mediaItems.length,
-              separatorBuilder: (context, index) => SizedBox(width: _imageSpacing.w),
+              onPageChanged: (index) {
+                setState(() {
+                  _currentMediaIndex = index;
+                  _isDeleteEnabled = false;
+                });
+              },
               itemBuilder: (context, index) {
                 final mediaItem = widget.mediaItems[index];
-                return mediaItem.when(
-                  uploading:
-                      (filePath) => Stack(
-                        children: [
-                          ClipRRect(
-                            child: Image.file(
-                              File(filePath),
-                              height: _imageHeight.h,
-                              width: _imageWidth.w,
-                              fit: BoxFit.cover,
+                return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: _imageSpacing.w),
+                  child: mediaItem.when(
+                    uploading:
+                        (filePath) => Stack(
+                          children: [
+                            ClipRRect(
+                              child: Image.file(
+                                File(filePath),
+                                height: _imageHeight.h,
+                                width: _imageWidth.w,
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                          ),
-                          Positioned.fill(
-                            child: Container(
-                              color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
-                              child: Center(
-                                child: SizedBox(
-                                  width: 32,
-                                  height: 32,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: context.colors.solidNeutralWhite,
+                            Positioned.fill(
+                              child: Container(
+                                color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
+                                child: Center(
+                                  child: SizedBox(
+                                    width: 32,
+                                    height: 32,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: context.colors.solidNeutralWhite,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                  uploaded:
-                      (file, originalFilePath) => ClipRRect(
-                        child: Image.file(
-                          File(originalFilePath),
-                          height: _imageHeight.h,
-                          width: _imageWidth.w,
-                          fit: BoxFit.cover,
+                          ],
                         ),
-                      ),
-                  failed:
-                      (filePath, error) => Stack(
-                        children: [
-                          ClipRRect(
-                            child: Image.file(
-                              File(filePath),
-                              height: _imageHeight.h,
-                              width: _imageWidth.w,
-                              fit: BoxFit.cover,
-                            ),
+                    uploaded:
+                        (file, originalFilePath) => ClipRRect(
+                          child: Image.file(
+                            File(originalFilePath),
+                            height: _imageHeight.h,
+                            width: _imageWidth.w,
+                            fit: BoxFit.cover,
                           ),
-                          Positioned.fill(
-                            child: Container(
-                              color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
-                              child: Center(
-                                child: WnImage(
-                                  AssetsPaths.icErrorFilled,
-                                  color: context.colors.destructive,
-                                  size: 48.w,
+                        ),
+                    failed:
+                        (filePath, error) => Stack(
+                          children: [
+                            ClipRRect(
+                              child: Image.file(
+                                File(filePath),
+                                height: _imageHeight.h,
+                                width: _imageWidth.w,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Positioned.fill(
+                              child: Container(
+                                color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
+                                child: Center(
+                                  child: WnImage(
+                                    AssetsPaths.icErrorFilled,
+                                    color: context.colors.destructive,
+                                    size: 48.w,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
+                  ),
                 );
               },
             ),
@@ -174,7 +202,8 @@ class _MediaPreviewState extends State<MediaPreview> {
 
                     return MediaPreviewThumbnail(
                       mediaItem: mediaItem,
-                      isActive: _activeThumbIndex == itemIndex,
+                      isActive: _currentMediaIndex == itemIndex,
+                      isMarkedForDeletion: _isDeleteEnabled && _currentMediaIndex == itemIndex,
                       onTap: () => _handleThumbnailTap(itemIndex),
                     );
                   },
