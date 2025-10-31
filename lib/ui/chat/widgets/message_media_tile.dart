@@ -32,7 +32,7 @@ class MessageMediaTile extends StatelessWidget {
       return Image.file(
         File(mediaFile.filePath),
         fit: BoxFit.cover,
-        errorBuilder: (_, __, ___) => _buildBlurhash(),
+        errorBuilder: (_, _, _) => _buildBlurhash(),
       );
     }
 
