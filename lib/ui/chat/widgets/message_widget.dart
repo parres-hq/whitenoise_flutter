@@ -11,6 +11,7 @@ import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_bubble/bubble.dart';
 import 'package:whitenoise/ui/chat/widgets/media_modal.dart';
 import 'package:whitenoise/ui/chat/widgets/message_media_grid.dart';
+import 'package:whitenoise/ui/chat/widgets/message_media_tile.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
@@ -509,29 +510,44 @@ class ReplyBox extends ConsumerWidget {
                 ),
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+            child: Row(
               children: [
-                Text(
-                  MessageUtils.getDisplayName(replyingTo, null),
-                  style: TextStyle(
-                    color: context.colors.mutedForeground,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
+                if (replyingTo?.mediaAttachments.isNotEmpty ?? false) ...[
+                  Padding(
+                    padding: EdgeInsets.only(right: 8.w),
+                    child: MessageMediaTile(
+                      mediaFile: replyingTo!.mediaAttachments.first,
+                      size: 32.w,
+                    ),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Gap(4.h),
-                Text(
-                  replyingTo?.content ?? '',
-                  style: TextStyle(
-                    color: context.colors.primary,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
+                ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        MessageUtils.getDisplayName(replyingTo, null),
+                        style: TextStyle(
+                          color: context.colors.mutedForeground,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Gap(4.h),
+                      Text(
+                        replyingTo?.content ?? '',
+                        style: TextStyle(
+                          color: context.colors.primary,
+                          fontSize: 12.sp,
+                          fontWeight: FontWeight.w600,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ],
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
