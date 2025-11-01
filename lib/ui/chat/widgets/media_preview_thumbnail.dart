@@ -7,16 +7,18 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
-class MediaThumbnail extends StatelessWidget {
-  const MediaThumbnail({
+class MediaPreviewThumbnail extends StatelessWidget {
+  const MediaPreviewThumbnail({
     super.key,
     required this.mediaItem,
     required this.isActive,
+    required this.isMarkedForDeletion,
     required this.onTap,
   });
 
   final MediaFileUpload mediaItem;
   final bool isActive;
+  final bool isMarkedForDeletion;
   final VoidCallback onTap;
 
   @override
@@ -34,13 +36,13 @@ class MediaThumbnail extends StatelessWidget {
             (file, originalFilePath) => _buildThumbnail(
               context,
               filePath: originalFilePath,
-              overlay: isActive ? _uploadedOverlay(context) : null,
+              overlay: isMarkedForDeletion ? _deletionOverlay(context) : null,
             ),
         failed:
             (filePath, error) => _buildThumbnail(
               context,
               filePath: filePath,
-              overlay: _failedOverlay(context),
+              overlay: isMarkedForDeletion ? _deletionOverlay(context) : _failedOverlay(context),
             ),
       ),
     );
@@ -56,15 +58,15 @@ class MediaThumbnail extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             border: Border.all(
-              color: context.colors.mutedForeground,
+              color: isActive ? context.colors.solidPrimary : context.colors.mutedForeground,
               width: 1.w,
             ),
           ),
           child: ClipRRect(
             child: Image.file(
               File(filePath),
-              height: 32.h,
               width: 32.w,
+              height: 32.w,
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
             ),
@@ -75,23 +77,19 @@ class MediaThumbnail extends StatelessWidget {
     );
   }
 
-  Widget _uploadedOverlay(BuildContext context) {
+  Widget _deletionOverlay(BuildContext context) {
     return Positioned.fill(
-      child: Center(
-        child: Container(
-          width: 32.w,
-          height: 32.h,
-          decoration: BoxDecoration(
-            color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
-          ),
-          child: Center(
-            child: SizedBox(
-              width: 18.w,
-              height: 18.h,
-              child: WnImage(
-                AssetsPaths.icTrashCan,
-                color: context.colors.solidNeutralWhite,
-              ),
+      child: Container(
+        decoration: BoxDecoration(
+          color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
+        ),
+        child: Center(
+          child: SizedBox(
+            width: 18.w,
+            height: 18.w,
+            child: WnImage(
+              AssetsPaths.icTrashCan,
+              color: context.colors.solidNeutralWhite,
             ),
           ),
         ),
@@ -102,15 +100,13 @@ class MediaThumbnail extends StatelessWidget {
   Widget _uploadingOverlay(BuildContext context) {
     return Positioned.fill(
       child: Container(
-        width: 32.w,
-        height: 32.h,
         decoration: BoxDecoration(
           color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
         ),
         child: Center(
           child: SizedBox(
-            width: 18,
-            height: 18,
+            width: 18.w,
+            height: 18.w,
             child: CircularProgressIndicator(
               strokeWidth: 2,
               color: context.colors.solidNeutralWhite,
@@ -124,8 +120,6 @@ class MediaThumbnail extends StatelessWidget {
   Widget _failedOverlay(BuildContext context) {
     return Positioned.fill(
       child: Container(
-        width: 32.w,
-        height: 32.h,
         decoration: BoxDecoration(
           color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
         ),
