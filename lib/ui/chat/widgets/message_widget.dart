@@ -9,6 +9,7 @@ import 'package:whitenoise/config/providers/localization_provider.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_bubble/bubble.dart';
+import 'package:whitenoise/ui/chat/widgets/media_modal.dart';
 import 'package:whitenoise/ui/chat/widgets/message_media_grid.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
@@ -138,6 +139,7 @@ class MessageWidget extends StatelessWidget {
                 if (message.mediaAttachments.isNotEmpty) ...[
                   MessageMediaGrid(
                     mediaFiles: message.mediaAttachments,
+                    onMediaTap: (index) => _handleMediaTap(context, index),
                   ),
                   Gap(4.h),
                 ],
@@ -300,6 +302,21 @@ class MessageWidget extends StatelessWidget {
     textPainter.layout();
     final statusIconWidth = message.isMe ? (8.w + 14.w) : 0;
     return textPainter.width + statusIconWidth;
+  }
+
+  void _handleMediaTap(BuildContext context, int index) {
+    showDialog(
+      context: context,
+      barrierColor: context.colors.overlay.withValues(alpha: 0.5),
+      builder:
+          (context) => MediaModal(
+            mediaFiles: message.mediaAttachments,
+            initialIndex: index,
+            senderName: message.sender.displayName,
+            senderImagePath: message.sender.imagePath,
+            timestamp: message.createdAt,
+          ),
+    );
   }
 }
 

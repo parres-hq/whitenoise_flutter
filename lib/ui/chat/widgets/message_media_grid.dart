@@ -9,9 +9,11 @@ class MessageMediaGrid extends StatelessWidget {
   const MessageMediaGrid({
     super.key,
     required this.mediaFiles,
+    this.onMediaTap,
   });
 
   final List<MediaFile> mediaFiles;
+  final Function(int index)? onMediaTap;
 
   @override
   Widget build(BuildContext context) {
@@ -39,6 +41,7 @@ class MessageMediaGrid extends StatelessWidget {
             size: layoutConfig.itemSize,
             showOverlay: showOverlay,
             remainingCount: remainingCount,
+            index: index, // Pass the index for tap handling
           );
         }),
       ),
@@ -51,35 +54,45 @@ class MessageMediaGrid extends StatelessWidget {
     required double size,
     required bool showOverlay,
     required int remainingCount,
+    required int index,
   }) {
     final tile = MessageMediaTile(
       mediaFile: mediaFile,
       size: size,
     );
 
-    if (!showOverlay) {
-      return tile;
-    }
+    Widget content = tile;
 
-    return Stack(
-      children: [
-        tile,
-        Positioned.fill(
-          child: Container(
-            color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
-            child: Center(
-              child: Text(
-                '+$remainingCount',
-                style: TextStyle(
-                  fontSize: 18.sp,
-                  fontWeight: FontWeight.w500,
-                  color: context.colors.solidPrimary,
+    if (showOverlay) {
+      content = Stack(
+        children: [
+          tile,
+          Positioned.fill(
+            child: Container(
+              color: context.colors.solidNeutralBlack.withValues(alpha: 0.5),
+              child: Center(
+                child: Text(
+                  '+$remainingCount',
+                  style: TextStyle(
+                    fontSize: 18.sp,
+                    fontWeight: FontWeight.w500,
+                    color: context.colors.solidPrimary,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
+    }
+
+    if (onMediaTap != null) {
+      return GestureDetector(
+        onTap: () => onMediaTap!(index),
+        child: content,
+      );
+    }
+
+    return content;
   }
 }
