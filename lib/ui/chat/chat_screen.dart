@@ -163,9 +163,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     }
 
     // Handle case where messages are already loaded when widget mounts
-    if (!_hasInitialScrollCompleted && 
-        currentMessages.isNotEmpty && 
-        !isLoading) {
+    if (!_hasInitialScrollCompleted && currentMessages.isNotEmpty && !isLoading) {
       _hasInitialScrollCompleted = true;
       _scrollToBottom(animated: false);
       if (_isAtBottom()) {
