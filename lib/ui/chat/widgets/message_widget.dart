@@ -224,7 +224,7 @@ class MessageWidget extends StatelessWidget {
 
     // Find the longest line width
     final longestLineWidth = lines.map((line) => line.width).reduce((a, b) => a > b ? a : b);
-    
+
     // Check if timestamp can fit inline with the last line
     final lastLineWidth = lines.last.width;
     final availableWidth = maxWidth - lastLineWidth;
@@ -265,17 +265,17 @@ class MessageWidget extends StatelessWidget {
       // For multi-line, bubble width should only match the text content width
       // Timestamp is on a separate line, so it doesn't affect bubble width
       final bubbleWidth = longestLineWidth > maxWidth ? maxWidth : longestLineWidth;
-      
+
       // If media exists, timestamp should always align to the right edge of maxWidth
       // Otherwise, use the maximum of bubble width and timestamp width
-      final columnWidth = hasMedia ? maxWidth : (bubbleWidth > timestampWidth ? bubbleWidth : timestampWidth);
-      
+      final columnWidth =
+          hasMedia ? maxWidth : (bubbleWidth > timestampWidth ? bubbleWidth : timestampWidth);
+
       // For timestamp row width: if media exists, use maxWidth to align to right edge
       // Otherwise, use bubbleWidth or timestampWidth based on which is larger
-      final timestampRowWidth = hasMedia 
-          ? maxWidth 
-          : (bubbleWidth >= timestampWidth ? bubbleWidth : timestampWidth);
-      
+      final timestampRowWidth =
+          hasMedia ? maxWidth : (bubbleWidth >= timestampWidth ? bubbleWidth : timestampWidth);
+
       return SizedBox(
         width: columnWidth,
         child: Column(

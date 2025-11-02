@@ -40,7 +40,11 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _loadDraftMessage();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _loadDraftMessage();
+      }
+    });
     _focusNode.addListener(_handleFocusChange);
     _textController.addListener(_onTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -57,8 +61,11 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
 
     if (editingMessage != null &&
         editingMessage.content != chatInputState.previousEditingMessageContent) {
-      chatInputNotifier.setPreviousEditingMessageContent(editingMessage.content);
-      _textController.text = editingMessage.content ?? '';
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        chatInputNotifier.setPreviousEditingMessageContent(editingMessage.content);
+        _textController.text = editingMessage.content ?? '';
+      });
     }
   }
 

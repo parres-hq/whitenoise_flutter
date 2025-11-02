@@ -30,6 +30,7 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
 
   static final _logger = Logger('ChatInputNotifier');
   late final String _groupId;
+  late final String _accountHexPubkey;
   final ImagePickerService _imagePickerService;
   final DraftMessageService _draftMessageService;
   final Duration _draftSaveDelay;
@@ -44,6 +45,8 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
   @override
   ChatInputState build(String groupId) {
     _groupId = groupId;
+    final accountPubkey = ref.read(activePubkeyProvider);
+    _accountHexPubkey = PubkeyFormatter(pubkey: accountPubkey).toHex() ?? '';
     ref.onDispose(() {
       _draftSaveTimer?.cancel();
     });
@@ -53,7 +56,11 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
   Future<String?> loadDraft() async {
     state = state.copyWith(isLoadingDraft: true);
     try {
-      final draft = await _draftMessageService.loadDraft(chatId: _groupId);
+      if (_accountHexPubkey.isEmpty) return null;
+      final draft = await _draftMessageService.loadDraft(
+        accountId: _accountHexPubkey,
+        chatId: _groupId,
+      );
       return draft;
     } finally {
       state = state.copyWith(isLoadingDraft: false);
@@ -74,7 +81,12 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
   }
 
   Future<void> _saveDraft(String text) async {
-    await _draftMessageService.saveDraft(chatId: _groupId, message: text);
+    if (_accountHexPubkey.isEmpty) return;
+    await _draftMessageService.saveDraft(
+      accountId: _accountHexPubkey,
+      chatId: _groupId,
+      message: text,
+    );
   }
 
   void hideMediaSelector() {
@@ -218,7 +230,12 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
 
   Future<void> clear() async {
     _draftSaveTimer?.cancel();
-    await _draftMessageService.clearDraft(chatId: _groupId);
+    if (_accountHexPubkey.isNotEmpty) {
+      await _draftMessageService.clearDraft(
+        accountId: _accountHexPubkey,
+        chatId: _groupId,
+      );
+    }
     state = state.copyWith(
       showMediaSelector: false,
       isLoadingDraft: false,
