@@ -90,7 +90,7 @@ class _MediaPreviewState extends State<MediaPreview> {
     if (widget.mediaItems.isEmpty) return const SizedBox.shrink();
 
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: widget.isReply ? 8.h : 16.h),
+      padding: EdgeInsets.symmetric(horizontal: 6.w, vertical: widget.isReply ? 4.h : 14.h),
       child: SizedBox(
         height: _imageHeight.h,
         child: Stack(
