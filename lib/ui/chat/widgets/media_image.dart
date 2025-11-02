@@ -23,7 +23,7 @@ class MediaImage extends StatelessWidget {
     if (hasLocalFile) {
       return Image.file(
         File(mediaFile.filePath),
-        fit: BoxFit.cover,
+        fit: BoxFit.contain,
         width: double.infinity,
         height: double.infinity,
         errorBuilder: (_, _, _) => _buildBlurhash(),
