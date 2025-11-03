@@ -20,6 +20,16 @@ Future<MediaFile> uploadChatMedia({
   filePath: filePath,
 );
 
+Future<MediaFile> downloadChatMedia({
+  required String accountPubkey,
+  required String groupId,
+  required String originalFileHash,
+}) => RustLib.instance.api.crateApiMediaFilesDownloadChatMedia(
+  accountPubkey: accountPubkey,
+  groupId: groupId,
+  originalFileHash: originalFileHash,
+);
+
 class FileMetadata {
   final String? originalFilename;
   final String? dimensions;

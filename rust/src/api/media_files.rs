@@ -76,3 +76,28 @@ pub async fn upload_chat_media(
 
     Ok(media_file.into())
 }
+
+#[frb]
+pub async fn download_chat_media(
+    account_pubkey: String,
+    group_id: String,
+    original_file_hash: String,
+) -> Result<MediaFile, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    let group_id = group_id_from_string(&group_id)?;
+    let original_file_hash_bytes = ::hex::decode(&original_file_hash)?;
+    let hash_array: [u8; 32] =
+        original_file_hash_bytes
+            .try_into()
+            .map_err(|_| ApiError::NostrHex {
+                message: "Invalid original_file_hash length; must be 32 bytes.".to_string(),
+            })?;
+
+    let media_file = whitenoise
+        .download_chat_media(&account, &group_id, &hash_array)
+        .await?;
+
+    Ok(media_file.into())
+}
