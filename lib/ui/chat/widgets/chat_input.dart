@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/chat_input_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input_media_selector.dart';
@@ -40,10 +41,12 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _loadDraftMessage();
     _focusNode.addListener(_handleFocusChange);
     _textController.addListener(_onTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _loadDraftMessage();
+      }
       _measureSingleLineHeight();
     });
   }
@@ -57,8 +60,11 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
 
     if (editingMessage != null &&
         editingMessage.content != chatInputState.previousEditingMessageContent) {
-      chatInputNotifier.setPreviousEditingMessageContent(editingMessage.content);
-      _textController.text = editingMessage.content ?? '';
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        chatInputNotifier.setPreviousEditingMessageContent(editingMessage.content);
+        _textController.text = editingMessage.content ?? '';
+      });
     }
   }
 
@@ -189,6 +195,30 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
     final chatState = ref.watch(chatProvider);
     final chatNotifier = ref.watch(chatProvider.notifier);
     final chatInputState = ref.watch(chatInputProvider(widget.groupId));
+
+    ref.listen<String?>(activePubkeyProvider, (previous, next) {
+      if (previous != null && next != null && previous != next) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (!mounted) return;
+          final chatState = ref.read(chatProvider);
+          final isEditing = chatState.editingMessage[widget.groupId] != null;
+          if (!isEditing) {
+            final chatInputNotifier = ref.read(chatInputProvider(widget.groupId).notifier);
+            final currentText = _textController.text;
+
+            await chatInputNotifier.handleAccountSwitch(
+              oldPubkey: previous,
+              currentText: currentText,
+            );
+
+            if (!mounted) return;
+
+            _textController.clear();
+            await _loadDraftMessage();
+          }
+        });
+      }
+    });
 
     return SafeArea(
       top: false,

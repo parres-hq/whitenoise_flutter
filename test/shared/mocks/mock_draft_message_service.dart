@@ -7,12 +7,17 @@ class MockDraftMessageService extends DraftMessageService {
   final List<String> clearedChats = [];
 
   @override
-  Future<String?> loadDraft({required String chatId, FlutterSecureStorage? storage}) async {
+  Future<String?> loadDraft({
+    required String accountId,
+    required String chatId,
+    FlutterSecureStorage? storage,
+  }) async {
     return draftToReturn;
   }
 
   @override
   Future<void> saveDraft({
+    required String accountId,
     required String chatId,
     required String message,
     FlutterSecureStorage? storage,
@@ -22,7 +27,11 @@ class MockDraftMessageService extends DraftMessageService {
   }
 
   @override
-  Future<void> clearDraft({required String chatId, FlutterSecureStorage? storage}) async {
+  Future<void> clearDraft({
+    required String accountId,
+    required String chatId,
+    FlutterSecureStorage? storage,
+  }) async {
     clearedChats.add(chatId);
     draftToReturn = null;
   }

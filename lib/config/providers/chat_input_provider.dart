@@ -30,6 +30,7 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
 
   static final _logger = Logger('ChatInputNotifier');
   late final String _groupId;
+  late String _accountHexPubkey;
   final ImagePickerService _imagePickerService;
   final DraftMessageService _draftMessageService;
   final Duration _draftSaveDelay;
@@ -44,16 +45,54 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
   @override
   ChatInputState build(String groupId) {
     _groupId = groupId;
+    final accountPubkey = ref.read(activePubkeyProvider);
+    _accountHexPubkey = PubkeyFormatter(pubkey: accountPubkey).toHex() ?? '';
+
+    ref.listen<String?>(activePubkeyProvider, (previous, next) {
+      if (previous != next) {
+        final newAccountHexPubkey = PubkeyFormatter(pubkey: next).toHex() ?? '';
+        if (_accountHexPubkey != newAccountHexPubkey) {
+          _draftSaveTimer?.cancel();
+          _accountHexPubkey = newAccountHexPubkey;
+        }
+      }
+    });
+
     ref.onDispose(() {
       _draftSaveTimer?.cancel();
     });
     return const ChatInputState();
   }
 
+  Future<void> handleAccountSwitch({
+    required String? oldPubkey,
+    required String currentText,
+  }) async {
+    if (oldPubkey == null || currentText.isEmpty) return;
+
+    final oldAccountHexPubkey = PubkeyFormatter(pubkey: oldPubkey).toHex();
+    if (oldAccountHexPubkey != null && oldAccountHexPubkey.isNotEmpty) {
+      await _draftMessageService.saveDraft(
+        accountId: oldAccountHexPubkey,
+        chatId: _groupId,
+        message: currentText,
+      );
+    }
+  }
+
   Future<String?> loadDraft() async {
     state = state.copyWith(isLoadingDraft: true);
     try {
-      final draft = await _draftMessageService.loadDraft(chatId: _groupId);
+      final accountPubkey = ref.read(activePubkeyProvider);
+      final accountHexPubkey = PubkeyFormatter(pubkey: accountPubkey).toHex() ?? '';
+      if (accountHexPubkey.isEmpty) return null;
+
+      _accountHexPubkey = accountHexPubkey;
+
+      final draft = await _draftMessageService.loadDraft(
+        accountId: accountHexPubkey,
+        chatId: _groupId,
+      );
       return draft;
     } finally {
       state = state.copyWith(isLoadingDraft: false);
@@ -74,7 +113,17 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
   }
 
   Future<void> _saveDraft(String text) async {
-    await _draftMessageService.saveDraft(chatId: _groupId, message: text);
+    final accountPubkey = ref.read(activePubkeyProvider);
+    final accountHexPubkey = PubkeyFormatter(pubkey: accountPubkey).toHex() ?? '';
+    if (accountHexPubkey.isEmpty) return;
+
+    _accountHexPubkey = accountHexPubkey;
+
+    await _draftMessageService.saveDraft(
+      accountId: accountHexPubkey,
+      chatId: _groupId,
+      message: text,
+    );
   }
 
   void hideMediaSelector() {
@@ -218,7 +267,17 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
 
   Future<void> clear() async {
     _draftSaveTimer?.cancel();
-    await _draftMessageService.clearDraft(chatId: _groupId);
+
+    final accountPubkey = ref.read(activePubkeyProvider);
+    final accountHexPubkey = PubkeyFormatter(pubkey: accountPubkey).toHex() ?? '';
+    if (accountHexPubkey.isNotEmpty) {
+      _accountHexPubkey = accountHexPubkey;
+
+      await _draftMessageService.clearDraft(
+        accountId: accountHexPubkey,
+        chatId: _groupId,
+      );
+    }
     state = state.copyWith(
       showMediaSelector: false,
       isLoadingDraft: false,

@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
@@ -21,6 +23,7 @@ import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart'
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/widgets/active_account_tile.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class GeneralSettingsScreen extends ConsumerStatefulWidget {
   const GeneralSettingsScreen({super.key});
@@ -30,6 +33,7 @@ class GeneralSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
+  static final _logger = Logger('GeneralSettingsScreen');
   PackageInfo? _packageInfo;
   bool _isLoadingPackageInfo = false;
 
@@ -53,7 +57,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       });
     } catch (e) {
       // Silently handle error - version info is not critical
-      debugPrint('Failed to load package info: $e');
+      _logger.warning('Failed to load package info: $e');
     } finally {
       _isLoadingPackageInfo = false;
     }
@@ -134,8 +138,20 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
     if (!mounted) return;
 
-    // Clear all draft messages before logout
-    await DraftMessageService().clearAllDrafts();
+    // Clear draft messages for the current account before logout
+    try {
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
+      if (activeAccount != null) {
+        final accountHexPubkey = PubkeyFormatter(pubkey: activeAccount.pubkey).toHex();
+        if (accountHexPubkey != null && accountHexPubkey.isNotEmpty) {
+          await DraftMessageService().clearDraftsForAccount(accountId: accountHexPubkey);
+        }
+      }
+    } catch (e) {
+      // If we can't get the active account or clear drafts, skip and continue with logout
+      _logger.warning('Failed to clear drafts before logout: $e');
+    }
 
     await authNotifier.logoutCurrentAccount();
 

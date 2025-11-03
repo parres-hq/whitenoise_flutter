@@ -13,6 +13,7 @@ import 'package:whitenoise/ui/chat/widgets/message_reply_box.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/utils/media_layout_calculator.dart';
 
 class MessageWidget extends StatelessWidget {
   final MessageModel message;
@@ -115,7 +116,7 @@ class MessageWidget extends StatelessWidget {
               bottom: message.reactions.isNotEmpty ? 8.h : 0,
             ),
             child: Column(
-              crossAxisAlignment: message.isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (isGroupMessage && !isSameSenderAsPrevious && !message.isMe) ...[
@@ -141,9 +142,22 @@ class MessageWidget extends StatelessWidget {
                   ),
                   Gap(4.h),
                 ],
-                _buildMessageWithTimestamp(
-                  context,
-                  constraints.maxWidth - 16.w,
+                Builder(
+                  builder: (context) {
+                    double? mediaWidth;
+                    if (message.mediaAttachments.isNotEmpty) {
+                      final layoutConfig = MediaLayoutCalculator.calculateLayout(
+                        message.mediaAttachments.length,
+                      );
+                      mediaWidth = layoutConfig.gridWidth.w;
+                    }
+                    return _buildMessageWithTimestamp(
+                      context,
+                      constraints.maxWidth - 16.w,
+                      hasMedia: message.mediaAttachments.isNotEmpty,
+                      mediaWidth: mediaWidth,
+                    );
+                  },
                 ),
               ],
             ),
@@ -153,7 +167,12 @@ class MessageWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildMessageWithTimestamp(BuildContext context, double maxWidth) {
+  Widget _buildMessageWithTimestamp(
+    BuildContext context,
+    double maxWidth, {
+    bool hasMedia = false,
+    double? mediaWidth,
+  }) {
     final textStyle = TextStyle(
       fontSize: 16.sp,
       fontWeight: FontWeight.w500,
@@ -166,8 +185,22 @@ class MessageWidget extends StatelessWidget {
 
     // If message content is empty, just show the timestamp
     if (messageContent.isEmpty) {
+      // If media exists, timestamp should align to media width on the right
+      if (hasMedia && mediaWidth != null) {
+        return SizedBox(
+          width: mediaWidth,
+          child: Row(
+            mainAxisAlignment: message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+            children: [
+              TimeAndStatus(message: message, context: context),
+            ],
+          ),
+        );
+      }
+      // No media, normal timestamp display
       return Row(
         mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
         children: [
           TimeAndStatus(message: message, context: context),
         ],
@@ -176,6 +209,7 @@ class MessageWidget extends StatelessWidget {
 
     final textWidget = _buildHighlightedText(messageContent, textStyle, context);
 
+    // Calculate text metrics to determine the best layout
     final textPainter = TextPainter(
       text: TextSpan(text: messageContent, style: textStyle),
       textDirection: Directionality.of(context),
@@ -184,13 +218,38 @@ class MessageWidget extends StatelessWidget {
     textPainter.layout(maxWidth: maxWidth);
     final lines = textPainter.computeLineMetrics();
 
-    if (lines.isNotEmpty) {
-      final lastLineWidth = lines.last.width;
-      final availableWidth = maxWidth - lastLineWidth;
-      final canFitInline = lines.length == 1 && availableWidth >= (timestampWidth + minPadding);
+    if (lines.isEmpty) {
+      return const SizedBox.shrink();
+    }
 
-      if (canFitInline) {
-        return Row(
+    // Find the longest line width
+    final longestLineWidth = lines.map((line) => line.width).reduce((a, b) => a > b ? a : b);
+
+    // Check if timestamp can fit inline with the last line
+    final lastLineWidth = lines.last.width;
+    final availableWidth = maxWidth - lastLineWidth;
+    final canFitInline = lines.length == 1 && availableWidth >= (timestampWidth + minPadding);
+
+    if (canFitInline) {
+      // Single line with inline timestamp
+      if (hasMedia && mediaWidth != null) {
+        // If media exists, message should start from left, timestamp should align to media width on the right
+        return SizedBox(
+          width: mediaWidth,
+          child: Row(
+            children: [
+              Expanded(
+                child: textWidget,
+              ),
+              SizedBox(width: minPadding),
+              TimeAndStatus(message: message, context: context),
+            ],
+          ),
+        );
+      }
+      // No media, use IntrinsicWidth for normal hugging behavior
+      return IntrinsicWidth(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Flexible(
@@ -199,26 +258,63 @@ class MessageWidget extends StatelessWidget {
             SizedBox(width: minPadding),
             TimeAndStatus(message: message, context: context),
           ],
-        );
-      }
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: maxWidth,
-          child: textWidget,
         ),
-        SizedBox(height: 4.h),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+      );
+    } else {
+      // Multi-line or timestamp doesn't fit inline
+      // For multi-line, bubble width should only match the text content width
+      // Timestamp is on a separate line, so it doesn't affect bubble width
+      final bubbleWidth = longestLineWidth > maxWidth ? maxWidth : longestLineWidth;
+
+      // If media exists, timestamp should always align to the right edge of maxWidth
+      // Otherwise, use the maximum of bubble width and timestamp width
+      final columnWidth =
+          hasMedia ? maxWidth : (bubbleWidth > timestampWidth ? bubbleWidth : timestampWidth);
+
+      // For timestamp row width: if media exists, use maxWidth to align to right edge
+      // Otherwise, use bubbleWidth or timestampWidth based on which is larger
+      final timestampRowWidth =
+          hasMedia ? maxWidth : (bubbleWidth >= timestampWidth ? bubbleWidth : timestampWidth);
+
+      return SizedBox(
+        width: columnWidth,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            TimeAndStatus(message: message, context: context),
+            SizedBox(
+              width: bubbleWidth,
+              child: textWidget,
+            ),
+            SizedBox(height: 4.h),
+            // Timestamp on its own line, always aligned to the right edge
+            // If media exists, always align to maxWidth
+            // If text is shorter than timestamp, timestamp takes only its own width
+            // If text is longer, timestamp aligns to text width
+            if (hasMedia || bubbleWidth >= timestampWidth)
+              // Media exists or text is wider, timestamp aligns to timestampRowWidth
+              SizedBox(
+                width: timestampRowWidth,
+                child: Row(
+                  mainAxisAlignment: message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                  children: [
+                    TimeAndStatus(message: message, context: context),
+                  ],
+                ),
+              )
+            else
+              // Timestamp is wider, it takes only its own width
+              Row(
+                mainAxisAlignment: message.isMe ? MainAxisAlignment.end : MainAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TimeAndStatus(message: message, context: context),
+                ],
+              ),
           ],
         ),
-      ],
-    );
+      );
+    }
   }
 
   Widget _buildHighlightedText(String text, TextStyle baseStyle, BuildContext context) {
