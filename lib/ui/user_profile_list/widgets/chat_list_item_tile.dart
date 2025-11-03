@@ -57,7 +57,13 @@ class ChatListItemTile extends ConsumerWidget {
       return _buildChatTileLoading(context, group);
     }
 
-    return _buildChatTileContent(context, watchedDisplayName, watchedGroupImagePath, group, group.nostrGroupId);
+    return _buildChatTileContent(
+      context,
+      watchedDisplayName,
+      watchedGroupImagePath,
+      group,
+      group.nostrGroupId,
+    );
   }
 
   Widget _buildChatTileLoading(BuildContext context, Group group) {

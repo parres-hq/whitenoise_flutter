@@ -245,7 +245,7 @@ class DMInviteHeader extends ConsumerWidget {
     final welcomerName = welcomerUser.displayName;
     final welcomerNpub =
         PubkeyFormatter(pubkey: welcomerUser.publicKey).toNpub()?.formatPublicKey();
-        final welcomerPubkey = welcomerUser.publicKey;
+    final welcomerPubkey = welcomerUser.publicKey;
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 24.w),
       child: Column(
@@ -256,7 +256,7 @@ class DMInviteHeader extends ConsumerWidget {
             displayName: welcomerName,
             size: 96.r,
             showBorder: true,
-                pubkey: welcomerPubkey,
+            pubkey: welcomerPubkey,
           ),
           Gap(12.h),
           Text(

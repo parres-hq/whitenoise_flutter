@@ -85,14 +85,14 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
   void _onGroupCreated(Group? group) async {
     if (group != null && mounted) {
       final previewColor = _previewColor;
-              if (previewColor != null) {
-                await ref
-                    .read(avatarColorProvider.notifier)
-                    .setColorDirectly(
-                      group.nostrGroupId,
-                      previewColor,
-                    );
-              }
+      if (previewColor != null) {
+        await ref
+            .read(avatarColorProvider.notifier)
+            .setColorDirectly(
+              group.nostrGroupId,
+              previewColor,
+            );
+      }
       widget.onGroupCreated?.call(group);
       if (mounted) {
         context.pop();

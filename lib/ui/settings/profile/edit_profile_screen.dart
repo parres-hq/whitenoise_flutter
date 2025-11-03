@@ -119,12 +119,7 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
                                     displayName: displayName,
                                     size: 96.w,
                                     showBorder: imageUrl.isEmpty,
-                                            pubkey:
-                                                ref
-                                                    .watch(activeAccountProvider)
-                                                    .value
-                                                    ?.account
-                                                    ?.pubkey,
+                                    pubkey: ref.watch(activeAccountProvider).value?.account?.pubkey,
                                   );
                                 },
                               ),

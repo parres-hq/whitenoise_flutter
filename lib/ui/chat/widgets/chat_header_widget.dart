@@ -131,7 +131,7 @@ class DirectMessageHeader extends ConsumerWidget {
             displayName: displayName,
             size: 96.r,
             showBorder: true,
-                pubkey: otherMember.publicKey,
+            pubkey: otherMember.publicKey,
           ),
           Gap(12.h),
           Text(
