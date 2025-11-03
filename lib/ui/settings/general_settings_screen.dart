@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
@@ -32,6 +33,7 @@ class GeneralSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
+  static final _logger = Logger('GeneralSettingsScreen');
   PackageInfo? _packageInfo;
   bool _isLoadingPackageInfo = false;
 
@@ -55,7 +57,7 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
       });
     } catch (e) {
       // Silently handle error - version info is not critical
-      debugPrint('Failed to load package info: $e');
+      _logger.warning('Failed to load package info: $e');
     } finally {
       _isLoadingPackageInfo = false;
     }
@@ -147,8 +149,8 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
         }
       }
     } catch (e) {
-      // If we can't get the active account, skip clearing drafts
-      debugPrint('Failed to clear drafts before logout: $e');
+      // If we can't get the active account or clear drafts, skip and continue with logout
+      _logger.warning('Failed to clear drafts before logout: $e');
     }
 
     await authNotifier.logoutCurrentAccount();
