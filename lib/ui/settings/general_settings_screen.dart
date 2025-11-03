@@ -5,12 +5,14 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts;
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
@@ -134,8 +136,20 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
     if (!mounted) return;
 
-    // Clear all draft messages before logout
-    await DraftMessageService().clearAllDrafts();
+    // Clear draft messages for the current account before logout
+    try {
+      final activeAccountState = await ref.read(activeAccountProvider.future);
+      final activeAccount = activeAccountState.account;
+      if (activeAccount != null) {
+        final accountHexPubkey = PubkeyFormatter(pubkey: activeAccount.pubkey).toHex();
+        if (accountHexPubkey != null && accountHexPubkey.isNotEmpty) {
+          await DraftMessageService().clearDraftsForAccount(accountId: accountHexPubkey);
+        }
+      }
+    } catch (e) {
+      // If we can't get the active account, skip clearing drafts
+      debugPrint('Failed to clear drafts before logout: $e');
+    }
 
     await authNotifier.logoutCurrentAccount();
 
