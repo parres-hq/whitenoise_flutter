@@ -48,6 +48,8 @@ class WelcomeTile extends ConsumerWidget {
             WnAvatar(
               imageUrl: welcomerUser.imagePath ?? '',
               displayName: welcomerUser.displayName,
+              pubkey: welcome.welcomer,
+              showBorder: true,
               size: 56.r,
             ),
             Gap(8.w),
