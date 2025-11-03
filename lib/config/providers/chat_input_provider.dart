@@ -52,8 +52,8 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
       if (previous != next) {
         final newAccountHexPubkey = PubkeyFormatter(pubkey: next).toHex() ?? '';
         if (_accountHexPubkey != newAccountHexPubkey) {
-          _accountHexPubkey = newAccountHexPubkey;
           _draftSaveTimer?.cancel();
+          _accountHexPubkey = newAccountHexPubkey;
         }
       }
     });
@@ -62,6 +62,22 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
       _draftSaveTimer?.cancel();
     });
     return const ChatInputState();
+  }
+
+  Future<void> handleAccountSwitch({
+    required String? oldPubkey,
+    required String currentText,
+  }) async {
+    if (oldPubkey == null || currentText.isEmpty) return;
+
+    final oldAccountHexPubkey = PubkeyFormatter(pubkey: oldPubkey).toHex();
+    if (oldAccountHexPubkey != null && oldAccountHexPubkey.isNotEmpty) {
+      await _draftMessageService.saveDraft(
+        accountId: oldAccountHexPubkey,
+        chatId: _groupId,
+        message: currentText,
+      );
+    }
   }
 
   Future<String?> loadDraft() async {
