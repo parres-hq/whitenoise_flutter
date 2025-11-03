@@ -12,7 +12,6 @@ import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts;
-import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
@@ -23,6 +22,7 @@ import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart'
 import 'package:whitenoise/ui/settings/profile/switch_profile_bottom_sheet.dart';
 import 'package:whitenoise/ui/settings/widgets/active_account_tile.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class GeneralSettingsScreen extends ConsumerStatefulWidget {
   const GeneralSettingsScreen({super.key});

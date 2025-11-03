@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/chat_input_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
+import 'package:whitenoise/domain/services/draft_message_service.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input_media_selector.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input_reply_preview.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input_send_button.dart';
@@ -15,6 +17,7 @@ import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class ChatInput extends ConsumerStatefulWidget {
   const ChatInput({
@@ -196,6 +199,33 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
     final chatState = ref.watch(chatProvider);
     final chatNotifier = ref.watch(chatProvider.notifier);
     final chatInputState = ref.watch(chatInputProvider(widget.groupId));
+
+    ref.listen<String?>(activePubkeyProvider, (previous, next) {
+      if (previous != null && next != null && previous != next) {
+        WidgetsBinding.instance.addPostFrameCallback((_) async {
+          if (!mounted) return;
+          final chatState = ref.read(chatProvider);
+          final isEditing = chatState.editingMessage[widget.groupId] != null;
+          if (!isEditing) {
+            final currentText = _textController.text;
+
+            if (currentText.isNotEmpty) {
+              final oldAccountHexPubkey = PubkeyFormatter(pubkey: previous).toHex();
+              if (oldAccountHexPubkey != null && oldAccountHexPubkey.isNotEmpty) {
+                await DraftMessageService().saveDraft(
+                  accountId: oldAccountHexPubkey,
+                  chatId: widget.groupId,
+                  message: currentText,
+                );
+              }
+            }
+
+            _textController.clear();
+            await _loadDraftMessage();
+          }
+        });
+      }
+    });
 
     return SafeArea(
       top: false,
