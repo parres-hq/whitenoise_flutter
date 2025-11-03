@@ -41,14 +41,12 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _focusNode.addListener(_handleFocusChange);
+    _textController.addListener(_onTextChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         _loadDraftMessage();
       }
-    });
-    _focusNode.addListener(_handleFocusChange);
-    _textController.addListener(_onTextChanged);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
       _measureSingleLineHeight();
     });
   }
