@@ -46,6 +46,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   ProviderSubscription<ChatState>? _chatSubscription;
   bool _hasInitialScrollCompleted = false;
   bool _isKeyboardOpen = false;
+  bool _hasScheduledInitialScroll = false;
 
   static const double _scrollBottomThreshold = 50.0;
 
@@ -75,6 +76,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     super.didUpdateWidget(oldWidget);
     if (oldWidget.groupId != widget.groupId) {
       _hasInitialScrollCompleted = false; // Reset for new chat
+      _hasScheduledInitialScroll = false; // Reset scheduling flag
     }
   }
 
@@ -154,6 +156,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     // Auto-scroll when chat first loads (loading transition detected)
     if (isLoadingCompleted && currentMessages.isNotEmpty && !_hasInitialScrollCompleted) {
       _hasInitialScrollCompleted = true;
+      _hasScheduledInitialScroll = true;
       _scrollToBottom(animated: false);
       // Save last read only if user is effectively at bottom
       if (_isAtBottom()) {
@@ -165,6 +168,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     // Handle case where messages are already loaded when widget mounts
     if (!_hasInitialScrollCompleted && currentMessages.isNotEmpty && !isLoading) {
       _hasInitialScrollCompleted = true;
+      _hasScheduledInitialScroll = true;
       _scrollToBottom(animated: false);
       if (_isAtBottom()) {
         _saveLastReadForCurrentMessages();
@@ -277,11 +281,19 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     final isLoading = ref.watch(
       chatProvider.select((state) => state.isGroupLoading(widget.groupId)),
     );
-    if (!_hasInitialScrollCompleted && messages.isNotEmpty && !isLoading) {
+    if (!_hasInitialScrollCompleted &&
+        !_hasScheduledInitialScroll &&
+        messages.isNotEmpty &&
+        !isLoading) {
+      _hasScheduledInitialScroll = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && !_hasInitialScrollCompleted && _scrollController.hasClients) {
           _hasInitialScrollCompleted = true;
+          _hasScheduledInitialScroll = false;
           _scrollToBottom(animated: false);
+        } else {
+          // Reset flag if callback can't execute
+          _hasScheduledInitialScroll = false;
         }
       });
     }
