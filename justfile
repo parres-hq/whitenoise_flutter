@@ -209,47 +209,111 @@ android-build:
     @echo "🎉 Unversioned android release built successfully!"
 
 # When APK? (alias for build-apk-stg)
-# Usage: just when-apk [--keep-so-files]
-when-apk *FLAGS: (build-apk-stg FLAGS)
+when-apk: build-apk-stg
 
 # Build staging APK with modified package ID and app name
-# Deletes the .so files after building (unless --keep-so-files flag is provided)
-# Usage: just build-apk-stg [--keep-so-files]
-build-apk-stg *FLAGS:
-    @echo "🦫 Building staging APK..."
-    @echo "📦 Step 1: Building Rust .so files for Android..."
-    ./scripts/build_android.sh
-    @echo "✅ Rust libraries built successfully"
-    @echo "🔧 Step 2: Applying staging configuration..."
-    @# Backup original files
-    @cp android/app/build.gradle.kts android/app/build.gradle.kts.backup
-    @cp android/app/src/main/AndroidManifest.xml android/app/src/main/AndroidManifest.xml.backup
-    @cp android/app/src/main/kotlin/com/example/whitenoise/MainActivity.kt android/app/src/main/kotlin/com/example/whitenoise/MainActivity.kt.backup
-    @# Apply staging changes
-    @sed -i.tmp 's/namespace = "org.parres.whitenoise"/namespace = "org.parres.whitenoise_stg"/' android/app/build.gradle.kts && rm android/app/build.gradle.kts.tmp
-    @sed -i.tmp 's/applicationId = "org.parres.whitenoise"/applicationId = "org.parres.whitenoise_stg"/' android/app/build.gradle.kts && rm android/app/build.gradle.kts.tmp
-    @sed -i.tmp 's/android:label="White Noise"/android:label="[stg] White Noise"/' android/app/src/main/AndroidManifest.xml && rm android/app/src/main/AndroidManifest.xml.tmp
-    @sed -i.tmp 's/package org.parres.whitenoise$$/package org.parres.whitenoise_stg/' android/app/src/main/kotlin/com/example/whitenoise/MainActivity.kt && rm android/app/src/main/kotlin/com/example/whitenoise/MainActivity.kt.tmp
-    @echo "✅ Staging configuration applied"
-    @echo "📱 Step 3: Building APK..."
-    flutter build apk --release --target-platform android-arm64
-    @echo "🔄 Step 4: Restoring original configuration..."
-    @mv android/app/build.gradle.kts.backup android/app/build.gradle.kts
-    @mv android/app/src/main/AndroidManifest.xml.backup android/app/src/main/AndroidManifest.xml
-    @mv android/app/src/main/kotlin/com/example/whitenoise/MainActivity.kt.backup android/app/src/main/kotlin/com/example/whitenoise/MainActivity.kt
-    @echo "✅ Original configuration restored"
-    @# Clean up .so files unless --keep-so-files flag is provided
-    @if echo "{{FLAGS}}" | grep -q "keep-so-files"; then \
-        echo "🔒 Keeping .so files (--keep-so-files flag detected)"; \
-    else \
-        echo "🧹 Cleaning up .so files..."; \
-        rm -rf android/app/src/main/jniLibs/arm64-v8a; \
-        rm -rf android/app/src/main/jniLibs/armeabi-v7a; \
-        rm -rf android/app/src/main/jniLibs/x86_64; \
-        echo "✅ .so files cleaned up"; \
+# Backs up and restores all modified files (including .so files) to avoid git changes
+build-apk-stg:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    
+    echo "🦫 Building staging APK..."
+    
+    # Define file paths
+    GRADLE_FILE="android/app/build.gradle.kts"
+    MANIFEST_FILE="android/app/src/main/AndroidManifest.xml"
+    MAINACTIVITY_FILE="android/app/src/main/kotlin/com/example/whitenoise/MainActivity.kt"
+    JNILIBS_DIR="android/app/src/main/jniLibs"
+    JNILIBS_BACKUP_DIR="android/app/src/main/jniLibs.backup"
+    
+    # Cleanup function to restore original files
+    cleanup() {
+        local exit_code=$?
+        
+        # Always restore backups if they exist
+        if [ -f "${GRADLE_FILE}.backup" ]; then
+            mv "${GRADLE_FILE}.backup" "${GRADLE_FILE}"
+            echo "✅ Restored ${GRADLE_FILE}"
+        fi
+        if [ -f "${MANIFEST_FILE}.backup" ]; then
+            mv "${MANIFEST_FILE}.backup" "${MANIFEST_FILE}"
+            echo "✅ Restored ${MANIFEST_FILE}"
+        fi
+        if [ -f "${MAINACTIVITY_FILE}.backup" ]; then
+            mv "${MAINACTIVITY_FILE}.backup" "${MAINACTIVITY_FILE}"
+            echo "✅ Restored ${MAINACTIVITY_FILE}"
+        fi
+        
+        # Restore .so files if backup exists
+        if [ -d "${JNILIBS_BACKUP_DIR}" ]; then
+            rm -rf "${JNILIBS_DIR}"
+            mv "${JNILIBS_BACKUP_DIR}" "${JNILIBS_DIR}"
+            echo "✅ Restored ${JNILIBS_DIR}"
+        fi
+        
+        # Remove any temporary sed files
+        rm -f "${GRADLE_FILE}.tmp" "${MANIFEST_FILE}.tmp" "${MAINACTIVITY_FILE}.tmp"
+        
+        # Report status
+        if [ $exit_code -ne 0 ]; then
+            echo ""
+            echo "❌ Build failed or interrupted - all files restored to original state"
+            exit $exit_code
+        fi
+    }
+    
+    # Set trap to always run cleanup on exit, interrupt, or termination
+    trap cleanup EXIT INT TERM
+    
+    # Step 1: Backup existing .so files (if they exist)
+    if [ -d "${JNILIBS_DIR}" ]; then
+        echo "💾 Backing up existing .so files..."
+        cp -r "${JNILIBS_DIR}" "${JNILIBS_BACKUP_DIR}"
+        echo "✅ .so files backed up"
     fi
-    @echo "🦫 Staging APK built successfully!"
-    @echo "📦 APK location: build/app/outputs/flutter-apk/app-release.apk"
+    
+    # Step 2: Build Rust .so files
+    echo "📦 Step 2: Building Rust .so files for Android..."
+    if ! ./scripts/build_android.sh; then
+        echo "❌ Failed to build Rust libraries"
+        exit 1
+    fi
+    echo "✅ Rust libraries built successfully"
+    
+    # Step 3: Apply staging configuration
+    echo "🔧 Step 3: Applying staging configuration..."
+    
+    # Create backups
+    cp "${GRADLE_FILE}" "${GRADLE_FILE}.backup"
+    cp "${MANIFEST_FILE}" "${MANIFEST_FILE}.backup"
+    cp "${MAINACTIVITY_FILE}" "${MAINACTIVITY_FILE}.backup"
+    
+    # Apply staging changes
+    sed -i.tmp 's/namespace = "org.parres.whitenoise"/namespace = "org.parres.whitenoise_stg"/' "${GRADLE_FILE}" && rm "${GRADLE_FILE}.tmp"
+    sed -i.tmp 's/applicationId = "org.parres.whitenoise"/applicationId = "org.parres.whitenoise_stg"/' "${GRADLE_FILE}" && rm "${GRADLE_FILE}.tmp"
+    sed -i.tmp 's/android:label="White Noise"/android:label="[stg] White Noise"/' "${MANIFEST_FILE}" && rm "${MANIFEST_FILE}.tmp"
+    sed -i.tmp 's/package org.parres.whitenoise$/package org.parres.whitenoise_stg/' "${MAINACTIVITY_FILE}" && rm "${MAINACTIVITY_FILE}.tmp"
+    
+    echo "✅ Staging configuration applied"
+    
+    # Step 4: Build APK
+    echo "📱 Step 4: Building APK..."
+    if ! flutter build apk --release --target-platform android-arm64; then
+        echo "❌ Flutter build failed"
+        exit 1
+    fi
+    
+    # Verify APK was created
+    if [ ! -f "build/app/outputs/flutter-apk/app-release.apk" ]; then
+        echo "❌ APK file not found after build"
+        exit 1
+    fi
+    
+    echo "🔄 Step 5: Restoring original configuration..."
+    # Restoration happens automatically via cleanup trap (includes .so files)
+    
+    echo "🦫 Staging APK built successfully!"
+    echo "📦 APK location: build/app/outputs/flutter-apk/app-release.apk"
 
 # Check and build versioned release
 release:
