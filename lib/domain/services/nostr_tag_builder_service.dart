@@ -63,7 +63,7 @@ class NostrTagBuilderService {
       'imeta',
       'url ${mediaFile.blossomUrl}',
       'm ${mediaFile.mimeType}',
-      'x ${mediaFile.fileHash}',
+      'x ${mediaFile.originalFileHash}',
     ];
     if (mediaFile.fileMetadata?.blurhash != null) {
       tag.add('blurhash ${mediaFile.fileMetadata?.blurhash}');

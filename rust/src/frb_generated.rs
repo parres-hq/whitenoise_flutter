@@ -3230,7 +3230,8 @@ impl SseDecode for crate::api::media_files::MediaFile {
         let mut var_mlsGroupId = <String>::sse_decode(deserializer);
         let mut var_accountPubkey = <String>::sse_decode(deserializer);
         let mut var_filePath = <String>::sse_decode(deserializer);
-        let mut var_fileHash = <String>::sse_decode(deserializer);
+        let mut var_originalFileHash = <Option<String>>::sse_decode(deserializer);
+        let mut var_encryptedFileHash = <String>::sse_decode(deserializer);
         let mut var_mimeType = <String>::sse_decode(deserializer);
         let mut var_mediaType = <String>::sse_decode(deserializer);
         let mut var_blossomUrl = <String>::sse_decode(deserializer);
@@ -3243,7 +3244,8 @@ impl SseDecode for crate::api::media_files::MediaFile {
             mls_group_id: var_mlsGroupId,
             account_pubkey: var_accountPubkey,
             file_path: var_filePath,
-            file_hash: var_fileHash,
+            original_file_hash: var_originalFileHash,
+            encrypted_file_hash: var_encryptedFileHash,
             mime_type: var_mimeType,
             media_type: var_mediaType,
             blossom_url: var_blossomUrl,
@@ -4163,7 +4165,8 @@ impl flutter_rust_bridge::IntoDart for crate::api::media_files::MediaFile {
             self.mls_group_id.into_into_dart().into_dart(),
             self.account_pubkey.into_into_dart().into_dart(),
             self.file_path.into_into_dart().into_dart(),
-            self.file_hash.into_into_dart().into_dart(),
+            self.original_file_hash.into_into_dart().into_dart(),
+            self.encrypted_file_hash.into_into_dart().into_dart(),
             self.mime_type.into_into_dart().into_dart(),
             self.media_type.into_into_dart().into_dart(),
             self.blossom_url.into_into_dart().into_dart(),
@@ -4906,7 +4909,8 @@ impl SseEncode for crate::api::media_files::MediaFile {
         <String>::sse_encode(self.mls_group_id, serializer);
         <String>::sse_encode(self.account_pubkey, serializer);
         <String>::sse_encode(self.file_path, serializer);
-        <String>::sse_encode(self.file_hash, serializer);
+        <Option<String>>::sse_encode(self.original_file_hash, serializer);
+        <String>::sse_encode(self.encrypted_file_hash, serializer);
         <String>::sse_encode(self.mime_type, serializer);
         <String>::sse_encode(self.media_type, serializer);
         <String>::sse_encode(self.blossom_url, serializer);
