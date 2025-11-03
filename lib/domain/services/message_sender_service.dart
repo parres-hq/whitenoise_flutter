@@ -1,4 +1,5 @@
 import 'package:whitenoise/domain/services/nostr_tag_builder_service.dart';
+import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/src/rust/api/messages.dart';
 
 const int _messageKind = 9;
@@ -33,8 +34,11 @@ class MessageSenderService {
     required String pubkey,
     required String groupId,
     required String content,
-    List<Tag>? tags,
+    required List<MediaFile> mediaFiles,
   }) async {
+    final tags = await _tagBuilder.buildMediaTags(
+      mediaFiles: mediaFiles,
+    );
     return _sendMessageToGroupFn(
       pubkey: pubkey,
       groupId: groupId,
@@ -72,10 +76,15 @@ class MessageSenderService {
     required String groupId,
     required String replyToMessageId,
     required String content,
+    required List<MediaFile> mediaFiles,
   }) async {
-    final tags = await _tagBuilder.buildReplyTags(
+    final replyTags = await _tagBuilder.buildReplyTags(
       replyToMessageId: replyToMessageId,
     );
+    final mediaTags = await _tagBuilder.buildMediaTags(
+      mediaFiles: mediaFiles,
+    );
+    final tags = [...replyTags, ...mediaTags];
 
     return _sendMessageToGroupFn(
       pubkey: pubkey,

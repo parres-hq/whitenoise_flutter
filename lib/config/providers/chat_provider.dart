@@ -15,6 +15,7 @@ import 'package:whitenoise/domain/services/message_merger_service.dart';
 import 'package:whitenoise/domain/services/message_sender_service.dart';
 import 'package:whitenoise/domain/services/reaction_comparison_service.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
+import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/utils/message_converter.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
@@ -103,11 +104,10 @@ class ChatNotifier extends Notifier<ChatState> {
     }
   }
 
-  /// Send a message to a group
   Future<MessageWithTokens?> sendMessage({
     required String groupId,
     required String message,
-    List<Tag>? tags,
+    required List<MediaFile> mediaFiles,
     bool isEditing = false,
     void Function()? onMessageSent,
   }) async {
@@ -121,15 +121,14 @@ class ChatNotifier extends Notifier<ChatState> {
       return null;
     }
 
-    // Create optimistic message immediately
     final optimisticMessageModel = MessageConverter.createOptimisticMessage(
       content: message,
       currentUserPublicKey: activePubkey,
       groupId: groupId,
+      mediaFiles: mediaFiles,
     );
     final optimisticId = optimisticMessageModel.id;
 
-    // Add optimistic message immediately to regular messages
     final stateMessages = state.groupMessages[groupId] ?? [];
     state = state.copyWith(
       groupMessages: {
@@ -153,7 +152,7 @@ class ChatNotifier extends Notifier<ChatState> {
         pubkey: activePubkey,
         groupId: groupId,
         content: message,
-        tags: tags,
+        mediaFiles: mediaFiles,
       );
 
       final stateMessages = state.groupMessages[groupId] ?? [];
@@ -530,6 +529,7 @@ class ChatNotifier extends Notifier<ChatState> {
     required String groupId,
     required String replyToMessageId,
     required String message,
+    required List<MediaFile> mediaFiles,
     void Function()? onMessageSent,
   }) async {
     if (!_isAuthAvailable()) {
@@ -551,6 +551,7 @@ class ChatNotifier extends Notifier<ChatState> {
       currentUserPublicKey: activePubkey,
       groupId: groupId,
       replyToMessage: replyToMessage,
+      mediaFiles: mediaFiles,
     );
     final optimisticId = optimisticMessageModel.id;
 
@@ -575,6 +576,7 @@ class ChatNotifier extends Notifier<ChatState> {
         groupId: groupId,
         replyToMessageId: replyToMessageId,
         content: message,
+        mediaFiles: mediaFiles,
       );
 
       final stateMessages = state.groupMessages[groupId] ?? [];

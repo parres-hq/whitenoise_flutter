@@ -1,5 +1,6 @@
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart' as domain_user;
+import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_utils.dart';
@@ -54,6 +55,7 @@ class MessageConverter {
       reactions: reactions,
       replyTo: finalReplyTo,
       kind: messageData.kind,
+      mediaAttachments: messageData.mediaAttachments,
     );
   }
 
@@ -65,7 +67,12 @@ class MessageConverter {
     bool Function({required String myPubkey, required String otherPubkey})? isMeFn,
   }) async {
     final validMessages =
-        chatMessages.where((msg) => !msg.isDeleted && msg.content.isNotEmpty).toList();
+        chatMessages
+            .where(
+              (msg) =>
+                  !msg.isDeleted && (msg.content.isNotEmpty || msg.mediaAttachments.isNotEmpty),
+            )
+            .toList();
     final chatMessagesMap = <String, ChatMessage>{};
     for (final msg in validMessages) {
       chatMessagesMap[msg.id] = msg;
@@ -103,6 +110,7 @@ class MessageConverter {
     required String content,
     required String currentUserPublicKey,
     required String groupId,
+    required List<MediaFile> mediaFiles,
     MessageModel? replyToMessage,
   }) {
     final messageHash =
@@ -128,6 +136,7 @@ class MessageConverter {
       groupId: groupId,
       status: MessageStatus.sending,
       replyTo: replyToMessage,
+      mediaAttachments: mediaFiles,
     );
   }
 
@@ -224,6 +233,7 @@ class MessageConverter {
       isMe: false,
       groupId: groupId,
       status: MessageStatus.delivered,
+      mediaAttachments: [],
     );
   }
 }

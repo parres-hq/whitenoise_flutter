@@ -9,17 +9,20 @@ class WnDialog extends StatelessWidget {
   final String? content;
   final Widget? actions;
   final Widget? customChild;
+  final Color? backgroundColor;
 
   const WnDialog({
     super.key,
     required this.title,
     required this.content,
     required this.actions,
+    this.backgroundColor,
   }) : customChild = null;
 
   const WnDialog.custom({
     super.key,
     required this.customChild,
+    this.backgroundColor,
   }) : title = null,
        content = null,
        actions = null;
@@ -29,7 +32,7 @@ class WnDialog extends StatelessWidget {
     return BackdropFilter(
       filter: ImageFilter.blur(sigmaX: 20.0, sigmaY: 15.0),
       child: Dialog(
-        backgroundColor: context.colors.neutral,
+        backgroundColor: backgroundColor ?? context.colors.neutral,
         insetPadding: EdgeInsets.symmetric(horizontal: 16.w),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(0.r),

@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:whitenoise/config/providers/chat_input_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -459,22 +460,12 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                   ChatInput(
                     groupId: widget.groupId,
                     onSend: (message, isEditing) async {
-                      final chatState = ref.read(chatProvider);
-                      final replyingTo = chatState.replyingTo[widget.groupId];
-                      if (replyingTo != null) {
-                        await chatNotifier.sendReplyMessage(
-                          groupId: widget.groupId,
-                          replyToMessageId: replyingTo.id,
-                          message: message,
-                        );
-                      } else {
-                        await chatNotifier.sendMessage(
-                          groupId: widget.groupId,
-                          message: message,
-                          isEditing: isEditing,
-                        );
-                      }
-                      // Auto-scroll after sending message
+                      await ref
+                          .read(chatInputProvider(widget.groupId).notifier)
+                          .sendMessage(
+                            message: message,
+                            isEditing: isEditing,
+                          );
                       _scrollToBottom();
                     },
                   ),

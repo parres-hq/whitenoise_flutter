@@ -1,36 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:whitenoise/domain/services/message_sender_service.dart';
 import 'package:whitenoise/domain/services/nostr_tag_builder_service.dart';
+import 'package:whitenoise/src/rust/api/media_files.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 
 import '../../shared/mocks/mock_tag_test_helpers.dart';
-
-class MockMessageWithTokens implements MessageWithTokens {
-  @override
-  final String id;
-  @override
-  final String pubkey;
-  @override
-  final int kind;
-  @override
-  final DateTime createdAt;
-  @override
-  final String? content;
-  @override
-  final List<SerializableToken> tokens;
-
-  MockMessageWithTokens({
-    required this.id,
-    required this.pubkey,
-    required this.kind,
-    required this.createdAt,
-    this.content,
-    this.tokens = const [],
-  });
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
-}
 
 class SendMessageCall {
   final String pubkey;
@@ -79,12 +53,13 @@ mockSendMessageToGroup(
       return resultFactory(call);
     }
 
-    return MockMessageWithTokens(
+    return MessageWithTokens(
       id: 'test-id',
       pubkey: pubkey,
       kind: kind,
       createdAt: DateTime.now(),
       content: message,
+      tokens: [],
     );
   };
 }
@@ -92,58 +67,244 @@ mockSendMessageToGroup(
 void main() {
   group('MessageSenderService', () {
     group('sendMessage', () {
-      test('sends message with correct parameters', () async {
-        final capturedCalls = <SendMessageCall>[];
-        final service = MessageSenderService(
-          sendMessageToGroupFn: mockSendMessageToGroup(capturedCalls, null),
-        );
+      group('without media files', () {
+        late List<SendMessageCall> capturedCalls;
+        late List<List<String>> capturedTags;
+        late MessageSenderService service;
 
-        await service.sendMessage(
-          pubkey: 'test-pubkey',
-          groupId: 'test-group-id',
-          content: 'Hello, world!',
-        );
+        setUp(() async {
+          capturedCalls = <SendMessageCall>[];
+          capturedTags = <List<String>>[];
+          service = MessageSenderService(
+            tagBuilder: NostrTagBuilderService(tagFromVecFn: mockTagFromVec(capturedTags)),
+            sendMessageToGroupFn: mockSendMessageToGroup(capturedCalls, null),
+          );
+          await service.sendMessage(
+            pubkey: 'test-pubkey',
+            groupId: 'test-group-id',
+            content: 'Hello, world!',
+            mediaFiles: [],
+          );
+        });
 
-        expect(capturedCalls.length, 1);
-        final call = capturedCalls.first;
-        expect(call.pubkey, 'test-pubkey');
-        expect(call.groupId, 'test-group-id');
-        expect(call.message, 'Hello, world!');
-        expect(call.kind, 9);
-        expect(call.tags, isNull);
+        test('calls send message', () async {
+          expect(capturedCalls.length, 1);
+        });
+
+        test('sends message with expected pubkey', () async {
+          final call = capturedCalls.first;
+          expect(call.pubkey, 'test-pubkey');
+        });
+
+        test('sends message with expected group id', () async {
+          final call = capturedCalls.first;
+          expect(call.groupId, 'test-group-id');
+        });
+
+        test('sends message with expected content', () async {
+          final call = capturedCalls.first;
+          expect(call.message, 'Hello, world!');
+        });
+
+        test('sends kind 9 message', () async {
+          final call = capturedCalls.first;
+          expect(call.kind, 9);
+        });
+
+        test('sends message with empty tags', () async {
+          final call = capturedCalls.first;
+          expect(call.tags, isEmpty);
+        });
       });
 
-      test('passes custom tags when provided', () async {
-        final capturedCalls = <SendMessageCall>[];
-        final capturedTags = <List<String>>[];
-        final customTags = [
-          await mockTagFromVec(capturedTags)(vec: ['custom', 'tag']),
-        ];
-
-        final service = MessageSenderService(
-          sendMessageToGroupFn: mockSendMessageToGroup(capturedCalls, null),
+      group('with single media file', () {
+        late List<SendMessageCall> capturedCalls;
+        late List<List<String>> capturedTags;
+        late MessageSenderService service;
+        final mediaFile = MediaFile(
+          id: 'media-1',
+          mlsGroupId: 'test-group-id',
+          accountPubkey: 'test-pubkey',
+          filePath: '/path/to/image.jpg',
+          fileHash: 'abc123hash',
+          mimeType: 'image/jpeg',
+          mediaType: 'image',
+          blossomUrl: 'https://blossom.example.com/abc123',
+          nostrKey: 'nostr-key-1',
+          createdAt: DateTime(2024),
         );
 
-        await service.sendMessage(
-          pubkey: 'test-pubkey',
-          groupId: 'test-group-id',
-          content: 'Message with tags',
-          tags: customTags,
+        setUp(() async {
+          capturedCalls = <SendMessageCall>[];
+          capturedTags = <List<String>>[];
+          service = MessageSenderService(
+            tagBuilder: NostrTagBuilderService(tagFromVecFn: mockTagFromVec(capturedTags)),
+            sendMessageToGroupFn: mockSendMessageToGroup(capturedCalls, null),
+          );
+          await service.sendMessage(
+            pubkey: 'test-pubkey',
+            groupId: 'test-group-id',
+            content: 'Hello, world!',
+            mediaFiles: [mediaFile],
+          );
+        });
+
+        test('calls send message with one tag', () async {
+          final call = capturedCalls.first;
+          expect(call.tags?.length, 1);
+        });
+
+        test('media tag has expected values', () async {
+          final mediaTag = capturedTags.first;
+          expect(
+            mediaTag,
+            equals([
+              'imeta',
+              'url https://blossom.example.com/abc123',
+              'm image/jpeg',
+              'x abc123hash',
+            ]),
+          );
+        });
+      });
+
+      group('with multiple media files', () {
+        late List<SendMessageCall> capturedCalls;
+        late List<List<String>> capturedTags;
+        late MessageSenderService service;
+        final mediaFile1 = MediaFile(
+          id: 'media-1',
+          mlsGroupId: 'test-group-id-1',
+          accountPubkey: 'test-pubkey1',
+          filePath: '/path/to/image1.jpg',
+          fileHash: 'abc123hash1',
+          mimeType: 'image/jpeg',
+          mediaType: 'image',
+          blossomUrl: 'https://blossom.example.com/abc123',
+          nostrKey: 'nostr-key-1',
+          createdAt: DateTime(2024),
         );
 
-        expect(capturedCalls.first.tags, customTags);
+        final mediaFile2 = MediaFile(
+          id: 'media-2',
+          mlsGroupId: 'test-group-id-2',
+          accountPubkey: 'test-pubkey2',
+          filePath: '/path/to/image2.jpg',
+          fileHash: 'def345hash2',
+          mimeType: 'image/jpeg',
+          mediaType: 'image',
+          blossomUrl: 'https://blossom.example.com/def345',
+          nostrKey: 'nostr-key-2',
+          createdAt: DateTime(2025),
+        );
+
+        setUp(() async {
+          capturedCalls = <SendMessageCall>[];
+          capturedTags = <List<String>>[];
+          service = MessageSenderService(
+            tagBuilder: NostrTagBuilderService(tagFromVecFn: mockTagFromVec(capturedTags)),
+            sendMessageToGroupFn: mockSendMessageToGroup(capturedCalls, null),
+          );
+          await service.sendMessage(
+            pubkey: 'test-pubkey',
+            groupId: 'test-group-id',
+            content: 'Hello, world!',
+            mediaFiles: [mediaFile1, mediaFile2],
+          );
+        });
+
+        test('calls send message with expected number of tags', () async {
+          final call = capturedCalls.first;
+          expect(call.tags?.length, 2);
+        });
+
+        test('first media tag has expected values', () async {
+          final mediaTag = capturedTags.first;
+          expect(
+            mediaTag,
+            equals([
+              'imeta',
+              'url https://blossom.example.com/abc123',
+              'm image/jpeg',
+              'x abc123hash1',
+            ]),
+          );
+        });
+
+        test('second media tag has expected values', () async {
+          final mediaTag = capturedTags.last;
+          expect(
+            mediaTag,
+            equals([
+              'imeta',
+              'url https://blossom.example.com/def345',
+              'm image/jpeg',
+              'x def345hash2',
+            ]),
+          );
+        });
+      });
+
+      group('with empty content and media', () {
+        late List<SendMessageCall> capturedCalls;
+        late List<List<String>> capturedTags;
+        late MessageSenderService service;
+        final mediaFile = MediaFile(
+          id: 'media-1',
+          mlsGroupId: 'test-group-id',
+          accountPubkey: 'test-pubkey',
+          filePath: '/path/to/image.jpg',
+          fileHash: 'abc123hash',
+          mimeType: 'image/jpeg',
+          mediaType: 'image',
+          blossomUrl: 'https://blossom.example.com/abc123',
+          nostrKey: 'nostr-key-1',
+          createdAt: DateTime(2024),
+        );
+
+        setUp(() async {
+          capturedCalls = <SendMessageCall>[];
+          capturedTags = <List<String>>[];
+          service = MessageSenderService(
+            tagBuilder: NostrTagBuilderService(tagFromVecFn: mockTagFromVec(capturedTags)),
+            sendMessageToGroupFn: mockSendMessageToGroup(capturedCalls, null),
+          );
+          await service.sendMessage(
+            pubkey: 'test-pubkey',
+            groupId: 'test-group-id',
+            content: '',
+            mediaFiles: [mediaFile],
+          );
+        });
+
+        test('calls send message', () async {
+          expect(capturedCalls.length, 1);
+        });
+
+        test('sends message with empty content', () async {
+          final call = capturedCalls.first;
+          expect(call.message, '');
+        });
+
+        test('sends message with one media tag', () async {
+          final call = capturedCalls.first;
+          expect(call.tags?.length, 1);
+        });
       });
       test('returns MessageWithTokens from rust API', () async {
         final capturedCalls = <SendMessageCall>[];
-        final expectedResult = MockMessageWithTokens(
+        final capturedTags = <List<String>>[];
+        final expectedResult = MessageWithTokens(
           id: 'result-id',
           pubkey: 'test-pubkey',
           kind: 9,
           createdAt: DateTime(2024),
           content: 'Test',
+          tokens: const [],
         );
 
         final service = MessageSenderService(
+          tagBuilder: NostrTagBuilderService(tagFromVecFn: mockTagFromVec(capturedTags)),
           sendMessageToGroupFn: mockSendMessageToGroup(
             capturedCalls,
             (_) => expectedResult,
@@ -154,24 +315,10 @@ void main() {
           pubkey: 'test-pubkey',
           groupId: 'test-group-id',
           content: 'Test',
+          mediaFiles: [],
         );
 
         expect(result, expectedResult);
-      });
-
-      test('handles empty content', () async {
-        final capturedCalls = <SendMessageCall>[];
-        final service = MessageSenderService(
-          sendMessageToGroupFn: mockSendMessageToGroup(capturedCalls, null),
-        );
-
-        await service.sendMessage(
-          pubkey: 'test-pubkey',
-          groupId: 'test-group-id',
-          content: '',
-        );
-
-        expect(capturedCalls.first.message, '');
       });
     });
 
@@ -256,12 +403,13 @@ void main() {
       test('returns MessageWithTokens from rust API', () async {
         final capturedCalls = <SendMessageCall>[];
         final capturedTags = <List<String>>[];
-        final expectedResult = MockMessageWithTokens(
+        final expectedResult = MessageWithTokens(
           id: 'reaction-id',
           pubkey: 'reactor-pubkey',
           kind: 7,
           createdAt: DateTime(2024),
           content: '👍',
+          tokens: const [],
         );
 
         final service = MessageSenderService(
@@ -314,20 +462,26 @@ void main() {
     });
 
     group('sendReply', () {
-      test('sends reply with kind 9', () async {
-        final capturedCalls = <SendMessageCall>[];
-        final capturedTags = <List<String>>[];
+      late List<SendMessageCall> capturedCalls;
+      late List<List<String>> capturedTags;
+      late MessageSenderService service;
 
-        final service = MessageSenderService(
+      setUp(() {
+        capturedCalls = <SendMessageCall>[];
+        capturedTags = <List<String>>[];
+        service = MessageSenderService(
           tagBuilder: NostrTagBuilderService(tagFromVecFn: mockTagFromVec(capturedTags)),
           sendMessageToGroupFn: mockSendMessageToGroup(capturedCalls, null),
         );
+      });
 
+      test('sends reply with kind 9', () async {
         await service.sendReply(
           pubkey: 'replier-pubkey',
           groupId: 'test-group',
           replyToMessageId: 'original-msg-id',
           content: 'This is a reply',
+          mediaFiles: [],
         );
 
         expect(capturedCalls.length, 1);
@@ -337,19 +491,12 @@ void main() {
       });
 
       test('builds correct reply tags', () async {
-        final capturedCalls = <SendMessageCall>[];
-        final capturedTags = <List<String>>[];
-
-        final service = MessageSenderService(
-          tagBuilder: NostrTagBuilderService(tagFromVecFn: mockTagFromVec(capturedTags)),
-          sendMessageToGroupFn: mockSendMessageToGroup(capturedCalls, null),
-        );
-
         await service.sendReply(
           pubkey: 'replier-pubkey',
           groupId: 'test-group',
           replyToMessageId: 'original-msg-id',
           content: 'Reply content',
+          mediaFiles: [],
         );
         expect(capturedTags.length, 1);
         final eTag = capturedTags.first;
@@ -358,19 +505,12 @@ void main() {
       });
 
       test('passes all parameters correctly', () async {
-        final capturedCalls = <SendMessageCall>[];
-        final capturedTags = <List<String>>[];
-
-        final service = MessageSenderService(
-          tagBuilder: NostrTagBuilderService(tagFromVecFn: mockTagFromVec(capturedTags)),
-          sendMessageToGroupFn: mockSendMessageToGroup(capturedCalls, null),
-        );
-
         await service.sendReply(
           pubkey: 'my-pubkey',
           groupId: 'group-789',
           replyToMessageId: 'msg-to-reply',
           content: 'My reply',
+          mediaFiles: [],
         );
 
         final call = capturedCalls.first;
@@ -380,17 +520,16 @@ void main() {
       });
 
       test('returns MessageWithTokens from rust API', () async {
-        final capturedCalls = <SendMessageCall>[];
-        final capturedTags = <List<String>>[];
-        final expectedResult = MockMessageWithTokens(
+        final expectedResult = MessageWithTokens(
           id: 'reply-id',
           pubkey: 'replier-pubkey',
           kind: 9,
           createdAt: DateTime(2024),
           content: 'Reply',
+          tokens: const [],
         );
 
-        final service = MessageSenderService(
+        service = MessageSenderService(
           tagBuilder: NostrTagBuilderService(tagFromVecFn: mockTagFromVec(capturedTags)),
           sendMessageToGroupFn: mockSendMessageToGroup(
             capturedCalls,
@@ -403,28 +542,198 @@ void main() {
           groupId: 'test-group',
           replyToMessageId: 'original-msg',
           content: 'Reply',
+          mediaFiles: [],
         );
 
         expect(result, expectedResult);
       });
 
       test('handles empty reply content', () async {
-        final capturedCalls = <SendMessageCall>[];
-        final capturedTags = <List<String>>[];
-
-        final service = MessageSenderService(
-          tagBuilder: NostrTagBuilderService(tagFromVecFn: mockTagFromVec(capturedTags)),
-          sendMessageToGroupFn: mockSendMessageToGroup(capturedCalls, null),
-        );
-
         await service.sendReply(
           pubkey: 'test-pubkey',
           groupId: 'test-group',
           replyToMessageId: 'msg-id',
           content: '',
+          mediaFiles: [],
         );
 
         expect(capturedCalls.first.message, '');
+      });
+
+      group('with media files', () {
+        group('with single media file', () {
+          final mediaFile = MediaFile(
+            id: 'media-1',
+            mlsGroupId: 'test-group-id',
+            accountPubkey: 'test-pubkey',
+            filePath: '/path/to/image.jpg',
+            fileHash: 'abc123hash',
+            mimeType: 'image/jpeg',
+            mediaType: 'image',
+            blossomUrl: 'https://blossom.example.com/abc123',
+            nostrKey: 'nostr-key-1',
+            createdAt: DateTime(2024),
+          );
+
+          group('with content', () {
+            setUp(() async {
+              await service.sendReply(
+                pubkey: 'test-pubkey',
+                groupId: 'test-group',
+                replyToMessageId: 'original-msg-id',
+                content: 'Reply with media',
+                mediaFiles: [mediaFile],
+              );
+            });
+
+            test('sends message with 2 tags', () async {
+              final call = capturedCalls.first;
+              expect(call.tags?.length, 2);
+            });
+
+            test('first tag is reply tag', () async {
+              final replyTag = capturedTags.first;
+              expect(
+                replyTag,
+                equals([
+                  'e',
+                  'original-msg-id',
+                ]),
+              );
+            });
+
+            test('second tag is media tag', () async {
+              final mediaTag = capturedTags.last;
+              expect(
+                mediaTag,
+                equals([
+                  'imeta',
+                  'url https://blossom.example.com/abc123',
+                  'm image/jpeg',
+                  'x abc123hash',
+                ]),
+              );
+            });
+          });
+          group('with empty content', () {
+            setUp(() async {
+              await service.sendReply(
+                pubkey: 'test-pubkey',
+                groupId: 'test-group',
+                replyToMessageId: 'original-msg-id',
+                content: '',
+                mediaFiles: [mediaFile],
+              );
+            });
+
+            test('sends message with 2 tags', () async {
+              final call = capturedCalls.first;
+              expect(call.tags?.length, 2);
+            });
+
+            test('first tag is reply tag', () async {
+              final replyTag = capturedTags.first;
+              expect(
+                replyTag,
+                equals([
+                  'e',
+                  'original-msg-id',
+                ]),
+              );
+            });
+
+            test('second tag is media tag', () async {
+              final mediaTag = capturedTags.last;
+              expect(
+                mediaTag,
+                equals([
+                  'imeta',
+                  'url https://blossom.example.com/abc123',
+                  'm image/jpeg',
+                  'x abc123hash',
+                ]),
+              );
+            });
+          });
+        });
+      });
+
+      group('with multiple media files', () {
+        final mediaFile1 = MediaFile(
+          id: 'media-1',
+          mlsGroupId: 'test-group-id',
+          accountPubkey: 'test-pubkey',
+          filePath: '/path/to/image1.jpg',
+          fileHash: 'hash1',
+          mimeType: 'image/jpeg',
+          mediaType: 'image',
+          blossomUrl: 'https://blossom.example.com/hash1',
+          nostrKey: 'nostr-key-1',
+          createdAt: DateTime(2024),
+        );
+        final mediaFile2 = MediaFile(
+          id: 'media-2',
+          mlsGroupId: 'test-group-id',
+          accountPubkey: 'test-pubkey',
+          filePath: '/path/to/image2.jpg',
+          fileHash: 'hash2',
+          mimeType: 'image/png',
+          mediaType: 'image',
+          blossomUrl: 'https://blossom.example.com/hash2',
+          nostrKey: 'nostr-key-2',
+          createdAt: DateTime(2025),
+        );
+        setUp(() async {
+          await service.sendReply(
+            pubkey: 'test-pubkey',
+            groupId: 'test-group',
+            replyToMessageId: 'original-msg-id',
+            content: '',
+            mediaFiles: [mediaFile1, mediaFile2],
+          );
+        });
+
+        test('sends message with expected tags amount', () async {
+          final call = capturedCalls.first;
+          expect(call.tags?.length, 3);
+        });
+
+        test('first tag is reply tag', () async {
+          final replyTag = capturedTags.first;
+          expect(
+            replyTag,
+            equals([
+              'e',
+              'original-msg-id',
+            ]),
+          );
+        });
+
+        test('second tag is media tag', () async {
+          final mediaTag = capturedTags[1];
+          expect(
+            mediaTag,
+            equals([
+              'imeta',
+              'url https://blossom.example.com/hash1',
+              'm image/jpeg',
+              'x hash1',
+            ]),
+          );
+        });
+
+        test('third tag is media tag', () async {
+          final mediaTag = capturedTags[2];
+          expect(
+            mediaTag,
+            equals([
+              'imeta',
+              'url https://blossom.example.com/hash2',
+              'm image/png',
+              'x hash2',
+            ]),
+          );
+        });
       });
     });
 
@@ -506,12 +815,13 @@ void main() {
       test('returns MessageWithTokens from rust API', () async {
         final capturedCalls = <SendMessageCall>[];
         final capturedTags = <List<String>>[];
-        final expectedResult = MockMessageWithTokens(
+        final expectedResult = MessageWithTokens(
           id: 'deletion-id',
           pubkey: 'deleter-pubkey',
           kind: 5,
           createdAt: DateTime(2024),
           content: '',
+          tokens: const [],
         );
 
         final service = MessageSenderService(
@@ -586,6 +896,7 @@ void main() {
             pubkey: 'test',
             groupId: 'test',
             content: 'test',
+            mediaFiles: [],
           ),
           throwsException,
         );

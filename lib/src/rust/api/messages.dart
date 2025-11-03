@@ -7,6 +7,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 import '../frb_generated.dart';
 import 'error.dart';
+import 'media_files.dart';
 
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
@@ -47,6 +48,7 @@ class ChatMessage {
   final bool isDeleted;
   final List<SerializableToken> contentTokens;
   final ReactionSummary reactions;
+  final List<MediaFile> mediaAttachments;
   final int kind;
 
   const ChatMessage({
@@ -60,6 +62,7 @@ class ChatMessage {
     required this.isDeleted,
     required this.contentTokens,
     required this.reactions,
+    required this.mediaAttachments,
     required this.kind,
   });
 
@@ -75,6 +78,7 @@ class ChatMessage {
       isDeleted.hashCode ^
       contentTokens.hashCode ^
       reactions.hashCode ^
+      mediaAttachments.hashCode ^
       kind.hashCode;
 
   @override
@@ -92,6 +96,7 @@ class ChatMessage {
           isDeleted == other.isDeleted &&
           contentTokens == other.contentTokens &&
           reactions == other.reactions &&
+          mediaAttachments == other.mediaAttachments &&
           kind == other.kind;
 }
 

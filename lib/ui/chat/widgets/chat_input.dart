@@ -6,10 +6,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/config/providers/chat_input_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
-import 'package:whitenoise/ui/chat/widgets/chat_input_media_preview.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input_media_selector.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input_reply_preview.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_input_send_button.dart';
+import 'package:whitenoise/ui/chat/widgets/media_preview.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
@@ -166,7 +166,10 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
 
     final isEditing = chatState.editingMessage[widget.groupId] != null;
     final content = _textController.text.trim();
-    if (content.isEmpty && chatInputState.selectedMedia.isEmpty) return;
+    if ((content.isEmpty && chatInputState.selectedMedia.isEmpty) ||
+        chatInputState.hasUploadingMedia) {
+      return;
+    }
 
     widget.onSend(content, isEditing);
 
@@ -233,7 +236,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                                   }
                                 },
                               ),
-                              ChatInputMediaPreview(
+                              MediaPreview(
                                 mediaItems: chatInputState.selectedMedia,
                                 onRemoveImage: _removeImage,
                                 onAddMore: _handleImagesSelected,
@@ -278,6 +281,7 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
                         singleLineHeight: chatInputState.singleLineHeight,
                         onSend: _sendMessage,
                         hasImages: chatInputState.selectedMedia.isNotEmpty,
+                        isDisabled: chatInputState.hasUploadingMedia,
                       ),
                     ],
                   ),

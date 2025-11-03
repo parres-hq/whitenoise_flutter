@@ -1,18 +1,18 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 
-import 'package:whitenoise/config/providers/localization_provider.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/ui/chat/widgets/chat_bubble/bubble.dart';
+import 'package:whitenoise/ui/chat/widgets/media_modal.dart';
+import 'package:whitenoise/ui/chat/widgets/message_media_grid.dart';
+import 'package:whitenoise/ui/chat/widgets/message_reply_box.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
-import 'package:whitenoise/utils/message_utils.dart';
 
 class MessageWidget extends StatelessWidget {
   final MessageModel message;
@@ -129,11 +129,18 @@ class MessageWidget extends StatelessWidget {
                   ),
                   Gap(4.h),
                 ],
-                ReplyBox(
+                MessageReplyBox(
                   replyingTo: message.replyTo,
                   onTap:
                       message.replyTo != null ? () => onReplyTap?.call(message.replyTo!.id) : null,
                 ),
+                if (message.mediaAttachments.isNotEmpty) ...[
+                  MessageMediaGrid(
+                    mediaFiles: message.mediaAttachments,
+                    onMediaTap: (index) => _handleMediaTap(context, index),
+                  ),
+                  Gap(4.h),
+                ],
                 _buildMessageWithTimestamp(
                   context,
                   constraints.maxWidth - 16.w,
@@ -156,6 +163,16 @@ class MessageWidget extends StatelessWidget {
     final messageContent = message.content ?? '';
     final timestampWidth = _getTimestampWidth(context);
     final minPadding = 8.w;
+
+    // If message content is empty, just show the timestamp
+    if (messageContent.isEmpty) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          TimeAndStatus(message: message, context: context),
+        ],
+      );
+    }
 
     final textWidget = _buildHighlightedText(messageContent, textStyle, context);
 
@@ -283,6 +300,21 @@ class MessageWidget extends StatelessWidget {
     textPainter.layout();
     final statusIconWidth = message.isMe ? (8.w + 14.w) : 0;
     return textPainter.width + statusIconWidth;
+  }
+
+  void _handleMediaTap(BuildContext context, int index) {
+    showDialog(
+      context: context,
+      barrierColor: context.colors.overlay.withValues(alpha: 0.5),
+      builder:
+          (context) => MediaModal(
+            mediaFiles: message.mediaAttachments,
+            initialIndex: index,
+            senderName: message.sender.displayName,
+            senderImagePath: message.sender.imagePath,
+            timestamp: message.createdAt,
+          ),
+    );
   }
 }
 
@@ -443,67 +475,6 @@ class TimeAndStatus extends StatelessWidget {
           ),
         ],
       ],
-    );
-  }
-}
-
-class ReplyBox extends ConsumerWidget {
-  const ReplyBox({super.key, this.replyingTo, this.onTap});
-  final MessageModel? replyingTo;
-  final VoidCallback? onTap;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    // Watch localization changes
-    ref.watch(currentLocaleProvider);
-    if (replyingTo == null) {
-      return const SizedBox.shrink();
-    }
-    return Container(
-      margin: EdgeInsets.only(bottom: 8.h),
-      child: Material(
-        color: context.colors.secondary,
-        child: InkWell(
-          onTap: onTap,
-          child: Container(
-            padding: EdgeInsets.all(8.w),
-            decoration: BoxDecoration(
-              border: Border(
-                left: BorderSide(
-                  color: context.colors.mutedForeground,
-                  width: 3.0,
-                ),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  MessageUtils.getDisplayName(replyingTo, null),
-                  style: TextStyle(
-                    color: context.colors.mutedForeground,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Gap(4.h),
-                Text(
-                  replyingTo?.content ?? '',
-                  style: TextStyle(
-                    color: context.colors.primary,
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }
