@@ -211,6 +211,8 @@ class _ChatInputState extends ConsumerState<ChatInput> with WidgetsBindingObserv
               currentText: currentText,
             );
 
+            if (!mounted) return;
+
             _textController.clear();
             await _loadDraftMessage();
           }
