@@ -106,11 +106,9 @@ class DirectMessageHeader extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // Get the other member's full data from cached members
     final groupsNotifier = ref.watch(groupsProvider.notifier);
     final otherMember = groupsNotifier.getOtherGroupMember(group.mlsGroupId);
 
-    // Show nothing while waiting for data to load
     if (otherMember == null) {
       return const SizedBox.shrink();
     }
