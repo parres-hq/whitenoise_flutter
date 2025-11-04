@@ -1,10 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:whitenoise/config/providers/media_file_downloads_provider.dart';
+import 'package:whitenoise/domain/models/media_file_download.dart';
 import 'package:whitenoise/src/rust/api/media_files.dart';
 import 'package:whitenoise/ui/chat/widgets/media_modal.dart';
 import 'package:whitenoise/ui/chat/widgets/media_thumbnail.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import '../../../test_helpers.dart';
+
+class _MockMediaFileDownloadsNotifier extends MediaFileDownloadsNotifier {
+  List<MediaFile>? downloadedMediaFiles;
+
+  @override
+  Future<List<MediaFileDownload>> downloadMediaFiles(List<MediaFile> mediaFiles) async {
+    downloadedMediaFiles = mediaFiles;
+    return [];
+  }
+}
 
 void main() {
   group('MediaModal', () {
@@ -25,6 +37,10 @@ void main() {
           blossomUrl: 'https://example.com/image$index.jpg',
           nostrKey: 'key-$index',
           createdAt: testTimestamp,
+          fileMetadata: FileMetadata(
+            blurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
+            originalFilename: 'image$count.jpg',
+          ),
         ),
       );
     }
@@ -160,6 +176,28 @@ void main() {
       );
 
       expect(find.byType(MediaThumbnail), findsNothing);
+    });
+
+    testWidgets('downloads media files on init', (WidgetTester tester) async {
+      final mediaFiles = createTestMediaFiles(3);
+      final mockNotifier = _MockMediaFileDownloadsNotifier();
+
+      await tester.pumpWidget(
+        createTestWidget(
+          MediaModal(
+            mediaFiles: mediaFiles,
+            initialIndex: 0,
+            senderName: 'Test User',
+            senderImagePath: null,
+            timestamp: testTimestamp,
+          ),
+          overrides: [
+            mediaFileDownloadsProvider.overrideWith(() => mockNotifier),
+          ],
+        ),
+      );
+
+      expect(mockNotifier.downloadedMediaFiles, equals(mediaFiles));
     });
   });
 }

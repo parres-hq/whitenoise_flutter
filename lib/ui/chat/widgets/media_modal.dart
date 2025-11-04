@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
+import 'package:whitenoise/config/providers/media_file_downloads_provider.dart';
 import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/ui/chat/widgets/media_image.dart';
 import 'package:whitenoise/ui/chat/widgets/media_thumbnail.dart';
@@ -11,7 +13,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
-class MediaModal extends StatefulWidget {
+class MediaModal extends ConsumerStatefulWidget {
   const MediaModal({
     super.key,
     required this.mediaFiles,
@@ -28,10 +30,10 @@ class MediaModal extends StatefulWidget {
   final DateTime timestamp;
 
   @override
-  State<MediaModal> createState() => _MediaModalState();
+  ConsumerState<MediaModal> createState() => _MediaModalState();
 }
 
-class _MediaModalState extends State<MediaModal> {
+class _MediaModalState extends ConsumerState<MediaModal> {
   static const double _thumbnailSize = 36.0;
   static const double _thumbnailSpacing = 8.0;
 
@@ -47,8 +49,13 @@ class _MediaModalState extends State<MediaModal> {
     _thumbnailScrollController = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _downloadMediaFiles();
       _scrollToActiveThumbnail();
     });
+  }
+
+  void _downloadMediaFiles() {
+    ref.read(mediaFileDownloadsProvider.notifier).downloadMediaFiles(widget.mediaFiles);
   }
 
   @override
@@ -107,8 +114,10 @@ class _MediaModalState extends State<MediaModal> {
           _buildHeader(),
           Gap(12.h),
           _buildImagePageView(),
-          Gap(8.h),
-          _buildThumbnailStrip(),
+          if (widget.mediaFiles.length > 1) ...[
+            Gap(8.h),
+            _buildThumbnailStrip(),
+          ],
         ],
       ),
     );
@@ -169,13 +178,10 @@ class _MediaModalState extends State<MediaModal> {
         itemCount: widget.mediaFiles.length,
         physics: const ClampingScrollPhysics(),
         itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.w),
-            child: MediaImage(
-              mediaFile: widget.mediaFiles[index],
-              width: double.infinity,
-              height: double.infinity,
-            ),
+          return MediaImage(
+            mediaFile: widget.mediaFiles[index],
+            width: double.infinity,
+            height: double.infinity,
           );
         },
       ),
