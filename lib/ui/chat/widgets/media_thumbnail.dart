@@ -1,12 +1,15 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:whitenoise/config/providers/media_file_downloads_provider.dart';
+import 'package:whitenoise/domain/models/media_file_download.dart';
 import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/ui/chat/widgets/blurhash_placeholder.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
-class MediaThumbnail extends StatelessWidget {
+class MediaThumbnail extends ConsumerWidget {
   const MediaThumbnail({
     super.key,
     required this.mediaFile,
@@ -21,15 +24,22 @@ class MediaThumbnail extends StatelessWidget {
   final double size;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GestureDetector(
       onTap: onTap,
-      child: _buildThumbnail(context),
+      child: _buildThumbnail(context, ref),
     );
   }
 
-  Widget _buildThumbnail(BuildContext context) {
-    final hasLocalFile = _hasLocalFile();
+  Widget _buildThumbnail(BuildContext context, WidgetRef ref) {
+    final download = ref.watch(
+      mediaFileDownloadsProvider.select(
+        (state) => state.getMediaFileDownload(mediaFile),
+      ),
+    );
+
+    final fileToDisplay = download.mediaFile;
+    final hasLocalFile = _hasLocalFile(fileToDisplay);
     final size = 36.w;
 
     return Container(
@@ -42,14 +52,15 @@ class MediaThumbnail extends StatelessWidget {
         ),
       ),
       child: ClipRRect(
-        child: hasLocalFile ? _buildImage() : _buildBlurhash(),
+        child:
+            (download.isDownloaded && hasLocalFile) ? _buildImage(fileToDisplay) : _buildBlurhash(),
       ),
     );
   }
 
-  Widget _buildImage() {
+  Widget _buildImage(MediaFile file) {
     return Image.file(
-      File(mediaFile.filePath),
+      File(file.filePath),
       fit: BoxFit.cover,
       errorBuilder: (_, _, _) => _buildBlurhash(),
     );
@@ -63,11 +74,11 @@ class MediaThumbnail extends StatelessWidget {
     );
   }
 
-  bool _hasLocalFile() {
-    if (mediaFile.filePath.isEmpty) return false;
+  bool _hasLocalFile(MediaFile file) {
+    if (file.filePath.isEmpty) return false;
 
     try {
-      return File(mediaFile.filePath).existsSync();
+      return File(file.filePath).existsSync();
     } catch (_) {
       return false;
     }
