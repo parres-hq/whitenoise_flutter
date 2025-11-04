@@ -17,7 +17,7 @@ class NotificationService {
 
     try {
       const AndroidInitializationSettings initializationSettingsAndroid =
-          AndroidInitializationSettings('@mipmap/ic_launcher_monochrome');
+          AndroidInitializationSettings('@mipmap/ic_notification');
 
       const DarwinInitializationSettings initializationSettingsDarwin =
           DarwinInitializationSettings(
@@ -141,7 +141,7 @@ class NotificationService {
         channelDescription: 'Notifications for new messages',
         importance: Importance.high,
         priority: Priority.high,
-        icon: '@mipmap/ic_launcher_monochrome',
+        icon: '@mipmap/ic_notification',
         groupKey: groupKey,
       );
 
@@ -188,7 +188,7 @@ class NotificationService {
         channelDescription: 'Notifications for new invites',
         importance: Importance.high,
         priority: Priority.high,
-        icon: '@mipmap/ic_launcher_monochrome',
+        icon: '@mipmap/ic_notification',
         groupKey: groupKey,
       );
 
