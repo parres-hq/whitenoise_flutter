@@ -229,7 +229,7 @@ class NotificationService {
   static Future<void> cancelAllNotifications() async {
     try {
       await _flutterLocalNotificationsPlugin.cancelAll();
-      _logger.info('All notifications cancelled');
+      _logger.fine('All notifications cancelled');
     } catch (e) {
       _logger.severe('Failed to cancel all notifications: $e');
     }
