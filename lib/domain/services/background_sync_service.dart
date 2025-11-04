@@ -71,18 +71,14 @@ class BackgroundSyncService {
           showNotification: false,
         ),
         foregroundTaskOptions: ForegroundTaskOptions(
-          /// Current: 60 seconds - Polling-based sync
+          /// Current: 1 second - Polling-based sync
           ///
           /// Future with streams (recommended: 15 minutes):
           /// - Real-time messages delivered via WebSocket/SSE streams
           /// - Background task only checks stream health and reconnects if needed
           /// - Significant battery savings: 15 wakeups/hour → 4 wakeups/hour
           /// - Instant notifications via streams instead of polling
-          ///
-          /// Current interval chosen as compromise:
-          /// - 60s provides reasonably timely notifications (~1 min delay)
-          /// - Will increase to 900000ms (15 min) when streams are implemented
-          eventAction: ForegroundTaskEventAction.repeat(60000),
+          eventAction: ForegroundTaskEventAction.repeat(1000),
           autoRunOnBoot: true,
           autoRunOnMyPackageReplaced: true,
           allowWifiLock: true,
@@ -109,6 +105,9 @@ class BackgroundSyncService {
           notificationTitle: 'Connected to relays',
           notificationText: 'Tap to return to the app',
           notificationInitialRoute: '/',
+          notificationIcon: const NotificationIcon(
+            metaDataName: 'com.whitenoise.service.NOTIFICATION_ICON',
+          ),
           callback: startCallback,
         );
       }
