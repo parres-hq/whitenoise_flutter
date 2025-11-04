@@ -587,37 +587,17 @@ class GroupsNotifier extends Notifier<GroupsState> {
         state.groupImagePaths ?? {},
       );
 
-      final List<Future<void>> loadTasks = [];
       final activePubkey = ref.read(activePubkeyProvider);
       if (activePubkey == null || activePubkey.isEmpty) return;
 
-      for (final group in groups) {
-        loadTasks.add(
-          getGroupImagePath(
-                accountPubkey: activePubkey,
-                groupId: group.mlsGroupId,
-              )
-              .then((imagePath) {
-                if (imagePath != null && imagePath.isNotEmpty) {
-                  groupImagePaths[group.mlsGroupId] = imagePath;
-                }
-              })
-              .catchError((e) {
-                _logErrorSync('Failed to load image path for group ${group.mlsGroupId}', e);
-                // Skip this group if image loading fails
-              }),
-        );
-      }
+      await Future.wait(
+        groups.map((group) => _loadImagePathForGroup(group, activePubkey, groupImagePaths)),
+      );
 
-      // Execute all image path loading in parallel for better performance
-      await Future.wait(loadTasks);
-
-      // Update state with the cached image paths
       state = state.copyWith(groupImagePaths: groupImagePaths);
 
       _logger.info('GroupsProvider: Loaded image paths for ${groupImagePaths.length} groups');
     } catch (e) {
-      // Log the full exception details with proper ApiError unpacking
       String logMessage = 'GroupsProvider: Error loading group image paths - Exception: ';
       if (e is ApiError) {
         final errorDetails = await e.messageText();
@@ -626,7 +606,33 @@ class GroupsNotifier extends Notifier<GroupsState> {
         logMessage += '$e (Type: ${e.runtimeType})';
       }
       _logger.severe(logMessage, e);
-      // Don't throw - we want to continue even if some image loading fails
+    }
+  }
+
+  Future<void> _loadImagePathForGroup(
+    Group group,
+    String activePubkey,
+    Map<String, String> groupImagePaths,
+  ) async {
+    try {
+      final groupType = getCachedGroupType(group.mlsGroupId);
+      String? imagePath;
+
+      if (groupType == GroupType.directMessage) {
+        final otherMember = getOtherGroupMember(group.mlsGroupId);
+        imagePath = otherMember?.imagePath;
+      } else {
+        imagePath = await getGroupImagePath(
+          accountPubkey: activePubkey,
+          groupId: group.mlsGroupId,
+        );
+      }
+
+      if (imagePath != null && imagePath.isNotEmpty) {
+        groupImagePaths[group.mlsGroupId] = imagePath;
+      }
+    } catch (e) {
+      _logErrorSync('Failed to load image path for group ${group.mlsGroupId}', e);
     }
   }
 
@@ -772,12 +778,22 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   /// Load and cache group image path for a single group
+  /// For DMs: caches the other member's image path
+  /// For groups: caches the group's image path from Rust API
   Future<void> _loadGroupImagePathForGroup(Group group, String activePubkey) async {
     try {
-      final imagePath = await getGroupImagePath(
-        accountPubkey: activePubkey,
-        groupId: group.mlsGroupId,
-      );
+      final groupType = getCachedGroupType(group.mlsGroupId);
+
+      String? imagePath;
+      if (groupType == GroupType.directMessage) {
+        final otherMember = getOtherGroupMember(group.mlsGroupId);
+        imagePath = otherMember?.imagePath;
+      } else {
+        imagePath = await getGroupImagePath(
+          accountPubkey: activePubkey,
+          groupId: group.mlsGroupId,
+        );
+      }
 
       if (imagePath != null && imagePath.isNotEmpty) {
         final groupImagePaths = Map<String, String>.from(state.groupImagePaths ?? {});
