@@ -32,8 +32,8 @@ class MediaModal extends StatefulWidget {
 }
 
 class _MediaModalState extends State<MediaModal> {
-  static const double _thumbnailSize = 32.0;
-  static const double _thumbnailSpacing = 12.0;
+  static const double _thumbnailSize = 36.0;
+  static const double _thumbnailSpacing = 8.0;
 
   late PageController _pageController;
   late ScrollController _thumbnailScrollController;
@@ -106,20 +106,9 @@ class _MediaModalState extends State<MediaModal> {
         children: [
           _buildHeader(),
           Gap(12.h),
-          Expanded(
-            child: Stack(
-              children: [
-                _buildImageViewer(),
-                if (widget.mediaFiles.length > 1)
-                  Positioned(
-                    bottom: 12.h,
-                    left: 12.w,
-                    right: 12.w,
-                    child: _buildThumbnailStrip(),
-                  ),
-              ],
-            ),
-          ),
+          _buildImagePageView(),
+          Gap(8.h),
+          _buildThumbnailStrip(),
         ],
       ),
     );
@@ -172,22 +161,24 @@ class _MediaModalState extends State<MediaModal> {
     );
   }
 
-  Widget _buildImageViewer() {
-    return PageView.builder(
-      controller: _pageController,
-      onPageChanged: _onPageChanged,
-      itemCount: widget.mediaFiles.length,
-      physics: const ClampingScrollPhysics(),
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
-          child: MediaImage(
-            mediaFile: widget.mediaFiles[index],
-            width: double.infinity,
-            height: double.infinity,
-          ),
-        );
-      },
+  Widget _buildImagePageView() {
+    return Expanded(
+      child: PageView.builder(
+        controller: _pageController,
+        onPageChanged: _onPageChanged,
+        itemCount: widget.mediaFiles.length,
+        physics: const ClampingScrollPhysics(),
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.symmetric(horizontal: 4.w),
+            child: MediaImage(
+              mediaFile: widget.mediaFiles[index],
+              width: double.infinity,
+              height: double.infinity,
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -206,6 +197,7 @@ class _MediaModalState extends State<MediaModal> {
             mediaFile: widget.mediaFiles[index],
             isActive: _currentIndex == index,
             onTap: () => _onThumbnailTap(index),
+            size: _thumbnailSize.w,
           );
         },
       ),

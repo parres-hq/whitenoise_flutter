@@ -29,6 +29,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     required this.bottomSheetBarrier,
     required this.link,
     required this.border,
+    required this.borderAccent,
     required this.avatarSurface,
     required this.solidPrimary,
     required this.input,
@@ -74,6 +75,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
   final Color bottomSheetBarrier;
   final Color link;
   final Color border;
+  final Color borderAccent;
   final Color avatarSurface;
   final Color solidPrimary;
   final Color input;
@@ -120,6 +122,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     bottomSheetBarrier: LightAppColors.bottomSheetBarrier,
     link: LightAppColors.link,
     border: LightAppColors.border,
+    borderAccent: LightAppColors.borderAccent,
     avatarSurface: LightAppColors.avatarSurface,
     solidPrimary: LightAppColors.solidPrimary,
     input: LightAppColors.input,
@@ -167,6 +170,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     bottomSheetBarrier: DarkAppColors.bottomSheetBarrier,
     link: DarkAppColors.link,
     border: DarkAppColors.border,
+    borderAccent: DarkAppColors.borderAccent,
     avatarSurface: DarkAppColors.avatarSurface,
     solidPrimary: DarkAppColors.solidPrimary,
     input: DarkAppColors.input,
@@ -214,6 +218,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
     Color? bottomSheetBarrier,
     Color? link,
     Color? border,
+    Color? borderAccent,
     Color? avatarSurface,
     Color? solidPrimary,
     Color? input,
@@ -259,6 +264,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       bottomSheetBarrier: bottomSheetBarrier ?? this.bottomSheetBarrier,
       link: link ?? this.link,
       border: border ?? this.border,
+      borderAccent: borderAccent ?? this.borderAccent,
       avatarSurface: avatarSurface ?? this.avatarSurface,
       solidPrimary: solidPrimary ?? this.solidPrimary,
       input: input ?? this.input,
@@ -319,6 +325,7 @@ class AppColorsThemeExt extends ThemeExtension<AppColorsThemeExt> {
       bottomSheetBarrier: Color.lerp(bottomSheetBarrier, other.bottomSheetBarrier, t)!,
       link: Color.lerp(link, other.link, t)!,
       border: Color.lerp(border, other.border, t)!,
+      borderAccent: Color.lerp(borderAccent, other.borderAccent, t)!,
       avatarSurface: Color.lerp(avatarSurface, other.avatarSurface, t)!,
       solidPrimary: Color.lerp(solidPrimary, other.solidPrimary, t)!,
       input: Color.lerp(input, other.input, t)!,

@@ -12,11 +12,13 @@ class MediaThumbnail extends StatelessWidget {
     required this.mediaFile,
     required this.isActive,
     required this.onTap,
+    required this.size,
   });
 
   final MediaFile mediaFile;
   final bool isActive;
   final VoidCallback onTap;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +30,14 @@ class MediaThumbnail extends StatelessWidget {
 
   Widget _buildThumbnail(BuildContext context) {
     final hasLocalFile = _hasLocalFile();
+    final size = 36.w;
 
     return Container(
-      width: 32.w,
-      height: 32.h,
+      width: size,
+      height: size,
       decoration: BoxDecoration(
         border: Border.all(
-          color: isActive ? context.colors.solidPrimary : context.colors.mutedForeground,
+          color: isActive ? context.colors.borderAccent : Colors.transparent,
           width: 1.w,
         ),
       ),
@@ -55,8 +58,8 @@ class MediaThumbnail extends StatelessWidget {
   Widget _buildBlurhash() {
     return BlurhashPlaceholder(
       hash: mediaFile.fileMetadata?.blurhash,
-      width: 32.w,
-      height: 32.h,
+      width: size,
+      height: size,
     );
   }
 
