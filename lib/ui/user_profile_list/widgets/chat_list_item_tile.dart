@@ -62,18 +62,16 @@ class ChatListItemTile extends ConsumerWidget {
     final groupType = ref.watch(
       groupsProvider.select((s) => s.groupTypes?[group.mlsGroupId]),
     );
-    
+
     final String? avatarPubkey;
     if (groupType == GroupType.directMessage) {
-
       final members = ref.watch(
         groupsProvider.select((s) => s.groupMembers?[group.mlsGroupId]),
       );
       final activePubkey = ref.watch(activePubkeyProvider);
-      final activePubkeyNpub = activePubkey != null 
-          ? PubkeyFormatter(pubkey: activePubkey).toNpub() 
-          : null;
-      
+      final activePubkeyNpub =
+          activePubkey != null ? PubkeyFormatter(pubkey: activePubkey).toNpub() : null;
+
       final otherMember = members?.firstWhere(
         (m) => m.publicKey != activePubkeyNpub,
         orElse: () => members.first,

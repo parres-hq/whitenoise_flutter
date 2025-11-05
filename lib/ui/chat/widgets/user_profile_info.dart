@@ -31,7 +31,7 @@ class ChatGroupAppbar extends ConsumerWidget {
     final groupType = ref.watch(
       groupsProvider.select((s) => s.groupTypes?[groupId]),
     );
-    
+
     final String? avatarPubkey;
     if (groupType == GroupType.directMessage) {
       final members = ref.watch(
@@ -39,11 +39,10 @@ class ChatGroupAppbar extends ConsumerWidget {
       );
 
       final activePubkey = ref.watch(activePubkeyProvider);
-      
-      final activePubkeyNpub = activePubkey != null 
-          ? PubkeyFormatter(pubkey: activePubkey).toNpub() 
-          : null;
-      
+
+      final activePubkeyNpub =
+          activePubkey != null ? PubkeyFormatter(pubkey: activePubkey).toNpub() : null;
+
       final otherMember = members?.firstWhere(
         (m) => m.publicKey != activePubkeyNpub,
         orElse: () => members.first,

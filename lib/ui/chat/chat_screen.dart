@@ -115,7 +115,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     try {
       final groupsState = ref.read(groupsProvider);
       final members = groupsState.groupMembers?[widget.groupId];
-      
+
       if (members != null && members.isNotEmpty) {
         final pubkeys = members.map((m) => m.publicKey).where((p) => p.isNotEmpty).toList();
         if (pubkeys.isNotEmpty) {
