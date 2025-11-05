@@ -230,7 +230,7 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
     required String message,
     bool isEditing = false,
   }) async {
-    if (state.hasUploadingMedia || state.hasFailedMedia) return null;
+    if (state.hasUploadingOrFailedMedia) return null;
 
     final uploadedMediaFiles =
         state.selectedMedia

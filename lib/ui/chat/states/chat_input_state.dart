@@ -15,7 +15,6 @@ class ChatInputState with _$ChatInputState {
     String? previousEditingMessageContent,
   }) = _ChatInputState;
 
-  bool get hasUploadingMedia => selectedMedia.any((media) => media.isUploading);
-
-  bool get hasFailedMedia => selectedMedia.any((media) => media.isFailed);
+  bool get hasUploadingOrFailedMedia =>
+      selectedMedia.any((media) => media.isFailed || media.isUploading);
 }
