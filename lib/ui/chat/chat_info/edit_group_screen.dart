@@ -120,6 +120,16 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
         setState(() => _isLoading = false);
         return;
       }
+      final newImagePath = _selectedImagePath ?? '';
+      if (newImagePath.isNotEmpty) {
+        await ref
+            .read(groupsProvider.notifier)
+            .updateGroupImage(
+              groupId: widget.groupId,
+              accountPubkey: activeAccount,
+              imagePath: _selectedImagePath!,
+            );
+      }
 
       await ref
           .read(groupsProvider.notifier)
@@ -129,16 +139,6 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
             name: newName,
             description: newDescription,
           );
-
-      if (_selectedImagePath != null && _selectedImagePath!.isNotEmpty) {
-        await ref
-            .read(groupsProvider.notifier)
-            .updateGroupImage(
-              groupId: widget.groupId,
-              accountPubkey: activeAccount,
-              imagePath: _selectedImagePath!,
-            );
-      }
 
       if (mounted) {
         ref.showSuccessToast('chats.groupUpdatedSuccessfully'.tr());

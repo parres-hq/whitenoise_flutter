@@ -41,11 +41,13 @@ class GroupsNotifier extends Notifier<GroupsState> {
     getGroupsInformationFn,
     Future<List<Group>> Function(GroupType)? getGroupsByTypeFn,
     List<User>? Function(String)? getGroupMembersFn,
+    ImagePickerService? imagePickerService,
   }) : _createGroupFn = createGroupFn ?? createGroup,
        _pubkeyFormatter = pubkeyFormatter ?? _defaultPubkeyFormatter,
        _getGroupsInformationFn = getGroupsInformationFn ?? getGroupsInformations,
        _getGroupsByTypeFn = getGroupsByTypeFn,
-       _getGroupMembersFn = getGroupMembersFn;
+       _getGroupMembersFn = getGroupMembersFn,
+       _imagePickerService = imagePickerService ?? ImagePickerService();
 
   final Future<Group> Function({
     required String creatorPubkey,
@@ -68,6 +70,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
   final Future<List<Group>> Function(GroupType)? _getGroupsByTypeFn;
 
   final List<User>? Function(String)? _getGroupMembersFn;
+
+  final ImagePickerService _imagePickerService;
 
   final _logger = Logger('GroupsNotifier');
 
@@ -1421,8 +1425,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
     String? selectedImagePath = imagePath;
     if (selectedImagePath == null || selectedImagePath.isEmpty) {
-      final imagePickerService = ImagePickerService();
-      selectedImagePath = await imagePickerService.pickProfileImage();
+      selectedImagePath = await _imagePickerService.pickProfileImage();
       if (selectedImagePath == null || selectedImagePath.isEmpty) {
         return;
       }
