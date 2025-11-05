@@ -46,8 +46,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
        _pubkeyFormatter = pubkeyFormatter ?? _defaultPubkeyFormatter,
        _getGroupsInformationFn = getGroupsInformationFn ?? getGroupsInformations,
        _getGroupsByTypeFn = getGroupsByTypeFn,
-       _getGroupMembersFn = getGroupMembersFn,
-       _imagePickerService = imagePickerService ?? ImagePickerService();
+       _getGroupMembersFn = getGroupMembersFn;
 
   final Future<Group> Function({
     required String creatorPubkey,
@@ -70,8 +69,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
   final Future<List<Group>> Function(GroupType)? _getGroupsByTypeFn;
 
   final List<User>? Function(String)? _getGroupMembersFn;
-
-  final ImagePickerService _imagePickerService;
 
   final _logger = Logger('GroupsNotifier');
 
@@ -1416,19 +1413,11 @@ class GroupsNotifier extends Notifier<GroupsState> {
   Future<void> updateGroupImage({
     required String groupId,
     required String accountPubkey,
-    String? imagePath,
+    required String imagePath,
   }) async {
     final group = state.groupsMap?[groupId];
     if (group == null) {
       throw Exception('Group not found');
-    }
-
-    String? selectedImagePath = imagePath;
-    if (selectedImagePath == null || selectedImagePath.isEmpty) {
-      selectedImagePath = await _imagePickerService.pickProfileImage();
-      if (selectedImagePath == null || selectedImagePath.isEmpty) {
-        return;
-      }
     }
 
     try {
@@ -1437,7 +1426,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final uploadResult = await uploadGroupImage(
         accountPubkey: accountPubkey,
         groupId: groupId,
-        filePath: selectedImagePath,
+        filePath: imagePath,
         serverUrl: serverUrl,
       );
 

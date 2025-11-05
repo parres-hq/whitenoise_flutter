@@ -127,7 +127,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
             .updateGroupImage(
               groupId: widget.groupId,
               accountPubkey: activeAccount,
-              imagePath: _selectedImagePath!,
+              imagePath: newImagePath,
             );
       }
 
