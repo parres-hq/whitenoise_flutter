@@ -25,13 +25,6 @@ class MediaThumbnail extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return GestureDetector(
-      onTap: onTap,
-      child: _buildThumbnail(context, ref),
-    );
-  }
-
-  Widget _buildThumbnail(BuildContext context, WidgetRef ref) {
     final download = ref.watch(
       mediaFileDownloadsProvider.select(
         (state) => state.getMediaFileDownload(mediaFile),
@@ -40,29 +33,30 @@ class MediaThumbnail extends ConsumerWidget {
 
     final fileToDisplay = download.mediaFile;
     final hasLocalFile = _hasLocalFile(fileToDisplay);
-    final size = 36.w;
+    final thumbnailSize = 36.w;
 
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: isActive ? context.colors.borderAccent : Colors.transparent,
-          width: 1.w,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: thumbnailSize,
+        height: thumbnailSize,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isActive ? context.colors.borderAccent : Colors.transparent,
+            width: 1.w,
+          ),
+        ),
+        child: ClipRRect(
+          child:
+              (download.isDownloaded && hasLocalFile)
+                  ? Image.file(
+                    File(fileToDisplay.filePath),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => _buildBlurhash(),
+                  )
+                  : _buildBlurhash(),
         ),
       ),
-      child: ClipRRect(
-        child:
-            (download.isDownloaded && hasLocalFile) ? _buildImage(fileToDisplay) : _buildBlurhash(),
-      ),
-    );
-  }
-
-  Widget _buildImage(MediaFile file) {
-    return Image.file(
-      File(file.filePath),
-      fit: BoxFit.cover,
-      errorBuilder: (_, _, _) => _buildBlurhash(),
     );
   }
 

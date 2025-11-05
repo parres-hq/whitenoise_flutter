@@ -52,7 +52,11 @@ class MediaImage extends ConsumerWidget {
 
     if (download.isDownloading || download.isPending) {
       _logger.info('Download in progress for ${fileToDisplay.originalFileHash}');
-      return _buildBlurhashWithSpinner(context, true);
+      return _BlurhashWithSpinner(
+        hash: mediaFile.fileMetadata?.blurhash,
+        width: width,
+        height: height,
+      );
     }
 
     return _buildBlurhash();
@@ -66,16 +70,36 @@ class MediaImage extends ConsumerWidget {
     );
   }
 
-  Widget _buildBlurhashWithSpinner(BuildContext context, bool isDownloading) {
+  bool _hasLocalFile(MediaFile file) {
+    if (file.filePath.isEmpty) return false;
+
+    try {
+      return File(file.filePath).existsSync();
+    } catch (e) {
+      _logger.warning('Error checking file existence: $e');
+      return false;
+    }
+  }
+}
+
+class _BlurhashWithSpinner extends StatelessWidget {
+  const _BlurhashWithSpinner({
+    required this.hash,
+    required this.width,
+    required this.height,
+  });
+
+  final String? hash;
+  final double? width;
+  final double? height;
+
+  @override
+  Widget build(BuildContext context) {
     final blurhashPlaceholder = BlurhashPlaceholder(
-      hash: mediaFile.fileMetadata?.blurhash,
+      hash: hash,
       width: width,
       height: height,
     );
-
-    if (!isDownloading) {
-      return blurhashPlaceholder;
-    }
 
     return Stack(
       children: [
@@ -101,16 +125,5 @@ class MediaImage extends ConsumerWidget {
         ),
       ],
     );
-  }
-
-  bool _hasLocalFile(MediaFile file) {
-    if (file.filePath.isEmpty) return false;
-
-    try {
-      return File(file.filePath).existsSync();
-    } catch (e) {
-      _logger.warning('Error checking file existence: $e');
-      return false;
-    }
   }
 }

@@ -111,25 +111,53 @@ class _MediaModalState extends ConsumerState<MediaModal> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _MediaModalHeader(
+            senderName: widget.senderName,
+            senderImagePath: widget.senderImagePath,
+            timestamp: widget.timestamp,
+          ),
           Gap(12.h),
-          _buildImagePageView(),
+          _MediaModalImageView(
+            mediaFiles: widget.mediaFiles,
+            pageController: _pageController,
+            onPageChanged: _onPageChanged,
+          ),
           if (widget.mediaFiles.length > 1) ...[
             Gap(8.h),
-            _buildThumbnailStrip(),
+            _MediaModalThumbnailStrip(
+              mediaFiles: widget.mediaFiles,
+              currentIndex: _currentIndex,
+              thumbnailSize: _thumbnailSize,
+              thumbnailSpacing: _thumbnailSpacing,
+              scrollController: _thumbnailScrollController,
+              onThumbnailTap: _onThumbnailTap,
+            ),
           ],
         ],
       ),
     );
   }
+}
 
-  Widget _buildHeader() {
+class _MediaModalHeader extends StatelessWidget {
+  const _MediaModalHeader({
+    required this.senderName,
+    required this.senderImagePath,
+    required this.timestamp,
+  });
+
+  final String senderName;
+  final String? senderImagePath;
+  final DateTime timestamp;
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
         WnAvatar(
-          imageUrl: widget.senderImagePath ?? '',
+          imageUrl: senderImagePath ?? '',
           size: 36.w,
-          displayName: widget.senderName,
+          displayName: senderName,
         ),
         Gap(8.w),
         Expanded(
@@ -137,7 +165,7 @@ class _MediaModalState extends ConsumerState<MediaModal> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.senderName,
+                senderName,
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
@@ -148,7 +176,7 @@ class _MediaModalState extends ConsumerState<MediaModal> {
               ),
               Gap(2.h),
               Text(
-                DateFormat('dd/MM/yyyy - HH:mm').format(widget.timestamp.toLocal()),
+                DateFormat('dd/MM/yyyy - HH:mm').format(timestamp.toLocal()),
                 style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
@@ -169,17 +197,30 @@ class _MediaModalState extends ConsumerState<MediaModal> {
       ],
     );
   }
+}
 
-  Widget _buildImagePageView() {
+class _MediaModalImageView extends StatelessWidget {
+  const _MediaModalImageView({
+    required this.mediaFiles,
+    required this.pageController,
+    required this.onPageChanged,
+  });
+
+  final List<MediaFile> mediaFiles;
+  final PageController pageController;
+  final void Function(int) onPageChanged;
+
+  @override
+  Widget build(BuildContext context) {
     return Expanded(
       child: PageView.builder(
-        controller: _pageController,
-        onPageChanged: _onPageChanged,
-        itemCount: widget.mediaFiles.length,
+        controller: pageController,
+        onPageChanged: onPageChanged,
+        itemCount: mediaFiles.length,
         physics: const ClampingScrollPhysics(),
         itemBuilder: (context, index) {
           return MediaImage(
-            mediaFile: widget.mediaFiles[index],
+            mediaFile: mediaFiles[index],
             width: double.infinity,
             height: double.infinity,
           );
@@ -187,23 +228,42 @@ class _MediaModalState extends ConsumerState<MediaModal> {
       ),
     );
   }
+}
 
-  Widget _buildThumbnailStrip() {
+class _MediaModalThumbnailStrip extends StatelessWidget {
+  const _MediaModalThumbnailStrip({
+    required this.mediaFiles,
+    required this.currentIndex,
+    required this.thumbnailSize,
+    required this.thumbnailSpacing,
+    required this.scrollController,
+    required this.onThumbnailTap,
+  });
+
+  final List<MediaFile> mediaFiles;
+  final int currentIndex;
+  final double thumbnailSize;
+  final double thumbnailSpacing;
+  final ScrollController scrollController;
+  final void Function(int) onThumbnailTap;
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
-      height: _thumbnailSize.h,
+      height: thumbnailSize.h,
       child: ListView.separated(
-        controller: _thumbnailScrollController,
+        controller: scrollController,
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.zero,
-        itemCount: widget.mediaFiles.length,
+        itemCount: mediaFiles.length,
         physics: const ClampingScrollPhysics(),
-        separatorBuilder: (context, index) => SizedBox(width: _thumbnailSpacing.w),
+        separatorBuilder: (context, index) => SizedBox(width: thumbnailSpacing.w),
         itemBuilder: (context, index) {
           return MediaThumbnail(
-            mediaFile: widget.mediaFiles[index],
-            isActive: _currentIndex == index,
-            onTap: () => _onThumbnailTap(index),
-            size: _thumbnailSize.w,
+            mediaFile: mediaFiles[index],
+            isActive: currentIndex == index,
+            onTap: () => onThumbnailTap(index),
+            size: thumbnailSize.w,
           );
         },
       ),
