@@ -979,17 +979,29 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Refresh group metadata to sync with other members
   /// Useful when a group's name or description has been updated
   Future<void> _refreshGroupMetadataForGroup(String groupId) async {
-    final activePubkey = ref.read(activePubkeyProvider);
-    if (activePubkey == null || activePubkey.isEmpty) return;
+    // Wait for any ongoing refresh to complete
+    if (_metadataRefreshInProgress != null) {
+      await _metadataRefreshInProgress;
+    }
 
-    final group = findGroupById(groupId);
-    if (group == null) return;
+    // Acquire the guard to serialize with other metadata operations
+    final completer = Completer<void>();
+    _metadataRefreshInProgress = completer.future;
 
     try {
+      final activePubkey = ref.read(activePubkeyProvider);
+      if (activePubkey == null || activePubkey.isEmpty) return;
+
+      final group = findGroupById(groupId);
+      if (group == null) return;
+
       await _loadGroupMetadata(group, activePubkey);
       _logger.info('Refreshed metadata for group $groupId');
     } catch (e) {
       _logger.warning('Failed to refresh metadata for group $groupId: $e');
+    } finally {
+      completer.complete();
+      _metadataRefreshInProgress = null;
     }
   }
 
