@@ -33,13 +33,12 @@ class MediaThumbnail extends ConsumerWidget {
 
     final fileToDisplay = download.mediaFile;
     final hasLocalFile = _hasLocalFile(fileToDisplay);
-    final thumbnailSize = 36.w;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        width: thumbnailSize,
-        height: thumbnailSize,
+        width: size,
+        height: size,
         decoration: BoxDecoration(
           border: Border.all(
             color: isActive ? context.colors.borderAccent : Colors.transparent,
