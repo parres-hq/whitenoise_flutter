@@ -980,6 +980,35 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
+  /// Refresh group metadata to sync with other members
+  /// Useful when a group's name or description has been updated
+  Future<void> _refreshGroupMetadataForGroup(String groupId) async {
+    // Wait for any ongoing refresh to complete
+    if (_metadataRefreshInProgress != null) {
+      await _metadataRefreshInProgress;
+    }
+
+    // Acquire the guard to serialize with other metadata operations
+    final completer = Completer<void>();
+    _metadataRefreshInProgress = completer.future;
+
+    try {
+      final activePubkey = ref.read(activePubkeyProvider);
+      if (activePubkey == null || activePubkey.isEmpty) return;
+
+      final group = findGroupById(groupId);
+      if (group == null) return;
+
+      await _loadGroupMetadata(group, activePubkey);
+      _logger.info('Refreshed metadata for group $groupId');
+    } catch (e) {
+      _logger.warning('Failed to refresh metadata for group $groupId: $e');
+    } finally {
+      completer.complete();
+      _metadataRefreshInProgress = null;
+    }
+  }
+
   Future<bool> isCurrentUserAdmin(String groupId) async {
     try {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
@@ -1076,7 +1105,19 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final actuallyNewGroups =
           newGroups.where((group) => !currentGroupIds.contains(group.mlsGroupId)).toList();
 
-      if (actuallyNewGroups.isNotEmpty) {
+      // Check if any existing groups have been updated (name, description, etc)
+      final existingUpdatedGroups = <Group>[];
+      for (final group in newGroups) {
+        if (currentGroupIds.contains(group.mlsGroupId)) {
+          final currentGroup = state.groupsMap?[group.mlsGroupId];
+          if (currentGroup != null &&
+              (currentGroup.name != group.name || currentGroup.description != group.description)) {
+            existingUpdatedGroups.add(group);
+          }
+        }
+      }
+
+      if (actuallyNewGroups.isNotEmpty || existingUpdatedGroups.isNotEmpty) {
         final newGroupIds = actuallyNewGroups.map((g) => g.mlsGroupId).toList();
         final groupInformations = await _getGroupsInformationFn(
           accountPubkey: activePubkey,
@@ -1087,9 +1128,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
           updatedCreatedAts[newGroupIds[i]] = groupInformations[i].createdAt;
         }
 
-        final updatedGroups = [...currentGroups, ...actuallyNewGroups];
+        // Update groups list with all refreshed groups (existing and new)
+        final updatedGroups = newGroups;
 
-        final updatedGroupsMap = Map<String, Group>.from(state.groupsMap ?? {});
+        final updatedGroupsMap = <String, Group>{};
         for (final group in updatedGroups) {
           updatedGroupsMap[group.mlsGroupId] = group;
         }
@@ -1100,12 +1142,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
           groupCreatedAts: updatedCreatedAts,
         );
 
-        await _loadMembersForSpecificGroups(actuallyNewGroups);
-        await _loadGroupTypesForAllGroups(actuallyNewGroups);
-        await _loadGroupImagePaths(actuallyNewGroups);
-        await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups);
+        if (actuallyNewGroups.isNotEmpty) {
+          await _loadMembersForSpecificGroups(actuallyNewGroups);
+          await _loadGroupTypesForAllGroups(actuallyNewGroups);
+          await _loadGroupImagePaths(actuallyNewGroups);
+          await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups);
 
-        _logger.info('GroupsProvider: Added ${actuallyNewGroups.length} new groups');
+          _logger.info('GroupsProvider: Added ${actuallyNewGroups.length} new groups');
+        }
+
+        // Update display names for existing groups that were updated
+        if (existingUpdatedGroups.isNotEmpty) {
+          await _calculateDisplayNamesForSpecificGroups(existingUpdatedGroups);
+          _logger.info('GroupsProvider: Updated ${existingUpdatedGroups.length} existing groups');
+        }
       }
 
       // Refresh metadata for all groups to catch profile/name updates from polling
@@ -1392,6 +1442,9 @@ class GroupsNotifier extends Notifier<GroupsState> {
       );
 
       _updateGroupInfo(groupId, name: trimmedName, description: trimmedDescription);
+
+      // Refresh group metadata to sync with other members
+      await _refreshGroupMetadataForGroup(groupId);
     } catch (e, st) {
       _logger.severe(
         'GroupsProvider.updateGroup - Exception: $e (Type: ${e.runtimeType})',
