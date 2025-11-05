@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed group name and description updates not reflecting in real-time for other group members [#659](https://github.com/parres-hq/whitenoise_flutter/issues/659)
 - Fixed 2 users group creation when DM already exists
 - Fixed issue where keyboard covers part of the "introduce yourself" textfield.
 - Improved close reply tap area/response.
@@ -37,8 +38,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed message bubble jumping to another location on context screen.
 - Fixed status bar icons invisibility in auth screens (iOS and Android).
 - Fixed start chat button cut off (and other bottom sheets).
-
-### Security
 
 ### Security
 
