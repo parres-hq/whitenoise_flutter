@@ -126,12 +126,16 @@ void main() {
           mlsGroupId: 'test-group-id',
           accountPubkey: 'test-pubkey',
           filePath: '/path/to/image.jpg',
-          fileHash: 'abc123hash',
+          originalFileHash: 'abc123hash',
+          encryptedFileHash: 'test-encrypted-hash',
           mimeType: 'image/jpeg',
           mediaType: 'image',
           blossomUrl: 'https://blossom.example.com/abc123',
           nostrKey: 'nostr-key-1',
           createdAt: DateTime(2024),
+          fileMetadata: const FileMetadata(
+            originalFilename: 'image.jpg',
+          ),
         );
 
         setUp(() async {
@@ -163,6 +167,8 @@ void main() {
               'url https://blossom.example.com/abc123',
               'm image/jpeg',
               'x abc123hash',
+              'filename image.jpg',
+              'v mip04-v1',
             ]),
           );
         });
@@ -177,12 +183,16 @@ void main() {
           mlsGroupId: 'test-group-id-1',
           accountPubkey: 'test-pubkey1',
           filePath: '/path/to/image1.jpg',
-          fileHash: 'abc123hash1',
+          originalFileHash: 'abc123hash1',
+          encryptedFileHash: 'test-encrypted-hash1',
           mimeType: 'image/jpeg',
           mediaType: 'image',
           blossomUrl: 'https://blossom.example.com/abc123',
           nostrKey: 'nostr-key-1',
           createdAt: DateTime(2024),
+          fileMetadata: const FileMetadata(
+            originalFilename: 'image1.jpg',
+          ),
         );
 
         final mediaFile2 = MediaFile(
@@ -190,12 +200,16 @@ void main() {
           mlsGroupId: 'test-group-id-2',
           accountPubkey: 'test-pubkey2',
           filePath: '/path/to/image2.jpg',
-          fileHash: 'def345hash2',
+          originalFileHash: 'def345hash2',
+          encryptedFileHash: 'test-encrypted-hash2',
           mimeType: 'image/jpeg',
           mediaType: 'image',
           blossomUrl: 'https://blossom.example.com/def345',
           nostrKey: 'nostr-key-2',
           createdAt: DateTime(2025),
+          fileMetadata: const FileMetadata(
+            originalFilename: 'image2.jpg',
+          ),
         );
 
         setUp(() async {
@@ -227,6 +241,8 @@ void main() {
               'url https://blossom.example.com/abc123',
               'm image/jpeg',
               'x abc123hash1',
+              'filename image1.jpg',
+              'v mip04-v1',
             ]),
           );
         });
@@ -240,6 +256,8 @@ void main() {
               'url https://blossom.example.com/def345',
               'm image/jpeg',
               'x def345hash2',
+              'filename image2.jpg',
+              'v mip04-v1',
             ]),
           );
         });
@@ -254,7 +272,8 @@ void main() {
           mlsGroupId: 'test-group-id',
           accountPubkey: 'test-pubkey',
           filePath: '/path/to/image.jpg',
-          fileHash: 'abc123hash',
+          originalFileHash: 'abc123hash',
+          encryptedFileHash: 'test-encrypted-hash',
           mimeType: 'image/jpeg',
           mediaType: 'image',
           blossomUrl: 'https://blossom.example.com/abc123',
@@ -567,12 +586,16 @@ void main() {
             mlsGroupId: 'test-group-id',
             accountPubkey: 'test-pubkey',
             filePath: '/path/to/image.jpg',
-            fileHash: 'abc123hash',
+            originalFileHash: 'abc123hash',
+            encryptedFileHash: 'test-encrypted-hash',
             mimeType: 'image/jpeg',
             mediaType: 'image',
             blossomUrl: 'https://blossom.example.com/abc123',
             nostrKey: 'nostr-key-1',
             createdAt: DateTime(2024),
+            fileMetadata: const FileMetadata(
+              originalFilename: 'image.jpg',
+            ),
           );
 
           group('with content', () {
@@ -611,6 +634,8 @@ void main() {
                   'url https://blossom.example.com/abc123',
                   'm image/jpeg',
                   'x abc123hash',
+                  'filename image.jpg',
+                  'v mip04-v1',
                 ]),
               );
             });
@@ -651,6 +676,8 @@ void main() {
                   'url https://blossom.example.com/abc123',
                   'm image/jpeg',
                   'x abc123hash',
+                  'filename image.jpg',
+                  'v mip04-v1',
                 ]),
               );
             });
@@ -664,24 +691,32 @@ void main() {
           mlsGroupId: 'test-group-id',
           accountPubkey: 'test-pubkey',
           filePath: '/path/to/image1.jpg',
-          fileHash: 'hash1',
+          originalFileHash: 'hash1',
+          encryptedFileHash: 'test-encrypted-hash1',
           mimeType: 'image/jpeg',
           mediaType: 'image',
           blossomUrl: 'https://blossom.example.com/hash1',
           nostrKey: 'nostr-key-1',
           createdAt: DateTime(2024),
+          fileMetadata: const FileMetadata(
+            originalFilename: 'image1.jpg',
+          ),
         );
         final mediaFile2 = MediaFile(
           id: 'media-2',
           mlsGroupId: 'test-group-id',
           accountPubkey: 'test-pubkey',
           filePath: '/path/to/image2.jpg',
-          fileHash: 'hash2',
+          originalFileHash: 'hash2',
+          encryptedFileHash: 'test-encrypted-hash2',
           mimeType: 'image/png',
           mediaType: 'image',
           blossomUrl: 'https://blossom.example.com/hash2',
           nostrKey: 'nostr-key-2',
           createdAt: DateTime(2025),
+          fileMetadata: const FileMetadata(
+            originalFilename: 'image2.jpg',
+          ),
         );
         setUp(() async {
           await service.sendReply(
@@ -718,6 +753,8 @@ void main() {
               'url https://blossom.example.com/hash1',
               'm image/jpeg',
               'x hash1',
+              'filename image1.jpg',
+              'v mip04-v1',
             ]),
           );
         });
@@ -731,6 +768,8 @@ void main() {
               'url https://blossom.example.com/hash2',
               'm image/png',
               'x hash2',
+              'filename image2.jpg',
+              'v mip04-v1',
             ]),
           );
         });

@@ -69,7 +69,8 @@ rust_media_files.MediaFile createMockMediaFile({
     mlsGroupId: groupId,
     accountPubkey: 'test-account-pubkey-hex',
     filePath: filePath,
-    fileHash: 'test-hash-$id',
+    originalFileHash: 'test-hash-$id',
+    encryptedFileHash: 'test-encrypted-hash-$id',
     mimeType: 'image/jpeg',
     mediaType: 'image',
     blossomUrl: 'https://test.com/media/$id',
@@ -697,6 +698,83 @@ void main() {
 
         await Future.delayed(const Duration(milliseconds: 10));
         expect(mockDraftMessageService.savedDrafts, ['immediate draft']);
+      });
+    });
+
+    group('hasUploadingOrFailedMedia', () {
+      test('returns false when no media selected', () {
+        final state = container.read(chatInputProvider(testGroupId));
+        expect(state.hasUploadingOrFailedMedia, false);
+      });
+
+      group('when media is uploading', () {
+        setUp(() async {
+          const imagePath = '/path/to/uploading.jpg';
+          mockImagePicker.imagesToReturn = [imagePath];
+          mockUploadMedia.setUploadResult(
+            imagePath,
+            createMockMediaFile(filePath: imagePath, id: 'id-1', groupId: testGroupId),
+          );
+          await notifier.handleImagesSelected();
+        });
+
+        test('returns true', () {
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.hasUploadingOrFailedMedia, true);
+        });
+      });
+
+      group('when media upload failed', () {
+        setUp(() async {
+          const imagePath = '/path/to/failed.jpg';
+          mockImagePicker.imagesToReturn = [imagePath];
+          mockUploadMedia.setUploadFailure(imagePath);
+          await notifier.handleImagesSelected();
+          await waitForUploadsToComplete();
+        });
+
+        test('returns true', () {
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.hasUploadingOrFailedMedia, true);
+        });
+      });
+
+      group('when media upload succeeded', () {
+        setUp(() async {
+          const imagePath = '/path/to/success.jpg';
+          mockImagePicker.imagesToReturn = [imagePath];
+          mockUploadMedia.setUploadResult(
+            imagePath,
+            createMockMediaFile(filePath: imagePath, id: 'id-1', groupId: testGroupId),
+          );
+          await notifier.handleImagesSelected();
+          await waitForUploadsToComplete();
+        });
+
+        test('returns false', () {
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.hasUploadingOrFailedMedia, false);
+        });
+      });
+
+      group('when mixed media states', () {
+        setUp(() async {
+          const successPath = '/path/to/success.jpg';
+          const failPath = '/path/to/fail.jpg';
+          mockImagePicker.imagesToReturn = [successPath, failPath];
+          mockUploadMedia.setUploadResult(
+            successPath,
+            createMockMediaFile(filePath: successPath, id: 'id-1', groupId: testGroupId),
+          );
+          mockUploadMedia.setUploadFailure(failPath);
+          await notifier.handleImagesSelected();
+          await waitForUploadsToComplete();
+        });
+
+        test('returns true', () {
+          final state = container.read(chatInputProvider(testGroupId));
+          expect(state.hasUploadingOrFailedMedia, true);
+        });
       });
     });
 

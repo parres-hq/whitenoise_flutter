@@ -1,12 +1,24 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:whitenoise/config/providers/media_file_downloads_provider.dart';
+import 'package:whitenoise/domain/models/media_file_download.dart';
 import 'package:whitenoise/src/rust/api/media_files.dart';
 import 'package:whitenoise/ui/chat/widgets/blurhash_placeholder.dart';
 import 'package:whitenoise/ui/chat/widgets/media_thumbnail.dart';
 
 import '../../../test_helpers.dart';
+
+class TestMediaFileDownloadsNotifier extends MediaFileDownloadsNotifier {
+  TestMediaFileDownloadsNotifier(this._state) : super();
+
+  final MediaFileDownloadsState _state;
+
+  @override
+  MediaFileDownloadsState build() => _state;
+}
 
 void main() {
   group('MediaThumbnail', () {
@@ -21,7 +33,8 @@ void main() {
         mlsGroupId: 'group-id',
         accountPubkey: 'pubkey',
         filePath: filePath,
-        fileHash: 'hash',
+        originalFileHash: 'hash',
+        encryptedFileHash: 'encrypted-hash',
         mimeType: 'image/jpeg',
         mediaType: 'image',
         blossomUrl: 'https://example.com/image.jpg',
@@ -47,6 +60,133 @@ void main() {
               mediaFile: mediaFile,
               isActive: false,
               onTap: () {},
+              size: 32,
+            ),
+          ),
+        );
+
+        expect(find.byType(BlurhashPlaceholder), findsOneWidget);
+      });
+    });
+
+    group('when file is downloading', () {
+      testWidgets('renders blurhash placeholder', (WidgetTester tester) async {
+        final mediaFile = createTestMediaFile(
+          filePath: '',
+          fileMetadata: const FileMetadata(
+            blurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
+          ),
+        );
+
+        final download = MediaFileDownload.downloading(
+          originalFileHash: mediaFile.originalFileHash!,
+          originalFile: mediaFile,
+        );
+
+        final testState = MediaFileDownloadsState(
+          mediaFileDownloadsMap: {
+            mediaFile.originalFileHash!: download,
+          },
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              mediaFileDownloadsProvider.overrideWith(
+                () => TestMediaFileDownloadsNotifier(testState),
+              ),
+            ],
+            child: createTestWidget(
+              MediaThumbnail(
+                mediaFile: mediaFile,
+                isActive: false,
+                onTap: () {},
+                size: 32,
+              ),
+            ),
+          ),
+        );
+
+        expect(find.byType(BlurhashPlaceholder), findsOneWidget);
+      });
+    });
+
+    group('when file is pending', () {
+      testWidgets('renders blurhash placeholder', (WidgetTester tester) async {
+        final mediaFile = createTestMediaFile(
+          filePath: '',
+          fileMetadata: const FileMetadata(
+            blurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
+          ),
+        );
+
+        final download = MediaFileDownload.pending(
+          originalFileHash: mediaFile.originalFileHash!,
+          originalFile: mediaFile,
+        );
+
+        final testState = MediaFileDownloadsState(
+          mediaFileDownloadsMap: {
+            mediaFile.originalFileHash!: download,
+          },
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              mediaFileDownloadsProvider.overrideWith(
+                () => TestMediaFileDownloadsNotifier(testState),
+              ),
+            ],
+            child: createTestWidget(
+              MediaThumbnail(
+                mediaFile: mediaFile,
+                isActive: false,
+                onTap: () {},
+                size: 32,
+              ),
+            ),
+          ),
+        );
+
+        expect(find.byType(BlurhashPlaceholder), findsOneWidget);
+      });
+    });
+
+    group('when file download failed', () {
+      testWidgets('renders blurhash placeholder', (WidgetTester tester) async {
+        final mediaFile = createTestMediaFile(
+          filePath: '',
+          fileMetadata: const FileMetadata(
+            blurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
+          ),
+        );
+
+        final download = MediaFileDownload.failed(
+          originalFileHash: mediaFile.originalFileHash!,
+          originalFile: mediaFile,
+        );
+
+        final testState = MediaFileDownloadsState(
+          mediaFileDownloadsMap: {
+            mediaFile.originalFileHash!: download,
+          },
+        );
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              mediaFileDownloadsProvider.overrideWith(
+                () => TestMediaFileDownloadsNotifier(testState),
+              ),
+            ],
+            child: createTestWidget(
+              MediaThumbnail(
+                mediaFile: mediaFile,
+                isActive: false,
+                onTap: () {},
+                size: 32,
+              ),
             ),
           ),
         );
@@ -81,6 +221,7 @@ void main() {
               mediaFile: mediaFile,
               isActive: false,
               onTap: () {},
+              size: 32,
             ),
           ),
         );
@@ -105,6 +246,7 @@ void main() {
               mediaFile: mediaFile,
               isActive: false,
               onTap: () => tapped = true,
+              size: 32,
             ),
           ),
         );

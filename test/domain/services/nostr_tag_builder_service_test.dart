@@ -215,7 +215,8 @@ void main() {
             mlsGroupId: 'test-group',
             accountPubkey: 'test-pubkey',
             filePath: '/path/to/file.jpg',
-            fileHash: 'abc123hash',
+            originalFileHash: 'abc123hash',
+            encryptedFileHash: 'encrypted-hash1',
             mimeType: 'image/jpeg',
             mediaType: 'image',
             blossomUrl: 'https://example.com/file.jpg',
@@ -256,14 +257,24 @@ void main() {
             expect(imetaTag[3], 'x abc123hash');
           });
 
+          test('returns expected filename', () async {
+            final imetaTag = tags[0];
+            expect(imetaTag[4], 'filename test.jpg');
+          });
+
+          test('returns expected version', () async {
+            final imetaTag = tags[0];
+            expect(imetaTag[5], 'v mip04-v1');
+          });
+
           test('returns expected blurhash', () async {
             final imetaTag = tags[0];
-            expect(imetaTag[4], 'blurhash LKO2?U%2Tw=w]~RBVZRi};RPxuwH');
+            expect(imetaTag[6], 'blurhash LKO2?U%2Tw=w]~RBVZRi};RPxuwH');
           });
 
           test('returns expected dimensions', () async {
             final imetaTag = tags[0];
-            expect(imetaTag[5], 'dim 1920x1080');
+            expect(imetaTag[7], 'dim 1920x1080');
           });
         });
 
@@ -273,12 +284,14 @@ void main() {
             mlsGroupId: 'test-group',
             accountPubkey: 'test-pubkey',
             filePath: '/path/to/file.jpg',
-            fileHash: 'abc123hash',
+            originalFileHash: 'abc123hash',
+            encryptedFileHash: 'encrypted-hash1',
             mimeType: 'image/jpeg',
             mediaType: 'image',
             blossomUrl: 'https://example.com/file.jpg',
             nostrKey: 'test-key',
             fileMetadata: const FileMetadata(
+              originalFilename: 'test.jpg',
               dimensions: '1920x1080',
             ),
             createdAt: DateTime(2024, 1, 2),
@@ -297,6 +310,8 @@ void main() {
                 'url https://example.com/file.jpg',
                 'm image/jpeg',
                 'x abc123hash',
+                'filename test.jpg',
+                'v mip04-v1',
                 'dim 1920x1080',
               ]),
             );
@@ -309,12 +324,14 @@ void main() {
             mlsGroupId: 'test-group',
             accountPubkey: 'test-pubkey',
             filePath: '/path/to/file.jpg',
-            fileHash: 'abc123hash',
+            originalFileHash: 'abc123hash',
+            encryptedFileHash: 'encrypted-hash1',
             mimeType: 'image/jpeg',
             mediaType: 'image',
             blossomUrl: 'https://example.com/file.jpg',
             nostrKey: 'test-key',
             fileMetadata: const FileMetadata(
+              originalFilename: 'test.jpg',
               blurhash: 'LKO2?U%2Tw=w]~RBVZRi};RPxuwH',
             ),
             createdAt: DateTime(2024, 1, 2),
@@ -333,6 +350,8 @@ void main() {
                 'url https://example.com/file.jpg',
                 'm image/jpeg',
                 'x abc123hash',
+                'filename test.jpg',
+                'v mip04-v1',
                 'blurhash LKO2?U%2Tw=w]~RBVZRi};RPxuwH',
               ]),
             );
@@ -345,7 +364,8 @@ void main() {
             mlsGroupId: 'test-group',
             accountPubkey: 'test-pubkey',
             filePath: '/path/to/file.jpg',
-            fileHash: 'abc123hash',
+            originalFileHash: 'abc123hash',
+            encryptedFileHash: 'encrypted-hash1',
             mimeType: 'image/jpeg',
             mediaType: 'image',
             blossomUrl: 'https://example.com/file.jpg',
@@ -366,6 +386,8 @@ void main() {
                 'url https://example.com/file.jpg',
                 'm image/jpeg',
                 'x abc123hash',
+                'filename ',
+                'v mip04-v1',
               ]),
             );
           });
@@ -378,7 +400,8 @@ void main() {
           mlsGroupId: 'test-group-1',
           accountPubkey: 'test-pubkey1',
           filePath: '/path/to/file1.jpg',
-          fileHash: 'abc123hash',
+          originalFileHash: 'abc123hash',
+          encryptedFileHash: 'encrypted-hash1',
           mimeType: 'image/jpeg',
           mediaType: 'image',
           blossomUrl: 'https://example.com/file1.jpg',
@@ -396,7 +419,8 @@ void main() {
           mlsGroupId: 'test-group-2',
           accountPubkey: 'test-pubkey2',
           filePath: '/path/to/file2.jpg',
-          fileHash: 'def5678hash',
+          originalFileHash: 'def5678hash',
+          encryptedFileHash: 'encrypted-hash2',
           mimeType: 'image/jpeg',
           mediaType: 'image',
           blossomUrl: 'https://example.com/file2.jpg',
@@ -421,6 +445,8 @@ void main() {
               'url https://example.com/file1.jpg',
               'm image/jpeg',
               'x abc123hash',
+              'filename test.jpg',
+              'v mip04-v1',
               'blurhash LKO2?U%2Tw=w]~RBVZRi};RPxuwH',
               'dim 1920x1080',
             ]),
@@ -436,6 +462,8 @@ void main() {
               'url https://example.com/file2.jpg',
               'm image/jpeg',
               'x def5678hash',
+              'filename ',
+              'v mip04-v1',
             ]),
           );
         });

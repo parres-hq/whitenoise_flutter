@@ -20,6 +20,16 @@ Future<MediaFile> uploadChatMedia({
   filePath: filePath,
 );
 
+Future<MediaFile> downloadChatMedia({
+  required String accountPubkey,
+  required String groupId,
+  required String originalFileHash,
+}) => RustLib.instance.api.crateApiMediaFilesDownloadChatMedia(
+  accountPubkey: accountPubkey,
+  groupId: groupId,
+  originalFileHash: originalFileHash,
+);
+
 class FileMetadata {
   final String? originalFilename;
   final String? dimensions;
@@ -49,7 +59,8 @@ class MediaFile {
   final String mlsGroupId;
   final String accountPubkey;
   final String filePath;
-  final String fileHash;
+  final String? originalFileHash;
+  final String encryptedFileHash;
   final String mimeType;
   final String mediaType;
   final String blossomUrl;
@@ -62,7 +73,8 @@ class MediaFile {
     required this.mlsGroupId,
     required this.accountPubkey,
     required this.filePath,
-    required this.fileHash,
+    this.originalFileHash,
+    required this.encryptedFileHash,
     required this.mimeType,
     required this.mediaType,
     required this.blossomUrl,
@@ -77,7 +89,8 @@ class MediaFile {
       mlsGroupId.hashCode ^
       accountPubkey.hashCode ^
       filePath.hashCode ^
-      fileHash.hashCode ^
+      originalFileHash.hashCode ^
+      encryptedFileHash.hashCode ^
       mimeType.hashCode ^
       mediaType.hashCode ^
       blossomUrl.hashCode ^
@@ -94,7 +107,8 @@ class MediaFile {
           mlsGroupId == other.mlsGroupId &&
           accountPubkey == other.accountPubkey &&
           filePath == other.filePath &&
-          fileHash == other.fileHash &&
+          originalFileHash == other.originalFileHash &&
+          encryptedFileHash == other.encryptedFileHash &&
           mimeType == other.mimeType &&
           mediaType == other.mediaType &&
           blossomUrl == other.blossomUrl &&

@@ -30,7 +30,8 @@ pub struct MediaFile {
     pub mls_group_id: String,
     pub account_pubkey: String,
     pub file_path: String,
-    pub file_hash: String,
+    pub original_file_hash: Option<String>,
+    pub encrypted_file_hash: String,
     pub mime_type: String,
     pub media_type: String,
     pub blossom_url: String,
@@ -46,7 +47,8 @@ impl From<WhitenoiseMediaFile> for MediaFile {
             account_pubkey: media_file.account_pubkey.to_string(),
             mls_group_id: group_id_to_string(&media_file.mls_group_id),
             file_path: media_file.file_path.to_string_lossy().to_string(),
-            file_hash: hex::encode(&media_file.file_hash),
+            original_file_hash: media_file.original_file_hash.map(hex::encode),
+            encrypted_file_hash: hex::encode(media_file.encrypted_file_hash),
             mime_type: media_file.mime_type.to_string(),
             media_type: media_file.media_type.to_string(),
             blossom_url: media_file.blossom_url.unwrap_or_default(),
@@ -70,6 +72,31 @@ pub async fn upload_chat_media(
 
     let media_file = whitenoise
         .upload_chat_media(&account, &group_id, &file_path, None, None)
+        .await?;
+
+    Ok(media_file.into())
+}
+
+#[frb]
+pub async fn download_chat_media(
+    account_pubkey: String,
+    group_id: String,
+    original_file_hash: String,
+) -> Result<MediaFile, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    let group_id = group_id_from_string(&group_id)?;
+    let original_file_hash_bytes = ::hex::decode(&original_file_hash)?;
+    let hash_array: [u8; 32] =
+        original_file_hash_bytes
+            .try_into()
+            .map_err(|_| ApiError::NostrHex {
+                message: "Invalid original_file_hash length; must be 32 bytes.".to_string(),
+            })?;
+
+    let media_file = whitenoise
+        .download_chat_media(&account, &group_id, &hash_array)
         .await?;
 
     Ok(media_file.into())
