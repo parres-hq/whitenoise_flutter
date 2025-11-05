@@ -86,6 +86,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
     try {
       final imagePath = await _imagePickerService.pickProfileImage();
       if (imagePath != null) {
+        if (!mounted) return;
         setState(() {
           _selectedImagePath = imagePath;
         });
