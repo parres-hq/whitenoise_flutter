@@ -12,8 +12,10 @@ import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/config/states/group_state.dart';
 import 'package:whitenoise/domain/models/user_model.dart' as domain_user;
 import 'package:whitenoise/domain/models/user_model.dart';
+import 'package:whitenoise/domain/services/image_picker_service.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/groups.dart';
+import 'package:whitenoise/src/rust/api/utils.dart';
 import 'package:whitenoise/utils/error_handling.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
@@ -158,6 +160,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       for (final group in groups) {
         groupsMap[group.mlsGroupId] = group;
       }
+
       state = state.copyWith(groups: groups, groupsMap: groupsMap, groupCreatedAts: createdAtMap);
 
       Future.microtask(() => _loadGroupsMetadataLazy(groups));
@@ -1387,7 +1390,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
         groupData: groupData,
       );
 
-      // Update provider state optimistically after successful backend call
       _updateGroupInfo(groupId, name: trimmedName, description: trimmedDescription);
     } catch (e, st) {
       _logger.severe(
@@ -1397,6 +1399,65 @@ class GroupsNotifier extends Notifier<GroupsState> {
       );
 
       String errorMessage = 'Failed to update group';
+      if (e is ApiError) {
+        errorMessage = await e.messageText();
+      } else {
+        errorMessage = e.toString();
+      }
+      state = state.copyWith(error: errorMessage);
+      rethrow;
+    }
+  }
+
+  Future<void> updateGroupImage({
+    required String groupId,
+    required String accountPubkey,
+    String? imagePath,
+  }) async {
+    final group = state.groupsMap?[groupId];
+    if (group == null) {
+      throw Exception('Group not found');
+    }
+
+    String? selectedImagePath = imagePath;
+    if (selectedImagePath == null || selectedImagePath.isEmpty) {
+      final imagePickerService = ImagePickerService();
+      selectedImagePath = await imagePickerService.pickProfileImage();
+      if (selectedImagePath == null || selectedImagePath.isEmpty) {
+        return;
+      }
+    }
+
+    try {
+      final serverUrl = await getDefaultBlossomServerUrl();
+
+      final uploadResult = await uploadGroupImage(
+        accountPubkey: accountPubkey,
+        groupId: groupId,
+        filePath: selectedImagePath,
+        serverUrl: serverUrl,
+      );
+
+      final groupData = FlutterGroupDataUpdate(
+        imageKey: uploadResult.imageKey,
+        imageHash: uploadResult.encryptedHash,
+        imageNonce: uploadResult.imageNonce,
+      );
+
+      await group.updateGroupData(
+        accountPubkey: accountPubkey,
+        groupData: groupData,
+      );
+
+      await reloadGroupImagePath(groupId);
+    } catch (e, st) {
+      _logger.severe(
+        'GroupsProvider.updateGroupImage - Exception: $e (Type: ${e.runtimeType})',
+        e,
+        st,
+      );
+
+      String errorMessage = 'Failed to update group image';
       if (e is ApiError) {
         errorMessage = await e.messageText();
       } else {

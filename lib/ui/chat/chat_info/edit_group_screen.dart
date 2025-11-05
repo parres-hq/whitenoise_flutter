@@ -8,6 +8,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
+import 'package:whitenoise/domain/services/image_picker_service.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
@@ -15,6 +16,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
+import 'package:whitenoise/ui/settings/profile/widgets/edit_icon.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
 class EditGroupScreen extends ConsumerStatefulWidget {
@@ -33,9 +35,11 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
   final _logger = Logger('EditGroupScreen');
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _imagePickerService = ImagePickerService();
 
   bool _isLoading = false;
   bool _hasChanges = false;
+  String? _selectedImagePath;
 
   @override
   void initState() {
@@ -67,12 +71,30 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
     if (group != null) {
       final hasChanges =
           _nameController.text.trim() != group.name ||
-          _descriptionController.text.trim() != group.description;
+          _descriptionController.text.trim() != group.description ||
+          _selectedImagePath != null;
 
       if (hasChanges != _hasChanges) {
         setState(() {
           _hasChanges = hasChanges;
         });
+      }
+    }
+  }
+
+  Future<void> _pickGroupImage() async {
+    try {
+      final imagePath = await _imagePickerService.pickProfileImage();
+      if (imagePath != null) {
+        setState(() {
+          _selectedImagePath = imagePath;
+        });
+        _onTextChanged();
+      }
+    } catch (e) {
+      _logger.severe('Error picking group image: $e');
+      if (mounted) {
+        ref.showErrorToast('chats.failedToPickImage'.tr());
       }
     }
   }
@@ -108,9 +130,18 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
             description: newDescription,
           );
 
+      if (_selectedImagePath != null && _selectedImagePath!.isNotEmpty) {
+        await ref
+            .read(groupsProvider.notifier)
+            .updateGroupImage(
+              groupId: widget.groupId,
+              accountPubkey: activeAccount,
+              imagePath: _selectedImagePath!,
+            );
+      }
+
       if (mounted) {
         ref.showSuccessToast('chats.groupUpdatedSuccessfully'.tr());
-        //? Small delay to allow toast to show before navigation
         await Future.delayed(const Duration(milliseconds: 500));
         if (mounted) {
           context.pop();
@@ -144,6 +175,7 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
       );
     }
 
+    final currentGroupImage = ref.watch(groupsProvider).groupImagePaths?[widget.groupId];
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -186,11 +218,24 @@ class _EditGroupScreenState extends ConsumerState<EditGroupScreen> {
                       children: [
                         Gap(65.h),
                         Center(
-                          child: WnAvatar(
-                            imageUrl: '',
-                            displayName: group.name,
-                            size: 96.w,
-                            showBorder: true,
+                          child: Stack(
+                            alignment: Alignment.bottomCenter,
+                            children: [
+                              WnAvatar(
+                                imageUrl: _selectedImagePath ?? currentGroupImage ?? '',
+                                displayName: group.name,
+                                size: 96.w,
+                                showBorder: true,
+                              ),
+                              Positioned(
+                                right: 5.w,
+                                bottom: 4.h,
+                                width: 28.w,
+                                child: WnEditIconWidget(
+                                  onTap: _pickGroupImage,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         Gap(36.h),
