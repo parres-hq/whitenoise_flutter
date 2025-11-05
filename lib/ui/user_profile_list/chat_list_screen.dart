@@ -19,7 +19,6 @@ import 'package:whitenoise/config/providers/relay_status_provider.dart';
 import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/domain/services/background_sync_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
-import 'package:whitenoise/domain/services/avatar_color_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -162,6 +161,12 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
       final groupsState = ref.read(groupsProvider);
       final groups = groupsState.groups ?? [];
       final List<String> pubkeysToPreload = [];
+
+      // Add active account's pubkey first
+      final activePubkey = ref.read(activePubkeyProvider);
+      if (activePubkey != null && activePubkey.isNotEmpty) {
+        pubkeysToPreload.add(activePubkey);
+      }
 
       for (final group in groups) {
         final groupType = groupsState.groupTypes?[group.mlsGroupId];
@@ -357,12 +362,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
                     ),
                   ),
                   actions: [
-                    IconButton(
-                      onPressed: () async {
-                        await AvatarColorService().clearAllColors();
-                      },
-                      icon: const Icon(Icons.abc),
-                    ),
                     IconButton(
                       onPressed:
                           shouldShowRelayError
