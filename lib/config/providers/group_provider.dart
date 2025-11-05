@@ -1103,10 +1103,8 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       // Check if any existing groups have been updated (name, description, etc)
       final existingUpdatedGroups = <Group>[];
-      final existingGroupsMap = <String, Group>{};
       for (final group in newGroups) {
         if (currentGroupIds.contains(group.mlsGroupId)) {
-          existingGroupsMap[group.mlsGroupId] = group;
           final currentGroup = state.groupsMap?[group.mlsGroupId];
           if (currentGroup != null &&
               (currentGroup.name != group.name || currentGroup.description != group.description)) {
