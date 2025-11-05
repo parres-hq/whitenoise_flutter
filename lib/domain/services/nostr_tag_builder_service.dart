@@ -55,7 +55,7 @@ class NostrTagBuilderService {
     return tags;
   }
 
-  // NIP-92: https://github.com/nostr-protocol/nips/blob/master/92.md
+  // MIP-04: https://github.com/parres-hq/marmot/blob/master/04.md
   Future<Tag> _buildMediaTag({
     required MediaFile mediaFile,
   }) async {
@@ -63,7 +63,9 @@ class NostrTagBuilderService {
       'imeta',
       'url ${mediaFile.blossomUrl}',
       'm ${mediaFile.mimeType}',
-      'x ${mediaFile.fileHash}',
+      'x ${mediaFile.originalFileHash}',
+      'filename ${mediaFile.fileMetadata?.originalFilename ?? ''}',
+      'v mip04-v1',
     ];
     if (mediaFile.fileMetadata?.blurhash != null) {
       tag.add('blurhash ${mediaFile.fileMetadata?.blurhash}');

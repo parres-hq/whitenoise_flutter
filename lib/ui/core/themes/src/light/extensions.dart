@@ -25,6 +25,7 @@ const fallbackColorsExt = AppColorsThemeExt(
   bottomSheetBarrier: LightAppColors.bottomSheetBarrier,
   link: LightAppColors.link,
   border: LightAppColors.border,
+  borderAccent: LightAppColors.borderAccent,
   avatarSurface: LightAppColors.avatarSurface,
   solidPrimary: LightAppColors.solidPrimary,
   input: LightAppColors.input,

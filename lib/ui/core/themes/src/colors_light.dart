@@ -63,6 +63,7 @@ class LightAppColors {
   static const link = Color(0xff02B9D8);
 
   static const border = Color(0xffE5E5E5);
+  static const borderAccent = Color(0xff0A0A0A);
   static const avatarSurface = Color(0xffFAFAFA);
   static const solidPrimary = Color(0xffFAFAFA);
 

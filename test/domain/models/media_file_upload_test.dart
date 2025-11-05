@@ -10,7 +10,8 @@ void main() {
     final testMediaFile = MediaFile(
       id: '123',
       accountPubkey: 'pubkey123',
-      fileHash: 'file_hash',
+      originalFileHash: 'file_hash',
+      encryptedFileHash: 'test-encrypted-hash',
       mlsGroupId: 'group123',
       filePath: testFilePath,
       mimeType: 'image/jpeg',

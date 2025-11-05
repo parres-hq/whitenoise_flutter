@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:intl/intl.dart';
+import 'package:whitenoise/config/providers/media_file_downloads_provider.dart';
 import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/ui/chat/widgets/media_image.dart';
 import 'package:whitenoise/ui/chat/widgets/media_thumbnail.dart';
@@ -11,7 +13,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
-class MediaModal extends StatefulWidget {
+class MediaModal extends ConsumerStatefulWidget {
   const MediaModal({
     super.key,
     required this.mediaFiles,
@@ -28,12 +30,12 @@ class MediaModal extends StatefulWidget {
   final DateTime timestamp;
 
   @override
-  State<MediaModal> createState() => _MediaModalState();
+  ConsumerState<MediaModal> createState() => _MediaModalState();
 }
 
-class _MediaModalState extends State<MediaModal> {
-  static const double _thumbnailSize = 32.0;
-  static const double _thumbnailSpacing = 12.0;
+class _MediaModalState extends ConsumerState<MediaModal> {
+  static const double _thumbnailSize = 36.0;
+  static const double _thumbnailSpacing = 8.0;
 
   late PageController _pageController;
   late ScrollController _thumbnailScrollController;
@@ -47,8 +49,13 @@ class _MediaModalState extends State<MediaModal> {
     _thumbnailScrollController = ScrollController();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      _downloadMediaFiles();
       _scrollToActiveThumbnail();
     });
+  }
+
+  void _downloadMediaFiles() {
+    ref.read(mediaFileDownloadsProvider.notifier).downloadMediaFiles(widget.mediaFiles);
   }
 
   @override
@@ -104,34 +111,53 @@ class _MediaModalState extends State<MediaModal> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
-          Gap(12.h),
-          Expanded(
-            child: Stack(
-              children: [
-                _buildImageViewer(),
-                if (widget.mediaFiles.length > 1)
-                  Positioned(
-                    bottom: 12.h,
-                    left: 12.w,
-                    right: 12.w,
-                    child: _buildThumbnailStrip(),
-                  ),
-              ],
-            ),
+          _MediaModalHeader(
+            senderName: widget.senderName,
+            senderImagePath: widget.senderImagePath,
+            timestamp: widget.timestamp,
           ),
+          Gap(12.h),
+          _MediaModalImageView(
+            mediaFiles: widget.mediaFiles,
+            pageController: _pageController,
+            onPageChanged: _onPageChanged,
+          ),
+          if (widget.mediaFiles.length > 1) ...[
+            Gap(8.h),
+            _MediaModalThumbnailStrip(
+              mediaFiles: widget.mediaFiles,
+              currentIndex: _currentIndex,
+              thumbnailSize: _thumbnailSize,
+              thumbnailSpacing: _thumbnailSpacing,
+              scrollController: _thumbnailScrollController,
+              onThumbnailTap: _onThumbnailTap,
+            ),
+          ],
         ],
       ),
     );
   }
+}
 
-  Widget _buildHeader() {
+class _MediaModalHeader extends StatelessWidget {
+  const _MediaModalHeader({
+    required this.senderName,
+    required this.senderImagePath,
+    required this.timestamp,
+  });
+
+  final String senderName;
+  final String? senderImagePath;
+  final DateTime timestamp;
+
+  @override
+  Widget build(BuildContext context) {
     return Row(
       children: [
         WnAvatar(
-          imageUrl: widget.senderImagePath ?? '',
+          imageUrl: senderImagePath ?? '',
           size: 36.w,
-          displayName: widget.senderName,
+          displayName: senderName,
         ),
         Gap(8.w),
         Expanded(
@@ -139,7 +165,7 @@ class _MediaModalState extends State<MediaModal> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                widget.senderName,
+                senderName,
                 style: TextStyle(
                   fontSize: 16.sp,
                   fontWeight: FontWeight.w600,
@@ -150,7 +176,7 @@ class _MediaModalState extends State<MediaModal> {
               ),
               Gap(2.h),
               Text(
-                DateFormat('dd/MM/yyyy - HH:mm').format(widget.timestamp.toLocal()),
+                DateFormat('dd/MM/yyyy - HH:mm').format(timestamp.toLocal()),
                 style: TextStyle(
                   fontSize: 12.sp,
                   fontWeight: FontWeight.w600,
@@ -171,41 +197,73 @@ class _MediaModalState extends State<MediaModal> {
       ],
     );
   }
+}
 
-  Widget _buildImageViewer() {
-    return PageView.builder(
-      controller: _pageController,
-      onPageChanged: _onPageChanged,
-      itemCount: widget.mediaFiles.length,
-      physics: const ClampingScrollPhysics(),
-      itemBuilder: (context, index) {
-        return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 4.w),
-          child: MediaImage(
-            mediaFile: widget.mediaFiles[index],
+class _MediaModalImageView extends StatelessWidget {
+  const _MediaModalImageView({
+    required this.mediaFiles,
+    required this.pageController,
+    required this.onPageChanged,
+  });
+
+  final List<MediaFile> mediaFiles;
+  final PageController pageController;
+  final void Function(int) onPageChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: PageView.builder(
+        controller: pageController,
+        onPageChanged: onPageChanged,
+        itemCount: mediaFiles.length,
+        physics: const ClampingScrollPhysics(),
+        itemBuilder: (context, index) {
+          return MediaImage(
+            mediaFile: mediaFiles[index],
             width: double.infinity,
             height: double.infinity,
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
+}
 
-  Widget _buildThumbnailStrip() {
+class _MediaModalThumbnailStrip extends StatelessWidget {
+  const _MediaModalThumbnailStrip({
+    required this.mediaFiles,
+    required this.currentIndex,
+    required this.thumbnailSize,
+    required this.thumbnailSpacing,
+    required this.scrollController,
+    required this.onThumbnailTap,
+  });
+
+  final List<MediaFile> mediaFiles;
+  final int currentIndex;
+  final double thumbnailSize;
+  final double thumbnailSpacing;
+  final ScrollController scrollController;
+  final void Function(int) onThumbnailTap;
+
+  @override
+  Widget build(BuildContext context) {
     return SizedBox(
-      height: _thumbnailSize.h,
+      height: thumbnailSize.h,
       child: ListView.separated(
-        controller: _thumbnailScrollController,
+        controller: scrollController,
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.zero,
-        itemCount: widget.mediaFiles.length,
+        itemCount: mediaFiles.length,
         physics: const ClampingScrollPhysics(),
-        separatorBuilder: (context, index) => SizedBox(width: _thumbnailSpacing.w),
+        separatorBuilder: (context, index) => SizedBox(width: thumbnailSpacing.w),
         itemBuilder: (context, index) {
           return MediaThumbnail(
-            mediaFile: widget.mediaFiles[index],
-            isActive: _currentIndex == index,
-            onTap: () => _onThumbnailTap(index),
+            mediaFile: mediaFiles[index],
+            isActive: currentIndex == index,
+            onTap: () => onThumbnailTap(index),
+            size: thumbnailSize.w,
           );
         },
       ),

@@ -66,6 +66,7 @@ class DarkAppColors {
   static const link = Color(0xff007693);
 
   static const Color border = Color(0xff262626);
+  static const borderAccent = Color(0xffFAFAFA);
 
   static const Color avatarSurface = Color(0xff171717);
 

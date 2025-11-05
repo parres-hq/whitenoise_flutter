@@ -1,70 +1,77 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:whitenoise/config/providers/media_file_downloads_provider.dart';
+import 'package:whitenoise/domain/models/media_file_download.dart';
 import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/ui/chat/widgets/blurhash_placeholder.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
-class MediaThumbnail extends StatelessWidget {
+class MediaThumbnail extends ConsumerWidget {
   const MediaThumbnail({
     super.key,
     required this.mediaFile,
     required this.isActive,
     required this.onTap,
+    required this.size,
   });
 
   final MediaFile mediaFile;
   final bool isActive;
   final VoidCallback onTap;
+  final double size;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final download = ref.watch(
+      mediaFileDownloadsProvider.select(
+        (state) => state.getMediaFileDownload(mediaFile),
+      ),
+    );
+
+    final fileToDisplay = download.mediaFile;
+    final hasLocalFile = _hasLocalFile(fileToDisplay);
+
     return GestureDetector(
       onTap: onTap,
-      child: _buildThumbnail(context),
-    );
-  }
-
-  Widget _buildThumbnail(BuildContext context) {
-    final hasLocalFile = _hasLocalFile();
-
-    return Container(
-      width: 32.w,
-      height: 32.h,
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: isActive ? context.colors.solidPrimary : context.colors.mutedForeground,
-          width: 1.w,
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: isActive ? context.colors.borderAccent : Colors.transparent,
+            width: 1.w,
+          ),
+        ),
+        child: ClipRRect(
+          child:
+              (download.isDownloaded && hasLocalFile)
+                  ? Image.file(
+                    File(fileToDisplay.filePath),
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, _, _) => _buildBlurhash(),
+                  )
+                  : _buildBlurhash(),
         ),
       ),
-      child: ClipRRect(
-        child: hasLocalFile ? _buildImage() : _buildBlurhash(),
-      ),
-    );
-  }
-
-  Widget _buildImage() {
-    return Image.file(
-      File(mediaFile.filePath),
-      fit: BoxFit.cover,
-      errorBuilder: (_, _, _) => _buildBlurhash(),
     );
   }
 
   Widget _buildBlurhash() {
     return BlurhashPlaceholder(
       hash: mediaFile.fileMetadata?.blurhash,
-      width: 32.w,
-      height: 32.h,
+      width: size,
+      height: size,
     );
   }
 
-  bool _hasLocalFile() {
-    if (mediaFile.filePath.isEmpty) return false;
+  bool _hasLocalFile(MediaFile file) {
+    if (file.filePath.isEmpty) return false;
 
     try {
-      return File(mediaFile.filePath).existsSync();
+      return File(file.filePath).existsSync();
     } catch (_) {
       return false;
     }
