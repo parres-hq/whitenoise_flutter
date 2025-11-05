@@ -2,11 +2,32 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:whitenoise/config/providers/media_file_downloads_provider.dart';
+import 'package:whitenoise/domain/models/media_file_download.dart';
 import 'package:whitenoise/src/rust/api/media_files.dart';
 import 'package:whitenoise/ui/chat/widgets/blurhash_placeholder.dart';
 import 'package:whitenoise/ui/chat/widgets/message_media_tile.dart';
 
 import '../../../test_helpers.dart';
+
+class TestMediaFileDownloadsNotifier extends MediaFileDownloadsNotifier {
+  TestMediaFileDownloadsNotifier(this.downloadedFile);
+
+  final MediaFile downloadedFile;
+
+  @override
+  MediaFileDownloadsState build() {
+    final hash = downloadedFile.originalFileHash ?? 'hash';
+    return MediaFileDownloadsState(
+      mediaFileDownloadsMap: {
+        hash: MediaFileDownload.downloaded(
+          originalFileHash: hash,
+          downloadedFile: downloadedFile,
+        ),
+      },
+    );
+  }
+}
 
 void main() {
   group('MessageMediaTile', () {
@@ -180,6 +201,41 @@ void main() {
             ),
           ),
         );
+        expect(find.byType(BlurhashPlaceholder), findsNothing);
+      });
+
+      testWidgets('shows image when file has no path but download provider has downloaded file', (
+        WidgetTester tester,
+      ) async {
+        final mediaFile = createTestMediaFile(
+          filePath: '',
+          fileMetadata: const FileMetadata(
+            blurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
+          ),
+        );
+
+        final downloadedFile = createTestMediaFile(
+          filePath: validImageFile.path,
+          fileMetadata: const FileMetadata(
+            blurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
+          ),
+        );
+
+        await tester.pumpWidget(
+          createTestWidget(
+            MessageMediaTile(
+              mediaFile: mediaFile,
+              size: testSize,
+            ),
+            overrides: [
+              mediaFileDownloadsProvider.overrideWith(() {
+                return TestMediaFileDownloadsNotifier(downloadedFile);
+              }),
+            ],
+          ),
+        );
+
+        expect(find.byType(Image), findsOneWidget);
         expect(find.byType(BlurhashPlaceholder), findsNothing);
       });
     });
