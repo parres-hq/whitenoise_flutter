@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:gap/gap.dart';
@@ -43,9 +44,8 @@ class ChatGroupAppbar extends ConsumerWidget {
       final activePubkeyNpub =
           activePubkey != null ? PubkeyFormatter(pubkey: activePubkey).toNpub() : null;
 
-      final otherMember = members?.firstWhere(
+      final otherMember = members?.firstWhereOrNull(
         (m) => m.publicKey != activePubkeyNpub,
-        orElse: () => members.first,
       );
       avatarPubkey = otherMember?.publicKey;
     } else {
