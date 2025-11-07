@@ -66,6 +66,14 @@ Future<void> removeMembersFromGroup({
   memberPubkeys: memberPubkeys,
 );
 
+Future<Group> getGroup({
+  required String accountPubkey,
+  required String groupId,
+}) => RustLib.instance.api.crateApiGroupsGetGroup(
+  accountPubkey: accountPubkey,
+  groupId: groupId,
+);
+
 Future<GroupInformation> getGroupInformation({
   required String accountPubkey,
   required String groupId,

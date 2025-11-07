@@ -3625,7 +3625,7 @@ dependencies = [
 
 [[package]]
 name = "rust_lib_whitenoise"
-version = "0.1.4"
+version = "0.2.0"
 dependencies = [
  "anyhow",
  "chrono",
@@ -5113,7 +5113,7 @@ checksum = "a751b3277700db47d3e574514de2eced5e54dc8a5436a3bf7a0b248b2cee16f3"
 [[package]]
 name = "whitenoise"
 version = "0.1.0"
-source = "git+https://github.com/parres-hq/whitenoise?rev=b605aeb095113cb21fc8419e68bbf31e321c1efd#b605aeb095113cb21fc8419e68bbf31e321c1efd"
+source = "git+https://github.com/parres-hq/whitenoise?rev=9362e0ce9b07739d53689da5c0b445271fbee8f8#9362e0ce9b07739d53689da5c0b445271fbee8f8"
 dependencies = [
  "anyhow",
  "async-trait",
