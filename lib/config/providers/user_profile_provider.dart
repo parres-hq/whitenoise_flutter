@@ -27,14 +27,7 @@ class UserProfileNotifier extends Notifier<void> {
     return userProfile;
   }
 
-  Future<User> getUser(String pubkey) async {
-    final stopwatch = Stopwatch()..start();
-    final ts = await _wnApiGetUser(pubkey: pubkey);
-    stopwatch.stop();
-    print('ts: $ts');
-    print('getUser() took ${stopwatch.elapsedMilliseconds}ms to complete for ${ts.pubkey}');
-    return ts;
-  }
+  Future<User> getUser(String pubkey) async => _wnApiGetUser(pubkey: pubkey);
 }
 
 final userProfileProvider = NotifierProvider<UserProfileNotifier, void>(
