@@ -9,7 +9,6 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/constants.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
-import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/follows_provider.dart';
 import 'package:whitenoise/config/providers/user_profile_provider.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
@@ -156,7 +155,6 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       final userProfileNotifier = ref.read(userProfileProvider.notifier);
       // Use blocking fetch for user search to ensure fresh metadata
       final userProfile = await userProfileNotifier.getUserProfile(publicKey.trim());
-      ref.read(avatarColorProvider.notifier).getColor(publicKey.trim());
 
       if (mounted) {
         setState(() {

@@ -95,10 +95,7 @@ class AuthNotifier extends Notifier<AuthState> {
     try {
       final account = await createIdentity();
 
-      await ref.read(avatarColorProvider.notifier).getColor(account.pubkey);
-
       // Get the newly created account data and set it as active
-
       await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
 
       state = state.copyWith(isAuthenticated: true);
@@ -122,8 +119,6 @@ class AuthNotifier extends Notifier<AuthState> {
 
     try {
       final account = await createIdentity();
-
-      await ref.read(avatarColorProvider.notifier).getColor(account.pubkey);
 
       // Get the newly created account data and set it as active
       await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
@@ -159,10 +154,7 @@ class AuthNotifier extends Notifier<AuthState> {
       final account = await login(nsecOrHexPrivkey: nsecOrPrivkey);
       _logger.info('Login successful, account created');
 
-      await ref.read(avatarColorProvider.notifier).getColor(account.pubkey);
-
       // Get the logged in account data and set it as active
-
       _logger.info('Converting account to data: ${account.pubkey}');
 
       // Set authenticated state first
