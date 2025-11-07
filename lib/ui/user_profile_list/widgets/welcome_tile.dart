@@ -11,6 +11,7 @@ import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_skeleton_container.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/utils/timeago_formatter.dart';
 
@@ -38,6 +39,7 @@ class WelcomeTile extends ConsumerWidget {
     if (welcomerUser == null) {
       return _buildWelcomeTileLoading(context, welcome);
     }
+    final welcomerNpub = PubkeyFormatter(pubkey: welcome.welcomer).toNpub();
 
     return InkWell(
       onTap: () => Routes.goToChat(context, welcome.mlsGroupId, inviteId: welcome.id),
@@ -48,7 +50,7 @@ class WelcomeTile extends ConsumerWidget {
             WnAvatar(
               imageUrl: welcomerUser.imagePath ?? '',
               displayName: welcomerUser.displayName,
-              pubkey: welcome.welcomer,
+              pubkey: welcomerNpub,
               showBorder: true,
               size: 56.r,
             ),
