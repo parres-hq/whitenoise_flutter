@@ -319,6 +319,16 @@ pub async fn remove_members_from_group(
 }
 
 #[frb]
+pub async fn get_group(account_pubkey: String, group_id: String) -> Result<Group, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    let group_id = group_id_from_string(&group_id)?;
+    let group = whitenoise.group(&account, &group_id).await?;
+    Ok(group.into())
+}
+
+#[frb]
 pub async fn get_group_information(
     account_pubkey: String,
     group_id: String,
