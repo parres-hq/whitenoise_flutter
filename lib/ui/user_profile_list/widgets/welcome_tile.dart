@@ -44,7 +44,7 @@ class WelcomeTile extends ConsumerWidget {
     return InkWell(
       onTap: () => Routes.goToChat(context, welcome.mlsGroupId, inviteId: welcome.id),
       child: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
+        padding: EdgeInsets.fromLTRB(8.w, 8.h, 16.w, 8.h),
         child: Row(
           children: [
             WnAvatar(
