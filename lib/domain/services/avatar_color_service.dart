@@ -31,7 +31,7 @@ class AvatarColorService {
   /// Handles both hex and npub format inputs
   /// Returns a shortened identifier, not a valid pubkey
   static String toCacheKey(String pubkey) {
-    final trimmed = pubkey.trim();
+    final trimmed = pubkey.trim().toLowerCase();
     if (trimmed.isEmpty) {
       _logger.warning('Empty pubkey provided to toCacheKey');
       return 'empty_key';

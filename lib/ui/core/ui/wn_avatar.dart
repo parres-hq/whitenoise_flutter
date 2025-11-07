@@ -34,6 +34,10 @@ class WnAvatar extends ConsumerWidget {
       final cacheKey =
           pubkey != null && pubkey!.isNotEmpty ? AvatarColorService.toCacheKey(pubkey!) : null;
       themeColor = cacheKey != null ? ref.watch(avatarColorProvider)[cacheKey] : null;
+
+      if (themeColor == null && pubkey != null && pubkey!.isNotEmpty) {
+        Future.microtask(() => ref.read(avatarColorProvider.notifier).getColor(pubkey!));
+      }
     }
 
     // Use a single ClipOval with decoration instead of Container + ClipOval
