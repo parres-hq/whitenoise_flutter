@@ -27,9 +27,7 @@ class UserProfileNotifier extends Notifier<void> {
     return userProfile;
   }
 
-  Future<User> getUser(String pubkey) async {
-    return _wnApiGetUser(pubkey: pubkey);
-  }
+  Future<User> getUser(String pubkey) async => _wnApiGetUser(pubkey: pubkey);
 }
 
 final userProfileProvider = NotifierProvider<UserProfileNotifier, void>(

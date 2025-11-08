@@ -153,8 +153,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
         groupIds: groupIds,
       );
       final createdAtMap = <String, DateTime>{};
+      final groupTypesMap = Map<String, GroupType>.from(state.groupTypes ?? {});
       for (int i = 0; i < groupIds.length && i < groupInformations.length; i++) {
         createdAtMap[groupIds[i]] = groupInformations[i].createdAt;
+        groupTypesMap[groupIds[i]] = groupInformations[i].groupType;
       }
 
       final groupsMap = <String, Group>{};
@@ -162,7 +164,12 @@ class GroupsNotifier extends Notifier<GroupsState> {
         groupsMap[group.mlsGroupId] = group;
       }
 
-      state = state.copyWith(groups: groups, groupsMap: groupsMap, groupCreatedAts: createdAtMap);
+      state = state.copyWith(
+        groups: groups,
+        groupsMap: groupsMap,
+        groupCreatedAts: createdAtMap,
+        groupTypes: groupTypesMap,
+      );
 
       Future.microtask(() => _loadGroupsMetadataLazy(groups));
 
@@ -326,6 +333,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
+  /// Load group members with parallel metadata fetching and retry logic
   Future<void> loadGroupMembers(String groupId) async {
     if (!_isAuthAvailable()) {
       return;
@@ -342,51 +350,63 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       _logger.info('GroupsProvider: Loaded ${memberPubkeys.length} members for group $groupId');
 
+      // Load members in batches to balance speed and backend load
       final List<domain_user.User> members = [];
-      for (final memberPubkey in memberPubkeys) {
-        try {
-          final npub = _pubkeyFormatter(pubkey: memberPubkey).toNpub() ?? '';
+      var remainingPubkeys = memberPubkeys;
 
-          final followsNotifier = ref.read(followsProvider.notifier);
-          final existingFollow = followsNotifier.findFollowByPubkey(memberPubkey);
+      for (
+        int attempt = 0;
+        attempt <= _maxMetadataRetries && remainingPubkeys.isNotEmpty;
+        attempt++
+      ) {
+        if (attempt > 0) {
+          final delayMs = _retryBaseDelayMs * attempt;
+          await Future.delayed(Duration(milliseconds: delayMs));
+          _logger.info(
+            'Retrying ${remainingPubkeys.length} failed members for group $groupId (attempt $attempt)',
+          );
+        }
 
-          if (existingFollow != null) {
-            _logger.info('Found member $npub in follows cache');
-            final domainUser = domain_user.User.fromMetadata(existingFollow.metadata, npub);
-            members.add(domainUser);
-            continue;
-          }
+        final failedPubkeys = <String>[];
 
-          try {
-            final rustUser = await ref.read(userProfileProvider.notifier).getUser(memberPubkey);
-            final user = domain_user.User.fromMetadata(rustUser.metadata, npub);
-            members.add(user);
-          } catch (metadataError) {
-            String logMessage = 'Failed to fetch metadata for member - Exception: ';
-            if (metadataError is ApiError) {
-              final errorDetails = await metadataError.messageText();
-              logMessage += '$errorDetails (Type: ${metadataError.runtimeType})';
+        // Process members in batches in parallel
+        for (int i = 0; i < remainingPubkeys.length; i += _batchSize) {
+          final int end = math.min(i + _batchSize, remainingPubkeys.length);
+          final batch = remainingPubkeys.sublist(i, end);
+
+          final batchResults = await Future.wait(
+            batch.map((memberPubkey) => _loadMemberMetadata(memberPubkey)),
+          );
+
+          for (int j = 0; j < batchResults.length; j++) {
+            final result = batchResults[j];
+            if (result != null) {
+              members.add(result);
             } else {
-              logMessage += '$metadataError (Type: ${metadataError.runtimeType})';
+              failedPubkeys.add(batch[j]);
             }
-            _logger.warning(logMessage, metadataError);
-            final fallbackUser = domain_user.User(
-              id: npub,
-              displayName: 'shared.unknownUser'.tr(),
-              nip05: '',
-              publicKey: npub,
-            );
-            members.add(fallbackUser);
           }
-        } catch (e) {
-          String logMessage = 'Failed to process member pubkey - Exception: ';
-          if (e is ApiError) {
-            final errorDetails = await e.messageText();
-            logMessage += '$errorDetails (Type: ${e.runtimeType})';
-          } else {
-            logMessage += '$e (Type: ${e.runtimeType})';
-          }
-          _logger.severe(logMessage, e);
+        }
+
+        remainingPubkeys = failedPubkeys;
+      }
+
+      // Log final results
+      final failedCount = remainingPubkeys.length;
+      if (failedCount > 0) {
+        _logger.warning(
+          'GroupsProvider: Failed to load metadata for $failedCount members in group $groupId after $_maxMetadataRetries retries',
+        );
+        // Add fallback users for any remaining failed members
+        for (final failedPubkey in remainingPubkeys) {
+          final npub = _pubkeyFormatter(pubkey: failedPubkey).toNpub() ?? '';
+          final fallbackUser = domain_user.User(
+            id: npub,
+            displayName: 'shared.unknownUser'.tr(),
+            nip05: '',
+            publicKey: npub,
+          );
+          members.add(fallbackUser);
         }
       }
 
@@ -412,6 +432,39 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
+  /// Load metadata for a single user (member or admin), returns null if failed
+  /// Checks follows cache first if checkFollowsCache is true (for members)
+  Future<domain_user.User?> _loadUserMetadata(
+    String pubkey, [
+    bool checkFollowsCache = true,
+  ]) async {
+    try {
+      final npub = _pubkeyFormatter(pubkey: pubkey).toNpub() ?? '';
+
+      // Check follows cache first (optimization for members)
+      if (checkFollowsCache) {
+        final followsNotifier = ref.read(followsProvider.notifier);
+        final existingFollow = followsNotifier.findFollowByPubkey(pubkey);
+
+        if (existingFollow != null) {
+          return domain_user.User.fromMetadata(existingFollow.metadata, npub);
+        }
+      }
+
+      final rustUser = await ref.read(userProfileProvider.notifier).getUser(pubkey);
+      return domain_user.User.fromMetadata(rustUser.metadata, npub);
+    } catch (e) {
+      _logErrorSync('Failed to load metadata for pubkey $pubkey', e);
+      return null;
+    }
+  }
+
+  /// Load metadata for a single member, returns null if failed
+  Future<domain_user.User?> _loadMemberMetadata(String memberPubkey) async {
+    return _loadUserMetadata(memberPubkey);
+  }
+
+  /// Load group admins with parallel metadata fetching and retry logic
   Future<void> loadGroupAdmins(String groupId) async {
     if (!_isAuthAvailable()) {
       return;
@@ -428,46 +481,62 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
       _logger.info('GroupsProvider: Loaded ${adminPubkeys.length} admins for group $groupId');
 
-      // Fetch metadata for each admin and create User objects
+      // Load admins in batches to balance speed and backend load
       final List<domain_user.User> admins = [];
-      for (final adminPubkey in adminPubkeys) {
-        try {
-          final npub = _pubkeyFormatter(pubkey: adminPubkey).toNpub() ?? '';
+      var remainingPubkeys = adminPubkeys;
 
-          try {
-            final rustUser = await ref.read(userProfileProvider.notifier).getUser(adminPubkey);
-            final user = domain_user.User.fromMetadata(rustUser.metadata, npub);
-            admins.add(user);
-          } catch (metadataError) {
-            // Log the full exception details with proper ApiError unpacking
-            String logMessage = 'Failed to fetch metadata for admin - Exception: ';
-            if (metadataError is ApiError) {
-              final errorDetails = await metadataError.messageText();
-              logMessage += '$errorDetails (Type: ${metadataError.runtimeType})';
+      for (
+        int attempt = 0;
+        attempt <= _maxMetadataRetries && remainingPubkeys.isNotEmpty;
+        attempt++
+      ) {
+        if (attempt > 0) {
+          final delayMs = _retryBaseDelayMs * attempt;
+          await Future.delayed(Duration(milliseconds: delayMs));
+          _logger.info(
+            'Retrying ${remainingPubkeys.length} failed admins for group $groupId (attempt $attempt)',
+          );
+        }
+
+        final failedPubkeys = <String>[];
+
+        // Process admins in batches in parallel
+        for (int i = 0; i < remainingPubkeys.length; i += _batchSize) {
+          final int end = math.min(i + _batchSize, remainingPubkeys.length);
+          final batch = remainingPubkeys.sublist(i, end);
+
+          final batchResults = await Future.wait(
+            batch.map((adminPubkey) => _loadUserMetadata(adminPubkey, false)),
+          );
+
+          for (int j = 0; j < batchResults.length; j++) {
+            final result = batchResults[j];
+            if (result != null) {
+              admins.add(result);
             } else {
-              logMessage += '$metadataError (Type: ${metadataError.runtimeType})';
+              failedPubkeys.add(batch[j]);
             }
-            _logger.warning(logMessage, metadataError);
-            // Create a fallback user with minimal info
-            final fallbackUser = domain_user.User(
-              id: npub,
-              displayName: 'shared.unknownUser'.tr(),
-              nip05: '',
-              publicKey: npub,
-            );
-            admins.add(fallbackUser);
           }
-        } catch (e) {
-          // Log the full exception details with proper ApiError unpacking
-          String logMessage = 'Failed to process admin pubkey - Exception: ';
-          if (e is ApiError) {
-            final errorDetails = await e.messageText();
-            logMessage += '$errorDetails (Type: ${e.runtimeType})';
-          } else {
-            logMessage += '$e (Type: ${e.runtimeType})';
-          }
-          _logger.severe(logMessage, e);
-          // Skip this admin if we can't even get the pubkey string
+        }
+
+        remainingPubkeys = failedPubkeys;
+      }
+
+      // Log final results and add fallback users for failed admins
+      final failedCount = remainingPubkeys.length;
+      if (failedCount > 0) {
+        _logger.warning(
+          'GroupsProvider: Failed to load metadata for $failedCount admins in group $groupId after $_maxMetadataRetries retries',
+        );
+        for (final failedPubkey in remainingPubkeys) {
+          final npub = _pubkeyFormatter(pubkey: failedPubkey).toNpub() ?? '';
+          final fallbackUser = domain_user.User(
+            id: npub,
+            displayName: 'shared.unknownUser'.tr(),
+            nip05: '',
+            publicKey: npub,
+          );
+          admins.add(fallbackUser);
         }
       }
 
@@ -491,28 +560,17 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
-  // Load the group creator information
-  Future<void> loadGroupCreator() async {
-    if (!_isAuthAvailable()) {
-      return;
-    }
-
-    // checks the group members
-  }
-
   Future<void> loadGroupDetails(String groupId) async {
     // Load both members and admins for a group
     await Future.wait([
       loadGroupMembers(groupId),
       loadGroupAdmins(groupId),
     ]);
-
-    // Recalculate display name for this group after loading members
-    await _calculateDisplayNameForGroup(groupId);
   }
 
   /// Calculate display name for a single group
-  Future<void> _calculateDisplayNameForGroup(String groupId) async {
+  /// Optionally accepts a pre-loaded groupType to avoid redundant API calls
+  Future<void> _calculateDisplayNameForGroup(String groupId, [GroupType? groupType]) async {
     final group = findGroupById(groupId);
     if (group == null) return;
 
@@ -520,7 +578,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) return;
 
-      final displayName = await _getDisplayNameForGroup(group);
+      final displayName = await _getDisplayNameForGroup(group, groupType);
       final updatedDisplayNames = Map<String, String>.from(state.groupDisplayNames ?? {});
       updatedDisplayNames[groupId] = displayName;
 
@@ -538,17 +596,27 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   /// Load and cache group types for all groups
+  /// Skips groups that already have cached types to avoid redundant API calls
   Future<void> _loadGroupTypesForAllGroups(List<Group> groups) async {
     try {
       final Map<String, GroupType> groupTypes = Map<String, GroupType>.from(
         state.groupTypes ?? {},
       );
 
+      // Filter to only load types for groups that don't have cached types yet
+      final groupsToLoad =
+          groups.where((group) => !groupTypes.containsKey(group.mlsGroupId)).toList();
+
+      if (groupsToLoad.isEmpty) {
+        _logger.info('GroupsProvider: All group types already cached, skipping load');
+        return;
+      }
+
       final List<Future<void>> loadTasks = [];
       final activePubkey = ref.read(activePubkeyProvider);
       if (activePubkey == null || activePubkey.isEmpty) return;
 
-      for (final group in groups) {
+      for (final group in groupsToLoad) {
         loadTasks.add(
           group
               .groupType(accountPubkey: activePubkey)
@@ -569,7 +637,9 @@ class GroupsNotifier extends Notifier<GroupsState> {
       // Update state with the cached group types
       state = state.copyWith(groupTypes: groupTypes);
 
-      _logger.info('GroupsProvider: Loaded group types for ${groups.length} groups');
+      _logger.info(
+        'GroupsProvider: Loaded group types for ${groupsToLoad.length} groups (${groups.length - groupsToLoad.length} already cached)',
+      );
     } catch (e) {
       // Log the full exception details with proper ApiError unpacking
       String logMessage = 'GroupsProvider: Error loading group types - Exception: ';
@@ -757,13 +827,15 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   /// Load and cache metadata for a single group (members, type, display name, image path)
   Future<void> _loadGroupMetadata(Group group, String activePubkey) async {
+    // Only load group type if not already cached
+    var cachedGroupType = getCachedGroupType(group.mlsGroupId);
+    if (cachedGroupType == null) {
+      await _loadGroupType(group, activePubkey);
+      cachedGroupType = getCachedGroupType(group.mlsGroupId);
+    }
     await loadGroupMembers(group.mlsGroupId);
-
-    final groupTypeTask = _loadGroupType(group, activePubkey);
-    final imagePathTask = _loadGroupImagePathForGroup(group, activePubkey);
-
-    await Future.wait([groupTypeTask, imagePathTask]);
-    await _calculateDisplayNameForGroup(group.mlsGroupId);
+    await _calculateDisplayNameForGroup(group.mlsGroupId, cachedGroupType);
+    await _loadGroupImagePathForGroup(group, activePubkey, cachedGroupType);
   }
 
   /// Load and cache group type for a single group
@@ -784,12 +856,14 @@ class GroupsNotifier extends Notifier<GroupsState> {
   /// Load and cache group image path for a single group
   /// For DMs: caches the other member's image path
   /// For groups: caches the group's image path from Rust API
-  Future<void> _loadGroupImagePathForGroup(Group group, String activePubkey) async {
+  Future<void> _loadGroupImagePathForGroup(
+    Group group,
+    String activePubkey,
+    GroupType? cachedGroupType,
+  ) async {
     try {
-      final groupType = getCachedGroupType(group.mlsGroupId);
-
       String? imagePath;
-      if (groupType == GroupType.directMessage) {
+      if (cachedGroupType == GroupType.directMessage) {
         final otherMember = getOtherGroupMember(group.mlsGroupId);
         imagePath = otherMember?.imagePath;
       } else {
@@ -810,14 +884,20 @@ class GroupsNotifier extends Notifier<GroupsState> {
   }
 
   /// Get the appropriate display name for a group
-  Future<String> _getDisplayNameForGroup(Group group) async {
+  /// Optionally accepts a pre-loaded groupType to avoid redundant API calls
+  Future<String> _getDisplayNameForGroup(Group group, [GroupType? preloadedGroupType]) async {
     final activePubkey = ref.read(activePubkeyProvider);
     if (activePubkey == null || activePubkey.isEmpty) return '';
-    final groupInformation = await getGroupInformation(
-      accountPubkey: activePubkey,
-      groupId: group.mlsGroupId,
-    );
-    if (groupInformation.groupType == GroupType.directMessage) {
+
+    // Use preloaded group type if provided, otherwise fetch it
+    final groupType =
+        preloadedGroupType ??
+        (await getGroupInformation(
+          accountPubkey: activePubkey,
+          groupId: group.mlsGroupId,
+        )).groupType;
+
+    if (groupType == GroupType.directMessage) {
       try {
         final otherMember = getOtherGroupMember(group.mlsGroupId);
 
@@ -1124,8 +1204,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
           groupIds: newGroupIds,
         );
         final updatedCreatedAts = Map<String, DateTime>.from(state.groupCreatedAts ?? {});
+        final updatedGroupTypes = Map<String, GroupType>.from(state.groupTypes ?? {});
         for (int i = 0; i < newGroupIds.length && i < groupInformations.length; i++) {
           updatedCreatedAts[newGroupIds[i]] = groupInformations[i].createdAt;
+          updatedGroupTypes[newGroupIds[i]] = groupInformations[i].groupType;
         }
 
         // Update groups list with all refreshed groups (existing and new)
@@ -1140,6 +1222,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
           groups: updatedGroups,
           groupsMap: updatedGroupsMap,
           groupCreatedAts: updatedCreatedAts,
+          groupTypes: updatedGroupTypes,
         );
 
         if (actuallyNewGroups.isNotEmpty) {
