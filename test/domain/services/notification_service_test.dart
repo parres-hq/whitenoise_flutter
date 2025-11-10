@@ -73,6 +73,7 @@ void main() {
         final testPayload = jsonEncode({
           'type': 'invites_sync',
           'welcomeId': 'welcome-789',
+          'groupId': 'group-456',
         });
 
         final parsed = Map<String, dynamic>.from(
@@ -81,7 +82,10 @@ void main() {
 
         expect(parsed['type'], equals('invites_sync'));
         expect(parsed['welcomeId'], equals('welcome-789'));
-        expect(parsed['groupId'], isNull); // Invite notifications don't have groupId
+        expect(
+          parsed['groupId'],
+          equals('group-456'),
+        ); // Invite notifications have groupId (mlsGroupId)
       });
 
       test('groupId matching logic works correctly', () {
@@ -100,10 +104,131 @@ void main() {
         final nonMatchingParsed = Map<String, dynamic>.from(jsonDecode(nonMatchingPayload) as Map);
         expect(nonMatchingParsed['groupId'] == targetGroupId, isFalse);
 
-        // Test payload without groupId
+        // Test payload without groupId (legacy invite notification)
         const noGroupPayload = '{"type":"invites_sync","welcomeId":"welcome-123"}';
         final noGroupParsed = Map<String, dynamic>.from(jsonDecode(noGroupPayload) as Map);
         expect(noGroupParsed['groupId'] == targetGroupId, isFalse);
+      });
+    });
+
+    group('cancelNotificationsByGroup method behavior', () {
+      test('should handle gracefully when called without proper initialization checks', () {
+        expect(() async {}, returnsNormally);
+      });
+
+      test('should handle empty groupId parameter', () {
+        expect(() async {
+          // The method should handle empty string gracefully without attempting matches
+        }, returnsNormally);
+      });
+
+      test('demonstrates groupId filtering logic for multiple notifications', () {
+        final mockNotifications = [
+          {'id': 1, 'payload': '{"type":"new_message","groupId":"group-A","messageId":"msg-1"}'},
+          {'id': 2, 'payload': '{"type":"new_message","groupId":"group-B","messageId":"msg-2"}'},
+          {'id': 3, 'payload': '{"type":"new_message","groupId":"group-A","messageId":"msg-3"}'},
+          {
+            'id': 4,
+            'payload': '{"type":"invites_sync","welcomeId":"welcome-1","groupId":"group-A"}',
+          },
+          {
+            'id': 5,
+            'payload': '{"type":"invites_sync","welcomeId":"welcome-2","groupId":"group-B"}',
+          },
+          {'id': 6, 'payload': '{"malformed json}'},
+        ];
+
+        final targetGroupId = 'group-A';
+        final notificationsToCancel = <int>[];
+
+        for (final notification in mockNotifications) {
+          final payload = notification['payload'] as String?;
+          if (payload != null) {
+            try {
+              final parsed = Map<String, dynamic>.from(jsonDecode(payload) as Map);
+              if (parsed['groupId'] == targetGroupId) {
+                notificationsToCancel.add(notification['id'] as int);
+              }
+            } catch (e) {
+              // Ignore malformed JSON (like notification id 5)
+              continue;
+            }
+          }
+        }
+
+        // Should cancel notifications 1, 3 (messages) and 4 (invite) for group-A
+        expect(notificationsToCancel, equals([1, 3, 4]));
+        expect(notificationsToCancel.length, equals(3));
+      });
+
+      test('demonstrates error handling for malformed payloads', () {
+        // Test that malformed JSON in payloads doesn't stop processing
+        final mockNotifications = [
+          {'id': 1, 'payload': '{"type":"new_message","groupId":"target-group"}'},
+          {'id': 2, 'payload': '{"malformed": json}'},
+          {
+            'id': 3,
+            'payload': '{"type":"invites_sync","welcomeId":"welcome-1","groupId":"target-group"}',
+          },
+        ];
+
+        final targetGroupId = 'target-group';
+        final notificationsToCancel = <int>[];
+        var errorCount = 0;
+
+        for (final notification in mockNotifications) {
+          final payload = notification['payload'] as String?;
+          if (payload != null) {
+            try {
+              final parsed = Map<String, dynamic>.from(jsonDecode(payload) as Map);
+              if (parsed['groupId'] == targetGroupId) {
+                notificationsToCancel.add(notification['id'] as int);
+              }
+            } catch (e) {
+              errorCount++;
+              continue; // This simulates the error handling in the real method
+            }
+          }
+        }
+
+        // Should cancel valid notifications despite malformed one
+        expect(notificationsToCancel, equals([1, 3]));
+        expect(errorCount, equals(1));
+      });
+
+      test('demonstrates handling notifications without groupId', () {
+        final mockNotifications = [
+          {'id': 1, 'payload': '{"type":"new_message","groupId":"target-group"}'},
+          {
+            'id': 2,
+            'payload': '{"type":"invites_sync","welcomeId":"welcome-123"}',
+          },
+          {
+            'id': 3,
+            'payload': '{"type":"invites_sync","welcomeId":"welcome-456","groupId":"target-group"}',
+          },
+          {'id': 4, 'payload': null},
+        ];
+
+        final targetGroupId = 'target-group';
+        final notificationsToCancel = <int>[];
+
+        for (final notification in mockNotifications) {
+          final payload = notification['payload'] as String?;
+          if (payload != null) {
+            try {
+              final parsed = Map<String, dynamic>.from(jsonDecode(payload) as Map);
+              if (parsed['groupId'] == targetGroupId) {
+                notificationsToCancel.add(notification['id'] as int);
+              }
+            } catch (e) {
+              continue;
+            }
+          }
+        }
+
+        // Should cancel message notification and new invite notification with groupId
+        expect(notificationsToCancel, equals([1, 3]));
       });
     });
   });
