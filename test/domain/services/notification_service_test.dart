@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
@@ -18,9 +16,90 @@ void main() {
     setUp(() {
       mockPlugin = MockFlutterLocalNotificationsPlugin();
     });
+    group('parseNotificationPayload', () {
+      test('parses valid JSON payload correctly', () {
+        const validPayload = '{"type":"new_message","groupId":"test-group","messageId":"msg-123"}';
 
-    group('cancelNotificationsByGroup - behavior verification', () {
-      test('should call getActiveNotifications and cancel matching notifications', () async {
+        final result = NotificationService.parseNotificationPayload(validPayload);
+
+        expect(result, isNotNull);
+        expect(result!['type'], equals('new_message'));
+        expect(result['groupId'], equals('test-group'));
+        expect(result['messageId'], equals('msg-123'));
+      });
+
+      test('parses invite payload correctly', () {
+        const invitePayload =
+            '{"type":"invites_sync","welcomeId":"welcome-456","groupId":"group-789"}';
+
+        final result = NotificationService.parseNotificationPayload(invitePayload);
+
+        expect(result, isNotNull);
+        expect(result!['type'], equals('invites_sync'));
+        expect(result['welcomeId'], equals('welcome-456'));
+        expect(result['groupId'], equals('group-789'));
+      });
+
+      test('returns null for malformed JSON', () {
+        const malformedPayload = '{"type":"new_message","groupId":}';
+
+        final result = NotificationService.parseNotificationPayload(malformedPayload);
+
+        expect(result, isNull);
+      });
+
+      test('returns null for empty string', () {
+        const emptyPayload = '';
+
+        final result = NotificationService.parseNotificationPayload(emptyPayload);
+
+        expect(result, isNull);
+      });
+    });
+
+    group('shouldCancelNotificationForGroup', () {
+      test('returns true when groupId matches target', () {
+        const payload = '{"type":"new_message","groupId":"target-group","messageId":"msg-1"}';
+
+        final result = NotificationService.shouldCancelNotificationForGroup(
+          payload,
+          'target-group',
+        );
+
+        expect(result, isTrue);
+      });
+
+      test('returns false when groupId does not match target', () {
+        const payload = '{"type":"new_message","groupId":"other-group","messageId":"msg-1"}';
+
+        final result = NotificationService.shouldCancelNotificationForGroup(
+          payload,
+          'target-group',
+        );
+
+        expect(result, isFalse);
+      });
+
+      test('returns false for null payload', () {
+        final result = NotificationService.shouldCancelNotificationForGroup(null, 'target-group');
+
+        expect(result, isFalse);
+      });
+
+      test('returns false for malformed JSON payload', () {
+        const malformedPayload = '{"type":"message","groupId":}';
+
+        final result = NotificationService.shouldCancelNotificationForGroup(
+          malformedPayload,
+          'target-group',
+        );
+
+        expect(result, isFalse);
+      });
+    });
+
+    group('cancelNotificationsByGroup with mock notifications', () {
+      test('cancels notifications with matching groupId', () async {
         // Arrange: Create mock notifications
         final mockNotification1 = MockActiveNotification();
         final mockNotification2 = MockActiveNotification();
@@ -50,229 +129,131 @@ void main() {
         );
         when(mockPlugin.cancel(any)).thenAnswer((_) async {});
 
-        final activeNotifications = await mockPlugin.getActiveNotifications();
-        const targetGroupId = 'target-group';
-        final notificationsToCancel = <int>[];
+        await NotificationService.cancelNotificationsByGroup(
+          'target-group',
+          plugin: mockPlugin,
+          isInitialized: true,
+        );
 
-        // Test the cancelNotificationsByGroup logic
-        for (final notification in activeNotifications) {
-          if (notification.payload != null) {
-            try {
-              final payload = Map<String, dynamic>.from(
-                jsonDecode(notification.payload!) as Map,
-              );
-              if (payload['groupId'] == targetGroupId) {
-                notificationsToCancel.add(notification.id!);
-                await mockPlugin.cancel(notification.id!);
-              }
-            } catch (e) {
-              continue;
-            }
-          }
-        }
-
-        // Verify behavior
-        expect(notificationsToCancel, equals([1, 3])); // Should cancel notifications 1 and 3
         verify(mockPlugin.getActiveNotifications()).called(1);
-        verify(mockPlugin.cancel(1)).called(1);
-        verify(mockPlugin.cancel(3)).called(1);
+        verify(mockPlugin.cancel(1)).called(1); // Should cancel notification 1
+        verify(mockPlugin.cancel(3)).called(1); // Should cancel notification 3
         verifyNever(mockPlugin.cancel(2)); // Should not cancel notification 2
       });
 
-      test('should handle malformed JSON payloads gracefully', () async {
-        // Arrange: Create mock notifications with malformed JSON
+      test('handles malformed JSON payloads gracefully', () async {
+        // Create mock notifications with malformed JSON
         final mockNotification1 = MockActiveNotification();
         final mockNotification2 = MockActiveNotification();
-        final mockNotification3 = MockActiveNotification();
 
         when(mockNotification1.id).thenReturn(1);
         when(mockNotification1.payload).thenReturn(
-          '{"type":"new_message","groupId":"target-group","messageId":"msg-1"}',
+          '{"type":"new_message","groupId":"target-group"}',
         );
 
         when(mockNotification2.id).thenReturn(2);
-        when(mockNotification2.payload).thenReturn('{"malformed": json}'); // Invalid JSON
-
-        when(mockNotification3.id).thenReturn(3);
-        when(mockNotification3.payload).thenReturn(
-          '{"type":"invites_sync","welcomeId":"welcome-1","groupId":"target-group"}',
-        );
+        when(mockNotification2.payload).thenReturn('{"malformed": json}');
 
         when(mockPlugin.getActiveNotifications()).thenAnswer(
-          (_) async => [mockNotification1, mockNotification2, mockNotification3],
+          (_) async => [mockNotification1, mockNotification2],
         );
         when(mockPlugin.cancel(any)).thenAnswer((_) async {});
 
-        // Test the logic with error handling
-        final activeNotifications = await mockPlugin.getActiveNotifications();
-        const targetGroupId = 'target-group';
-        final notificationsToCancel = <int>[];
-        var errorCount = 0;
+        await NotificationService.cancelNotificationsByGroup(
+          'target-group',
+          plugin: mockPlugin,
+          isInitialized: true,
+        );
 
-        for (final notification in activeNotifications) {
-          if (notification.payload != null) {
-            try {
-              final payload = Map<String, dynamic>.from(
-                jsonDecode(notification.payload!) as Map,
-              );
-              if (payload['groupId'] == targetGroupId) {
-                notificationsToCancel.add(notification.id!);
-                await mockPlugin.cancel(notification.id!);
-              }
-            } catch (e) {
-              errorCount++;
-              continue;
-            }
-          }
-        }
-
-        // Verify that valid notifications were processed despite malformed JSON
-        expect(notificationsToCancel, equals([1, 3]));
-        expect(errorCount, equals(1)); // One malformed JSON error
         verify(mockPlugin.cancel(1)).called(1);
-        verify(mockPlugin.cancel(3)).called(1);
         verifyNever(mockPlugin.cancel(2)); // Malformed notification not cancelled
       });
 
-      test('should handle notifications without groupId', () async {
-        // Arrange: Mix of notifications with and without groupId
-        final mockNotification1 = MockActiveNotification();
-        final mockNotification2 = MockActiveNotification();
-        final mockNotification3 = MockActiveNotification();
-
-        when(mockNotification1.id).thenReturn(1);
-        when(mockNotification1.payload).thenReturn(
-          '{"type":"new_message","groupId":"target-group","messageId":"msg-1"}',
-        );
-
-        when(mockNotification2.id).thenReturn(2);
-        when(mockNotification2.payload).thenReturn(
-          '{"type":"invites_sync","welcomeId":"welcome-1"}', // No groupId (legacy)
-        );
-
-        when(mockNotification3.id).thenReturn(3);
-        when(mockNotification3.payload).thenReturn(null); // Null payload
-
-        when(mockPlugin.getActiveNotifications()).thenAnswer(
-          (_) async => [mockNotification1, mockNotification2, mockNotification3],
-        );
-        when(mockPlugin.cancel(any)).thenAnswer((_) async {});
-
-        // Test the logic
-        final activeNotifications = await mockPlugin.getActiveNotifications();
-        const targetGroupId = 'target-group';
-        final notificationsToCancel = <int>[];
-
-        for (final notification in activeNotifications) {
-          if (notification.payload != null) {
-            try {
-              final payload = Map<String, dynamic>.from(
-                jsonDecode(notification.payload!) as Map,
-              );
-              if (payload['groupId'] == targetGroupId) {
-                notificationsToCancel.add(notification.id!);
-                await mockPlugin.cancel(notification.id!);
-              }
-            } catch (e) {
-              continue;
-            }
-          }
-        }
-
-        // Verify only notification with matching groupId was cancelled
-        expect(notificationsToCancel, equals([1]));
-        verify(mockPlugin.cancel(1)).called(1);
-        verifyNever(mockPlugin.cancel(2)); // No groupId, not cancelled
-        verifyNever(mockPlugin.cancel(3)); // Null payload, not processed
-      });
-
-      test('should handle empty active notifications list', () async {
-        // Arrange: No active notifications
+      test('handles empty active notifications list', () async {
+        // No active notifications
         when(mockPlugin.getActiveNotifications()).thenAnswer((_) async => []);
 
-        // Test the logic
-        final activeNotifications = await mockPlugin.getActiveNotifications();
-        const targetGroupId = 'target-group';
-        final notificationsToCancel = <int>[];
+        await NotificationService.cancelNotificationsByGroup(
+          'target-group',
+          plugin: mockPlugin,
+          isInitialized: true,
+        );
 
-        for (final notification in activeNotifications) {
-          if (notification.payload != null) {
-            try {
-              final payload = Map<String, dynamic>.from(
-                jsonDecode(notification.payload!) as Map,
-              );
-              if (payload['groupId'] == targetGroupId) {
-                notificationsToCancel.add(notification.id!);
-                await mockPlugin.cancel(notification.id!);
-              }
-            } catch (e) {
-              continue;
-            }
-          }
-        }
-
-        // Verify no notifications were cancelled
-        expect(notificationsToCancel, isEmpty);
         verify(mockPlugin.getActiveNotifications()).called(1);
         verifyNever(mockPlugin.cancel(any));
       });
     });
 
-    group('actual service calls', () {
-      test('cancelNotificationsByGroup should handle uninitialized state', () async {
-        // This tests the actual method call, which should return early if not initialized
-        expect(() async {
-          await NotificationService.cancelNotificationsByGroup('test-group');
-        }, returnsNormally);
-      });
+    group('cancelNotification', () {
+      test('successfully cancels notification', () async {
+        when(mockPlugin.cancel(any)).thenAnswer((_) async {});
 
-      test('should handle edge cases with groupId parameter', () async {
-        expect(() async {
-          await NotificationService.cancelNotificationsByGroup('');
-          await NotificationService.cancelNotificationsByGroup('  ');
-          await NotificationService.cancelNotificationsByGroup('group-with-special-chars-"quotes"');
-        }, returnsNormally);
-      });
+        await NotificationService.cancelNotification(123, plugin: mockPlugin);
 
-      test('other service methods should handle uninitialized state', () async {
-        expect(() async {
-          await NotificationService.cancelNotification(-1);
-          await NotificationService.cancelAllNotifications();
-        }, returnsNormally);
+        verify(mockPlugin.cancel(123)).called(1);
       });
     });
 
-    group('payload structure validation', () {
-      test('validates message notification payload structure', () {
-        const testPayload =
-            '{"type":"new_message","groupId":"test-group-123","messageId":"msg-456","sender":"sender-pubkey"}';
+    group('cancelAllNotifications', () {
+      test('successfully cancels all notifications', () async {
+        when(mockPlugin.cancelAll()).thenAnswer((_) async {});
 
-        final payload = Map<String, dynamic>.from(jsonDecode(testPayload) as Map);
-        expect(payload['groupId'], equals('test-group-123'));
-        expect(payload['type'], equals('new_message'));
-        expect(payload['messageId'], equals('msg-456'));
-        expect(payload['sender'], equals('sender-pubkey'));
+        await NotificationService.cancelAllNotifications(plugin: mockPlugin);
+
+        verify(mockPlugin.cancelAll()).called(1);
+      });
+    });
+
+    group('showMessageNotification', () {
+      test('shows message notification when initialized', () async {
+        when(
+          mockPlugin.show(any, any, any, any, payload: anyNamed('payload')),
+        ).thenAnswer((_) async {});
+
+        await NotificationService.showMessageNotification(
+          id: 123,
+          title: 'Test Title',
+          body: 'Test Body',
+          payload: '{"test": "data"}',
+          plugin: mockPlugin,
+          isInitialized: true,
+        );
+
+        verify(
+          mockPlugin.show(123, 'Test Title', 'Test Body', any, payload: '{"test": "data"}'),
+        ).called(1);
       });
 
-      test('validates invite notification payload structure', () {
-        final testPayload = jsonEncode({
-          'type': 'invites_sync',
-          'welcomeId': 'welcome-789',
-          'groupId': 'group-456',
-        });
+      test('does not show notification when not initialized', () async {
+        await NotificationService.showMessageNotification(
+          id: 123,
+          title: 'Test Title',
+          body: 'Test Body',
+          plugin: mockPlugin,
+          isInitialized: false,
+        );
 
-        final parsed = Map<String, dynamic>.from(jsonDecode(testPayload) as Map);
-        expect(parsed['type'], equals('invites_sync'));
-        expect(parsed['welcomeId'], equals('welcome-789'));
-        expect(parsed['groupId'], equals('group-456'));
+        verifyNever(mockPlugin.show(any, any, any, any, payload: anyNamed('payload')));
       });
+    });
 
-      test('handles malformed JSON gracefully', () {
-        const malformedPayload = '{"type":"new_message","groupId":}';
+    group('showInviteNotification', () {
+      test('shows invite notification when initialized', () async {
+        when(
+          mockPlugin.show(any, any, any, any, payload: anyNamed('payload')),
+        ).thenAnswer((_) async {});
 
-        expect(() {
-          jsonDecode(malformedPayload);
-        }, throwsA(isA<FormatException>()));
+        await NotificationService.showInviteNotification(
+          id: 456,
+          title: 'Invite Title',
+          body: 'Invite Body',
+          plugin: mockPlugin,
+          isInitialized: true,
+        );
+
+        verify(
+          mockPlugin.show(456, 'Invite Title', 'Invite Body', any, payload: anyNamed('payload')),
+        ).called(1);
       });
     });
   });
