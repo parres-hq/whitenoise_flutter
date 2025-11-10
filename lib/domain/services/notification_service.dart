@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -223,6 +224,45 @@ class NotificationService {
       _logger.fine('Notification $id cancelled');
     } catch (e) {
       _logger.severe('Failed to cancel notification $id: $e');
+    }
+  }
+
+  static Future<void> cancelNotificationsByGroup(String groupId) async {
+    try {
+      // Get all active notifications
+      final activeNotifications = await _flutterLocalNotificationsPlugin.getActiveNotifications();
+
+      int cancelledCount = 0;
+
+      for (final notification in activeNotifications) {
+        // Check if this notification belongs to the specified group by checking payload
+        bool shouldCancel = false;
+
+        // Check payload for groupId
+        if (notification.payload != null) {
+          try {
+            final Map<String, dynamic> payload = Map<String, dynamic>.from(
+              jsonDecode(notification.payload!) as Map,
+            );
+            if (payload['groupId'] == groupId) {
+              shouldCancel = true;
+            }
+          } catch (e) {
+            // Ignore payload parsing errors
+            continue;
+          }
+        }
+
+        if (shouldCancel && notification.id != null) {
+          await _flutterLocalNotificationsPlugin.cancel(notification.id!);
+          cancelledCount++;
+          _logger.fine('Cancelled notification ${notification.id} for group $groupId');
+        }
+      }
+
+      _logger.info('Cancelled $cancelledCount notifications for group $groupId');
+    } catch (e) {
+      _logger.severe('Failed to cancel notifications for group $groupId: $e');
     }
   }
 
