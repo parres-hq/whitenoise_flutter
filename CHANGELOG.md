@@ -8,17 +8,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+
+- Added automatic notification clearing when entering chat - notifications for messages and invites now automatically disappear when viewing the related chat [#803](https://github.com/parres-hq/whitenoise_flutter/issues/803)
+
 ### Changed
 ### Deprecated
 ### Removed
 ### Fixed
 ### Security
-
-## [0.2.1] - Idk
-
-### Added
-
-- Added automatic notification clearing when entering chat - notifications for messages and invites now automatically disappear when viewing the related chat [#803](https://github.com/parres-hq/whitenoise_flutter/issues/803)
 
 ## [0.2.0] - 2025-11-07
 
