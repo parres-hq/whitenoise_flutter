@@ -186,12 +186,11 @@ void main() {
               }
             } catch (e) {
               errorCount++;
-              continue; // This simulates the error handling in the real method
+              continue;
             }
           }
         }
 
-        // Should cancel valid notifications despite malformed one
         expect(notificationsToCancel, equals([1, 3]));
         expect(errorCount, equals(1));
       });
