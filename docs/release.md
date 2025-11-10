@@ -11,6 +11,7 @@
 1. Update the changelog
     1. Change `Unreleased` to version number with date
     1. Create new `Unreleased` section with subsections just above latest version
+1. Update the version path in the zapstore.yaml file.
 1. Run `just precommit` and then commit the changes
 1. Run `just release`. This will do a full check and, rebuild everything from scratch and then produce binaries for each platform.
 1. The binaries will be output to the `build/releases` folder. There will be a folder there named like the version–e.g. `v0.1.4+5`–containing all the binaries and sha256 hash files.
