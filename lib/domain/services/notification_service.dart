@@ -228,6 +228,11 @@ class NotificationService {
   }
 
   static Future<void> cancelNotificationsByGroup(String groupId) async {
+    if (!_isInitialized) {
+      _logger.warning('NotificationService not initialized, cannot cancel notifications');
+      return;
+    }
+
     try {
       // Get all active notifications
       final activeNotifications = await _flutterLocalNotificationsPlugin.getActiveNotifications();
