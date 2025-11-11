@@ -104,9 +104,10 @@ class GroupMessagesNotifier extends FamilyNotifier<GroupMessagesState, String> {
     List<String> pubkeys,
   ) async {
     final userProfileNotifier = ref.read(userProfileProvider.notifier);
+    // Use non-blocking fetch for message list performance
     final userFutures = pubkeys.map(
       (pubkey) => userProfileNotifier
-          .getUserProfile(pubkey)
+          .getUserProfile(pubkey, blockingDataSync: false)
           .then((userProfile) => MapEntry(pubkey, userProfile)),
     );
     final usersProfileData = await Future.wait(userFutures);

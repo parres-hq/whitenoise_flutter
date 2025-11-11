@@ -242,7 +242,7 @@ Future<int> _refreshMetadataForGroup({
     int refreshedCount = 0;
     for (final memberPubkey in memberPubkeys) {
       try {
-        await userMetadata(pubkey: memberPubkey);
+        await userMetadata(pubkey: memberPubkey, blockingDataSync: true);
         refreshedCount++;
       } catch (e) {
         logger.warning('Refresh metadata for $memberPubkey: $e');

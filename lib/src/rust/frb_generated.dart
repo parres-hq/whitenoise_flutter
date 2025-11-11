@@ -219,7 +219,10 @@ abstract class RustLibApi extends BaseApi {
     required List<String> groupIds,
   });
 
-  Future<User> crateApiUsersGetUser({required String pubkey});
+  Future<User> crateApiUsersGetUser({
+    required String pubkey,
+    required bool blockingDataSync,
+  });
 
   Future<List<String>> crateApiGroupsGroupAdmins({
     required String pubkey,
@@ -338,13 +341,20 @@ abstract class RustLibApi extends BaseApi {
     required String serverUrl,
   });
 
-  Future<bool> crateApiUsersUserHasKeyPackage({required String pubkey});
+  Future<bool> crateApiUsersUserHasKeyPackage({
+    required String pubkey,
+    required bool blockingDataSync,
+  });
 
-  Future<FlutterMetadata> crateApiUsersUserMetadata({required String pubkey});
+  Future<FlutterMetadata> crateApiUsersUserMetadata({
+    required String pubkey,
+    required bool blockingDataSync,
+  });
 
   Future<List<Relay>> crateApiUsersUserRelays({
     required String pubkey,
     required RelayType relayType,
+    required bool blockingDataSync,
   });
 
   RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_AppSettings;
@@ -1487,12 +1497,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
-  Future<User> crateApiUsersGetUser({required String pubkey}) {
+  Future<User> crateApiUsersGetUser({
+    required String pubkey,
+    required bool blockingDataSync,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(pubkey, serializer);
+          sse_encode_bool(blockingDataSync, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -1505,7 +1519,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_api_error,
         ),
         constMeta: kCrateApiUsersGetUserConstMeta,
-        argValues: [pubkey],
+        argValues: [pubkey, blockingDataSync],
         apiImpl: this,
       ),
     );
@@ -1513,7 +1527,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiUsersGetUserConstMeta => const TaskConstMeta(
     debugName: 'get_user',
-    argNames: ['pubkey'],
+    argNames: ['pubkey', 'blockingDataSync'],
   );
 
   @override
@@ -2512,12 +2526,16 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   );
 
   @override
-  Future<bool> crateApiUsersUserHasKeyPackage({required String pubkey}) {
+  Future<bool> crateApiUsersUserHasKeyPackage({
+    required String pubkey,
+    required bool blockingDataSync,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(pubkey, serializer);
+          sse_encode_bool(blockingDataSync, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -2530,7 +2548,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_api_error,
         ),
         constMeta: kCrateApiUsersUserHasKeyPackageConstMeta,
-        argValues: [pubkey],
+        argValues: [pubkey, blockingDataSync],
         apiImpl: this,
       ),
     );
@@ -2538,16 +2556,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiUsersUserHasKeyPackageConstMeta => const TaskConstMeta(
     debugName: 'user_has_key_package',
-    argNames: ['pubkey'],
+    argNames: ['pubkey', 'blockingDataSync'],
   );
 
   @override
-  Future<FlutterMetadata> crateApiUsersUserMetadata({required String pubkey}) {
+  Future<FlutterMetadata> crateApiUsersUserMetadata({
+    required String pubkey,
+    required bool blockingDataSync,
+  }) {
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(pubkey, serializer);
+          sse_encode_bool(blockingDataSync, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -2560,7 +2582,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_api_error,
         ),
         constMeta: kCrateApiUsersUserMetadataConstMeta,
-        argValues: [pubkey],
+        argValues: [pubkey, blockingDataSync],
         apiImpl: this,
       ),
     );
@@ -2568,13 +2590,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiUsersUserMetadataConstMeta => const TaskConstMeta(
     debugName: 'user_metadata',
-    argNames: ['pubkey'],
+    argNames: ['pubkey', 'blockingDataSync'],
   );
 
   @override
   Future<List<Relay>> crateApiUsersUserRelays({
     required String pubkey,
     required RelayType relayType,
+    required bool blockingDataSync,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -2585,6 +2608,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
             relayType,
             serializer,
           );
+          sse_encode_bool(blockingDataSync, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -2597,7 +2621,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_api_error,
         ),
         constMeta: kCrateApiUsersUserRelaysConstMeta,
-        argValues: [pubkey, relayType],
+        argValues: [pubkey, relayType, blockingDataSync],
         apiImpl: this,
       ),
     );
@@ -2605,7 +2629,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiUsersUserRelaysConstMeta => const TaskConstMeta(
     debugName: 'user_relays',
-    argNames: ['pubkey', 'relayType'],
+    argNames: ['pubkey', 'relayType', 'blockingDataSync'],
   );
 
   RustArcIncrementStrongCountFnType get rust_arc_increment_strong_count_AppSettings =>

@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/domain/services/last_read_service.dart';
@@ -131,7 +132,7 @@ class MessageSyncService {
         // Get sender's display name
         String senderName = 'Unknown';
         try {
-          final metadata = await userMetadata(pubkey: message.pubkey);
+          final metadata = await userMetadata(pubkey: message.pubkey, blockingDataSync: true);
           if (metadata.displayName?.isNotEmpty == true) {
             senderName = metadata.displayName!;
           } else if (metadata.name?.isNotEmpty == true) {
@@ -281,7 +282,7 @@ class MessageSyncService {
         // Get the welcomer's display name
         String welcomerName = 'Unknown';
         try {
-          final metadata = await userMetadata(pubkey: welcome.welcomer);
+          final metadata = await userMetadata(pubkey: welcome.welcomer, blockingDataSync: true);
           if (metadata.displayName?.isNotEmpty == true) {
             welcomerName = metadata.displayName!;
           } else if (metadata.name?.isNotEmpty == true) {
@@ -397,7 +398,7 @@ class MessageSyncService {
     );
 
     try {
-      final metadata = await userMetadata(pubkey: otherMemberPubkey);
+      final metadata = await userMetadata(pubkey: otherMemberPubkey, blockingDataSync: true);
       if (metadata.displayName?.isNotEmpty == true) {
         return metadata.displayName!;
       }
