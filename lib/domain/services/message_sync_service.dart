@@ -304,6 +304,7 @@ class MessageSyncService {
           payload: jsonEncode({
             'type': 'invites_sync',
             'welcomeId': welcome.id,
+            'groupId': welcome.mlsGroupId,
           }),
         );
         _logger.info('Notification shown for welcome ${welcome.id}');
