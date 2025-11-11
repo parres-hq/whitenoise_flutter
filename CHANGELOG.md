@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 ### Fixed
 - Fixed keypackage operation buttons showing loading state incorrectly
-- Fixed developer settings content going under three-button bottom nav on GraphenOS and some Android devices
+- Fixed developer settings content going under three-button bottom nav on GrapheneOS and some Android devices
 ### Security
 
 ## [0.2.0] - 2025-11-07
