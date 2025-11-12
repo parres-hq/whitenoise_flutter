@@ -7,6 +7,7 @@ import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
+
 import '../../shared/mocks/mock_active_pubkey_notifier.dart';
 
 class MockUserProfileNotifier extends UserProfileNotifier {
@@ -16,7 +17,7 @@ class MockUserProfileNotifier extends UserProfileNotifier {
     : super(wnApiGetUserFn: null, getUserProfileFromMetadataFn: null);
 
   @override
-  Future<UserProfile> getUserProfile(String pubkey) async {
+  Future<UserProfile> getUserProfile(String pubkey, {bool blockingDataSync = true}) async {
     return _userProfiles[pubkey] ??
         UserProfile(
           publicKey: pubkey,

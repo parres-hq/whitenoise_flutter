@@ -5,12 +5,13 @@ import 'package:whitenoise/src/rust/api/users.dart' as wn_users_api;
 import 'package:whitenoise/src/rust/api/users.dart' show User;
 
 class UserProfileNotifier extends Notifier<void> {
-  late final Future<User> Function({required String pubkey}) _wnApiGetUser;
+  late final Future<User> Function({required String pubkey, required bool blockingDataSync})
+  _wnApiGetUser;
   late final UserProfile Function({required String pubkey, required FlutterMetadata metadata})
   _getUserProfileFromMetadata;
 
   UserProfileNotifier({
-    Future<User> Function({required String pubkey})? wnApiGetUserFn,
+    Future<User> Function({required String pubkey, required bool blockingDataSync})? wnApiGetUserFn,
     UserProfile Function({required String pubkey, required FlutterMetadata metadata})?
     getUserProfileFromMetadataFn,
   }) {
@@ -21,13 +22,14 @@ class UserProfileNotifier extends Notifier<void> {
   @override
   void build() {}
 
-  Future<UserProfile> getUserProfile(String pubkey) async {
-    final user = await _wnApiGetUser(pubkey: pubkey);
+  Future<UserProfile> getUserProfile(String pubkey, {bool blockingDataSync = true}) async {
+    final user = await _wnApiGetUser(pubkey: pubkey, blockingDataSync: blockingDataSync);
     final userProfile = _getUserProfileFromMetadata(pubkey: pubkey, metadata: user.metadata);
     return userProfile;
   }
 
-  Future<User> getUser(String pubkey) async => _wnApiGetUser(pubkey: pubkey);
+  Future<User> getUser(String pubkey, {bool blockingDataSync = true}) async =>
+      _wnApiGetUser(pubkey: pubkey, blockingDataSync: blockingDataSync);
 }
 
 final userProfileProvider = NotifierProvider<UserProfileNotifier, void>(

@@ -5113,7 +5113,7 @@ checksum = "a751b3277700db47d3e574514de2eced5e54dc8a5436a3bf7a0b248b2cee16f3"
 [[package]]
 name = "whitenoise"
 version = "0.1.0"
-source = "git+https://github.com/parres-hq/whitenoise?rev=9362e0ce9b07739d53689da5c0b445271fbee8f8#9362e0ce9b07739d53689da5c0b445271fbee8f8"
+source = "git+https://github.com/parres-hq/whitenoise?rev=823309eaca19fd7b67f024b4bd5bd4d8e94ca15a#823309eaca19fd7b67f024b4bd5bd4d8e94ca15a"
 dependencies = [
  "anyhow",
  "async-trait",

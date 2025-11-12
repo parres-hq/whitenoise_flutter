@@ -153,6 +153,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
     try {
       final userProfileNotifier = ref.read(userProfileProvider.notifier);
+      // Use blocking fetch for user search to ensure fresh metadata
       final userProfile = await userProfileNotifier.getUserProfile(publicKey.trim());
 
       if (mounted) {
@@ -259,6 +260,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
 
             try {
               final userProfileNotifier = ref.read(userProfileProvider.notifier);
+              // Use blocking fetch for support user to ensure fresh metadata
               final supportUserProfile = await userProfileNotifier.getUserProfile(
                 kSupportNpub,
               );

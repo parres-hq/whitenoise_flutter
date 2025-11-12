@@ -51,9 +51,10 @@ class _ChatListActiveAccountAvatarState extends ConsumerState<ChatListActiveAcco
       final AsyncValue<ActiveAccountState> activeAccountState = ref.read(activeAccountProvider);
       final String? pubkey = activeAccountState.valueOrNull?.account?.pubkey;
       if (pubkey == null || pubkey.isEmpty) return;
+      // Use non-blocking fetch for chat list avatar performance
       final UserProfile profileData = await ref
           .read(userProfileProvider.notifier)
-          .getUserProfile(pubkey);
+          .getUserProfile(pubkey, blockingDataSync: false);
       if (!mounted) return;
       final String? currentPubkey = ref.read(activeAccountProvider).valueOrNull?.account?.pubkey;
       if (currentPubkey != pubkey) return;

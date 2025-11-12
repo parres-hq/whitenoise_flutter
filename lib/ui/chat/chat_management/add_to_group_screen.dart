@@ -157,6 +157,7 @@ class _AddToGroupScreenState extends ConsumerState<AddToGroupScreen> {
               );
             } else {
               // If not in follows, fetch from user profile data provider
+              // Use blocking fetch for adding user to group to ensure fresh metadata
               final userProfileNotifier = ref.read(userProfileProvider.notifier);
               userProfileToAdd = await userProfileNotifier.getUserProfile(widget.userNpub);
             }

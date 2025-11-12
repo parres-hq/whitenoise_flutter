@@ -112,8 +112,14 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
       final UserProfileNotifier userProfileNotifier = ref.read(
         userProfileProvider.notifier,
       );
+      // Use non-blocking fetch for profile list performance
       final List<Future<UserProfile>> accountsProfileDataFutures =
-          accounts.map((account) => userProfileNotifier.getUserProfile(account.pubkey)).toList();
+          accounts
+              .map(
+                (account) =>
+                    userProfileNotifier.getUserProfile(account.pubkey, blockingDataSync: false),
+              )
+              .toList();
       final List<UserProfile> accountsProfileData = await Future.wait(accountsProfileDataFutures);
 
       if (!mounted) return;

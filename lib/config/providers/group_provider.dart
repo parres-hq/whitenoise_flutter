@@ -434,6 +434,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   /// Load metadata for a single user (member or admin), returns null if failed
   /// Checks follows cache first if checkFollowsCache is true (for members)
+  /// Uses non-blocking fetch for chat list performance
   Future<domain_user.User?> _loadUserMetadata(
     String pubkey, [
     bool checkFollowsCache = true,
@@ -451,7 +452,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
         }
       }
 
-      final rustUser = await ref.read(userProfileProvider.notifier).getUser(pubkey);
+      // Use non-blocking fetch for chat list performance
+      final rustUser = await ref
+          .read(userProfileProvider.notifier)
+          .getUser(pubkey, blockingDataSync: false);
       return domain_user.User.fromMetadata(rustUser.metadata, npub);
     } catch (e) {
       _logErrorSync('Failed to load metadata for pubkey $pubkey', e);
