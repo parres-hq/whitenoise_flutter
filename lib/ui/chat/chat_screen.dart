@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/chat_input_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
@@ -12,6 +13,7 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/services/last_read_manager.dart';
+import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/chat/invite/chat_invite_screen.dart';
 import 'package:whitenoise/ui/chat/services/chat_dialog_service.dart';
@@ -41,6 +43,7 @@ class ChatScreen extends ConsumerStatefulWidget {
 }
 
 class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObserver {
+  static final _logger = Logger('ChatScreen');
   final ScrollController _scrollController = ScrollController();
   double _lastScrollOffset = 0.0;
   ProviderSubscription<ChatState>? _chatSubscription;
@@ -54,6 +57,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+
+    // Clear notifications for this chat when entering
+    _clearNotificationsForChat();
 
     // Add scroll listener for last read saving
     _scrollController.addListener(_onScroll);
@@ -89,6 +95,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     // Cancel pending last read saves for this group
     LastReadManager.cancelPendingSaves(widget.groupId);
     super.dispose();
+  }
+
+  /// Clear notifications for this chat
+  void _clearNotificationsForChat() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      try {
+        await NotificationService.cancelNotificationsByGroup(widget.groupId);
+      } catch (e) {
+        _logger.warning('Failed to clear notifications for chat ${widget.groupId}', e);
+      }
+    });
   }
 
   /// Check if the user is effectively at the bottom of the chat
