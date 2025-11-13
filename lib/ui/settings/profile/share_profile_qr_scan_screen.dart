@@ -206,6 +206,7 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
         }
         _controller.stop();
         final userProfileNotifier = ref.read(userProfileProvider.notifier);
+        // Use blocking fetch for QR code scan to ensure fresh metadata
         final userProfile = await userProfileNotifier.getUserProfile(npub.trim());
         if (mounted) {
           await StartChatBottomSheet.show(

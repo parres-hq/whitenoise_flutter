@@ -40,7 +40,7 @@ class DefaultWnUsersApi implements WnUsersApi {
     final hexPubkey = PubkeyFormatter(pubkey: pubkey).toHex();
     if (hexPubkey == null) return Future.value(false);
 
-    return wn_users_api.userHasKeyPackage(pubkey: hexPubkey);
+    return wn_users_api.userHasKeyPackage(pubkey: hexPubkey, blockingDataSync: false);
   }
 }
 

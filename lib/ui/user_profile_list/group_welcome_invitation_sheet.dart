@@ -119,7 +119,10 @@ class _GroupMessageInviteState extends ConsumerState<GroupMessageInvite> {
         ref.showErrorToast('No active account found');
         return null;
       }
-      return await wn_users_api.userMetadata(pubkey: widget.welcome.welcomer);
+      return await wn_users_api.userMetadata(
+        pubkey: widget.welcome.welcomer,
+        blockingDataSync: true,
+      );
     } catch (e) {
       return null;
     }
@@ -246,7 +249,10 @@ class _DirectMessageAvatarState extends ConsumerState<DirectMessageAvatar> {
         ref.showErrorToast('No active account found');
         return null;
       }
-      return await wn_users_api.userMetadata(pubkey: widget.welcome.welcomer);
+      return await wn_users_api.userMetadata(
+        pubkey: widget.welcome.welcomer,
+        blockingDataSync: true,
+      );
     } catch (e) {
       return null;
     }
@@ -289,7 +295,7 @@ class _DirectMessageInviteCardState extends ConsumerState<DirectMessageInviteCar
         ref.showErrorToast('No active account found');
         return null;
       }
-      return wn_users_api.userMetadata(pubkey: widget.welcome.welcomer);
+      return wn_users_api.userMetadata(pubkey: widget.welcome.welcomer, blockingDataSync: true);
     } catch (e) {
       return null;
     }

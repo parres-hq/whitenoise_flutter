@@ -189,7 +189,10 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
 
     for (final userProfile in userProfiles) {
       try {
-        final hasKeyPackage = await userHasKeyPackage(pubkey: userProfile.publicKey);
+        final hasKeyPackage = await userHasKeyPackage(
+          pubkey: userProfile.publicKey,
+          blockingDataSync: true,
+        );
 
         if (hasKeyPackage) {
           userProfilesWithKeyPackage.add(userProfile);

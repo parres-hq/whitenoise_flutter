@@ -38,11 +38,6 @@ class ChatState with _$ChatState {
     return groupLoadingStates[groupId] ?? false;
   }
 
-  /// Get error for a specific group
-  String? getGroupError(String groupId) {
-    return groupErrorStates[groupId];
-  }
-
   /// Check if currently sending a message to a group
   bool isSendingToGroup(String groupId) {
     return sendingStates[groupId] ?? false;

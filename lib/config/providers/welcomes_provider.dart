@@ -138,6 +138,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       await Future.wait(
         batch.map((welcomerPubkey) async {
           try {
+            // Use blocking fetch for invites to ensure fresh metadata
             final rustUser = await ref.read(userProfileProvider.notifier).getUser(welcomerPubkey);
             final user = User.fromMetadata(rustUser.metadata, welcomerPubkey);
             welcomerUsers[welcomerPubkey] = user;

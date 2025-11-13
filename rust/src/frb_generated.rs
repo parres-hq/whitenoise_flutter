@@ -1335,11 +1335,13 @@ fn wire__crate__api__users__get_user_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_blocking_data_sync = <bool>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, crate::api::error::ApiError>(
                     (move || async move {
-                        let output_ok = crate::api::users::get_user(api_pubkey).await?;
+                        let output_ok =
+                            crate::api::users::get_user(api_pubkey, api_blocking_data_sync).await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -2542,11 +2544,16 @@ fn wire__crate__api__users__user_has_key_package_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_blocking_data_sync = <bool>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, crate::api::error::ApiError>(
                     (move || async move {
-                        let output_ok = crate::api::users::user_has_key_package(api_pubkey).await?;
+                        let output_ok = crate::api::users::user_has_key_package(
+                            api_pubkey,
+                            api_blocking_data_sync,
+                        )
+                        .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -2578,11 +2585,14 @@ fn wire__crate__api__users__user_metadata_impl(
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
+            let api_blocking_data_sync = <bool>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, crate::api::error::ApiError>(
                     (move || async move {
-                        let output_ok = crate::api::users::user_metadata(api_pubkey).await?;
+                        let output_ok =
+                            crate::api::users::user_metadata(api_pubkey, api_blocking_data_sync)
+                                .await?;
                         Ok(output_ok)
                     })()
                     .await,
@@ -2615,12 +2625,17 @@ fn wire__crate__api__users__user_relays_impl(
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_pubkey = <String>::sse_decode(&mut deserializer);
             let api_relay_type = <RelayType>::sse_decode(&mut deserializer);
+            let api_blocking_data_sync = <bool>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| async move {
                 transform_result_sse::<_, crate::api::error::ApiError>(
                     (move || async move {
-                        let output_ok =
-                            crate::api::users::user_relays(api_pubkey, api_relay_type).await?;
+                        let output_ok = crate::api::users::user_relays(
+                            api_pubkey,
+                            api_relay_type,
+                            api_blocking_data_sync,
+                        )
+                        .await?;
                         Ok(output_ok)
                     })()
                     .await,

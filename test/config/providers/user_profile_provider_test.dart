@@ -36,7 +36,7 @@ class MockWnUsersApi {
     _throwError = null;
   }
 
-  Future<User> getUser({required String pubkey}) async {
+  Future<User> getUser({required String pubkey, required bool blockingDataSync}) async {
     if (_throwError != null) {
       throw _throwError!;
     }
