@@ -14,7 +14,6 @@ import 'package:whitenoise/domain/services/last_read_manager.dart';
 import 'package:whitenoise/domain/services/message_merger_service.dart';
 import 'package:whitenoise/domain/services/message_sender_service.dart';
 import 'package:whitenoise/domain/services/reaction_comparison_service.dart';
-import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/utils/message_converter.dart';
@@ -22,7 +21,13 @@ import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 class ChatNotifier extends Notifier<ChatState> {
   final _logger = Logger('ChatNotifier');
-  final _messageSenderService = MessageSenderService();
+  late final MessageSenderService _messageSenderService;
+
+  ChatNotifier({
+    MessageSenderService? messageSenderService,
+  }) {
+    _messageSenderService = messageSenderService ?? MessageSenderService();
+  }
 
   @override
   ChatState build() {
@@ -59,33 +64,34 @@ class ChatNotifier extends Notifier<ChatState> {
       return;
     }
 
+    final activePubkey = ref.read(activePubkeyProvider) ?? '';
+    if (activePubkey.isEmpty) {
+      _logger.severe('No active account found');
+      return;
+    }
+
     // Set loading state for this specific group
     state = state.copyWith(
       groupLoadingStates: {
         ...state.groupLoadingStates,
         groupId: true,
       },
-      groupErrorStates: {
-        ...state.groupErrorStates,
-        groupId: null,
-      },
     );
 
     try {
-      final activePubkey = ref.read(activePubkeyProvider) ?? '';
-      if (activePubkey.isEmpty) {
-        _setGroupError(groupId, 'No active account found');
-        return;
-      }
-
       _logger.info('ChatProvider: Loading messages for group $groupId');
 
-      final messages = await ref.read(groupMessagesProvider(groupId).notifier).fetchMessages();
+      final dbMessages = await ref.read(groupMessagesProvider(groupId).notifier).fetchMessages();
+      final stateMessages = state.groupMessages[groupId] ?? [];
+      final mergedMessages = MessageMergerService.merge(
+        stateMessages: stateMessages,
+        dbMessages: dbMessages,
+      );
 
       state = state.copyWith(
         groupMessages: {
           ...state.groupMessages,
-          groupId: messages,
+          groupId: mergedMessages,
         },
         groupLoadingStates: {
           ...state.groupLoadingStates,
@@ -94,13 +100,12 @@ class ChatNotifier extends Notifier<ChatState> {
       );
     } catch (e, st) {
       _logger.severe('ChatProvider.loadMessagesForGroup', e, st);
-      String errorMessage = 'Failed to load messages';
-      if (e is ApiError) {
-        errorMessage = await e.messageText();
-      } else {
-        errorMessage = e.toString();
-      }
-      _setGroupError(groupId, errorMessage);
+      state = state.copyWith(
+        groupLoadingStates: {
+          ...state.groupLoadingStates,
+          groupId: false,
+        },
+      );
     }
   }
 
@@ -117,61 +122,48 @@ class ChatNotifier extends Notifier<ChatState> {
 
     final activePubkey = ref.read(activePubkeyProvider) ?? '';
     if (activePubkey.isEmpty) {
-      _setGroupError(groupId, 'No active account found');
+      _logger.severe(groupId, 'No active account found');
       return null;
     }
 
-    final optimisticMessageModel = MessageConverter.createOptimisticMessage(
-      content: message,
-      currentUserPublicKey: activePubkey,
-      groupId: groupId,
-      mediaFiles: mediaFiles,
-    );
-    final optimisticId = optimisticMessageModel.id;
-
-    final stateMessages = state.groupMessages[groupId] ?? [];
     state = state.copyWith(
-      groupMessages: {
-        ...state.groupMessages,
-        groupId: [...stateMessages, optimisticMessageModel],
-      },
       sendingStates: {
         ...state.sendingStates,
         groupId: true,
-      },
-      groupErrorStates: {
-        ...state.groupErrorStates,
-        groupId: null,
       },
     );
 
     try {
       _logger.info('ChatProvider: Sending message to group $groupId');
 
-      final sentMessage = await _messageSenderService.sendMessage(
+      state = state.copyWith(
+        sendingStates: {
+          ...state.sendingStates,
+          groupId: true,
+        },
+      );
+
+      final sendingMessage = await _messageSenderService.sendMessage(
         pubkey: activePubkey,
         groupId: groupId,
         content: message,
         mediaFiles: mediaFiles,
       );
 
+      final optimisticMessageModel = MessageConverter.createOptimisticMessage(
+        id: sendingMessage.id,
+        content: message,
+        currentUserPublicKey: activePubkey,
+        groupId: groupId,
+        mediaFiles: mediaFiles,
+      );
+
       final stateMessages = state.groupMessages[groupId] ?? [];
-      final updatedMessages =
-          stateMessages.map((msg) {
-            if (msg.id == optimisticId) {
-              return msg.copyWith(
-                id: sentMessage.id,
-                status: MessageStatus.sent,
-                createdAt: sentMessage.createdAt.toLocal(),
-              );
-            }
-            return msg;
-          }).toList();
 
       state = state.copyWith(
         groupMessages: {
           ...state.groupMessages,
-          groupId: updatedMessages,
+          groupId: [...stateMessages, optimisticMessageModel],
         },
         sendingStates: {
           ...state.sendingStates,
@@ -190,37 +182,15 @@ class ChatNotifier extends Notifier<ChatState> {
 
       _logger.info('ChatProvider: Message sent successfully to group $groupId');
       onMessageSent?.call();
-      return sentMessage;
+      return sendingMessage;
     } catch (e, st) {
       _logger.severe('ChatProvider.sendMessage', e, st);
-      String errorMessage = 'Failed to send message';
-      if (e is ApiError) {
-        errorMessage = await e.messageText();
-      } else {
-        errorMessage = e.toString();
-      }
-
-      final stateMessages = state.groupMessages[groupId] ?? [];
-      final updatedMessages =
-          stateMessages.map((msg) {
-            if (msg.id == optimisticId) {
-              return msg.copyWith(status: MessageStatus.failed);
-            }
-            return msg;
-          }).toList();
-
       state = state.copyWith(
-        groupMessages: {
-          ...state.groupMessages,
-          groupId: updatedMessages,
-        },
         sendingStates: {
           ...state.sendingStates,
           groupId: false,
         },
       );
-
-      _setGroupError(groupId, errorMessage);
       return null;
     }
   }
@@ -298,37 +268,21 @@ class ChatNotifier extends Notifier<ChatState> {
       }
 
       if (hasChanges) {
-        if (dbMessages.length > stateMessages.length) {
-          // Add only new messages to preserve performance
-          final dbMessagesOnly = dbMessages.skip(stateMessages.length).toList();
+        final groupMessages = MessageMergerService.merge(
+          stateMessages: stateMessages,
+          dbMessages: dbMessages,
+        );
 
-          state = state.copyWith(
-            groupMessages: {
-              ...state.groupMessages,
-              groupId: [...stateMessages, ...dbMessagesOnly],
-            },
-          );
+        state = state.copyWith(
+          groupMessages: {
+            ...state.groupMessages,
+            groupId: groupMessages,
+          },
+        );
 
-          _logger.info(
-            'ChatProvider: Added ${dbMessagesOnly.length} new messages for group $groupId',
-          );
-        } else {
-          final groupMessages = MessageMergerService.merge(
-            stateMessages: stateMessages,
-            dbMessages: dbMessages,
-          );
-
-          state = state.copyWith(
-            groupMessages: {
-              ...state.groupMessages,
-              groupId: groupMessages,
-            },
-          );
-
-          _logger.info(
-            'ChatProvider: Updated messages with content changes for group $groupId',
-          );
-        }
+        _logger.info(
+          'ChatProvider: Updated messages with content changes for group $groupId',
+        );
 
         // Update group order when messages are updated
         _updateGroupOrderForNewMessage(groupId);
@@ -343,33 +297,6 @@ class ChatNotifier extends Notifier<ChatState> {
     await Future.wait(futures);
   }
 
-  void _setGroupError(String groupId, String error) {
-    state = state.copyWith(
-      groupLoadingStates: {
-        ...state.groupLoadingStates,
-        groupId: false,
-      },
-      groupErrorStates: {
-        ...state.groupErrorStates,
-        groupId: error,
-      },
-      sendingStates: {
-        ...state.sendingStates,
-        groupId: false,
-      },
-    );
-  }
-
-  /// Clear error for a specific group
-  void clearGroupError(String groupId) {
-    state = state.copyWith(
-      groupErrorStates: {
-        ...state.groupErrorStates,
-        groupId: null,
-      },
-    );
-  }
-
   /// Get messages for a specific group (convenience method)
   List<MessageModel> getMessagesForGroup(String groupId) {
     return state.getMessagesForGroup(groupId);
@@ -378,11 +305,6 @@ class ChatNotifier extends Notifier<ChatState> {
   /// Check if a group is currently loading
   bool isGroupLoading(String groupId) {
     return state.isGroupLoading(groupId);
-  }
-
-  /// Get error for a specific group
-  String? getGroupError(String groupId) {
-    return state.getGroupError(groupId);
   }
 
   /// Check if currently sending a message to a group
@@ -483,7 +405,7 @@ class ChatNotifier extends Notifier<ChatState> {
     try {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) {
-        _setGroupError(message.groupId ?? '', 'No active account found');
+        _logger.severe('No active account found');
         return false;
       }
       final groupId = message.groupId;
@@ -512,14 +434,6 @@ class ChatNotifier extends Notifier<ChatState> {
       return true;
     } catch (e, st) {
       _logger.severe('ChatProvider.updateMessageReaction', e, st);
-
-      String errorMessage = 'Failed to update reaction';
-      if (e is ApiError) {
-        errorMessage = await e.messageText();
-      } else {
-        errorMessage = e.toString();
-      }
-      _setGroupError(message.groupId ?? '', errorMessage);
       return false;
     }
   }
@@ -538,30 +452,13 @@ class ChatNotifier extends Notifier<ChatState> {
 
     final activePubkey = ref.read(activePubkeyProvider) ?? '';
     if (activePubkey.isEmpty) {
-      _setGroupError(groupId, 'No active account found');
+      _logger.severe('No active account found');
       return null;
     }
 
     final allMessages = getMessagesForGroup(groupId);
     final replyToMessage = allMessages.firstWhereOrNull((msg) => msg.id == replyToMessageId);
-
-    // Create optimistic reply message immediately
-    final optimisticMessageModel = MessageConverter.createOptimisticMessage(
-      content: message,
-      currentUserPublicKey: activePubkey,
-      groupId: groupId,
-      replyToMessage: replyToMessage,
-      mediaFiles: mediaFiles,
-    );
-    final optimisticId = optimisticMessageModel.id;
-
-    // Add optimistic message immediately
-    final currentOptimistic = state.groupMessages[groupId] ?? [];
     state = state.copyWith(
-      groupMessages: {
-        ...state.groupMessages,
-        groupId: [...currentOptimistic, optimisticMessageModel],
-      },
       sendingStates: {
         ...state.sendingStates,
         groupId: true,
@@ -571,7 +468,7 @@ class ChatNotifier extends Notifier<ChatState> {
     try {
       _logger.info('ChatProvider: Sending reply to message $replyToMessageId');
 
-      final sentMessage = await _messageSenderService.sendReply(
+      final sendingMessage = await _messageSenderService.sendReply(
         pubkey: activePubkey,
         groupId: groupId,
         replyToMessageId: replyToMessageId,
@@ -579,23 +476,21 @@ class ChatNotifier extends Notifier<ChatState> {
         mediaFiles: mediaFiles,
       );
 
+      final optimisticMessage = MessageConverter.createOptimisticMessage(
+        id: sendingMessage.id,
+        content: message,
+        currentUserPublicKey: activePubkey,
+        groupId: groupId,
+        replyToMessage: replyToMessage,
+        mediaFiles: mediaFiles,
+      );
+
       final stateMessages = state.groupMessages[groupId] ?? [];
-      final updatedMessages =
-          stateMessages.map((msg) {
-            if (msg.id == optimisticId) {
-              return msg.copyWith(
-                id: sentMessage.id,
-                status: MessageStatus.sent,
-                createdAt: sentMessage.createdAt.toLocal(),
-              );
-            }
-            return msg;
-          }).toList();
 
       state = state.copyWith(
         groupMessages: {
           ...state.groupMessages,
-          groupId: updatedMessages,
+          groupId: [...stateMessages, optimisticMessage],
         },
         sendingStates: {
           ...state.sendingStates,
@@ -605,37 +500,16 @@ class ChatNotifier extends Notifier<ChatState> {
 
       _updateGroupOrderForNewMessage(groupId);
       onMessageSent?.call();
-      return sentMessage;
+      return sendingMessage;
     } catch (e, st) {
       _logger.severe('ChatProvider.sendReplyMessage', e, st);
-      String errorMessage = 'Failed to send reply';
-      if (e is ApiError) {
-        errorMessage = await e.messageText();
-      } else {
-        errorMessage = e.toString();
-      }
-
-      final stateMessages = state.groupMessages[groupId] ?? [];
-      final updatedMessages =
-          stateMessages.map((msg) {
-            if (msg.id == optimisticId) {
-              return msg.copyWith(status: MessageStatus.failed);
-            }
-            return msg;
-          }).toList();
-
       state = state.copyWith(
-        groupMessages: {
-          ...state.groupMessages,
-          groupId: updatedMessages,
-        },
         sendingStates: {
           ...state.sendingStates,
           groupId: false,
         },
       );
 
-      _setGroupError(groupId, errorMessage);
       return null;
     }
   }
@@ -654,7 +528,7 @@ class ChatNotifier extends Notifier<ChatState> {
     try {
       final activePubkey = ref.read(activePubkeyProvider) ?? '';
       if (activePubkey.isEmpty) {
-        _setGroupError(groupId, 'No active account found');
+        _logger.severe('No active account found');
         return false;
       }
 
@@ -675,13 +549,6 @@ class ChatNotifier extends Notifier<ChatState> {
       return true;
     } catch (e, st) {
       _logger.severe('ChatProvider.deleteMessage', e, st);
-      String errorMessage = 'Failed to delete message';
-      if (e is ApiError) {
-        errorMessage = await e.messageText();
-      } else {
-        errorMessage = e.toString();
-      }
-      _setGroupError(groupId, errorMessage);
       return false;
     }
   }
@@ -752,5 +619,5 @@ class ChatNotifier extends Notifier<ChatState> {
 }
 
 final chatProvider = NotifierProvider<ChatNotifier, ChatState>(
-  ChatNotifier.new,
+  () => ChatNotifier(),
 );
