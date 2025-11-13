@@ -6,201 +6,219 @@ import 'package:whitenoise/domain/services/message_merger_service.dart';
 void main() {
   group('MessageMergerService', () {
     group('merge', () {
-      group('without messages in sending status', () {
-        test('returns messages stored in db', () {
-          final stateMessages = [
-            _createMessage(
-              id: '1',
-              content: 'sent message',
-              createdAt: DateTime.now().subtract(const Duration(seconds: 30)),
-            ),
-          ];
-          final dbMessages = [
-            _createMessage(
-              id: '2',
-              content: 'message stored in db',
-              createdAt: DateTime.now(),
-            ),
-          ];
+      group('when state has no sending messages', () {
+        final stateMessages = [
+          _createMessage(id: 'A'), // sent
+          _createMessage(id: 'B', status: MessageStatus.delivered),
+          _createMessage(id: 'C', status: MessageStatus.read),
+          _createMessage(id: 'D', status: MessageStatus.failed),
+        ];
+        final dbMessages = [
+          _createMessage(id: 'E'),
+          _createMessage(id: 'F'),
+        ];
 
+        test('only keeps db messages', () {
           final result = MessageMergerService.merge(
             stateMessages: stateMessages,
             dbMessages: dbMessages,
           );
 
-          expect(result, hasLength(1));
-          expect(result.first.id, equals('2'));
-          expect(result.first.content, equals('message stored in db'));
-          expect(result.first.status, equals(MessageStatus.sent));
+          expect(result, hasLength(2));
+          expect(result.map((m) => m.id), equals(['E', 'F']));
         });
       });
 
-      group('with messages in sending status', () {
-        group('without new messages', () {
-          test('preserves recent sending messages', () {
-            final stateMessages = [
-              _createMessage(
-                id: '1',
-                content: 'sending message',
-                status: MessageStatus.sending,
-                createdAt: DateTime.now().subtract(const Duration(seconds: 30)),
-              ),
-            ];
-            final dbMessages = <MessageModel>[];
+      group('when state has recent sending messages', () {
+        final recentTime = DateTime.now().subtract(const Duration(seconds: 30));
+        final stateMessages = [
+          _createMessage(id: 'A'), // sent
+          _createMessage(id: 'B', status: MessageStatus.delivered),
+          _createMessage(id: 'C', status: MessageStatus.read),
+          _createMessage(id: 'D', status: MessageStatus.failed),
+          _createMessage(
+            id: 'E',
+            content: 'I am E and I am in state',
+            status: MessageStatus.sending,
+            createdAt: recentTime,
+          ),
+          _createMessage(
+            id: 'F',
+            content: 'I am F and I am in state',
+            status: MessageStatus.sending,
+            createdAt: recentTime,
+          ),
+        ];
 
+        group('when db does not have the sending messages', () {
+          final dbMessages = [
+            _createMessage(id: 'G', content: 'I am G and I am in db'),
+            _createMessage(id: 'H', content: 'I am H and I am in db'),
+          ];
+
+          test('keeps recent sending messages from state', () {
             final result = MessageMergerService.merge(
               stateMessages: stateMessages,
               dbMessages: dbMessages,
             );
 
-            expect(result, hasLength(1));
-            expect(result.first.id, equals('1'));
-            expect(result.first.status, equals(MessageStatus.sending));
+            expect(result, hasLength(4));
+            expect(
+              result.map((m) => m.id),
+              equals(['G', 'H', 'E', 'F']),
+            );
+            expect(
+              result.map((m) => m.content),
+              equals([
+                'I am G and I am in db',
+                'I am H and I am in db',
+                'I am E and I am in state',
+                'I am F and I am in state',
+              ]),
+            );
           });
         });
 
-        group('with recent messages with different content', () {
-          test(
-            'returns the sending message with different content and the db repeated message',
-            () {
-              final now = DateTime.now();
-              final stateMessages = [
-                _createMessage(
-                  id: '1',
-                  content: 'repeated message',
-                  status: MessageStatus.sending,
-                  createdAt: now.subtract(const Duration(seconds: 30)),
-                ),
-                _createMessage(
-                  id: '3',
-                  content: 'different message',
-                  status: MessageStatus.sending,
-                  createdAt: now,
-                ),
-              ];
-              final dbMessages = [
-                _createMessage(
-                  id: '2',
-                  content: 'repeated message',
-                  createdAt: now.subtract(const Duration(seconds: 15)),
-                ),
-              ];
+        group('when db has some sending messages', () {
+          final dbMessages = [
+            _createMessage(
+              id: 'E',
+              content: 'I am E and I am in db',
+              status: MessageStatus.sending,
+              createdAt: recentTime,
+            ),
+            _createMessage(id: 'G', content: 'I am G and I am in db'),
+            _createMessage(id: 'H', content: 'I am H and I am in db'),
+          ];
 
-              final result = MessageMergerService.merge(
-                stateMessages: stateMessages,
-                dbMessages: dbMessages,
-              );
-
-              expect(result, hasLength(2));
-              expect(result.first.id, equals('2'));
-              expect(result.first.content, equals('repeated message'));
-              expect(result.first.status, equals(MessageStatus.sent));
-              expect(result.last.id, equals('3'));
-              expect(result.last.content, equals('different message'));
-              expect(result.last.status, equals(MessageStatus.sending));
-            },
-          );
-        });
-
-        group('with multiple recent messages with different content', () {
-          test('returns all sending messages and the db stored messages', () {
-            final now = DateTime.now();
-            final recentTime1 = now.subtract(const Duration(seconds: 30));
-            final recentTime2 = now.subtract(const Duration(seconds: 45));
-
-            final stateMessages = [
-              _createMessage(
-                id: '1',
-                content: 'first sending message',
-                status: MessageStatus.sending,
-                createdAt: recentTime1,
-              ),
-              _createMessage(
-                id: '2',
-                content: 'second sending message',
-                status: MessageStatus.sending,
-                createdAt: recentTime2,
-              ),
-            ];
-            final dbMessages = [
-              _createMessage(
-                id: '3',
-                content: 'I am a message stored in db',
-                createdAt: now,
-              ),
-            ];
-
+          test('keeps db messages and recent sending messages from state', () {
             final result = MessageMergerService.merge(
               stateMessages: stateMessages,
               dbMessages: dbMessages,
             );
 
-            expect(result, hasLength(3));
-            expect(result.map((m) => m.id), containsAll(['1', '2', '3']));
+            expect(result, hasLength(4));
+            expect(result.map((m) => m.id), equals(['E', 'G', 'H', 'F']));
+          });
+
+          test('uses db version when message exists in both db and state', () {
+            final result = MessageMergerService.merge(
+              stateMessages: stateMessages,
+              dbMessages: dbMessages,
+            );
+            expect(
+              result.map((m) => m.content),
+              equals([
+                'I am E and I am in db',
+                'I am G and I am in db',
+                'I am H and I am in db',
+                'I am F and I am in state',
+              ]),
+            );
+          });
+        });
+      });
+
+      group('when state has old sending messages', () {
+        final oldTime = DateTime.now().subtract(const Duration(minutes: 3));
+        final stateMessages = [
+          _createMessage(id: 'A'), // sent
+          _createMessage(id: 'B', status: MessageStatus.delivered),
+          _createMessage(id: 'C', status: MessageStatus.read),
+          _createMessage(id: 'D', status: MessageStatus.failed),
+          _createMessage(
+            id: 'E',
+            content: 'I am E and I am in state',
+            status: MessageStatus.sending,
+            createdAt: oldTime,
+          ),
+          _createMessage(
+            id: 'F',
+            content: 'I am F and I am in state',
+            status: MessageStatus.sending,
+            createdAt: oldTime,
+          ),
+        ];
+
+        group('when db does not have the old sending messages', () {
+          final dbMessages = [
+            _createMessage(id: 'G', content: 'I am G and I am in db'),
+            _createMessage(id: 'H', content: 'I am H and I am in db'),
+          ];
+
+          test('marks old sending messages from state as failed', () {
+            final result = MessageMergerService.merge(
+              stateMessages: stateMessages,
+              dbMessages: dbMessages,
+            );
+
+            expect(result, hasLength(4));
+            expect(result.map((m) => m.id), equals(['G', 'H', 'E', 'F']));
+            expect(
+              result.map((m) => m.content),
+              equals([
+                'I am G and I am in db',
+                'I am H and I am in db',
+                'I am E and I am in state',
+                'I am F and I am in state',
+              ]),
+            );
+            expect(
+              result.map((m) => m.status),
+              equals([
+                MessageStatus.sent,
+                MessageStatus.sent,
+                MessageStatus.failed,
+                MessageStatus.failed,
+              ]),
+            );
           });
         });
 
-        group('with old sending messages with different content', () {
-          test('returns only the db stored and sent message', () {
-            final now = DateTime.now();
-            final oldTime = now.subtract(const Duration(minutes: 2));
+        group('when db has the old sending messages', () {
+          final dbMessages = [
+            _createMessage(
+              id: 'E',
+              content: 'I am E and I am in db',
+              createdAt: oldTime,
+              status: MessageStatus.sending,
+            ),
+            _createMessage(
+              id: 'F',
+              content: 'I am F and I am in db',
+              createdAt: oldTime,
+              status: MessageStatus.sending,
+            ),
+            _createMessage(id: 'G', content: 'I am G and I am in db'),
+            _createMessage(id: 'H', content: 'I am H and I am in db'),
+          ];
 
-            final stateMessages = [
-              _createMessage(
-                id: '1',
-                content: 'old sending message',
-                status: MessageStatus.sending,
-                createdAt: oldTime,
-              ),
-            ];
-            final dbMessages = [
-              _createMessage(
-                id: '2',
-                content: 'I am a message stored in db',
-                createdAt: now,
-              ),
-            ];
-            final result = MessageMergerService.merge(
-              stateMessages: stateMessages,
-              dbMessages: dbMessages,
-            );
-            expect(result, hasLength(1));
-            expect(result.first.id, equals('2'));
-            expect(result.first.content, equals('I am a message stored in db'));
-            expect(result.first.status, equals(MessageStatus.sent));
-          });
-        });
-
-        group('with recent messages with same content', () {
-          test('returns only the sent message', () {
-            final now = DateTime.now();
-            final recentTime = now.subtract(const Duration(seconds: 30));
-
-            final stateMessages = [
-              _createMessage(
-                id: '1',
-                content: 'same message',
-                status: MessageStatus.sending,
-                createdAt: recentTime,
-              ),
-            ];
-            final dbMessages = [
-              _createMessage(
-                id: '2',
-                content: 'same message',
-                createdAt: now,
-              ),
-            ];
-
+          test('keeps db messages', () {
             final result = MessageMergerService.merge(
               stateMessages: stateMessages,
               dbMessages: dbMessages,
             );
 
-            expect(result, hasLength(1));
-            expect(result.first.id, equals('2'));
-            expect(result.first.content, equals('same message'));
-            expect(result.first.status, equals(MessageStatus.sent));
+            expect(result, hasLength(4));
+            expect(result.map((m) => m.id), equals(['E', 'F', 'G', 'H']));
+            expect(
+              result.map((m) => m.content),
+              equals([
+                'I am E and I am in db',
+                'I am F and I am in db',
+                'I am G and I am in db',
+                'I am H and I am in db',
+              ]),
+            );
+            expect(
+              result.map((m) => m.status),
+              equals([
+                MessageStatus.sending,
+                MessageStatus.sending,
+                MessageStatus.sent,
+                MessageStatus.sent,
+              ]),
+            );
           });
         });
       });
