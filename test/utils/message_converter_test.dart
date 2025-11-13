@@ -574,11 +574,16 @@ void main() {
         group('without media files', () {
           setUp(() {
             optimisticMessage = MessageConverter.createOptimisticMessage(
+              id: 'abc3',
               content: 'Optimistic message',
               currentUserPublicKey: currentUserPublicKey,
               groupId: groupId,
               mediaFiles: [],
             );
+          });
+
+          test('has expected id', () {
+            expect(optimisticMessage.id, 'abc3');
           });
 
           test('returns expected content', () {
@@ -610,8 +615,8 @@ void main() {
             expect(optimisticMessage.replyTo, isNull);
           });
 
-          test('id has temporal message prefix', () {
-            expect(optimisticMessage.id.startsWith('temporal_message_'), true);
+          test('has expected id', () {
+            expect(optimisticMessage.id, 'abc3');
           });
 
           test('has no media attachments', () {
@@ -622,6 +627,7 @@ void main() {
         group('with media files', () {
           setUp(() {
             optimisticMessage = MessageConverter.createOptimisticMessage(
+              id: 'abc4',
               content: 'Optimistic message with multiple media',
               currentUserPublicKey: currentUserPublicKey,
               groupId: groupId,
@@ -659,6 +665,7 @@ void main() {
         group('without media files', () {
           setUp(() {
             optimisticMessage = MessageConverter.createOptimisticMessage(
+              id: 'abc1',
               content: 'Optimistic reply',
               currentUserPublicKey: currentUserPublicKey,
               groupId: groupId,
@@ -691,8 +698,8 @@ void main() {
             expect(optimisticMessage.status, MessageStatus.sending);
           });
 
-          test('id has temporal message prefix', () {
-            expect(optimisticMessage.id.startsWith('temporal_message_'), true);
+          test('returns expected id', () {
+            expect(optimisticMessage.id, 'abc1');
           });
 
           test('has no media attachments', () {
@@ -703,6 +710,7 @@ void main() {
         group('with media files', () {
           setUp(() {
             optimisticMessage = MessageConverter.createOptimisticMessage(
+              id: 'abc2',
               content: 'Optimistic message with multiple media',
               currentUserPublicKey: currentUserPublicKey,
               groupId: groupId,
@@ -713,6 +721,10 @@ void main() {
 
           test('reply to id matches original message id', () {
             expect(optimisticMessage.replyTo?.id, 'original_msg');
+          });
+
+          test('has expected id', () {
+            expect(optimisticMessage.id, 'abc2');
           });
 
           test('has expected media attachments', () {

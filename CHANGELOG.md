@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 ### Removed
 ### Fixed
+- Fixed messages disappearing for a while after being sent [#828](https://github.com/parres-hq/whitenoise_flutter/pull/828)
 ### Security
 
 ## [0.2.0] - 2025-11-07

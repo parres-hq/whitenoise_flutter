@@ -5,24 +5,13 @@ import 'package:mockito/mockito.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
-import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 import '../../shared/mocks/mock_active_pubkey_notifier.dart';
+import '../../shared/mocks/mock_auth_notifier.dart';
 
 import 'group_provider_test.mocks.dart';
-
-class MockAuthNotifier extends AuthNotifier {
-  final AuthState _mockState;
-
-  MockAuthNotifier(this._mockState);
-
-  @override
-  AuthState build() {
-    return _mockState;
-  }
-}
 
 @GenerateMocks([PubkeyFormatter])
 void main() {
@@ -635,7 +624,7 @@ void main() {
                 () => MockActivePubkeyNotifier('test_active_pubkey_123'),
               ),
               authProvider.overrideWith(
-                () => MockAuthNotifier(const AuthState(isAuthenticated: true)),
+                () => MockAuthNotifier(isAuthenticated: true),
               ),
               groupsProvider.overrideWith(
                 () => GroupsNotifier(
