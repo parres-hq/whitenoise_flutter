@@ -281,7 +281,7 @@ class ChatNotifier extends Notifier<ChatState> {
         );
 
         _logger.info(
-          'ChatProvider: Updated messages with content changes for group $groupId',
+          'ChatProvider: Updated messages for group $groupId',
         );
 
         // Update group order when messages are updated
