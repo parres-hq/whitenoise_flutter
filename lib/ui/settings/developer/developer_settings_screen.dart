@@ -31,9 +31,15 @@ class DeveloperSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScreen> {
+  bool _isPublishingKeyPackage = false;
+  bool _isFetchingKeyPackages = false;
+  bool _isDeletingAllKeyPackages = false;
   bool _isLoading = false;
   List<accounts_api.FlutterEvent> _keyPackages = [];
   bool _showKeyPackages = false;
+
+  bool get _isAnyOperationInProgress =>
+      _isPublishingKeyPackage || _isFetchingKeyPackages || _isDeletingAllKeyPackages;
 
   Future<void> _deleteAllKeyPackages() async {
     final activePubkey = ref.read(activePubkeyProvider) ?? '';
@@ -79,7 +85,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
 
     if (confirmed != true) return;
 
-    setState(() => _isLoading = true);
+    setState(() => _isDeletingAllKeyPackages = true);
 
     try {
       final deletedCount = await accounts_api.deleteAccountKeyPackages(
@@ -100,19 +106,21 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
       ref.showErrorToast('${'settings.failedToDeleteKeyPackages'.tr()}: $e');
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _isDeletingAllKeyPackages = false);
       }
     }
   }
 
-  Future<void> _fetchKeyPackages() async {
+  Future<void> _fetchKeyPackages({bool showLoading = true}) async {
     final activePubkey = ref.read(activePubkeyProvider) ?? '';
     if (activePubkey.isEmpty) {
       ref.showErrorToast('settings.noActiveAccountFound'.tr());
       return;
     }
 
-    setState(() => _isLoading = true);
+    if (showLoading) {
+      setState(() => _isFetchingKeyPackages = true);
+    }
 
     try {
       final keyPackages = await accounts_api.accountKeyPackages(
@@ -122,17 +130,21 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
         _keyPackages = keyPackages;
         _showKeyPackages = true;
       });
-      ref.showSuccessToast(
-        'settings.fetchedKeyPackagesSuccess'.tr().replaceAll(
-          '{count}',
-          keyPackages.length.toString(),
-        ),
-      );
+      if (showLoading) {
+        ref.showSuccessToast(
+          'settings.fetchedKeyPackagesSuccess'.tr().replaceAll(
+            '{count}',
+            keyPackages.length.toString(),
+          ),
+        );
+      }
     } catch (e) {
-      ref.showErrorToast('${'settings.failedToFetchKeyPackages'.tr()}: $e');
+      if (showLoading) {
+        ref.showErrorToast('${'settings.failedToFetchKeyPackages'.tr()}: $e');
+      }
     } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
+      if (mounted && showLoading) {
+        setState(() => _isFetchingKeyPackages = false);
       }
     }
   }
@@ -144,7 +156,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
       return;
     }
 
-    setState(() => _isLoading = true);
+    setState(() => _isPublishingKeyPackage = true);
 
     try {
       await accounts_api.publishAccountKeyPackage(
@@ -154,13 +166,13 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
 
       // Refresh the key packages list if it's currently shown
       if (_showKeyPackages) {
-        await _fetchKeyPackages();
+        await _fetchKeyPackages(showLoading: false);
       }
     } catch (e) {
       ref.showErrorToast('${'settings.failedToPublishKeyPackage'.tr()}: $e');
     } finally {
       if (mounted) {
-        setState(() => _isLoading = false);
+        setState(() => _isPublishingKeyPackage = false);
       }
     }
   }
@@ -222,7 +234,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
       ref.showSuccessToast('settings.keyPackageDeletedSuccess'.tr());
 
       // Refresh the key packages list
-      await _fetchKeyPackages();
+      await _fetchKeyPackages(showLoading: false);
     } catch (e) {
       ref.showErrorToast('${'settings.failedToDeleteKeyPackage'.tr()}: $e');
     } finally {
@@ -235,149 +247,147 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
   @override
   Widget build(BuildContext context) {
     return WnSettingsScreenWrapper(
-      title: 'settings.developerSettings'.tr(),
       safeAreaBottom: false,
+      title: 'settings.developerSettings'.tr(),
       body: Column(
         children: [
           Expanded(
             child: Padding(
-              padding: EdgeInsets.symmetric(vertical: 24.h),
+              padding: EdgeInsets.symmetric(horizontal: 16.w),
               child: SingleChildScrollView(
-                child: Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      RepaintBoundary(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Key Package Management
-                            Text(
-                              'settings.keyPackageManagement'.tr(),
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: context.colors.primary,
-                              ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Gap(24.h),
+                    RepaintBoundary(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Key Package Management
+                          Text(
+                            'settings.keyPackageManagement'.tr(),
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: context.colors.primary,
                             ),
-                            Gap(10.h),
-                            WnFilledButton(
-                              label: 'settings.publishNewKeyPackage'.tr(),
-                              onPressed: _isLoading ? null : _publishKeyPackage,
-                              loading: _isLoading,
+                          ),
+                          Gap(10.h),
+                          WnFilledButton(
+                            label: 'settings.publishNewKeyPackage'.tr(),
+                            onPressed: _isAnyOperationInProgress ? null : _publishKeyPackage,
+                            loading: _isPublishingKeyPackage,
+                          ),
+                          Gap(8.h),
+                          WnFilledButton(
+                            label: 'settings.inspectRelayKeyPackages'.tr(),
+                            onPressed: _isAnyOperationInProgress ? null : _fetchKeyPackages,
+                            loading: _isFetchingKeyPackages,
+                          ),
+                          Gap(8.h),
+                          WnFilledButton(
+                            label: 'settings.deleteAllKeyPackagesFromRelays'.tr(),
+                            visualState: WnButtonVisualState.destructive,
+                            onPressed: _isAnyOperationInProgress ? null : _deleteAllKeyPackages,
+                            loading: _isDeletingAllKeyPackages,
+                            labelTextStyle: WnButtonSize.large.textStyle().copyWith(
+                              color: context.colors.solidNeutralWhite,
                             ),
-                            Gap(8.h),
-                            WnFilledButton(
-                              label: 'settings.inspectRelayKeyPackages'.tr(),
-                              onPressed: _isLoading ? null : _fetchKeyPackages,
-                              loading: _isLoading && !_showKeyPackages,
-                            ),
-                            Gap(8.h),
-                            WnFilledButton(
-                              label: 'settings.deleteAllKeyPackagesFromRelays'.tr(),
-                              visualState: WnButtonVisualState.destructive,
-                              onPressed: _isLoading ? null : _deleteAllKeyPackages,
-                              loading: _isLoading && _showKeyPackages,
-                              labelTextStyle: WnButtonSize.large.textStyle().copyWith(
-                                color: context.colors.solidNeutralWhite,
-                              ),
-                            ),
-                          ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    if (_showKeyPackages) ...[
+                      Gap(24.h),
+                      Text(
+                        'settings.keyPackagesCount'.tr().replaceAll(
+                          '{count}',
+                          _keyPackages.length.toString(),
+                        ),
+                        style: TextStyle(
+                          fontSize: 16.sp,
+                          fontWeight: FontWeight.w600,
+                          color: context.colors.primary,
                         ),
                       ),
-                      if (_showKeyPackages) ...[
-                        Gap(24.h),
-                        Text(
-                          'settings.keyPackagesCount'.tr().replaceAll(
-                            '{count}',
-                            _keyPackages.length.toString(),
-                          ),
-                          style: TextStyle(
-                            fontSize: 16.sp,
-                            fontWeight: FontWeight.w600,
-                            color: context.colors.primary,
-                          ),
-                        ),
-                        Gap(12.h),
-                        if (_keyPackages.isEmpty)
-                          RepaintBoundary(
-                            child: Container(
-                              padding: EdgeInsets.all(16.w),
-                              decoration: BoxDecoration(
-                                color: context.colors.avatarSurface,
+                      Gap(12.h),
+                      if (_keyPackages.isEmpty)
+                        RepaintBoundary(
+                          child: Container(
+                            padding: EdgeInsets.all(16.w),
+                            decoration: BoxDecoration(
+                              color: context.colors.avatarSurface,
 
-                                borderRadius: BorderRadius.circular(8.r),
-                                border: Border.all(
-                                  color: context.colors.border.withValues(alpha: 0.3),
-                                  width: 0.5,
-                                ),
+                              borderRadius: BorderRadius.circular(8.r),
+                              border: Border.all(
+                                color: context.colors.border.withValues(alpha: 0.3),
+                                width: 0.5,
                               ),
-                              child: Row(
-                                children: [
-                                  WnImage(
-                                    AssetsPaths.icInformation,
-                                    size: 20.w,
+                            ),
+                            child: Row(
+                              children: [
+                                WnImage(
+                                  AssetsPaths.icInformation,
+                                  size: 20.w,
+                                  color: context.colors.mutedForeground,
+                                ),
+                                SizedBox(width: 12.w),
+                                Text(
+                                  'settings.noKeyPackagesFound'.tr(),
+                                  style: TextStyle(
+                                    fontSize: 14.sp,
                                     color: context.colors.mutedForeground,
                                   ),
-                                  SizedBox(width: 12.w),
-                                  Text(
-                                    'settings.noKeyPackagesFound'.tr(),
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      color: context.colors.mutedForeground,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                        else
-                          RepaintBoundary(
-                            child: ListView.separated(
-                              shrinkWrap: true,
-                              physics: const NeverScrollableScrollPhysics(),
-                              itemCount: _keyPackages.length,
-                              separatorBuilder: (context, index) => SizedBox(height: 8.h),
-                              itemBuilder: (context, index) {
-                                final keyPackage = _keyPackages[index];
-                                return RepaintBoundary(
-                                  child: _KeyPackageItem(
-                                    keyPackage: keyPackage,
-                                    index: index,
-                                    isLoading: _isLoading,
-                                    onDelete: () => _deleteKeyPackage(keyPackage.id, index),
-                                  ),
-                                );
-                              },
+                                ),
+                              ],
                             ),
                           ),
-                      ],
-                      Gap(24.h),
-                      RepaintBoundary(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'settings.backgroundServices'.tr(),
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                color: context.colors.primary,
-                              ),
-                            ),
-
-                            Gap(10.h),
-                            WnFilledButton(
-                              label: 'settings.backgroundSyncService'.tr(),
-                              onPressed: () => BackgroundSyncScreen.show(context),
-                            ),
-                          ],
+                        )
+                      else
+                        RepaintBoundary(
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: _keyPackages.length,
+                            separatorBuilder: (context, index) => SizedBox(height: 8.h),
+                            itemBuilder: (context, index) {
+                              final keyPackage = _keyPackages[index];
+                              return RepaintBoundary(
+                                child: _KeyPackageItem(
+                                  keyPackage: keyPackage,
+                                  index: index,
+                                  isLoading: _isLoading,
+                                  onDelete: () => _deleteKeyPackage(keyPackage.id, index),
+                                ),
+                              );
+                            },
+                          ),
                         ),
-                      ),
-                      Gap(MediaQuery.of(context).padding.bottom),
                     ],
-                  ),
+                    Gap(24.h),
+                    RepaintBoundary(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'settings.backgroundServices'.tr(),
+                            style: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              color: context.colors.primary,
+                            ),
+                          ),
+
+                          Gap(10.h),
+                          WnFilledButton(
+                            label: 'settings.backgroundSyncService'.tr(),
+                            onPressed: () => BackgroundSyncScreen.show(context),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Gap(MediaQuery.viewPaddingOf(context).bottom + 24.h),
+                  ],
                 ),
               ),
             ),
