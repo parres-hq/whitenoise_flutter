@@ -107,18 +107,13 @@ class MessageConverter {
   }
 
   static MessageModel createOptimisticMessage({
+    required String id,
     required String content,
     required String currentUserPublicKey,
     required String groupId,
     required List<MediaFile> mediaFiles,
     MessageModel? replyToMessage,
   }) {
-    final messageHash =
-        '${currentUserPublicKey}_${content}_${DateTime.now().millisecondsSinceEpoch}'.hashCode
-            .abs()
-            .toString();
-    final optimisticId = 'temporal_message_$messageHash';
-
     final currentUser = domain_user.User(
       id: currentUserPublicKey,
       displayName: 'You',
@@ -127,7 +122,7 @@ class MessageConverter {
     );
 
     return MessageModel(
-      id: optimisticId,
+      id: id,
       content: content,
       type: MessageType.text,
       createdAt: DateTime.now(),
