@@ -78,7 +78,7 @@ class BackgroundSyncService {
           /// - Background task only checks stream health and reconnects if needed
           /// - Significant battery savings: 15 wakeups/hour → 4 wakeups/hour
           /// - Instant notifications via streams instead of polling
-          eventAction: ForegroundTaskEventAction.repeat(1000),
+          eventAction: ForegroundTaskEventAction.repeat(60000),
           autoRunOnBoot: true,
           autoRunOnMyPackageReplaced: true,
           allowWifiLock: true,
