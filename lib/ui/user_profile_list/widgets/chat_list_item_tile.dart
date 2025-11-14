@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +11,7 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/pinned_chats_provider.dart';
 import 'package:whitenoise/domain/models/chat_list_item.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/domain/services/last_read_manager.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -97,6 +100,7 @@ class ChatListItemTile extends ConsumerWidget {
         final pinnedChatsNotifier = ref.watch(pinnedChatsProvider.notifier);
         final isPinned = pinnedChats.contains(group.mlsGroupId);
         final chatState = ref.watch(chatProvider);
+        final unreadCount = chatState.getUnreadCountForGroup(group.mlsGroupId);
         final hasMessages = chatState.areMessagesLoaded(group.mlsGroupId);
         final shouldShowMessageSkeleton = !hasMessages && group.lastMessageAt != null;
 
@@ -127,10 +131,20 @@ class ChatListItemTile extends ConsumerWidget {
             ],
           ),
           child: InkWell(
-            onTap: () {
+            onTap: () async {
               if (onTap != null) {
                 onTap!();
               }
+              if (item.lastMessage != null) {
+                unawaited(
+                  LastReadManager.saveLastReadImmediate(
+                    group.mlsGroupId,
+                    item.lastMessage!.createdAt,
+                  ),
+                );
+                unawaited(ref.read(chatProvider.notifier).refreshUnreadCount(group.mlsGroupId));
+              }
+              if (!context.mounted) return;
               Routes.goToChat(context, group.mlsGroupId);
             },
             child: Container(
@@ -192,8 +206,9 @@ class ChatListItemTile extends ConsumerWidget {
                                 ),
                               ),
                             if (item.lastMessage != null)
-                              const MessageReadStatus(
-                                unreadCount: 0,
+                              MessageReadStatus(
+                                lastSentMessageStatus: item.lastMessage!.status,
+                                unreadCount: unreadCount,
                               )
                             else if (shouldShowMessageSkeleton)
                               WnSkeletonContainer(
@@ -229,6 +244,7 @@ class ChatListItemTile extends ConsumerWidget {
         final pinnedChatsNotifier = ref.watch(pinnedChatsProvider.notifier);
         final isPinned = pinnedChats.contains(group.mlsGroupId);
         final chatState = ref.watch(chatProvider);
+        final unreadCount = chatState.getUnreadCountForGroup(group.mlsGroupId);
         final hasMessages = chatState.areMessagesLoaded(group.mlsGroupId);
         final shouldShowMessageSkeleton = !hasMessages && group.lastMessageAt != null;
 
@@ -259,10 +275,20 @@ class ChatListItemTile extends ConsumerWidget {
             ],
           ),
           child: InkWell(
-            onTap: () {
+            onTap: () async {
               if (onTap != null) {
                 onTap!();
               }
+              if (item.lastMessage != null) {
+                unawaited(
+                  LastReadManager.saveLastReadImmediate(
+                    group.mlsGroupId,
+                    item.lastMessage!.createdAt,
+                  ),
+                );
+                unawaited(ref.read(chatProvider.notifier).refreshUnreadCount(group.mlsGroupId));
+              }
+              if (!context.mounted) return;
               Routes.goToChat(context, group.mlsGroupId);
             },
             child: Container(
@@ -340,8 +366,9 @@ class ChatListItemTile extends ConsumerWidget {
                                   overflow: TextOverflow.ellipsis,
                                 ),
                               ),
-                              const MessageReadStatus(
-                                unreadCount: 0,
+                              MessageReadStatus(
+                                lastSentMessageStatus: item.lastMessage!.status,
+                                unreadCount: unreadCount,
                               ),
                             ],
                           ),
