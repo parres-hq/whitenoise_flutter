@@ -93,6 +93,24 @@ class ChatListItemTile extends ConsumerWidget {
     );
   }
 
+  void _handleChatTap(BuildContext context, WidgetRef ref, Group group) {
+    if (onTap != null) {
+      onTap!();
+    }
+    if (item.lastMessage != null) {
+      unawaited(
+        LastReadManager.saveLastReadImmediate(
+          group.mlsGroupId,
+          item.lastMessage!.createdAt,
+        ).then((_) {
+          ref.read(chatProvider.notifier).refreshUnreadCount(group.mlsGroupId);
+        }),
+      );
+    }
+    if (!context.mounted) return;
+    Routes.goToChat(context, group.mlsGroupId);
+  }
+
   Widget _buildChatTileLoading(BuildContext context, Group group) {
     return Consumer(
       builder: (context, ref, child) {
@@ -131,23 +149,7 @@ class ChatListItemTile extends ConsumerWidget {
             ],
           ),
           child: InkWell(
-            onTap: () async {
-              if (onTap != null) {
-                onTap!();
-              }
-              if (item.lastMessage != null) {
-                unawaited(
-                  LastReadManager.saveLastReadImmediate(
-                    group.mlsGroupId,
-                    item.lastMessage!.createdAt,
-                  ).then((_) {
-                    ref.read(chatProvider.notifier).refreshUnreadCount(group.mlsGroupId);
-                  }),
-                );
-              }
-              if (!context.mounted) return;
-              Routes.goToChat(context, group.mlsGroupId);
-            },
+            onTap: () => _handleChatTap(context, ref, group),
             child: Container(
               padding: EdgeInsets.only(left: 8.w, right: 16.w, top: 12.h, bottom: 12.h),
               child: Row(
@@ -276,23 +278,7 @@ class ChatListItemTile extends ConsumerWidget {
             ],
           ),
           child: InkWell(
-            onTap: () async {
-              if (onTap != null) {
-                onTap!();
-              }
-              if (item.lastMessage != null) {
-                unawaited(
-                  LastReadManager.saveLastReadImmediate(
-                    group.mlsGroupId,
-                    item.lastMessage!.createdAt,
-                  ).then((_) {
-                    ref.read(chatProvider.notifier).refreshUnreadCount(group.mlsGroupId);
-                  }),
-                );
-              }
-              if (!context.mounted) return;
-              Routes.goToChat(context, group.mlsGroupId);
-            },
+            onTap: () => _handleChatTap(context, ref, group),
             child: Container(
               padding: EdgeInsets.only(left: 8.w, right: 16.w, top: 12.h, bottom: 12.h),
               child: Row(
