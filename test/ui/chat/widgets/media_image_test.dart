@@ -55,11 +55,7 @@ void main() {
       group('when file path does not exist', () {
         testWidgets('shows blurhash placeholder', (WidgetTester tester) async {
           await tester.pumpWidget(
-            createTestWidget(
-              MediaImage(
-                mediaFile: mediaFile,
-              ),
-            ),
+            createTestWidget(MediaImage(mediaFile: mediaFile)),
           );
           expect(find.byType(BlurhashPlaceholder), findsOneWidget);
           final placeholder = tester.widget<BlurhashPlaceholder>(find.byType(BlurhashPlaceholder));
@@ -75,11 +71,7 @@ void main() {
           );
 
           await tester.pumpWidget(
-            createTestWidget(
-              MediaImage(
-                mediaFile: mediaFile,
-              ),
-            ),
+            createTestWidget(MediaImage(mediaFile: mediaFile)),
           );
 
           expect(find.byType(Image), findsNothing);
@@ -109,11 +101,7 @@ void main() {
           );
 
           await tester.pumpWidget(
-            createTestWidget(
-              MediaImage(
-                mediaFile: mediaFile,
-              ),
-            ),
+            createTestWidget(MediaImage(mediaFile: mediaFile)),
           );
 
           expect(find.byType(BlurhashPlaceholder), findsOneWidget);
@@ -128,11 +116,7 @@ void main() {
             );
 
             await tester.pumpWidget(
-              createTestWidget(
-                MediaImage(
-                  mediaFile: mediaFile,
-                ),
-              ),
+              createTestWidget(MediaImage(mediaFile: mediaFile)),
             );
 
             expect(find.byType(BlurhashPlaceholder), findsOneWidget);
@@ -151,11 +135,7 @@ void main() {
             );
 
             await tester.pumpWidget(
-              createTestWidget(
-                MediaImage(
-                  mediaFile: mediaFile,
-                ),
-              ),
+              createTestWidget(MediaImage(mediaFile: mediaFile)),
             );
 
             expect(find.byType(BlurhashPlaceholder), findsOneWidget);
@@ -195,9 +175,7 @@ void main() {
                 () => TestMediaFileDownloadsNotifier(testState),
               ),
             ],
-            child: createTestWidget(
-              MediaImage(mediaFile: mediaFile),
-            ),
+            child: createTestWidget(MediaImage(mediaFile: mediaFile)),
           ),
         );
 
@@ -233,9 +211,7 @@ void main() {
                 () => TestMediaFileDownloadsNotifier(testState),
               ),
             ],
-            child: createTestWidget(
-              MediaImage(mediaFile: mediaFile),
-            ),
+            child: createTestWidget(MediaImage(mediaFile: mediaFile)),
           ),
         );
 
@@ -271,9 +247,7 @@ void main() {
                 () => TestMediaFileDownloadsNotifier(testState),
               ),
             ],
-            child: createTestWidget(
-              MediaImage(mediaFile: mediaFile),
-            ),
+            child: createTestWidget(MediaImage(mediaFile: mediaFile)),
           ),
         );
 
@@ -285,11 +259,18 @@ void main() {
     group('when file is downloaded', () {
       late Directory tempDir;
       late File validImageFile;
+      late MediaFile mediaFile;
 
       setUp(() {
         tempDir = Directory.systemTemp.createTempSync('test_media_viewer_');
         validImageFile = File('${tempDir.path}/test_image.jpg');
         validImageFile.writeAsBytesSync([0xFF, 0xD8, 0xFF]);
+        mediaFile = createTestMediaFile(
+          filePath: validImageFile.path,
+          fileMetadata: const FileMetadata(
+            blurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
+          ),
+        );
       });
 
       tearDown(() {
@@ -297,40 +278,109 @@ void main() {
       });
 
       testWidgets('renders image', (WidgetTester tester) async {
-        final mediaFile = createTestMediaFile(
-          filePath: validImageFile.path,
-          fileMetadata: const FileMetadata(
-            blurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
-          ),
-        );
-
         await tester.pumpWidget(
           createTestWidget(
-            MediaImage(
-              mediaFile: mediaFile,
-            ),
+            MediaImage(mediaFile: mediaFile),
           ),
         );
         expect(find.byType(Image), findsOneWidget);
       });
 
       testWidgets('does not show blurhash placeholder', (WidgetTester tester) async {
-        final mediaFile = createTestMediaFile(
-          filePath: validImageFile.path,
-          fileMetadata: const FileMetadata(
-            blurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
-          ),
-        );
-
         await tester.pumpWidget(
           createTestWidget(
-            MediaImage(
-              mediaFile: mediaFile,
-            ),
+            MediaImage(mediaFile: mediaFile),
           ),
         );
 
         expect(find.byType(BlurhashPlaceholder), findsNothing);
+      });
+
+      group('when zoom is enabled', () {
+        doubleTapInteractiveViewer(WidgetTester tester) async {
+          final interactiveViewer = find.byType(InteractiveViewer);
+          await tester.tap(interactiveViewer);
+          await tester.pump(const Duration(milliseconds: 50));
+          await tester.tap(interactiveViewer);
+          await tester.pumpAndSettle();
+        }
+
+        testWidgets('renders InteractiveViewer', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            createTestWidget(
+              MediaImage(mediaFile: mediaFile),
+            ),
+          );
+
+          expect(find.byType(InteractiveViewer), findsOneWidget);
+        });
+
+        testWidgets('renders image', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            createTestWidget(MediaImage(mediaFile: mediaFile)),
+          );
+          expect(find.byType(Image), findsOneWidget);
+        });
+
+        testWidgets('has minScale of 1.0', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            createTestWidget(
+              MediaImage(mediaFile: mediaFile),
+            ),
+          );
+
+          final interactiveViewer = tester.widget<InteractiveViewer>(
+            find.byType(InteractiveViewer),
+          );
+
+          expect(interactiveViewer.minScale, 1.0);
+        });
+
+        testWidgets('has maxScale of 4.0', (WidgetTester tester) async {
+          await tester.pumpWidget(
+            createTestWidget(
+              MediaImage(mediaFile: mediaFile),
+            ),
+          );
+
+          final interactiveViewer = tester.widget<InteractiveViewer>(
+            find.byType(InteractiveViewer),
+          );
+
+          expect(interactiveViewer.maxScale, 4.0);
+        });
+
+        testWidgets('zooms in on first double tap', (WidgetTester tester) async {
+          bool? zoomState;
+
+          await tester.pumpWidget(
+            createTestWidget(
+              MediaImage(
+                mediaFile: mediaFile,
+                onZoomChanged: (isZoomed) => zoomState = isZoomed,
+              ),
+            ),
+          );
+
+          await doubleTapInteractiveViewer(tester);
+          expect(zoomState, isTrue);
+        });
+
+        testWidgets('zooms out on second double tap', (WidgetTester tester) async {
+          bool? zoomState;
+
+          await tester.pumpWidget(
+            createTestWidget(
+              MediaImage(
+                mediaFile: mediaFile,
+                onZoomChanged: (isZoomed) => zoomState = isZoomed,
+              ),
+            ),
+          );
+          await doubleTapInteractiveViewer(tester);
+          await doubleTapInteractiveViewer(tester);
+          expect(zoomState, isFalse);
+        });
       });
     });
   });
