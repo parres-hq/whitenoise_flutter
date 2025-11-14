@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/chat_input_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
@@ -68,6 +69,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
         ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
+        _preloadMemberColors();
       }
     });
 
@@ -106,6 +108,23 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
         _logger.warning('Failed to clear notifications for chat ${widget.groupId}', e);
       }
     });
+  }
+
+  /// Preload avatar colors for all group members
+  void _preloadMemberColors() {
+    try {
+      final groupsState = ref.read(groupsProvider);
+      final members = groupsState.groupMembers?[widget.groupId];
+
+      if (members != null && members.isNotEmpty) {
+        final pubkeys = members.map((m) => m.publicKey).where((p) => p.isNotEmpty).toList();
+        if (pubkeys.isNotEmpty) {
+          ref.read(avatarColorProvider.notifier).preloadColors(pubkeys);
+        }
+      }
+    } catch (e, stack) {
+      _logger.warning('Failed to preload member colors: $e', e, stack);
+    }
   }
 
   /// Check if the user is effectively at the bottom of the chat

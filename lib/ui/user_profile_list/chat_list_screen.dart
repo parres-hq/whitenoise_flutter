@@ -8,6 +8,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/delayed_relay_error_provider.dart';
 import 'package:whitenoise/config/providers/filtered_chat_items_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -18,6 +20,7 @@ import 'package:whitenoise/config/providers/welcomes_provider.dart';
 import 'package:whitenoise/domain/services/background_sync_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
@@ -146,6 +149,58 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
       ref.read(welcomesProvider.notifier).loadWelcomes(),
       ref.read(groupsProvider.notifier).loadGroups(),
     ]);
+
+    // Preload avatar colors for all chats after groups are loaded
+    _preloadAvatarColors();
+  }
+
+  /// Preload avatar colors for all visible chats
+  /// For DMs, uses the other user's pubkey; for group chats, uses the group's nostrGroupId
+  void _preloadAvatarColors() {
+    try {
+      final groupsState = ref.read(groupsProvider);
+      final groups = groupsState.groups ?? [];
+      final List<String> pubkeysToPreload = [];
+
+      // Add active account's pubkey first
+      final activePubkey = ref.read(activePubkeyProvider);
+      if (activePubkey != null && activePubkey.isNotEmpty) {
+        pubkeysToPreload.add(activePubkey);
+      }
+
+      for (final group in groups) {
+        final groupType = groupsState.groupTypes?[group.mlsGroupId];
+
+        if (groupType == GroupType.directMessage) {
+          // For DMs, get the other user's pubkey from members
+          final members = groupsState.groupMembers?[group.mlsGroupId];
+          if (members != null && members.isNotEmpty) {
+            // Find the member that's not the current user
+            final activePubkey = ref.read(activePubkeyProvider);
+            final otherMember = members.firstWhere(
+              (m) => m.publicKey != activePubkey,
+              orElse: () => members.first,
+            );
+            if (otherMember.publicKey.isNotEmpty) {
+              pubkeysToPreload.add(otherMember.publicKey);
+            }
+          }
+        } else {
+          // For group chats, use the group's nostrGroupId
+          if (group.nostrGroupId.isNotEmpty) {
+            pubkeysToPreload.add(group.nostrGroupId);
+          }
+        }
+      }
+
+      if (pubkeysToPreload.isNotEmpty) {
+        ref.read(avatarColorProvider.notifier).preloadColors(pubkeysToPreload).catchError((e) {
+          _log.warning('Failed to preload avatar colors: $e');
+        });
+      }
+    } catch (e) {
+      _log.warning('Error preloading avatar colors: $e');
+    }
   }
 
   void _onScroll() {

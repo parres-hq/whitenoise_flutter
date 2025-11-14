@@ -60,6 +60,7 @@ class UserProfileTile extends StatelessWidget {
             WnAvatar(
               imageUrl: userProfileImagePath,
               displayName: userProfile.displayName,
+              pubkey: userProfile.publicKey,
               size: 56.w,
               showBorder: userProfileImagePath.isEmpty,
             ),

@@ -180,6 +180,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             displayName: groupDetails?.name ?? 'chats.unknownGroup'.tr(),
             size: 96.w,
             showBorder: true,
+            pubkey: groupDetails?.nostrGroupId,
           ),
           SizedBox(height: 8.h),
           Text(
@@ -300,6 +301,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
         displayName: member.displayName,
         size: 40.w,
         showBorder: true,
+        pubkey: member.publicKey,
       ),
       title: Text(
         isCurrentUser

@@ -4,6 +4,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/create_group_provider.dart';
 import 'package:whitenoise/config/states/create_group_state.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
@@ -53,12 +54,15 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
 class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> with SafeToastMixin {
   final TextEditingController _groupNameController = TextEditingController();
   final TextEditingController _groupDescriptionController = TextEditingController();
+  Color? _previewColor;
 
   @override
   void initState() {
     super.initState();
     _groupNameController.addListener(_onGroupNameChanged);
     _groupDescriptionController.addListener(_onGroupDescriptionChanged);
+    _previewColor = ref.read(avatarColorProvider.notifier).generateRandomColor();
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
           .read(createGroupProvider.notifier)
@@ -78,10 +82,21 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
     await ref.read(createGroupProvider.notifier).pickGroupImage();
   }
 
-  void _onGroupCreated(Group? group) {
+  void _onGroupCreated(Group? group) async {
     if (group != null && mounted) {
+      final previewColor = _previewColor;
+      if (previewColor != null) {
+        await ref
+            .read(avatarColorProvider.notifier)
+            .setColorDirectly(
+              group.nostrGroupId,
+              previewColor,
+            );
+      }
       widget.onGroupCreated?.call(group);
-      context.pop();
+      if (mounted) {
+        context.pop();
+      }
     }
   }
 
@@ -155,6 +170,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                       displayName: displayName,
                       size: 96.w,
                       showBorder: true,
+                      color: _previewColor,
                     );
                   },
                 ),
@@ -251,6 +267,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                               displayName: userProfile.displayName,
                               size: 30.w,
                               showBorder: true,
+                              pubkey: userProfile.publicKey,
                             ),
                             Gap(8.w),
                             SizedBox(

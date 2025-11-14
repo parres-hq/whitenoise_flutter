@@ -68,6 +68,8 @@ class DMChatInfo extends ConsumerWidget {
               imageUrl: otherMember?.imagePath ?? '',
               displayName: otherMember?.displayName ?? 'chats.unknown'.tr(),
               size: 96.w,
+              pubkey: otherMember?.publicKey,
+              showBorder: true,
             ),
             SizedBox(height: 16.h),
             Text(

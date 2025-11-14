@@ -1,36 +1,54 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:whitenoise/config/providers/avatar_color_provider.dart';
+import 'package:whitenoise/domain/services/avatar_color_service.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
-class WnAvatar extends StatelessWidget {
+/// [color] is optional and is used to override the color of the avatar
+/// for cases where the pubkey to generate/find color in color cache isn't available yet.
+class WnAvatar extends ConsumerWidget {
   const WnAvatar({
     super.key,
     required this.imageUrl,
     this.size = 20,
-    this.backgroundColor,
-    this.borderColor,
     this.showBorder = false,
     this.displayName,
+    this.pubkey,
+    this.color,
   });
   final String imageUrl;
   final double size;
-  final Color? backgroundColor;
-  final Color? borderColor;
   final bool showBorder;
   final String? displayName;
+  final String? pubkey;
+  final Color? color;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final Color? themeColor;
+    if (color != null) {
+      themeColor = color;
+    } else {
+      final cacheKey =
+          pubkey != null && pubkey!.isNotEmpty ? AvatarColorService.toCacheKey(pubkey!) : null;
+      themeColor = cacheKey != null ? ref.watch(avatarColorProvider)[cacheKey] : null;
+
+      if (themeColor == null && pubkey != null && pubkey!.isNotEmpty) {
+        Future.microtask(() => ref.read(avatarColorProvider.notifier).getColor(pubkey!));
+      }
+    }
+
     // Use a single ClipOval with decoration instead of Container + ClipOval
     return Container(
       width: size,
       height: size,
       decoration:
-          showBorder
+          showBorder && imageUrl.isEmpty
               ? BoxDecoration(
                 border: Border.all(
-                  color: borderColor ?? context.colors.border,
+                  color: themeColor?.withValues(alpha: 0.5) ?? context.colors.border,
                   width: 1.w,
                 ),
                 shape: BoxShape.circle,
@@ -40,7 +58,7 @@ class WnAvatar extends StatelessWidget {
         child: Container(
           width: size,
           height: size,
-          color: backgroundColor ?? context.colors.avatarSurface,
+          color: themeColor?.withValues(alpha: 0.2) ?? context.colors.avatarSurface,
           child: WnImage(
             imageUrl,
             size: size,
@@ -49,6 +67,7 @@ class WnAvatar extends StatelessWidget {
                 (context) => FallbackAvatar(
                   displayName: displayName,
                   size: size,
+                  textColor: themeColor ?? context.colors.primary,
                 ),
           ),
         ),
@@ -62,10 +81,12 @@ class FallbackAvatar extends StatelessWidget {
     super.key,
     required this.displayName,
     required this.size,
+    this.textColor,
   });
 
   final String? displayName;
   final double size;
+  final Color? textColor;
 
   @override
   Widget build(BuildContext context) {
@@ -77,7 +98,7 @@ class FallbackAvatar extends StatelessWidget {
           style: TextStyle(
             fontSize: size * 0.4,
             fontWeight: FontWeight.bold,
-            color: context.colors.primary,
+            color: textColor,
           ),
         ),
       );
@@ -91,7 +112,7 @@ class FallbackAvatar extends StatelessWidget {
           AssetsPaths.icUser,
           width: size * 0.4,
           height: size * 0.4,
-          color: context.colors.primary,
+          color: textColor,
         ),
       ),
     );

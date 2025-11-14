@@ -1,7 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:gap/gap.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/providers/pinned_chats_provider.dart';
@@ -17,6 +19,7 @@ import 'package:whitenoise/ui/core/ui/wn_skeleton_container.dart';
 import 'package:whitenoise/ui/user_profile_list/widgets/message_read_status.dart';
 import 'package:whitenoise/ui/user_profile_list/widgets/welcome_tile.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/utils/timeago_formatter.dart';
 
@@ -57,7 +60,34 @@ class ChatListItemTile extends ConsumerWidget {
       return _buildChatTileLoading(context, group);
     }
 
-    return _buildChatTileContent(context, watchedDisplayName, watchedGroupImagePath, group);
+    final groupType = ref.watch(
+      groupsProvider.select((s) => s.groupTypes?[group.mlsGroupId]),
+    );
+
+    final String? avatarPubkey;
+    if (groupType == GroupType.directMessage) {
+      final members = ref.watch(
+        groupsProvider.select((s) => s.groupMembers?[group.mlsGroupId]),
+      );
+      final activePubkey = ref.watch(activePubkeyProvider);
+      final activePubkeyNpub =
+          activePubkey != null ? PubkeyFormatter(pubkey: activePubkey).toNpub() : null;
+
+      final otherMember = members?.firstWhereOrNull(
+        (m) => m.publicKey != activePubkeyNpub,
+      );
+      avatarPubkey = otherMember?.publicKey;
+    } else {
+      avatarPubkey = group.nostrGroupId;
+    }
+
+    return _buildChatTileContent(
+      context,
+      watchedDisplayName,
+      watchedGroupImagePath,
+      group,
+      avatarPubkey,
+    );
   }
 
   Widget _buildChatTileLoading(BuildContext context, Group group) {
@@ -190,6 +220,7 @@ class ChatListItemTile extends ConsumerWidget {
     String displayName,
     String? displayImage,
     Group group,
+    String? pubkey,
   ) {
     final displayImageUrl = displayImage ?? '';
     return Consumer(
@@ -243,6 +274,7 @@ class ChatListItemTile extends ConsumerWidget {
                     displayName: displayName,
                     size: 56.r,
                     showBorder: displayImageUrl.isEmpty,
+                    pubkey: pubkey,
                   ),
                   Gap(8.w),
                   Expanded(
