@@ -288,7 +288,7 @@ void main() {
         final cacheKey2 = AvatarColorService.toCacheKey(pubkey);
         
         expect(cacheKey1, cacheKey2);
-        expect(cacheKey1, equals('npub1test123'));
+        expect(cacheKey1, equals('npub1test123456789abcdef'));
       });
 
       test('generates cache key from hex pubkey', () {
@@ -296,7 +296,7 @@ void main() {
         final cacheKey = AvatarColorService.toCacheKey(hexPubkey);
         
         expect(cacheKey, isNotEmpty);
-        expect(cacheKey.length, equals(12));
+        expect(cacheKey.length, equals(64)); // Full npub length
       });
 
       test('generates cache key consistently for same input', () {
@@ -306,7 +306,7 @@ void main() {
         final cacheKey2 = AvatarColorService.toCacheKey(npubPubkey);
         
         expect(cacheKey1, cacheKey2);
-        expect(cacheKey1, equals('npub180cvv07'));
+        expect(cacheKey1, equals('npub180cvv07tjdrqgzl0j7j4au0y72qcxg8aewunz3ewyv56jth72fwqer0t3s'));
       });
     });
 
