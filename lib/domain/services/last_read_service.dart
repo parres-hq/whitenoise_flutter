@@ -2,9 +2,14 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LastReadService {
-  static final Future<SharedPreferences> _preferences = SharedPreferences.getInstance();
+  static SharedPreferences? _prefs;
   static const String _lastReadPrefix = 'last_read_';
   static final _logger = Logger('LastReadService');
+
+  static Future<SharedPreferences> get _preferences async {
+    _prefs ??= await SharedPreferences.getInstance();
+    return _prefs!;
+  }
 
   static Future<void> setLastRead({
     required String groupId,
