@@ -27,9 +27,8 @@ class AvatarColorService {
     const Color(0xFF78350f), // Amber Foreground
   ];
 
-  /// Generate a consistent cache key from pubkey (first 12 chars of npub)
+  /// Uses full npub as cache key to avoid collision risk
   /// Handles both hex and npub format inputs
-  /// Returns a shortened identifier, not a valid pubkey
   static String toCacheKey(String pubkey) {
     final trimmed = pubkey.trim().toLowerCase();
     if (trimmed.isEmpty) {
@@ -38,16 +37,16 @@ class AvatarColorService {
     }
 
     if (trimmed.startsWith('npub1')) {
-      return trimmed.length >= 12 ? trimmed.substring(0, 12) : trimmed;
+      return trimmed;
     }
 
     final npub = PubkeyFormatter(pubkey: trimmed).toNpub();
     if (npub == null) {
       _logger.warning('Failed to convert pubkey to npub, using hex fallback');
-      return trimmed.length >= 12 ? trimmed.substring(0, 12) : trimmed;
+      return trimmed;
     }
 
-    return npub.length >= 12 ? npub.substring(0, 12) : npub;
+    return npub;
   }
 
   /// Load all colors from SharedPreferences
