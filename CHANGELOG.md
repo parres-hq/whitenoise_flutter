@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added automatic notification clearing when entering chat - notifications for messages and invites now automatically disappear when viewing the related chat [#803](https://github.com/parres-hq/whitenoise_flutter/issues/803)
 - Added unread counts for DMs and groups [[#806](https://github.com/parres-hq/whitenoise_flutter/issues/806)]
+- Added zoom for images in chat [#834](https://github.com/parres-hq/whitenoise_flutter/pull/834)
 
 ### Changed
 ### Deprecated
