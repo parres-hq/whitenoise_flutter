@@ -140,9 +140,10 @@ class ChatListItemTile extends ConsumerWidget {
                   LastReadManager.saveLastReadImmediate(
                     group.mlsGroupId,
                     item.lastMessage!.createdAt,
-                  ),
+                  ).then((_) {
+                    ref.read(chatProvider.notifier).refreshUnreadCount(group.mlsGroupId);
+                  }),
                 );
-                unawaited(ref.read(chatProvider.notifier).refreshUnreadCount(group.mlsGroupId));
               }
               if (!context.mounted) return;
               Routes.goToChat(context, group.mlsGroupId);
@@ -284,9 +285,10 @@ class ChatListItemTile extends ConsumerWidget {
                   LastReadManager.saveLastReadImmediate(
                     group.mlsGroupId,
                     item.lastMessage!.createdAt,
-                  ),
+                  ).then((_) {
+                    ref.read(chatProvider.notifier).refreshUnreadCount(group.mlsGroupId);
+                  }),
                 );
-                unawaited(ref.read(chatProvider.notifier).refreshUnreadCount(group.mlsGroupId));
               }
               if (!context.mounted) return;
               Routes.goToChat(context, group.mlsGroupId);
