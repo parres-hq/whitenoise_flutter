@@ -11,6 +11,7 @@ import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/services/last_read_manager.dart';
+import 'package:whitenoise/domain/services/last_read_service.dart';
 import 'package:whitenoise/domain/services/message_merger_service.dart';
 import 'package:whitenoise/domain/services/message_sender_service.dart';
 import 'package:whitenoise/domain/services/reaction_comparison_service.dart';
@@ -98,6 +99,7 @@ class ChatNotifier extends Notifier<ChatState> {
           groupId: false,
         },
       );
+      await refreshUnreadCount(groupId);
     } catch (e, st) {
       _logger.severe('ChatProvider.loadMessagesForGroup', e, st);
       state = state.copyWith(
@@ -179,6 +181,7 @@ class ChatNotifier extends Notifier<ChatState> {
         final latestMessage = messagesForLastRead.last;
         LastReadManager.saveLastReadImmediate(groupId, latestMessage.createdAt);
       }
+      await refreshUnreadCount(groupId);
 
       _logger.info('ChatProvider: Message sent successfully to group $groupId');
       onMessageSent?.call();
@@ -286,6 +289,7 @@ class ChatNotifier extends Notifier<ChatState> {
 
         // Update group order when messages are updated
         _updateGroupOrderForNewMessage(groupId);
+        await refreshUnreadCount(groupId);
       }
     } catch (e, st) {
       _logger.severe('ChatProvider.checkForNewMessages', e, st);
@@ -346,6 +350,40 @@ class ChatNotifier extends Notifier<ChatState> {
   /// Get unread message count for a group
   int getUnreadCountForGroup(String groupId) {
     return state.getUnreadCountForGroup(groupId);
+  }
+
+  Future<void> refreshUnreadCount(String groupId) async {
+    try {
+      final activePubkey = ref.read(activePubkeyProvider) ?? '';
+      if (activePubkey.isEmpty) {
+        return;
+      }
+
+      final lastRead = await LastReadService.getLastRead(
+        groupId: groupId,
+        activePubkey: activePubkey,
+      );
+
+      final messages = state.groupMessages[groupId] ?? [];
+      final baseline = lastRead ?? DateTime.fromMillisecondsSinceEpoch(0);
+      final unread = messages.where((m) => !m.isMe && m.createdAt.isAfter(baseline)).length;
+
+      state = state.copyWith(
+        unreadCounts: {
+          ...state.unreadCounts,
+          groupId: unread,
+        },
+      );
+    } catch (e, st) {
+      _logger.warning('Failed to refresh unread count for $groupId', e, st);
+    }
+  }
+
+  Future<void> refreshAllUnreadCounts() async {
+    final groupIds = state.groupMessages.keys.toList();
+    for (final groupId in groupIds) {
+      await refreshUnreadCount(groupId);
+    }
   }
 
   /// Get the message being replied to for a group

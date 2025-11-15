@@ -218,10 +218,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
         currentMessages.length > previousMessages.length &&
         currentMessages.last.id != previousMessages.last.id) {
       _scrollToBottom();
-      // Save last read only if user is already at bottom
-      if (_isAtBottom()) {
-        _saveLastReadForCurrentMessages();
-      }
+      _saveLastReadForCurrentMessages();
     }
   }
 
@@ -232,6 +229,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     );
     if (messages.isNotEmpty) {
       LastReadManager.saveLastReadForLatestMessage(widget.groupId, messages);
+      ref.read(chatProvider.notifier).refreshUnreadCount(widget.groupId);
     }
   }
 

@@ -19,6 +19,8 @@ final _privateConstructorUsedError = UnsupportedError(
 mixin _$ChatState {
   // Map of groupId -> list of messages
   Map<String, List<MessageModel>> get groupMessages =>
+      throw _privateConstructorUsedError; // Map of groupId -> unread message count
+  Map<String, int> get unreadCounts =>
       throw _privateConstructorUsedError; // Currently selected group ID
   String? get selectedGroupId => throw _privateConstructorUsedError; // Loading states per group
   Map<String, bool> get groupLoadingStates =>
@@ -46,6 +48,7 @@ abstract class $ChatStateCopyWith<$Res> {
   @useResult
   $Res call({
     Map<String, List<MessageModel>> groupMessages,
+    Map<String, int> unreadCounts,
     String? selectedGroupId,
     Map<String, bool> groupLoadingStates,
     Map<String, String?> groupErrorStates,
@@ -72,6 +75,7 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStat
   @override
   $Res call({
     Object? groupMessages = null,
+    Object? unreadCounts = null,
     Object? selectedGroupId = freezed,
     Object? groupLoadingStates = null,
     Object? groupErrorStates = null,
@@ -88,6 +92,11 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStat
                     ? _value.groupMessages
                     : groupMessages // ignore: cast_nullable_to_non_nullable
                         as Map<String, List<MessageModel>>,
+            unreadCounts:
+                null == unreadCounts
+                    ? _value.unreadCounts
+                    : unreadCounts // ignore: cast_nullable_to_non_nullable
+                        as Map<String, int>,
             selectedGroupId:
                 freezed == selectedGroupId
                     ? _value.selectedGroupId
@@ -144,6 +153,7 @@ abstract class _$$ChatStateImplCopyWith<$Res> implements $ChatStateCopyWith<$Res
   @useResult
   $Res call({
     Map<String, List<MessageModel>> groupMessages,
+    Map<String, int> unreadCounts,
     String? selectedGroupId,
     Map<String, bool> groupLoadingStates,
     Map<String, String?> groupErrorStates,
@@ -169,6 +179,7 @@ class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, 
   @override
   $Res call({
     Object? groupMessages = null,
+    Object? unreadCounts = null,
     Object? selectedGroupId = freezed,
     Object? groupLoadingStates = null,
     Object? groupErrorStates = null,
@@ -185,6 +196,11 @@ class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, 
                 ? _value._groupMessages
                 : groupMessages // ignore: cast_nullable_to_non_nullable
                     as Map<String, List<MessageModel>>,
+        unreadCounts:
+            null == unreadCounts
+                ? _value._unreadCounts
+                : unreadCounts // ignore: cast_nullable_to_non_nullable
+                    as Map<String, int>,
         selectedGroupId:
             freezed == selectedGroupId
                 ? _value.selectedGroupId
@@ -235,6 +251,7 @@ class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, 
 class _$ChatStateImpl extends _ChatState {
   const _$ChatStateImpl({
     final Map<String, List<MessageModel>> groupMessages = const {},
+    final Map<String, int> unreadCounts = const {},
     this.selectedGroupId,
     final Map<String, bool> groupLoadingStates = const {},
     final Map<String, String?> groupErrorStates = const {},
@@ -244,6 +261,7 @@ class _$ChatStateImpl extends _ChatState {
     final Map<String, MessageModel?> replyingTo = const {},
     final Map<String, MessageModel?> editingMessage = const {},
   }) : _groupMessages = groupMessages,
+       _unreadCounts = unreadCounts,
        _groupLoadingStates = groupLoadingStates,
        _groupErrorStates = groupErrorStates,
        _sendingStates = sendingStates,
@@ -260,6 +278,17 @@ class _$ChatStateImpl extends _ChatState {
     if (_groupMessages is EqualUnmodifiableMapView) return _groupMessages;
     // ignore: implicit_dynamic_type
     return EqualUnmodifiableMapView(_groupMessages);
+  }
+
+  // Map of groupId -> unread message count
+  final Map<String, int> _unreadCounts;
+  // Map of groupId -> unread message count
+  @override
+  @JsonKey()
+  Map<String, int> get unreadCounts {
+    if (_unreadCounts is EqualUnmodifiableMapView) return _unreadCounts;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_unreadCounts);
   }
 
   // Currently selected group ID
@@ -336,6 +365,10 @@ class _$ChatStateImpl extends _ChatState {
               other._groupMessages,
               _groupMessages,
             ) &&
+            const DeepCollectionEquality().equals(
+              other._unreadCounts,
+              _unreadCounts,
+            ) &&
             (identical(other.selectedGroupId, selectedGroupId) ||
                 other.selectedGroupId == selectedGroupId) &&
             const DeepCollectionEquality().equals(
@@ -366,6 +399,7 @@ class _$ChatStateImpl extends _ChatState {
   int get hashCode => Object.hash(
     runtimeType,
     const DeepCollectionEquality().hash(_groupMessages),
+    const DeepCollectionEquality().hash(_unreadCounts),
     selectedGroupId,
     const DeepCollectionEquality().hash(_groupLoadingStates),
     const DeepCollectionEquality().hash(_groupErrorStates),
@@ -388,6 +422,7 @@ class _$ChatStateImpl extends _ChatState {
 abstract class _ChatState extends ChatState {
   const factory _ChatState({
     final Map<String, List<MessageModel>> groupMessages,
+    final Map<String, int> unreadCounts,
     final String? selectedGroupId,
     final Map<String, bool> groupLoadingStates,
     final Map<String, String?> groupErrorStates,
@@ -401,7 +436,9 @@ abstract class _ChatState extends ChatState {
 
   // Map of groupId -> list of messages
   @override
-  Map<String, List<MessageModel>> get groupMessages; // Currently selected group ID
+  Map<String, List<MessageModel>> get groupMessages; // Map of groupId -> unread message count
+  @override
+  Map<String, int> get unreadCounts; // Currently selected group ID
   @override
   String? get selectedGroupId; // Loading states per group
   @override

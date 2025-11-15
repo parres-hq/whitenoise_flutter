@@ -8,6 +8,8 @@ class ChatState with _$ChatState {
   const factory ChatState({
     // Map of groupId -> list of messages
     @Default({}) Map<String, List<MessageModel>> groupMessages,
+    // Map of groupId -> unread message count
+    @Default({}) Map<String, int> unreadCounts,
     // Currently selected group ID
     String? selectedGroupId,
     // Loading states per group
@@ -52,8 +54,7 @@ class ChatState with _$ChatState {
 
   /// Get unread message count for a group (placeholder - would need read status tracking)
   int getUnreadCountForGroup(String groupId) {
-    // TODO: Implement read status tracking
-    return 0;
+    return unreadCounts[groupId] ?? 0;
   }
 
   /// Get the message being replied to for a group
