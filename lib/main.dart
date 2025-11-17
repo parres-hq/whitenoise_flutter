@@ -9,6 +9,7 @@ import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/localization_provider.dart';
 import 'package:whitenoise/config/providers/theme_provider.dart';
 import 'package:whitenoise/domain/services/background_sync_service.dart';
+import 'package:whitenoise/domain/services/displayed_chat_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/routing/router_provider.dart';
 import 'package:whitenoise/services/localization_service.dart';
@@ -54,6 +55,7 @@ Future<void> main() async {
     await NotificationService.initialize();
     await BackgroundSyncService.initialize();
     await BackgroundSyncService.registerMetadataSyncTask();
+    await DisplayedChatService.clearDisplayedChat();
   } catch (e) {
     log.severe('Initialization failed: $e');
   }

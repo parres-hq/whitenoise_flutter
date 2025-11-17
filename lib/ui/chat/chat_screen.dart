@@ -13,6 +13,7 @@ import 'package:whitenoise/config/providers/chat_search_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
+import 'package:whitenoise/domain/services/displayed_chat_service.dart';
 import 'package:whitenoise/domain/services/last_read_manager.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -65,7 +66,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     // Add scroll listener for last read saving
     _scrollController.addListener(_onScroll);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await DisplayedChatService.registerDisplayedChat(widget.groupId);
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
         ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
@@ -83,6 +85,9 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   void didUpdateWidget(ChatScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.groupId != widget.groupId) {
+      // Unregister old chat and register new one
+      DisplayedChatService.unregisterDisplayedChat(oldWidget.groupId);
+      DisplayedChatService.registerDisplayedChat(widget.groupId);
       _hasInitialScrollCompleted = false; // Reset for new chat
       _hasScheduledInitialScroll = false; // Reset scheduling flag
     }
@@ -95,6 +100,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     // Cancel pending last read saves for this group
+    DisplayedChatService.unregisterDisplayedChat(widget.groupId);
     LastReadManager.cancelPendingSaves(widget.groupId);
     super.dispose();
   }
@@ -155,6 +161,20 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   }
 
   /// Handle keyboard visibility changes
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.detached) {
+      DisplayedChatService.clearDisplayedChat();
+      _logger.info('App lifecycle changed to $state, cleared displayed chat');
+    } else if (state == AppLifecycleState.resumed) {
+      DisplayedChatService.registerDisplayedChat(widget.groupId);
+      _logger.info('App resumed, registered displayed chat: ${widget.groupId}');
+    }
+  }
+
   @override
   void didChangeMetrics() {
     super.didChangeMetrics();
