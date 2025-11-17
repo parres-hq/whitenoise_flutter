@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 
 class NotificationService {
   static final _logger = Logger('NotificationService');
   static final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   static bool _isInitialized = false;
+  static GoRouter? _router;
 
   static Future<void> initialize({FlutterLocalNotificationsPlugin? plugin}) async {
     final notificationPlugin = plugin ?? _flutterLocalNotificationsPlugin;
@@ -83,6 +85,43 @@ class NotificationService {
 
   static void _onDidReceiveNotificationResponse(NotificationResponse response) {
     _logger.info('Notification tapped: ${response.payload}');
+
+    if (response.payload == null || response.payload!.isEmpty) {
+      _logger.fine('No payload in notification response');
+      return;
+    }
+
+    final parsedPayload = parseNotificationPayload(response.payload!);
+    if (parsedPayload == null) {
+      _logger.fine('Failed to parse notification payload');
+      return;
+    }
+
+    final groupId = parsedPayload['groupId'] as String?;
+    if (groupId == null || groupId.isEmpty) {
+      _logger.fine('No groupId in notification payload');
+      return;
+    }
+
+    if (_router != null) {
+      final notificationType = parsedPayload['type'] as String?;
+      final welcomeId = parsedPayload['welcomeId'] as String?;
+
+      if (notificationType == 'invites_sync' && welcomeId != null && welcomeId.isNotEmpty) {
+        _router!.push('/chats/$groupId', extra: welcomeId);
+        _logger.info('Navigated to chat with invite: $groupId, welcomeId: $welcomeId');
+      } else {
+        _router!.push('/chats/$groupId');
+        _logger.info('Navigated to chat: $groupId');
+      }
+    } else {
+      _logger.warning('Router not initialized, cannot navigate to chat');
+    }
+  }
+
+  static void setRouter(GoRouter router) {
+    _router = router;
+    _logger.fine('Router initialized for notifications');
   }
 
   static Future<bool> requestPermissions() async {

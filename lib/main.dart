@@ -72,6 +72,9 @@ class MyApp extends ConsumerWidget {
     final currentLocale = ref.watch(currentLocaleProvider);
     ref.watch(avatarColorProvider);
 
+    // Initialize router for notifications
+    NotificationService.setRouter(router);
+
     return ScreenUtilInit(
       designSize: width > 600 ? const Size(600, 1024) : const Size(390, 844),
       minTextAdapt: true,
