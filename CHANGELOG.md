@@ -11,14 +11,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added automatic notification clearing when entering chat - notifications for messages and invites now automatically disappear when viewing the related chat [#803](https://github.com/parres-hq/whitenoise_flutter/issues/803)
 - Added unread counts for DMs and groups [[#806](https://github.com/parres-hq/whitenoise_flutter/issues/806)]
+- Added deep linking for notifications - tapping a message or invite notification now routes directly to the correct chat or invite screen [#781](https://github.com/parres-hq/whitenoise_flutter/issues/781)
 
 ### Changed
+
 ### Deprecated
+
 ### Removed
+
 ### Fixed
+
 - Fixed keypackage operation buttons showing loading state incorrectly
 - Fixed developer settings content going under three-button bottom nav on GrapheneOS and some Android devices
 - Fixed messages disappearing for a while after being sent [#828](https://github.com/parres-hq/whitenoise_flutter/pull/828)
+
 ### Security
 
 ## [0.2.0] - 2025-11-07
