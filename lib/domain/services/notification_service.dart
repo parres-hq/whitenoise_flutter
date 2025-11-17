@@ -84,24 +84,19 @@ class NotificationService {
   }
 
   static void _onDidReceiveNotificationResponse(NotificationResponse response) {
-    _logger.info('Notification tapped: ${response.payload}');
-
     if (response.payload == null || response.payload!.isEmpty) {
-      _logger.fine('No payload in notification response');
       _navigateToChatList();
       return;
     }
 
     final parsedPayload = parseNotificationPayload(response.payload!);
     if (parsedPayload == null) {
-      _logger.fine('Failed to parse notification payload');
       _navigateToChatList();
       return;
     }
 
     final groupId = parsedPayload['groupId'] as String?;
     if (groupId == null || groupId.isEmpty) {
-      _logger.fine('No groupId in notification payload');
       _navigateToChatList();
       return;
     }
@@ -112,13 +107,13 @@ class NotificationService {
 
       if (notificationType == 'invites_sync' && welcomeId != null && welcomeId.isNotEmpty) {
         _router!.go('/chats/$groupId', extra: welcomeId);
-        _logger.info('Navigated to chat with invite: $groupId, welcomeId: $welcomeId');
+        _logger.info('Notification: navigated to chat with invite (groupId: $groupId)');
       } else {
         _router!.go('/chats/$groupId');
-        _logger.info('Navigated to chat: $groupId');
+        _logger.info('Notification: navigated to chat (groupId: $groupId)');
       }
     } else {
-      _logger.warning('Router not initialized, cannot navigate to chat');
+      _logger.warning('Notification: router not initialized');
       _navigateToChatList();
     }
   }
@@ -126,13 +121,15 @@ class NotificationService {
   static void _navigateToChatList() {
     if (_router != null) {
       _router!.go('/chats');
-      _logger.info('Navigated to chat list');
     } else {
-      _logger.warning('Cannot navigate to chat list - router not initialized');
+      _logger.warning('Notification: cannot navigate - router not initialized');
     }
   }
 
   static void setRouter(GoRouter router) {
+    if (_router != null) {
+      return; // Already initialized, avoid redundant calls
+    }
     _router = router;
     _logger.fine('Router initialized for notifications');
   }
