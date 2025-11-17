@@ -225,56 +225,6 @@ void main() {
       });
     });
 
-    group('getDisplayedChat', () {
-      group('when chat is displayed', () {
-        setUp(() {
-          when(mockStorage.read(key: 'displayed_chat_group_id'))
-              .thenAnswer((_) async => testGroupId);
-        });
-
-        test('returns the groupId', () async {
-          final result = await DisplayedChatService.getDisplayedChat(
-            storage: mockStorage,
-          );
-
-          expect(result, equals(testGroupId));
-          verify(mockStorage.read(key: 'displayed_chat_group_id')).called(1);
-        });
-      });
-
-      group('when no chat is displayed', () {
-        setUp(() {
-          when(mockStorage.read(key: 'displayed_chat_group_id'))
-              .thenAnswer((_) async => null);
-        });
-
-        test('returns null', () async {
-          final result = await DisplayedChatService.getDisplayedChat(
-            storage: mockStorage,
-          );
-
-          expect(result, isNull);
-          verify(mockStorage.read(key: 'displayed_chat_group_id')).called(1);
-        });
-      });
-
-      group('with error', () {
-        setUp(() {
-          when(mockStorage.read(key: 'displayed_chat_group_id'))
-              .thenThrow(Exception('Storage error'));
-        });
-
-        test('returns null and handles error gracefully', () async {
-          final result = await DisplayedChatService.getDisplayedChat(
-            storage: mockStorage,
-          );
-
-          expect(result, isNull);
-          verify(mockStorage.read(key: 'displayed_chat_group_id')).called(1);
-        });
-      });
-    });
-
     group('clearDisplayedChat', () {
       test('clears the displayed chat', () async {
         when(mockStorage.delete(key: 'displayed_chat_group_id'))
@@ -318,25 +268,6 @@ void main() {
         );
 
         expect(isDisplayed, isTrue);
-      });
-
-      test('registerDisplayedChat and getDisplayedChat work together', () async {
-        when(
-          mockStorage.write(key: 'displayed_chat_group_id', value: testGroupId),
-        ).thenAnswer((_) async => {});
-        when(mockStorage.read(key: 'displayed_chat_group_id'))
-            .thenAnswer((_) async => testGroupId);
-
-        await DisplayedChatService.registerDisplayedChat(
-          testGroupId,
-          storage: mockStorage,
-        );
-
-        final displayedChat = await DisplayedChatService.getDisplayedChat(
-          storage: mockStorage,
-        );
-
-        expect(displayedChat, equals(testGroupId));
       });
 
       test('clearDisplayedChat removes displayed chat', () async {

@@ -65,16 +65,6 @@ class DisplayedChatService {
     }
   }
 
-  static Future<String?> getDisplayedChat({FlutterSecureStorage? storage}) async {
-    final secureStorage = storage ?? _defaultStorage;
-    try {
-      return await secureStorage.read(key: _displayedChatKey);
-    } catch (e) {
-      _logger.warning('Failed to get displayed chat: $e');
-      return null;
-    }
-  }
-
   static Future<void> clearDisplayedChat({FlutterSecureStorage? storage}) async {
     final secureStorage = storage ?? _defaultStorage;
     try {
