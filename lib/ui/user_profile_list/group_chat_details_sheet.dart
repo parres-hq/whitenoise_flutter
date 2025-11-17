@@ -38,7 +38,6 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
       context: context,
       title: 'ui.groupChatDetails'.tr(),
       blurSigma: 8.0,
-      keyboardAware: true,
       transitionDuration: const Duration(milliseconds: 400),
       builder:
           (context) => GroupChatDetailsSheet(
@@ -138,6 +137,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
   @override
   Widget build(BuildContext context) {
+    final bottomInsets = MediaQuery.viewInsetsOf(context).bottom;
     ref.listen(createGroupProvider, (previous, next) {
       if (next.error != null) {
         safeShowErrorToast(next.error!);
@@ -155,48 +155,46 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
           ref.read(createGroupProvider.notifier).discardChanges();
         }
       },
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minHeight: MediaQuery.of(context).size.height * 0.8,
-        ),
-        child: Scaffold(
-          resizeToAvoidBottomInset: false,
-          body: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Center(
-                  child: Stack(
-                    alignment: Alignment.bottomCenter,
-                    children: [
-                      ValueListenableBuilder<TextEditingValue>(
-                        valueListenable: _groupNameController,
-                        builder: (context, value, child) {
-                          final displayName = value.text.trim();
-                          return WnAvatar(
-                            imageUrl: state.selectedImagePath ?? '',
-                            displayName: displayName,
-                            size: 96.w,
-                            showBorder: true,
-                            color: _previewColor,
-                          );
-                        },
-                      ),
-                      Positioned(
-                        right: 5.w,
-                        bottom: 4.h,
-                        width: 28.w,
-                        child: WnEditIconWidget(
-                          onTap: _pickGroupImage,
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          SingleChildScrollView(
+            padding: EdgeInsets.only(bottom: bottomInsets + 80.h),
+            child: Positioned.fill(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Center(
+                    child: Stack(
+                      alignment: Alignment.bottomCenter,
+                      children: [
+                        ValueListenableBuilder<TextEditingValue>(
+                          valueListenable: _groupNameController,
+                          builder: (context, value, child) {
+                            final displayName = value.text.trim();
+                            return WnAvatar(
+                              imageUrl: state.selectedImagePath ?? '',
+                              displayName: displayName,
+                              size: 96.w,
+                              showBorder: true,
+                              color: _previewColor,
+                            );
+                          },
                         ),
-                      ),
-                    ],
+                        Positioned(
+                          right: 5.w,
+                          bottom: 4.h,
+                          width: 28.w,
+                          child: WnEditIconWidget(
+                            onTap: _pickGroupImage,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Gap(24.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Column(
+                  Gap(24.h),
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -215,11 +213,8 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                       ),
                     ],
                   ),
-                ),
-                Gap(24.h),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Column(
+                  Gap(54.h),
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
@@ -239,77 +234,108 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                       ),
                     ],
                   ),
-                ),
-                Gap(24.h),
-                Text(
-                  'ui.invitingMembers'.tr(),
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: context.colors.mutedForeground,
+                  Gap(24.h),
+                  Text(
+                    'ui.invitingMembers'.tr(),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.w600,
+                      color: context.colors.mutedForeground,
+                    ),
                   ),
-                ),
-                Gap(12.h),
-                Wrap(
-                  runSpacing: 8.h,
-                  spacing: 8.w,
-                  alignment: WrapAlignment.center,
-                  children:
-                      state.userProfilesWithKeyPackage
-                          .map(
-                            (userProfile) => Container(
-                              padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-                              decoration: BoxDecoration(
-                                color: context.colors.avatarSurface,
-                                borderRadius: BorderRadius.circular(20.r),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  WnAvatar(
-                                    imageUrl: userProfile.imagePath ?? '',
-                                    displayName: userProfile.displayName,
-                                    size: 30.w,
-                                    showBorder: true,
-                                    pubkey: userProfile.publicKey,
-                                  ),
-                                  Gap(8.w),
-                                  SizedBox(
-                                    width: 104.w,
-                                    child: Text(
-                                      userProfile.displayName,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                      style: TextStyle(
-                                        fontSize: 12.sp,
-                                        fontWeight: FontWeight.w600,
-                                        color: context.colors.primary,
+                  Gap(12.h),
+                  Wrap(
+                    runSpacing: 8.h,
+                    spacing: 8.w,
+                    alignment: WrapAlignment.center,
+                    children:
+                        state.userProfilesWithKeyPackage
+                            .map(
+                              (userProfile) => Container(
+                                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+                                decoration: BoxDecoration(
+                                  color: context.colors.avatarSurface,
+                                  borderRadius: BorderRadius.circular(20.r),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    WnAvatar(
+                                      imageUrl: userProfile.imagePath ?? '',
+                                      displayName: userProfile.displayName,
+                                      size: 30.w,
+                                      showBorder: true,
+                                      pubkey: userProfile.publicKey,
+                                    ),
+                                    Gap(8.w),
+                                    SizedBox(
+                                      width: 104.w,
+                                      child: Text(
+                                        userProfile.displayName,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          fontSize: 12.sp,
+                                          fontWeight: FontWeight.w600,
+                                          color: context.colors.primary,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
-                            ),
-                          )
-                          .toList(),
+                            )
+                            .toList(),
+                  ),
+                  Gap(24.h),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: bottomInsets - 16.h,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IgnorePointer(
+                  child: Container(
+                    height: 70.h,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          context.colors.neutral.withValues(alpha: 0.0),
+                          context.colors.neutral.withValues(alpha: 0.5),
+                          context.colors.neutral,
+                        ],
+                        stops: const [0.0, 0.5, 1.0],
+                      ),
+                    ),
+                  ),
                 ),
-                Gap(24.h),
+                Container(
+                  padding: EdgeInsets.only(bottom: 16.w),
+                  color: context.colors.neutral,
+                  child: WnFilledButton(
+                    onPressed: state.canCreateGroup ? _createGroupChatAsync : null,
+                    loading: state.isCreatingGroup || state.isUploadingImage,
+                    label:
+                        state.isUploadingImage
+                            ? 'ui.uploadingImage'.tr()
+                            : state.isCreatingGroup
+                            ? 'ui.creatingGroup'.tr()
+                            : 'ui.createGroup'.tr(),
+                  ),
+                ),
               ],
             ),
           ),
-          bottomNavigationBar: WnFilledButton(
-            onPressed: state.canCreateGroup ? _createGroupChatAsync : null,
-            loading: state.isCreatingGroup || state.isUploadingImage,
-            label:
-                state.isUploadingImage
-                    ? 'ui.uploadingImage'.tr()
-                    : state.isCreatingGroup
-                    ? 'ui.creatingGroup'.tr()
-                    : 'ui.createGroup'.tr(),
-          ),
-        ),
+        ],
       ),
     );
   }
