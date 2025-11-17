@@ -17,12 +17,14 @@ class MediaImage extends ConsumerStatefulWidget {
     this.width,
     this.height,
     this.onZoomChanged,
+    this.onTap,
   });
 
   final MediaFile mediaFile;
   final double? width;
   final double? height;
   final void Function(bool isZoomed)? onZoomChanged;
+  final VoidCallback? onTap;
 
   @override
   ConsumerState<MediaImage> createState() => _MediaImageState();
@@ -110,6 +112,13 @@ class _MediaImageState extends ConsumerState<MediaImage> {
       );
 
       return GestureDetector(
+        onTap: () {
+          if (_isZoomed) {
+            _zoomOut();
+            return;
+          }
+          widget.onTap?.call();
+        },
         onDoubleTapDown: _handleDoubleTap,
         child: InteractiveViewer(
           transformationController: _transformationController,

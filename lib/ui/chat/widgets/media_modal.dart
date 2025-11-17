@@ -41,6 +41,7 @@ class _MediaModalState extends ConsumerState<MediaModal> {
   late ScrollController _thumbnailScrollController;
   late int _currentIndex;
   bool _isImageZoomed = false;
+  bool _isFullScreen = false;
 
   @override
   void initState() {
@@ -78,6 +79,17 @@ class _MediaModalState extends ConsumerState<MediaModal> {
     if (_isImageZoomed == isZoomed) return;
     setState(() {
       _isImageZoomed = isZoomed;
+      if (isZoomed) {
+        _isFullScreen = true;
+      } else {
+        _isFullScreen = false;
+      }
+    });
+  }
+
+  void _onImageTap() {
+    setState(() {
+      _isFullScreen = !_isFullScreen;
     });
   }
 
@@ -125,7 +137,7 @@ class _MediaModalState extends ConsumerState<MediaModal> {
                 duration: const Duration(milliseconds: 200),
                 curve: Curves.easeInOut,
                 child:
-                    _isImageZoomed
+                    _isFullScreen
                         ? const SizedBox.shrink()
                         : _MediaModalHeader(
                           senderName: widget.senderName,
@@ -139,6 +151,7 @@ class _MediaModalState extends ConsumerState<MediaModal> {
                   pageController: _pageController,
                   onPageChanged: _onPageChanged,
                   onZoomChanged: _onZoomChanged,
+                  onTap: _onImageTap,
                   scrollPhysics: _scrollPhysics,
                 ),
               ),
@@ -147,7 +160,7 @@ class _MediaModalState extends ConsumerState<MediaModal> {
                   duration: const Duration(milliseconds: 200),
                   curve: Curves.easeInOut,
                   child:
-                      _isImageZoomed
+                      _isFullScreen
                           ? const SizedBox.shrink()
                           : _MediaModalThumbnailStrip(
                             mediaFiles: widget.mediaFiles,
@@ -235,6 +248,7 @@ class _MediaModalImageView extends StatelessWidget {
     required this.pageController,
     required this.onPageChanged,
     required this.onZoomChanged,
+    required this.onTap,
     required this.scrollPhysics,
   });
 
@@ -242,6 +256,7 @@ class _MediaModalImageView extends StatelessWidget {
   final PageController pageController;
   final void Function(int) onPageChanged;
   final void Function(bool) onZoomChanged;
+  final VoidCallback onTap;
   final ScrollPhysics scrollPhysics;
 
   @override
@@ -257,6 +272,7 @@ class _MediaModalImageView extends StatelessWidget {
           width: double.infinity,
           height: double.infinity,
           onZoomChanged: onZoomChanged,
+          onTap: onTap,
         );
       },
     );
