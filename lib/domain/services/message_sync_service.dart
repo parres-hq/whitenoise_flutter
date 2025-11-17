@@ -177,6 +177,7 @@ class MessageSyncService {
             'groupId': groupId,
             'messageId': message.id,
             'sender': message.pubkey,
+            'deepLink': 'whitenoise://chats/$groupId',
           }),
         );
         _logger.info('Notification shown for message ${message.id}');
@@ -306,6 +307,7 @@ class MessageSyncService {
             'type': 'invites_sync',
             'welcomeId': welcome.id,
             'groupId': welcome.mlsGroupId,
+            'deepLink': 'whitenoise://chats/${welcome.mlsGroupId}?inviteId=${welcome.id}',
           }),
         );
         _logger.info('Notification shown for welcome ${welcome.id}');

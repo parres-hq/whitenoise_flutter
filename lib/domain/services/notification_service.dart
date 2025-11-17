@@ -84,26 +84,29 @@ class NotificationService {
   }
 
   static void _onDidReceiveNotificationResponse(NotificationResponse response) {
-    if (response.payload == null || response.payload!.isEmpty) {
+    final payload = response.payload ?? '';
+    if (payload.isEmpty) {
       _navigateToChatList();
       return;
     }
 
-    final parsedPayload = parseNotificationPayload(response.payload!);
-    if (parsedPayload == null) {
+    final parsedPayload = parseNotificationPayload(payload);
+
+    final data = parsedPayload ?? {};
+    if (data.isNotEmpty) {
       _navigateToChatList();
       return;
     }
 
-    final groupId = parsedPayload['groupId'] as String?;
+    final groupId = data['groupId'] as String?;
     if (groupId == null || groupId.isEmpty) {
       _navigateToChatList();
       return;
     }
 
     if (_router != null) {
-      final notificationType = parsedPayload['type'] as String?;
-      final welcomeId = parsedPayload['welcomeId'] as String?;
+      final notificationType = data['type'] as String?;
+      final welcomeId = data['welcomeId'] as String?;
 
       if (notificationType == 'invites_sync' && welcomeId != null && welcomeId.isNotEmpty) {
         _router!.go('/chats/$groupId', extra: welcomeId);
@@ -118,17 +121,11 @@ class NotificationService {
     }
   }
 
-  static void _navigateToChatList() {
-    if (_router != null) {
-      _router!.go('/chats');
-    } else {
-      _logger.warning('Notification: cannot navigate - router not initialized');
-    }
-  }
+  static void _navigateToChatList() => _router!.go('/chats');
 
   static void setRouter(GoRouter router) {
     if (_router != null) {
-      return; // Already initialized, avoid redundant calls
+      return;
     }
     _router = router;
     _logger.fine('Router initialized for notifications');
