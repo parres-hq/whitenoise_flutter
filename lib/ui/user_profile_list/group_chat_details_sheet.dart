@@ -54,6 +54,7 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
 class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> with SafeToastMixin {
   final TextEditingController _groupNameController = TextEditingController();
   final TextEditingController _groupDescriptionController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   Color? _previewColor;
 
   @override
@@ -76,6 +77,20 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
   void _onGroupDescriptionChanged() {
     ref.read(createGroupProvider.notifier).updateGroupDescription(_groupDescriptionController.text);
+  }
+
+  Future<void> _scrollToBottom() async {
+    if (!_scrollController.hasClients) return;
+
+    await Future.delayed(const Duration(milliseconds: 350));
+    if (!_scrollController.hasClients) return;
+
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    await _scrollController.animateTo(
+      maxScroll,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   Future<void> _pickGroupImage() async {
@@ -132,6 +147,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
     _groupDescriptionController.removeListener(_onGroupDescriptionChanged);
     _groupDescriptionController.dispose();
     _groupNameController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -159,6 +175,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         fit: StackFit.expand,
         children: [
           SingleChildScrollView(
+            controller: _scrollController,
             padding: EdgeInsets.only(bottom: bottomInsets + 80.h),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -230,6 +247,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                       hintText: 'ui.groupDescriptionHint'.tr(),
                       maxLines: 5,
                       padding: EdgeInsets.zero,
+                      onTap: _scrollToBottom,
                     ),
                   ],
                 ),
