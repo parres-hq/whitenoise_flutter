@@ -94,12 +94,14 @@ class NotificationService {
     final parsedPayload = parseNotificationPayload(response.payload!);
     if (parsedPayload == null) {
       _logger.fine('Failed to parse notification payload');
+      _navigateToChatList();
       return;
     }
 
     final groupId = parsedPayload['groupId'] as String?;
     if (groupId == null || groupId.isEmpty) {
       _logger.fine('No groupId in notification payload');
+      _navigateToChatList();
       return;
     }
 
@@ -108,14 +110,22 @@ class NotificationService {
       final welcomeId = parsedPayload['welcomeId'] as String?;
 
       if (notificationType == 'invites_sync' && welcomeId != null && welcomeId.isNotEmpty) {
-        _router!.push('/chats/$groupId', extra: welcomeId);
+        _router!.go('/chats/$groupId', extra: welcomeId);
         _logger.info('Navigated to chat with invite: $groupId, welcomeId: $welcomeId');
       } else {
-        _router!.push('/chats/$groupId');
+        _router!.go('/chats/$groupId');
         _logger.info('Navigated to chat: $groupId');
       }
     } else {
       _logger.warning('Router not initialized, cannot navigate to chat');
+      _navigateToChatList();
+    }
+  }
+
+  static void _navigateToChatList() {
+    if (_router != null) {
+      _router!.go('/chats');
+      _logger.info('Navigated to chat list');
     }
   }
 
