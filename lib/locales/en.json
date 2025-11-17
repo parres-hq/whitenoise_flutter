@@ -211,7 +211,8 @@
         "removedFromGroupSuccess": "{name} removed from group",
         "failedToRemoveMember": "Failed to remove member",
         "noUserToStartChatWith": "No user to start chat with",
-        "photos": "Photos"
+        "photos": "Photos",
+        "photo": "Photo"
     },
     "clipboard": {
         "emptyTextError": "No text found in clipboard",

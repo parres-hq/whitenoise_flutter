@@ -26,6 +26,45 @@ import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 import 'package:whitenoise/utils/timeago_formatter.dart';
 
+class _MessagePreview extends StatelessWidget {
+  const _MessagePreview({
+    required this.text,
+    this.iconAsset,
+  });
+
+  final String text;
+  final String? iconAsset;
+
+  @override
+  Widget build(BuildContext context) {
+    final textWidget = Text(
+      text,
+      style: TextStyle(
+        fontSize: 14.sp,
+        color: context.colors.mutedForeground,
+      ),
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+    );
+
+    if (iconAsset == null) {
+      return textWidget;
+    }
+
+    return Row(
+      children: [
+        WnImage(
+          iconAsset!,
+          size: 16.w,
+          color: context.colors.mutedForeground,
+        ),
+        Gap(4.w),
+        Expanded(child: textWidget),
+      ],
+    );
+  }
+}
+
 class ChatListItemTile extends ConsumerWidget {
   const ChatListItemTile({
     super.key,
@@ -191,14 +230,10 @@ class ChatListItemTile extends ConsumerWidget {
                           children: [
                             if (item.lastMessage != null)
                               Expanded(
-                                child: Text(
-                                  _getMessagePreview(item.lastMessage!),
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: context.colors.mutedForeground,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                                child: _MessagePreview(
+                                  text: _getMessagePreview(item.lastMessage!),
+                                  iconAsset:
+                                      _hasMedia(item.lastMessage!) ? AssetsPaths.icImage : null,
                                 ),
                               )
                             else if (shouldShowMessageSkeleton)
@@ -344,14 +379,10 @@ class ChatListItemTile extends ConsumerWidget {
                             spacing: 32.w,
                             children: [
                               Expanded(
-                                child: Text(
-                                  _getMessagePreview(item.lastMessage!),
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: context.colors.mutedForeground,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
+                                child: _MessagePreview(
+                                  text: _getMessagePreview(item.lastMessage!),
+                                  iconAsset:
+                                      _hasMedia(item.lastMessage!) ? AssetsPaths.icImage : null,
                                 ),
                               ),
                               MessageReadStatus(
@@ -373,9 +404,18 @@ class ChatListItemTile extends ConsumerWidget {
     );
   }
 
-  String _getMessagePreview(MessageModel message) {
-    final content = message.content ?? '';
+  bool _hasMedia(MessageModel message) {
+    return message.mediaAttachments.isNotEmpty;
+  }
 
+  String _getMessagePreview(MessageModel message) {
+    final content = (message.content ?? '').trim();
+    final hasContent = content.isNotEmpty;
+    if (_hasMedia(message) && !hasContent) {
+      return message.isMe
+          ? 'chats.youMessage'.tr({'content': 'chats.photo'.tr()})
+          : 'chats.photo'.tr();
+    }
     if (message.isMe) {
       return 'chats.youMessage'.tr({'content': content});
     }

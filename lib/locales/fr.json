@@ -211,7 +211,8 @@
         "removedFromGroupSuccess": "{name} retiré du groupe",
         "failedToRemoveMember": "Échec de la suppression du membre",
         "noUserToStartChatWith": "Aucun utilisateur avec qui commencer une conversation",
-        "photos": "Photos"
+        "photos": "Photos",
+        "photo": "Photo"
     },
     "clipboard": {
         "emptyTextError": "Aucun texte trouvé dans le presse-papiers",
