@@ -88,6 +88,7 @@ class NotificationService {
 
     if (response.payload == null || response.payload!.isEmpty) {
       _logger.fine('No payload in notification response');
+      _navigateToChatList();
       return;
     }
 
@@ -126,6 +127,8 @@ class NotificationService {
     if (_router != null) {
       _router!.go('/chats');
       _logger.info('Navigated to chat list');
+    } else {
+      _logger.warning('Cannot navigate to chat list - router not initialized');
     }
   }
 
