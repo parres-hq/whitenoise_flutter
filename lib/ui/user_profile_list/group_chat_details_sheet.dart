@@ -160,138 +160,136 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
         children: [
           SingleChildScrollView(
             padding: EdgeInsets.only(bottom: bottomInsets + 80.h),
-            child: Positioned.fill(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Center(
-                    child: Stack(
-                      alignment: Alignment.bottomCenter,
-                      children: [
-                        ValueListenableBuilder<TextEditingValue>(
-                          valueListenable: _groupNameController,
-                          builder: (context, value, child) {
-                            final displayName = value.text.trim();
-                            return WnAvatar(
-                              imageUrl: state.selectedImagePath ?? '',
-                              displayName: displayName,
-                              size: 96.w,
-                              showBorder: true,
-                              color: _previewColor,
-                            );
-                          },
-                        ),
-                        Positioned(
-                          right: 5.w,
-                          bottom: 4.h,
-                          width: 28.w,
-                          child: WnEditIconWidget(
-                            onTap: _pickGroupImage,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Gap(24.h),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Center(
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
                     children: [
-                      Text(
-                        'ui.groupName'.tr(),
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w500,
-                          color: context.colors.primary,
-                        ),
+                      ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _groupNameController,
+                        builder: (context, value, child) {
+                          final displayName = value.text.trim();
+                          return WnAvatar(
+                            imageUrl: state.selectedImagePath ?? '',
+                            displayName: displayName,
+                            size: 96.w,
+                            showBorder: true,
+                            color: _previewColor,
+                          );
+                        },
                       ),
-                      Gap(8.h),
-                      WnTextField(
-                        textController: _groupNameController,
-                        hintText: 'ui.groupNameHint'.tr(),
-                        padding: EdgeInsets.zero,
+                      Positioned(
+                        right: 5.w,
+                        bottom: 4.h,
+                        width: 28.w,
+                        child: WnEditIconWidget(
+                          onTap: _pickGroupImage,
+                        ),
                       ),
                     ],
                   ),
-                  Gap(54.h),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'ui.groupDescription'.tr(),
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w500,
-                          color: context.colors.primary,
-                        ),
+                ),
+                Gap(24.h),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ui.groupName'.tr(),
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: context.colors.primary,
                       ),
-                      Gap(8.h),
-                      WnTextField(
-                        textController: _groupDescriptionController,
-                        hintText: 'ui.groupDescriptionHint'.tr(),
-                        maxLines: 5,
-                        padding: EdgeInsets.zero,
-                      ),
-                    ],
-                  ),
-                  Gap(24.h),
-                  Text(
-                    'ui.invitingMembers'.tr(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      color: context.colors.mutedForeground,
                     ),
+                    Gap(8.h),
+                    WnTextField(
+                      textController: _groupNameController,
+                      hintText: 'ui.groupNameHint'.tr(),
+                      padding: EdgeInsets.zero,
+                    ),
+                  ],
+                ),
+                Gap(54.h),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ui.groupDescription'.tr(),
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: context.colors.primary,
+                      ),
+                    ),
+                    Gap(8.h),
+                    WnTextField(
+                      textController: _groupDescriptionController,
+                      hintText: 'ui.groupDescriptionHint'.tr(),
+                      maxLines: 5,
+                      padding: EdgeInsets.zero,
+                    ),
+                  ],
+                ),
+                Gap(24.h),
+                Text(
+                  'ui.invitingMembers'.tr(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.mutedForeground,
                   ),
-                  Gap(12.h),
-                  Wrap(
-                    runSpacing: 8.h,
-                    spacing: 8.w,
-                    alignment: WrapAlignment.center,
-                    children:
-                        state.userProfilesWithKeyPackage
-                            .map(
-                              (userProfile) => Container(
-                                padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-                                decoration: BoxDecoration(
-                                  color: context.colors.avatarSurface,
-                                  borderRadius: BorderRadius.circular(20.r),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    WnAvatar(
-                                      imageUrl: userProfile.imagePath ?? '',
-                                      displayName: userProfile.displayName,
-                                      size: 30.w,
-                                      showBorder: true,
-                                      pubkey: userProfile.publicKey,
-                                    ),
-                                    Gap(8.w),
-                                    SizedBox(
-                                      width: 104.w,
-                                      child: Text(
-                                        userProfile.displayName,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          fontSize: 12.sp,
-                                          fontWeight: FontWeight.w600,
-                                          color: context.colors.primary,
-                                        ),
+                ),
+                Gap(12.h),
+                Wrap(
+                  runSpacing: 8.h,
+                  spacing: 8.w,
+                  alignment: WrapAlignment.center,
+                  children:
+                      state.userProfilesWithKeyPackage
+                          .map(
+                            (userProfile) => Container(
+                              padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+                              decoration: BoxDecoration(
+                                color: context.colors.avatarSurface,
+                                borderRadius: BorderRadius.circular(20.r),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  WnAvatar(
+                                    imageUrl: userProfile.imagePath ?? '',
+                                    displayName: userProfile.displayName,
+                                    size: 30.w,
+                                    showBorder: true,
+                                    pubkey: userProfile.publicKey,
+                                  ),
+                                  Gap(8.w),
+                                  SizedBox(
+                                    width: 104.w,
+                                    child: Text(
+                                      userProfile.displayName,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: context.colors.primary,
                                       ),
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                            )
-                            .toList(),
-                  ),
-                  Gap(24.h),
-                ],
-              ),
+                            ),
+                          )
+                          .toList(),
+                ),
+                Gap(24.h),
+              ],
             ),
           ),
           Positioned(
