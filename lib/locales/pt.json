@@ -73,7 +73,13 @@
         "notScheduled": "Não Agendada",
         "unknownState": "Estado desconhecido",
         "runsEvery": "Executa a cada {frequency}",
-        "scheduleNow": "Agendar Agora"
+        "scheduleNow": "Agendar Agora",
+        "hour": "hora",
+        "hours": "horas",
+        "day": "dia",
+        "days": "dias",
+        "minute": "minuto",
+        "minutes": "minutos"
     },
     "profile": {
         "nostrAddress": "Endereço Nostr (NIP-05)",

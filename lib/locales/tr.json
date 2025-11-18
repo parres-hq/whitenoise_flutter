@@ -73,7 +73,13 @@
         "notScheduled": "Zamanlanmamış",
         "unknownState": "Bilinmeyen durum",
         "runsEvery": "Her {frequency} çalışır",
-        "scheduleNow": "Şimdi Zamanla"
+        "scheduleNow": "Şimdi Zamanla",
+        "hour": "saat",
+        "hours": "saat",
+        "day": "gün",
+        "days": "gün",
+        "minute": "dakika",
+        "minutes": "dakika"
     },
     "profile": {
         "nostrAddress": "Nostr Adresi (NIP-05)",

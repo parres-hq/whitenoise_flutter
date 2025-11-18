@@ -73,7 +73,13 @@
         "notScheduled": "Non Programmée",
         "unknownState": "État inconnu",
         "runsEvery": "S'exécute toutes les {frequency}",
-        "scheduleNow": "Programmer Maintenant"
+        "scheduleNow": "Programmer Maintenant",
+        "hour": "heure",
+        "hours": "heures",
+        "day": "jour",
+        "days": "jours",
+        "minute": "minute",
+        "minutes": "minutes"
     },
     "profile": {
         "nostrAddress": "Adresse Nostr (NIP-05)",

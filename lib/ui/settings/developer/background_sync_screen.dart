@@ -119,7 +119,7 @@ class _BackgroundSyncScreenState extends ConsumerState<BackgroundSyncScreen> {
                       RepaintBoundary(
                         child: _TaskItem(
                           name: task.displayName,
-                          frequency: task.frequencyDisplay,
+                          frequency: task.frequency,
                           isLoading: _isLoading,
                           isScheduled: isScheduled,
                           onTrigger: () => _registerTask(),
@@ -172,10 +172,26 @@ class _TaskItem extends StatelessWidget {
   });
 
   final String name;
-  final String frequency;
+  final Duration frequency;
   final bool isLoading;
   final bool isScheduled;
   final VoidCallback onTrigger;
+
+  String _formatFrequency(BuildContext context) {
+    final int totalMinutes = frequency.inMinutes;
+    if (totalMinutes >= 1440 && totalMinutes % 1440 == 0) {
+      final int days = totalMinutes ~/ 1440;
+      final unit = days == 1 ? 'settings.day'.tr() : 'settings.days'.tr();
+      return '$days $unit';
+    }
+    if (totalMinutes >= 60 && totalMinutes % 60 == 0) {
+      final int hours = totalMinutes ~/ 60;
+      final unit = hours == 1 ? 'settings.hour'.tr() : 'settings.hours'.tr();
+      return '$hours $unit';
+    }
+    final unit = totalMinutes == 1 ? 'settings.minute'.tr() : 'settings.minutes'.tr();
+    return '$totalMinutes $unit';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -240,7 +256,7 @@ class _TaskItem extends StatelessWidget {
                     ),
                     Gap(4.h),
                     Text(
-                      'settings.runsEvery'.tr({'frequency': frequency}),
+                      'settings.runsEvery'.tr({'frequency': _formatFrequency(context)}),
                       style: TextStyle(
                         fontSize: 12.sp,
                         color: context.colors.mutedForeground,
