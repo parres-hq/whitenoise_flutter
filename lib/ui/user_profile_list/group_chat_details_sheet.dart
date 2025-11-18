@@ -83,7 +83,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
     if (!_scrollController.hasClients) return;
 
     await Future.delayed(const Duration(milliseconds: 350));
-    if (!_scrollController.hasClients) return;
+    if (!mounted || !_scrollController.hasClients) return;
 
     final maxScroll = _scrollController.position.maxScrollExtent;
     await _scrollController.animateTo(
