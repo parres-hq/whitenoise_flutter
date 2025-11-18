@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 
 extension TimeagoFormatter on DateTime {
   String timeago() {
@@ -7,7 +8,7 @@ extension TimeagoFormatter on DateTime {
 
     // <60s = "Now"
     if (difference.inSeconds < 60) {
-      return 'Now';
+      return 'chats.now'.tr();
     }
 
     // 1-59min = "32min" - Relative
@@ -27,7 +28,7 @@ extension TimeagoFormatter on DateTime {
 
     // >24h = Yesterday
     if (difference.inDays == 1) {
-      return 'Yesterday';
+      return 'chats.yesterday'.tr();
     }
 
     // 2-6 days = "Monday" - Weekday name

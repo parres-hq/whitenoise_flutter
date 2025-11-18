@@ -18,6 +18,6 @@ class MessageUtils {
       return editingMessage.sender.displayName;
     }
 
-    return 'chats.unknownUser'.tr();
+    return 'shared.unknownUser'.tr();
   }
 }

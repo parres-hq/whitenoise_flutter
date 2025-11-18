@@ -73,7 +73,13 @@
         "notScheduled": "Nicht Geplant",
         "unknownState": "Unbekannter Zustand",
         "runsEvery": "Läuft alle {frequency}",
-        "scheduleNow": "Jetzt Planen"
+        "scheduleNow": "Jetzt Planen",
+        "hour": "Stunde",
+        "hours": "Stunden",
+        "day": "Tag",
+        "days": "Tage",
+        "minute": "Minute",
+        "minutes": "Minuten"
     },
     "profile": {
         "nostrAddress": "Nostr-Adresse (NIP-05)",
@@ -147,6 +153,8 @@
         "followsLoadingError": "Leider konnten wir die von Ihnen verfolgten Nutzer aufgrund eines Fehlers nicht laden.",
         "noUsersFound": "Keine Benutzer gefunden",
         "you": "Du",
+        "now": "Jetzt",
+        "yesterday": "Gestern",
         "copy": "Kopieren",
         "reply": "Antworten",
         "delete": "Löschen",
