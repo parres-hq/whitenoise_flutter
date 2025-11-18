@@ -93,7 +93,7 @@ class NotificationService {
     final parsedPayload = parseNotificationPayload(payload);
 
     final data = parsedPayload ?? {};
-    if (data.isNotEmpty) {
+    if (data.isEmpty) {
       _navigateToChatList();
       return;
     }
@@ -121,7 +121,7 @@ class NotificationService {
     }
   }
 
-  static void _navigateToChatList() => _router!.go('/chats');
+  static void _navigateToChatList() => _router?.go('/chats');
 
   static void setRouter(GoRouter router) {
     if (_router != null) {
