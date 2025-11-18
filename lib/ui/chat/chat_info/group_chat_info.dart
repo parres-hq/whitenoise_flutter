@@ -110,8 +110,8 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
         if (!aIsAdmin && bIsAdmin) return 1;
 
         // Within same category (both admins or both regular), sort alphabetically
-        final aName = a.displayName.isNotEmpty ? a.displayName : 'chats.unknownUser'.tr();
-        final bName = b.displayName.isNotEmpty ? b.displayName : 'chats.unknownUser'.tr();
+        final aName = a.displayName.isNotEmpty ? a.displayName : 'shared.unknownUser'.tr();
+        final bName = b.displayName.isNotEmpty ? b.displayName : 'shared.unknownUser'.tr();
         return aName.toLowerCase().compareTo(bName.toLowerCase());
       });
 
@@ -308,7 +308,7 @@ class _GroupChatInfoState extends ConsumerState<GroupChatInfo> {
             ? 'chats.you'.tr()
             : member.displayName.isNotEmpty
             ? member.displayName
-            : 'chats.unknownUser'.tr(),
+            : 'shared.unknownUser'.tr(),
         style: context.textTheme.bodyMedium?.copyWith(
           color: context.colors.primary,
           fontWeight: FontWeight.w600,

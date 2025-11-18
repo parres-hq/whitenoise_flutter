@@ -17,6 +17,7 @@ class WnTextField extends StatelessWidget {
     this.label,
     this.readOnly = false,
     this.maxLines = 1,
+    this.onTap,
   });
 
   final TextEditingController? textController;
@@ -29,6 +30,7 @@ class WnTextField extends StatelessWidget {
   final String? label;
   final bool readOnly;
   final int maxLines;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -50,6 +52,7 @@ class WnTextField extends StatelessWidget {
         TextField(
           controller: textController,
           focusNode: focusNode,
+          onTap: onTap,
           autofocus: autofocus,
           obscureText: obscureText,
           readOnly: readOnly,

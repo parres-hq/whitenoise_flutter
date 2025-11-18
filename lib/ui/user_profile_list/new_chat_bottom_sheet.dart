@@ -167,7 +167,7 @@ class _NewChatBottomSheetState extends ConsumerState<NewChatBottomSheet> {
       if (mounted) {
         setState(() {
           _tempUserProfile = UserProfile(
-            displayName: 'chats.unknownUser'.tr(),
+            displayName: 'shared.unknownUser'.tr(),
             publicKey: publicKey.trim(),
           );
           _isLoadingUserProfile = false;

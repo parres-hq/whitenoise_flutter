@@ -73,7 +73,13 @@
         "notScheduled": "Not Scheduled",
         "unknownState": "Unknown state",
         "runsEvery": "Runs every {frequency}",
-        "scheduleNow": "Schedule Now"
+        "scheduleNow": "Schedule Now",
+        "hour": "hour",
+        "hours": "hours",
+        "day": "day",
+        "days": "days",
+        "minute": "minute",
+        "minutes": "minutes"
     },
     "profile": {
         "nostrAddress": "Nostr Address (NIP-05)",
@@ -147,6 +153,8 @@
         "followsLoadingError": "Sorry, we couldn't load follows because of an error.",
         "noUsersFound": "No users found",
         "you": "You",
+        "now": "Now",
+        "yesterday": "Yesterday",
         "copy": "Copy",
         "reply": "Reply",
         "delete": "Delete",
