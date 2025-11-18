@@ -211,7 +211,8 @@
         "removedFromGroupSuccess": "{name} removido del grupo",
         "failedToRemoveMember": "Error al remover miembro",
         "noUserToStartChatWith": "No hay usuario para iniciar chat",
-        "photos": "Fotos"
+        "photos": "Fotos",
+        "photo": "Foto"
     },
     "clipboard": {
         "emptyTextError": "No se encontró texto en el portapapeles",

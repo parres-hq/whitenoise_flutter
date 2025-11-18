@@ -3,6 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:whitenoise/config/providers/toast_message_provider.dart';
 import 'package:whitenoise/config/states/toast_state.dart';
+import 'package:whitenoise/services/localization_service.dart';
+
+Future<void> initializeTestLocalization() async {
+  await LocalizationService.load(const Locale('en'));
+}
 
 /// Mock toast notifier for tests that disables auto-dismiss to prevent timer issues
 class MockToastMessageNotifier extends ToastMessageNotifier {
