@@ -54,6 +54,7 @@ class GroupChatDetailsSheet extends ConsumerStatefulWidget {
 class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> with SafeToastMixin {
   final TextEditingController _groupNameController = TextEditingController();
   final TextEditingController _groupDescriptionController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
   Color? _previewColor;
 
   @override
@@ -76,6 +77,20 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
 
   void _onGroupDescriptionChanged() {
     ref.read(createGroupProvider.notifier).updateGroupDescription(_groupDescriptionController.text);
+  }
+
+  Future<void> _scrollToBottom() async {
+    if (!_scrollController.hasClients) return;
+
+    await Future.delayed(const Duration(milliseconds: 350));
+    if (!mounted || !_scrollController.hasClients) return;
+
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    await _scrollController.animateTo(
+      maxScroll,
+      duration: const Duration(milliseconds: 300),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   Future<void> _pickGroupImage() async {
@@ -132,11 +147,13 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
     _groupDescriptionController.removeListener(_onGroupDescriptionChanged);
     _groupDescriptionController.dispose();
     _groupNameController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
+    final bottomInsets = MediaQuery.viewInsetsOf(context).bottom;
     ref.listen(createGroupProvider, (previous, next) {
       if (next.error != null) {
         safeShowErrorToast(next.error!);
@@ -154,151 +171,185 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
           ref.read(createGroupProvider.notifier).discardChanges();
         }
       },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      child: Stack(
+        fit: StackFit.expand,
         children: [
-          Center(
-            child: Stack(
-              alignment: Alignment.bottomCenter,
-              children: [
-                ValueListenableBuilder<TextEditingValue>(
-                  valueListenable: _groupNameController,
-                  builder: (context, value, child) {
-                    final displayName = value.text.trim();
-                    return WnAvatar(
-                      imageUrl: state.selectedImagePath ?? '',
-                      displayName: displayName,
-                      size: 96.w,
-                      showBorder: true,
-                      color: _previewColor,
-                    );
-                  },
-                ),
-                Positioned(
-                  right: 5.w,
-                  bottom: 4.h,
-                  width: 28.w,
-                  child: WnEditIconWidget(
-                    onTap: _pickGroupImage,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Gap(24.h),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
+          SingleChildScrollView(
+            controller: _scrollController,
+            padding: EdgeInsets.only(bottom: bottomInsets + 80.h),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'ui.groupName'.tr(),
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: context.colors.primary,
-                  ),
-                ),
-                Gap(8.h),
-                WnTextField(
-                  textController: _groupNameController,
-                  hintText: 'ui.groupNameHint'.tr(),
-                  padding: EdgeInsets.zero,
-                ),
-              ],
-            ),
-          ),
-          Gap(24.h),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.w),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'ui.groupDescription'.tr(),
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: context.colors.primary,
-                  ),
-                ),
-                Gap(8.h),
-                WnTextField(
-                  textController: _groupDescriptionController,
-                  hintText: 'ui.groupDescriptionHint'.tr(),
-                  maxLines: 5,
-                  padding: EdgeInsets.zero,
-                ),
-              ],
-            ),
-          ),
-
-          Gap(24.h),
-          Text(
-            'ui.invitingMembers'.tr(),
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.w600,
-              color: context.colors.mutedForeground,
-            ),
-          ),
-          Gap(12.h),
-          Wrap(
-            runSpacing: 8.h,
-            spacing: 8.w,
-            alignment: WrapAlignment.center,
-            children:
-                state.userProfilesWithKeyPackage
-                    .map(
-                      (userProfile) => Container(
-                        padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
-                        decoration: BoxDecoration(
-                          color: context.colors.avatarSurface,
-                          borderRadius: BorderRadius.circular(20.r),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-
-                          children: [
-                            WnAvatar(
-                              imageUrl: userProfile.imagePath ?? '',
-                              displayName: userProfile.displayName,
-                              size: 30.w,
-                              showBorder: true,
-                              pubkey: userProfile.publicKey,
-                            ),
-                            Gap(8.w),
-                            SizedBox(
-                              width: 104.w,
-                              child: Text(
-                                userProfile.displayName,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: context.colors.primary,
-                                ),
-                              ),
-                            ),
-                          ],
+                Center(
+                  child: Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      ValueListenableBuilder<TextEditingValue>(
+                        valueListenable: _groupNameController,
+                        builder: (context, value, child) {
+                          final displayName = value.text.trim();
+                          return WnAvatar(
+                            imageUrl: state.selectedImagePath ?? '',
+                            displayName: displayName,
+                            size: 96.w,
+                            showBorder: true,
+                            color: _previewColor,
+                          );
+                        },
+                      ),
+                      Positioned(
+                        right: 5.w,
+                        bottom: 4.h,
+                        width: 28.w,
+                        child: WnEditIconWidget(
+                          onTap: _pickGroupImage,
                         ),
                       ),
-                    )
-                    .toList(),
+                    ],
+                  ),
+                ),
+                Gap(24.h),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ui.groupName'.tr(),
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: context.colors.primary,
+                      ),
+                    ),
+                    Gap(8.h),
+                    WnTextField(
+                      textController: _groupNameController,
+                      hintText: 'ui.groupNameHint'.tr(),
+                      padding: EdgeInsets.zero,
+                    ),
+                  ],
+                ),
+                Gap(54.h),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ui.groupDescription'.tr(),
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: context.colors.primary,
+                      ),
+                    ),
+                    Gap(8.h),
+                    WnTextField(
+                      textController: _groupDescriptionController,
+                      hintText: 'ui.groupDescriptionHint'.tr(),
+                      maxLines: 5,
+                      padding: EdgeInsets.zero,
+                      onTap: _scrollToBottom,
+                    ),
+                  ],
+                ),
+                Gap(24.h),
+                Text(
+                  'ui.invitingMembers'.tr(),
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: context.colors.mutedForeground,
+                  ),
+                ),
+                Gap(12.h),
+                Wrap(
+                  runSpacing: 8.h,
+                  spacing: 8.w,
+                  alignment: WrapAlignment.center,
+                  children:
+                      state.userProfilesWithKeyPackage
+                          .map(
+                            (userProfile) => Container(
+                              padding: EdgeInsets.symmetric(horizontal: 4.w, vertical: 2.h),
+                              decoration: BoxDecoration(
+                                color: context.colors.avatarSurface,
+                                borderRadius: BorderRadius.circular(20.r),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  WnAvatar(
+                                    imageUrl: userProfile.imagePath ?? '',
+                                    displayName: userProfile.displayName,
+                                    size: 30.w,
+                                    showBorder: true,
+                                    pubkey: userProfile.publicKey,
+                                  ),
+                                  Gap(8.w),
+                                  SizedBox(
+                                    width: 104.w,
+                                    child: Text(
+                                      userProfile.displayName,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        fontSize: 12.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: context.colors.primary,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          )
+                          .toList(),
+                ),
+                Gap(24.h),
+              ],
+            ),
           ),
-          const Spacer(),
-          WnFilledButton(
-            onPressed: state.canCreateGroup ? _createGroupChatAsync : null,
-            loading: state.isCreatingGroup || state.isUploadingImage,
-            label:
-                state.isUploadingImage
-                    ? 'ui.uploadingImage'.tr()
-                    : state.isCreatingGroup
-                    ? 'ui.creatingGroup'.tr()
-                    : 'ui.createGroup'.tr(),
+          Positioned(
+            left: 0,
+            right: 0,
+            bottom: bottomInsets - 16.h,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IgnorePointer(
+                  child: Container(
+                    height: 70.h,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          context.colors.neutral.withValues(alpha: 0.0),
+                          context.colors.neutral.withValues(alpha: 0.5),
+                          context.colors.neutral,
+                        ],
+                        stops: const [0.0, 0.5, 1.0],
+                      ),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: EdgeInsets.only(bottom: 16.h),
+                  color: context.colors.neutral,
+                  child: WnFilledButton(
+                    onPressed: state.canCreateGroup ? _createGroupChatAsync : null,
+                    loading: state.isCreatingGroup || state.isUploadingImage,
+                    label:
+                        state.isUploadingImage
+                            ? 'ui.uploadingImage'.tr()
+                            : state.isCreatingGroup
+                            ? 'ui.creatingGroup'.tr()
+                            : 'ui.createGroup'.tr(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
