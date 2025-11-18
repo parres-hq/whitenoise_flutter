@@ -52,6 +52,62 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
     super.dispose();
   }
 
+  Future<_UnsavedChangesAction?> _showUnsavedChangesDialog() {
+    return showDialog<_UnsavedChangesAction>(
+      context: context,
+      builder: (dialogContext) {
+        return WnDialog(
+          title: 'shared.unsavedChanges'.tr(),
+          content: 'profile.unsavedChangesQuestion'.tr(),
+          actions: Row(
+            children: [
+              Expanded(
+                child: WnFilledButton(
+                  onPressed: () {
+                    ref.read(editProfileScreenProvider.notifier).discardChanges();
+                    Navigator.of(dialogContext).pop(_UnsavedChangesAction.discard);
+                  },
+                  visualState: WnButtonVisualState.secondaryWarning,
+                  size: WnButtonSize.small,
+                  label: 'shared.discardChanges'.tr(),
+                ),
+              ),
+              Gap(10.w),
+              Expanded(
+                child: WnFilledButton(
+                  onPressed: () async {
+                    await ref.read(editProfileScreenProvider.notifier).updateProfileData();
+                    if (!mounted || !dialogContext.mounted) {
+                      return;
+                    }
+                    final updatedProfile = ref.read(editProfileScreenProvider).value;
+                    if (updatedProfile?.error == null) {
+                      Navigator.of(dialogContext).pop(_UnsavedChangesAction.save);
+                    }
+                  },
+                  label: 'shared.save'.tr(),
+                  size: WnButtonSize.small,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool> _handleBackNavigation() async {
+    final profile = ref.read(editProfileScreenProvider).value;
+
+    if (profile == null || !profile.isDirty) {
+      return true;
+    }
+
+    final result = await _showUnsavedChangesDialog();
+
+    return result == _UnsavedChangesAction.discard || result == _UnsavedChangesAction.save;
+  }
+
   @override
   Widget build(BuildContext context) {
     ref.listen(editProfileScreenProvider, (previous, next) {
@@ -84,220 +140,203 @@ class _ProfileState extends ConsumerState<EditProfileScreen> {
     });
 
     final profileState = ref.watch(editProfileScreenProvider);
+    final hasUnsavedChanges = profileState.maybeWhen(
+      data: (profile) => profile.isDirty,
+      orElse: () => false,
+    );
 
-    return WnSettingsScreenWrapper(
-      title: 'settings.editProfile'.tr(),
-      body: profileState.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
-        error:
-            (error, _) => Center(
-              child: Text(
-                '${'profile.errorLoadingProfile'.tr()}: $error',
-                style: TextStyle(color: context.colors.destructive),
+    return PopScope(
+      canPop: !hasUnsavedChanges,
+      onPopInvokedWithResult: (didPop, _) {
+        if (didPop) {
+          return;
+        }
+        _handleBackNavigation().then((shouldPop) {
+          if (shouldPop && context.mounted) {
+            Navigator.of(context).pop();
+          }
+        });
+      },
+      child: WnSettingsScreenWrapper(
+        title: 'settings.editProfile'.tr(),
+        onBackPressed: () async {
+          final shouldPop = await _handleBackNavigation();
+          if (shouldPop && context.mounted) {
+            Navigator.of(context).pop();
+          }
+        },
+        body: profileState.when(
+          loading: () => const Center(child: CircularProgressIndicator()),
+          error:
+              (error, _) => Center(
+                child: Text(
+                  '${'profile.errorLoadingProfile'.tr()}: $error',
+                  style: TextStyle(color: context.colors.destructive),
+                ),
               ),
-            ),
-        data:
-            (profile) => Column(
-              children: [
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Padding(
-                      padding: EdgeInsets.all(16.w),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Stack(
-                            alignment: Alignment.bottomCenter,
-                            children: [
-                              ValueListenableBuilder<TextEditingValue>(
-                                valueListenable: _displayNameController,
-                                builder: (context, value, child) {
-                                  final imageUrl = _getProfileImageUrl(profile);
-                                  final displayName = value.text.trim();
-                                  return WnAvatar(
-                                    imageUrl: imageUrl,
-                                    displayName: displayName,
-                                    size: 96.w,
-                                    showBorder: imageUrl.isEmpty,
-                                    pubkey: ref.watch(activeAccountProvider).value?.account?.pubkey,
-                                  );
-                                },
-                              ),
-                              Positioned(
-                                left: 1.sw * 0.5,
-                                bottom: 4.h,
-                                width: 28.w,
-                                child: WnEditIconWidget(
-                                  onTap: () async {
-                                    try {
-                                      await ref
-                                          .read(editProfileScreenProvider.notifier)
-                                          .pickProfileImage();
-                                    } catch (e) {
-                                      if (context.mounted) {
-                                        ref.showErrorToast(
-                                          'profile.failedToPickProfileImage'.tr(),
-                                        );
-                                      }
-                                    }
+          data:
+              (profile) => Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Padding(
+                        padding: EdgeInsets.all(16.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            Stack(
+                              alignment: Alignment.bottomCenter,
+                              children: [
+                                ValueListenableBuilder<TextEditingValue>(
+                                  valueListenable: _displayNameController,
+                                  builder: (context, value, child) {
+                                    final imageUrl = _getProfileImageUrl(profile);
+                                    final displayName = value.text.trim();
+                                    return WnAvatar(
+                                      imageUrl: imageUrl,
+                                      displayName: displayName,
+                                      size: 96.w,
+                                      showBorder: imageUrl.isEmpty,
+                                      pubkey:
+                                          ref.watch(activeAccountProvider).value?.account?.pubkey,
+                                    );
                                   },
                                 ),
+                                Positioned(
+                                  left: 1.sw * 0.5,
+                                  bottom: 4.h,
+                                  width: 28.w,
+                                  child: WnEditIconWidget(
+                                    onTap: () async {
+                                      try {
+                                        await ref
+                                            .read(editProfileScreenProvider.notifier)
+                                            .pickProfileImage();
+                                      } catch (e) {
+                                        if (context.mounted) {
+                                          ref.showErrorToast(
+                                            'profile.failedToPickProfileImage'.tr(),
+                                          );
+                                        }
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                            Gap(36.h),
+                            Text(
+                              'profile.profileName'.tr(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                                color: context.colors.primary,
                               ),
-                            ],
-                          ),
-                          Gap(36.h),
-                          Text(
-                            'profile.profileName'.tr(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14.sp,
-                              color: context.colors.primary,
                             ),
-                          ),
-                          Gap(10.h),
-                          WnTextFormField(
-                            controller: _displayNameController,
-                            hintText: 'auth.yourName'.tr(),
-                            onChanged: (value) {
-                              ref
-                                  .read(editProfileScreenProvider.notifier)
-                                  .updateLocalProfile(displayName: value);
-                            },
-                          ),
-                          Gap(36.h),
-                          Text(
-                            'profile.nostrAddress'.tr(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14.sp,
-                              color: context.colors.primary,
+                            Gap(10.h),
+                            WnTextFormField(
+                              controller: _displayNameController,
+                              hintText: 'auth.yourName'.tr(),
+                              onChanged: (value) {
+                                ref
+                                    .read(editProfileScreenProvider.notifier)
+                                    .updateLocalProfile(displayName: value);
+                              },
                             ),
-                          ),
-                          Gap(10.h),
-                          WnTextFormField(
-                            controller: _nostrAddressController,
-                            hintText: 'profile.nostrAddressExample'.tr(),
-                            onChanged: (value) {
-                              ref
-                                  .read(editProfileScreenProvider.notifier)
-                                  .updateLocalProfile(nip05: value);
-                            },
-                          ),
-                          Gap(36.h),
-                          Text(
-                            'profile.aboutYou'.tr(),
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14.sp,
-                              color: context.colors.primary,
+                            Gap(36.h),
+                            Text(
+                              'profile.nostrAddress'.tr(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                                color: context.colors.primary,
+                              ),
                             ),
-                          ),
-                          Gap(10.h),
-                          WnTextFormField(
-                            controller: _aboutController,
-                            hintText: 'auth.writeSomethingAboutYourself'.tr(),
-                            minLines: 3,
-                            maxLines: 3,
-                            keyboardType: TextInputType.multiline,
-                            onChanged: (value) {
-                              ref
-                                  .read(editProfileScreenProvider.notifier)
-                                  .updateLocalProfile(about: value);
-                            },
-                          ),
-                          Gap(16.h),
-                        ],
+                            Gap(10.h),
+                            WnTextFormField(
+                              controller: _nostrAddressController,
+                              hintText: 'profile.nostrAddressExample'.tr(),
+                              onChanged: (value) {
+                                ref
+                                    .read(editProfileScreenProvider.notifier)
+                                    .updateLocalProfile(nip05: value);
+                              },
+                            ),
+                            Gap(36.h),
+                            Text(
+                              'profile.aboutYou'.tr(),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14.sp,
+                                color: context.colors.primary,
+                              ),
+                            ),
+                            Gap(10.h),
+                            WnTextFormField(
+                              controller: _aboutController,
+                              hintText: 'auth.writeSomethingAboutYourself'.tr(),
+                              minLines: 3,
+                              maxLines: 3,
+                              keyboardType: TextInputType.multiline,
+                              onChanged: (value) {
+                                ref
+                                    .read(editProfileScreenProvider.notifier)
+                                    .updateLocalProfile(about: value);
+                              },
+                            ),
+                            Gap(16.h),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                    left: 16.w,
-                    right: 16.w,
-                    bottom: 16.h,
-                  ),
-                  child: profileState.when(
-                    data:
-                        (profile) => Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (profile.isDirty) ...[
+                  Padding(
+                    padding: EdgeInsets.only(
+                      left: 16.w,
+                      right: 16.w,
+                      bottom: 16.h,
+                    ),
+                    child: profileState.when(
+                      data:
+                          (profile) => Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (profile.isDirty) ...[
+                                WnFilledButton(
+                                  onPressed: () async {
+                                    await _showUnsavedChangesDialog();
+                                  },
+                                  label: 'shared.discardChanges'.tr(),
+                                  visualState: WnButtonVisualState.secondary,
+                                ),
+                                Gap(8.h),
+                              ],
                               WnFilledButton(
                                 onPressed:
-                                    () => showDialog(
-                                      context: context,
-                                      builder:
-                                          (dialogContext) => WnDialog(
-                                            title: 'shared.unsavedChanges'.tr(),
-                                            content: 'profile.unsavedChangesQuestion'.tr(),
-                                            actions: Row(
-                                              children: [
-                                                Expanded(
-                                                  child: WnFilledButton(
-                                                    onPressed: () {
-                                                      ref
-                                                          .read(
-                                                            editProfileScreenProvider.notifier,
-                                                          )
-                                                          .discardChanges();
-                                                      Navigator.of(dialogContext).pop();
-                                                    },
-                                                    visualState:
-                                                        WnButtonVisualState.secondaryWarning,
-                                                    size: WnButtonSize.small,
-                                                    label: 'shared.discardChanges'.tr(),
-                                                  ),
-                                                ),
-                                                Gap(10.w),
-                                                Expanded(
-                                                  child: WnFilledButton(
-                                                    onPressed: () async {
-                                                      await ref
-                                                          .read(
-                                                            editProfileScreenProvider.notifier,
-                                                          )
-                                                          .updateProfileData();
-                                                      if (context.mounted) {
-                                                        Navigator.of(dialogContext).pop();
-                                                      }
-                                                    },
-                                                    label: 'shared.save'.tr(),
-                                                    size: WnButtonSize.small,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                    ),
-                                label: 'shared.discardChanges'.tr(),
-                                visualState: WnButtonVisualState.secondary,
+                                    profile.isDirty && !profile.isSaving
+                                        ? () async =>
+                                            await ref
+                                                .read(editProfileScreenProvider.notifier)
+                                                .updateProfileData()
+                                        : null,
+                                loading: profile.isSaving,
+                                label: 'shared.save'.tr(),
                               ),
-                              Gap(8.h),
                             ],
-                            WnFilledButton(
-                              onPressed:
-                                  profile.isDirty && !profile.isSaving
-                                      ? () async =>
-                                          await ref
-                                              .read(editProfileScreenProvider.notifier)
-                                              .updateProfileData()
-                                      : null,
-                              loading: profile.isSaving,
-                              label: 'shared.save'.tr(),
-                            ),
-                          ],
-                        ),
-                    loading: () => const SizedBox.shrink(),
-                    error: (_, _) => const SizedBox.shrink(),
+                          ),
+                      loading: () => const SizedBox.shrink(),
+                      error: (_, _) => const SizedBox.shrink(),
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
+        ),
       ),
     );
   }
 }
+
+enum _UnsavedChangesAction { discard, save }
 
 String _getProfileImageUrl(ProfileState? profile) {
   final selectedImagePath = profile?.selectedImagePath;
