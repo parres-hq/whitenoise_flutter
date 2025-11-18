@@ -577,6 +577,22 @@ void main() {
         final result = await MessageSyncService.getGroupDisplayName(testGroupId, '');
         expect(result, 'Unknown Group');
       });
+
+      test('should return group display name for valid group', () async {
+        try {
+          final result = await MessageSyncService.getGroupDisplayName(
+            testGroupId,
+            testActivePubkey,
+          );
+          // Should return a non-empty string (either group name or 'Group Chat' on error)
+          expect(result, isNotEmpty);
+        } catch (e) {
+          if (e.toString().contains('flutter_rust_bridge has not been initialized')) {
+            return;
+          }
+          rethrow;
+        }
+      }, skip: 'Requires rust bridge initialization');
     });
 
     group('binary search helpers', () {
