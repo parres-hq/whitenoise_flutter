@@ -153,6 +153,8 @@
         "followsLoadingError": "Desculpe, não foi possível carregar os utilizadores que segue devido a um erro.",
         "noUsersFound": "Nenhum utilizador encontrado",
         "you": "Você",
+        "now": "Agora",
+        "yesterday": "Ontem",
         "copy": "Copiar",
         "reply": "Responder",
         "delete": "Excluir",

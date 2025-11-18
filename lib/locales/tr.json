@@ -153,6 +153,8 @@
         "followsLoadingError": "Üzgünüz, bir hata nedeniyle takip ettiğiniz kullanıcıları yükleyemedik.",
         "noUsersFound": "Kullanıcı bulunamadı",
         "you": "Sen",
+        "now": "Şimdi",
+        "yesterday": "Dün",
         "copy": "Kopyala",
         "reply": "Yanıtla",
         "delete": "Sil",

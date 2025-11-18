@@ -153,6 +153,8 @@
         "followsLoadingError": "Sorry, we couldn't load follows because of an error.",
         "noUsersFound": "No users found",
         "you": "You",
+        "now": "Now",
+        "yesterday": "Yesterday",
         "copy": "Copy",
         "reply": "Reply",
         "delete": "Delete",

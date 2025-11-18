@@ -153,6 +153,8 @@
         "followsLoadingError": "Leider konnten wir die von Ihnen verfolgten Nutzer aufgrund eines Fehlers nicht laden.",
         "noUsersFound": "Keine Benutzer gefunden",
         "you": "Du",
+        "now": "Jetzt",
+        "yesterday": "Gestern",
         "copy": "Kopieren",
         "reply": "Antworten",
         "delete": "Löschen",
