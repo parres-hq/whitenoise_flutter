@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:whitenoise/domain/services/displayed_chat_service.dart';
 import 'package:whitenoise/domain/services/last_read_service.dart';
 import 'package:whitenoise/domain/services/notification_id_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
@@ -103,6 +104,12 @@ class MessageSyncService {
     }
     if (activePubkey.isEmpty) {
       _logger.warning('Empty activePubkey provided to notifyNewMessages');
+      return;
+    }
+
+    final isDisplayed = await DisplayedChatService.isChatDisplayed(groupId);
+    if (isDisplayed) {
+      _logger.fine('Skipping notifications for displayed chat: $groupId');
       return;
     }
 

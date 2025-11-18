@@ -211,7 +211,8 @@
         "removedFromGroupSuccess": "{name} rimosso dal gruppo",
         "failedToRemoveMember": "Impossibile rimuovere il membro",
         "noUserToStartChatWith": "Nessun utente con cui iniziare la chat",
-        "photos": "Foto"
+        "photos": "Foto",
+        "photo": "Foto"
     },
     "clipboard": {
         "emptyTextError": "Nessun testo trovato negli appunti",

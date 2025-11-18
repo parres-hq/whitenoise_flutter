@@ -10,25 +10,92 @@ import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/ui/chat/widgets/blurhash_placeholder.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 
-class MediaImage extends ConsumerWidget {
+class MediaImage extends ConsumerStatefulWidget {
   const MediaImage({
     super.key,
     required this.mediaFile,
     this.width,
     this.height,
+    this.onZoomChanged,
+    this.onTap,
   });
 
   final MediaFile mediaFile;
   final double? width;
   final double? height;
-
-  static final _logger = Logger('MediaImage');
+  final void Function(bool isZoomed)? onZoomChanged;
+  final VoidCallback? onTap;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<MediaImage> createState() => _MediaImageState();
+}
+
+class _MediaImageState extends ConsumerState<MediaImage> {
+  static final _logger = Logger('MediaImage');
+  late TransformationController _transformationController;
+  bool _isZoomed = false;
+  final maxScale = 4.0;
+  final minScale = 1.0;
+
+  @override
+  void initState() {
+    super.initState();
+    _transformationController = TransformationController();
+    _transformationController.addListener(_onTransformChanged);
+  }
+
+  @override
+  void dispose() {
+    _transformationController.removeListener(_onTransformChanged);
+    _transformationController.dispose();
+    super.dispose();
+  }
+
+  void _onTransformChanged() {
+    final scale = _transformationController.value.getMaxScaleOnAxis();
+    final wasZoomed = _isZoomed;
+    _isZoomed = scale > minScale;
+
+    if (wasZoomed != _isZoomed) {
+      widget.onZoomChanged?.call(_isZoomed);
+    }
+  }
+
+  void _handleDoubleTap(TapDownDetails details) {
+    if (_isZoomed) {
+      _zoomOut();
+    } else {
+      _zoomIn(details);
+    }
+  }
+
+  void _zoomOut() {
+    _transformationController.value = Matrix4.identity();
+  }
+
+  void _zoomIn(TapDownDetails details) {
+    _transformationController.value = _zoomInTransformation(details);
+  }
+
+  Matrix4 _zoomInTransformation(TapDownDetails details) {
+    final position = details.localPosition;
+    final x = -position.dx * (maxScale - 1);
+    final y = -position.dy * (maxScale - 1);
+
+    final matrix =
+        Matrix4.identity()
+          ..setEntry(0, 0, maxScale)
+          ..setEntry(1, 1, maxScale)
+          ..setEntry(0, 3, x)
+          ..setEntry(1, 3, y);
+    return matrix;
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final download = ref.watch(
       mediaFileDownloadsProvider.select(
-        (state) => state.getMediaFileDownload(mediaFile),
+        (state) => state.getMediaFileDownload(widget.mediaFile),
       ),
     );
 
@@ -36,12 +103,30 @@ class MediaImage extends ConsumerWidget {
     final hasLocalFile = _hasLocalFile(fileToDisplay);
 
     if (download.isDownloaded && hasLocalFile) {
-      return Image.file(
+      final image = Image.file(
         File(fileToDisplay.filePath),
         fit: BoxFit.contain,
         width: double.infinity,
         height: double.infinity,
         errorBuilder: (_, _, _) => _buildBlurhash(),
+      );
+
+      return GestureDetector(
+        onTap: () {
+          if (_isZoomed) {
+            _zoomOut();
+            return;
+          }
+          widget.onTap?.call();
+        },
+        onDoubleTapDown: _handleDoubleTap,
+        child: InteractiveViewer(
+          transformationController: _transformationController,
+          minScale: minScale,
+          maxScale: maxScale,
+          clipBehavior: Clip.none,
+          child: image,
+        ),
       );
     }
 
@@ -53,9 +138,9 @@ class MediaImage extends ConsumerWidget {
     if (download.isDownloading || download.isPending) {
       _logger.info('Download in progress for ${fileToDisplay.originalFileHash}');
       return _BlurhashWithSpinner(
-        hash: mediaFile.fileMetadata?.blurhash,
-        width: width,
-        height: height,
+        hash: widget.mediaFile.fileMetadata?.blurhash,
+        width: widget.width,
+        height: widget.height,
       );
     }
 
@@ -64,9 +149,9 @@ class MediaImage extends ConsumerWidget {
 
   Widget _buildBlurhash() {
     return BlurhashPlaceholder(
-      hash: mediaFile.fileMetadata?.blurhash,
-      width: width,
-      height: height,
+      hash: widget.mediaFile.fileMetadata?.blurhash,
+      width: widget.width,
+      height: widget.height,
     );
   }
 
