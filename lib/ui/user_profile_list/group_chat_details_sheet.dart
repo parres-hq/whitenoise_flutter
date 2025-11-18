@@ -335,7 +335,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                   ),
                 ),
                 Container(
-                  padding: EdgeInsets.only(bottom: 16.w),
+                  padding: EdgeInsets.only(bottom: 16.h),
                   color: context.colors.neutral,
                   child: WnFilledButton(
                     onPressed: state.canCreateGroup ? _createGroupChatAsync : null,
