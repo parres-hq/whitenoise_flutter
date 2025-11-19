@@ -404,9 +404,17 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     }
 
     return PopScope(
-      onPopInvokedWithResult: (_, _) {
+      onPopInvokedWithResult: (didPop, _) {
         if (searchState.isSearchActive) {
           searchNotifier.deactivateSearch();
+        }
+
+        if (didPop) {
+          ref.read(chatProvider.notifier).resetUnreadCountForGroup(widget.groupId);
+
+          LastReadManager.flushPendingSaves(widget.groupId).then((_) {
+            ref.read(chatProvider.notifier).refreshUnreadCount(widget.groupId);
+          });
         }
       },
       child: Scaffold(

@@ -93,6 +93,18 @@ class LastReadManager {
     }
   }
 
+  static Future<void> flushPendingSaves(String groupId) async {
+    _debounceTimers[groupId]?.cancel();
+    _throttleTimers[groupId]?.cancel();
+    _debounceTimers.remove(groupId);
+    _throttleTimers.remove(groupId);
+
+    final pendingTimestamp = _pendingTimestamps[groupId];
+    if (pendingTimestamp != null) {
+      await saveLastReadImmediate(groupId, pendingTimestamp);
+    }
+  }
+
   static void cancelPendingSaves(String groupId) {
     _debounceTimers[groupId]?.cancel();
     _throttleTimers[groupId]?.cancel();

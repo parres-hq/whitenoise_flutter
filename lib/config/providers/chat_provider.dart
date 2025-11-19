@@ -386,6 +386,15 @@ class ChatNotifier extends Notifier<ChatState> {
     }
   }
 
+  void resetUnreadCountForGroup(String groupId) {
+    state = state.copyWith(
+      unreadCounts: {
+        ...state.unreadCounts,
+        groupId: 0,
+      },
+    );
+  }
+
   /// Get the message being replied to for a group
   MessageModel? getReplyingTo(String groupId) {
     return state.getReplyingTo(groupId);
