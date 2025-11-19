@@ -117,18 +117,12 @@ class MessageSyncService {
     bool isDM = false;
     String groupDisplayName = 'Unknown';
     try {
-      final groups = await activeGroups(pubkey: activePubkey);
-      final matching = groups.where((g) => g.mlsGroupId == groupId);
-      if (matching.isNotEmpty) {
-        final group = matching.first;
-        isDM = await group.isDirectMessageType(accountPubkey: activePubkey);
-        groupDisplayName =
-            isDM
-                ? await _resolveDmDisplayName(activePubkey, groupId, group)
-                : _resolveGroupChatDisplayName(group);
-      } else {
-        groupDisplayName = await getGroupDisplayName(groupId, activePubkey);
-      }
+      final group = await getGroup(accountPubkey: activePubkey, groupId: groupId);
+      isDM = await group.isDirectMessageType(accountPubkey: activePubkey);
+      groupDisplayName =
+          isDM
+              ? await _resolveDmDisplayName(activePubkey, groupId, group)
+              : _resolveGroupChatDisplayName(group);
     } catch (e) {
       _logger.warning('Failed to determine DM/group status for $groupId', e);
       groupDisplayName = await getGroupDisplayName(groupId, activePubkey);
@@ -374,14 +368,7 @@ class MessageSyncService {
     }
 
     try {
-      final groups = await activeGroups(pubkey: activePubkey);
-      final matching = groups.where((g) => g.mlsGroupId == groupId);
-      if (matching.isEmpty) {
-        _logger.warning('Group not found for $groupId');
-        return 'Group Chat';
-      }
-      final group = matching.first;
-
+      final group = await getGroup(accountPubkey: activePubkey, groupId: groupId);
       final isDM = await group.isDirectMessageType(accountPubkey: activePubkey);
       return isDM
           ? await _resolveDmDisplayName(activePubkey, groupId, group)
