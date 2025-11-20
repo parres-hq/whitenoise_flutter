@@ -51,7 +51,7 @@ class WnAvatar extends ConsumerWidget {
           showBorder && imageUrl.isEmpty
               ? BoxDecoration(
                 border: Border.all(
-                  color: borderColor.withValues(alpha: 0.3),
+                  color: borderColor,
                   width: 1.w,
                 ),
                 shape: BoxShape.circle,
