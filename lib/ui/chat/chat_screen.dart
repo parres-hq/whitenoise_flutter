@@ -465,7 +465,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                             padding: EdgeInsets.symmetric(
                               horizontal: 8.w,
                               vertical: 8.h,
-                            ).copyWith(bottom: 120.h),
+                            ).copyWith(bottom: 24.h),
                             sliver: SliverList.builder(
                               itemCount: messages.length + 1,
                               itemBuilder: (context, index) {
