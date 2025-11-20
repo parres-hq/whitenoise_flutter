@@ -324,6 +324,24 @@
     "errors": {
         "errorOccurred": "Ein Fehler ist aufgetreten",
         "unknownError": "Unbekannter Fehler",
-        "errorOccurredTryAgain": "Ein Fehler ist aufgetreten, bitte versuchen Sie es erneut."
+        "errorOccurredTryAgain": "Ein Fehler ist aufgetreten, bitte versuchen Sie es erneut.",
+        "internalError": "Interner Fehler ist aufgetreten",
+        "invalidPublicKeySummary": "Mindestens ein öffentlicher Schlüssel ist ungültig. Bitte überprüfen Sie alle Teilnehmer- und Admin-Schlüssel und versuchen Sie es erneut.",
+        "relayUrlSummary": "Es gibt ein Problem mit einer Relay-URL in Ihrer Konfiguration. Prüfen Sie Ihre Relay-URLs in den Einstellungen und versuchen Sie es erneut.",
+        "nostrTagSummary": "Ein Nostr-Tag-Fehler ist aufgetreten.",
+        "nostrEventSummary": "Ein Nostr-Ereignisfehler ist aufgetreten.",
+        "nostrParseSummary": "Wir konnten einige für diese Aktion benötigte Nostr-Daten nicht verarbeiten. Bitte überprüfen Sie Ihre Relays und Daten und versuchen Sie es erneut.",
+        "nostrHexSummary": "Einer der Hex-Werte (wahrscheinlich ein öffentlicher Schlüssel) ist ungültig. Bitte überprüfen Sie den Wert und versuchen Sie es erneut.",
+        "keyPackageHelp": "Bitte bitten Sie die betroffenen Nutzer, WhiteNoise zu öffnen, damit ihre Schlüssel aktualisiert werden.",
+        "invalidPubkeyHelp": "Das Erstellen der Gruppe ist fehlgeschlagen, weil einer der öffentlichen Schlüssel ungültig ist. Bitte überprüfen Sie alle Mitglieder- und Admin-Schlüssel und versuchen Sie es erneut.",
+        "accountLookupHelp": "Wir konnten für Ihren aktiven Schlüssel kein Konto finden. Bitte melden Sie sich ab und wieder an oder erstellen Sie eine neue Identität und versuchen Sie es erneut.",
+        "relayConfigurationHelp": "Für Ihr Konto sind keine gültigen Nostr-Relays (NIP-65) konfiguriert. Bitte fügen Sie in den Einstellungen mindestens ein Relay hinzu und versuchen Sie es erneut.",
+        "networkHelp": "Dies scheint ein Netzwerkproblem zu sein. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
+        "permissionHelp": "Dies scheint ein Berechtigungsproblem zu sein. Möglicherweise haben Sie keine Berechtigung für diese Aktion.",
+        "relayConnectivityHelp": "Es kann keine Verbindung zu den Nostr-Relays hergestellt werden. Bitte überprüfen Sie Ihre Netzwerkverbindung.",
+        "databaseHelp": "Es gab ein Problem mit dem lokalen Datenspeicher. Bitte starten Sie die App neu.",
+        "genericHelp": "Bitte überprüfen Sie Daten, Verbindung und Berechtigungen und versuchen Sie es erneut.",
+        "groupCreationFallback": "Die Gruppe konnte nicht erstellt werden; prüfen Sie Schlüssel, Verbindung, Berechtigungen und versuchen Sie es erneut.",
+        "messageSendFallback": "Nachricht konnte nicht gesendet werden; prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
     }
 }

@@ -324,6 +324,24 @@
     "errors": {
         "errorOccurred": "Ocorreu um erro",
         "unknownError": "Erro desconhecido",
-        "errorOccurredTryAgain": "Ocorreu um erro, tente novamente por favor."
+        "errorOccurredTryAgain": "Ocorreu um erro, tente novamente por favor.",
+        "internalError": "Ocorreu um erro interno",
+        "invalidPublicKeySummary": "Uma ou mais chaves públicas são inválidas. Verifique todas as chaves de participantes e administradores e tente novamente.",
+        "relayUrlSummary": "Há um problema com uma URL de relay na sua configuração. Verifique seus relays nas Configurações e tente novamente.",
+        "nostrTagSummary": "Ocorreu um erro em uma tag Nostr.",
+        "nostrEventSummary": "Ocorreu um erro em um evento Nostr.",
+        "nostrParseSummary": "Não conseguimos processar alguns dados Nostr necessários para esta ação. Verifique seus relays e dados e tente novamente.",
+        "nostrHexSummary": "Um dos valores hexadecimais (provavelmente uma chave pública) está malformado. Confira o valor e tente novamente.",
+        "keyPackageHelp": "Peça aos usuários afetados que abram o WhiteNoise para renovar as chaves.",
+        "invalidPubkeyHelp": "A criação do grupo falhou porque uma das chaves públicas é inválida. Verifique todas as chaves dos membros e administradores e tente novamente.",
+        "accountLookupHelp": "Não encontramos uma conta para sua chave ativa. Saia e entre novamente ou crie uma nova identidade e tente outra vez.",
+        "relayConfigurationHelp": "Sua conta não tem relays Nostr válidos configurados (NIP-65). Adicione pelo menos um relay nas Configurações e tente novamente.",
+        "networkHelp": "Parece ser um problema de conectividade. Verifique sua conexão com a internet e tente novamente.",
+        "permissionHelp": "Parece ser um problema de permissão. Talvez você não tenha autorização para realizar esta ação.",
+        "relayConnectivityHelp": "Não foi possível conectar aos relays Nostr. Verifique sua conexão de rede.",
+        "databaseHelp": "Ocorreu um problema com o armazenamento local de dados. Reinicie o aplicativo.",
+        "genericHelp": "Verifique dados, conexão e permissões e tente novamente.",
+        "groupCreationFallback": "Falha ao criar grupo; confirme chaves, conexão e permissões e tente novamente.",
+        "messageSendFallback": "Mensagem não enviada; verifique sua conexão e tente novamente."
     }
 }

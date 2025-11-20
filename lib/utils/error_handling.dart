@@ -1,9 +1,19 @@
 import 'package:logging/logging.dart';
+import 'package:whitenoise/services/localization_service.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 
 /// Utility class for handling ApiError conversion and providing user-friendly error messages
 class ErrorHandlingUtils {
   static final _logger = Logger('ErrorHandlingUtils');
+
+  static String _tr(
+    String key,
+    String fallback, {
+    Map<String, dynamic>? params,
+  }) {
+    final translated = LocalizationService.translate(key, params: params);
+    return translated == key ? fallback : translated;
+  }
 
   /// Attempts to convert any error (including ApiErrorImpl exceptions) to a user-friendly string
   ///
@@ -70,7 +80,10 @@ class ErrorHandlingUtils {
 
         // Try to extract actual error information from the exception string first
         // The actual error might be embedded in the exception message
-        String baseErrorMessage = 'Internal error occurred';
+        String baseErrorMessage = _tr(
+          'errors.internalError',
+          'Internal error occurred',
+        );
 
         // Attempt to extract meaningful error text from the exception
         // This is a best-effort approach since ApiErrorImpl is opaque
@@ -141,43 +154,67 @@ class ErrorHandlingUtils {
         },
         invalidKey: (value) async {
           final message = await value.messageText();
-          return _formatSummaryWithDetails(
+          final summary = _tr(
+            'errors.invalidPublicKeySummary',
             'One or more public keys are invalid. Please double-check all participant and admin keys, then try again.',
+          );
+          return _formatSummaryWithDetails(
+            summary,
             message,
           );
         },
         nostrUrl: (value) async {
           final message = await value.messageText();
-          return _formatSummaryWithDetails(
+          final summary = _tr(
+            'errors.relayUrlSummary',
             'There is a problem with a relay URL in your setup. Check your relay URLs in Settings and try again.',
+          );
+          return _formatSummaryWithDetails(
+            summary,
             message,
           );
         },
         nostrTag: (value) async {
           final message = await value.messageText();
-          return _formatSummaryWithDetails(
+          final summary = _tr(
+            'errors.nostrTagSummary',
             'A Nostr tag error occurred.',
+          );
+          return _formatSummaryWithDetails(
+            summary,
             message,
           );
         },
         nostrEvent: (value) async {
           final message = await value.messageText();
-          return _formatSummaryWithDetails(
+          final summary = _tr(
+            'errors.nostrEventSummary',
             'A Nostr event error occurred.',
+          );
+          return _formatSummaryWithDetails(
+            summary,
             message,
           );
         },
         nostrParse: (value) async {
           final message = await value.messageText();
-          return _formatSummaryWithDetails(
+          final summary = _tr(
+            'errors.nostrParseSummary',
             'We could not parse some Nostr data required for this action. Please verify your relays and data, then try again.',
+          );
+          return _formatSummaryWithDetails(
+            summary,
             message,
           );
         },
         nostrHex: (value) async {
           final message = await value.messageText();
-          return _formatSummaryWithDetails(
+          final summary = _tr(
+            'errors.nostrHexSummary',
             'One of the hex values (likely a public key) is malformed. Please double-check the value and try again.',
+          );
+          return _formatSummaryWithDetails(
+            summary,
             message,
           );
         },
@@ -209,7 +246,6 @@ class ErrorHandlingUtils {
     }
     return '$summary\n\n$trimmedDetails';
   }
-
 
   /// Parses specific error patterns from converted ApiError strings
   static String _parseSpecificErrorPatterns(String rawErrorMessage) {
@@ -263,8 +299,7 @@ class ErrorHandlingUtils {
   }
 
   static bool _containsNetworkError(String exceptionString, String stackTraceString) {
-    return _containsNetworkMessage(exceptionString) ||
-        _containsNetworkMessage(stackTraceString);
+    return _containsNetworkMessage(exceptionString) || _containsNetworkMessage(stackTraceString);
   }
 
   static bool _containsPermissionError(String exceptionString, String stackTraceString) {
@@ -277,8 +312,7 @@ class ErrorHandlingUtils {
   }
 
   static bool _containsDatabaseError(String exceptionString, String stackTraceString) {
-    return _containsDatabaseMessage(exceptionString) ||
-        _containsDatabaseMessage(stackTraceString);
+    return _containsDatabaseMessage(exceptionString) || _containsDatabaseMessage(stackTraceString);
   }
 
   static bool _containsKeyPackageMessage(String source) {
@@ -286,8 +320,7 @@ class ErrorHandlingUtils {
       return false;
     }
     final normalized = _normalize(source);
-    final hasKeyPackage =
-        normalized.contains('keypackage') || normalized.contains('key package');
+    final hasKeyPackage = normalized.contains('keypackage') || normalized.contains('key package');
     if (!hasKeyPackage) {
       return false;
     }
@@ -435,74 +468,89 @@ class ErrorHandlingUtils {
 
   /// Help text for KeyPackage-related errors (without the main error message)
   static String _getKeyPackageHelpText() {
-    return 'This typically means:\n'
-        '• A user has not used the app recently\n'
-        '• Their encryption keys have expired\n'
-        '• They need to open the app to refresh their keys\n\n'
-        'Please ask the affected user(s) to open WhiteNoise and try again.';
+    return _tr(
+      'errors.keyPackageHelp',
+      'Ask affected members to open WhiteNoise so their encryption keys refresh.',
+    );
   }
 
   static String _getInvalidPubkeyHelpText() {
-    return 'Group creation failed because one of the public keys is invalid. '
-        'Please double-check all member and admin keys, then try again.';
+    return _tr(
+      'errors.invalidPubkeyHelp',
+      'Group creation failed because one of the public keys is invalid. '
+          'Please double-check all member and admin keys, then try again.',
+    );
   }
 
   static String _getAccountLookupHelpText() {
-    return 'We could not find an account for your active key. '
-        'Please log out and back in or create a new identity, then try again.';
+    return _tr(
+      'errors.accountLookupHelp',
+      'We could not find an account for your active key. '
+          'Please log out and back in or create a new identity, then try again.',
+    );
   }
 
   static String _getRelayConfigurationHelpText() {
-    return 'Your account does not have any valid Nostr relays configured (NIP-65). '
-        'Please add at least one relay in Settings and try again.';
+    return _tr(
+      'errors.relayConfigurationHelp',
+      'Your account does not have any valid Nostr relays configured (NIP-65). '
+          'Please add at least one relay in Settings and try again.',
+    );
   }
 
   static String _getNetworkHelpText() {
-    return 'This appears to be a network connectivity issue. '
-        'Please check your internet connection and try again.';
+    return _tr(
+      'errors.networkHelp',
+      'This appears to be a network connectivity issue. '
+          'Please check your internet connection and try again.',
+    );
   }
 
   static String _getPermissionHelpText() {
-    return 'This appears to be a permission issue. '
-        'You may not have permission to perform this operation.';
+    return _tr(
+      'errors.permissionHelp',
+      'This appears to be a permission issue. '
+          'You may not have permission to perform this operation.',
+    );
   }
 
   static String _getRelayConnectivityHelpText() {
-    return 'Unable to connect to Nostr relays. Please check your network connection.';
+    return _tr(
+      'errors.relayConnectivityHelp',
+      'Unable to connect to Nostr relays. Please check your network connection.',
+    );
   }
 
   static String _getDatabaseHelpText() {
-    return 'There was an issue with local data storage. Please restart the app.';
+    return _tr(
+      'errors.databaseHelp',
+      'There was an issue with local data storage. Please restart the app.',
+    );
   }
 
   /// Generic help text for unknown ApiError types
   static String _getGenericHelpText() {
-    return 'This could be due to:\n'
-        '• Invalid user data or public keys\n'
-        '• Network connectivity issues\n'
-        '• Insufficient permissions\n'
-        '• Backend service unavailable\n\n'
-        'Please check your connection and try again.';
+    return _tr(
+      'errors.genericHelp',
+      'Check your data, connection, and permissions, then try again.',
+    );
   }
 
   /// Specific error messages for different operations
 
   /// Error message for group creation failures
   static String getGroupCreationFallbackMessage() {
-    return 'Group creation failed. This could be due to:\n'
-        '• Invalid member public keys\n'
-        '• Network connectivity issues\n'
-        '• Insufficient permissions\n'
-        '• Backend service unavailable\n\n'
-        'Please check that all member public keys are valid and try again.';
+    return _tr(
+      'errors.groupCreationFallback',
+      'Group creation failed; verify member keys, network, permissions, and try again.',
+    );
   }
 
   /// Error message for message sending failures
   static String getMessageSendFallbackMessage() {
-    return 'Failed to send message. This could be due to:\n'
-        '• Network connectivity issues\n'
-        '• Group synchronization problems\n'
-        '• Encryption key issues\n\n'
-        'Please check your connection and try again.';
+    return _tr(
+      'errors.messageSendFallback',
+      'Message failed to send; check your connection and try again.',
+    );
   }
 }
