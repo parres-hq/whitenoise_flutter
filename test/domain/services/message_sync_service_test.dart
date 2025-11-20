@@ -1,9 +1,14 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/domain/services/message_sync_service.dart';
+import 'package:whitenoise/domain/services/notification_content_builder_service.dart';
+import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/media_files.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
+
+import '../../test_helpers.dart';
 
 ChatMessage createTestMessage({
   required String id,
@@ -54,6 +59,10 @@ Welcome createTestWelcome({
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+
+  setUpAll(() async {
+    await initializeTestLocalization();
+  });
 
   group('MessageSyncService', () {
     const String testGroupId = 'test-group-123';
@@ -566,28 +575,6 @@ void main() {
         expect(result[1].id, 'welcome2');
       });
     });
-
-    group('getGroupDisplayName', () {
-      test('returns default for empty groupId', () async {
-        final result = await MessageSyncService.getGroupDisplayName('', testActivePubkey);
-        expect(result, 'Unknown Group');
-      });
-
-      test('returns default for empty activePubkey', () async {
-        final result = await MessageSyncService.getGroupDisplayName(testGroupId, '');
-        expect(result, 'Unknown Group');
-      });
-
-      test('should return group display name for valid group', () async {
-        final result = await MessageSyncService.getGroupDisplayName(
-          testGroupId,
-          testActivePubkey,
-        );
-        // Should return a non-empty string (either group name or 'Group Chat' on error)
-        expect(result, isNotEmpty);
-      }, skip: 'Requires rust bridge initialization');
-    });
-
     group('binary search helpers', () {
       test('_binarySearchAfter finds correct insertion point', () async {
         final now = DateTime.now();
@@ -697,6 +684,512 @@ void main() {
         );
 
         expect(result.length, 1);
+      });
+    });
+
+    group('notifyNewMessages', () {
+      late List<Map<String, dynamic>> shownNotifications;
+
+      Future<bool> mockIsChatDisplayed(String groupId) async => false;
+
+      Future<GroupInformation> mockGetGroupInformation({
+        required String accountPubkey,
+        required String groupId,
+      }) async {
+        return GroupInformation(
+          mlsGroupId: groupId,
+          groupType: GroupType.directMessage,
+          createdAt: baseTestTime,
+          updatedAt: baseTestTime,
+        );
+      }
+
+      Future<Group> mockGetGroup({
+        required String accountPubkey,
+        required String groupId,
+      }) async {
+        return Group(
+          mlsGroupId: groupId,
+          nostrGroupId: 'nostr-$groupId',
+          name: 'Test Group',
+          description: 'Test description',
+          adminPubkeys: [],
+          epoch: BigInt.from(1),
+          state: GroupState.active,
+        );
+      }
+
+      Future<List<String>> mockGetGroupMembers({
+        required String pubkey,
+        required String groupId,
+      }) async {
+        return [pubkey, 'other-user'];
+      }
+
+      Future<FlutterMetadata> mockGetUserMetadata({
+        required String pubkey,
+        bool blockingDataSync = false,
+      }) async {
+        // Return different names based on pubkey
+        if (pubkey == 'other-user') {
+          return const FlutterMetadata(
+            name: 'Test DM User',
+            displayName: 'Test DM User',
+            custom: {},
+          );
+        }
+        return const FlutterMetadata(
+          name: 'Sender',
+          displayName: 'Sender',
+          custom: {},
+        );
+      }
+
+      Future<NotificationContentBuilderService> mockNotificationBuilderFactory({
+        required String groupId,
+        required String accountPubkey,
+        required bool isDM,
+        required bool showReceiverAccountName,
+      }) async {
+        return NotificationContentBuilderService.forGroup(
+          groupId: groupId,
+          accountPubkey: accountPubkey,
+          isDM: isDM,
+          showReceiverAccountName: showReceiverAccountName,
+          getGroupFn: mockGetGroup,
+          getGroupMembersFn: mockGetGroupMembers,
+          getUserMetadataFn: mockGetUserMetadata,
+        );
+      }
+
+      Future<void> mockShowNotification({
+        required int id,
+        required String title,
+        required String body,
+        String? groupKey,
+        String? payload,
+      }) async {
+        shownNotifications.add({
+          'id': id,
+          'title': title,
+          'body': body,
+          'groupKey': groupKey,
+          'payload': payload,
+        });
+      }
+
+      Future<int> mockGetNotificationId({required String key}) async {
+        return key.hashCode.abs();
+      }
+
+      setUp(() {
+        shownNotifications = [];
+      });
+
+      test('returns early when groupId is empty', () async {
+        await MessageSyncService.notifyNewMessages(
+          groupId: '',
+          accountPubkey: testActivePubkey,
+          newMessages: [
+            createTestMessage(
+              id: 'msg1',
+              pubkey: 'other-user',
+              content: 'Hello',
+              createdAt: baseTestTime,
+            ),
+          ],
+          showReceiverAccountName: false,
+          showNotificationFn: mockShowNotification,
+          getUserMetadataFn: mockGetUserMetadata,
+        );
+
+        expect(shownNotifications, isEmpty);
+      });
+
+      test('returns early when accountPubkey is empty', () async {
+        await MessageSyncService.notifyNewMessages(
+          groupId: testGroupId,
+          accountPubkey: '',
+          newMessages: [
+            createTestMessage(
+              id: 'msg1',
+              pubkey: 'other-user',
+              content: 'Hello',
+              createdAt: baseTestTime,
+            ),
+          ],
+          showReceiverAccountName: false,
+          showNotificationFn: mockShowNotification,
+          getUserMetadataFn: mockGetUserMetadata,
+        );
+
+        expect(shownNotifications, isEmpty);
+      });
+
+      test('skips notifications when chat is displayed', () async {
+        await MessageSyncService.notifyNewMessages(
+          groupId: testGroupId,
+          accountPubkey: testActivePubkey,
+          newMessages: [
+            createTestMessage(
+              id: 'msg1',
+              pubkey: 'other-user',
+              content: 'Hello',
+              createdAt: baseTestTime,
+            ),
+          ],
+          showReceiverAccountName: false,
+          isChatDisplayedFn: (groupId) async => true,
+          showNotificationFn: mockShowNotification,
+          getUserMetadataFn: mockGetUserMetadata,
+        );
+
+        expect(shownNotifications, isEmpty);
+      });
+
+      test('shows notifications when chat is not displayed', () async {
+        await MessageSyncService.notifyNewMessages(
+          groupId: testGroupId,
+          accountPubkey: testActivePubkey,
+          newMessages: [
+            createTestMessage(
+              id: 'msg1',
+              pubkey: 'other-user',
+              content: 'Hello',
+              createdAt: baseTestTime,
+            ),
+          ],
+          showReceiverAccountName: false,
+          isChatDisplayedFn: mockIsChatDisplayed,
+          getGroupInformationFn: mockGetGroupInformation,
+          notificationBuilderFactoryFn: mockNotificationBuilderFactory,
+          showNotificationFn: mockShowNotification,
+          getNotificationIdFn: mockGetNotificationId,
+          getUserMetadataFn: mockGetUserMetadata,
+        );
+
+        expect(shownNotifications.length, 1);
+      });
+
+      test('shows notification with correct title for DM', () async {
+        await MessageSyncService.notifyNewMessages(
+          groupId: testGroupId,
+          accountPubkey: testActivePubkey,
+          newMessages: [
+            createTestMessage(
+              id: 'msg1',
+              pubkey: 'other-user',
+              content: 'Hello',
+              createdAt: baseTestTime,
+            ),
+          ],
+          showReceiverAccountName: false,
+          isChatDisplayedFn: mockIsChatDisplayed,
+          getGroupInformationFn: mockGetGroupInformation,
+          notificationBuilderFactoryFn: mockNotificationBuilderFactory,
+          showNotificationFn: mockShowNotification,
+          getNotificationIdFn: mockGetNotificationId,
+          getUserMetadataFn: mockGetUserMetadata,
+        );
+
+        expect(shownNotifications.first['title'], 'Test DM User');
+      });
+
+      test('shows notification with correct body for DM text message', () async {
+        await MessageSyncService.notifyNewMessages(
+          groupId: testGroupId,
+          accountPubkey: testActivePubkey,
+          newMessages: [
+            createTestMessage(
+              id: 'msg1',
+              pubkey: 'other-user',
+              content: 'Hello world',
+              createdAt: baseTestTime,
+            ),
+          ],
+          showReceiverAccountName: false,
+          isChatDisplayedFn: mockIsChatDisplayed,
+          getGroupInformationFn: mockGetGroupInformation,
+          notificationBuilderFactoryFn: mockNotificationBuilderFactory,
+          showNotificationFn: mockShowNotification,
+          getNotificationIdFn: mockGetNotificationId,
+          getUserMetadataFn: mockGetUserMetadata,
+        );
+
+        expect(shownNotifications.first['body'], 'Hello world');
+      });
+
+      test('shows notification with groupKey matching groupId', () async {
+        await MessageSyncService.notifyNewMessages(
+          groupId: testGroupId,
+          accountPubkey: testActivePubkey,
+          newMessages: [
+            createTestMessage(
+              id: 'msg1',
+              pubkey: 'other-user',
+              content: 'Hello',
+              createdAt: baseTestTime,
+            ),
+          ],
+          showReceiverAccountName: false,
+          isChatDisplayedFn: mockIsChatDisplayed,
+          getGroupInformationFn: mockGetGroupInformation,
+          notificationBuilderFactoryFn: mockNotificationBuilderFactory,
+          showNotificationFn: mockShowNotification,
+          getNotificationIdFn: mockGetNotificationId,
+          getUserMetadataFn: mockGetUserMetadata,
+        );
+
+        expect(shownNotifications.first['groupKey'], testGroupId);
+      });
+
+      test('shows multiple notifications for multiple messages', () async {
+        await MessageSyncService.notifyNewMessages(
+          groupId: testGroupId,
+          accountPubkey: testActivePubkey,
+          newMessages: [
+            createTestMessage(
+              id: 'msg1',
+              pubkey: 'other-user',
+              content: 'First',
+              createdAt: baseTestTime,
+            ),
+            createTestMessage(
+              id: 'msg2',
+              pubkey: 'other-user',
+              content: 'Second',
+              createdAt: baseTestTime.add(const Duration(seconds: 1)),
+            ),
+          ],
+          showReceiverAccountName: false,
+          isChatDisplayedFn: mockIsChatDisplayed,
+          getGroupInformationFn: mockGetGroupInformation,
+          notificationBuilderFactoryFn: mockNotificationBuilderFactory,
+          showNotificationFn: mockShowNotification,
+          getNotificationIdFn: mockGetNotificationId,
+          getUserMetadataFn: mockGetUserMetadata,
+        );
+
+        expect(shownNotifications.length, 2);
+      });
+
+      test('uses unique notification ID for each message', () async {
+        await MessageSyncService.notifyNewMessages(
+          groupId: testGroupId,
+          accountPubkey: testActivePubkey,
+          newMessages: [
+            createTestMessage(
+              id: 'msg1',
+              pubkey: 'other-user',
+              content: 'First',
+              createdAt: baseTestTime,
+            ),
+            createTestMessage(
+              id: 'msg2',
+              pubkey: 'other-user',
+              content: 'Second',
+              createdAt: baseTestTime.add(const Duration(seconds: 1)),
+            ),
+          ],
+          showReceiverAccountName: false,
+          isChatDisplayedFn: mockIsChatDisplayed,
+          getGroupInformationFn: mockGetGroupInformation,
+          notificationBuilderFactoryFn: mockNotificationBuilderFactory,
+          showNotificationFn: mockShowNotification,
+          getNotificationIdFn: mockGetNotificationId,
+          getUserMetadataFn: mockGetUserMetadata,
+        );
+
+        final id1 = shownNotifications[0]['id'] as int;
+        final id2 = shownNotifications[1]['id'] as int;
+        expect(id1, isNot(equals(id2)));
+      });
+
+      test('continues showing notifications after one fails', () async {
+        int callCount = 0;
+        Future<void> failFirstNotification({
+          required int id,
+          required String title,
+          required String body,
+          String? groupKey,
+          String? payload,
+        }) async {
+          callCount++;
+          if (callCount == 1) {
+            throw Exception('First notification failed');
+          }
+          shownNotifications.add({
+            'id': id,
+            'title': title,
+            'body': body,
+            'groupKey': groupKey,
+            'payload': payload,
+          });
+        }
+
+        await MessageSyncService.notifyNewMessages(
+          groupId: testGroupId,
+          accountPubkey: testActivePubkey,
+          newMessages: [
+            createTestMessage(
+              id: 'msg1',
+              pubkey: 'other-user',
+              content: 'First',
+              createdAt: baseTestTime,
+            ),
+            createTestMessage(
+              id: 'msg2',
+              pubkey: 'other-user',
+              content: 'Second',
+              createdAt: baseTestTime.add(const Duration(seconds: 1)),
+            ),
+          ],
+          showReceiverAccountName: false,
+          isChatDisplayedFn: mockIsChatDisplayed,
+          getGroupInformationFn: mockGetGroupInformation,
+          notificationBuilderFactoryFn: mockNotificationBuilderFactory,
+          showNotificationFn: failFirstNotification,
+          getNotificationIdFn: mockGetNotificationId,
+        );
+
+        expect(shownNotifications.length, 1);
+      });
+
+      test('handles empty messages list', () async {
+        await MessageSyncService.notifyNewMessages(
+          groupId: testGroupId,
+          accountPubkey: testActivePubkey,
+          newMessages: [],
+          showReceiverAccountName: false,
+          isChatDisplayedFn: mockIsChatDisplayed,
+          getGroupInformationFn: mockGetGroupInformation,
+          notificationBuilderFactoryFn: mockNotificationBuilderFactory,
+          showNotificationFn: mockShowNotification,
+          getNotificationIdFn: mockGetNotificationId,
+          getUserMetadataFn: mockGetUserMetadata,
+        );
+
+        expect(shownNotifications, isEmpty);
+      });
+
+      group('for group chats', () {
+        Future<GroupInformation> mockGetGroupChatInformation({
+          required String accountPubkey,
+          required String groupId,
+        }) async {
+          return GroupInformation(
+            mlsGroupId: groupId,
+            groupType: GroupType.group,
+            createdAt: baseTestTime,
+            updatedAt: baseTestTime,
+          );
+        }
+
+        Future<Group> mockGetGroupChat({
+          required String accountPubkey,
+          required String groupId,
+        }) async {
+          return Group(
+            mlsGroupId: groupId,
+            nostrGroupId: 'nostr-$groupId',
+            name: 'Test Group',
+            description: 'Test description',
+            adminPubkeys: [],
+            epoch: BigInt.from(1),
+            state: GroupState.active,
+          );
+        }
+
+        Future<List<String>> mockGetGroupChatMembers({
+          required String pubkey,
+          required String groupId,
+        }) async {
+          return [pubkey, 'other-user'];
+        }
+
+        Future<FlutterMetadata> mockGetGroupUserMetadata({
+          required String pubkey,
+          bool blockingDataSync = false,
+        }) async {
+          // Return different names based on pubkey
+          if (pubkey == 'other-user') {
+            return const FlutterMetadata(
+              name: 'Sender',
+              displayName: 'Sender',
+              custom: {},
+            );
+          }
+          return const FlutterMetadata(
+            name: 'Test User',
+            displayName: 'Test User',
+            custom: {},
+          );
+        }
+
+        Future<NotificationContentBuilderService> mockGroupBuilderFactory({
+          required String groupId,
+          required String accountPubkey,
+          required bool isDM,
+          required bool showReceiverAccountName,
+        }) async {
+          return NotificationContentBuilderService.forGroup(
+            groupId: groupId,
+            accountPubkey: accountPubkey,
+            isDM: isDM,
+            showReceiverAccountName: showReceiverAccountName,
+            getGroupFn: mockGetGroupChat,
+            getGroupMembersFn: mockGetGroupChatMembers,
+            getUserMetadataFn: mockGetGroupUserMetadata,
+          );
+        }
+
+        test('shows notification with correct title', () async {
+          await MessageSyncService.notifyNewMessages(
+            groupId: testGroupId,
+            accountPubkey: testActivePubkey,
+            newMessages: [
+              createTestMessage(
+                id: 'msg1',
+                pubkey: 'other-user',
+                content: 'Hello group',
+                createdAt: baseTestTime,
+              ),
+            ],
+            showReceiverAccountName: false,
+            isChatDisplayedFn: mockIsChatDisplayed,
+            getGroupInformationFn: mockGetGroupChatInformation,
+            notificationBuilderFactoryFn: mockGroupBuilderFactory,
+            showNotificationFn: mockShowNotification,
+            getNotificationIdFn: mockGetNotificationId,
+            getUserMetadataFn: mockGetGroupUserMetadata,
+          );
+
+          expect(shownNotifications.first['title'], 'Test Group');
+        });
+
+        test('shows notification with sender name in body', () async {
+          await MessageSyncService.notifyNewMessages(
+            groupId: testGroupId,
+            accountPubkey: testActivePubkey,
+            newMessages: [
+              createTestMessage(
+                id: 'msg1',
+                pubkey: 'other-user',
+                content: 'Hello group',
+                createdAt: baseTestTime,
+              ),
+            ],
+            showReceiverAccountName: false,
+            isChatDisplayedFn: mockIsChatDisplayed,
+            getGroupInformationFn: mockGetGroupChatInformation,
+            notificationBuilderFactoryFn: mockGroupBuilderFactory,
+            showNotificationFn: mockShowNotification,
+            getNotificationIdFn: mockGetNotificationId,
+            getUserMetadataFn: mockGetGroupUserMetadata,
+          );
+
+          expect(shownNotifications.first['body'], 'Sender: Hello group');
+        });
       });
     });
   });

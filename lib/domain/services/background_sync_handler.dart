@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/domain/services/account_secure_storage_service.dart';
 import 'package:whitenoise/domain/services/message_sync_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/services/localization_service.dart';
@@ -60,9 +62,15 @@ class BackgroundSyncHandler extends TaskHandler {
         return;
       }
       _log.fine('Syncing messages for ${accounts.length} account(s)');
+      final showAccountsReceiverName = accounts.length > 1;
       for (final account in accounts) {
+        final activePubkey = await AccountSecureStorageService.getActivePubkey();
+        final showReceiverAccountName = showAccountsReceiverName && account.pubkey != activePubkey;
         try {
-          await _syncMessagesForAccount(account.pubkey);
+          await _syncMessagesForAccount(
+            accountPubkey: account.pubkey,
+            showReceiverAccountName: showReceiverAccountName,
+          );
         } catch (e, stackTrace) {
           _log.warning('Message sync failed for ${account.pubkey}: $e', e, stackTrace);
         }
@@ -72,7 +80,10 @@ class BackgroundSyncHandler extends TaskHandler {
     }
   }
 
-  Future<void> _syncMessagesForAccount(String accountPubkey) async {
+  Future<void> _syncMessagesForAccount({
+    required String accountPubkey,
+    required bool showReceiverAccountName,
+  }) async {
     try {
       final groups = await activeGroups(pubkey: accountPubkey);
       _log.fine('Found ${groups.length} active group(s) for account $accountPubkey');
@@ -80,6 +91,7 @@ class BackgroundSyncHandler extends TaskHandler {
         await _syncMessagesForGroup(
           accountPubkey: accountPubkey,
           groupId: group.mlsGroupId,
+          showReceiverAccountName: showReceiverAccountName,
         );
       }
     } catch (e, stackTrace) {
@@ -90,6 +102,7 @@ class BackgroundSyncHandler extends TaskHandler {
   Future<void> _syncMessagesForGroup({
     required String accountPubkey,
     required String groupId,
+    required bool showReceiverAccountName,
   }) async {
     try {
       final lastSyncTime = await MessageSyncService.getLastMessageSyncTime(
@@ -111,8 +124,9 @@ class BackgroundSyncHandler extends TaskHandler {
         _log.info('Found ${newMessages.length} new message(s) in group $groupId');
         await MessageSyncService.notifyNewMessages(
           groupId: groupId,
-          activePubkey: accountPubkey,
+          accountPubkey: accountPubkey,
           newMessages: newMessages,
+          showReceiverAccountName: showReceiverAccountName,
         );
         try {
           final lastMessageTime = newMessages
@@ -145,15 +159,16 @@ class BackgroundSyncHandler extends TaskHandler {
         return;
       }
       _log.fine('Syncing invites for ${accounts.length} account(s)');
+      final showAccountsReceiverName = accounts.length > 1;
       for (final account in accounts) {
-        await _syncInvitesForAccount(account.pubkey);
+        await _syncInvitesForAccount(account.pubkey, showAccountsReceiverName);
       }
     } catch (e, stackTrace) {
       _log.warning('Error syncing invites for all accounts: $e', e, stackTrace);
     }
   }
 
-  Future<void> _syncInvitesForAccount(String accountPubkey) async {
+  Future<void> _syncInvitesForAccount(String accountPubkey, bool showReceiverAccountName) async {
     try {
       final lastSyncTime = await MessageSyncService.getLastInviteSyncTime(
         activePubkey: accountPubkey,
@@ -179,6 +194,8 @@ class BackgroundSyncHandler extends TaskHandler {
 
         await MessageSyncService.notifyNewInvites(
           newWelcomes: newWelcomes,
+          accountPubkey: accountPubkey,
+          showReceiverAccountName: showReceiverAccountName,
         );
 
         await MessageSyncService.setLastInviteSyncTime(
