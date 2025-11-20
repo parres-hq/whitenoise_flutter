@@ -98,10 +98,13 @@ class BackgroundSyncHandler extends TaskHandler {
           newMessages: newMessages,
         );
         try {
+          final lastMessageTime = newMessages
+              .map((m) => m.createdAt)
+              .reduce((a, b) => a.isAfter(b) ? a : b);
           await MessageSyncService.setLastMessageSyncTime(
             activePubkey: accountPubkey,
             groupId: groupId,
-            time: DateTime.now(),
+            time: lastMessageTime,
           );
         } catch (e, stackTrace) {
           _log.warning(
