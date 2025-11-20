@@ -324,6 +324,24 @@
     "errors": {
         "errorOccurred": "Bir hata oluştu",
         "unknownError": "Bilinmeyen hata",
-        "errorOccurredTryAgain": "Bir hata oluştu, lütfen tekrar deneyin."
+        "errorOccurredTryAgain": "Bir hata oluştu, lütfen tekrar deneyin.",
+        "internalError": "Dahili bir hata oluştu",
+        "invalidPublicKeySummary": "Bir veya daha fazla genel anahtar geçersiz. Tüm katılımcı ve yönetici anahtarlarını kontrol edip tekrar deneyin.",
+        "relayUrlSummary": "Yapılandırmanızdaki bir röle URL'siyle ilgili sorun var. Ayarlardaki röleleri kontrol edip tekrar deneyin.",
+        "nostrTagSummary": "Bir Nostr etiket hatası oluştu.",
+        "nostrEventSummary": "Bir Nostr etkinlik hatası oluştu.",
+        "nostrParseSummary": "Bu işlem için gereken bazı Nostr verilerini işleyemedik. Rölelerinizi ve verilerinizi kontrol edip tekrar deneyin.",
+        "nostrHexSummary": "Onaltılık değerlerden biri (muhtemelen bir genel anahtar) bozuk. Değeri kontrol edip tekrar deneyin.",
+        "keyPackageHelp": "Etkilenen kullanıcıların anahtarlarını yenilemesi için WhiteNoise'u açmalarını isteyin.",
+        "invalidPubkeyHelp": "Genel anahtarlardan biri geçersiz olduğu için grup oluşturma başarısız oldu. Tüm üye ve yönetici anahtarlarını kontrol edip tekrar deneyin.",
+        "accountLookupHelp": "Aktif anahtarınız için bir hesap bulunamadı. Oturumu kapatıp yeniden açın veya yeni bir kimlik oluşturup tekrar deneyin.",
+        "relayConfigurationHelp": "Hesabınızda geçerli Nostr röleleri (NIP-65) yapılandırılmamış. Ayarlardan en az bir röle ekleyip tekrar deneyin.",
+        "networkHelp": "Bu bir ağ bağlantısı sorunu gibi görünüyor. İnternet bağlantınızı kontrol edip tekrar deneyin.",
+        "permissionHelp": "Bu bir izin sorunu gibi görünüyor. Bu işlemi gerçekleştirmek için yetkiniz olmayabilir.",
+        "relayConnectivityHelp": "Nostr rölelerine bağlanılamıyor. Ağ bağlantınızı kontrol edin.",
+        "databaseHelp": "Yerel veri depolamada bir sorun oluştu. Uygulamayı yeniden başlatın.",
+        "genericHelp": "Verilerinizi, bağlantınızı ve izinlerinizi kontrol edip tekrar deneyin.",
+        "groupCreationFallback": "Grup oluşturulamadı; anahtarları, bağlantıyı ve izinleri kontrol edip tekrar deneyin.",
+        "messageSendFallback": "Mesaj gönderilemedi; bağlantınızı kontrol edip tekrar deneyin."
     }
 }

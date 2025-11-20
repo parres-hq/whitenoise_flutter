@@ -324,6 +324,24 @@
     "errors": {
         "errorOccurred": "An error occurred",
         "unknownError": "Unknown error",
-        "errorOccurredTryAgain": "An error occurred, please try again."
+        "errorOccurredTryAgain": "An error occurred, please try again.",
+        "internalError": "Internal error occurred",
+        "invalidPublicKeySummary": "One or more public keys are invalid. Please double-check all participant and admin keys, then try again.",
+        "relayUrlSummary": "There is a problem with a relay URL in your setup. Check your relay URLs in Settings and try again.",
+        "nostrTagSummary": "A Nostr tag error occurred.",
+        "nostrEventSummary": "A Nostr event error occurred.",
+        "nostrParseSummary": "We could not parse some Nostr data required for this action. Please verify your relays and data, then try again.",
+        "nostrHexSummary": "One of the hex values (likely a public key) is malformed. Please double-check the value and try again.",
+        "keyPackageHelp": "Ask affected members to open WhiteNoise so their encryption keys refresh.",
+        "invalidPubkeyHelp": "Group creation failed because one of the public keys is invalid. Please double-check all member and admin keys, then try again.",
+        "accountLookupHelp": "We could not find an account for your active key. Please log out and back in or create a new identity, then try again.",
+        "relayConfigurationHelp": "Your account does not have any valid Nostr relays configured (NIP-65). Please add at least one relay in Settings and try again.",
+        "networkHelp": "This appears to be a network connectivity issue. Please check your internet connection and try again.",
+        "permissionHelp": "This appears to be a permission issue. You may not have permission to perform this operation.",
+        "relayConnectivityHelp": "Unable to connect to Nostr relays. Please check your network connection.",
+        "databaseHelp": "There was an issue with local data storage. Please restart the app.",
+        "genericHelp": "Check your data, connection, and permissions, then try again.",
+        "groupCreationFallback": "Group creation failed; verify member keys, network, permissions, and try again.",
+        "messageSendFallback": "Message failed to send; check your connection and try again."
     }
 }
