@@ -9,7 +9,7 @@ import 'package:whitenoise/domain/services/image_picker_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
 import 'package:whitenoise/src/rust/api/utils.dart' as rust_utils;
-import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/error_handling.dart';
 
 class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
   final _logger = Logger('CreateGroupNotifier');
@@ -125,14 +125,22 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
         );
       } else {
         state = state.copyWith(
-          error: 'ui.failedToCreateGroup'.tr(),
+          error: _getDetailedGroupCreationError(),
           isCreatingGroup: false,
         );
       }
     } catch (e, st) {
       _logger.severe('createGroup', e, st);
+      final fallbackMessage = ErrorHandlingUtils.getGroupCreationFallbackMessage();
+      final errorMessage = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
+        error: e,
+        stackTrace: st,
+        fallbackMessage: fallbackMessage,
+        context: 'CreateGroupNotifier.createGroup',
+      );
+
       state = state.copyWith(
-        error: 'ui.errorCreatingGroup'.tr(),
+        error: errorMessage,
         isCreatingGroup: false,
       );
     }
@@ -149,6 +157,16 @@ class CreateGroupNotifier extends StateNotifier<CreateGroupState> {
       memberPublicKeyHexs: userProfilesWithKeyPackage.map((c) => c.publicKey).toList(),
       adminPublicKeyHexs: [],
     );
+  }
+
+  String _getDetailedGroupCreationError() {
+    final groupsState = ref.read(groupsProvider);
+    final fallbackMessage = ErrorHandlingUtils.getGroupCreationFallbackMessage();
+    final providerError = groupsState.error?.trim();
+    if (providerError != null && providerError.isNotEmpty) {
+      return providerError;
+    }
+    return fallbackMessage;
   }
 
   Future<UploadGroupImageResult?> _uploadGroupImage(String groupId, String accountPubkey) async {

@@ -26,17 +26,11 @@ class ErrorHandlingUtils {
 
     try {
       if (error is ApiError) {
-        try {
-          _logger.severe('${logPrefix}Converting Whitenoise ApiError to string...');
-          final rawErrorMessage = await error.messageText();
-          _logger.severe('${logPrefix}ApiError converted to: $rawErrorMessage');
-          return _parseSpecificErrorPatterns(rawErrorMessage);
-        } catch (conversionError) {
-          _logger.severe(
-            '${logPrefix}Failed to convert ApiError to string: $conversionError',
-          );
-          return fallbackMessage;
-        }
+        return await _handleApiError(
+          error: error,
+          fallbackMessage: fallbackMessage,
+          logPrefix: logPrefix,
+        );
       } else if (error is Exception) {
         return _handleWrappedException(
           error: error,
@@ -91,15 +85,21 @@ class ErrorHandlingUtils {
 
         // Check for specific error patterns and augment the base error message with helpful context
         if (_containsKeyPackageError(exceptionString, stackTraceString)) {
-          return '$baseErrorMessage\n\n${_getKeyPackageHelpText()}';
+          return _appendHelpText(baseErrorMessage, _getKeyPackageHelpText());
+        } else if (_containsInvalidPubkeyError(exceptionString, stackTraceString)) {
+          return _appendHelpText(baseErrorMessage, _getInvalidPubkeyHelpText());
+        } else if (_containsAccountLookupError(exceptionString, stackTraceString)) {
+          return _appendHelpText(baseErrorMessage, _getAccountLookupHelpText());
+        } else if (_containsRelayConfigurationError(exceptionString, stackTraceString)) {
+          return _appendHelpText(baseErrorMessage, _getRelayConfigurationHelpText());
         } else if (_containsNetworkError(exceptionString, stackTraceString)) {
-          return '$baseErrorMessage\n\nThis appears to be a network connectivity issue. Please check your internet connection and try again.';
+          return _appendHelpText(baseErrorMessage, _getNetworkHelpText());
         } else if (_containsPermissionError(exceptionString, stackTraceString)) {
-          return '$baseErrorMessage\n\nThis appears to be a permission issue. You may not have permission to perform this operation.';
+          return _appendHelpText(baseErrorMessage, _getPermissionHelpText());
         } else if (_containsRelayError(exceptionString, stackTraceString)) {
-          return '$baseErrorMessage\n\nUnable to connect to Nostr relays. Please check your network connection.';
+          return _appendHelpText(baseErrorMessage, _getRelayConnectivityHelpText());
         } else if (_containsDatabaseError(exceptionString, stackTraceString)) {
-          return '$baseErrorMessage\n\nThere was an issue with local data storage. Please restart the app.';
+          return _appendHelpText(baseErrorMessage, _getDatabaseHelpText());
         } else {
           // Log full details for debugging but still try to show what we can to the user
           _logger.severe('${logPrefix}ApiErrorImpl details: $exceptionString');
@@ -127,24 +127,111 @@ class ErrorHandlingUtils {
     }
   }
 
+  static Future<String> _handleApiError({
+    required ApiError error,
+    required String fallbackMessage,
+    required String logPrefix,
+  }) async {
+    try {
+      _logger.severe('${logPrefix}Handling ApiError variant: ${error.runtimeType}');
+      return await error.map<Future<String>>(
+        whitenoise: (value) async {
+          final rawErrorMessage = await value.messageText();
+          return _parseSpecificErrorPatterns(rawErrorMessage);
+        },
+        invalidKey: (value) async {
+          final message = await value.messageText();
+          return _formatSummaryWithDetails(
+            'One or more public keys are invalid. Please double-check all participant and admin keys, then try again.',
+            message,
+          );
+        },
+        nostrUrl: (value) async {
+          final message = await value.messageText();
+          return _formatSummaryWithDetails(
+            'There is a problem with a relay URL in your setup. Check your relay URLs in Settings and try again.',
+            message,
+          );
+        },
+        nostrTag: (value) async {
+          final message = await value.messageText();
+          return _formatSummaryWithDetails(
+            'A Nostr tag error occurred.',
+            message,
+          );
+        },
+        nostrEvent: (value) async {
+          final message = await value.messageText();
+          return _formatSummaryWithDetails(
+            'A Nostr event error occurred.',
+            message,
+          );
+        },
+        nostrParse: (value) async {
+          final message = await value.messageText();
+          return _formatSummaryWithDetails(
+            'We could not parse some Nostr data required for this action. Please verify your relays and data, then try again.',
+            message,
+          );
+        },
+        nostrHex: (value) async {
+          final message = await value.messageText();
+          return _formatSummaryWithDetails(
+            'One of the hex values (likely a public key) is malformed. Please double-check the value and try again.',
+            message,
+          );
+        },
+        other: (value) async {
+          final message = await value.messageText();
+          return _parseSpecificErrorPatterns(message);
+        },
+      );
+    } catch (conversionError) {
+      _logger.severe(
+        '${logPrefix}Failed to convert ApiError (${error.runtimeType}) to string: $conversionError',
+      );
+      return fallbackMessage;
+    }
+  }
+
+  static String _appendHelpText(String message, String helpText) {
+    final trimmedMessage = message.trim();
+    if (trimmedMessage.isEmpty) {
+      return helpText;
+    }
+    return '$trimmedMessage\n\n$helpText';
+  }
+
+  static String _formatSummaryWithDetails(String summary, String details) {
+    final trimmedDetails = details.trim();
+    if (trimmedDetails.isEmpty) {
+      return summary;
+    }
+    return '$summary\n\n$trimmedDetails';
+  }
+
+
   /// Parses specific error patterns from converted ApiError strings
   static String _parseSpecificErrorPatterns(String rawErrorMessage) {
     try {
-      if (rawErrorMessage.contains('KeyPackage') && rawErrorMessage.contains('Does not exist')) {
-        return '$rawErrorMessage\n\n${_getKeyPackageHelpText()}';
-      } else if (rawErrorMessage.contains('Network') || rawErrorMessage.contains('Connection')) {
-        return '$rawErrorMessage\n\nThis appears to be a network connectivity issue. Please check your internet connection and try again.';
-      } else if (rawErrorMessage.contains('Permission') ||
-          rawErrorMessage.contains('Unauthorized')) {
-        return '$rawErrorMessage\n\nThis appears to be a permission issue. You may not have permission to perform this operation.';
-      } else if (rawErrorMessage.contains('Relay')) {
-        return '$rawErrorMessage\n\nUnable to connect to Nostr relays. Please check your network connection.';
-      } else if (rawErrorMessage.contains('Database') || rawErrorMessage.contains('Storage')) {
-        return '$rawErrorMessage\n\nThere was an issue with local data storage. Please restart the app.';
-      } else {
-        // Return the raw error message as-is for unknown error types
-        return rawErrorMessage;
+      if (_containsKeyPackageMessage(rawErrorMessage)) {
+        return _appendHelpText(rawErrorMessage, _getKeyPackageHelpText());
+      } else if (_containsInvalidPubkeyMessage(rawErrorMessage)) {
+        return _appendHelpText(rawErrorMessage, _getInvalidPubkeyHelpText());
+      } else if (_containsAccountLookupMessage(rawErrorMessage)) {
+        return _appendHelpText(rawErrorMessage, _getAccountLookupHelpText());
+      } else if (_containsRelayConfigurationMessage(rawErrorMessage)) {
+        return _appendHelpText(rawErrorMessage, _getRelayConfigurationHelpText());
+      } else if (_containsNetworkMessage(rawErrorMessage)) {
+        return _appendHelpText(rawErrorMessage, _getNetworkHelpText());
+      } else if (_containsPermissionMessage(rawErrorMessage)) {
+        return _appendHelpText(rawErrorMessage, _getPermissionHelpText());
+      } else if (_containsRelayMessage(rawErrorMessage)) {
+        return _appendHelpText(rawErrorMessage, _getRelayConnectivityHelpText());
+      } else if (_containsDatabaseMessage(rawErrorMessage)) {
+        return _appendHelpText(rawErrorMessage, _getDatabaseHelpText());
       }
+      return rawErrorMessage;
     } catch (_) {
       // If anything goes wrong in pattern parsing, just return the raw message
       return rawErrorMessage;
@@ -153,52 +240,195 @@ class ErrorHandlingUtils {
 
   // Helper methods for error pattern detection
   static bool _containsKeyPackageError(String exceptionString, String stackTraceString) {
-    try {
-      return exceptionString.contains('KeyPackage') || stackTraceString.contains('KeyPackage');
-    } catch (_) {
-      return false;
-    }
+    return _containsKeyPackageMessage(exceptionString) ||
+        _containsKeyPackageMessage(stackTraceString);
+  }
+
+  static bool _containsInvalidPubkeyError(String exceptionString, String stackTraceString) {
+    return _containsInvalidPubkeyMessage(exceptionString) ||
+        _containsInvalidPubkeyMessage(stackTraceString);
+  }
+
+  static bool _containsAccountLookupError(String exceptionString, String stackTraceString) {
+    return _containsAccountLookupMessage(exceptionString) ||
+        _containsAccountLookupMessage(stackTraceString);
+  }
+
+  static bool _containsRelayConfigurationError(
+    String exceptionString,
+    String stackTraceString,
+  ) {
+    return _containsRelayConfigurationMessage(exceptionString) ||
+        _containsRelayConfigurationMessage(stackTraceString);
   }
 
   static bool _containsNetworkError(String exceptionString, String stackTraceString) {
-    try {
-      return exceptionString.contains('Network') ||
-          exceptionString.contains('Connection') ||
-          stackTraceString.contains('Network') ||
-          stackTraceString.contains('Connection');
-    } catch (_) {
-      return false;
-    }
+    return _containsNetworkMessage(exceptionString) ||
+        _containsNetworkMessage(stackTraceString);
   }
 
   static bool _containsPermissionError(String exceptionString, String stackTraceString) {
-    try {
-      return exceptionString.contains('Permission') ||
-          exceptionString.contains('Unauthorized') ||
-          stackTraceString.contains('Permission') ||
-          stackTraceString.contains('Unauthorized');
-    } catch (_) {
-      return false;
-    }
+    return _containsPermissionMessage(exceptionString) ||
+        _containsPermissionMessage(stackTraceString);
   }
 
   static bool _containsRelayError(String exceptionString, String stackTraceString) {
-    try {
-      return exceptionString.contains('Relay') || stackTraceString.contains('Relay');
-    } catch (_) {
-      return false;
-    }
+    return _containsRelayMessage(exceptionString) || _containsRelayMessage(stackTraceString);
   }
 
   static bool _containsDatabaseError(String exceptionString, String stackTraceString) {
-    try {
-      return exceptionString.contains('Database') ||
-          exceptionString.contains('Storage') ||
-          stackTraceString.contains('Database') ||
-          stackTraceString.contains('Storage');
-    } catch (_) {
+    return _containsDatabaseMessage(exceptionString) ||
+        _containsDatabaseMessage(stackTraceString);
+  }
+
+  static bool _containsKeyPackageMessage(String source) {
+    if (source.isEmpty) {
       return false;
     }
+    final normalized = _normalize(source);
+    final hasKeyPackage =
+        normalized.contains('keypackage') || normalized.contains('key package');
+    if (!hasKeyPackage) {
+      return false;
+    }
+    const qualifiers = [
+      'does not exist',
+      'not found',
+      'missing',
+      'no key package',
+      'no key packages',
+      'without key package',
+    ];
+    return _containsAnyNormalized(normalized, qualifiers);
+  }
+
+  static bool _containsInvalidPubkeyMessage(String source) {
+    if (source.isEmpty) {
+      return false;
+    }
+    final normalized = _normalize(source);
+    return _containsAnyNormalized(
+      normalized,
+      [
+        'invalid public key',
+        'invalid pubkey',
+        'malformed public key',
+        'malformed pubkey',
+        'failed to parse public key',
+        'failed to parse pubkey',
+        'fromhexerror',
+        'nostrhex',
+        'wrong length for public key',
+        'incorrect length for public key',
+        'hex decode error',
+      ],
+    );
+  }
+
+  static bool _containsAccountLookupMessage(String source) {
+    if (source.isEmpty) {
+      return false;
+    }
+    final normalized = _normalize(source);
+    return _containsAnyNormalized(
+      normalized,
+      [
+        'find_account_by_pubkey',
+        'account not found',
+        'no account for pubkey',
+        'missing account',
+        'account lookup failed',
+        'account lookup error',
+      ],
+    );
+  }
+
+  static bool _containsRelayConfigurationMessage(String source) {
+    if (source.isEmpty) {
+      return false;
+    }
+    final normalized = _normalize(source);
+    return _containsAnyNormalized(
+      normalized,
+      [
+        'nip65',
+        'relaytype::nip65',
+        'no relays configured',
+        'no relays found',
+        'missing relay',
+        'relay list is empty',
+        'invalid relay url',
+        'bad relay url',
+        'relay url is invalid',
+        'failed to parse relay',
+      ],
+    );
+  }
+
+  static bool _containsNetworkMessage(String source) {
+    if (source.isEmpty) {
+      return false;
+    }
+    final normalized = _normalize(source);
+    return _containsAnyNormalized(
+      normalized,
+      [
+        'network',
+        'connection',
+      ],
+    );
+  }
+
+  static bool _containsPermissionMessage(String source) {
+    if (source.isEmpty) {
+      return false;
+    }
+    final normalized = _normalize(source);
+    return _containsAnyNormalized(
+      normalized,
+      [
+        'permission',
+        'unauthorized',
+      ],
+    );
+  }
+
+  static bool _containsRelayMessage(String source) {
+    if (source.isEmpty) {
+      return false;
+    }
+    final normalized = _normalize(source);
+    return normalized.contains('relay');
+  }
+
+  static bool _containsDatabaseMessage(String source) {
+    if (source.isEmpty) {
+      return false;
+    }
+    final normalized = _normalize(source);
+    return _containsAnyNormalized(
+      normalized,
+      [
+        'database',
+        'storage',
+      ],
+    );
+  }
+
+  static bool _containsAnyNormalized(String normalizedSource, List<String> needles) {
+    for (final needle in needles) {
+      if (needle.isEmpty) {
+        continue;
+      }
+      if (normalizedSource.contains(needle)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  static String _normalize(String source) {
+    return source.toLowerCase();
   }
 
   // User-friendly error message templates
@@ -210,6 +440,39 @@ class ErrorHandlingUtils {
         '• Their encryption keys have expired\n'
         '• They need to open the app to refresh their keys\n\n'
         'Please ask the affected user(s) to open WhiteNoise and try again.';
+  }
+
+  static String _getInvalidPubkeyHelpText() {
+    return 'Group creation failed because one of the public keys is invalid. '
+        'Please double-check all member and admin keys, then try again.';
+  }
+
+  static String _getAccountLookupHelpText() {
+    return 'We could not find an account for your active key. '
+        'Please log out and back in or create a new identity, then try again.';
+  }
+
+  static String _getRelayConfigurationHelpText() {
+    return 'Your account does not have any valid Nostr relays configured (NIP-65). '
+        'Please add at least one relay in Settings and try again.';
+  }
+
+  static String _getNetworkHelpText() {
+    return 'This appears to be a network connectivity issue. '
+        'Please check your internet connection and try again.';
+  }
+
+  static String _getPermissionHelpText() {
+    return 'This appears to be a permission issue. '
+        'You may not have permission to perform this operation.';
+  }
+
+  static String _getRelayConnectivityHelpText() {
+    return 'Unable to connect to Nostr relays. Please check your network connection.';
+  }
+
+  static String _getDatabaseHelpText() {
+    return 'There was an issue with local data storage. Please restart the app.';
   }
 
   /// Generic help text for unknown ApiError types
