@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:whitenoise/config/providers/avatar_color_provider.dart';
+import 'package:whitenoise/domain/models/avatar_color_tokens.dart';
 import 'package:whitenoise/domain/services/avatar_color_service.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/app_theme.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 
-/// [color] is optional and is used to override the color of the avatar
-/// for cases where the pubkey to generate/find color in color cache isn't available yet.
 class WnAvatar extends ConsumerWidget {
   const WnAvatar({
     super.key,
@@ -16,31 +15,35 @@ class WnAvatar extends ConsumerWidget {
     this.showBorder = false,
     this.displayName,
     this.pubkey,
-    this.color,
+    this.colorToken,
   });
   final String imageUrl;
   final double size;
   final bool showBorder;
   final String? displayName;
   final String? pubkey;
-  final Color? color;
+  final AvatarColorToken? colorToken;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final Color? themeColor;
-    if (color != null) {
-      themeColor = color;
+    final AvatarColorToken? token;
+    if (colorToken != null) {
+      token = colorToken;
     } else {
       final cacheKey =
           pubkey != null && pubkey!.isNotEmpty ? AvatarColorService.toCacheKey(pubkey!) : null;
-      themeColor = cacheKey != null ? ref.watch(avatarColorProvider)[cacheKey] : null;
+      token = cacheKey != null ? ref.watch(avatarColorProvider)[cacheKey] : null;
 
-      if (themeColor == null && pubkey != null && pubkey!.isNotEmpty) {
-        Future.microtask(() => ref.read(avatarColorProvider.notifier).getColor(pubkey!));
+      if (token == null && pubkey != null && pubkey!.isNotEmpty) {
+        Future.microtask(() => ref.read(avatarColorProvider.notifier).getColorToken(pubkey!));
       }
     }
 
-    // Use a single ClipOval with decoration instead of Container + ClipOval
+    final brightness = Theme.of(context).brightness;
+    final backgroundColor = token?.getSurfaceColor(brightness) ?? context.colors.avatarSurface;
+    final borderColor = token?.getBorderColor(brightness) ?? context.colors.border;
+    final foregroundColor = token?.getForegroundColor(brightness) ?? context.colors.primary;
+
     return Container(
       width: size,
       height: size,
@@ -48,7 +51,7 @@ class WnAvatar extends ConsumerWidget {
           showBorder && imageUrl.isEmpty
               ? BoxDecoration(
                 border: Border.all(
-                  color: themeColor?.withValues(alpha: 0.5) ?? context.colors.border,
+                  color: borderColor,
                   width: 1.w,
                 ),
                 shape: BoxShape.circle,
@@ -56,9 +59,7 @@ class WnAvatar extends ConsumerWidget {
               : null,
       child: ClipOval(
         child: Container(
-          width: size,
-          height: size,
-          color: themeColor?.withValues(alpha: 0.2) ?? context.colors.avatarSurface,
+          color: backgroundColor,
           child: WnImage(
             imageUrl,
             size: size,
@@ -67,7 +68,7 @@ class WnAvatar extends ConsumerWidget {
                 (context) => FallbackAvatar(
                   displayName: displayName,
                   size: size,
-                  textColor: themeColor ?? context.colors.primary,
+                  textColor: foregroundColor,
                 ),
           ),
         ),

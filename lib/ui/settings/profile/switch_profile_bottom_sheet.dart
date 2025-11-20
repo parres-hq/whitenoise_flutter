@@ -126,7 +126,7 @@ class _SwitchProfileBottomSheetState extends ConsumerState<SwitchProfileBottomSh
       final List<UserProfile> accountsProfileData = await Future.wait(accountsProfileDataFutures);
 
       final pubkeys = accountsProfileData.map((profile) => profile.publicKey).toList();
-      ref.read(avatarColorProvider.notifier).preloadColors(pubkeys).catchError((e) {
+      ref.read(avatarColorProvider.notifier).preloadColorTokens(pubkeys).catchError((e) {
         _logger.warning('Failed to preload avatar colors: $e');
       });
 

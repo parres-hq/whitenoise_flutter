@@ -92,7 +92,7 @@ class FollowsNotifier extends Notifier<FollowsState> {
 
       // Preload avatar colors for all follows in the background
       final pubkeys = sortedFollows.map((user) => user.pubkey).toList();
-      ref.read(avatarColorProvider.notifier).preloadColors(pubkeys).catchError((e) {
+      ref.read(avatarColorProvider.notifier).preloadColorTokens(pubkeys).catchError((e) {
         _logger.warning('Failed to preload avatar colors: $e');
       });
 

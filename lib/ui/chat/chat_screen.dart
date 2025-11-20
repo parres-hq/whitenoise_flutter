@@ -125,7 +125,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
       if (members != null && members.isNotEmpty) {
         final pubkeys = members.map((m) => m.publicKey).where((p) => p.isNotEmpty).toList();
         if (pubkeys.isNotEmpty) {
-          ref.read(avatarColorProvider.notifier).preloadColors(pubkeys);
+          ref.read(avatarColorProvider.notifier).preloadColorTokens(pubkeys);
         }
       }
     } catch (e, stack) {
