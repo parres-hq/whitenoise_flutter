@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fixed chat screen scroll behavior: now jumps instantly to bottom on open, does not auto-scroll for incoming messages, and only scrolls when user sends a message [#833](https://github.com/parres-hq/whitenoise_flutter/issues/833)
 - Fixed missing notifications when multiple messages arrive in the same polling window by using the last message timestamp instead of current time for sync checkpoint [#848](https://github.com/parres-hq/whitenoise_flutter/issues/848)
 - Fixed keypackage operation buttons showing loading state incorrectly
 - Fixed developer settings content going under three-button bottom nav on GrapheneOS and some Android devices
