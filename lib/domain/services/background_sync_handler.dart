@@ -2,6 +2,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/domain/services/message_sync_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
+import 'package:whitenoise/services/localization_service.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/messages.dart' show fetchAggregatedMessagesForGroup;
@@ -16,9 +17,25 @@ class BackgroundSyncHandler extends TaskHandler {
     try {
       await NotificationService.initialize();
       await RustLib.init();
+      await _initializeLocalization();
       _log.info('BackgroundSyncHandler initialized at $timestamp');
     } catch (e, stackTrace) {
       _log.severe('Error initializing BackgroundSyncHandler: $e', e, stackTrace);
+    }
+  }
+
+  Future<void> _initializeLocalization() async {
+    try {
+      final String localeCode = LocalizationService.getDeviceLocale();
+      await LocalizationService.load(Locale(localeCode));
+      _log.info('Localization initialized for background isolate with locale: $localeCode');
+    } catch (e, stackTrace) {
+      _log.warning('Failed to initialize localization, falling back to English: $e', e, stackTrace);
+      try {
+        await LocalizationService.load(const Locale('en'));
+      } catch (fallbackError) {
+        _log.severe('Failed to load fallback locale: $fallbackError');
+      }
     }
   }
 

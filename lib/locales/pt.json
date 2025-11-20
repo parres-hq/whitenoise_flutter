@@ -252,6 +252,19 @@
         "chooseIdentitySubtitle": "Converse sem revelar seu número de telefone ou email. Escolha sua identidade: nome real, pseudônimo ou anônimo.",
         "decentralizedPermissionlessSubtitle": "Nenhuma autoridade central controla sua comunicação—nenhuma permissão necessária, nenhuma censura possível."
     },
+    "notifications": {
+        "connectedToRelays": "Conectado aos relays",
+        "tapToReturnToApp": "Toque para voltar ao aplicativo",
+        "unknownGroup": "Grupo desconhecido",
+        "toAccount": "(para {accountName})",
+        "sentYouAMessage": "Enviou uma mensagem para você",
+        "senderSentYouAMessage": "{senderName}: Enviou uma mensagem para você",
+        "invitedYouToChat": "Convidou você para conversar",
+        "invitedYouToGroup": "Convidou você para {groupName}",
+        "mediaMessage": "{emoji} Mídia",
+        "senderMediaMessage": "{senderName}: {emoji} Mídia",
+        "directMessage": "Mensagem direta"
+    },
     "ui": {
         "startNewChat": "Iniciar nova conversa",
         "newGroupChat": "Nova conversa em grupo",
