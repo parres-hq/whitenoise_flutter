@@ -232,13 +232,16 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
       return;
     }
 
-    // Auto-scroll when new messages arrive (after initial load)
+    // Do not auto-scroll when new messages arrive from receiver
+    // Only scroll when user sends a message (handled separately in send action)
+    // Save last read if user is at bottom
     if (_hasInitialScrollCompleted &&
         previousMessages.isNotEmpty &&
         currentMessages.length > previousMessages.length &&
         currentMessages.last.id != previousMessages.last.id) {
-      _scrollToBottom();
-      _saveLastReadForCurrentMessages();
+      if (_isAtBottom()) {
+        _saveLastReadForCurrentMessages();
+      }
     }
   }
 
