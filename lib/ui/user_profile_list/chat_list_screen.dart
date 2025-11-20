@@ -194,7 +194,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
       }
 
       if (pubkeysToPreload.isNotEmpty) {
-        ref.read(avatarColorProvider.notifier).preloadColors(pubkeysToPreload).catchError((e) {
+        ref.read(avatarColorProvider.notifier).preloadColorTokens(pubkeysToPreload).catchError((e) {
           _log.warning('Failed to preload avatar colors: $e');
         });
       }

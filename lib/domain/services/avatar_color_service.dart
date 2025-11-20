@@ -1,34 +1,15 @@
 import 'dart:convert';
-import 'dart:math';
+import 'dart:math' as math;
 
-import 'package:flutter/material.dart';
 import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:whitenoise/domain/models/avatar_color_tokens.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
-/// Service for managing avatar colors with SharedPreferences persistence
 class AvatarColorService {
   static const String _storageKey = 'avatar_colors_map';
   static final _logger = Logger('AvatarColorService');
 
-  /// Predefined set of avatar foreground colors from design system
-  static final List<Color> _avatarColors = [
-    const Color(0xFF1e3a8a), // Blue Foreground
-    const Color(0xFF164e63), // Cyan Foreground
-    const Color(0xFF064e3b), // Emerald Foreground
-    const Color(0xFF701a75), // Fuchsia Foreground
-    const Color(0xFF312e81), // Indigo Foreground
-    const Color(0xFF365314), // Lime Foreground
-    const Color(0xFF7c2d12), // Orange Foreground
-    const Color(0xFF881337), // Rose Foreground
-    const Color(0xFF0c4a6e), // Sky Foreground
-    const Color(0xFF134e4a), // Teal Foreground
-    const Color(0xFF4c1d95), // Violet Foreground
-    const Color(0xFF78350f), // Amber Foreground
-  ];
-
-  /// Uses full npub as cache key to avoid collision risk
-  /// Handles both hex and npub format inputs
   static String toCacheKey(String pubkey) {
     final trimmed = pubkey.trim().toLowerCase();
     if (trimmed.isEmpty) {
@@ -49,131 +30,120 @@ class AvatarColorService {
     return npub;
   }
 
-  /// Load all colors from SharedPreferences
-  Future<Map<String, int>> _loadColorsMap() async {
+  Future<Map<String, Map<String, dynamic>>> _loadColorTokensMap() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_storageKey);
       if (jsonString == null) return {};
 
       final decoded = json.decode(jsonString) as Map<String, dynamic>;
-      return decoded.map((key, value) => MapEntry(key, value as int));
+      return decoded.map((key, value) => MapEntry(key, value as Map<String, dynamic>));
     } catch (e) {
-      _logger.severe('Error loading colors map: $e');
+      _logger.severe('Error loading color tokens map: $e');
       return {};
     }
   }
 
-  /// Save all colors to SharedPreferences
-  Future<void> _saveColorsMap(Map<String, int> colorsMap) async {
+  Future<void> _saveColorTokensMap(Map<String, Map<String, dynamic>> tokensMap) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final jsonString = json.encode(colorsMap);
+      final jsonString = json.encode(tokensMap);
       await prefs.setString(_storageKey, jsonString);
     } catch (e) {
-      _logger.severe('Error saving colors map: $e');
+      _logger.severe('Error saving color tokens map: $e');
     }
   }
 
-  /// Load all saved colors from SharedPreferences
-  /// Returns a map of cache key -> Color for the provider's memory cache
-  Future<Map<String, Color>> loadAllColors() async {
+  Future<Map<String, AvatarColorToken>> loadAllColorTokens() async {
     try {
-      final colorsMap = await _loadColorsMap();
-      return colorsMap.map((key, value) => MapEntry(key, Color(value)));
+      final tokensMap = await _loadColorTokensMap();
+      return tokensMap.map((key, value) => MapEntry(key, AvatarColorToken.fromJson(value)));
     } catch (e) {
-      _logger.severe('Error loading all colors: $e');
+      _logger.severe('Error loading all color tokens: $e');
       return {};
     }
   }
 
-  /// Generate a random color from the predefined palette
-  Color _generateRandomColor() {
-    final random = Random();
-    return _avatarColors[random.nextInt(_avatarColors.length)];
+  AvatarColorToken _generateRandomColorToken(String pubkey) {
+    final identifier = toCacheKey(pubkey);
+    final hash = identifier.hashCode.abs();
+    return AvatarColorTokens.all[hash % AvatarColorTokens.all.length];
   }
 
-  /// Public method to generate a random color without saving
-  /// Used for ephemeral previews
-  Color generateRandomColorPublic() {
-    return _generateRandomColor();
+  AvatarColorToken generateRandomColorTokenPublic() {
+    final random = math.Random();
+    return AvatarColorTokens.all[random.nextInt(AvatarColorTokens.all.length)];
   }
 
-  /// Save a color directly for a pubkey
-  /// Used to persist ephemeral preview colors
-  Future<void> saveColorDirectly(String pubkey, Color color) async {
+  Future<void> saveColorTokenDirectly(String pubkey, AvatarColorToken colorToken) async {
     try {
       final identifier = toCacheKey(pubkey);
-      final colorsMap = await _loadColorsMap();
-      colorsMap[identifier] = color.toARGB32();
-      await _saveColorsMap(colorsMap);
-      _logger.info('Saved color directly for pubkey: $pubkey');
+      final tokensMap = await _loadColorTokensMap();
+      tokensMap[identifier] = colorToken.toJson();
+      await _saveColorTokensMap(tokensMap);
+      _logger.info('Saved color token directly for pubkey: $pubkey');
     } catch (e) {
-      _logger.severe('Error saving color directly: $e');
+      _logger.severe('Error saving color token directly: $e');
     }
   }
 
-  /// Get color for a pubkey, generating and saving if not exists
-  Future<Color> getOrGenerateColor(String pubkey) async {
+  Future<AvatarColorToken> getOrGenerateColorToken(String pubkey) async {
     try {
       final identifier = toCacheKey(pubkey);
-      final colorsMap = await _loadColorsMap();
+      final tokensMap = await _loadColorTokensMap();
 
-      final colorValue = colorsMap[identifier];
-      if (colorValue != null) {
-        return Color(colorValue);
+      final tokenJson = tokensMap[identifier];
+      if (tokenJson != null) {
+        return AvatarColorToken.fromJson(tokenJson);
       }
 
-      final newColor = _generateRandomColor();
-      colorsMap[identifier] = newColor.toARGB32();
-      await _saveColorsMap(colorsMap);
-      _logger.info('Generated new color for pubkey: $pubkey');
+      final newToken = _generateRandomColorToken(pubkey);
+      tokensMap[identifier] = newToken.toJson();
+      await _saveColorTokensMap(tokensMap);
+      _logger.info('Generated new color token for pubkey: $pubkey');
 
-      return newColor;
+      return newToken;
     } catch (e) {
-      _logger.severe('Error getting/generating color for pubkey: $e');
-      return _avatarColors[0];
+      _logger.severe('Error getting/generating color token for pubkey: $e');
+      return AvatarColorTokens.blue;
     }
   }
 
-  /// Batch generate and save colors for multiple pubkeys
-  /// Returns a map of pubkey -> color
-  Future<Map<String, Color>> generateColorsForPubkeys(
+  Future<Map<String, AvatarColorToken>> generateColorTokensForPubkeys(
     List<String> pubkeys,
   ) async {
-    final Map<String, Color> colorMap = {};
+    final Map<String, AvatarColorToken> tokenMap = {};
 
     try {
-      final colorsMap = await _loadColorsMap();
-      bool hasNewColors = false;
+      final tokensMap = await _loadColorTokensMap();
+      bool hasNewTokens = false;
 
       for (final pubkey in pubkeys) {
         final identifier = toCacheKey(pubkey);
-        final existingColorValue = colorsMap[identifier];
+        final existingTokenJson = tokensMap[identifier];
 
-        if (existingColorValue != null) {
-          colorMap[pubkey] = Color(existingColorValue);
+        if (existingTokenJson != null) {
+          tokenMap[pubkey] = AvatarColorToken.fromJson(existingTokenJson);
         } else {
-          final newColor = _generateRandomColor();
-          colorsMap[identifier] = newColor.toARGB32();
-          colorMap[pubkey] = newColor;
-          hasNewColors = true;
+          final newToken = _generateRandomColorToken(pubkey);
+          tokensMap[identifier] = newToken.toJson();
+          tokenMap[pubkey] = newToken;
+          hasNewTokens = true;
         }
       }
 
-      if (hasNewColors) {
-        await _saveColorsMap(colorsMap);
+      if (hasNewTokens) {
+        await _saveColorTokensMap(tokensMap);
       }
 
-      _logger.info('Generated/loaded colors for ${pubkeys.length} pubkeys');
+      _logger.info('Generated/loaded color tokens for ${pubkeys.length} pubkeys');
     } catch (e) {
-      _logger.severe('Error batch generating colors: $e');
+      _logger.severe('Error batch generating color tokens: $e');
     }
 
-    return colorMap;
+    return tokenMap;
   }
 
-  /// Clear all avatar colors
   Future<void> clearAllColors() async {
     try {
       final prefs = await SharedPreferences.getInstance();

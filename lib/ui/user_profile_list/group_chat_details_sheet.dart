@@ -7,6 +7,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/create_group_provider.dart';
 import 'package:whitenoise/config/states/create_group_state.dart';
+import 'package:whitenoise/domain/models/avatar_color_tokens.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
@@ -55,14 +56,14 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
   final TextEditingController _groupNameController = TextEditingController();
   final TextEditingController _groupDescriptionController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  Color? _previewColor;
+  AvatarColorToken? _previewColor;
 
   @override
   void initState() {
     super.initState();
     _groupNameController.addListener(_onGroupNameChanged);
     _groupDescriptionController.addListener(_onGroupDescriptionChanged);
-    _previewColor = ref.read(avatarColorProvider.notifier).generateRandomColor();
+    _previewColor = ref.read(avatarColorProvider.notifier).generateRandomColorToken();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       ref
@@ -103,7 +104,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
       if (previewColor != null) {
         await ref
             .read(avatarColorProvider.notifier)
-            .setColorDirectly(
+            .setColorTokenDirectly(
               group.nostrGroupId,
               previewColor,
             );
@@ -194,7 +195,7 @@ class _GroupChatDetailsSheetState extends ConsumerState<GroupChatDetailsSheet> w
                             displayName: displayName,
                             size: 96.w,
                             showBorder: true,
-                            color: _previewColor,
+                            colorToken: _previewColor,
                           );
                         },
                       ),
