@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logging/logging.dart';
@@ -153,10 +154,6 @@ class PinnedChatsNotifier extends Notifier<Set<String>> {
         unpinnedChats.add(item);
       }
     }
-
-    // Sort each list by date created (most recent first)
-    pinnedChats.sort((a, b) => b.dateCreated.compareTo(a.dateCreated));
-    unpinnedChats.sort((a, b) => b.dateCreated.compareTo(a.dateCreated));
 
     return (pinned: pinnedChats, unpinned: unpinnedChats);
   }

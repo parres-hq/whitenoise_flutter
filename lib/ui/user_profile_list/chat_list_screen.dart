@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -112,11 +111,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
       WelcomeNotificationService.initialize(context);
       WelcomeNotificationService.setupWelcomeNotifications(ref);
       _loadData();
-      if (!Platform.isIOS) {
-        _pollingNotifier.startPolling();
-      } else {
-        _log.info('Skipping pollingNotifier.startPolling on iOS (debugging backgrounding issue).');
-      }
+      _pollingNotifier.startPolling();
     });
   }
 
