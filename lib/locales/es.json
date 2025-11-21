@@ -338,6 +338,8 @@
         "errorOccurred": "Ocurrió un error",
         "unknownError": "Error desconocido",
         "errorOccurredTryAgain": "Ocurrió un error, por favor intenta de nuevo.",
+        "invalidPublicKey": "Formato de clave pública inválido",
+        "somethingWentWrong": "Algo salió mal",
         "internalError": "Se produjo un error interno",
         "invalidPublicKeySummary": "Una o más claves públicas son inválidas. Verifica todas las claves de participantes y administradores e inténtalo de nuevo.",
         "relayUrlSummary": "Hay un problema con una URL de relay en tu configuración. Revisa tus relays en Configuración e inténtalo nuevamente.",
@@ -356,5 +358,9 @@
         "genericHelp": "Revisa tus datos, conexión y permisos, luego inténtalo de nuevo.",
         "groupCreationFallback": "La creación del grupo falló; verifica claves, conexión y permisos, luego reintenta.",
         "messageSendFallback": "El mensaje no se envió; comprueba tu conexión e inténtalo de nuevo."
+    },
+    "permissions": {
+        "cameraDenied": "Permiso de cámara denegado",
+        "openSettings": "Abrir configuración"
     }
 }

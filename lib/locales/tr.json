@@ -338,6 +338,8 @@
         "errorOccurred": "Bir hata oluştu",
         "unknownError": "Bilinmeyen hata",
         "errorOccurredTryAgain": "Bir hata oluştu, lütfen tekrar deneyin.",
+        "invalidPublicKey": "Geçersiz genel anahtar formatı",
+        "somethingWentWrong": "Bir şeyler ters gitti",
         "internalError": "Dahili bir hata oluştu",
         "invalidPublicKeySummary": "Bir veya daha fazla genel anahtar geçersiz. Tüm katılımcı ve yönetici anahtarlarını kontrol edip tekrar deneyin.",
         "relayUrlSummary": "Yapılandırmanızdaki bir röle URL'siyle ilgili sorun var. Ayarlardaki röleleri kontrol edip tekrar deneyin.",
@@ -356,5 +358,9 @@
         "genericHelp": "Verilerinizi, bağlantınızı ve izinlerinizi kontrol edip tekrar deneyin.",
         "groupCreationFallback": "Grup oluşturulamadı; anahtarları, bağlantıyı ve izinleri kontrol edip tekrar deneyin.",
         "messageSendFallback": "Mesaj gönderilemedi; bağlantınızı kontrol edip tekrar deneyin."
+    },
+    "permissions": {
+        "cameraDenied": "Kamera izni reddedildi",
+        "openSettings": "Ayarları Aç"
     }
 }

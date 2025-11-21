@@ -98,7 +98,7 @@ void main() {
           createTestWidget(const ShareProfileQrScanScreen()),
         );
 
-        expect(find.text('View QR Code'), findsOneWidget);
+        expect(find.text('ui.viewQrCode'), findsOneWidget);
       });
 
       testWidgets('hides View QR Code button when hideViewQrButton is true', (tester) async {
@@ -107,7 +107,7 @@ void main() {
           createTestWidget(const ShareProfileQrScanScreen(hideViewQrButton: true)),
         );
 
-        expect(find.text('View QR Code'), findsNothing);
+        expect(find.text('ui.viewQrCode'), findsNothing);
       });
     });
 
@@ -118,7 +118,7 @@ void main() {
           createTestWidget(const ShareProfileQrScanScreen()),
         );
 
-        expect(find.text('Scan QR Code'), findsOneWidget);
+        expect(find.text('profile.scanQrCode'), findsOneWidget);
       });
 
       testWidgets('displays correct instruction text', (tester) async {
@@ -127,7 +127,7 @@ void main() {
           createTestWidget(const ShareProfileQrScanScreen()),
         );
 
-        expect(find.text('Scan user\'s QR code to connect.'), findsOneWidget);
+        expect(find.text('profile.scanToConnect'), findsOneWidget);
       });
     });
 
@@ -259,7 +259,7 @@ void main() {
 
         // Verify the widget updated correctly
         expect(find.byType(ShareProfileQrScanScreen), findsOneWidget);
-        expect(find.text('View QR Code'), findsNothing);
+        expect(find.text('ui.viewQrCode'), findsNothing);
       });
 
       testWidgets('scanner formats configuration', (tester) async {
@@ -306,8 +306,9 @@ void main() {
 
         // Verify key elements have proper semantics
         expect(find.byType(BackButton), findsOneWidget);
-        expect(find.text('Scan QR Code'), findsOneWidget);
-        expect(find.text('Scan user\'s QR code to connect.'), findsOneWidget);
+        expect(find.text('profile.scanQrCode'), findsOneWidget);
+        expect(find.text('ui.viewQrCode'), findsOneWidget);
+        expect(find.text('profile.scanToConnect'), findsOneWidget);
 
         // Verify tappable elements
         final backButton = find.byType(BackButton);

@@ -338,6 +338,8 @@
         "errorOccurred": "An error occurred",
         "unknownError": "Unknown error",
         "errorOccurredTryAgain": "An error occurred, please try again.",
+        "invalidPublicKey": "Invalid public key format",
+        "somethingWentWrong": "Something went wrong",
         "internalError": "Internal error occurred",
         "invalidPublicKeySummary": "One or more public keys are invalid. Please double-check all participant and admin keys, then try again.",
         "relayUrlSummary": "There is a problem with a relay URL in your setup. Check your relay URLs in Settings and try again.",
@@ -356,5 +358,9 @@
         "genericHelp": "Check your data, connection, and permissions, then try again.",
         "groupCreationFallback": "Group creation failed; verify member keys, network, permissions, and try again.",
         "messageSendFallback": "Message failed to send; check your connection and try again."
+    },
+    "permissions": {
+        "cameraDenied": "Camera permission denied",
+        "openSettings": "Open Settings"
     }
 }

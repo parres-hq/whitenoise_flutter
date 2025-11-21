@@ -338,6 +338,8 @@
         "errorOccurred": "Si è verificato un errore",
         "unknownError": "Errore sconosciuto",
         "errorOccurredTryAgain": "Si è verificato un errore, riprova per favore.",
+        "invalidPublicKey": "Formato chiave pubblica non valido",
+        "somethingWentWrong": "Qualcosa è andato storto",
         "internalError": "Si è verificato un errore interno",
         "invalidPublicKeySummary": "Una o più chiavi pubbliche non sono valide. Controlla tutte le chiavi dei partecipanti e degli amministratori e riprova.",
         "relayUrlSummary": "C'è un problema con un URL del relay nella tua configurazione. Controlla i relay nelle Impostazioni e riprova.",
@@ -356,5 +358,9 @@
         "genericHelp": "Controlla dati, connessione e permessi, quindi riprova.",
         "groupCreationFallback": "Creazione gruppo non riuscita; verifica chiavi, connessione e permessi e riprova.",
         "messageSendFallback": "Invio del messaggio fallito; controlla la connessione e riprova."
+    },
+    "permissions": {
+        "cameraDenied": "Permesso fotocamera negato",
+        "openSettings": "Apri impostazioni"
     }
 }

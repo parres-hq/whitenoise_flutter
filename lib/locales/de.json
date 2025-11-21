@@ -338,6 +338,8 @@
         "errorOccurred": "Ein Fehler ist aufgetreten",
         "unknownError": "Unbekannter Fehler",
         "errorOccurredTryAgain": "Ein Fehler ist aufgetreten, bitte versuchen Sie es erneut.",
+        "invalidPublicKey": "Ungültiges Format des öffentlichen Schlüssels",
+        "somethingWentWrong": "Etwas ist schiefgelaufen",
         "internalError": "Interner Fehler ist aufgetreten",
         "invalidPublicKeySummary": "Mindestens ein öffentlicher Schlüssel ist ungültig. Bitte überprüfen Sie alle Teilnehmer- und Admin-Schlüssel und versuchen Sie es erneut.",
         "relayUrlSummary": "Es gibt ein Problem mit einer Relay-URL in Ihrer Konfiguration. Prüfen Sie Ihre Relay-URLs in den Einstellungen und versuchen Sie es erneut.",
@@ -356,5 +358,9 @@
         "genericHelp": "Bitte überprüfen Sie Daten, Verbindung und Berechtigungen und versuchen Sie es erneut.",
         "groupCreationFallback": "Die Gruppe konnte nicht erstellt werden; prüfen Sie Schlüssel, Verbindung, Berechtigungen und versuchen Sie es erneut.",
         "messageSendFallback": "Nachricht konnte nicht gesendet werden; prüfen Sie Ihre Verbindung und versuchen Sie es erneut."
+    },
+    "permissions": {
+        "cameraDenied": "Kamerazugriff verweigert",
+        "openSettings": "Einstellungen öffnen"
     }
 }
