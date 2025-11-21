@@ -252,6 +252,19 @@
         "chooseIdentitySubtitle": "Chatta senza rivelare il tuo numero di telefono o email. Scegli la tua identità: nome reale, pseudonimo o anonimo.",
         "decentralizedPermissionlessSubtitle": "Nessuna autorità centrale controlla la tua comunicazione—nessun permesso necessario, nessuna censura possibile."
     },
+    "notifications": {
+        "connectedToRelays": "Connesso ai relay",
+        "tapToReturnToApp": "Tocca per tornare all'app",
+        "unknownGroup": "Gruppo sconosciuto",
+        "toAccount": "(a {accountName})",
+        "sentYouAMessage": "Ti ha inviato un messaggio",
+        "senderSentYouAMessage": "{senderName}: Ti ha inviato un messaggio",
+        "invitedYouToChat": "Ti ha invitato a chattare",
+        "invitedYouToGroup": "Ti ha invitato a {groupName}",
+        "mediaMessage": "{emoji} Media",
+        "senderMediaMessage": "{senderName}: {emoji} Media",
+        "directMessage": "Messaggio diretto"
+    },
     "ui": {
         "startNewChat": "Inizia nuova chat",
         "newGroupChat": "Nuova chat di gruppo",
@@ -326,7 +339,25 @@
         "unknownError": "Errore sconosciuto",
         "errorOccurredTryAgain": "Si è verificato un errore, riprova per favore.",
         "invalidPublicKey": "Formato chiave pubblica non valido",
-        "somethingWentWrong": "Qualcosa è andato storto"
+        "somethingWentWrong": "Qualcosa è andato storto",
+        "internalError": "Si è verificato un errore interno",
+        "invalidPublicKeySummary": "Una o più chiavi pubbliche non sono valide. Controlla tutte le chiavi dei partecipanti e degli amministratori e riprova.",
+        "relayUrlSummary": "C'è un problema con un URL del relay nella tua configurazione. Controlla i relay nelle Impostazioni e riprova.",
+        "nostrTagSummary": "Si è verificato un errore relativo a un tag Nostr.",
+        "nostrEventSummary": "Si è verificato un errore relativo a un evento Nostr.",
+        "nostrParseSummary": "Non siamo riusciti ad analizzare alcuni dati Nostr necessari per questa azione. Verifica i relay e i dati e riprova.",
+        "nostrHexSummary": "Uno dei valori esadecimali (probabilmente una chiave pubblica) non è valido. Controlla il valore e riprova.",
+        "keyPackageHelp": "Chiedi agli utenti interessati di aprire WhiteNoise per aggiornare le chiavi.",
+        "invalidPubkeyHelp": "La creazione del gruppo è fallita perché una delle chiavi pubbliche non è valida. Controlla tutte le chiavi dei membri e degli amministratori e riprova.",
+        "accountLookupHelp": "Non siamo riusciti a trovare un account per la tua chiave attiva. Esci e rientra oppure crea una nuova identità e riprova.",
+        "relayConfigurationHelp": "Il tuo account non ha relay Nostr validi configurati (NIP-65). Aggiungine almeno uno nelle Impostazioni e riprova.",
+        "networkHelp": "Sembra un problema di connettività di rete. Controlla la tua connessione Internet e riprova.",
+        "permissionHelp": "Sembra un problema di autorizzazioni. Potresti non avere i permessi per completare questa operazione.",
+        "relayConnectivityHelp": "Impossibile collegarsi ai relay Nostr. Controlla la tua connessione di rete.",
+        "databaseHelp": "Si è verificato un problema con l'archiviazione locale dei dati. Riavvia l'app.",
+        "genericHelp": "Controlla dati, connessione e permessi, quindi riprova.",
+        "groupCreationFallback": "Creazione gruppo non riuscita; verifica chiavi, connessione e permessi e riprova.",
+        "messageSendFallback": "Invio del messaggio fallito; controlla la connessione e riprova."
     },
     "permissions": {
         "cameraDenied": "Permesso fotocamera negato",

@@ -252,6 +252,19 @@
         "chooseIdentitySubtitle": "Discutez sans révéler votre numéro de téléphone ou votre email. Choisissez votre identité : vrai nom, pseudonyme ou anonyme.",
         "decentralizedPermissionlessSubtitle": "Aucune autorité centrale ne contrôle votre communication—aucune permission nécessaire, aucune censure possible."
     },
+    "notifications": {
+        "connectedToRelays": "Connecté aux relais",
+        "tapToReturnToApp": "Appuyez pour revenir à l'application",
+        "unknownGroup": "Groupe inconnu",
+        "toAccount": "(à {accountName})",
+        "sentYouAMessage": "Vous a envoyé un message",
+        "senderSentYouAMessage": "{senderName} : Vous a envoyé un message",
+        "invitedYouToChat": "Vous a invité à discuter",
+        "invitedYouToGroup": "Vous a invité à {groupName}",
+        "mediaMessage": "{emoji} Média",
+        "senderMediaMessage": "{senderName} : {emoji} Média",
+        "directMessage": "Message direct"
+    },
     "ui": {
         "startNewChat": "Commencer une nouvelle conversation",
         "newGroupChat": "Nouvelle conversation de groupe",
@@ -326,7 +339,25 @@
         "unknownError": "Erreur inconnue",
         "errorOccurredTryAgain": "Une erreur s'est produite, veuillez réessayer.",
         "invalidPublicKey": "Format de clé publique invalide",
-        "somethingWentWrong": "Quelque chose s'est mal passé"
+        "somethingWentWrong": "Quelque chose s'est mal passé",
+        "internalError": "Une erreur interne s'est produite",
+        "invalidPublicKeySummary": "Une ou plusieurs clés publiques sont invalides. Vérifiez toutes les clés des participants et des administrateurs, puis réessayez.",
+        "relayUrlSummary": "Un problème est survenu avec une URL de relais dans votre configuration. Vérifiez vos relais dans les paramètres et réessayez.",
+        "nostrTagSummary": "Une erreur de balise Nostr s'est produite.",
+        "nostrEventSummary": "Une erreur d'événement Nostr s'est produite.",
+        "nostrParseSummary": "Nous n'avons pas pu analyser certaines données Nostr nécessaires à cette action. Vérifiez vos relais et vos données, puis réessayez.",
+        "nostrHexSummary": "L'une des valeurs hexadécimales (probablement une clé publique) est mal formée. Vérifiez-la et réessayez.",
+        "keyPackageHelp": "Demandez aux membres concernés d'ouvrir WhiteNoise pour rafraîchir leurs clés.",
+        "invalidPubkeyHelp": "La création du groupe a échoué car l'une des clés publiques est invalide. Vérifiez toutes les clés des membres et des administrateurs, puis réessayez.",
+        "accountLookupHelp": "Nous n'avons pas trouvé de compte pour votre clé active. Déconnectez-vous puis reconnectez-vous ou créez une nouvelle identité et réessayez.",
+        "relayConfigurationHelp": "Votre compte n'a aucun relais Nostr valide configuré (NIP-65). Ajoutez-en au moins un dans les paramètres et réessayez.",
+        "networkHelp": "Il semble s'agir d'un problème de connectivité réseau. Vérifiez votre connexion Internet et réessayez.",
+        "permissionHelp": "Il semble s'agir d'un problème d'autorisation. Il est possible que vous n'ayez pas les droits nécessaires pour effectuer cette action.",
+        "relayConnectivityHelp": "Impossible de se connecter aux relais Nostr. Vérifiez votre connexion réseau.",
+        "databaseHelp": "Un problème est survenu avec le stockage local des données. Veuillez redémarrer l'application.",
+        "genericHelp": "Vérifiez vos données, votre connexion et vos autorisations, puis réessayez.",
+        "groupCreationFallback": "Création du groupe impossible; vérifiez clés, connexion et autorisations, puis réessayez.",
+        "messageSendFallback": "Envoi du message impossible; vérifiez votre connexion puis réessayez."
     },
     "permissions": {
         "cameraDenied": "Permission de caméra refusée",

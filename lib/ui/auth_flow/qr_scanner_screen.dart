@@ -30,7 +30,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
   final Logger logger = Logger('QRScannerScreen');
   late MobileScannerController _controller;
   bool _isScanning = true;
-  Timer? _cameraRestartDebouncer;
 
   @override
   void initState() {
@@ -44,7 +43,6 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _cameraRestartDebouncer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -172,7 +170,14 @@ class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingOb
                                                   MobileScannerErrorCode.permissionDenied) {
                                                 return const CameraPermissionDeniedWidget();
                                               }
-                                              return const SizedBox();
+                                              return Center(
+                                                child: Text(
+                                                  'errors.somethingWentWrong'.tr(),
+                                                  style: TextStyle(
+                                                    color: context.colors.mutedForeground,
+                                                  ),
+                                                ),
+                                              );
                                             },
                                           )
                                           : Container(

@@ -134,7 +134,14 @@ class _ShareProfileQrScanScreenState extends ConsumerState<ShareProfileQrScanScr
                                                 MobileScannerErrorCode.permissionDenied) {
                                               return const CameraPermissionDeniedWidget();
                                             }
-                                            return const Text('tr');
+                                            return Center(
+                                              child: Text(
+                                                'errors.somethingWentWrong'.tr(),
+                                                style: TextStyle(
+                                                  color: context.colors.mutedForeground,
+                                                ),
+                                              ),
+                                            );
                                           },
                                         ),
                                       ),
