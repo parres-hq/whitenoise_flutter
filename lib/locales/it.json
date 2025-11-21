@@ -252,6 +252,19 @@
         "chooseIdentitySubtitle": "Chatta senza rivelare il tuo numero di telefono o email. Scegli la tua identità: nome reale, pseudonimo o anonimo.",
         "decentralizedPermissionlessSubtitle": "Nessuna autorità centrale controlla la tua comunicazione—nessun permesso necessario, nessuna censura possibile."
     },
+    "notifications": {
+        "connectedToRelays": "Connesso ai relay",
+        "tapToReturnToApp": "Tocca per tornare all'app",
+        "unknownGroup": "Gruppo sconosciuto",
+        "toAccount": "(a {accountName})",
+        "sentYouAMessage": "Ti ha inviato un messaggio",
+        "senderSentYouAMessage": "{senderName}: Ti ha inviato un messaggio",
+        "invitedYouToChat": "Ti ha invitato a chattare",
+        "invitedYouToGroup": "Ti ha invitato a {groupName}",
+        "mediaMessage": "{emoji} Media",
+        "senderMediaMessage": "{senderName}: {emoji} Media",
+        "directMessage": "Messaggio diretto"
+    },
     "ui": {
         "startNewChat": "Inizia nuova chat",
         "newGroupChat": "Nuova chat di gruppo",

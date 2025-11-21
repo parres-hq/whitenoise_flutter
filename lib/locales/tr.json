@@ -252,6 +252,19 @@
         "chooseIdentitySubtitle": "Telefon numaranızı veya e-postanızı ifşa etmeden sohbet edin. Kimliğinizi seçin: gerçek isim, takma ad veya anonim.",
         "decentralizedPermissionlessSubtitle": "Hiçbir merkezi otorite iletişiminizi kontrol etmez—izin gerekmez, sansür mümkün değildir."
     },
+    "notifications": {
+        "connectedToRelays": "Rölelere bağlandı",
+        "tapToReturnToApp": "Uygulamaya dönmek için dokunun",
+        "unknownGroup": "Bilinmeyen Grup",
+        "toAccount": "({accountName} için)",
+        "sentYouAMessage": "Size bir mesaj gönderdi",
+        "senderSentYouAMessage": "{senderName}: Size bir mesaj gönderdi",
+        "invitedYouToChat": "Sizi sohbete davet etti",
+        "invitedYouToGroup": "Sizi {groupName} grubuna davet etti",
+        "mediaMessage": "{emoji} Medya",
+        "senderMediaMessage": "{senderName}: {emoji} Medya",
+        "directMessage": "Doğrudan Mesaj"
+    },
     "ui": {
         "startNewChat": "Yeni Sohbet Başlat",
         "newGroupChat": "Yeni grup sohbeti",

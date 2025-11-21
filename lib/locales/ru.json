@@ -252,6 +252,19 @@
         "chooseIdentitySubtitle": "Общайтесь не раскрывая ваш номер телефона или email. Выберите вашу личность: настоящее имя, псевдоним или анонимно.",
         "decentralizedPermissionlessSubtitle": "Никакая центральная власть не контролирует вашу связь—никаких разрешений не требуется, цензура невозможна."
     },
+    "notifications": {
+        "connectedToRelays": "Подключено к релеям",
+        "tapToReturnToApp": "Нажмите, чтобы вернуться в приложение",
+        "unknownGroup": "Неизвестная группа",
+        "toAccount": "(для {accountName})",
+        "sentYouAMessage": "Отправил вам сообщение",
+        "senderSentYouAMessage": "{senderName}: Отправил вам сообщение",
+        "invitedYouToChat": "Пригласил вас в чат",
+        "invitedYouToGroup": "Пригласил вас в {groupName}",
+        "mediaMessage": "{emoji} Медиа",
+        "senderMediaMessage": "{senderName}: {emoji} Медиа",
+        "directMessage": "Прямое сообщение"
+    },
     "ui": {
         "startNewChat": "Начать новый чат",
         "newGroupChat": "Новый групповой чат",

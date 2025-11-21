@@ -4,6 +4,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/localization_provider.dart';
@@ -76,6 +77,13 @@ class MyApp extends ConsumerWidget {
 
     // Initialize router for notifications (only needed once)
     NotificationService.setRouter(ref.read(routerProvider));
+
+    // Initialize account switcher for notifications
+    NotificationService.setAccountSwitcher(
+      switchAccount: (pubkey) async {
+        await ref.read(activePubkeyProvider.notifier).setActivePubkey(pubkey);
+      },
+    );
 
     return ScreenUtilInit(
       designSize: width > 600 ? const Size(600, 1024) : const Size(390, 844),

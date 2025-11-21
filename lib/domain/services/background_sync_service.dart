@@ -9,6 +9,7 @@ import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/users.dart';
 import 'package:whitenoise/src/rust/frb_generated.dart';
+import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:workmanager/workmanager.dart';
 
 class BackgroundSyncService {
@@ -102,8 +103,8 @@ class BackgroundSyncService {
             ForegroundServiceTypes.remoteMessaging,
           ],
           serviceId: 303,
-          notificationTitle: 'Connected to relays',
-          notificationText: 'Tap to return to the app',
+          notificationTitle: 'notifications.connectedToRelays'.tr(),
+          notificationText: 'notifications.tapToReturnToApp'.tr(),
           notificationInitialRoute: '/',
           notificationIcon: const NotificationIcon(
             metaDataName: 'com.whitenoise.service.NOTIFICATION_ICON',

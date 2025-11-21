@@ -1,15 +1,18 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/domain/services/account_secure_storage_service.dart';
 
 class NotificationService {
   static final _logger = Logger('NotificationService');
   static final _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   static bool _isInitialized = false;
   static GoRouter? _router;
+  static Future<void> Function(String accountPubkey)? _accountSwitcher;
 
   static Future<void> initialize({FlutterLocalNotificationsPlugin? plugin}) async {
     final notificationPlugin = plugin ?? _flutterLocalNotificationsPlugin;
@@ -84,6 +87,10 @@ class NotificationService {
   }
 
   static void _onDidReceiveNotificationResponse(NotificationResponse response) {
+    unawaited(_handleNotificationNavigation(response));
+  }
+
+  static Future<void> _handleNotificationNavigation(NotificationResponse response) async {
     final payload = response.payload ?? '';
     if (payload.isEmpty) {
       _navigateToChatList();
@@ -104,6 +111,9 @@ class NotificationService {
       return;
     }
 
+    final targetAccountPubkey = data['accountPubkey'] as String?;
+    await _switchAccountIfNeeded(targetAccountPubkey);
+
     if (_router != null) {
       final notificationType = data['type'] as String?;
       final welcomeId = data['welcomeId'] as String?;
@@ -121,6 +131,19 @@ class NotificationService {
     }
   }
 
+  static Future<void> _switchAccountIfNeeded(String? targetAccountPubkey) async {
+    if (targetAccountPubkey != null && targetAccountPubkey.isNotEmpty && _accountSwitcher != null) {
+      try {
+        final currentAccountPubkey = await AccountSecureStorageService.getActivePubkey();
+        if (currentAccountPubkey != targetAccountPubkey) {
+          await _accountSwitcher!(targetAccountPubkey);
+        }
+      } catch (e) {
+        _logger.warning('Failed to check/switch account: $e');
+      }
+    }
+  }
+
   static void _navigateToChatList() => _router?.go('/chats');
 
   static void setRouter(GoRouter router) {
@@ -129,6 +152,13 @@ class NotificationService {
     }
     _router = router;
     _logger.fine('Router initialized for notifications');
+  }
+
+  static void setAccountSwitcher({
+    required Future<void> Function(String) switchAccount,
+  }) {
+    _accountSwitcher = switchAccount;
+    _logger.fine('Account switcher registered');
   }
 
   static Future<bool> requestPermissions() async {

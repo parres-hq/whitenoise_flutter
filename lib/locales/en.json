@@ -252,6 +252,19 @@
         "chooseIdentitySubtitle": "Chat without revealing your phone number or email. Choose your identity: real name, pseudonym, or anonymous.",
         "decentralizedPermissionlessSubtitle": "No central authority controls your communication—no permissions needed, no censorship possible."
     },
+    "notifications": {
+        "connectedToRelays": "Connected to relays",
+        "tapToReturnToApp": "Tap to return to the app",
+        "unknownGroup": "Unknown Group",
+        "toAccount": "(to {accountName})",
+        "sentYouAMessage": "Sent you a message",
+        "senderSentYouAMessage": "{senderName}: Sent you a message",
+        "invitedYouToChat": "Invited you to chat",
+        "invitedYouToGroup": "Invited you to {groupName}",
+        "mediaMessage": "{emoji} Media",
+        "senderMediaMessage": "{senderName}: {emoji} Media",
+        "directMessage": "Direct Message"
+    },
     "ui": {
         "startNewChat": "Start New Chat",
         "newGroupChat": "New group chat",

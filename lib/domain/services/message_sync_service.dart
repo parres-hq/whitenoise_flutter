@@ -4,11 +4,12 @@ import 'package:logging/logging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/domain/services/displayed_chat_service.dart';
 import 'package:whitenoise/domain/services/last_read_service.dart';
+import 'package:whitenoise/domain/services/notification_content_builder_service.dart';
 import 'package:whitenoise/domain/services/notification_id_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
-import 'package:whitenoise/src/rust/api/users.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 
 /// Service responsible for message synchronization, filtering, and notifications.
@@ -95,97 +96,171 @@ class MessageSyncService {
 
   static Future<void> notifyNewMessages({
     required String groupId,
-    required String activePubkey,
+    required String accountPubkey,
     required List<ChatMessage> newMessages,
+    required bool showReceiverAccountName,
+    Future<bool> Function(String)? isChatDisplayedFn,
+    Future<GroupInformation> Function({required String accountPubkey, required String groupId})?
+    getGroupInformationFn,
+    Future<NotificationContentBuilderService> Function({
+      required String groupId,
+      required String accountPubkey,
+      required bool isDM,
+      required bool showReceiverAccountName,
+    })?
+    notificationBuilderFactoryFn,
+    Future<void> Function({
+      required int id,
+      required String title,
+      required String body,
+      String? groupKey,
+      String? payload,
+    })?
+    showNotificationFn,
+    Future<int> Function({required String key})? getNotificationIdFn,
+    Future<FlutterMetadata> Function({required String pubkey, bool blockingDataSync})?
+    getUserMetadataFn,
   }) async {
+    if (!_validateNotificationParams(groupId: groupId, accountPubkey: accountPubkey)) {
+      return;
+    }
+
+    if (await _shouldSkipNotifications(groupId: groupId, isChatDisplayedFn: isChatDisplayedFn)) {
+      return;
+    }
+
+    final notificationBuilder = await _setNotificationBuilder(
+      groupId: groupId,
+      accountPubkey: accountPubkey,
+      showReceiverAccountName: showReceiverAccountName,
+      getGroupInformationFn: getGroupInformationFn,
+      notificationBuilderFactoryFn: notificationBuilderFactoryFn,
+    );
+
+    await _sendNotificationsForMessages(
+      groupId: groupId,
+      newMessages: newMessages,
+      notificationBuilder: notificationBuilder,
+      showNotificationFn: showNotificationFn,
+      getNotificationIdFn: getNotificationIdFn,
+      getUserMetadataFn: getUserMetadataFn,
+    );
+  }
+
+  static bool _validateNotificationParams({
+    required String groupId,
+    required String accountPubkey,
+  }) {
     if (groupId.isEmpty) {
       _logger.warning('Empty groupId provided to notifyNewMessages');
-      return;
+      return false;
     }
-    if (activePubkey.isEmpty) {
+    if (accountPubkey.isEmpty) {
       _logger.warning('Empty activePubkey provided to notifyNewMessages');
-      return;
+      return false;
     }
+    return true;
+  }
 
-    final isDisplayed = await DisplayedChatService.isChatDisplayed(groupId);
+  static Future<bool> _shouldSkipNotifications({
+    required String groupId,
+    Future<bool> Function(String)? isChatDisplayedFn,
+  }) async {
+    final isChatDisplayedFunc = isChatDisplayedFn ?? DisplayedChatService.isChatDisplayed;
+    final isDisplayed = await isChatDisplayedFunc(groupId);
+
     if (isDisplayed) {
       _logger.fine('Skipping notifications for displayed chat: $groupId');
-      return;
     }
 
-    // Determine if it's a DM or group
-    bool isDM = false;
-    String groupDisplayName = 'Unknown';
-    try {
-      final group = await getGroup(accountPubkey: activePubkey, groupId: groupId);
-      isDM = await group.isDirectMessageType(accountPubkey: activePubkey);
-      groupDisplayName =
-          isDM
-              ? await _resolveDmDisplayName(activePubkey, groupId, group)
-              : _resolveGroupChatDisplayName(group);
-    } catch (e) {
-      _logger.warning('Failed to determine DM/group status for $groupId', e);
-      groupDisplayName = await getGroupDisplayName(groupId, activePubkey);
-    }
+    return isDisplayed;
+  }
+
+  static Future<NotificationContentBuilderService> _setNotificationBuilder({
+    required String groupId,
+    required String accountPubkey,
+    required bool showReceiverAccountName,
+    Future<GroupInformation> Function({required String accountPubkey, required String groupId})?
+    getGroupInformationFn,
+    Future<NotificationContentBuilderService> Function({
+      required String groupId,
+      required String accountPubkey,
+      required bool isDM,
+      required bool showReceiverAccountName,
+    })?
+    notificationBuilderFactoryFn,
+  }) async {
+    final getGroupInformationFunc = getGroupInformationFn ?? getGroupInformation;
+    final groupInformation = await getGroupInformationFunc(
+      accountPubkey: accountPubkey,
+      groupId: groupId,
+    );
+    final isDM = groupInformation.groupType == GroupType.directMessage;
+
+    final notificationBuilderFactory =
+        notificationBuilderFactoryFn ?? _defaultNotificationBuilderFactory;
+    return notificationBuilderFactory(
+      groupId: groupId,
+      accountPubkey: accountPubkey,
+      isDM: isDM,
+      showReceiverAccountName: showReceiverAccountName,
+    );
+  }
+
+  static Future<void> _sendNotificationsForMessages({
+    required String groupId,
+    required List<ChatMessage> newMessages,
+    required NotificationContentBuilderService notificationBuilder,
+    Future<void> Function({
+      required int id,
+      required String title,
+      required String body,
+      String? groupKey,
+      String? payload,
+    })?
+    showNotificationFn,
+    Future<int> Function({required String key})? getNotificationIdFn,
+    Future<FlutterMetadata> Function({required String pubkey, bool blockingDataSync})?
+    getUserMetadataFn,
+  }) async {
+    final showNotificationFunc = showNotificationFn ?? NotificationService.showMessageNotification;
+    final getNotificationIdFunc = getNotificationIdFn ?? NotificationIdService.getIdFor;
 
     for (final message in newMessages) {
       try {
-        // Get sender's display name
-        String senderName = 'Unknown';
-        try {
-          final metadata = await userMetadata(pubkey: message.pubkey, blockingDataSync: true);
-          if (metadata.displayName?.isNotEmpty == true) {
-            senderName = metadata.displayName!;
-          } else if (metadata.name?.isNotEmpty == true) {
-            senderName = metadata.name!;
-          }
-        } catch (e) {
-          _logger.warning('Failed to get sender metadata for ${message.pubkey}', e);
-        }
+        final content = await notificationBuilder.buildMessageNotification(
+          message: message,
+          getUserMetadataFn: getUserMetadataFn,
+        );
 
-        // Format title and body based on DM or group
-        final String title = isDM ? senderName : groupDisplayName;
-
-        // Check if message has media and/or content
-        final bool hasMedia = message.mediaAttachments.isNotEmpty;
-        final bool hasContent = message.content.isNotEmpty;
-
-        String body;
-        final String mediaEmoji = '\u{1F4F7} ';
-        if (hasMedia && !hasContent) {
-          // Media message without content
-          body = isDM ? '$mediaEmoji Media' : '$mediaEmoji $senderName: Media';
-        } else if (hasContent) {
-          // Message with content (may also have media)
-          final String mediaPrefix = hasMedia ? mediaEmoji : '';
-          body =
-              isDM
-                  ? '$mediaPrefix${message.content}'
-                  : '$mediaPrefix$senderName: ${message.content}';
-        } else {
-          body = isDM ? 'Sent you a message' : '$senderName: Sent you a message';
-        }
-
-        await NotificationService.showMessageNotification(
-          id: await NotificationIdService.getIdFor(
+        await showNotificationFunc(
+          id: await getNotificationIdFunc(
             key: 'new_message:$groupId:${message.id}',
           ),
-          title: title,
-          body: body,
-          groupKey: groupId,
-          payload: jsonEncode({
-            'type': 'new_message',
-            'groupId': groupId,
-            'messageId': message.id,
-            'sender': message.pubkey,
-            'deepLink': 'whitenoise://chats/$groupId',
-          }),
+          title: content.title,
+          body: content.body,
+          groupKey: content.groupKey,
+          payload: jsonEncode(content.payload),
         );
         _logger.info('Notification shown for message ${message.id}');
       } catch (e) {
         _logger.warning('Failed to show notification for message ${message.id}', e);
       }
     }
+  }
+
+  static Future<NotificationContentBuilderService> _defaultNotificationBuilderFactory({
+    required String groupId,
+    required String accountPubkey,
+    required bool isDM,
+    required bool showReceiverAccountName,
+  }) {
+    return NotificationContentBuilderService.forGroup(
+      groupId: groupId,
+      accountPubkey: accountPubkey,
+      isDM: isDM,
+      showReceiverAccountName: showReceiverAccountName,
+    );
   }
 
   static Future<void> setLastMessageSyncTime({
@@ -273,43 +348,25 @@ class MessageSyncService {
 
   static Future<void> notifyNewInvites({
     required List<Welcome> newWelcomes,
+    required String accountPubkey,
+    required bool showReceiverAccountName,
   }) async {
     for (final welcome in newWelcomes) {
       try {
-        // Determine if it's a DM or group
-        // If groupName is empty, it's a DM
-        // Otherwise, it's a group
-        final bool isDM = welcome.groupName.isEmpty;
-
-        // Get the welcomer's display name
-        String welcomerName = 'Unknown';
-        try {
-          final metadata = await userMetadata(pubkey: welcome.welcomer, blockingDataSync: true);
-          if (metadata.displayName?.isNotEmpty == true) {
-            welcomerName = metadata.displayName!;
-          } else if (metadata.name?.isNotEmpty == true) {
-            welcomerName = metadata.name!;
-          }
-        } catch (e) {
-          _logger.warning('Failed to get welcomer metadata for ${welcome.welcomer}', e);
-        }
-
-        final String title = welcomerName;
-        final String body = isDM ? 'Invited you to chat' : 'Invited you to ${welcome.groupName}';
+        final content = await NotificationContentBuilderService.buildInviteNotification(
+          welcome: welcome,
+          accountPubkey: accountPubkey,
+          showReceiverAccountName: showReceiverAccountName,
+        );
 
         await NotificationService.showInviteNotification(
           id: await NotificationIdService.getIdFor(
             key: 'invites_sync:${welcome.id}',
           ),
-          title: title,
-          body: body,
-          groupKey: 'invites',
-          payload: jsonEncode({
-            'type': 'invites_sync',
-            'welcomeId': welcome.id,
-            'groupId': welcome.mlsGroupId,
-            'deepLink': 'whitenoise://chats/${welcome.mlsGroupId}?inviteId=${welcome.id}',
-          }),
+          title: content.title,
+          body: content.body,
+          groupKey: content.groupKey,
+          payload: jsonEncode(content.payload),
         );
         _logger.info('Notification shown for welcome ${welcome.id}');
       } catch (e) {
@@ -332,7 +389,7 @@ class MessageSyncService {
         'bg_sync_last_invite_$activePubkey',
         time.millisecondsSinceEpoch,
       );
-      _logger.info('Last invite sync time for account $activePubkey Set to ${time.toLocal()}');
+      _logger.info('Last invite sync time for account $activePubkey set to ${time.toLocal()}');
     } catch (e) {
       _logger.warning('Failed to set last invite sync time for account $activePubkey', e);
     }
@@ -355,59 +412,6 @@ class MessageSyncService {
       _logger.warning('Failed to get last invite sync time for account $activePubkey', e);
       return null;
     }
-  }
-
-  static Future<String> getGroupDisplayName(String groupId, String activePubkey) async {
-    if (groupId.isEmpty) {
-      _logger.warning('Empty groupId provided to getGroupDisplayName');
-      return 'Unknown Group';
-    }
-    if (activePubkey.isEmpty) {
-      _logger.warning('Empty activePubkey provided to getGroupDisplayName');
-      return 'Unknown Group';
-    }
-
-    try {
-      final group = await getGroup(accountPubkey: activePubkey, groupId: groupId);
-      final isDM = await group.isDirectMessageType(accountPubkey: activePubkey);
-      return isDM
-          ? await _resolveDmDisplayName(activePubkey, groupId, group)
-          : _resolveGroupChatDisplayName(group);
-    } catch (e) {
-      _logger.warning('Get group name for $groupId', e);
-      return 'Group Chat';
-    }
-  }
-
-  static Future<String> _resolveDmDisplayName(
-    String activePubkey,
-    String groupId,
-    dynamic group,
-  ) async {
-    final members = await groupMembers(pubkey: activePubkey, groupId: groupId);
-    if (members.isEmpty) {
-      return 'Direct Message';
-    }
-
-    final otherMemberPubkey = members.firstWhere(
-      (memberPubkey) => memberPubkey != activePubkey,
-      orElse: () => members.first,
-    );
-
-    try {
-      final metadata = await userMetadata(pubkey: otherMemberPubkey, blockingDataSync: true);
-      if (metadata.displayName?.isNotEmpty == true) {
-        return metadata.displayName!;
-      }
-    } catch (e) {
-      _logger.warning('Get user metadata for $otherMemberPubkey', e);
-    }
-
-    return 'Unknown';
-  }
-
-  static String _resolveGroupChatDisplayName(dynamic group) {
-    return group.name.isNotEmpty ? group.name : 'Unknown Group';
   }
 
   static DateTime _getMostRecentTime(List<DateTime?> times) {

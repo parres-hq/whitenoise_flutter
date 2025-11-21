@@ -1,12 +1,17 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 
 import 'notification_service_test.mocks.dart';
 
-@GenerateMocks([FlutterLocalNotificationsPlugin, ActiveNotification])
+@GenerateMocks([
+  FlutterLocalNotificationsPlugin,
+  ActiveNotification,
+  GoRouter,
+])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
@@ -254,6 +259,142 @@ void main() {
         verify(
           mockPlugin.show(456, 'Invite Title', 'Invite Body', any, payload: anyNamed('payload')),
         ).called(1);
+      });
+    });
+
+    group('on receiving notification response', () {
+      late String? switchAccountCallArg;
+      late DidReceiveNotificationResponseCallback callback;
+      final mockRouterForGroup = MockGoRouter();
+
+      setUpAll(() async {
+        when(
+          mockPlugin
+              .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>(),
+        ).thenReturn(null);
+
+        when(
+          mockPlugin.initialize(
+            any,
+            onDidReceiveNotificationResponse: anyNamed('onDidReceiveNotificationResponse'),
+          ),
+        ).thenAnswer((invocation) {
+          callback =
+              invocation.namedArguments[#onDidReceiveNotificationResponse]
+                  as DidReceiveNotificationResponseCallback;
+          return Future.value(true);
+        });
+
+        await NotificationService.initialize(plugin: mockPlugin);
+
+        NotificationService.setRouter(mockRouterForGroup);
+        NotificationService.setAccountSwitcher(
+          switchAccount: (pubkey) async {
+            switchAccountCallArg = pubkey;
+          },
+        );
+      });
+
+      setUp(() {
+        switchAccountCallArg = null;
+        clearInteractions(mockRouterForGroup);
+      });
+
+      group('for group notifications', () {
+        group('when accountPubkey is provided in payload', () {
+          setUp(() async {
+            final response = const NotificationResponse(
+              notificationResponseType: NotificationResponseType.selectedNotification,
+              payload: '{"groupId":"test-group","accountPubkey":"target-pubkey"}',
+            );
+            callback(response);
+            await Future.delayed(const Duration(milliseconds: 10));
+          });
+          test('switches account', () async {
+            expect(switchAccountCallArg, equals('target-pubkey'));
+          });
+
+          test('navigates to chat', () async {
+            verify(mockRouterForGroup.go('/chats/test-group')).called(1);
+          });
+        });
+
+        group('without accountPubkey in payload', () {
+          setUp(() async {
+            final response = const NotificationResponse(
+              notificationResponseType: NotificationResponseType.selectedNotification,
+              payload: '{"groupId":"test-group"}',
+            );
+            callback(response);
+            await Future.delayed(const Duration(milliseconds: 10));
+          });
+          test('does not switch account', () async {
+            expect(switchAccountCallArg, isNull);
+          });
+
+          test('navigates to chat', () async {
+            verify(mockRouterForGroup.go('/chats/test-group')).called(1);
+          });
+        });
+      });
+
+      group('for invite notifications', () {
+        group('when accountPubkey is provided in payload', () {
+          setUp(() async {
+            final response = const NotificationResponse(
+              notificationResponseType: NotificationResponseType.selectedNotification,
+              payload:
+                  '{"type":"invites_sync","groupId":"test-group","welcomeId":"welcome-123","accountPubkey":"target-pubkey"}',
+            );
+
+            callback(response);
+            await Future.delayed(const Duration(milliseconds: 10));
+          });
+          test('switches account', () async {
+            expect(switchAccountCallArg, equals('target-pubkey'));
+          });
+
+          test('navigates to chat with welcomeId', () async {
+            verify(mockRouterForGroup.go('/chats/test-group', extra: 'welcome-123')).called(1);
+          });
+        });
+
+        group('without accountPubkey in payload', () {
+          setUp(() async {
+            final response = const NotificationResponse(
+              notificationResponseType: NotificationResponseType.selectedNotification,
+              payload: '{"type":"invites_sync","groupId":"test-group","welcomeId":"welcome-123"}',
+            );
+            callback(response);
+            await Future.delayed(const Duration(milliseconds: 10));
+          });
+          test('does not switch account', () async {
+            expect(switchAccountCallArg, isNull);
+          });
+
+          test('navigates to chat with welcomeId', () async {
+            verify(mockRouterForGroup.go('/chats/test-group', extra: 'welcome-123')).called(1);
+          });
+        });
+
+        group('with empty accountPubkey in payload', () {
+          setUp(() async {
+            final response = const NotificationResponse(
+              notificationResponseType: NotificationResponseType.selectedNotification,
+              payload:
+                  '{"type":"invites_sync","groupId":"test-group","welcomeId":"welcome-123","accountPubkey":""}',
+            );
+            callback(response);
+            await Future.delayed(const Duration(milliseconds: 10));
+          });
+          test('does not switch account', () async {
+            expect(switchAccountCallArg, isNull);
+          });
+
+          test('navigates to chat with welcomeId', () async {
+            verify(mockRouterForGroup.go('/chats/test-group', extra: 'welcome-123')).called(1);
+          });
+        });
       });
     });
   });

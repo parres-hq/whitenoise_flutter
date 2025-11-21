@@ -3,23 +3,34 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i3;
+import 'dart:async' as _i9;
 
+import 'package:flutter/widgets.dart' as _i3;
 import 'package:flutter_local_notifications/src/flutter_local_notifications_plugin.dart'
-    as _i2;
-import 'package:flutter_local_notifications/src/initialization_settings.dart'
-    as _i4;
-import 'package:flutter_local_notifications/src/notification_details.dart'
-    as _i6;
-import 'package:flutter_local_notifications/src/platform_specifics/android/schedule_mode.dart'
-    as _i9;
-import 'package:flutter_local_notifications/src/platform_specifics/ios/enums.dart'
     as _i8;
-import 'package:flutter_local_notifications/src/types.dart' as _i10;
+import 'package:flutter_local_notifications/src/initialization_settings.dart'
+    as _i10;
+import 'package:flutter_local_notifications/src/notification_details.dart'
+    as _i12;
+import 'package:flutter_local_notifications/src/platform_specifics/android/schedule_mode.dart'
+    as _i15;
+import 'package:flutter_local_notifications/src/platform_specifics/ios/enums.dart'
+    as _i14;
+import 'package:flutter_local_notifications/src/types.dart' as _i16;
 import 'package:flutter_local_notifications_platform_interface/flutter_local_notifications_platform_interface.dart'
-    as _i5;
+    as _i11;
+import 'package:go_router/src/configuration.dart' as _i2;
+import 'package:go_router/src/delegate.dart' as _i4;
+import 'package:go_router/src/information_provider.dart' as _i5;
+import 'package:go_router/src/match.dart' as _i19;
+import 'package:go_router/src/parser.dart' as _i6;
+import 'package:go_router/src/router.dart' as _i17;
+import 'package:go_router/src/state.dart' as _i7;
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:timezone/timezone.dart' as _i7;
+import 'package:mockito/src/dummies.dart' as _i18;
+import 'package:timezone/timezone.dart' as _i13;
+import 'package:whitenoise/domain/services/account_secure_storage_service.dart'
+    as _i20;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -35,21 +46,56 @@ import 'package:timezone/timezone.dart' as _i7;
 // ignore_for_file: camel_case_types
 // ignore_for_file: subtype_of_sealed_class
 
+class _FakeRouteConfiguration_0 extends _i1.SmartFake
+    implements _i2.RouteConfiguration {
+  _FakeRouteConfiguration_0(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeBackButtonDispatcher_1 extends _i1.SmartFake
+    implements _i3.BackButtonDispatcher {
+  _FakeBackButtonDispatcher_1(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeGoRouterDelegate_2 extends _i1.SmartFake
+    implements _i4.GoRouterDelegate {
+  _FakeGoRouterDelegate_2(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeGoRouteInformationProvider_3 extends _i1.SmartFake
+    implements _i5.GoRouteInformationProvider {
+  _FakeGoRouteInformationProvider_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeGoRouteInformationParser_4 extends _i1.SmartFake
+    implements _i6.GoRouteInformationParser {
+  _FakeGoRouteInformationParser_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeGoRouterState_5 extends _i1.SmartFake implements _i7.GoRouterState {
+  _FakeGoRouterState_5(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [FlutterLocalNotificationsPlugin].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockFlutterLocalNotificationsPlugin extends _i1.Mock
-    implements _i2.FlutterLocalNotificationsPlugin {
+    implements _i8.FlutterLocalNotificationsPlugin {
   MockFlutterLocalNotificationsPlugin() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i3.Future<bool?> initialize(
-    _i4.InitializationSettings? initializationSettings, {
-    _i5.DidReceiveNotificationResponseCallback?
+  _i9.Future<bool?> initialize(
+    _i10.InitializationSettings? initializationSettings, {
+    _i11.DidReceiveNotificationResponseCallback?
     onDidReceiveNotificationResponse,
-    _i5.DidReceiveBackgroundNotificationResponseCallback?
+    _i11.DidReceiveBackgroundNotificationResponseCallback?
     onDidReceiveBackgroundNotificationResponse,
   }) =>
       (super.noSuchMethod(
@@ -63,25 +109,25 @@ class MockFlutterLocalNotificationsPlugin extends _i1.Mock
                     onDidReceiveBackgroundNotificationResponse,
               },
             ),
-            returnValue: _i3.Future<bool?>.value(),
+            returnValue: _i9.Future<bool?>.value(),
           )
-          as _i3.Future<bool?>);
+          as _i9.Future<bool?>);
 
   @override
-  _i3.Future<_i5.NotificationAppLaunchDetails?>
+  _i9.Future<_i11.NotificationAppLaunchDetails?>
   getNotificationAppLaunchDetails() =>
       (super.noSuchMethod(
             Invocation.method(#getNotificationAppLaunchDetails, []),
-            returnValue: _i3.Future<_i5.NotificationAppLaunchDetails?>.value(),
+            returnValue: _i9.Future<_i11.NotificationAppLaunchDetails?>.value(),
           )
-          as _i3.Future<_i5.NotificationAppLaunchDetails?>);
+          as _i9.Future<_i11.NotificationAppLaunchDetails?>);
 
   @override
-  _i3.Future<void> show(
+  _i9.Future<void> show(
     int? id,
     String? title,
     String? body,
-    _i6.NotificationDetails? notificationDetails, {
+    _i12.NotificationDetails? notificationDetails, {
     String? payload,
   }) =>
       (super.noSuchMethod(
@@ -90,41 +136,41 @@ class MockFlutterLocalNotificationsPlugin extends _i1.Mock
               [id, title, body, notificationDetails],
               {#payload: payload},
             ),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i3.Future<void> cancel(int? id, {String? tag}) =>
+  _i9.Future<void> cancel(int? id, {String? tag}) =>
       (super.noSuchMethod(
             Invocation.method(#cancel, [id], {#tag: tag}),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i3.Future<void> cancelAll() =>
+  _i9.Future<void> cancelAll() =>
       (super.noSuchMethod(
             Invocation.method(#cancelAll, []),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i3.Future<void> zonedSchedule(
+  _i9.Future<void> zonedSchedule(
     int? id,
     String? title,
     String? body,
-    _i7.TZDateTime? scheduledDate,
-    _i6.NotificationDetails? notificationDetails, {
-    required _i8.UILocalNotificationDateInterpretation?
+    _i13.TZDateTime? scheduledDate,
+    _i12.NotificationDetails? notificationDetails, {
+    required _i14.UILocalNotificationDateInterpretation?
     uiLocalNotificationDateInterpretation,
-    required _i9.AndroidScheduleMode? androidScheduleMode,
+    required _i15.AndroidScheduleMode? androidScheduleMode,
     String? payload,
-    _i10.DateTimeComponents? matchDateTimeComponents,
+    _i16.DateTimeComponents? matchDateTimeComponents,
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -138,19 +184,19 @@ class MockFlutterLocalNotificationsPlugin extends _i1.Mock
                 #matchDateTimeComponents: matchDateTimeComponents,
               },
             ),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i3.Future<void> periodicallyShow(
+  _i9.Future<void> periodicallyShow(
     int? id,
     String? title,
     String? body,
-    _i5.RepeatInterval? repeatInterval,
-    _i6.NotificationDetails? notificationDetails, {
-    required _i9.AndroidScheduleMode? androidScheduleMode,
+    _i11.RepeatInterval? repeatInterval,
+    _i12.NotificationDetails? notificationDetails, {
+    required _i15.AndroidScheduleMode? androidScheduleMode,
     String? payload,
   }) =>
       (super.noSuchMethod(
@@ -159,20 +205,20 @@ class MockFlutterLocalNotificationsPlugin extends _i1.Mock
               [id, title, body, repeatInterval, notificationDetails],
               {#androidScheduleMode: androidScheduleMode, #payload: payload},
             ),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i3.Future<void> periodicallyShowWithDuration(
+  _i9.Future<void> periodicallyShowWithDuration(
     int? id,
     String? title,
     String? body,
     Duration? repeatDurationInterval,
-    _i6.NotificationDetails? notificationDetails, {
-    _i9.AndroidScheduleMode? androidScheduleMode =
-        _i9.AndroidScheduleMode.exact,
+    _i12.NotificationDetails? notificationDetails, {
+    _i15.AndroidScheduleMode? androidScheduleMode =
+        _i15.AndroidScheduleMode.exact,
     String? payload,
   }) =>
       (super.noSuchMethod(
@@ -181,39 +227,338 @@ class MockFlutterLocalNotificationsPlugin extends _i1.Mock
               [id, title, body, repeatDurationInterval, notificationDetails],
               {#androidScheduleMode: androidScheduleMode, #payload: payload},
             ),
-            returnValue: _i3.Future<void>.value(),
-            returnValueForMissingStub: _i3.Future<void>.value(),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
           )
-          as _i3.Future<void>);
+          as _i9.Future<void>);
 
   @override
-  _i3.Future<List<_i5.PendingNotificationRequest>>
+  _i9.Future<List<_i11.PendingNotificationRequest>>
   pendingNotificationRequests() =>
       (super.noSuchMethod(
             Invocation.method(#pendingNotificationRequests, []),
-            returnValue: _i3.Future<List<_i5.PendingNotificationRequest>>.value(
-              <_i5.PendingNotificationRequest>[],
-            ),
+            returnValue:
+                _i9.Future<List<_i11.PendingNotificationRequest>>.value(
+                  <_i11.PendingNotificationRequest>[],
+                ),
           )
-          as _i3.Future<List<_i5.PendingNotificationRequest>>);
+          as _i9.Future<List<_i11.PendingNotificationRequest>>);
 
   @override
-  _i3.Future<List<_i5.ActiveNotification>> getActiveNotifications() =>
+  _i9.Future<List<_i11.ActiveNotification>> getActiveNotifications() =>
       (super.noSuchMethod(
             Invocation.method(#getActiveNotifications, []),
-            returnValue: _i3.Future<List<_i5.ActiveNotification>>.value(
-              <_i5.ActiveNotification>[],
+            returnValue: _i9.Future<List<_i11.ActiveNotification>>.value(
+              <_i11.ActiveNotification>[],
             ),
           )
-          as _i3.Future<List<_i5.ActiveNotification>>);
+          as _i9.Future<List<_i11.ActiveNotification>>);
 }
 
 /// A class which mocks [ActiveNotification].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockActiveNotification extends _i1.Mock
-    implements _i5.ActiveNotification {
+    implements _i11.ActiveNotification {
   MockActiveNotification() {
+    _i1.throwOnMissingStub(this);
+  }
+}
+
+/// A class which mocks [GoRouter].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockGoRouter extends _i1.Mock implements _i17.GoRouter {
+  MockGoRouter() {
+    _i1.throwOnMissingStub(this);
+  }
+
+  @override
+  _i2.RouteConfiguration get configuration =>
+      (super.noSuchMethod(
+            Invocation.getter(#configuration),
+            returnValue: _FakeRouteConfiguration_0(
+              this,
+              Invocation.getter(#configuration),
+            ),
+          )
+          as _i2.RouteConfiguration);
+
+  @override
+  _i3.BackButtonDispatcher get backButtonDispatcher =>
+      (super.noSuchMethod(
+            Invocation.getter(#backButtonDispatcher),
+            returnValue: _FakeBackButtonDispatcher_1(
+              this,
+              Invocation.getter(#backButtonDispatcher),
+            ),
+          )
+          as _i3.BackButtonDispatcher);
+
+  @override
+  _i4.GoRouterDelegate get routerDelegate =>
+      (super.noSuchMethod(
+            Invocation.getter(#routerDelegate),
+            returnValue: _FakeGoRouterDelegate_2(
+              this,
+              Invocation.getter(#routerDelegate),
+            ),
+          )
+          as _i4.GoRouterDelegate);
+
+  @override
+  _i5.GoRouteInformationProvider get routeInformationProvider =>
+      (super.noSuchMethod(
+            Invocation.getter(#routeInformationProvider),
+            returnValue: _FakeGoRouteInformationProvider_3(
+              this,
+              Invocation.getter(#routeInformationProvider),
+            ),
+          )
+          as _i5.GoRouteInformationProvider);
+
+  @override
+  _i6.GoRouteInformationParser get routeInformationParser =>
+      (super.noSuchMethod(
+            Invocation.getter(#routeInformationParser),
+            returnValue: _FakeGoRouteInformationParser_4(
+              this,
+              Invocation.getter(#routeInformationParser),
+            ),
+          )
+          as _i6.GoRouteInformationParser);
+
+  @override
+  bool get overridePlatformDefaultLocation =>
+      (super.noSuchMethod(
+            Invocation.getter(#overridePlatformDefaultLocation),
+            returnValue: false,
+          )
+          as bool);
+
+  @override
+  _i7.GoRouterState get state =>
+      (super.noSuchMethod(
+            Invocation.getter(#state),
+            returnValue: _FakeGoRouterState_5(this, Invocation.getter(#state)),
+          )
+          as _i7.GoRouterState);
+
+  @override
+  set configuration(_i2.RouteConfiguration? _configuration) =>
+      super.noSuchMethod(
+        Invocation.setter(#configuration, _configuration),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set routerDelegate(_i4.GoRouterDelegate? _routerDelegate) =>
+      super.noSuchMethod(
+        Invocation.setter(#routerDelegate, _routerDelegate),
+        returnValueForMissingStub: null,
+      );
+
+  @override
+  set routeInformationProvider(
+    _i5.GoRouteInformationProvider? _routeInformationProvider,
+  ) => super.noSuchMethod(
+    Invocation.setter(#routeInformationProvider, _routeInformationProvider),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  set routeInformationParser(
+    _i6.GoRouteInformationParser? _routeInformationParser,
+  ) => super.noSuchMethod(
+    Invocation.setter(#routeInformationParser, _routeInformationParser),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  bool canPop() =>
+      (super.noSuchMethod(Invocation.method(#canPop, []), returnValue: false)
+          as bool);
+
+  @override
+  String namedLocation(
+    String? name, {
+    Map<String, String>? pathParameters = const {},
+    Map<String, dynamic>? queryParameters = const {},
+    String? fragment,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #namedLocation,
+              [name],
+              {
+                #pathParameters: pathParameters,
+                #queryParameters: queryParameters,
+                #fragment: fragment,
+              },
+            ),
+            returnValue: _i18.dummyValue<String>(
+              this,
+              Invocation.method(
+                #namedLocation,
+                [name],
+                {
+                  #pathParameters: pathParameters,
+                  #queryParameters: queryParameters,
+                  #fragment: fragment,
+                },
+              ),
+            ),
+          )
+          as String);
+
+  @override
+  void go(String? location, {Object? extra}) => super.noSuchMethod(
+    Invocation.method(#go, [location], {#extra: extra}),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void restore(_i19.RouteMatchList? matchList) => super.noSuchMethod(
+    Invocation.method(#restore, [matchList]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void goNamed(
+    String? name, {
+    Map<String, String>? pathParameters = const {},
+    Map<String, dynamic>? queryParameters = const {},
+    Object? extra,
+    String? fragment,
+  }) => super.noSuchMethod(
+    Invocation.method(
+      #goNamed,
+      [name],
+      {
+        #pathParameters: pathParameters,
+        #queryParameters: queryParameters,
+        #extra: extra,
+        #fragment: fragment,
+      },
+    ),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  _i9.Future<T?> push<T extends Object?>(String? location, {Object? extra}) =>
+      (super.noSuchMethod(
+            Invocation.method(#push, [location], {#extra: extra}),
+            returnValue: _i9.Future<T?>.value(),
+          )
+          as _i9.Future<T?>);
+
+  @override
+  _i9.Future<T?> pushNamed<T extends Object?>(
+    String? name, {
+    Map<String, String>? pathParameters = const {},
+    Map<String, dynamic>? queryParameters = const {},
+    Object? extra,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #pushNamed,
+              [name],
+              {
+                #pathParameters: pathParameters,
+                #queryParameters: queryParameters,
+                #extra: extra,
+              },
+            ),
+            returnValue: _i9.Future<T?>.value(),
+          )
+          as _i9.Future<T?>);
+
+  @override
+  _i9.Future<T?> pushReplacement<T extends Object?>(
+    String? location, {
+    Object? extra,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(#pushReplacement, [location], {#extra: extra}),
+            returnValue: _i9.Future<T?>.value(),
+          )
+          as _i9.Future<T?>);
+
+  @override
+  _i9.Future<T?> pushReplacementNamed<T extends Object?>(
+    String? name, {
+    Map<String, String>? pathParameters = const {},
+    Map<String, dynamic>? queryParameters = const {},
+    Object? extra,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #pushReplacementNamed,
+              [name],
+              {
+                #pathParameters: pathParameters,
+                #queryParameters: queryParameters,
+                #extra: extra,
+              },
+            ),
+            returnValue: _i9.Future<T?>.value(),
+          )
+          as _i9.Future<T?>);
+
+  @override
+  _i9.Future<T?> replace<T>(String? location, {Object? extra}) =>
+      (super.noSuchMethod(
+            Invocation.method(#replace, [location], {#extra: extra}),
+            returnValue: _i9.Future<T?>.value(),
+          )
+          as _i9.Future<T?>);
+
+  @override
+  _i9.Future<T?> replaceNamed<T>(
+    String? name, {
+    Map<String, String>? pathParameters = const {},
+    Map<String, dynamic>? queryParameters = const {},
+    Object? extra,
+  }) =>
+      (super.noSuchMethod(
+            Invocation.method(
+              #replaceNamed,
+              [name],
+              {
+                #pathParameters: pathParameters,
+                #queryParameters: queryParameters,
+                #extra: extra,
+              },
+            ),
+            returnValue: _i9.Future<T?>.value(),
+          )
+          as _i9.Future<T?>);
+
+  @override
+  void pop<T extends Object?>([T? result]) => super.noSuchMethod(
+    Invocation.method(#pop, [result]),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void refresh() => super.noSuchMethod(
+    Invocation.method(#refresh, []),
+    returnValueForMissingStub: null,
+  );
+
+  @override
+  void dispose() => super.noSuchMethod(
+    Invocation.method(#dispose, []),
+    returnValueForMissingStub: null,
+  );
+}
+
+/// A class which mocks [AccountSecureStorageService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockAccountSecureStorageService extends _i1.Mock
+    implements _i20.AccountSecureStorageService {
+  MockAccountSecureStorageService() {
     _i1.throwOnMissingStub(this);
   }
 }
