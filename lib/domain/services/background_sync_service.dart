@@ -94,6 +94,12 @@ class BackgroundSyncService {
 
   static Future<void> startForegroundTask() async {
     try {
+      if (Platform.isIOS) {
+        _logger.info(
+          'Skipping startForegroundTask on iOS (foreground sync temporarily disabled for debugging).',
+        );
+        return;
+      }
       if (await FlutterForegroundTask.isRunningService) {
         await FlutterForegroundTask.restartService();
       } else {
