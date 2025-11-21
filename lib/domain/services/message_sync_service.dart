@@ -73,17 +73,14 @@ class MessageSyncService {
       'lastProcessedTime=$lastProcessedTime, totalMessages=${messages.length}',
     );
 
-    final sortedMessages = List<ChatMessage>.from(messages)
-      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
-
-    final startIndex = _binarySearchAfter(sortedMessages, lastProcessedTime);
-    final endIndex = _binarySearchBefore(sortedMessages, earliestAllowedTime);
+    final startIndex = _binarySearchAfter(messages, lastProcessedTime);
+    final endIndex = _binarySearchBefore(messages, earliestAllowedTime);
 
     if (startIndex >= endIndex) {
       return [];
     }
     final filteredMessages =
-        sortedMessages.sublist(startIndex, endIndex).where((message) {
+        messages.sublist(startIndex, endIndex).where((message) {
           return message.pubkey != currentUserPubkey && !message.isDeleted;
         }).toList();
 
@@ -333,11 +330,8 @@ class MessageSyncService {
       return [];
     }
 
-    final sortedWelcomes = List<Welcome>.from(welcomes)
-      ..sort((a, b) => a.createdAt.compareTo(b.createdAt));
-
     final filteredWelcomes =
-        sortedWelcomes.where((welcome) {
+        welcomes.where((welcome) {
           return DateTime.fromMillisecondsSinceEpoch(welcome.createdAt.toInt() * 1000).isAfter(
             lastSyncTime ?? DateTime.now().subtract(_defaultLookbackWindow),
           );
