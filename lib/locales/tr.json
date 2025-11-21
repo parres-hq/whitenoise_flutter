@@ -324,6 +324,12 @@
     "errors": {
         "errorOccurred": "Bir hata oluştu",
         "unknownError": "Bilinmeyen hata",
-        "errorOccurredTryAgain": "Bir hata oluştu, lütfen tekrar deneyin."
+        "errorOccurredTryAgain": "Bir hata oluştu, lütfen tekrar deneyin.",
+        "invalidPublicKey": "Geçersiz genel anahtar formatı",
+        "somethingWentWrong": "Bir şeyler ters gitti"
+    },
+    "permissions": {
+        "cameraDenied": "Kamera izni reddedildi",
+        "openSettings": "Ayarları Aç"
     }
 }

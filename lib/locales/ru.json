@@ -324,6 +324,12 @@
     "errors": {
         "errorOccurred": "Произошла ошибка",
         "unknownError": "Неизвестная ошибка",
-        "errorOccurredTryAgain": "Произошла ошибка, пожалуйста, попробуйте еще раз."
+        "errorOccurredTryAgain": "Произошла ошибка, пожалуйста, попробуйте еще раз.",
+        "invalidPublicKey": "Неверный формат публичного ключа",
+        "somethingWentWrong": "Что-то пошло не так"
+    },
+    "permissions": {
+        "cameraDenied": "Доступ к камере запрещён",
+        "openSettings": "Открыть настройки"
     }
 }

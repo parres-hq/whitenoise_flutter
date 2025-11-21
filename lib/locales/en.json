@@ -324,6 +324,12 @@
     "errors": {
         "errorOccurred": "An error occurred",
         "unknownError": "Unknown error",
-        "errorOccurredTryAgain": "An error occurred, please try again."
+        "errorOccurredTryAgain": "An error occurred, please try again.",
+        "invalidPublicKey": "Invalid public key format",
+        "somethingWentWrong": "Something went wrong"
+    },
+    "permissions": {
+        "cameraDenied": "Camera permission denied",
+        "openSettings": "Open Settings"
     }
 }

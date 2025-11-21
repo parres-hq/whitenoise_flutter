@@ -1,13 +1,18 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
+import 'package:whitenoise/ui/shared/widgets/camera_permission_denied_widget.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
 class QRScannerScreen extends StatefulWidget {
@@ -21,9 +26,11 @@ class QRScannerScreen extends StatefulWidget {
   State<QRScannerScreen> createState() => _QRScannerScreenState();
 }
 
-class _QRScannerScreenState extends State<QRScannerScreen> {
+class _QRScannerScreenState extends State<QRScannerScreen> with WidgetsBindingObserver {
+  final Logger logger = Logger('QRScannerScreen');
   late MobileScannerController _controller;
   bool _isScanning = true;
+  Timer? _cameraRestartDebouncer;
 
   @override
   void initState() {
@@ -31,12 +38,43 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
     _controller = MobileScannerController(
       formats: [BarcodeFormat.qrCode],
     );
+    WidgetsBinding.instance.addObserver(this);
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _cameraRestartDebouncer?.cancel();
     _controller.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+      case AppLifecycleState.paused:
+        return;
+      case AppLifecycleState.resumed:
+        unawaited(_safeStartCamera());
+      case AppLifecycleState.inactive:
+        unawaited(_controller.stop());
+    }
+  }
+
+  Future<void> _safeStartCamera() async {
+    try {
+      final status = await Permission.camera.status;
+      if (status.isDenied || status.isPermanentlyDenied) {
+        return;
+      }
+      if (mounted) {
+        await _controller.start();
+      }
+    } catch (e, s) {
+      logger.warning('Failed to start camera', e, s);
+    }
   }
 
   void _onDetect(BarcodeCapture capture) {
@@ -129,6 +167,13 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
                                           ? MobileScanner(
                                             controller: _controller,
                                             onDetect: _onDetect,
+                                            errorBuilder: (context, error) {
+                                              if (error.errorCode ==
+                                                  MobileScannerErrorCode.permissionDenied) {
+                                                return const CameraPermissionDeniedWidget();
+                                              }
+                                              return const SizedBox();
+                                            },
                                           )
                                           : Container(
                                             color: context.colors.baseMuted,

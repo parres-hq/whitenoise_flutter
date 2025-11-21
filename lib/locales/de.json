@@ -324,6 +324,12 @@
     "errors": {
         "errorOccurred": "Ein Fehler ist aufgetreten",
         "unknownError": "Unbekannter Fehler",
-        "errorOccurredTryAgain": "Ein Fehler ist aufgetreten, bitte versuchen Sie es erneut."
+        "errorOccurredTryAgain": "Ein Fehler ist aufgetreten, bitte versuchen Sie es erneut.",
+        "invalidPublicKey": "Ungültiges Format des öffentlichen Schlüssels",
+        "somethingWentWrong": "Etwas ist schiefgelaufen"
+    },
+    "permissions": {
+        "cameraDenied": "Kamerazugriff verweigert",
+        "openSettings": "Einstellungen öffnen"
     }
 }
