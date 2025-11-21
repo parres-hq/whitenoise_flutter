@@ -10,6 +10,7 @@ import 'package:whitenoise/config/providers/group_messages_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
+import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/domain/services/last_read_manager.dart';
 import 'package:whitenoise/domain/services/last_read_service.dart';
 import 'package:whitenoise/domain/services/message_merger_service.dart';
@@ -463,6 +464,41 @@ class ChatNotifier extends Notifier<ChatState> {
 
       _logger.info('ChatProvider: Adding reaction "$reaction" to message ${message.id}');
 
+      final currentMessages = state.groupMessages[groupId] ?? [];
+      final messageIndex = currentMessages.indexWhere((m) => m.id == message.id);
+
+      if (messageIndex != -1) {
+        final currentMessage = currentMessages[messageIndex];
+        final currentReactions = List<Reaction>.from(currentMessage.reactions);
+
+        final existingReactionIndex = currentReactions.indexWhere(
+          (r) => r.emoji == reaction && r.user.publicKey == activePubkey,
+        );
+
+        if (existingReactionIndex != -1) {
+          currentReactions.removeAt(existingReactionIndex);
+        } else {
+          final currentUser = User(
+            id: activePubkey,
+            publicKey: activePubkey,
+            displayName: 'You',
+            nip05: '',
+          );
+
+          currentReactions.add(
+            Reaction(emoji: reaction, user: currentUser, createdAt: DateTime.now()),
+          );
+        }
+
+        final updatedMessage = currentMessage.copyWith(reactions: currentReactions);
+        final updatedMessages = List<MessageModel>.from(currentMessages);
+        updatedMessages[messageIndex] = updatedMessage;
+
+        state = state.copyWith(
+          groupMessages: {...state.groupMessages, groupId: updatedMessages},
+        );
+      }
+
       // Use the message's actual kind (now stored in MessageModel)
       final originalMessageKind = messageKind ?? message.kind;
       await _messageSenderService.sendReaction(
@@ -474,13 +510,23 @@ class ChatNotifier extends Notifier<ChatState> {
         emoji: reaction,
       );
 
-      // Refresh messages to get updated reactions
-      await refreshMessagesForGroup(message.groupId ?? '');
+      // No need to refresh messages immediately as we updated optimistically
+      // The background sync or next fetch will ensure consistency
 
       _logger.info('ChatProvider: Reaction added successfully');
       return true;
     } catch (e, st) {
       _logger.severe('ChatProvider.updateMessageReaction', e, st);
+
+      // Revert optimistic update if failed
+      final groupId = message.groupId;
+      if (groupId != null) {
+        // We can't easily revert to "originalMessages" because state might have changed in between (e.g. new messages)
+        // But for a quick reaction toggle, it's likely safe to just refresh from server or revert the specific message change if we tracked it carefully.
+        // A safer approach is to refresh from server to get the true state.
+        await refreshMessagesForGroup(groupId);
+      }
+
       return false;
     }
   }
