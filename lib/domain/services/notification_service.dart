@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -85,7 +86,11 @@ class NotificationService {
     }
   }
 
-  static Future<void> _onDidReceiveNotificationResponse(NotificationResponse response) async {
+  static void _onDidReceiveNotificationResponse(NotificationResponse response) {
+    unawaited(_handleNotificationNavigation(response));
+  }
+
+  static Future<void> _handleNotificationNavigation(NotificationResponse response) async {
     final payload = response.payload ?? '';
     if (payload.isEmpty) {
       _navigateToChatList();

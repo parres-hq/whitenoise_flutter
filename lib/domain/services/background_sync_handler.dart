@@ -63,8 +63,8 @@ class BackgroundSyncHandler extends TaskHandler {
       }
       _log.fine('Syncing messages for ${accounts.length} account(s)');
       final showAccountsReceiverName = accounts.length > 1;
+      final activePubkey = await AccountSecureStorageService.getActivePubkey();
       for (final account in accounts) {
-        final activePubkey = await AccountSecureStorageService.getActivePubkey();
         final showReceiverAccountName = showAccountsReceiverName && account.pubkey != activePubkey;
         try {
           await _syncMessagesForAccount(
@@ -160,8 +160,10 @@ class BackgroundSyncHandler extends TaskHandler {
       }
       _log.fine('Syncing invites for ${accounts.length} account(s)');
       final showAccountsReceiverName = accounts.length > 1;
+      final activePubkey = await AccountSecureStorageService.getActivePubkey();
       for (final account in accounts) {
-        await _syncInvitesForAccount(account.pubkey, showAccountsReceiverName);
+        final showReceiverAccountName = showAccountsReceiverName && account.pubkey != activePubkey;
+        await _syncInvitesForAccount(account.pubkey, showReceiverAccountName);
       }
     } catch (e, stackTrace) {
       _log.warning('Error syncing invites for all accounts: $e', e, stackTrace);

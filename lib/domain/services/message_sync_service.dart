@@ -9,6 +9,7 @@ import 'package:whitenoise/domain/services/notification_id_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
+import 'package:whitenoise/src/rust/api/metadata.dart';
 import 'package:whitenoise/src/rust/api/welcomes.dart';
 
 /// Service responsible for message synchronization, filtering, and notifications.
@@ -117,7 +118,8 @@ class MessageSyncService {
     })?
     showNotificationFn,
     Future<int> Function({required String key})? getNotificationIdFn,
-    dynamic getUserMetadataFn,
+    Future<FlutterMetadata> Function({required String pubkey, bool blockingDataSync})?
+    getUserMetadataFn,
   }) async {
     if (!_validateNotificationParams(groupId: groupId, accountPubkey: accountPubkey)) {
       return;
@@ -218,7 +220,8 @@ class MessageSyncService {
     })?
     showNotificationFn,
     Future<int> Function({required String key})? getNotificationIdFn,
-    dynamic getUserMetadataFn,
+    Future<FlutterMetadata> Function({required String pubkey, bool blockingDataSync})?
+    getUserMetadataFn,
   }) async {
     final showNotificationFunc = showNotificationFn ?? NotificationService.showMessageNotification;
     final getNotificationIdFunc = getNotificationIdFn ?? NotificationIdService.getIdFor;

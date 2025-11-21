@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added unread counts for DMs and groups [[#806](https://github.com/parres-hq/whitenoise_flutter/issues/806)]
 - Added deep linking for notifications - tapping a message or invite notification now routes directly to the correct chat or invite screen [#781](https://github.com/parres-hq/whitenoise_flutter/issues/781)
 - Added unsaved changes dialog to prevent accidental back navigation on edit profile screen [#765](https://github.com/parres-hq/whitenoise_flutter/issues/765)
-- Addedd translations in notifications [#863](https://github.com/parres-hq/whitenoise_flutter/pull/863)
+- Added translations in notifications [#863](https://github.com/parres-hq/whitenoise_flutter/pull/863)
 
 ### Changed
 
