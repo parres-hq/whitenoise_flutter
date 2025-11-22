@@ -20,6 +20,7 @@ mixin _$WelcomesState {
   List<Welcome>? get welcomes => throw _privateConstructorUsedError;
   Map<String, Welcome>? get welcomeById => throw _privateConstructorUsedError;
   Map<String, User>? get welcomerUsers => throw _privateConstructorUsedError;
+  Map<String, String>? get welcomeDigests => throw _privateConstructorUsedError;
   bool get isLoading => throw _privateConstructorUsedError;
   String? get error => throw _privateConstructorUsedError;
 
@@ -40,6 +41,7 @@ abstract class $WelcomesStateCopyWith<$Res> {
     List<Welcome>? welcomes,
     Map<String, Welcome>? welcomeById,
     Map<String, User>? welcomerUsers,
+    Map<String, String>? welcomeDigests,
     bool isLoading,
     String? error,
   });
@@ -63,6 +65,7 @@ class _$WelcomesStateCopyWithImpl<$Res, $Val extends WelcomesState>
     Object? welcomes = freezed,
     Object? welcomeById = freezed,
     Object? welcomerUsers = freezed,
+    Object? welcomeDigests = freezed,
     Object? isLoading = null,
     Object? error = freezed,
   }) {
@@ -83,6 +86,11 @@ class _$WelcomesStateCopyWithImpl<$Res, $Val extends WelcomesState>
                     ? _value.welcomerUsers
                     : welcomerUsers // ignore: cast_nullable_to_non_nullable
                         as Map<String, User>?,
+            welcomeDigests:
+                freezed == welcomeDigests
+                    ? _value.welcomeDigests
+                    : welcomeDigests // ignore: cast_nullable_to_non_nullable
+                        as Map<String, String>?,
             isLoading:
                 null == isLoading
                     ? _value.isLoading
@@ -111,6 +119,7 @@ abstract class _$$WelcomesStateImplCopyWith<$Res> implements $WelcomesStateCopyW
     List<Welcome>? welcomes,
     Map<String, Welcome>? welcomeById,
     Map<String, User>? welcomerUsers,
+    Map<String, String>? welcomeDigests,
     bool isLoading,
     String? error,
   });
@@ -133,6 +142,7 @@ class __$$WelcomesStateImplCopyWithImpl<$Res>
     Object? welcomes = freezed,
     Object? welcomeById = freezed,
     Object? welcomerUsers = freezed,
+    Object? welcomeDigests = freezed,
     Object? isLoading = null,
     Object? error = freezed,
   }) {
@@ -153,6 +163,11 @@ class __$$WelcomesStateImplCopyWithImpl<$Res>
                 ? _value._welcomerUsers
                 : welcomerUsers // ignore: cast_nullable_to_non_nullable
                     as Map<String, User>?,
+        welcomeDigests:
+            freezed == welcomeDigests
+                ? _value._welcomeDigests
+                : welcomeDigests // ignore: cast_nullable_to_non_nullable
+                    as Map<String, String>?,
         isLoading:
             null == isLoading
                 ? _value.isLoading
@@ -175,11 +190,13 @@ class _$WelcomesStateImpl implements _WelcomesState {
     final List<Welcome>? welcomes,
     final Map<String, Welcome>? welcomeById,
     final Map<String, User>? welcomerUsers,
+    final Map<String, String>? welcomeDigests,
     this.isLoading = false,
     this.error,
   }) : _welcomes = welcomes,
        _welcomeById = welcomeById,
-       _welcomerUsers = welcomerUsers;
+       _welcomerUsers = welcomerUsers,
+       _welcomeDigests = welcomeDigests;
 
   final List<Welcome>? _welcomes;
   @override
@@ -211,6 +228,16 @@ class _$WelcomesStateImpl implements _WelcomesState {
     return EqualUnmodifiableMapView(value);
   }
 
+  final Map<String, String>? _welcomeDigests;
+  @override
+  Map<String, String>? get welcomeDigests {
+    final value = _welcomeDigests;
+    if (value == null) return null;
+    if (_welcomeDigests is EqualUnmodifiableMapView) return _welcomeDigests;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(value);
+  }
+
   @override
   @JsonKey()
   final bool isLoading;
@@ -219,7 +246,7 @@ class _$WelcomesStateImpl implements _WelcomesState {
 
   @override
   String toString() {
-    return 'WelcomesState(welcomes: $welcomes, welcomeById: $welcomeById, welcomerUsers: $welcomerUsers, isLoading: $isLoading, error: $error)';
+    return 'WelcomesState(welcomes: $welcomes, welcomeById: $welcomeById, welcomerUsers: $welcomerUsers, welcomeDigests: $welcomeDigests, isLoading: $isLoading, error: $error)';
   }
 
   @override
@@ -236,6 +263,10 @@ class _$WelcomesStateImpl implements _WelcomesState {
               other._welcomerUsers,
               _welcomerUsers,
             ) &&
+            const DeepCollectionEquality().equals(
+              other._welcomeDigests,
+              _welcomeDigests,
+            ) &&
             (identical(other.isLoading, isLoading) || other.isLoading == isLoading) &&
             (identical(other.error, error) || other.error == error));
   }
@@ -246,6 +277,7 @@ class _$WelcomesStateImpl implements _WelcomesState {
     const DeepCollectionEquality().hash(_welcomes),
     const DeepCollectionEquality().hash(_welcomeById),
     const DeepCollectionEquality().hash(_welcomerUsers),
+    const DeepCollectionEquality().hash(_welcomeDigests),
     isLoading,
     error,
   );
@@ -264,6 +296,7 @@ abstract class _WelcomesState implements WelcomesState {
     final List<Welcome>? welcomes,
     final Map<String, Welcome>? welcomeById,
     final Map<String, User>? welcomerUsers,
+    final Map<String, String>? welcomeDigests,
     final bool isLoading,
     final String? error,
   }) = _$WelcomesStateImpl;
@@ -274,6 +307,8 @@ abstract class _WelcomesState implements WelcomesState {
   Map<String, Welcome>? get welcomeById;
   @override
   Map<String, User>? get welcomerUsers;
+  @override
+  Map<String, String>? get welcomeDigests;
   @override
   bool get isLoading;
   @override

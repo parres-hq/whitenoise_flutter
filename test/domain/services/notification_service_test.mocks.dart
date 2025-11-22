@@ -29,8 +29,6 @@ import 'package:go_router/src/state.dart' as _i7;
 import 'package:mockito/mockito.dart' as _i1;
 import 'package:mockito/src/dummies.dart' as _i18;
 import 'package:timezone/timezone.dart' as _i13;
-import 'package:whitenoise/domain/services/account_secure_storage_service.dart'
-    as _i20;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -551,14 +549,4 @@ class MockGoRouter extends _i1.Mock implements _i17.GoRouter {
     Invocation.method(#dispose, []),
     returnValueForMissingStub: null,
   );
-}
-
-/// A class which mocks [AccountSecureStorageService].
-///
-/// See the documentation for Mockito's code generation for more information.
-class MockAccountSecureStorageService extends _i1.Mock
-    implements _i20.AccountSecureStorageService {
-  MockAccountSecureStorageService() {
-    _i1.throwOnMissingStub(this);
-  }
 }

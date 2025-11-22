@@ -72,6 +72,67 @@ class GroupsNotifier extends Notifier<GroupsState> {
 
   final _logger = Logger('GroupsNotifier');
 
+  String _calculateGroupDigest(Group group) {
+    final adminsKey = group.adminPubkeys.join(',');
+    final imageHashKey = _joinBytes(group.imageHash);
+    final imageKey = _joinBytes(group.imageKey);
+    final lastMessageAt = group.lastMessageAt?.millisecondsSinceEpoch ?? 0;
+    return [
+      group.name,
+      group.description,
+      adminsKey,
+      imageHashKey,
+      imageKey,
+      group.lastMessageId ?? '',
+      lastMessageAt.toString(),
+      group.epoch.toString(),
+      group.state.name,
+    ].join('|');
+  }
+
+  bool _didGroupMetadataChange(Group? previous, Group current) {
+    if (previous == null) {
+      return true;
+    }
+    if (previous.name != current.name) {
+      return true;
+    }
+    if (previous.description != current.description) {
+      return true;
+    }
+    if (previous.adminPubkeys.join(',') != current.adminPubkeys.join(',')) {
+      return true;
+    }
+    if (_joinBytes(previous.imageHash) != _joinBytes(current.imageHash)) {
+      return true;
+    }
+    if (_joinBytes(previous.imageKey) != _joinBytes(current.imageKey)) {
+      return true;
+    }
+    return false;
+  }
+
+  bool _didGroupImageChange(Group? previous, Group current) {
+    if (previous == null) {
+      return true;
+    }
+    return _joinBytes(previous.imageHash) != _joinBytes(current.imageHash) ||
+        _joinBytes(previous.imageKey) != _joinBytes(current.imageKey);
+  }
+
+  Map<String, T> _pruneEntries<T>(Map<String, T>? source, Set<String> allowedIds) {
+    final updated = Map<String, T>.from(source ?? {});
+    updated.removeWhere((key, _) => !allowedIds.contains(key));
+    return updated;
+  }
+
+  String _joinBytes(List<int>? data) {
+    if (data == null) {
+      return '';
+    }
+    return data.join(',');
+  }
+
   // Retry configuration constants
   static const int _maxMetadataRetries = 2;
   static const int _retryBaseDelayMs = 500;
@@ -160,8 +221,10 @@ class GroupsNotifier extends Notifier<GroupsState> {
       }
 
       final groupsMap = <String, Group>{};
+      final groupDigests = <String, String>{};
       for (final group in groups) {
         groupsMap[group.mlsGroupId] = group;
+        groupDigests[group.mlsGroupId] = _calculateGroupDigest(group);
       }
 
       state = state.copyWith(
@@ -169,6 +232,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
         groupsMap: groupsMap,
         groupCreatedAts: createdAtMap,
         groupTypes: groupTypesMap,
+        groupDigests: groupDigests,
       );
 
       Future.microtask(() => _loadGroupsMetadataLazy(groups));
@@ -758,7 +822,7 @@ class GroupsNotifier extends Notifier<GroupsState> {
       await _metadataRefreshInProgress;
     }
 
-    // Atomically acquire the guard to serialize with _refreshGroupMetadata
+    // Atomically acquire the guard to serialize with other metadata refresh operations
     final completer = Completer<void>();
     _metadataRefreshInProgress = completer.future;
 
@@ -1132,42 +1196,6 @@ class GroupsNotifier extends Notifier<GroupsState> {
     }
   }
 
-  /// Refresh group metadata for all groups to catch profile/name updates
-  /// Forces refresh of members, types, images, and display names
-  /// Serializes with _loadGroupsMetadataLazy to prevent concurrent state mutations
-  Future<void> _refreshGroupMetadata(List<Group> groups, String activePubkey) async {
-    // Wait for any ongoing lazy load to complete to prevent concurrent state mutations
-    if (_metadataRefreshInProgress != null) {
-      await _metadataRefreshInProgress;
-    }
-
-    // Atomically acquire the guard to serialize with _loadGroupsMetadataLazy
-    final completer = Completer<void>();
-    _metadataRefreshInProgress = completer.future;
-
-    try {
-      // Validate pubkey hasn't changed during wait
-      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
-        return;
-      }
-
-      await _processBatchedGroups(
-        groups: groups,
-        operation: _loadGroupMetadata,
-        activePubkey: activePubkey,
-        collectFailures: false,
-        batchLogContext: 'Refreshed',
-      );
-
-      _logger.info('GroupsProvider: Refreshed metadata for ${groups.length} groups');
-    } catch (e) {
-      _logger.warning('Error refreshing group metadata: $e');
-    } finally {
-      completer.complete();
-      _metadataRefreshInProgress = null;
-    }
-  }
-
   /// Check for new groups and add them incrementally (for polling)
   Future<void> checkForNewGroups() async {
     if (!_isAuthAvailable()) {
@@ -1181,72 +1209,93 @@ class GroupsNotifier extends Notifier<GroupsState> {
       }
 
       final newGroups = await activeGroups(pubkey: activePubkey);
+      final previousGroupsMap = state.groupsMap ?? const <String, Group>{};
+      final previousDigests = state.groupDigests ?? const <String, String>{};
 
-      final currentGroups = state.groups ?? [];
-      final currentGroupIds =
-          currentGroups.map((g) => (g as Group?)?.mlsGroupId).whereType<String>().toSet();
+      final Map<String, Group> updatedGroupsMap = <String, Group>{};
+      final Map<String, String> nextDigests = <String, String>{};
+      final Set<String> incomingGroupIds = <String>{};
+      final List<Group> addedGroups = [];
+      final List<Group> metadataChangedGroups = [];
 
-      final actuallyNewGroups =
-          newGroups.where((group) => !currentGroupIds.contains(group.mlsGroupId)).toList();
-
-      // Check if any existing groups have been updated (name, description, etc)
-      final existingUpdatedGroups = <Group>[];
       for (final group in newGroups) {
-        if (currentGroupIds.contains(group.mlsGroupId)) {
-          final currentGroup = state.groupsMap?[group.mlsGroupId];
-          if (currentGroup != null &&
-              (currentGroup.name != group.name || currentGroup.description != group.description)) {
-            existingUpdatedGroups.add(group);
+        updatedGroupsMap[group.mlsGroupId] = group;
+        final digest = _calculateGroupDigest(group);
+        nextDigests[group.mlsGroupId] = digest;
+        incomingGroupIds.add(group.mlsGroupId);
+
+        final previousDigest = previousDigests[group.mlsGroupId];
+        if (previousDigest == null) {
+          addedGroups.add(group);
+        } else if (previousDigest != digest) {
+          final previousGroup = previousGroupsMap[group.mlsGroupId];
+          if (_didGroupMetadataChange(previousGroup, group)) {
+            metadataChangedGroups.add(group);
           }
         }
       }
 
-      if (actuallyNewGroups.isNotEmpty || existingUpdatedGroups.isNotEmpty) {
-        final newGroupIds = actuallyNewGroups.map((g) => g.mlsGroupId).toList();
+      final updatedGroupMembers = _pruneEntries(state.groupMembers, incomingGroupIds);
+      final updatedGroupAdmins = _pruneEntries(state.groupAdmins, incomingGroupIds);
+      final updatedGroupDisplayNames = _pruneEntries(state.groupDisplayNames, incomingGroupIds);
+      final updatedGroupImagePaths = _pruneEntries(state.groupImagePaths, incomingGroupIds);
+      final updatedGroupCreatedAts = _pruneEntries(state.groupCreatedAts, incomingGroupIds);
+      final updatedGroupTypes = _pruneEntries(state.groupTypes, incomingGroupIds);
+
+      if (addedGroups.isNotEmpty) {
+        final newGroupIds = addedGroups.map((g) => g.mlsGroupId).toList();
         final groupInformations = await _getGroupsInformationFn(
           accountPubkey: activePubkey,
           groupIds: newGroupIds,
         );
-        final updatedCreatedAts = Map<String, DateTime>.from(state.groupCreatedAts ?? {});
-        final updatedGroupTypes = Map<String, GroupType>.from(state.groupTypes ?? {});
         for (int i = 0; i < newGroupIds.length && i < groupInformations.length; i++) {
-          updatedCreatedAts[newGroupIds[i]] = groupInformations[i].createdAt;
+          updatedGroupCreatedAts[newGroupIds[i]] = groupInformations[i].createdAt;
           updatedGroupTypes[newGroupIds[i]] = groupInformations[i].groupType;
-        }
-
-        // Update groups list with all refreshed groups (existing and new)
-        final updatedGroups = newGroups;
-
-        final updatedGroupsMap = <String, Group>{};
-        for (final group in updatedGroups) {
-          updatedGroupsMap[group.mlsGroupId] = group;
-        }
-
-        state = state.copyWith(
-          groups: updatedGroups,
-          groupsMap: updatedGroupsMap,
-          groupCreatedAts: updatedCreatedAts,
-          groupTypes: updatedGroupTypes,
-        );
-
-        if (actuallyNewGroups.isNotEmpty) {
-          await _loadMembersForSpecificGroups(actuallyNewGroups);
-          await _loadGroupTypesForAllGroups(actuallyNewGroups);
-          await _loadGroupImagePaths(actuallyNewGroups);
-          await _calculateDisplayNamesForSpecificGroups(actuallyNewGroups);
-
-          _logger.info('GroupsProvider: Added ${actuallyNewGroups.length} new groups');
-        }
-
-        // Update display names for existing groups that were updated
-        if (existingUpdatedGroups.isNotEmpty) {
-          await _calculateDisplayNamesForSpecificGroups(existingUpdatedGroups);
-          _logger.info('GroupsProvider: Updated ${existingUpdatedGroups.length} existing groups');
         }
       }
 
-      // Refresh metadata for all groups to catch profile/name updates from polling
-      Future.microtask(() => _refreshGroupMetadata(newGroups, activePubkey));
+      state = state.copyWith(
+        groups: newGroups,
+        groupsMap: updatedGroupsMap,
+        groupMembers: updatedGroupMembers,
+        groupAdmins: updatedGroupAdmins,
+        groupDisplayNames: updatedGroupDisplayNames,
+        groupImagePaths: updatedGroupImagePaths,
+        groupCreatedAts: updatedGroupCreatedAts,
+        groupTypes: updatedGroupTypes,
+        groupDigests: nextDigests,
+      );
+
+      if (addedGroups.isNotEmpty) {
+        await _loadMembersForSpecificGroups(addedGroups);
+        await _loadGroupTypesForAllGroups(addedGroups);
+        await _loadGroupImagePaths(addedGroups);
+        await _calculateDisplayNamesForSpecificGroups(addedGroups);
+        _logger.info('GroupsProvider: Added ${addedGroups.length} new groups');
+      }
+
+      if (metadataChangedGroups.isNotEmpty) {
+        await _calculateDisplayNamesForSpecificGroups(metadataChangedGroups);
+        final imageChangedGroups =
+            metadataChangedGroups
+                .where(
+                  (group) => _didGroupImageChange(
+                    previousGroupsMap[group.mlsGroupId],
+                    group,
+                  ),
+                )
+                .toList();
+        if (imageChangedGroups.isNotEmpty) {
+          await _loadGroupImagePaths(imageChangedGroups);
+        }
+        _logger.info('GroupsProvider: Updated ${metadataChangedGroups.length} existing groups');
+      }
+
+      final removedGroupCount =
+          previousGroupsMap.keys.where((id) => !incomingGroupIds.contains(id)).length;
+      if (removedGroupCount > 0) {
+        _logger.info('GroupsProvider: Removed $removedGroupCount inactive group(s)');
+      }
     } catch (e, st) {
       String logMessage = 'GroupsProvider.checkForNewGroups - Exception: ';
       if (e is ApiError) {
@@ -1443,7 +1492,17 @@ class GroupsNotifier extends Notifier<GroupsState> {
       updatedGroupsMap[g.mlsGroupId] = g;
     }
 
-    state = state.copyWith(groups: updatedGroups, groupsMap: updatedGroupsMap);
+    final updatedDigests = Map<String, String>.from(state.groupDigests ?? {});
+    final updatedGroup = updatedGroupsMap[groupId];
+    if (updatedGroup != null) {
+      updatedDigests[groupId] = _calculateGroupDigest(updatedGroup);
+    }
+
+    state = state.copyWith(
+      groups: updatedGroups,
+      groupsMap: updatedGroupsMap,
+      groupDigests: updatedDigests,
+    );
   }
 
   /// Update group information (name and description) optimistically
@@ -1487,10 +1546,17 @@ class GroupsNotifier extends Notifier<GroupsState> {
       updatedDisplayNames[groupId] = name;
     }
 
+    final updatedDigests = Map<String, String>.from(state.groupDigests ?? {});
+    final updatedGroup = updatedGroupsMap[groupId];
+    if (updatedGroup != null) {
+      updatedDigests[groupId] = _calculateGroupDigest(updatedGroup);
+    }
+
     state = state.copyWith(
       groups: updatedGroups,
       groupsMap: updatedGroupsMap,
       groupDisplayNames: updatedDisplayNames ?? state.groupDisplayNames,
+      groupDigests: updatedDigests,
     );
   }
 

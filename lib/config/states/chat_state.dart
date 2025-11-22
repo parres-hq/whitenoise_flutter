@@ -26,6 +26,8 @@ class ChatState with _$ChatState {
     @Default({}) Map<String, MessageModel?> replyingTo,
     // Message being edited per group
     @Default({}) Map<String, MessageModel?> editingMessage,
+    // Digest cache for change detection (groupId -> digest)
+    @Default({}) Map<String, String> messageDigests,
   }) = _ChatState;
 
   const ChatState._();

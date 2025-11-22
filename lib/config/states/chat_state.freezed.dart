@@ -33,7 +33,9 @@ mixin _$ChatState {
       throw _privateConstructorUsedError; // Message being replied to per group
   Map<String, MessageModel?> get replyingTo =>
       throw _privateConstructorUsedError; // Message being edited per group
-  Map<String, MessageModel?> get editingMessage => throw _privateConstructorUsedError;
+  Map<String, MessageModel?> get editingMessage =>
+      throw _privateConstructorUsedError; // Digest cache for change detection (groupId -> digest)
+  Map<String, String> get messageDigests => throw _privateConstructorUsedError;
 
   /// Create a copy of ChatState
   /// with the given fields replaced by the non-null parameter values.
@@ -57,6 +59,7 @@ abstract class $ChatStateCopyWith<$Res> {
     Map<String, bool> sendingStates,
     Map<String, MessageModel?> replyingTo,
     Map<String, MessageModel?> editingMessage,
+    Map<String, String> messageDigests,
   });
 }
 
@@ -84,6 +87,7 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStat
     Object? sendingStates = null,
     Object? replyingTo = null,
     Object? editingMessage = null,
+    Object? messageDigests = null,
   }) {
     return _then(
       _value.copyWith(
@@ -137,6 +141,11 @@ class _$ChatStateCopyWithImpl<$Res, $Val extends ChatState> implements $ChatStat
                     ? _value.editingMessage
                     : editingMessage // ignore: cast_nullable_to_non_nullable
                         as Map<String, MessageModel?>,
+            messageDigests:
+                null == messageDigests
+                    ? _value.messageDigests
+                    : messageDigests // ignore: cast_nullable_to_non_nullable
+                        as Map<String, String>,
           )
           as $Val,
     );
@@ -162,6 +171,7 @@ abstract class _$$ChatStateImplCopyWith<$Res> implements $ChatStateCopyWith<$Res
     Map<String, bool> sendingStates,
     Map<String, MessageModel?> replyingTo,
     Map<String, MessageModel?> editingMessage,
+    Map<String, String> messageDigests,
   });
 }
 
@@ -188,6 +198,7 @@ class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, 
     Object? sendingStates = null,
     Object? replyingTo = null,
     Object? editingMessage = null,
+    Object? messageDigests = null,
   }) {
     return _then(
       _$ChatStateImpl(
@@ -241,6 +252,11 @@ class __$$ChatStateImplCopyWithImpl<$Res> extends _$ChatStateCopyWithImpl<$Res, 
                 ? _value._editingMessage
                 : editingMessage // ignore: cast_nullable_to_non_nullable
                     as Map<String, MessageModel?>,
+        messageDigests:
+            null == messageDigests
+                ? _value._messageDigests
+                : messageDigests // ignore: cast_nullable_to_non_nullable
+                    as Map<String, String>,
       ),
     );
   }
@@ -260,6 +276,7 @@ class _$ChatStateImpl extends _ChatState {
     final Map<String, bool> sendingStates = const {},
     final Map<String, MessageModel?> replyingTo = const {},
     final Map<String, MessageModel?> editingMessage = const {},
+    final Map<String, String> messageDigests = const {},
   }) : _groupMessages = groupMessages,
        _unreadCounts = unreadCounts,
        _groupLoadingStates = groupLoadingStates,
@@ -267,6 +284,7 @@ class _$ChatStateImpl extends _ChatState {
        _sendingStates = sendingStates,
        _replyingTo = replyingTo,
        _editingMessage = editingMessage,
+       _messageDigests = messageDigests,
        super._();
 
   // Map of groupId -> list of messages
@@ -356,6 +374,17 @@ class _$ChatStateImpl extends _ChatState {
     return EqualUnmodifiableMapView(_editingMessage);
   }
 
+  // Digest cache for change detection (groupId -> digest)
+  final Map<String, String> _messageDigests;
+  // Digest cache for change detection (groupId -> digest)
+  @override
+  @JsonKey()
+  Map<String, String> get messageDigests {
+    if (_messageDigests is EqualUnmodifiableMapView) return _messageDigests;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableMapView(_messageDigests);
+  }
+
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
@@ -392,6 +421,10 @@ class _$ChatStateImpl extends _ChatState {
             const DeepCollectionEquality().equals(
               other._editingMessage,
               _editingMessage,
+            ) &&
+            const DeepCollectionEquality().equals(
+              other._messageDigests,
+              _messageDigests,
             ));
   }
 
@@ -408,6 +441,7 @@ class _$ChatStateImpl extends _ChatState {
     const DeepCollectionEquality().hash(_sendingStates),
     const DeepCollectionEquality().hash(_replyingTo),
     const DeepCollectionEquality().hash(_editingMessage),
+    const DeepCollectionEquality().hash(_messageDigests),
   );
 
   /// Create a copy of ChatState
@@ -431,6 +465,7 @@ abstract class _ChatState extends ChatState {
     final Map<String, bool> sendingStates,
     final Map<String, MessageModel?> replyingTo,
     final Map<String, MessageModel?> editingMessage,
+    final Map<String, String> messageDigests,
   }) = _$ChatStateImpl;
   const _ChatState._() : super._();
 
@@ -454,7 +489,9 @@ abstract class _ChatState extends ChatState {
   @override
   Map<String, MessageModel?> get replyingTo; // Message being edited per group
   @override
-  Map<String, MessageModel?> get editingMessage;
+  Map<String, MessageModel?> get editingMessage; // Digest cache for change detection (groupId -> digest)
+  @override
+  Map<String, String> get messageDigests;
 
   /// Create a copy of ChatState
   /// with the given fields replaced by the non-null parameter values.
