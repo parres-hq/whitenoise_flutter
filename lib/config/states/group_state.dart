@@ -15,6 +15,7 @@ abstract class GroupsState with _$GroupsState {
     Map<String, GroupType>? groupTypes, // groupId -> GroupType (cached for synchronous access)
     Map<String, String>? groupImagePaths, // groupId -> image file path
     Map<String, DateTime>? groupCreatedAts, // groupId -> createdAt (for sorting fallback)
+    Map<String, String>? groupDigests, // groupId -> cached digest for change detection
     @Default(false) bool isLoading,
     String? error,
   }) = _GroupsState;

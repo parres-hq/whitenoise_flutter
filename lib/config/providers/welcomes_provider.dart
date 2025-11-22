@@ -42,6 +42,21 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     _onNewWelcomeCallback = callback;
   }
 
+  String _calculateWelcomeDigest(Welcome welcome) {
+    final adminsKey = welcome.groupAdminPubkeys.join(',');
+    final relaysKey = welcome.groupRelays.join(',');
+    return [
+      welcome.groupName,
+      welcome.groupDescription,
+      adminsKey,
+      relaysKey,
+      welcome.memberCount.toString(),
+      welcome.welcomer,
+      welcome.state.name,
+      welcome.createdAt.toString(),
+    ].join('|');
+  }
+
   bool _isAuthAvailable() {
     final authState = ref.read(authProvider);
     if (!authState.isAuthenticated) {
@@ -74,8 +89,10 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       }
 
       final welcomeByData = <String, Welcome>{};
+      final welcomeDigests = <String, String>{};
       for (final welcome in welcomes) {
         welcomeByData[welcome.id] = welcome;
+        welcomeDigests[welcome.id] = _calculateWelcomeDigest(welcome);
       }
 
       final previousPendingIds = getPendingWelcomes().map((w) => w.id).toSet();
@@ -83,6 +100,7 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       state = state.copyWith(
         welcomes: welcomes,
         welcomeById: welcomeByData,
+        welcomeDigests: welcomeDigests,
         isLoading: false,
       );
 
@@ -399,9 +417,13 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
             return welcome.id == welcomeEventId ? updatedWelcome : welcome;
           }).toList();
 
+      final updatedWelcomeDigests = Map<String, String>.from(state.welcomeDigests ?? {});
+      updatedWelcomeDigests[welcomeEventId] = _calculateWelcomeDigest(updatedWelcome);
+
       state = state.copyWith(
         welcomes: updatedWelcomes,
         welcomeById: updatedWelcomeById,
+        welcomeDigests: updatedWelcomeDigests,
       );
     }
   }
@@ -464,41 +486,6 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
     }
   }
 
-  /// Refresh welcomer metadata for all welcomes to catch profile updates
-  /// Forces refresh even for cached welcomers using batch processing
-  Future<void> _refreshWelcomerMetadata(List<Welcome> welcomes, String activePubkey) async {
-    try {
-      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
-        return;
-      }
-
-      final welcomerUsers = Map<String, User>.from(state.welcomerUsers ?? {});
-
-      final uniqueWelcomers =
-          <String>{
-            for (final w in welcomes) w.welcomer,
-          }.toList();
-
-      await _processBatchedWelcomers(
-        pubkeys: uniqueWelcomers,
-        welcomerUsers: welcomerUsers,
-        createFallbacks: false,
-        batchLogContext: 'Refreshed',
-        activePubkey: activePubkey,
-      );
-
-      // Final check before logging completion - active account could have changed during refresh
-      if (activePubkey != (ref.read(activePubkeyProvider) ?? '')) {
-        _logger.info('Active pubkey changed during welcomer refresh, discarding results');
-        return;
-      }
-
-      _logger.info('WelcomesProvider: Refreshed metadata for ${uniqueWelcomers.length} welcomers');
-    } catch (e) {
-      _logger.warning('Error refreshing welcomer metadata: $e');
-    }
-  }
-
   /// Check for new welcomes and add them incrementally (for polling)
   Future<void> checkForNewWelcomes() async {
     if (!_isAuthAvailable()) {
@@ -517,42 +504,61 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
         return;
       }
 
-      final currentWelcomes = state.welcomes ?? [];
-      final currentWelcomeIds = currentWelcomes.map((w) => w.id).toSet();
+      final previousDigests = state.welcomeDigests ?? const <String, String>{};
+      final previousWelcomeById = state.welcomeById ?? const <String, Welcome>{};
 
-      final actuallyNewWelcomes =
-          newWelcomes.where((welcome) => !currentWelcomeIds.contains(welcome.id)).toList();
+      final welcomeByData = <String, Welcome>{};
+      final welcomeDigests = <String, String>{};
+      final List<Welcome> newPendingWelcomes = [];
+      final Set<String> welcomersToFetch = <String>{};
 
-      if (actuallyNewWelcomes.isNotEmpty) {
-        final updatedWelcomes = [...currentWelcomes, ...actuallyNewWelcomes];
+      for (final welcome in newWelcomes) {
+        welcomeByData[welcome.id] = welcome;
+        final digest = _calculateWelcomeDigest(welcome);
+        welcomeDigests[welcome.id] = digest;
 
-        final welcomeByData = Map<String, Welcome>.from(state.welcomeById ?? {});
-        for (final welcome in actuallyNewWelcomes) {
-          welcomeByData[welcome.id] = welcome;
+        final previousDigest = previousDigests[welcome.id];
+        final previousWelcome = previousWelcomeById[welcome.id];
+        final isNewWelcome = previousDigest == null;
+        final digestChanged = !isNewWelcome && previousDigest != digest;
+
+        if (isNewWelcome && welcome.state == WelcomeState.pending) {
+          newPendingWelcomes.add(welcome);
+        } else if (digestChanged) {
+          final wasPending = previousWelcome?.state == WelcomeState.pending;
+          if (!wasPending && welcome.state == WelcomeState.pending) {
+            newPendingWelcomes.add(welcome);
+          }
         }
 
-        state = state.copyWith(
-          welcomes: updatedWelcomes,
-          welcomeById: welcomeByData,
-        );
-
-        Future.microtask(
-          () => _loadWelcomerUsersDataIncrementally(actuallyNewWelcomes, activePubkey),
-        );
-
-        final newPendingWelcomes =
-            actuallyNewWelcomes.where((w) => w.state == WelcomeState.pending).toList();
-
-        if (newPendingWelcomes.isNotEmpty && _onNewWelcomeCallback != null) {
-          _logger.info('WelcomesProvider: Found ${newPendingWelcomes.length} new pending welcomes');
-          _onNewWelcomeCallback!(newPendingWelcomes.first);
+        final hasWelcomerCached = state.welcomerUsers?.containsKey(welcome.welcomer) ?? false;
+        if (isNewWelcome && !hasWelcomerCached) {
+          welcomersToFetch.add(welcome.welcomer);
         }
-
-        _logger.info('WelcomesProvider: Added ${actuallyNewWelcomes.length} new welcomes');
       }
 
-      // Refresh metadata for all welcomers to catch profile updates from polling
-      Future.microtask(() => _refreshWelcomerMetadata(newWelcomes, activePubkey));
+      state = state.copyWith(
+        welcomes: newWelcomes,
+        welcomeById: welcomeByData,
+        welcomeDigests: welcomeDigests,
+      );
+
+      if (welcomersToFetch.isNotEmpty) {
+        final welcomesNeedingMetadata =
+            newWelcomes.where((w) => welcomersToFetch.contains(w.welcomer)).toList();
+        Future.microtask(
+          () => _loadWelcomerUsersDataIncrementally(welcomesNeedingMetadata, activePubkey),
+        );
+      }
+
+      if (newPendingWelcomes.isNotEmpty && _onNewWelcomeCallback != null) {
+        _logger.info(
+          'WelcomesProvider: Found ${newPendingWelcomes.length} new pending welcomes',
+        );
+        _onNewWelcomeCallback!(newPendingWelcomes.first);
+      }
+
+      _logger.info('WelcomesProvider: Welcomes list refreshed (${newWelcomes.length} total)');
     } catch (e, st) {
       _logger.severe('WelcomesProvider.checkForNewWelcomes', e, st);
     }

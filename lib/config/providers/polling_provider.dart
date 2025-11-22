@@ -13,6 +13,12 @@ class PollingNotifier extends Notifier<bool> {
   Timer? _pollingTimer;
   bool _hasInitialDataLoaded = false;
   bool _isDisposed = false;
+  bool _isPollingInProgress = false;
+  int _nextGroupIndexForIncremental = 0;
+
+  static const Duration _pollingInterval = Duration(seconds: 2);
+  static const int _maxGroupsForInitialMessagePreload = 50;
+  static const int _maxGroupsPerIncrementalTick = 10;
 
   @override
   bool build() => false;
@@ -35,8 +41,19 @@ class PollingNotifier extends Notifier<bool> {
       _loadIncrementalData();
     }
 
-    _pollingTimer = Timer.periodic(const Duration(seconds: 2), (_) {
-      _loadIncrementalData();
+    const Duration interval = _pollingInterval;
+
+    _pollingTimer = Timer.periodic(interval, (_) async {
+      if (_isPollingInProgress) {
+        _logger.fine('Skipping polling tick because a previous run is still in progress');
+        return;
+      }
+      _isPollingInProgress = true;
+      try {
+        await _loadIncrementalData();
+      } finally {
+        _isPollingInProgress = false;
+      }
     });
   }
 
@@ -49,6 +66,8 @@ class PollingNotifier extends Notifier<bool> {
     // Cancel timer first before changing state
     _pollingTimer?.cancel();
     _pollingTimer = null;
+    _isPollingInProgress = false;
+    _nextGroupIndexForIncremental = 0;
 
     // Try to set state, but don't fail if provider is being disposed
     try {
@@ -64,6 +83,8 @@ class PollingNotifier extends Notifier<bool> {
     _isDisposed = true;
     _pollingTimer?.cancel();
     _pollingTimer = null;
+    _isPollingInProgress = false;
+    _nextGroupIndexForIncremental = 0;
     _logger.info('Polling provider disposed');
   }
 
@@ -87,12 +108,14 @@ class PollingNotifier extends Notifier<bool> {
           final groups = ref.read(groupsProvider).groups;
           if (groups != null && groups.isNotEmpty) {
             final groupIds = groups.map((g) => g.mlsGroupId).toList();
+            final initialGroupIds = groupIds.take(_maxGroupsForInitialMessagePreload).toList();
             _logger.info(
-              'PollingProvider: Loading messages for ${groupIds.length} groups for chat previews',
+              'PollingProvider: Loading messages for ${initialGroupIds.length} '
+              'groups (of ${groupIds.length}) for chat previews',
             );
-            await ref.read(chatProvider.notifier).loadMessagesForGroups(groupIds);
+            await ref.read(chatProvider.notifier).loadMessagesForGroups(initialGroupIds);
 
-            _logger.info('PollingProvider: Message loading completed for chat previews');
+            _logger.info('PollingProvider: Message loading completed for initial chat previews');
           }
         } catch (e) {
           _logger.warning('Error loading messages for chat previews: $e');
@@ -124,7 +147,14 @@ class PollingNotifier extends Notifier<bool> {
       final groups = ref.read(groupsProvider).groups;
       if (groups != null && groups.isNotEmpty) {
         final groupIds = groups.map((g) => g.mlsGroupId).toList();
-        await ref.read(chatProvider.notifier).checkForNewMessagesInGroups(groupIds);
+        final batch = _getNextGroupBatch(groupIds);
+        if (batch.isNotEmpty) {
+          _logger.fine(
+            'PollingProvider: Checking for new messages in ${batch.length} group(s) '
+            'out of ${groupIds.length}',
+          );
+          await ref.read(chatProvider.notifier).checkForNewMessagesInGroups(batch);
+        }
       }
 
       ref.invalidate(activeAccountProvider);
@@ -141,6 +171,35 @@ class PollingNotifier extends Notifier<bool> {
     } else {
       await _loadIncrementalData();
     }
+  }
+
+  List<String> _getNextGroupBatch(List<String> allGroupIds) {
+    if (allGroupIds.isEmpty) {
+      _nextGroupIndexForIncremental = 0;
+      return <String>[];
+    }
+
+    if (_nextGroupIndexForIncremental >= allGroupIds.length) {
+      _nextGroupIndexForIncremental = 0;
+    }
+
+    final List<String> batch = <String>[];
+    for (int i = 0; i < _maxGroupsPerIncrementalTick; i++) {
+      if (allGroupIds.isEmpty) {
+        break;
+      }
+      if (_nextGroupIndexForIncremental >= allGroupIds.length) {
+        _nextGroupIndexForIncremental = 0;
+      }
+      batch.add(allGroupIds[_nextGroupIndexForIncremental]);
+      _nextGroupIndexForIncremental++;
+      if (_nextGroupIndexForIncremental >= allGroupIds.length &&
+          batch.length >= _maxGroupsPerIncrementalTick) {
+        break;
+      }
+    }
+
+    return batch;
   }
 }
 

@@ -10,6 +10,7 @@ abstract class WelcomesState with _$WelcomesState {
     List<Welcome>? welcomes,
     Map<String, Welcome>? welcomeById,
     Map<String, User>? welcomerUsers,
+    Map<String, String>? welcomeDigests,
     @Default(false) bool isLoading,
     String? error,
   }) = _WelcomesState;

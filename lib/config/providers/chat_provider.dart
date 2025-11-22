@@ -59,6 +59,23 @@ class ChatNotifier extends Notifier<ChatState> {
     return true;
   }
 
+  /// Calculate a digest for a group's messages to detect changes
+  /// Uses the Group's lastMessageId and lastMessageAt for quick comparison
+  String? _calculateQuickDigestFromGroup(String groupId) {
+    final group = ref.read(groupsProvider.notifier).findGroupById(groupId);
+    if (group == null) return null;
+    final lastMessageAt = group.lastMessageAt?.millisecondsSinceEpoch ?? 0;
+    return '${group.lastMessageId ?? ""}|$lastMessageAt';
+  }
+
+  /// Calculate digest from message list (fallback when group data unavailable)
+  String _calculateMessageDigest(List<MessageModel> messages) {
+    if (messages.isEmpty) return 'empty';
+    final latest = messages.last;
+    final reactionCount = latest.reactions.length;
+    return '${latest.id}|${latest.createdAt.millisecondsSinceEpoch}|${messages.length}|$reactionCount';
+  }
+
   /// Load messages for a specific group
   Future<void> loadMessagesForGroup(String groupId) async {
     if (!_isAuthAvailable()) {
@@ -89,6 +106,8 @@ class ChatNotifier extends Notifier<ChatState> {
         dbMessages: dbMessages,
       );
 
+      final digest = _calculateMessageDigest(mergedMessages);
+
       state = state.copyWith(
         groupMessages: {
           ...state.groupMessages,
@@ -97,6 +116,10 @@ class ChatNotifier extends Notifier<ChatState> {
         groupLoadingStates: {
           ...state.groupLoadingStates,
           groupId: false,
+        },
+        messageDigests: {
+          ...state.messageDigests,
+          groupId: digest,
         },
       );
       await refreshUnreadCount(groupId);
@@ -161,15 +184,21 @@ class ChatNotifier extends Notifier<ChatState> {
       );
 
       final stateMessages = state.groupMessages[groupId] ?? [];
+      final updatedMessages = [...stateMessages, optimisticMessageModel];
+      final digest = _calculateMessageDigest(updatedMessages);
 
       state = state.copyWith(
         groupMessages: {
           ...state.groupMessages,
-          groupId: [...stateMessages, optimisticMessageModel],
+          groupId: updatedMessages,
         },
         sendingStates: {
           ...state.sendingStates,
           groupId: false,
+        },
+        messageDigests: {
+          ...state.messageDigests,
+          groupId: digest,
         },
       );
 
@@ -245,6 +274,17 @@ class ChatNotifier extends Notifier<ChatState> {
         return;
       }
 
+      // Quick digest check using Group metadata to avoid expensive fetch
+      final quickDigest = _calculateQuickDigestFromGroup(groupId);
+      final previousDigest = state.messageDigests[groupId];
+
+      // If we have a quick digest and it matches, skip the expensive fetch
+      if (quickDigest != null && previousDigest != null && quickDigest == previousDigest) {
+        _logger.fine('ChatProvider: No changes detected for group $groupId (digest match)');
+        return;
+      }
+
+      // Fetch messages only if digest changed or unavailable
       final dbMessages = await ref.read(groupMessagesProvider(groupId).notifier).fetchMessages();
 
       final stateMessages = state.groupMessages[groupId] ?? [];
@@ -276,10 +316,16 @@ class ChatNotifier extends Notifier<ChatState> {
           dbMessages: dbMessages,
         );
 
+        final newDigest = quickDigest ?? _calculateMessageDigest(groupMessages);
+
         state = state.copyWith(
           groupMessages: {
             ...state.groupMessages,
             groupId: groupMessages,
+          },
+          messageDigests: {
+            ...state.messageDigests,
+            groupId: newDigest,
           },
         );
 
@@ -290,6 +336,17 @@ class ChatNotifier extends Notifier<ChatState> {
         // Update group order when messages are updated
         _updateGroupOrderForNewMessage(groupId);
         await refreshUnreadCount(groupId);
+      } else {
+        // No changes in messages, but update digest to match current state
+        final newDigest = quickDigest ?? _calculateMessageDigest(dbMessages);
+        if (newDigest != previousDigest) {
+          state = state.copyWith(
+            messageDigests: {
+              ...state.messageDigests,
+              groupId: newDigest,
+            },
+          );
+        }
       }
     } catch (e, st) {
       _logger.severe('ChatProvider.checkForNewMessages', e, st);
@@ -533,15 +590,21 @@ class ChatNotifier extends Notifier<ChatState> {
       );
 
       final stateMessages = state.groupMessages[groupId] ?? [];
+      final updatedMessages = [...stateMessages, optimisticMessage];
+      final digest = _calculateMessageDigest(updatedMessages);
 
       state = state.copyWith(
         groupMessages: {
           ...state.groupMessages,
-          groupId: [...stateMessages, optimisticMessage],
+          groupId: updatedMessages,
         },
         sendingStates: {
           ...state.sendingStates,
           groupId: false,
+        },
+        messageDigests: {
+          ...state.messageDigests,
+          groupId: digest,
         },
       );
 
