@@ -8,18 +8,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
+
 ### Changed
+
 - Standardized chat bubble (message widget) layout and dimensions according to design documentation [#883](https://github.com/marmot-protocol/whitenoise/issues/883)
+
 ### Deprecated
+
 ### Removed
+
 ### Fixed
+
 - Fixed message bubble width issue where bubbles could become too wide and cause layout problems [#856](https://github.com/parres-hq/whitenoise_flutter/issues/856)
 - Fixed timestamp alignment for received messages to align to the right side instead of left
+- Fixed issue where chats and profiles show up after app uninstall and reinstall on Android [#889](https://github.com/parres-hq/whitenoise_flutter/issues/889)
+
 ### Security
 
 ## [0.2.1] - 2025-11-20
 
 ### Added
+
 - Added automatic notification clearing when entering chat - notifications for messages and invites now automatically disappear when viewing the related chat [#803](https://github.com/parres-hq/whitenoise_flutter/issues/803)
 - Added unread counts for DMs and groups [[#806](https://github.com/parres-hq/whitenoise_flutter/issues/806)]
 - Added deep linking for notifications - tapping a message or invite notification now routes directly to the correct chat or invite screen [#781](https://github.com/parres-hq/whitenoise_flutter/issues/781)
@@ -34,6 +43,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Fixed
+
 - Fixed chat bubble hit-box to span the entire width for better interaction area [#481](https://github.com/parres-hq/whitenoise_flutter/issues/481)
 - Fixed chat screen scroll behavior: now jumps instantly to bottom on open, does not auto-scroll for incoming messages, and only scrolls when user sends a message [#833](https://github.com/parres-hq/whitenoise_flutter/issues/833)
 - Fixed missing notifications when multiple messages arrive in the same polling window by using the last message timestamp instead of current time for sync checkpoint [#848](https://github.com/parres-hq/whitenoise_flutter/issues/848)
@@ -42,6 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed messages disappearing for a while after being sent [#828](https://github.com/parres-hq/whitenoise_flutter/pull/828)
 - Fixed issue where the group chat details (during group creation flow) wasn't scrollable [#724](https://github.com/parres-hq/whitenoise_flutter/issues/724)
 - Fixed notifications navigation for inactive accounts [#863](https://github.com/parres-hq/whitenoise_flutter/pull/863)
+- Fixed an issue where the language dropdown showed the currently selected language instead of the actual system language, causing the first item to display "Deutsch" instead of "System (English)" [#817](https://github.com/marmot-protocol/whitenoise/issues/817)
 
 ### Security
 

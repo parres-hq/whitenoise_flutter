@@ -5,6 +5,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/domain/services/account_secure_storage_service.dart';
 
 class NotificationService {
@@ -13,9 +14,15 @@ class NotificationService {
   static bool _isInitialized = false;
   static GoRouter? _router;
   static Future<void> Function(String accountPubkey)? _accountSwitcher;
+  static const _batteryOptRequestedKey = 'battery_opt_requested';
+  static SharedPreferences? _sharedPreferencesInstance;
 
-  static Future<void> initialize({FlutterLocalNotificationsPlugin? plugin}) async {
+  static Future<void> initialize({
+    FlutterLocalNotificationsPlugin? plugin,
+    SharedPreferences? sharedPreferences,
+  }) async {
     final notificationPlugin = plugin ?? _flutterLocalNotificationsPlugin;
+    _sharedPreferencesInstance = sharedPreferences;
     if (_isInitialized) {
       _logger.fine('NotificationService already initialized');
       return;
@@ -163,15 +170,13 @@ class NotificationService {
 
   static Future<bool> requestPermissions() async {
     try {
-      final NotificationPermission notificationPermission =
-          await FlutterForegroundTask.checkNotificationPermission();
+      final notificationPermission = await FlutterForegroundTask.checkNotificationPermission();
 
       if (notificationPermission == NotificationPermission.permanently_denied) {
         _logger.warning('Notification permission permanently denied');
-        // TODO: Show UI feedback to user to open device settings, if needed.
-        // TODO: UI feedback design needed (good UX to make it not too intrusive)
         return false;
       }
+
       if (notificationPermission != NotificationPermission.granted) {
         final status = await FlutterForegroundTask.requestNotificationPermission();
         if (status != NotificationPermission.granted) {
@@ -181,22 +186,25 @@ class NotificationService {
       }
 
       if (Platform.isAndroid) {
-        try {
-          if (!await FlutterForegroundTask.isIgnoringBatteryOptimizations) {
-            await FlutterForegroundTask.requestIgnoreBatteryOptimization();
-          }
-          if (!await FlutterForegroundTask.canScheduleExactAlarms) {
-            await FlutterForegroundTask.openAlarmsAndRemindersSettings();
-          }
-        } catch (e) {
-          _logger.warning('Failed to configure Android-specific settings: $e');
-        }
+        await _requestAndroidPermissions();
       }
 
       return true;
     } catch (e) {
       _logger.severe('Failed to request notification permissions: $e');
       return false;
+    }
+  }
+
+  static Future<void> _requestAndroidPermissions() async {
+    final prefs = _sharedPreferencesInstance ?? await SharedPreferences.getInstance();
+    if (!(prefs.getBool(_batteryOptRequestedKey) ?? false)) {
+      try {
+        await FlutterForegroundTask.requestIgnoreBatteryOptimization();
+        await prefs.setBool(_batteryOptRequestedKey, true);
+      } catch (e) {
+        _logger.warning('Failed to request battery optimization exemption: $e');
+      }
     }
   }
 

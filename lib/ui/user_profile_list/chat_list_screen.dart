@@ -42,8 +42,7 @@ class ChatListScreen extends ConsumerStatefulWidget {
   ConsumerState<ChatListScreen> createState() => _ChatListScreenState();
 }
 
-class _ChatListScreenState extends ConsumerState<ChatListScreen>
-    with TickerProviderStateMixin, WidgetsBindingObserver {
+class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProviderStateMixin {
   static final Logger _log = Logger('ChatListScreen');
   String _searchQuery = '';
 
@@ -73,7 +72,6 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addObserver(this);
     _pollingNotifier = ref.read(pollingProvider.notifier);
     _initializeControllers();
     _setupScrollListener();
@@ -320,15 +318,7 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen>
     _scrollController.dispose();
     _loadingAnimationController.dispose();
     WelcomeNotificationService.clearContext();
-    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
-  }
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      _setUpForegroundNotification();
-    }
   }
 
   @override

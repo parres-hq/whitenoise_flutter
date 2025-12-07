@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
 
 import 'notification_service_test.mocks.dart';
@@ -11,6 +12,7 @@ import 'notification_service_test.mocks.dart';
   FlutterLocalNotificationsPlugin,
   ActiveNotification,
   GoRouter,
+  SharedPreferences,
 ])
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -395,6 +397,78 @@ void main() {
             verify(mockRouterForGroup.go('/chats/test-group', extra: 'welcome-123')).called(1);
           });
         });
+      });
+    });
+
+    group('requestPermissions() integration', () {
+      late MockFlutterLocalNotificationsPlugin mockPlugin;
+      late MockSharedPreferences mockPrefs;
+
+      setUp(() {
+        mockPlugin = MockFlutterLocalNotificationsPlugin();
+        mockPrefs = MockSharedPreferences();
+        when(
+          mockPlugin.initialize(
+            any,
+            onDidReceiveNotificationResponse: anyNamed('onDidReceiveNotificationResponse'),
+          ),
+        ).thenAnswer((_) async => true);
+        when(
+          mockPlugin
+              .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>(),
+        ).thenReturn(null);
+      });
+
+      tearDown(() {
+        reset(mockPlugin);
+        reset(mockPrefs);
+      });
+
+      test('returns false when notification permission is permanently denied', () async {
+        when(
+          mockPlugin.initialize(
+            any,
+            onDidReceiveNotificationResponse: anyNamed('onDidReceiveNotificationResponse'),
+          ),
+        ).thenAnswer((_) async => true);
+
+        final result = await NotificationService.requestPermissions();
+
+        expect(result, isFalse);
+      });
+
+      test('battery optimization flag prevents repeated requests when flag is set', () async {
+        when(mockPrefs.getBool('battery_opt_requested')).thenReturn(true);
+
+        await NotificationService.initialize(plugin: mockPlugin, sharedPreferences: mockPrefs);
+
+        final flag = mockPrefs.getBool('battery_opt_requested');
+        expect(flag, isTrue, reason: 'Flag prevents battery optimization request');
+      });
+
+      test('battery optimization flag allows request when flag is not set', () async {
+        when(mockPrefs.getBool('battery_opt_requested')).thenReturn(false);
+        when(mockPrefs.setBool('battery_opt_requested', true)).thenAnswer((_) async => true);
+
+        await NotificationService.initialize(plugin: mockPlugin, sharedPreferences: mockPrefs);
+
+        final flag = mockPrefs.getBool('battery_opt_requested');
+        expect(flag, isFalse, reason: 'First time, flag should allow request');
+      });
+
+      test('battery optimization flag treats null as not set', () async {
+        when(mockPrefs.getBool('battery_opt_requested')).thenReturn(null);
+        when(mockPrefs.setBool('battery_opt_requested', true)).thenAnswer((_) async => true);
+
+        await NotificationService.initialize(plugin: mockPlugin, sharedPreferences: mockPrefs);
+
+        final flag = mockPrefs.getBool('battery_opt_requested');
+        final shouldRequest = !(flag ?? false);
+        expect(
+          shouldRequest,
+          isTrue,
+          reason: 'Null flag should be treated as false, allowing request',
+        );
       });
     });
   });

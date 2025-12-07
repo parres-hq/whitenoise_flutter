@@ -4,6 +4,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class LocalizationService {
+  /// deviceLocaleOverride is just an override to help with test
+  @visibleForTesting
+  static Locale Function()? deviceLocaleOverride;
+
+  /// setDeviceLocaleOverrideForTest is just an override to help with test
+  @visibleForTesting
+  static void setDeviceLocaleOverrideForTest(Locale locale) {
+    deviceLocaleOverride = () => locale;
+  }
+
+  /// resetDeviceLocaleOverride is just an override to help with test
+  @visibleForTesting
+  static void resetDeviceLocaleOverride() {
+    deviceLocaleOverride = null;
+  }
+
   static const Map<String, String> _supportedLocales = {
     'system': 'System',
     'en': 'English',
@@ -173,11 +189,47 @@ class LocalizationService {
   /// Get device locale or fallback
   static String getDeviceLocale() {
     try {
-      final deviceLocale = WidgetsBinding.instance.platformDispatcher.locale;
+      final deviceLocale =
+          deviceLocaleOverride != null
+              ? deviceLocaleOverride!()
+              : WidgetsBinding.instance.platformDispatcher.locale;
+
       final localeCode = deviceLocale.languageCode;
       return _supportedLocales.containsKey(localeCode) ? localeCode : _fallbackLocale;
     } catch (e) {
       return _fallbackLocale;
     }
+  }
+}
+
+extension LanguageTextExtension on String {
+  String toLanguageDisplayText() {
+    final deviceLocale = LocalizationService.getDeviceLocale();
+
+    if (this == 'system') {
+      // Try to use translated "System" if available, otherwise fall back
+      final systemLabel =
+          LocalizationService.hasKey('shared.system')
+              ? LocalizationService.translate('shared.system')
+              : (LocalizationService.supportedLocales['system'] ?? 'System');
+
+      final systemLang =
+          LocalizationService.supportedLocales[deviceLocale] ?? deviceLocale.toUpperCase();
+
+      return '$systemLabel ($systemLang)';
+    }
+
+    return LocalizationService.supportedLocales[this] ?? toUpperCase();
+  }
+}
+
+extension LanguageCodeExtension on String {
+  String getLanguageText() {
+    if (this == 'system') {
+      return LocalizationService.hasKey('shared.system')
+          ? LocalizationService.translate('shared.system')
+          : (LocalizationService.supportedLocales['system'] ?? 'System');
+    }
+    return LocalizationService.supportedLocales[this] ?? toUpperCase();
   }
 }

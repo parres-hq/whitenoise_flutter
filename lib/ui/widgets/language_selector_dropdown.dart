@@ -18,14 +18,6 @@ class LanguageSelectorDropdown extends ConsumerStatefulWidget {
 class _LanguageSelectorDropdownState extends ConsumerState<LanguageSelectorDropdown> {
   bool isExpanded = false;
 
-  String getLanguageText(String languageCode) {
-    final localizationNotifier = ref.read(localizationProvider.notifier);
-    if (languageCode == 'system') {
-      return localizationNotifier.selectedLanguageDisplayName;
-    }
-    return LocalizationService.supportedLocales[languageCode] ?? languageCode.toUpperCase();
-  }
-
   @override
   Widget build(BuildContext context) {
     final localizationState = ref.watch(localizationProvider);
@@ -56,7 +48,7 @@ class _LanguageSelectorDropdownState extends ConsumerState<LanguageSelectorDropd
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  getLanguageText(selectedLanguage),
+                  selectedLanguage.toLanguageDisplayText(),
                   style: TextStyle(
                     fontSize: 14.sp,
                     fontWeight: FontWeight.w600,
@@ -88,7 +80,7 @@ class _LanguageSelectorDropdownState extends ConsumerState<LanguageSelectorDropd
                   supportedLocales.entries.map((locale) {
                     return _LanguageOption(
                       localeCode: locale.key,
-                      text: getLanguageText(locale.key),
+                      text: locale.key.getLanguageText(),
                       isSelected: locale.key == selectedLanguage,
                       onTap: () async {
                         if (locale.key != selectedLanguage) {
