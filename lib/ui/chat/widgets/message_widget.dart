@@ -227,8 +227,12 @@ class MessageWidget extends StatelessWidget {
 
     final isSingleLine = lines.length == 1;
     final lastLineWidth = lines.last.width;
+    final requiredSpace = timestampWidth + minSpacing;
     final availableSpace = maxWidth - lastLineWidth;
-    final canFitInline = isSingleLine && availableSpace >= (timestampWidth + minSpacing);
+    final canFitInline =
+        isSingleLine &&
+        availableSpace >= requiredSpace &&
+        lastLineWidth + requiredSpace <= maxWidth;
     final hasReply = message.replyTo != null;
     final hasMedia = mediaWidth != null;
 
@@ -236,25 +240,41 @@ class MessageWidget extends StatelessWidget {
 
     if (canFitInline) {
       if (hasReply || hasMedia) {
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Expanded(
-              child: textWidget,
-            ),
-            Gap(minSpacing),
-            TimeAndStatus(message: message, context: context),
-          ],
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: maxWidth,
+          ),
+          child: Row(
+            children: [
+              Flexible(
+                child: textWidget,
+              ),
+              Gap(minSpacing),
+              Transform.translate(
+                offset: const Offset(0, 2),
+                child: TimeAndStatus(message: message, context: context),
+              ),
+            ],
+          ),
         );
       } else {
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            textWidget,
-            Gap(minSpacing),
-            TimeAndStatus(message: message, context: context),
-          ],
+        return ConstrainedBox(
+          constraints: BoxConstraints(
+            maxWidth: maxWidth,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: textWidget,
+              ),
+              Gap(minSpacing),
+              Transform.translate(
+                offset: const Offset(0, 2),
+                child: TimeAndStatus(message: message, context: context),
+              ),
+            ],
+          ),
         );
       }
     } else {
