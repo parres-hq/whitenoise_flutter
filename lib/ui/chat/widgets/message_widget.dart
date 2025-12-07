@@ -76,7 +76,6 @@ class MessageWidget extends StatelessWidget {
           top: isSameSenderAsPrevious ? 4.h : 12.h,
           bottom: message.reactions.isNotEmpty ? 12.h : 0,
         ),
-        padding: EdgeInsets.symmetric(horizontal: 16.w),
         color: Colors.transparent,
         width: double.infinity,
         child: Row(
