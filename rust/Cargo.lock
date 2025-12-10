@@ -1027,7 +1027,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.0",
 ]
 
 [[package]]
@@ -3671,7 +3671,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.0",
 ]
 
 [[package]]
@@ -4357,7 +4357,7 @@ dependencies = [
  "getrandom 0.3.3",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.0",
 ]
 
 [[package]]
@@ -5113,7 +5113,7 @@ checksum = "a751b3277700db47d3e574514de2eced5e54dc8a5436a3bf7a0b248b2cee16f3"
 [[package]]
 name = "whitenoise"
 version = "0.1.0"
-source = "git+https://github.com/parres-hq/whitenoise?rev=c8857c3f59ca52a4651dab8405b13c39c0627c02#c8857c3f59ca52a4651dab8405b13c39c0627c02"
+source = "git+https://github.com/marmot-protocol/whitenoise-rs?rev=1c70393101610497aaa5dcffcfd3b1b05f4181ae#1c70393101610497aaa5dcffcfd3b1b05f4181ae"
 dependencies = [
  "anyhow",
  "async-trait",
