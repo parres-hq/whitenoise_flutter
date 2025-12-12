@@ -194,8 +194,7 @@ class MessageWidget extends StatelessWidget {
   Widget _buildMessageWithTimestamp(BuildContext context, {double? mediaWidth}) {
     final screenWidth = MediaQuery.of(context).size.width;
     final maxBubbleWidth = screenWidth * 0.74;
-    final effectiveMaxWidth = mediaWidth != null ? (mediaWidth - 16.w) : (maxBubbleWidth - 16.w);
-    final maxWidth = effectiveMaxWidth;
+    final maxWidth = mediaWidth != null ? mediaWidth : (maxBubbleWidth - 16.w);
     final messageContent = message.content ?? '';
     final timestampWidth = _getTimestampWidth(context);
     final minSpacing = 6.w;
@@ -246,13 +245,16 @@ class MessageWidget extends StatelessWidget {
           ),
           child: Row(
             children: [
-              Flexible(
+              Expanded(
                 child: textWidget,
               ),
               Gap(minSpacing),
-              Transform.translate(
-                offset: const Offset(0, 2),
-                child: TimeAndStatus(message: message, context: context),
+              Align(
+                alignment: Alignment.centerRight,
+                child: Transform.translate(
+                  offset: const Offset(0, 2),
+                  child: TimeAndStatus(message: message, context: context),
+                ),
               ),
             ],
           ),
