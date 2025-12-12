@@ -251,10 +251,7 @@ class MessageWidget extends StatelessWidget {
               Gap(minSpacing),
               Align(
                 alignment: Alignment.centerRight,
-                child: Transform.translate(
-                  offset: const Offset(0, 2),
-                  child: TimeAndStatus(message: message, context: context),
-                ),
+                child: TimeAndStatus(message: message, context: context),
               ),
             ],
           ),
@@ -271,10 +268,7 @@ class MessageWidget extends StatelessWidget {
                 child: textWidget,
               ),
               Gap(minSpacing),
-              Transform.translate(
-                offset: const Offset(0, 2),
-                child: TimeAndStatus(message: message, context: context),
-              ),
+              TimeAndStatus(message: message, context: context),
             ],
           ),
         );
