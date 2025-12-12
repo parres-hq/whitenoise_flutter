@@ -194,7 +194,7 @@ class MessageWidget extends StatelessWidget {
   Widget _buildMessageWithTimestamp(BuildContext context, {double? mediaWidth}) {
     final screenWidth = MediaQuery.of(context).size.width;
     final maxBubbleWidth = screenWidth * 0.74;
-    final maxWidth = mediaWidth != null ? mediaWidth : (maxBubbleWidth - 16.w);
+    final maxWidth = mediaWidth ?? (maxBubbleWidth - 16.w);
     final messageContent = message.content ?? '';
     final timestampWidth = _getTimestampWidth(context);
     final minSpacing = 6.w;
