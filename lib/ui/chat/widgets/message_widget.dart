@@ -283,10 +283,13 @@ class MessageWidget extends StatelessWidget {
       final textMaxWidth = lines.map((line) => line.width).reduce((a, b) => a > b ? a : b);
       final minWidth = textMaxWidth > timestampWidth ? textMaxWidth : timestampWidth;
       final isTimestampWider = timestampWidth > textMaxWidth;
+      final double targetWidth = hasMedia ? mediaWidth : maxWidth;
+      final double minConstraintWidth = hasMedia ? mediaWidth : minWidth;
 
       return ConstrainedBox(
         constraints: BoxConstraints(
-          minWidth: minWidth,
+          minWidth: minConstraintWidth,
+          maxWidth: targetWidth,
         ),
         child: Stack(
           clipBehavior: Clip.none,
