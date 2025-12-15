@@ -104,7 +104,7 @@ class MessageWidget extends StatelessWidget {
   }
 
   Widget _buildMessageContent(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.sizeOf(context).width;
     final maxBubbleWidth = screenWidth * 0.74;
 
     double? mediaWidth;
@@ -192,7 +192,7 @@ class MessageWidget extends StatelessWidget {
   }
 
   Widget _buildMessageWithTimestamp(BuildContext context, {double? mediaWidth}) {
-    final screenWidth = MediaQuery.of(context).size.width;
+    final screenWidth = MediaQuery.sizeOf(context).width;
     final maxBubbleWidth = screenWidth * 0.74;
     final maxWidth = mediaWidth ?? (maxBubbleWidth - 16.w);
     final messageContent = message.content ?? '';
