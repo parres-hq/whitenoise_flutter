@@ -6,6 +6,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/chat_input_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
@@ -329,6 +331,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     final searchState = ref.watch(chatSearchProvider(widget.groupId));
     final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
     final isInviteMode = widget.inviteId != null;
+    final chatStreamNotifier = ref.watch(chatStreamNotifierProvider(widget.groupId));
 
     // Watch messages first so they're available for listeners
     final messages = ref.watch(
@@ -405,6 +408,38 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
         body: const Center(child: CircularProgressIndicator()),
       );
     }
+    return chatStreamNotifier.when(
+      data: (data) {
+        return Scaffold(
+          appBar: AppBar(),
+          body: ListView.builder(
+            itemCount: data.length,
+            itemBuilder: (context, index) {
+              final message = data[index];
+              return Container(
+                width: 1.sw / 3,
+                decoration: BoxDecoration(
+                  color: context.colors.neutral,
+                ),
+
+                child: Text(
+                  message.content,
+                  style: context.textTheme.bodyLarge?.copyWith(
+                    color: context.colors.primaryForeground,
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
+      error: (e, st) {
+        return Center(child: Text('ui.error'.tr()));
+      },
+      loading: () {
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
 
     return PopScope(
       onPopInvokedWithResult: (didPop, _) {

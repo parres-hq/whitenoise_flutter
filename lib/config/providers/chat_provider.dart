@@ -20,6 +20,84 @@ import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/utils/message_converter.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
+typedef GroupMessageSubscriber =
+    Future<Stream<MessageStreamItem>> Function({
+      required String groupId,
+    });
+
+class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<ChatMessage>, String> {
+  final _logger = Logger('ChatStreamNotifier');
+
+  final GroupMessageSubscriber _subscriber;
+
+  ChatStreamNotifier({
+    GroupMessageSubscriber subscriber = subscribeToGroupMessages,
+  }) : _subscriber = subscriber;
+
+  @override
+  Stream<List<ChatMessage>> build(String groupId) async* {
+    // final activePubkey = ref.watch(activePubkeyProvider);
+    // if (activePubkey == null || activePubkey.isEmpty) {
+    //   yield [];
+    //   return;
+    // }
+
+    // Yield empty list immediately to clear loading state
+    yield [];
+
+    try {
+      _logger.info('ChatStreamNotifier: Requesting stream for group $groupId');
+
+      final stream = await _subscriber(groupId: groupId);
+      // never gets past calling the `subscribeToGroupMessages`
+      _logger.info('ChatStreamNotifier: Stream received for group $groupId');
+
+      List<ChatMessage> accumulatedMessages = [];
+
+      await for (final item in stream) {
+        item.when(
+          initialSnapshot: (messages) => accumulatedMessages = messages,
+          update:
+              (update) => accumulatedMessages = _applyMessageUpdate(accumulatedMessages, update),
+        );
+
+        yield accumulatedMessages;
+      }
+    } catch (e) {
+      _logger.severe('ChatStreamNotifier: Error building stream for group', e);
+      yield [];
+    }
+  }
+
+  List<ChatMessage> _applyMessageUpdate(List<ChatMessage> current, MessageUpdate update) {
+    final next = List<ChatMessage>.of(current);
+
+    void updateOrAdd(ChatMessage msg) {
+      final index = next.indexWhere((m) => m.id == msg.id);
+      if (index != -1) {
+        next[index] = msg;
+      } else {
+        next.add(msg);
+      }
+    }
+
+    switch (update.trigger) {
+      case UpdateTrigger.newMessage:
+      case UpdateTrigger.reactionAdded:
+      case UpdateTrigger.reactionRemoved:
+      case UpdateTrigger.messageDeleted:
+        updateOrAdd(update.message);
+        break;
+    }
+    return next;
+  }
+}
+
+final chatStreamNotifierProvider = StreamNotifierProvider.autoDispose
+    .family<ChatStreamNotifier, List<ChatMessage>, String>(
+      ChatStreamNotifier.new,
+    );
+
 class ChatNotifier extends Notifier<ChatState> {
   final _logger = Logger('ChatNotifier');
   late final MessageSenderService _messageSenderService;

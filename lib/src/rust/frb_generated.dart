@@ -2289,30 +2289,34 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   Future<Stream<MessageStreamItem>> crateApiMessagesSubscribeToGroupMessages({
     required String groupId,
   }) async {
-    final sink = RustStreamSink<MessageStreamItem>();
-    await handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_String(groupId, serializer);
-          sse_encode_StreamSink_message_stream_item_Sse(sink, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 58,
-            port: port_,
-          );
-        },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_unit,
-          decodeErrorData: sse_decode_api_error,
+    try {
+      final sink = RustStreamSink<MessageStreamItem>();
+      await handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            final serializer = SseSerializer(generalizedFrbRustBinding);
+            sse_encode_String(groupId, serializer);
+            sse_encode_StreamSink_message_stream_item_Sse(sink, serializer);
+            pdeCallFfi(
+              generalizedFrbRustBinding,
+              serializer,
+              funcId: 58,
+              port: port_,
+            );
+          },
+          codec: SseCodec(
+            decodeSuccessData: sse_decode_unit,
+            decodeErrorData: sse_decode_api_error,
+          ),
+          constMeta: kCrateApiMessagesSubscribeToGroupMessagesConstMeta,
+          argValues: [groupId, sink],
+          apiImpl: this,
         ),
-        constMeta: kCrateApiMessagesSubscribeToGroupMessagesConstMeta,
-        argValues: [groupId, sink],
-        apiImpl: this,
-      ),
-    );
-    return sink.stream;
+      );
+      return sink.stream;
+    } catch (e) {
+      throw 'Na so EW $e';
+    }
   }
 
   TaskConstMeta get kCrateApiMessagesSubscribeToGroupMessagesConstMeta => const TaskConstMeta(
