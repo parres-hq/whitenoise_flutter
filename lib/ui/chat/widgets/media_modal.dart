@@ -169,6 +169,7 @@ class _MediaModalState extends ConsumerState<MediaModal> with SingleTickerProvid
                 left: 0,
                 right: 0,
                 child: FadeTransition(
+                  key: const Key('media_modal_header_fade'),
                   opacity: _overlayAnimation,
                   child: IgnorePointer(
                     ignoring: _isFullScreen,
@@ -186,6 +187,7 @@ class _MediaModalState extends ConsumerState<MediaModal> with SingleTickerProvid
                   left: 0,
                   right: 0,
                   child: FadeTransition(
+                    key: const Key('media_modal_thumbnail_fade'),
                     opacity: _overlayAnimation,
                     child: IgnorePointer(
                       ignoring: _isFullScreen,

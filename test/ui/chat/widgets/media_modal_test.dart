@@ -15,7 +15,16 @@ class _MockMediaFileDownloadsNotifier extends MediaFileDownloadsNotifier {
   @override
   Future<List<MediaFileDownload>> downloadMediaFiles(List<MediaFile> mediaFiles) async {
     downloadedMediaFiles = mediaFiles;
-    return [];
+    final downloads = <String, MediaFileDownload>{};
+    for (final file in mediaFiles) {
+      final hash = file.originalFileHash ?? '';
+      downloads[hash] = MediaFileDownload.downloaded(
+        originalFileHash: hash,
+        downloadedFile: file,
+      );
+    }
+    state = state.copyWith(mediaFileDownloadsMap: downloads);
+    return downloads.values.toList();
   }
 }
 
@@ -199,6 +208,258 @@ void main() {
       );
 
       expect(mockNotifier.downloadedMediaFiles, equals(mediaFiles));
+    });
+
+    group('layout', () {
+      testWidgets('image view is vertically centered using Stack with Positioned.fill', (
+        WidgetTester tester,
+      ) async {
+        final mediaFiles = createTestMediaFiles(1);
+
+        await tester.pumpWidget(
+          createTestWidget(
+            MediaModal(
+              mediaFiles: mediaFiles,
+              initialIndex: 0,
+              senderName: 'Test User',
+              senderImagePath: null,
+              timestamp: testTimestamp,
+            ),
+          ),
+        );
+
+        expect(find.byType(Stack), findsWidgets);
+
+        final positionedFillFinder = find.byWidgetPredicate(
+          (widget) =>
+              widget is Positioned &&
+              widget.top == 0 &&
+              widget.bottom == 0 &&
+              widget.left == 0 &&
+              widget.right == 0,
+        );
+        expect(positionedFillFinder, findsAtLeast(1));
+      });
+
+      testWidgets('header is positioned at top', (WidgetTester tester) async {
+        final mediaFiles = createTestMediaFiles(1);
+
+        await tester.pumpWidget(
+          createTestWidget(
+            MediaModal(
+              mediaFiles: mediaFiles,
+              initialIndex: 0,
+              senderName: 'Test User',
+              senderImagePath: null,
+              timestamp: testTimestamp,
+            ),
+          ),
+        );
+
+        final headerPositioned = find.byWidgetPredicate(
+          (widget) => widget is Positioned && widget.top == 0 && widget.bottom == null,
+        );
+        expect(headerPositioned, findsOneWidget);
+      });
+
+      testWidgets('thumbnail strip is positioned at bottom', (WidgetTester tester) async {
+        final mediaFiles = createTestMediaFiles(3);
+
+        await tester.pumpWidget(
+          createTestWidget(
+            MediaModal(
+              mediaFiles: mediaFiles,
+              initialIndex: 0,
+              senderName: 'Test User',
+              senderImagePath: null,
+              timestamp: testTimestamp,
+            ),
+          ),
+        );
+
+        final thumbnailPositioned = find.byWidgetPredicate(
+          (widget) => widget is Positioned && widget.bottom == 0 && widget.top == null,
+        );
+        expect(thumbnailPositioned, findsOneWidget);
+      });
+    });
+
+    group('overlay fade behavior', () {
+      final testTimestampOverlay = DateTime(2024, 10, 30, 14, 30);
+
+      List<MediaFile> createOverlayTestMediaFiles(int count) {
+        return List.generate(
+          count,
+          (index) => MediaFile(
+            id: 'test-id-$index',
+            mlsGroupId: 'group-id',
+            accountPubkey: 'pubkey',
+            filePath: '/path/to/image$index.jpg',
+            originalFileHash: 'hash-$index',
+            encryptedFileHash: 'encrypted-hash-$index',
+            mimeType: 'image/jpeg',
+            mediaType: 'image',
+            blossomUrl: 'https://example.com/image$index.jpg',
+            nostrKey: 'key-$index',
+            createdAt: testTimestampOverlay,
+            fileMetadata: const FileMetadata(
+              blurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
+            ),
+          ),
+        );
+      }
+
+      testWidgets('header and thumbnailStrip use FadeTransition for smooth animation', (
+        WidgetTester tester,
+      ) async {
+        final mediaFiles = createOverlayTestMediaFiles(3);
+
+        await tester.pumpWidget(
+          createTestWidget(
+            MediaModal(
+              mediaFiles: mediaFiles,
+              initialIndex: 0,
+              senderName: 'Test User',
+              senderImagePath: null,
+              timestamp: testTimestampOverlay,
+            ),
+          ),
+        );
+        await tester.pump();
+
+        expect(find.byType(FadeTransition), findsAtLeast(2));
+      });
+
+      testWidgets('IgnorePointer wraps header and thumbnails', (
+        WidgetTester tester,
+      ) async {
+        final mediaFiles = createOverlayTestMediaFiles(3);
+
+        await tester.pumpWidget(
+          createTestWidget(
+            MediaModal(
+              mediaFiles: mediaFiles,
+              initialIndex: 0,
+              senderName: 'Test User',
+              senderImagePath: null,
+              timestamp: testTimestampOverlay,
+            ),
+          ),
+        );
+        await tester.pump();
+
+        expect(find.byType(IgnorePointer), findsAtLeast(2));
+      });
+
+      testWidgets('IgnorePointer is not ignoring initially', (
+        WidgetTester tester,
+      ) async {
+        final mediaFiles = createOverlayTestMediaFiles(3);
+
+        await tester.pumpWidget(
+          createTestWidget(
+            MediaModal(
+              mediaFiles: mediaFiles,
+              initialIndex: 0,
+              senderName: 'Test User',
+              senderImagePath: null,
+              timestamp: testTimestampOverlay,
+            ),
+          ),
+        );
+        await tester.pump();
+
+        final ignorePointers = tester.widgetList<IgnorePointer>(find.byType(IgnorePointer));
+        final notIgnoringPointers = ignorePointers.where((ip) => ip.ignoring == false);
+        expect(notIgnoringPointers.isNotEmpty, isTrue);
+      });
+
+      testWidgets('single tap on image hides header and thumbnails strip', (
+        WidgetTester tester,
+      ) async {
+        final tempDir = Directory.systemTemp.createTempSync('test_media_modal_tap_');
+        final imageFiles = List.generate(3, (index) {
+          final file = File('${tempDir.path}/test_image_$index.jpg');
+          file.writeAsBytesSync([0xFF, 0xD8, 0xFF]);
+          return file;
+        });
+
+        final mediaFiles =
+            imageFiles
+                .asMap()
+                .entries
+                .map(
+                  (entry) => MediaFile(
+                    id: 'test-id-${entry.key}',
+                    mlsGroupId: 'group-id',
+                    accountPubkey: 'pubkey',
+                    filePath: entry.value.path,
+                    originalFileHash: 'hash-${entry.key}',
+                    encryptedFileHash: 'encrypted-hash-${entry.key}',
+                    mimeType: 'image/jpeg',
+                    mediaType: 'image',
+                    blossomUrl: 'https://example.com/image.jpg',
+                    nostrKey: 'key-${entry.key}',
+                    createdAt: testTimestampOverlay,
+                    fileMetadata: const FileMetadata(
+                      blurhash: 'LEHV6nWB2yk8pyo0adR*.7kCMdnj',
+                    ),
+                  ),
+                )
+                .toList();
+
+        final mockNotifier = _MockMediaFileDownloadsNotifier();
+
+        await tester.pumpWidget(
+          createTestWidget(
+            MediaModal(
+              mediaFiles: mediaFiles,
+              initialIndex: 0,
+              senderName: 'Test User',
+              senderImagePath: null,
+              timestamp: testTimestampOverlay,
+            ),
+            overrides: [
+              mediaFileDownloadsProvider.overrideWith(() => mockNotifier),
+            ],
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        await tester.tap(find.byKey(Key('media_image_gesture_detector_${mediaFiles[0].id}')));
+
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpAndSettle();
+
+        final headerFade = tester.widget<FadeTransition>(
+          find.byKey(const Key('media_modal_header_fade')),
+        );
+        expect(headerFade.opacity.value, equals(0.0));
+        final headerIgnorePointer = tester.widget<IgnorePointer>(
+          find.descendant(
+            of: find.byKey(const Key('media_modal_header_fade')),
+            matching: find.byType(IgnorePointer),
+          ),
+        );
+        expect(headerIgnorePointer.ignoring, isTrue);
+
+        final thumbnailFade = tester.widget<FadeTransition>(
+          find.byKey(const Key('media_modal_thumbnail_fade')),
+        );
+        expect(thumbnailFade.opacity.value, equals(0.0));
+
+        final thumbnailIgnorePointer = tester.widget<IgnorePointer>(
+          find
+              .descendant(
+                of: find.byKey(const Key('media_modal_thumbnail_fade')),
+                matching: find.byType(IgnorePointer),
+              )
+              .first,
+        );
+        expect(thumbnailIgnorePointer.ignoring, isTrue);
+
+        if (tempDir.existsSync()) tempDir.deleteSync(recursive: true);
+      });
     });
 
     group('zoom', () {
