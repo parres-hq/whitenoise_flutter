@@ -1,14 +1,12 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
-import 'package:whitenoise/src/rust/api.dart' show createWhitenoiseConfig, initializeWhitenoise;
+import 'package:whitenoise/domain/services/whitenoise_init_service.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
 import 'package:whitenoise/utils/pubkey_formatter.dart';
@@ -29,22 +27,9 @@ class AuthNotifier extends Notifier<AuthState> {
     state = state.copyWith(isLoading: true, error: null);
 
     try {
-      /// 1. Create data and logs directories
-      final dir = await getApplicationDocumentsDirectory();
-      final dataDir = '${dir.path}/whitenoise/data';
-      final logsDir = '${dir.path}/whitenoise/logs';
+      await WhitenoiseInitService.initialize();
 
-      await Directory(dataDir).create(recursive: true);
-      await Directory(logsDir).create(recursive: true);
-
-      /// 2. Create config and initialize Whitenoise instance
-      final config = await createWhitenoiseConfig(
-        dataDir: dataDir,
-        logsDir: logsDir,
-      );
-      await initializeWhitenoise(config: config);
-
-      /// 3. Auto-login if an account is already active
+      // Auto-login if an account is already active
       try {
         final accounts = await getAccounts();
         if (accounts.isNotEmpty) {

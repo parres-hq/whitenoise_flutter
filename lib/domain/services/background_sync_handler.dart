@@ -4,6 +4,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/domain/services/account_secure_storage_service.dart';
 import 'package:whitenoise/domain/services/message_sync_service.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
+import 'package:whitenoise/domain/services/whitenoise_init_service.dart';
 import 'package:whitenoise/services/localization_service.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/groups.dart';
@@ -19,6 +20,7 @@ class BackgroundSyncHandler extends TaskHandler {
     try {
       await NotificationService.initialize();
       await RustLib.init();
+      await WhitenoiseInitService.initialize();
       await _initializeLocalization();
       _log.info('BackgroundSyncHandler initialized at $timestamp');
     } catch (e, stackTrace) {
