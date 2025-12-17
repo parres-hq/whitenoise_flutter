@@ -33,12 +33,14 @@ class MediaModal extends ConsumerStatefulWidget {
   ConsumerState<MediaModal> createState() => _MediaModalState();
 }
 
-class _MediaModalState extends ConsumerState<MediaModal> {
+class _MediaModalState extends ConsumerState<MediaModal> with SingleTickerProviderStateMixin {
   static const double _thumbnailSize = 36.0;
   static const double _thumbnailSpacing = 8.0;
 
   late PageController _pageController;
   late ScrollController _thumbnailScrollController;
+  late AnimationController _overlayAnimationController;
+  late Animation<double> _overlayAnimation;
   late int _currentIndex;
   bool _isImageZoomed = false;
   bool _isFullScreen = false;
@@ -49,6 +51,15 @@ class _MediaModalState extends ConsumerState<MediaModal> {
     _currentIndex = widget.initialIndex;
     _pageController = PageController(initialPage: widget.initialIndex);
     _thumbnailScrollController = ScrollController();
+    _overlayAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _overlayAnimation = CurvedAnimation(
+      parent: _overlayAnimationController,
+      curve: Curves.easeInOut,
+    );
+    _overlayAnimationController.value = 1.0;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _downloadMediaFiles();
@@ -64,6 +75,7 @@ class _MediaModalState extends ConsumerState<MediaModal> {
   void dispose() {
     _pageController.dispose();
     _thumbnailScrollController.dispose();
+    _overlayAnimationController.dispose();
     super.dispose();
   }
 
@@ -81,8 +93,10 @@ class _MediaModalState extends ConsumerState<MediaModal> {
       _isImageZoomed = isZoomed;
       if (isZoomed) {
         _isFullScreen = true;
+        _overlayAnimationController.reverse();
       } else {
         _isFullScreen = false;
+        _overlayAnimationController.forward();
       }
     });
   }
@@ -91,6 +105,11 @@ class _MediaModalState extends ConsumerState<MediaModal> {
     setState(() {
       _isFullScreen = !_isFullScreen;
     });
+    if (_isFullScreen) {
+      _overlayAnimationController.reverse();
+    } else {
+      _overlayAnimationController.forward();
+    }
   }
 
   void _scrollToActiveThumbnail({bool animate = false}) {
@@ -130,46 +149,58 @@ class _MediaModalState extends ConsumerState<MediaModal> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(0.r)),
         insetPadding: EdgeInsets.symmetric(horizontal: 0.w),
         child: SafeArea(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          child: Stack(
             children: [
-              AnimatedSize(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeInOut,
-                child:
-                    _isFullScreen
-                        ? const SizedBox.shrink()
-                        : _MediaModalHeader(
-                          senderName: widget.senderName,
-                          senderImagePath: widget.senderImagePath,
-                          timestamp: widget.timestamp,
-                        ),
+              Positioned.fill(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 68.h),
+                  child: _MediaModalImageView(
+                    mediaFiles: widget.mediaFiles,
+                    pageController: _pageController,
+                    onPageChanged: _onPageChanged,
+                    onZoomChanged: _onZoomChanged,
+                    onTap: _onImageTap,
+                    scrollPhysics: _scrollPhysics,
+                  ),
+                ),
               ),
-              Expanded(
-                child: _MediaModalImageView(
-                  mediaFiles: widget.mediaFiles,
-                  pageController: _pageController,
-                  onPageChanged: _onPageChanged,
-                  onZoomChanged: _onZoomChanged,
-                  onTap: _onImageTap,
-                  scrollPhysics: _scrollPhysics,
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: FadeTransition(
+                  key: const Key('media_modal_header_fade'),
+                  opacity: _overlayAnimation,
+                  child: IgnorePointer(
+                    ignoring: _isFullScreen,
+                    child: _MediaModalHeader(
+                      senderName: widget.senderName,
+                      senderImagePath: widget.senderImagePath,
+                      timestamp: widget.timestamp,
+                    ),
+                  ),
                 ),
               ),
               if (widget.mediaFiles.length > 1)
-                AnimatedSize(
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeInOut,
-                  child:
-                      _isFullScreen
-                          ? const SizedBox.shrink()
-                          : _MediaModalThumbnailStrip(
-                            mediaFiles: widget.mediaFiles,
-                            currentIndex: _currentIndex,
-                            thumbnailSize: _thumbnailSize,
-                            thumbnailSpacing: _thumbnailSpacing,
-                            scrollController: _thumbnailScrollController,
-                            onThumbnailTap: _onThumbnailTap,
-                          ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: FadeTransition(
+                    key: const Key('media_modal_thumbnail_fade'),
+                    opacity: _overlayAnimation,
+                    child: IgnorePointer(
+                      ignoring: _isFullScreen,
+                      child: _MediaModalThumbnailStrip(
+                        mediaFiles: widget.mediaFiles,
+                        currentIndex: _currentIndex,
+                        thumbnailSize: _thumbnailSize,
+                        thumbnailSpacing: _thumbnailSpacing,
+                        scrollController: _thumbnailScrollController,
+                        onThumbnailTap: _onThumbnailTap,
+                      ),
+                    ),
+                  ),
                 ),
             ],
           ),
@@ -193,7 +224,7 @@ class _MediaModalHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 16.w, right: 16.w, bottom: 16.h, top: 48.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       child: Row(
         children: [
           WnAvatar(
@@ -299,7 +330,7 @@ class _MediaModalThumbnailStrip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 16.w, right: 16.w, top: 16.h, bottom: 48.h),
+      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
       child: SizedBox(
         height: thumbnailSize.h,
         child: ListView.separated(
