@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:logging/logging.dart';
@@ -10,13 +11,20 @@ import 'package:whitenoise/src/rust/api.dart' show createWhitenoiseConfig, initi
 /// times is safe and will only perform initialization once.
 class WhitenoiseInitService {
   static final _logger = Logger('WhitenoiseInitService');
-  static bool _isInitialized = false;
+  static Completer<void>? _initCompleter;
 
   static Future<void> initialize() async {
-    if (_isInitialized) {
+    if (_initCompleter?.isCompleted == true) {
       _logger.fine('Whitenoise already initialized, skipping');
       return;
     }
+
+    if (_initCompleter != null) {
+      _logger.fine('Whitenoise initialization in progress, awaiting');
+      return _initCompleter!.future;
+    }
+
+    _initCompleter = Completer<void>();
 
     try {
       final dir = await getApplicationDocumentsDirectory();
@@ -33,13 +41,15 @@ class WhitenoiseInitService {
 
       await initializeWhitenoise(config: config);
 
-      _isInitialized = true;
+      _initCompleter!.complete();
       _logger.info('Whitenoise initialized successfully 🦫🚀');
     } catch (e, stackTrace) {
       _logger.severe('Failed to initialize Whitenoise: $e', e, stackTrace);
+      _initCompleter!.completeError(e, stackTrace);
+      _initCompleter = null;
       rethrow;
     }
   }
 
-  static bool get isInitialized => _isInitialized;
+  static bool get isInitialized => _initCompleter?.isCompleted == true;
 }
