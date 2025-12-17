@@ -19,7 +19,6 @@ class WhitenoiseInitService {
     }
 
     try {
-
       final dir = await getApplicationDocumentsDirectory();
       final dataDir = '${dir.path}/whitenoise/data';
       final logsDir = '${dir.path}/whitenoise/logs';
@@ -41,6 +40,6 @@ class WhitenoiseInitService {
       rethrow;
     }
   }
-  
+
   static bool get isInitialized => _isInitialized;
 }
