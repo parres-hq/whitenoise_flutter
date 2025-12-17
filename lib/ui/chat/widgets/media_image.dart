@@ -112,6 +112,7 @@ class _MediaImageState extends ConsumerState<MediaImage> {
       );
 
       return GestureDetector(
+        key: Key('media_image_gesture_detector_${widget.mediaFile.id}'),
         onTap: () {
           if (_isZoomed) {
             _zoomOut();
