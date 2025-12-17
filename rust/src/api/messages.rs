@@ -1,11 +1,13 @@
 use crate::api::{error::ApiError, media_files::MediaFile, utils::group_id_from_string};
+use crate::frb_generated::StreamSink;
 use chrono::{DateTime, TimeZone, Utc};
 use flutter_rust_bridge::frb;
 use nostr_sdk::prelude::*;
 pub use whitenoise::{
     ChatMessage as WhitenoiseChatMessage, EmojiReaction as WhitenoiseEmojiReaction,
-    MediaFile as WhitenoiseMediaFile, MessageWithTokens as WhitenoiseMessageWithTokens,
-    ReactionSummary as WhitenoiseReactionSummary, SerializableToken as WhitenoiseSerializableToken,
+    MediaFile as WhitenoiseMediaFile, MessageUpdate as WhitenoiseMessageUpdate,
+    MessageWithTokens as WhitenoiseMessageWithTokens, ReactionSummary as WhitenoiseReactionSummary,
+    SerializableToken as WhitenoiseSerializableToken, UpdateTrigger as WhitenoiseUpdateTrigger,
     UserReaction as WhitenoiseUserReaction, Whitenoise,
 };
 
@@ -71,6 +73,44 @@ pub struct UserReaction {
 pub struct SerializableToken {
     pub token_type: String, // "Nostr", "Url", "Hashtag", "Text", "LineBreak", "Whitespace"
     pub content: Option<String>, // None for LineBreak and Whitespace
+}
+
+/// What triggered a message update in the stream.
+#[frb]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum UpdateTrigger {
+    /// A new message was added to the group
+    NewMessage,
+    /// A reaction was added to this message
+    ReactionAdded,
+    /// A reaction was removed from this message
+    ReactionRemoved,
+    /// The message itself was marked as deleted
+    MessageDeleted,
+}
+
+/// A real-time update for a group message.
+///
+/// Contains the trigger indicating what changed and the complete,
+/// current state of the affected message.
+#[frb(non_opaque)]
+#[derive(Debug, Clone)]
+pub struct MessageUpdate {
+    pub trigger: UpdateTrigger,
+    pub message: ChatMessage,
+}
+
+/// Stream item emitted by `subscribe_to_group_messages`.
+///
+/// The first item is always `InitialSnapshot` containing all current messages.
+/// Subsequent items are `Update` containing real-time changes.
+#[frb]
+#[derive(Debug, Clone)]
+pub enum MessageStreamItem {
+    /// Initial snapshot of all messages in the group at subscription time
+    InitialSnapshot { messages: Vec<ChatMessage> },
+    /// Real-time update for a single message
+    Update { update: MessageUpdate },
 }
 
 // From implementations to convert from Whitenoise types to Flutter-compatible types
@@ -236,6 +276,32 @@ impl From<WhitenoiseChatMessage> for ChatMessage {
     }
 }
 
+impl From<WhitenoiseUpdateTrigger> for UpdateTrigger {
+    fn from(trigger: WhitenoiseUpdateTrigger) -> Self {
+        match trigger {
+            WhitenoiseUpdateTrigger::NewMessage => Self::NewMessage,
+            WhitenoiseUpdateTrigger::ReactionAdded => Self::ReactionAdded,
+            WhitenoiseUpdateTrigger::ReactionRemoved => Self::ReactionRemoved,
+            WhitenoiseUpdateTrigger::MessageDeleted => Self::MessageDeleted,
+        }
+    }
+}
+
+impl From<&WhitenoiseMessageUpdate> for MessageUpdate {
+    fn from(update: &WhitenoiseMessageUpdate) -> Self {
+        Self {
+            trigger: update.trigger.clone().into(),
+            message: (&update.message).into(),
+        }
+    }
+}
+
+impl From<WhitenoiseMessageUpdate> for MessageUpdate {
+    fn from(update: WhitenoiseMessageUpdate) -> Self {
+        (&update).into()
+    }
+}
+
 #[frb]
 pub async fn send_message_to_group(
     pubkey: String,
@@ -266,4 +332,92 @@ pub async fn fetch_aggregated_messages_for_group(
         .fetch_aggregated_messages_for_group(&pubkey, &group_id)
         .await?;
     Ok(messages.into_iter().map(|m| m.into()).collect())
+}
+
+/// Subscribe to real-time message updates for a group.
+///
+/// The stream first emits an `InitialSnapshot` containing all current messages,
+/// then emits `Update` items as messages are added, reacted to, or deleted.
+///
+/// The initial snapshot is race-condition free: any updates that arrive between
+/// subscribing and fetching are merged into the snapshot.
+#[frb]
+pub async fn subscribe_to_group_messages(
+    group_id: String,
+    sink: StreamSink<MessageStreamItem>,
+) -> Result<(), ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let group_id = group_id_from_string(&group_id)?;
+
+    let subscription = whitenoise.subscribe_to_group_messages(&group_id).await?;
+
+    // Emit initial snapshot first
+    let initial_messages: Vec<ChatMessage> = subscription
+        .initial_messages
+        .into_iter()
+        .map(|m| m.into())
+        .collect();
+
+    if sink
+        .add(MessageStreamItem::InitialSnapshot {
+            messages: initial_messages,
+        })
+        .is_err()
+    {
+        return Ok(()); // Sink closed, exit gracefully
+    }
+
+    // Stream real-time updates
+    let mut rx = subscription.updates;
+    loop {
+        match rx.recv().await {
+            Ok(update) => {
+                let item = MessageStreamItem::Update {
+                    update: update.into(),
+                };
+                if sink.add(item).is_err() {
+                    break; // Sink closed
+                }
+            }
+            Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {
+                // Slow consumer missed some updates - safe to continue since
+                // each update contains the complete message state
+                continue;
+            }
+            Err(tokio::sync::broadcast::error::RecvError::Closed) => {
+                break; // Channel closed
+            }
+        }
+    }
+
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_update_trigger_conversion_new_message() {
+        let trigger: UpdateTrigger = WhitenoiseUpdateTrigger::NewMessage.into();
+        assert_eq!(trigger, UpdateTrigger::NewMessage);
+    }
+
+    #[test]
+    fn test_update_trigger_conversion_reaction_added() {
+        let trigger: UpdateTrigger = WhitenoiseUpdateTrigger::ReactionAdded.into();
+        assert_eq!(trigger, UpdateTrigger::ReactionAdded);
+    }
+
+    #[test]
+    fn test_update_trigger_conversion_reaction_removed() {
+        let trigger: UpdateTrigger = WhitenoiseUpdateTrigger::ReactionRemoved.into();
+        assert_eq!(trigger, UpdateTrigger::ReactionRemoved);
+    }
+
+    #[test]
+    fn test_update_trigger_conversion_message_deleted() {
+        let trigger: UpdateTrigger = WhitenoiseUpdateTrigger::MessageDeleted.into();
+        assert_eq!(trigger, UpdateTrigger::MessageDeleted);
+    }
 }

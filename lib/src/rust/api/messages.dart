@@ -4,12 +4,15 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
+import 'package:freezed_annotation/freezed_annotation.dart' hide protected;
 
 import '../frb_generated.dart';
 import 'error.dart';
 import 'media_files.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+part 'messages.freezed.dart';
+
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 Future<MessageWithTokens> sendMessageToGroup({
   required String pubkey,
@@ -32,6 +35,18 @@ Future<List<ChatMessage>> fetchAggregatedMessagesForGroup({
   pubkey: pubkey,
   groupId: groupId,
 );
+
+/// Subscribe to real-time message updates for a group.
+///
+/// The stream first emits an `InitialSnapshot` containing all current messages,
+/// then emits `Update` items as messages are added, reacted to, or deleted.
+///
+/// The initial snapshot is race-condition free: any updates that arrive between
+/// subscribing and fetching are merged into the snapshot.
+Stream<MessageStreamItem> subscribeToGroupMessages({required String groupId}) =>
+    RustLib.instance.api.crateApiMessagesSubscribeToGroupMessages(
+      groupId: groupId,
+    );
 
 // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<Tag>>
 abstract class Tag implements RustOpaqueInterface {}
@@ -125,6 +140,46 @@ class EmojiReaction {
           users == other.users;
 }
 
+@freezed
+sealed class MessageStreamItem with _$MessageStreamItem {
+  const MessageStreamItem._();
+
+  /// Initial snapshot of all messages in the group at subscription time
+  const factory MessageStreamItem.initialSnapshot({
+    required List<ChatMessage> messages,
+  }) = MessageStreamItem_InitialSnapshot;
+
+  /// Real-time update for a single message
+  const factory MessageStreamItem.update({
+    required MessageUpdate update,
+  }) = MessageStreamItem_Update;
+}
+
+/// A real-time update for a group message.
+///
+/// Contains the trigger indicating what changed and the complete,
+/// current state of the affected message.
+class MessageUpdate {
+  final UpdateTrigger trigger;
+  final ChatMessage message;
+
+  const MessageUpdate({
+    required this.trigger,
+    required this.message,
+  });
+
+  @override
+  int get hashCode => trigger.hashCode ^ message.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MessageUpdate &&
+          runtimeType == other.runtimeType &&
+          trigger == other.trigger &&
+          message == other.message;
+}
+
 /// Flutter-compatible message with tokens
 class MessageWithTokens {
   final String id;
@@ -207,6 +262,21 @@ class SerializableToken {
           runtimeType == other.runtimeType &&
           tokenType == other.tokenType &&
           content == other.content;
+}
+
+/// What triggered a message update in the stream.
+enum UpdateTrigger {
+  /// A new message was added to the group
+  newMessage,
+
+  /// A reaction was added to this message
+  reactionAdded,
+
+  /// A reaction was removed from this message
+  reactionRemoved,
+
+  /// The message itself was marked as deleted
+  messageDeleted,
 }
 
 /// Flutter-compatible user reaction

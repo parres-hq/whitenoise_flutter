@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed timestamp alignment for received messages to align to the right side instead of left
 - Fixed issue where chats and profiles show up after app uninstall and reinstall on Android [#889](https://github.com/parres-hq/whitenoise_flutter/issues/889)
 - Fixed issue where user details on media preview modal overlaps the image or image is not properly vertically centered [#880](https://github.com/marmot-protocol/whitenoise/issues/880)
+- Fixed notifications not coming in after device restart unless app is opened at least once [#885](https://github.com/marmot-protocol/whitenoise/issues/885)
 
 ### Security
 
