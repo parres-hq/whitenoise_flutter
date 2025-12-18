@@ -69,7 +69,13 @@ class GroupMessagesNotifier extends FamilyNotifier<GroupMessagesState, String> {
       groupId: state.groupId,
     );
 
-    chatMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    chatMessages.sort((a, b) {
+      final timeComparison = a.createdAt.compareTo(b.createdAt);
+      if (timeComparison != 0) {
+        return timeComparison;
+      }
+      return a.id.compareTo(b.id);
+    });
     return _toMessageModels(chatMessages: chatMessages, activePubkey: activePubkey);
   }
 
@@ -88,10 +94,7 @@ class GroupMessagesNotifier extends FamilyNotifier<GroupMessagesState, String> {
   }
 
   Future<Map<String, domain_user.User>> _fetchGroupUsersMap() async {
-    final activePubkey = ref.read(activePubkeyProvider);
-    if (activePubkey == null || activePubkey.isEmpty) {
-      return {};
-    }
+    final activePubkey = ref.read(activePubkeyProvider)!;
     final groupUserProfiles = await _fetchGroupUserProfiles(activePubkey);
     final domainUsersMap = _mapUserProfilesToDomainUsers(
       activePubkey: activePubkey,
