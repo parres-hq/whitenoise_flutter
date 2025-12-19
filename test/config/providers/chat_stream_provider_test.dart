@@ -310,5 +310,88 @@ void main() {
 
       sub.close();
     });
+
+    test('should yield empty list if stream errors immediately', () async {
+      final overrides = [
+        chatStreamProvider.overrideWith(
+          () => ChatStreamNotifier(subscriber: mockSubscriber),
+        ),
+        activePubkeyProvider.overrideWith(
+          () => MockActivePubkeyNotifier(testActivePubkey),
+        ),
+        groupsProvider.overrideWith(
+          () => MockGroupsNotifier(
+            members: {
+              testGroupId: [testUser, otherUser],
+            },
+          ),
+        ),
+      ];
+
+      final testContainer = ProviderContainer(overrides: overrides);
+
+      final future = testContainer.read(
+        chatStreamProvider(testGroupId).future,
+      );
+
+      // Add error immediately
+      streamController.addError(Exception('Stream error'));
+
+      final result = await future;
+      expect(result, isEmpty);
+    });
+
+    test('should preserve stale data (not yield empty) if stream errors after yielding', () async {
+      final overrides = [
+        chatStreamProvider.overrideWith(
+          () => ChatStreamNotifier(subscriber: mockSubscriber),
+        ),
+        activePubkeyProvider.overrideWith(
+          () => MockActivePubkeyNotifier(testActivePubkey),
+        ),
+        groupsProvider.overrideWith(
+          () => MockGroupsNotifier(
+            members: {
+              testGroupId: [testUser, otherUser],
+            },
+          ),
+        ),
+      ];
+
+      final testContainer = ProviderContainer(overrides: overrides);
+
+      final msg1 = createChatMessage(
+        id: '1',
+        content: 'First',
+        pubkey: testActivePubkey,
+        createdAt: DateTime.now(),
+      );
+
+      final results = <AsyncValue<List<MessageModel>>>[];
+      final sub = testContainer.listen(
+        chatStreamProvider(testGroupId),
+        (previous, next) {
+          results.add(next);
+        },
+      );
+
+      // 1. Initial Snapshot
+      streamController.add(
+        MessageStreamItem.initialSnapshot(messages: [msg1]),
+      );
+      await Future.delayed(Duration.zero);
+
+      expect(results.last.value!.length, 1);
+
+      // 2. Error
+      streamController.addError(Exception('Run error'));
+      await Future.delayed(Duration.zero);
+
+      // Should not receive a new value (empty list)
+      expect(results.last.value!.length, 1);
+      expect(results.last, isA<AsyncData>());
+
+      sub.close();
+    });
   });
 }

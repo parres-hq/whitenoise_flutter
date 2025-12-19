@@ -29,12 +29,12 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
       return;
     }
 
+    Map<String, ChatMessage> messageMap = {};
+
     try {
       _logger.info('ChatStreamNotifier: Requesting stream for group $groupId');
 
       final stream = _subscriber(groupId: groupId);
-
-      Map<String, ChatMessage> messageMap = {};
 
       await for (final item in stream) {
         item.when(
@@ -73,6 +73,9 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
       }
     } catch (e) {
       _logger.severe('ChatStreamNotifier: Error building stream for group', e);
+      if (messageMap.isEmpty) {
+        yield [];
+      }
     }
   }
 }
