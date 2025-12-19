@@ -10,6 +10,7 @@ import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/chat_input_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
+import 'package:whitenoise/config/providers/chat_stream_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
@@ -70,7 +71,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
       await DisplayedChatService.registerDisplayedChat(widget.groupId);
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
-        ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
+        // ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
         _preloadMemberColors();
       }
     });
@@ -326,14 +327,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   Widget build(BuildContext context) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
     final chatNotifier = ref.watch(chatProvider.notifier);
+    final chatStreamNotifier = ref.watch(chatStreamProvider(widget.groupId));
     final searchState = ref.watch(chatSearchProvider(widget.groupId));
     final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
     final isInviteMode = widget.inviteId != null;
 
     // Watch messages first so they're available for listeners
-    final messages = ref.watch(
-      chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
-    );
+    final messages = chatStreamNotifier.value ?? [];
 
     final isLoading = ref.watch(
       chatProvider.select((state) => state.isGroupLoading(widget.groupId)),
