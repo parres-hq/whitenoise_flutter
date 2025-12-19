@@ -191,7 +191,8 @@ class _$NotificationContentImpl implements _NotificationContent {
             other is _$NotificationContentImpl &&
             (identical(other.title, title) || other.title == title) &&
             (identical(other.body, body) || other.body == body) &&
-            (identical(other.groupKey, groupKey) || other.groupKey == groupKey) &&
+            (identical(other.groupKey, groupKey) ||
+                other.groupKey == groupKey) &&
             const DeepCollectionEquality().equals(other._payload, _payload));
   }
 

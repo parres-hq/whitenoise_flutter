@@ -11,17 +11,21 @@ import 'metadata.dart';
 import 'relays.dart';
 import 'users.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `fmt`, `fmt`, `from`, `from`
+            // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `fmt`, `fmt`, `from`, `from`
 
-Future<List<Account>> getAccounts() => RustLib.instance.api.crateApiAccountsGetAccounts();
+Future<List<Account>> getAccounts() =>
+    RustLib.instance.api.crateApiAccountsGetAccounts();
 
 Future<Account> getAccount({required String pubkey}) =>
     RustLib.instance.api.crateApiAccountsGetAccount(pubkey: pubkey);
 
-Future<Account> createIdentity() => RustLib.instance.api.crateApiAccountsCreateIdentity();
+Future<Account> createIdentity() =>
+    RustLib.instance.api.crateApiAccountsCreateIdentity();
 
-Future<Account> login({required String nsecOrHexPrivkey}) =>
-    RustLib.instance.api.crateApiAccountsLogin(nsecOrHexPrivkey: nsecOrHexPrivkey);
+Future<Account> login({required String nsecOrHexPrivkey}) => RustLib
+    .instance
+    .api
+    .crateApiAccountsLogin(nsecOrHexPrivkey: nsecOrHexPrivkey);
 
 Future<void> logout({required String pubkey}) =>
     RustLib.instance.api.crateApiAccountsLogout(pubkey: pubkey);
@@ -125,15 +129,15 @@ Future<void> unfollowUser({
   accountPubkey: accountPubkey,
   userToUnfollowPubkey: userToUnfollowPubkey,
 );
-
-// Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayType>>
+            
+                // Rust type: RustOpaqueMoi<flutter_rust_bridge::for_generated::RustAutoOpaqueInner<RelayType>>
 abstract class RelayType implements RustOpaqueInterface {}
 
 class Account {
-  final String pubkey;
-  final DateTime? lastSyncedAt;
-  final DateTime createdAt;
-  final DateTime updatedAt;
+                final String pubkey;
+final DateTime? lastSyncedAt;
+final DateTime createdAt;
+final DateTime updatedAt;
 
   const Account({
     required this.pubkey,
@@ -141,29 +145,32 @@ class Account {
     required this.createdAt,
     required this.updatedAt,
   });
-
-  @override
+                
+        @override
   int get hashCode =>
-      pubkey.hashCode ^ lastSyncedAt.hashCode ^ createdAt.hashCode ^ updatedAt.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is Account &&
+      pubkey.hashCode ^
+      lastSyncedAt.hashCode ^
+      createdAt.hashCode ^
+      updatedAt.hashCode;
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is Account &&
           runtimeType == other.runtimeType &&
           pubkey == other.pubkey &&
           lastSyncedAt == other.lastSyncedAt &&
           createdAt == other.createdAt &&
           updatedAt == other.updatedAt;
-}
+            }
 
 class FlutterEvent {
-  final String id;
-  final String pubkey;
-  final DateTime createdAt;
-  final int kind;
-  final List<String> tags;
-  final String content;
+                final String id;
+final String pubkey;
+final DateTime createdAt;
+final int kind;
+final List<String> tags;
+final String content;
 
   const FlutterEvent({
     required this.id,
@@ -173,8 +180,8 @@ class FlutterEvent {
     required this.tags,
     required this.content,
   });
-
-  @override
+                
+        @override
   int get hashCode =>
       id.hashCode ^
       pubkey.hashCode ^
@@ -182,11 +189,11 @@ class FlutterEvent {
       kind.hashCode ^
       tags.hashCode ^
       content.hashCode;
-
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      other is FlutterEvent &&
+                
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is FlutterEvent &&
           runtimeType == other.runtimeType &&
           id == other.id &&
           pubkey == other.pubkey &&
@@ -194,4 +201,5 @@ class FlutterEvent {
           kind == other.kind &&
           tags == other.tags &&
           content == other.content;
-}
+            }
+            

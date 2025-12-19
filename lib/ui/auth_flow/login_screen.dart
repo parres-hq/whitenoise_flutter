@@ -1,11 +1,24 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
+import 'package:logging/logging.dart';
+import 'dart:convert';
+
 import 'package:whitenoise/config/extensions/toast_extension.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
+import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/domain/services/nip55_callback.dart';
+import 'package:whitenoise/domain/services/nip55_service.dart';
 import 'package:whitenoise/routing/routes.dart';
+import 'package:whitenoise/src/rust/api/nip55_extensions.dart' as nip55_api;
+import 'package:whitenoise/src/rust/api/nip55.dart' as nip55_core_api;
+import 'package:whitenoise/utils/pubkey_formatter.dart';
+import 'package:whitenoise/utils/public_key_validation_extension.dart';
 import 'package:whitenoise/ui/auth_flow/auth_header.dart';
 import 'package:whitenoise/ui/auth_flow/qr_scanner_screen.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -30,6 +43,8 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
   final ScrollController _scrollController = ScrollController();
   final FocusNode _focusNode = FocusNode();
   bool _wasKeyboardVisible = false;
+  bool _isExternalSignerAvailable = false;
+  static final Logger _logger = Logger('LoginScreen');
 
   @override
   void initState() {
@@ -38,6 +53,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     _keyController.addListener(() {
       setState(() {});
     });
+    _checkExternalSigner();
+  }
+
+  Future<void> _checkExternalSigner() async {
+    if (Platform.isAndroid) {
+      try {
+        final available = await Nip55Service.isExternalSignerInstalled();
+        if (mounted) {
+          setState(() {
+            _isExternalSignerAvailable = available;
+          });
+        }
+      } catch (e) {
+        _logger.warning('Failed to check external signer: $e');
+      }
+    }
   }
 
   @override
@@ -95,6 +126,177 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     } else if (authState.error != null) {
       // Error is already shown by the auth provider via toast
       // No need to show additional error here
+    }
+  }
+
+  Future<void> _loginWithExternalSigner() async {
+    if (!mounted) {
+      _logger.warning('Component not mounted, aborting NIP55 login');
+      return;
+    }
+
+    try {
+      print('=== STARTING NIP55 LOGIN FLOW ===');
+
+      // Ensure NIP-55 callback is initialized
+      print('Ensuring NIP-55 callback is initialized');
+      await Nip55CallbackInitializer.initialize();
+      print('NIP-55 callback initialized successfully');
+
+      if (!mounted) {
+        _logger.warning('Component not mounted after callback init, aborting');
+        return;
+      }
+
+      // Use login_with_nip55 which handles everything:
+      // - Gets pubkey from signer
+      // - Creates/finds account
+      // - Enables NIP-55 signer
+      // - Sets up relays
+      print('Calling login_with_nip55 API');
+      final account = await nip55_api.loginWithNip55();
+      print('=== NIP55 API CALL COMPLETED === Account: ${account.pubkey}');
+
+      if (!mounted) {
+        _logger.warning('Component not mounted after API call, aborting');
+        return;
+      }
+
+      if (!mounted) return;
+
+      // Set this account as active
+      print('Setting active pubkey');
+      await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
+
+      if (!mounted) {
+        print('Component not mounted after setting pubkey');
+        return;
+      }
+
+      // Ensure NIP-55 signer is enabled for this account.
+      // This prevents downstream operations (like key package publish/delete) from trying
+      // to use the local secrets store (which will not exist for NIP-55 accounts).
+      print('=== ENABLING NIP55 SIGNER === pubkey: ${account.pubkey}');
+      try {
+        await nip55_core_api.enableNip55Signer(pubkey: account.pubkey);
+        print('=== NIP55 SIGNER ENABLED SUCCESSFULLY ===');
+      } catch (e, st) {
+        // Best-effort: do not block login if enabling fails.
+        print('=== FAILED TO ENABLE NIP55 SIGNER === Error: $e');
+        _logger.severe('Failed to enable NIP-55 signer for account ${account.pubkey}', e, st);
+      }
+
+      // Force refresh of active account data
+      print('Refreshing active account provider');
+      ref.invalidate(activeAccountProvider);
+      final accountState = await ref.read(activeAccountProvider.future);
+      print('Account state loaded. Account exists: ${accountState.account != null}');
+
+      if (!mounted) {
+        print('Component not mounted after account refresh');
+        return;
+      }
+
+      // Update auth state to reflect authentication - this is crucial for NIP55 login
+      print('Updating auth state to authenticated');
+      ref.read(authProvider.notifier).setAuthenticated();
+
+      // Verify auth state was updated
+      final currentAuthState = ref.read(authProvider);
+      print(
+        'Auth state after update: isAuthenticated=${currentAuthState.isAuthenticated}, isLoading=${currentAuthState.isLoading}',
+      );
+
+      if (!mounted) {
+        print('Component not mounted after auth update');
+        return;
+      }
+
+      print('Navigating to chats screen');
+      context.go(Routes.chats);
+      print('=== NIP55 LOGIN FLOW COMPLETED SUCCESSFULLY ===');
+    } catch (e, st) {
+      _logger.severe('=== NIP55 LOGIN FLOW FAILED ===', e, st);
+      final errorMessage = e.toString();
+
+      // Check if this is a relay setup error - account might still be created
+      if (errorMessage.contains('relay not found') || errorMessage.contains('Relay not found')) {
+        _logger.warning(
+          'Relay setup failed during login, but account may have been created. Error: $e',
+          e,
+          st,
+        );
+
+        // Try to recover: get the pubkey from signer and set it as active
+        // The account was likely created, just relay setup failed
+        try {
+          _logger.info('Attempting recovery: getting pubkey from signer');
+          final resultJson = await Nip55Service.callNip55Method(
+            method: 'get_public_key',
+            params: '{}',
+          );
+
+          final result = jsonDecode(resultJson) as Map<String, dynamic>;
+          final pubkeyNpub = result['result'] as String?;
+
+          if (pubkeyNpub != null && pubkeyNpub.isValidNpubPublicKey) {
+            // Convert npub to hex
+            final hexPubkey = PubkeyFormatter(pubkey: pubkeyNpub).toHex();
+            if (hexPubkey != null && mounted) {
+              _logger.info('Recovery successful: setting active pubkey to $hexPubkey');
+              await ref.read(activePubkeyProvider.notifier).setActivePubkey(hexPubkey);
+
+              // Ensure NIP-55 signer is enabled for this recovered account.
+              // Without this, Rust will fall back to secrets store signing and fail with:
+              // "Secrets store error: Key not found".
+              print('=== RECOVERY: ENABLING NIP55 SIGNER === pubkey: $hexPubkey');
+              try {
+                await nip55_core_api.enableNip55Signer(pubkey: hexPubkey);
+                print('=== RECOVERY: NIP55 SIGNER ENABLED SUCCESSFULLY ===');
+              } catch (e, st) {
+                print('=== RECOVERY: FAILED TO ENABLE NIP55 SIGNER === Error: $e');
+                _logger.severe('Failed to enable NIP-55 signer during recovery for $hexPubkey', e, st);
+              }
+
+              // Refresh account state
+              ref.invalidate(activeAccountProvider);
+              await ref.read(activeAccountProvider.future);
+
+              // Mark authenticated even if relay setup failed. Without this, GoRouter redirects
+              // back to the login flow until app restart.
+              ref.read(authProvider.notifier).setAuthenticated();
+
+              ref.showWarningToast(
+                'Login successful, but relay setup failed. Please add relays in settings.',
+              );
+
+              if (mounted) {
+                context.go(Routes.chats);
+              }
+              return; // Successfully recovered
+            }
+          }
+        } catch (recoveryError) {
+          _logger.warning('Recovery attempt failed: $recoveryError');
+        }
+
+        // If recovery failed, show error
+        if (mounted) {
+          ref.showErrorToast(
+            'Account created but relay setup failed. Please add relays in settings and try logging in again.',
+          );
+        }
+        return; // Don't show generic error toast
+      }
+
+      _logger.severe('Login with external signer failed: $e', e, st);
+      if (mounted) {
+        final finalErrorMessage =
+            errorMessage.contains('not available') || errorMessage.contains('rebuild')
+                ? 'Please rebuild the Rust code first. Error: $e'
+                : 'Failed to login with external signer: $e';
+        ref.showErrorToast(finalErrorMessage);
+      }
     }
   }
 
@@ -204,10 +406,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                       Consumer(
                         builder: (context, ref, child) {
                           final authState = ref.watch(authProvider);
-                          return WnFilledButton(
-                            loading: authState.isLoading,
-                            onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
-                            label: 'auth.login'.tr(),
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              WnFilledButton(
+                                loading: authState.isLoading,
+                                onPressed: _keyController.text.isEmpty ? null : _onContinuePressed,
+                                label: 'auth.login'.tr(),
+                              ),
+                              if (_isExternalSignerAvailable) ...[
+                                Gap(16.h),
+                                WnFilledButton(
+                                  visualState: WnButtonVisualState.secondary,
+                                  onPressed: _loginWithExternalSigner,
+                                  label: 'nostrKeys.useExternalSigner'.tr(),
+                                ),
+                              ],
+                            ],
                           );
                         },
                       ),

@@ -11,8 +11,14 @@ class ErrorHandlingUtils {
     String fallback, {
     Map<String, dynamic>? params,
   }) {
-    final translated = LocalizationService.translate(key, params: params);
-    return translated == key ? fallback : translated;
+    try {
+      final translated = LocalizationService.translate(key, params: params);
+      return translated == key ? fallback : translated;
+    } catch (e) {
+      // Never let localization failures crash error handling.
+      _logger.warning('Localization failed for key "$key": $e');
+      return fallback;
+    }
   }
 
   /// Attempts to convert any error (including ApiErrorImpl exceptions) to a user-friendly string
@@ -49,12 +55,14 @@ class ErrorHandlingUtils {
           logPrefix: logPrefix,
         );
       } else {
-        _logger.severe('${logPrefix}Unknown error type: ${error.runtimeType}');
-        _logger.severe('${logPrefix}Error details: $error');
+        // IMPORTANT: Avoid logging at SEVERE level here.
+        // In some runtime configurations, SEVERE logs are surfaced as thrown Exceptions.
+        _logger.warning('${logPrefix}Unknown error type: ${error.runtimeType}');
+        _logger.warning('${logPrefix}Error details: $error');
         return '$fallbackMessage: $error';
       }
     } catch (unexpectedError) {
-      _logger.severe('${logPrefix}Unexpected error in error handling: $unexpectedError');
+      _logger.warning('${logPrefix}Unexpected error in error handling: $unexpectedError');
       return fallbackMessage;
     }
   }
@@ -70,11 +78,11 @@ class ErrorHandlingUtils {
       final exceptionString = error.toString();
       final stackTraceString = stackTrace?.toString() ?? '';
 
-      _logger.severe('${logPrefix}Exception string: $exceptionString');
-      _logger.severe('${logPrefix}Exception type: ${error.runtimeType}');
+      _logger.warning('${logPrefix}Exception string: $exceptionString');
+      _logger.warning('${logPrefix}Exception type: ${error.runtimeType}');
 
       if (exceptionString.contains('ApiErrorImpl')) {
-        _logger.severe(
+        _logger.warning(
           '${logPrefix}Detected wrapped ApiErrorImpl - attempting to extract error details',
         );
 
@@ -115,10 +123,10 @@ class ErrorHandlingUtils {
           return _appendHelpText(baseErrorMessage, _getDatabaseHelpText());
         } else {
           // Log full details for debugging but still try to show what we can to the user
-          _logger.severe('${logPrefix}ApiErrorImpl details: $exceptionString');
-          _logger.severe('${logPrefix}Raw error object: $error');
+          _logger.warning('${logPrefix}ApiErrorImpl details: $exceptionString');
+          _logger.warning('${logPrefix}Raw error object: $error');
           if (stackTrace != null) {
-            _logger.severe('${logPrefix}Stack trace: $stackTrace');
+            _logger.warning('${logPrefix}Stack trace: $stackTrace');
           }
 
           // Show the base error message with generic help text
@@ -126,16 +134,16 @@ class ErrorHandlingUtils {
         }
       } else {
         // Non-ApiError exception
-        _logger.severe('${logPrefix}Non-ApiError exception type: ${error.runtimeType}');
-        _logger.severe('${logPrefix}Error details: $error');
+        _logger.warning('${logPrefix}Non-ApiError exception type: ${error.runtimeType}');
+        _logger.warning('${logPrefix}Error details: $error');
         if (stackTrace != null) {
-          _logger.severe('${logPrefix}Stack trace: $stackTrace');
+          _logger.warning('${logPrefix}Stack trace: $stackTrace');
         }
         return '$fallbackMessage: ${error.toString()}';
       }
     } catch (handlingError) {
       // If anything goes wrong in exception handling, just return the fallback
-      _logger.severe('${logPrefix}Error in exception handling: $handlingError');
+      _logger.warning('${logPrefix}Error in exception handling: $handlingError');
       return fallbackMessage;
     }
   }
@@ -146,14 +154,15 @@ class ErrorHandlingUtils {
     required String logPrefix,
   }) async {
     try {
-      _logger.severe('${logPrefix}Handling ApiError variant: ${error.runtimeType}');
-      return await error.map<Future<String>>(
-        whitenoise: (value) async {
-          final rawErrorMessage = await value.messageText();
-          return _parseSpecificErrorPatterns(rawErrorMessage);
-        },
-        invalidKey: (value) async {
-          final message = await value.messageText();
+      // IMPORTANT: Avoid logging at SEVERE level here.
+      // In some runtime configurations, SEVERE logs are surfaced as thrown Exceptions.
+      _logger.info('${logPrefix}Handling ApiError variant: ${error.runtimeType}');
+      // IMPORTANT: Do not call `messageText()` here.
+      // It triggers an extra Rust FFI round-trip and can itself fail (which hides the original error).
+      // The `message` field is already present in the Freezed union, so prefer that.
+      return error.when<String>(
+        whitenoise: (message) => _parseSpecificErrorPatterns(message),
+        invalidKey: (message) {
           final summary = _tr(
             'errors.invalidPublicKeySummary',
             'One or more public keys are invalid. Please double-check all participant and admin keys, then try again.',
@@ -163,8 +172,7 @@ class ErrorHandlingUtils {
             message,
           );
         },
-        nostrUrl: (value) async {
-          final message = await value.messageText();
+        nostrUrl: (message) {
           final summary = _tr(
             'errors.relayUrlSummary',
             'There is a problem with a relay URL in your setup. Check your relay URLs in Settings and try again.',
@@ -174,8 +182,7 @@ class ErrorHandlingUtils {
             message,
           );
         },
-        nostrTag: (value) async {
-          final message = await value.messageText();
+        nostrTag: (message) {
           final summary = _tr(
             'errors.nostrTagSummary',
             'A Nostr tag error occurred.',
@@ -185,8 +192,7 @@ class ErrorHandlingUtils {
             message,
           );
         },
-        nostrEvent: (value) async {
-          final message = await value.messageText();
+        nostrEvent: (message) {
           final summary = _tr(
             'errors.nostrEventSummary',
             'A Nostr event error occurred.',
@@ -196,8 +202,7 @@ class ErrorHandlingUtils {
             message,
           );
         },
-        nostrParse: (value) async {
-          final message = await value.messageText();
+        nostrParse: (message) {
           final summary = _tr(
             'errors.nostrParseSummary',
             'We could not parse some Nostr data required for this action. Please verify your relays and data, then try again.',
@@ -207,8 +212,7 @@ class ErrorHandlingUtils {
             message,
           );
         },
-        nostrHex: (value) async {
-          final message = await value.messageText();
+        nostrHex: (message) {
           final summary = _tr(
             'errors.nostrHexSummary',
             'One of the hex values (likely a public key) is malformed. Please double-check the value and try again.',
@@ -218,13 +222,10 @@ class ErrorHandlingUtils {
             message,
           );
         },
-        other: (value) async {
-          final message = await value.messageText();
-          return _parseSpecificErrorPatterns(message);
-        },
+        other: (message) => _parseSpecificErrorPatterns(message),
       );
     } catch (conversionError) {
-      _logger.severe(
+      _logger.warning(
         '${logPrefix}Failed to convert ApiError (${error.runtimeType}) to string: $conversionError',
       );
       return fallbackMessage;

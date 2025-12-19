@@ -226,6 +226,36 @@ pub async fn delete_account_key_package(
     let pubkey = PublicKey::parse(&account_pubkey)?;
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
     let key_package_id = EventId::parse(&key_package_id)?;
+
+    // CRITICAL FIX: For NIP55 accounts, we MUST ensure the signer is enabled before deletion.
+    // The whitenoise crate's delete_key_package_for_account will try to sign the deletion event,
+    // and if NIP55 isn't enabled, it will attempt to use the secrets store (which doesn't exist
+    // for NIP55 accounts), causing "Secrets store error: Key not found".
+    //
+    // We enable it here and reload the account to ensure the state is persisted.
+    // If enable fails, we still try deletion - maybe the account has local keys or NIP55 is already enabled.
+    match whitenoise.enable_nip55_signer(&account).await {
+        Ok(_) => {
+            eprintln!(
+                "Successfully enabled NIP55 signer for account {} before key package deletion",
+                pubkey.to_hex()
+            );
+            // Reload account to get updated state
+            let _ = whitenoise.find_account_by_pubkey(&pubkey).await;
+        }
+        Err(e) => {
+            eprintln!(
+                "Warning: Failed to enable NIP55 signer before key package deletion for account {}: {:?}",
+                pubkey.to_hex(),
+                e
+            );
+            // Continue anyway - deletion might still work if NIP55 is already enabled or account has local keys
+        }
+    }
+
+    // Reload account one more time to ensure we have the latest state
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+
     whitenoise
         .delete_key_package_for_account(&account, &key_package_id, true)
         .await

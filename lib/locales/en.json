@@ -106,7 +106,12 @@
         "privateKeyWarningTitle": "Keep your private key safe!",
         "privateKeyWarningDescription": "Don't share your private key publicly, and use it only to log in to other Nostr apps.",
         "loadingPrivateKey": "Loading private key...",
-        "errorLoadingPrivateKey": "Error loading private key"
+        "errorLoadingPrivateKey": "Error loading private key",
+        "externalSignerTitle": "External Signer",
+        "useExternalSigner": "Use External Signer",
+        "externalSignerDescription": "Delegate signing operations to an external Android signer app (like Amber) for enhanced security.",
+        "checkingSigner": "Checking for signer app...",
+        "signerNotInstalled": "No external signer app found. Install an app like Amber to use this feature."
     },
     "network": {
         "addRelay": "Add relay",

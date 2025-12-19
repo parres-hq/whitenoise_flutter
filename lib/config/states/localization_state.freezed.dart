@@ -26,7 +26,8 @@ mixin _$LocalizationState {
   /// Create a copy of LocalizationState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $LocalizationStateCopyWith<LocalizationState> get copyWith => throw _privateConstructorUsedError;
+  $LocalizationStateCopyWith<LocalizationState> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -93,7 +94,8 @@ class _$LocalizationStateCopyWithImpl<$Res, $Val extends LocalizationState>
 }
 
 /// @nodoc
-abstract class _$$LocalizationStateImplCopyWith<$Res> implements $LocalizationStateCopyWith<$Res> {
+abstract class _$$LocalizationStateImplCopyWith<$Res>
+    implements $LocalizationStateCopyWith<$Res> {
   factory _$$LocalizationStateImplCopyWith(
     _$LocalizationStateImpl value,
     $Res Function(_$LocalizationStateImpl) then,
@@ -190,7 +192,8 @@ class _$LocalizationStateImpl extends _LocalizationState {
                 other.currentLocale == currentLocale) &&
             (identical(other.selectedLanguage, selectedLanguage) ||
                 other.selectedLanguage == selectedLanguage) &&
-            (identical(other.isLoading, isLoading) || other.isLoading == isLoading) &&
+            (identical(other.isLoading, isLoading) ||
+                other.isLoading == isLoading) &&
             (identical(other.error, error) || other.error == error));
   }
 

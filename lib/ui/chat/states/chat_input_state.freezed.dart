@@ -21,12 +21,14 @@ mixin _$ChatInputState {
   bool get showMediaSelector => throw _privateConstructorUsedError;
   List<MediaFileUpload> get selectedMedia => throw _privateConstructorUsedError;
   double? get singleLineHeight => throw _privateConstructorUsedError;
-  String? get previousEditingMessageContent => throw _privateConstructorUsedError;
+  String? get previousEditingMessageContent =>
+      throw _privateConstructorUsedError;
 
   /// Create a copy of ChatInputState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ChatInputStateCopyWith<ChatInputState> get copyWith => throw _privateConstructorUsedError;
+  $ChatInputStateCopyWith<ChatInputState> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -100,7 +102,8 @@ class _$ChatInputStateCopyWithImpl<$Res, $Val extends ChatInputState>
 }
 
 /// @nodoc
-abstract class _$$ChatInputStateImplCopyWith<$Res> implements $ChatInputStateCopyWith<$Res> {
+abstract class _$$ChatInputStateImplCopyWith<$Res>
+    implements $ChatInputStateCopyWith<$Res> {
   factory _$$ChatInputStateImplCopyWith(
     _$ChatInputStateImpl value,
     $Res Function(_$ChatInputStateImpl) then,
@@ -224,7 +227,8 @@ class _$ChatInputStateImpl extends _ChatInputState {
                   other.previousEditingMessageContent,
                   previousEditingMessageContent,
                 ) ||
-                other.previousEditingMessageContent == previousEditingMessageContent));
+                other.previousEditingMessageContent ==
+                    previousEditingMessageContent));
   }
 
   @override

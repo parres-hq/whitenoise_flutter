@@ -1,8 +1,15 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:logging/logging.dart';
+import 'package:whitenoise/config/extensions/toast_extension.dart';
+import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
+import 'package:whitenoise/domain/services/nip55_service.dart';
+import 'package:whitenoise/src/rust/api/nip55.dart' as nip55_api;
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_icon_button.dart';
@@ -24,6 +31,10 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
   final TextEditingController _privateKeyController = TextEditingController();
   final TextEditingController _publicKeyController = TextEditingController();
   bool _obscurePrivateKey = true;
+  bool _isExternalSignerEnabled = false;
+  bool _isCheckingSigner = false;
+  bool _isSignerInstalled = false;
+  static final Logger _logger = Logger('ProfileKeysScreen');
 
   @override
   void initState() {
@@ -32,7 +43,80 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
       await ref.read(nostrKeysProvider.notifier).loadKeys();
       _publicKeyController.text = ref.read(nostrKeysProvider).npub?.formatPublicKey() ?? '';
       _privateKeyController.text = ref.read(nostrKeysProvider).nsec ?? '';
+
+      // Check if external signer is installed (Android only)
+      if (Platform.isAndroid) {
+        _checkExternalSignerInstalled();
+      }
     });
+  }
+
+  Future<void> _checkExternalSignerInstalled() async {
+    setState(() {
+      _isCheckingSigner = true;
+    });
+
+    try {
+      final installed = await Nip55Service.isExternalSignerInstalled();
+      if (mounted) {
+        setState(() {
+          _isSignerInstalled = installed;
+          _isCheckingSigner = false;
+        });
+      }
+    } catch (e) {
+      _logger.warning('Error checking external signer: $e');
+      if (mounted) {
+        setState(() {
+          _isCheckingSigner = false;
+        });
+      }
+    }
+  }
+
+  Future<void> _toggleExternalSigner(bool enabled) async {
+    final activeAccount = await ref.read(activeAccountProvider.future);
+    if (activeAccount.account == null) {
+      ref.showErrorToast('No active account');
+      return;
+    }
+
+    final pubkey = activeAccount.account!.pubkey;
+
+    setState(() {
+      _isExternalSignerEnabled = enabled;
+    });
+
+    try {
+      if (enabled) {
+        // Check if signer is installed before enabling
+        if (!_isSignerInstalled) {
+          final installed = await Nip55Service.isExternalSignerInstalled();
+          if (!installed) {
+            setState(() {
+              _isExternalSignerEnabled = false;
+            });
+            ref.showErrorToast('External signer app not installed');
+            return;
+          }
+          setState(() {
+            _isSignerInstalled = true;
+          });
+        }
+
+        await nip55_api.enableNip55Signer(pubkey: pubkey);
+        ref.showSuccessToast('External signer enabled');
+      } else {
+        await nip55_api.disableNip55Signer(pubkey: pubkey);
+        ref.showSuccessToast('External signer disabled');
+      }
+    } catch (e) {
+      _logger.severe('Error toggling external signer: $e');
+      setState(() {
+        _isExternalSignerEnabled = !enabled;
+      });
+      ref.showErrorToast('Failed to ${enabled ? 'enable' : 'disable'} external signer: $e');
+    }
   }
 
   void _copyPublicKey() {
@@ -218,7 +302,79 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                           color: context.colors.mutedForeground,
                         ),
                       ),
-                      Gap(12.h),
+                      Gap(36.h),
+                      if (Platform.isAndroid) ...[
+                        Text(
+                          'nostrKeys.externalSignerTitle'.tr(),
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: context.colors.primary,
+                          ),
+                        ),
+                        Gap(10.h),
+                        Container(
+                          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+                          decoration: BoxDecoration(
+                            color: context.colors.avatarSurface,
+                            border: Border.all(
+                              color: context.colors.border,
+                              width: 1.w,
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'nostrKeys.useExternalSigner'.tr(),
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: context.colors.primary,
+                                      ),
+                                    ),
+                                    Gap(4.h),
+                                    if (_isCheckingSigner)
+                                      Text(
+                                        'nostrKeys.checkingSigner'.tr(),
+                                        style: TextStyle(
+                                          fontSize: 12.sp,
+                                          color: context.colors.mutedForeground,
+                                        ),
+                                      )
+                                    else if (!_isSignerInstalled)
+                                      Text(
+                                        'nostrKeys.signerNotInstalled'.tr(),
+                                        style: TextStyle(
+                                          fontSize: 12.sp,
+                                          color: context.colors.destructive,
+                                        ),
+                                      )
+                                    else
+                                      Text(
+                                        'nostrKeys.externalSignerDescription'.tr(),
+                                        style: TextStyle(
+                                          fontSize: 12.sp,
+                                          color: context.colors.mutedForeground,
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                              Gap(12.w),
+                              Switch(
+                                value: _isExternalSignerEnabled,
+                                onChanged: _isSignerInstalled ? _toggleExternalSigner : null,
+                                activeColor: context.colors.primary,
+                              ),
+                            ],
+                          ),
+                        ),
+                        Gap(24.h),
+                      ],
                       Container(
                         padding: EdgeInsets.all(16.w),
                         decoration: BoxDecoration(

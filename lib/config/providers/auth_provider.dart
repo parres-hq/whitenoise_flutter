@@ -9,8 +9,10 @@ import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/src/rust/api.dart' show createWhitenoiseConfig, initializeWhitenoise;
+import 'package:whitenoise/src/rust/frb_generated.dart' show RustLib;
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
+import 'package:whitenoise/domain/services/nip55_callback.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 /// Auth Provider
@@ -38,11 +40,30 @@ class AuthNotifier extends Notifier<AuthState> {
       await Directory(logsDir).create(recursive: true);
 
       /// 2. Create config and initialize Whitenoise instance
+      try {
+        await RustLib.init();
+      } catch (e) {
+        if (e is StateError && e.toString().contains('already initialized')) {
+          // Ignore
+        } else {
+          _logger.warning('RustLib.init() in AuthNotifier failed or was needed: $e');
+        }
+      }
+
       final config = await createWhitenoiseConfig(
         dataDir: dataDir,
         logsDir: logsDir,
       );
       await initializeWhitenoise(config: config);
+
+      /// 2.5. Initialize NIP-55 callback for external signer support
+      try {
+        await Nip55CallbackInitializer.initialize();
+        _logger.info('NIP-55 callback initialized');
+      } catch (e) {
+        _logger.warning('Failed to initialize NIP-55 callback: $e');
+        // Don't fail initialization if NIP-55 callback fails
+      }
 
       /// 3. Auto-login if an account is already active
       try {
@@ -347,6 +368,11 @@ class AuthNotifier extends Notifier<AuthState> {
     } finally {
       setUnAuthenticated();
     }
+  }
+
+  /// Set authentication state to authenticated (used for NIP55 login)
+  void setAuthenticated() {
+    state = state.copyWith(isAuthenticated: true, error: null);
   }
 }
 
