@@ -387,11 +387,52 @@ void main() {
       streamController.addError(Exception('Run error'));
       await Future.delayed(Duration.zero);
 
-      // Should not receive a new value (empty list)
       expect(results.last.value!.length, 1);
       expect(results.last, isA<AsyncData>());
 
       sub.close();
+    });
+    test('should handle empty group members list gracefully', () async {
+      final overrides = [
+        chatStreamProvider.overrideWith(
+          () => ChatStreamNotifier(subscriber: mockSubscriber),
+        ),
+        activePubkeyProvider.overrideWith(
+          () => MockActivePubkeyNotifier(testActivePubkey),
+        ),
+
+        groupsProvider.overrideWith(
+          () => MockGroupsNotifier(
+            members: {
+              testGroupId: [],
+            },
+          ),
+        ),
+      ];
+
+      final testContainer = ProviderContainer(overrides: overrides);
+
+      final msg1 = createChatMessage(
+        id: '1',
+        content: 'Content',
+        pubkey: otherPubkey,
+        createdAt: DateTime.now(),
+      );
+
+      final future = testContainer.read(
+        chatStreamProvider(testGroupId).future,
+      );
+
+      streamController.add(
+        MessageStreamItem.initialSnapshot(messages: [msg1]),
+      );
+
+      final messages = await future;
+
+      expect(messages.length, 1);
+      expect(messages.first.content, 'Content');
+      expect(messages.first.sender.id, otherPubkey);
+      expect(messages.first.sender.displayName, 'shared.unknownUser');
     });
   });
 }
