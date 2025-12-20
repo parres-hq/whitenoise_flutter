@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -6,8 +7,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
-import 'dart:convert';
-
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
@@ -15,10 +14,8 @@ import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/domain/services/nip55_callback.dart';
 import 'package:whitenoise/domain/services/nip55_service.dart';
 import 'package:whitenoise/routing/routes.dart';
-import 'package:whitenoise/src/rust/api/nip55_extensions.dart' as nip55_api;
 import 'package:whitenoise/src/rust/api/nip55.dart' as nip55_core_api;
-import 'package:whitenoise/utils/pubkey_formatter.dart';
-import 'package:whitenoise/utils/public_key_validation_extension.dart';
+import 'package:whitenoise/src/rust/api/nip55_extensions.dart' as nip55_api;
 import 'package:whitenoise/ui/auth_flow/auth_header.dart';
 import 'package:whitenoise/ui/auth_flow/qr_scanner_screen.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -29,6 +26,8 @@ import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
+import 'package:whitenoise/utils/public_key_validation_extension.dart';
 import 'package:whitenoise/utils/status_bar_utils.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
@@ -136,26 +135,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
     }
 
     try {
-      print('=== STARTING NIP55 LOGIN FLOW ===');
+      _logger.info('Starting NIP55 login flow');
 
-      // Ensure NIP-55 callback is initialized
-      print('Ensuring NIP-55 callback is initialized');
+      _logger.fine('Ensuring NIP-55 callback is initialized');
       await Nip55CallbackInitializer.initialize();
-      print('NIP-55 callback initialized successfully');
+      _logger.fine('NIP-55 callback initialized successfully');
 
       if (!mounted) {
         _logger.warning('Component not mounted after callback init, aborting');
         return;
       }
 
-      // Use login_with_nip55 which handles everything:
-      // - Gets pubkey from signer
-      // - Creates/finds account
-      // - Enables NIP-55 signer
-      // - Sets up relays
-      print('Calling login_with_nip55 API');
+      _logger.info('Calling login_with_nip55 API');
       final account = await nip55_api.loginWithNip55();
-      print('=== NIP55 API CALL COMPLETED === Account: ${account.pubkey}');
+      _logger.info('NIP55 API call completed. Account: ${account.pubkey}');
 
       if (!mounted) {
         _logger.warning('Component not mounted after API call, aborting');
@@ -164,59 +157,50 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
 
       if (!mounted) return;
 
-      // Set this account as active
-      print('Setting active pubkey');
+      _logger.fine('Setting active pubkey');
       await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
 
       if (!mounted) {
-        print('Component not mounted after setting pubkey');
+        _logger.fine('Component not mounted after setting pubkey');
         return;
       }
 
-      // Ensure NIP-55 signer is enabled for this account.
-      // This prevents downstream operations (like key package publish/delete) from trying
-      // to use the local secrets store (which will not exist for NIP-55 accounts).
-      print('=== ENABLING NIP55 SIGNER === pubkey: ${account.pubkey}');
+      _logger.info('Enabling NIP55 signer for pubkey: ${account.pubkey}');
       try {
         await nip55_core_api.enableNip55Signer(pubkey: account.pubkey);
-        print('=== NIP55 SIGNER ENABLED SUCCESSFULLY ===');
+        _logger.info('NIP55 signer enabled successfully');
       } catch (e, st) {
-        // Best-effort: do not block login if enabling fails.
-        print('=== FAILED TO ENABLE NIP55 SIGNER === Error: $e');
         _logger.severe('Failed to enable NIP-55 signer for account ${account.pubkey}', e, st);
       }
 
-      // Force refresh of active account data
-      print('Refreshing active account provider');
+      _logger.fine('Refreshing active account provider');
       ref.invalidate(activeAccountProvider);
       final accountState = await ref.read(activeAccountProvider.future);
-      print('Account state loaded. Account exists: ${accountState.account != null}');
+      _logger.fine('Account state loaded. Account exists: ${accountState.account != null}');
 
       if (!mounted) {
-        print('Component not mounted after account refresh');
+        _logger.fine('Component not mounted after account refresh');
         return;
       }
 
-      // Update auth state to reflect authentication - this is crucial for NIP55 login
-      print('Updating auth state to authenticated');
+      _logger.info('Updating auth state to authenticated');
       ref.read(authProvider.notifier).setAuthenticated();
 
-      // Verify auth state was updated
       final currentAuthState = ref.read(authProvider);
-      print(
+      _logger.fine(
         'Auth state after update: isAuthenticated=${currentAuthState.isAuthenticated}, isLoading=${currentAuthState.isLoading}',
       );
 
       if (!mounted) {
-        print('Component not mounted after auth update');
+        _logger.fine('Component not mounted after auth update');
         return;
       }
 
-      print('Navigating to chats screen');
+      _logger.info('Navigating to chats screen');
       context.go(Routes.chats);
-      print('=== NIP55 LOGIN FLOW COMPLETED SUCCESSFULLY ===');
+      _logger.info('NIP55 login flow completed successfully');
     } catch (e, st) {
-      _logger.severe('=== NIP55 LOGIN FLOW FAILED ===', e, st);
+      _logger.severe('NIP55 login flow failed', e, st);
       final errorMessage = e.toString();
 
       // Check if this is a relay setup error - account might still be created
@@ -246,16 +230,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
               _logger.info('Recovery successful: setting active pubkey to $hexPubkey');
               await ref.read(activePubkeyProvider.notifier).setActivePubkey(hexPubkey);
 
-              // Ensure NIP-55 signer is enabled for this recovered account.
-              // Without this, Rust will fall back to secrets store signing and fail with:
-              // "Secrets store error: Key not found".
-              print('=== RECOVERY: ENABLING NIP55 SIGNER === pubkey: $hexPubkey');
+              _logger.info('Recovery: Enabling NIP55 signer for pubkey: $hexPubkey');
               try {
                 await nip55_core_api.enableNip55Signer(pubkey: hexPubkey);
-                print('=== RECOVERY: NIP55 SIGNER ENABLED SUCCESSFULLY ===');
+                _logger.info('Recovery: NIP55 signer enabled successfully');
               } catch (e, st) {
-                print('=== RECOVERY: FAILED TO ENABLE NIP55 SIGNER === Error: $e');
-                _logger.severe('Failed to enable NIP-55 signer during recovery for $hexPubkey', e, st);
+                _logger.severe(
+                  'Failed to enable NIP-55 signer during recovery for $hexPubkey',
+                  e,
+                  st,
+                );
               }
 
               // Refresh account state

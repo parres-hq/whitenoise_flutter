@@ -26,8 +26,7 @@ Future<void> setNip55FlutterCallback({
 ///
 /// This method retrieves the public key from the external signer,
 /// creates or finds the account, enables the NIP-55 signer, and sets up relays.
-Future<Account> loginWithNip55() =>
-    RustLib.instance.api.crateApiNip55LoginWithNip55();
+Future<Account> loginWithNip55() => RustLib.instance.api.crateApiNip55LoginWithNip55();
 
 /// Enable NIP-55 external signer for a specific account
 ///

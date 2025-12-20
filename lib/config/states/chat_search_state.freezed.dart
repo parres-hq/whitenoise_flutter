@@ -26,8 +26,7 @@ mixin _$ChatSearchState {
   /// Create a copy of ChatSearchState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $ChatSearchStateCopyWith<ChatSearchState> get copyWith =>
-      throw _privateConstructorUsedError;
+  $ChatSearchStateCopyWith<ChatSearchState> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -101,8 +100,7 @@ class _$ChatSearchStateCopyWithImpl<$Res, $Val extends ChatSearchState>
 }
 
 /// @nodoc
-abstract class _$$ChatSearchStateImplCopyWith<$Res>
-    implements $ChatSearchStateCopyWith<$Res> {
+abstract class _$$ChatSearchStateImplCopyWith<$Res> implements $ChatSearchStateCopyWith<$Res> {
   factory _$$ChatSearchStateImplCopyWith(
     _$ChatSearchStateImpl value,
     $Res Function(_$ChatSearchStateImpl) then,
@@ -219,8 +217,7 @@ class _$ChatSearchStateImpl implements _ChatSearchState {
             const DeepCollectionEquality().equals(other._matches, _matches) &&
             (identical(other.currentMatchIndex, currentMatchIndex) ||
                 other.currentMatchIndex == currentMatchIndex) &&
-            (identical(other.isLoading, isLoading) ||
-                other.isLoading == isLoading));
+            (identical(other.isLoading, isLoading) || other.isLoading == isLoading));
   }
 
   @override
@@ -283,8 +280,7 @@ mixin _$SearchMatch {
   /// Create a copy of SearchMatch
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $SearchMatchCopyWith<SearchMatch> get copyWith =>
-      throw _privateConstructorUsedError;
+  $SearchMatchCopyWith<SearchMatch> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -351,8 +347,7 @@ class _$SearchMatchCopyWithImpl<$Res, $Val extends SearchMatch>
 }
 
 /// @nodoc
-abstract class _$$SearchMatchImplCopyWith<$Res>
-    implements $SearchMatchCopyWith<$Res> {
+abstract class _$$SearchMatchImplCopyWith<$Res> implements $SearchMatchCopyWith<$Res> {
   factory _$$SearchMatchImplCopyWith(
     _$SearchMatchImpl value,
     $Res Function(_$SearchMatchImpl) then,
@@ -447,10 +442,8 @@ class _$SearchMatchImpl implements _SearchMatch {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$SearchMatchImpl &&
-            (identical(other.messageId, messageId) ||
-                other.messageId == messageId) &&
-            (identical(other.messageIndex, messageIndex) ||
-                other.messageIndex == messageIndex) &&
+            (identical(other.messageId, messageId) || other.messageId == messageId) &&
+            (identical(other.messageIndex, messageIndex) || other.messageIndex == messageIndex) &&
             (identical(other.messageContent, messageContent) ||
                 other.messageContent == messageContent) &&
             const DeepCollectionEquality().equals(
@@ -498,8 +491,7 @@ abstract class _SearchMatch implements SearchMatch {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$SearchMatchImplCopyWith<_$SearchMatchImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$SearchMatchImplCopyWith<_$SearchMatchImpl> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -511,8 +503,7 @@ mixin _$TextMatch {
   /// Create a copy of TextMatch
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $TextMatchCopyWith<TextMatch> get copyWith =>
-      throw _privateConstructorUsedError;
+  $TextMatchCopyWith<TextMatch> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -524,8 +515,7 @@ abstract class $TextMatchCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$TextMatchCopyWithImpl<$Res, $Val extends TextMatch>
-    implements $TextMatchCopyWith<$Res> {
+class _$TextMatchCopyWithImpl<$Res, $Val extends TextMatch> implements $TextMatchCopyWith<$Res> {
   _$TextMatchCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
@@ -566,8 +556,7 @@ class _$TextMatchCopyWithImpl<$Res, $Val extends TextMatch>
 }
 
 /// @nodoc
-abstract class _$$TextMatchImplCopyWith<$Res>
-    implements $TextMatchCopyWith<$Res> {
+abstract class _$$TextMatchImplCopyWith<$Res> implements $TextMatchCopyWith<$Res> {
   factory _$$TextMatchImplCopyWith(
     _$TextMatchImpl value,
     $Res Function(_$TextMatchImpl) then,
@@ -578,8 +567,7 @@ abstract class _$$TextMatchImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$TextMatchImplCopyWithImpl<$Res>
-    extends _$TextMatchCopyWithImpl<$Res, _$TextMatchImpl>
+class __$$TextMatchImplCopyWithImpl<$Res> extends _$TextMatchCopyWithImpl<$Res, _$TextMatchImpl>
     implements _$$TextMatchImplCopyWith<$Res> {
   __$$TextMatchImplCopyWithImpl(
     _$TextMatchImpl _value,
@@ -645,8 +633,7 @@ class _$TextMatchImpl implements _TextMatch {
             other is _$TextMatchImpl &&
             (identical(other.start, start) || other.start == start) &&
             (identical(other.end, end) || other.end == end) &&
-            (identical(other.matchedText, matchedText) ||
-                other.matchedText == matchedText));
+            (identical(other.matchedText, matchedText) || other.matchedText == matchedText));
   }
 
   @override
@@ -679,6 +666,5 @@ abstract class _TextMatch implements TextMatch {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$TextMatchImplCopyWith<_$TextMatchImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+  _$$TextMatchImplCopyWith<_$TextMatchImpl> get copyWith => throw _privateConstructorUsedError;
 }

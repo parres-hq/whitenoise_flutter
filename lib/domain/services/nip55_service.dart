@@ -34,13 +34,13 @@ class Nip55Service {
     required String method,
     required String params,
   }) async {
-    print('=== NIP55 SERVICE CALLED === method: $method, params: $params');
+    _logger.info('NIP55 service called: method=$method, params=$params');
     if (!Platform.isAndroid) {
       throw UnsupportedError('NIP-55 is only supported on Android');
     }
 
     try {
-      print('Invoking Android method channel for NIP55');
+      _logger.fine('Invoking Android method channel for NIP55');
       final result = await _channel.invokeMethod<Map<dynamic, dynamic>>(
         'callNip55Method',
         {

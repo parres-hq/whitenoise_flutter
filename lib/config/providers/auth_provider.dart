@@ -8,11 +8,11 @@ import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
+import 'package:whitenoise/domain/services/nip55_callback.dart';
 import 'package:whitenoise/src/rust/api.dart' show createWhitenoiseConfig, initializeWhitenoise;
-import 'package:whitenoise/src/rust/frb_generated.dart' show RustLib;
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
-import 'package:whitenoise/domain/services/nip55_callback.dart';
+import 'package:whitenoise/src/rust/frb_generated.dart' show RustLib;
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
 /// Auth Provider

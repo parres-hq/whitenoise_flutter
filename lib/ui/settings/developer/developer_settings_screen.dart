@@ -1,16 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
+import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
-import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api;
-import 'package:whitenoise/src/rust/api/relays.dart' as relays_api;
-import 'package:whitenoise/src/rust/api/nip55.dart' as nip55_api;
 import 'package:whitenoise/domain/services/nip55_service.dart';
-import 'package:whitenoise/utils/pubkey_formatter.dart';
-import 'package:whitenoise/utils/public_key_validation_extension.dart';
-import 'dart:convert';
+import 'package:whitenoise/src/rust/api/accounts.dart' as accounts_api;
+import 'package:whitenoise/src/rust/api/nip55.dart' as nip55_api;
+import 'package:whitenoise/src/rust/api/relays.dart' as relays_api;
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
@@ -20,6 +20,8 @@ import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
 import 'package:whitenoise/ui/settings/developer/background_sync_screen.dart';
 import 'package:whitenoise/utils/error_handling.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
+import 'package:whitenoise/utils/public_key_validation_extension.dart';
 
 class DeveloperSettingsScreen extends ConsumerStatefulWidget {
   const DeveloperSettingsScreen({super.key});
@@ -38,6 +40,7 @@ class DeveloperSettingsScreen extends ConsumerStatefulWidget {
 }
 
 class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScreen> {
+  static final Logger _logger = Logger('DeveloperSettingsScreen');
   bool _isPublishingKeyPackage = false;
   bool _isFetchingKeyPackages = false;
   bool _isDeletingAllKeyPackages = false;
@@ -87,7 +90,8 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
       return;
     }
 
-    // Show confirmation dialog
+    if (!mounted) return;
+
     final confirmed = await showDialog<bool>(
       context: context,
       barrierColor: Colors.transparent,
@@ -237,29 +241,25 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
 
   Future<void> _deleteKeyPackage(String keyPackageId, int index) async {
     final activePubkey = ref.read(activePubkeyProvider) ?? '';
-    print('=== DELETE KEY PACKAGE START ===');
-    print('Active pubkey: $activePubkey');
-    print('Key package ID: $keyPackageId');
-    print('Index: $index');
-    
+    _logger.info('Delete key package start: id=$keyPackageId, index=$index, pubkey=$activePubkey');
+
     if (activePubkey.isEmpty) {
-      print('=== ERROR: No active pubkey ===');
+      _logger.warning('No active pubkey for key package deletion');
       ref.showErrorToast('settings.noActiveAccountFound'.tr());
       return;
     }
 
-    // Fail fast with an actionable error if no key package relays are configured.
     try {
-      print('=== CHECKING KEY PACKAGE RELAYS ===');
+      _logger.fine('Checking key package relays');
       final hasRelays = await _hasKeyPackageRelaysConfigured(activePubkey: activePubkey);
-      print('Has key package relays: $hasRelays');
+      _logger.fine('Has key package relays: $hasRelays');
       if (!hasRelays) {
-        print('=== ERROR: No key package relays configured ===');
+        _logger.warning('No key package relays configured');
         ref.showErrorToast('errors.relayConfigurationHelp'.tr());
         return;
       }
     } catch (e, st) {
-      print('=== ERROR CHECKING RELAYS === $e');
+      _logger.warning('Error checking relays', e, st);
       final message = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
         error: e,
         stackTrace: st,
@@ -270,7 +270,8 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
       return;
     }
 
-    // Show confirmation dialog
+    if (!mounted) return;
+
     final confirmed = await showDialog<bool>(
       context: context,
       barrierColor: Colors.transparent,
@@ -313,9 +314,7 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
     setState(() => _isLoading = true);
 
     try {
-      // CRITICAL: Ensure NIP55 signer is enabled if this is a NIP55 account.
-      // Rust will try to use secrets store if NIP55 isn't enabled, causing "Key not found" errors.
-      print('=== CHECKING IF NIP55 ACCOUNT ===');
+      _logger.fine('Checking if NIP55 account');
       try {
         final resultJson = await Nip55Service.callNip55Method(
           method: 'get_public_key',
@@ -323,66 +322,56 @@ class _DeveloperSettingsScreenState extends ConsumerState<DeveloperSettingsScree
         );
         final result = jsonDecode(resultJson) as Map<String, dynamic>;
         final pubkeyNpub = result['result'] as String?;
-        
+
         if (pubkeyNpub != null && pubkeyNpub.isValidNpubPublicKey) {
           final signerHexPubkey = PubkeyFormatter(pubkey: pubkeyNpub).toHex();
-          print('=== NIP55 SIGNER PUBKEY === $signerHexPubkey');
-          print('=== ACTIVE PUBKEY === $activePubkey');
-          
-          // If the signer pubkey matches active pubkey, this is a NIP55 account
-          if (signerHexPubkey != null && signerHexPubkey.toLowerCase() == activePubkey.toLowerCase()) {
-            print('=== THIS IS A NIP55 ACCOUNT - ENABLING SIGNER ===');
+          _logger.fine('NIP55 signer pubkey: $signerHexPubkey, active pubkey: $activePubkey');
+
+          if (signerHexPubkey != null &&
+              signerHexPubkey.toLowerCase() == activePubkey.toLowerCase()) {
+            _logger.info('This is a NIP55 account - enabling signer');
             try {
               await nip55_api.enableNip55Signer(pubkey: activePubkey);
-              print('=== NIP55 SIGNER ENABLED SUCCESSFULLY BEFORE DELETE ===');
+              _logger.info('NIP55 signer enabled successfully before delete');
             } catch (e, st) {
-              print('=== FAILED TO ENABLE NIP55 SIGNER BEFORE DELETE === Error: $e');
-              // Continue anyway - maybe it's already enabled
+              _logger.warning('Failed to enable NIP55 signer before delete', e, st);
             }
           } else {
-            print('=== NOT A NIP55 ACCOUNT (pubkeys don\'t match) ===');
+            _logger.fine('Not a NIP55 account (pubkeys don\'t match)');
           }
         }
       } catch (e) {
-        print('=== COULD NOT CHECK NIP55 (maybe not installed or not NIP55 account) === $e');
-        // Not a NIP55 account or signer not available - continue with normal flow
+        _logger.fine('Could not check NIP55 (maybe not installed or not NIP55 account): $e');
       }
-      
-      print('=== CALLING deleteAccountKeyPackage ===');
-      print('Account pubkey: $activePubkey');
-      print('Key package ID: $keyPackageId');
-      
+
+      _logger.info('Calling deleteAccountKeyPackage: pubkey=$activePubkey, id=$keyPackageId');
+
       final bool deleted = await accounts_api.deleteAccountKeyPackage(
         accountPubkey: activePubkey,
         keyPackageId: keyPackageId,
       );
-      
-      print('=== DELETE RESULT === deleted: $deleted');
-      
+
+      _logger.info('Delete result: $deleted');
+
       if (!deleted) {
-        print('=== DELETE RETURNED FALSE ===');
+        _logger.warning('Delete returned false');
         ref.showWarningToast('settings.failedToDeleteKeyPackage'.tr());
         return;
       }
-      
-      print('=== DELETE SUCCESS ===');
+
+      _logger.info('Delete successful');
       ref.showSuccessToast('settings.keyPackageDeletedSuccess'.tr());
 
-      // Refresh the key packages list
       await _fetchKeyPackages(showLoading: false);
     } catch (e, st) {
-      print('=== DELETE KEY PACKAGE EXCEPTION ===');
-      print('Error type: ${e.runtimeType}');
-      print('Error: $e');
-      print('Stack trace: $st');
-      
+      _logger.severe('Delete key package exception', e, st);
+
       final message = await ErrorHandlingUtils.convertErrorToUserFriendlyMessage(
         error: e,
         stackTrace: st,
         fallbackMessage: 'settings.failedToDeleteKeyPackage'.tr(),
         context: 'deleteKeyPackage',
       );
-      print('=== CONVERTED ERROR MESSAGE === $message');
       ref.showErrorToast(message);
     } finally {
       if (mounted) {

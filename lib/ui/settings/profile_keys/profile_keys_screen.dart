@@ -368,7 +368,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                               Switch(
                                 value: _isExternalSignerEnabled,
                                 onChanged: _isSignerInstalled ? _toggleExternalSigner : null,
-                                activeColor: context.colors.primary,
+                                activeThumbColor: context.colors.primary,
                               ),
                             ],
                           ),

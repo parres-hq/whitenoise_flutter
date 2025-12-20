@@ -20,31 +20,23 @@ mixin _$MediaFileDownload {
   String get originalFileHash => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    pending,
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    downloading,
-    required TResult Function(String originalFileHash, MediaFile downloadedFile)
-    downloaded,
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    failed,
+    required TResult Function(String originalFileHash, MediaFile originalFile) pending,
+    required TResult Function(String originalFileHash, MediaFile originalFile) downloading,
+    required TResult Function(String originalFileHash, MediaFile downloadedFile) downloaded,
+    required TResult Function(String originalFileHash, MediaFile originalFile) failed,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String originalFileHash, MediaFile originalFile)? pending,
-    TResult? Function(String originalFileHash, MediaFile originalFile)?
-    downloading,
-    TResult? Function(String originalFileHash, MediaFile downloadedFile)?
-    downloaded,
+    TResult? Function(String originalFileHash, MediaFile originalFile)? downloading,
+    TResult? Function(String originalFileHash, MediaFile downloadedFile)? downloaded,
     TResult? Function(String originalFileHash, MediaFile originalFile)? failed,
   }) => throw _privateConstructorUsedError;
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String originalFileHash, MediaFile originalFile)? pending,
-    TResult Function(String originalFileHash, MediaFile originalFile)?
-    downloading,
-    TResult Function(String originalFileHash, MediaFile downloadedFile)?
-    downloaded,
+    TResult Function(String originalFileHash, MediaFile originalFile)? downloading,
+    TResult Function(String originalFileHash, MediaFile downloadedFile)? downloaded,
     TResult Function(String originalFileHash, MediaFile originalFile)? failed,
     required TResult orElse(),
   }) => throw _privateConstructorUsedError;
@@ -74,8 +66,7 @@ mixin _$MediaFileDownload {
   /// Create a copy of MediaFileDownload
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $MediaFileDownloadCopyWith<MediaFileDownload> get copyWith =>
-      throw _privateConstructorUsedError;
+  $MediaFileDownloadCopyWith<MediaFileDownload> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -130,8 +121,7 @@ abstract class _$$MediaFileDownloadPendingImplCopyWith<$Res>
 
 /// @nodoc
 class __$$MediaFileDownloadPendingImplCopyWithImpl<$Res>
-    extends
-        _$MediaFileDownloadCopyWithImpl<$Res, _$MediaFileDownloadPendingImpl>
+    extends _$MediaFileDownloadCopyWithImpl<$Res, _$MediaFileDownloadPendingImpl>
     implements _$$MediaFileDownloadPendingImplCopyWith<$Res> {
   __$$MediaFileDownloadPendingImplCopyWithImpl(
     _$MediaFileDownloadPendingImpl _value,
@@ -185,8 +175,7 @@ class _$MediaFileDownloadPendingImpl implements MediaFileDownloadPending {
             other is _$MediaFileDownloadPendingImpl &&
             (identical(other.originalFileHash, originalFileHash) ||
                 other.originalFileHash == originalFileHash) &&
-            (identical(other.originalFile, originalFile) ||
-                other.originalFile == originalFile));
+            (identical(other.originalFile, originalFile) || other.originalFile == originalFile));
   }
 
   @override
@@ -197,22 +186,19 @@ class _$MediaFileDownloadPendingImpl implements MediaFileDownloadPending {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$MediaFileDownloadPendingImplCopyWith<_$MediaFileDownloadPendingImpl>
-  get copyWith => __$$MediaFileDownloadPendingImplCopyWithImpl<
-    _$MediaFileDownloadPendingImpl
-  >(this, _$identity);
+  _$$MediaFileDownloadPendingImplCopyWith<_$MediaFileDownloadPendingImpl> get copyWith =>
+      __$$MediaFileDownloadPendingImplCopyWithImpl<_$MediaFileDownloadPendingImpl>(
+        this,
+        _$identity,
+      );
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    pending,
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    downloading,
-    required TResult Function(String originalFileHash, MediaFile downloadedFile)
-    downloaded,
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    failed,
+    required TResult Function(String originalFileHash, MediaFile originalFile) pending,
+    required TResult Function(String originalFileHash, MediaFile originalFile) downloading,
+    required TResult Function(String originalFileHash, MediaFile downloadedFile) downloaded,
+    required TResult Function(String originalFileHash, MediaFile originalFile) failed,
   }) {
     return pending(originalFileHash, originalFile);
   }
@@ -221,10 +207,8 @@ class _$MediaFileDownloadPendingImpl implements MediaFileDownloadPending {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String originalFileHash, MediaFile originalFile)? pending,
-    TResult? Function(String originalFileHash, MediaFile originalFile)?
-    downloading,
-    TResult? Function(String originalFileHash, MediaFile downloadedFile)?
-    downloaded,
+    TResult? Function(String originalFileHash, MediaFile originalFile)? downloading,
+    TResult? Function(String originalFileHash, MediaFile downloadedFile)? downloaded,
     TResult? Function(String originalFileHash, MediaFile originalFile)? failed,
   }) {
     return pending?.call(originalFileHash, originalFile);
@@ -234,10 +218,8 @@ class _$MediaFileDownloadPendingImpl implements MediaFileDownloadPending {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String originalFileHash, MediaFile originalFile)? pending,
-    TResult Function(String originalFileHash, MediaFile originalFile)?
-    downloading,
-    TResult Function(String originalFileHash, MediaFile downloadedFile)?
-    downloaded,
+    TResult Function(String originalFileHash, MediaFile originalFile)? downloading,
+    TResult Function(String originalFileHash, MediaFile downloadedFile)? downloaded,
     TResult Function(String originalFileHash, MediaFile originalFile)? failed,
     required TResult orElse(),
   }) {
@@ -299,8 +281,8 @@ abstract class MediaFileDownloadPending implements MediaFileDownload {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MediaFileDownloadPendingImplCopyWith<_$MediaFileDownloadPendingImpl>
-  get copyWith => throw _privateConstructorUsedError;
+  _$$MediaFileDownloadPendingImplCopyWith<_$MediaFileDownloadPendingImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -317,8 +299,7 @@ abstract class _$$MediaFileDownloadInProgressImplCopyWith<$Res>
 
 /// @nodoc
 class __$$MediaFileDownloadInProgressImplCopyWithImpl<$Res>
-    extends
-        _$MediaFileDownloadCopyWithImpl<$Res, _$MediaFileDownloadInProgressImpl>
+    extends _$MediaFileDownloadCopyWithImpl<$Res, _$MediaFileDownloadInProgressImpl>
     implements _$$MediaFileDownloadInProgressImplCopyWith<$Res> {
   __$$MediaFileDownloadInProgressImplCopyWithImpl(
     _$MediaFileDownloadInProgressImpl _value,
@@ -372,8 +353,7 @@ class _$MediaFileDownloadInProgressImpl implements MediaFileDownloadInProgress {
             other is _$MediaFileDownloadInProgressImpl &&
             (identical(other.originalFileHash, originalFileHash) ||
                 other.originalFileHash == originalFileHash) &&
-            (identical(other.originalFile, originalFile) ||
-                other.originalFile == originalFile));
+            (identical(other.originalFile, originalFile) || other.originalFile == originalFile));
   }
 
   @override
@@ -384,22 +364,19 @@ class _$MediaFileDownloadInProgressImpl implements MediaFileDownloadInProgress {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$MediaFileDownloadInProgressImplCopyWith<_$MediaFileDownloadInProgressImpl>
-  get copyWith => __$$MediaFileDownloadInProgressImplCopyWithImpl<
-    _$MediaFileDownloadInProgressImpl
-  >(this, _$identity);
+  _$$MediaFileDownloadInProgressImplCopyWith<_$MediaFileDownloadInProgressImpl> get copyWith =>
+      __$$MediaFileDownloadInProgressImplCopyWithImpl<_$MediaFileDownloadInProgressImpl>(
+        this,
+        _$identity,
+      );
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    pending,
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    downloading,
-    required TResult Function(String originalFileHash, MediaFile downloadedFile)
-    downloaded,
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    failed,
+    required TResult Function(String originalFileHash, MediaFile originalFile) pending,
+    required TResult Function(String originalFileHash, MediaFile originalFile) downloading,
+    required TResult Function(String originalFileHash, MediaFile downloadedFile) downloaded,
+    required TResult Function(String originalFileHash, MediaFile originalFile) failed,
   }) {
     return downloading(originalFileHash, originalFile);
   }
@@ -408,10 +385,8 @@ class _$MediaFileDownloadInProgressImpl implements MediaFileDownloadInProgress {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String originalFileHash, MediaFile originalFile)? pending,
-    TResult? Function(String originalFileHash, MediaFile originalFile)?
-    downloading,
-    TResult? Function(String originalFileHash, MediaFile downloadedFile)?
-    downloaded,
+    TResult? Function(String originalFileHash, MediaFile originalFile)? downloading,
+    TResult? Function(String originalFileHash, MediaFile downloadedFile)? downloaded,
     TResult? Function(String originalFileHash, MediaFile originalFile)? failed,
   }) {
     return downloading?.call(originalFileHash, originalFile);
@@ -421,10 +396,8 @@ class _$MediaFileDownloadInProgressImpl implements MediaFileDownloadInProgress {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String originalFileHash, MediaFile originalFile)? pending,
-    TResult Function(String originalFileHash, MediaFile originalFile)?
-    downloading,
-    TResult Function(String originalFileHash, MediaFile downloadedFile)?
-    downloaded,
+    TResult Function(String originalFileHash, MediaFile originalFile)? downloading,
+    TResult Function(String originalFileHash, MediaFile downloadedFile)? downloaded,
     TResult Function(String originalFileHash, MediaFile originalFile)? failed,
     required TResult orElse(),
   }) {
@@ -486,8 +459,8 @@ abstract class MediaFileDownloadInProgress implements MediaFileDownload {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MediaFileDownloadInProgressImplCopyWith<_$MediaFileDownloadInProgressImpl>
-  get copyWith => throw _privateConstructorUsedError;
+  _$$MediaFileDownloadInProgressImplCopyWith<_$MediaFileDownloadInProgressImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -563,8 +536,7 @@ class _$MediaFileDownloadedImpl implements MediaFileDownloaded {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, originalFileHash, downloadedFile);
+  int get hashCode => Object.hash(runtimeType, originalFileHash, downloadedFile);
 
   /// Create a copy of MediaFileDownload
   /// with the given fields replaced by the non-null parameter values.
@@ -580,14 +552,10 @@ class _$MediaFileDownloadedImpl implements MediaFileDownloaded {
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    pending,
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    downloading,
-    required TResult Function(String originalFileHash, MediaFile downloadedFile)
-    downloaded,
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    failed,
+    required TResult Function(String originalFileHash, MediaFile originalFile) pending,
+    required TResult Function(String originalFileHash, MediaFile originalFile) downloading,
+    required TResult Function(String originalFileHash, MediaFile downloadedFile) downloaded,
+    required TResult Function(String originalFileHash, MediaFile originalFile) failed,
   }) {
     return downloaded(originalFileHash, downloadedFile);
   }
@@ -596,10 +564,8 @@ class _$MediaFileDownloadedImpl implements MediaFileDownloaded {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String originalFileHash, MediaFile originalFile)? pending,
-    TResult? Function(String originalFileHash, MediaFile originalFile)?
-    downloading,
-    TResult? Function(String originalFileHash, MediaFile downloadedFile)?
-    downloaded,
+    TResult? Function(String originalFileHash, MediaFile originalFile)? downloading,
+    TResult? Function(String originalFileHash, MediaFile downloadedFile)? downloaded,
     TResult? Function(String originalFileHash, MediaFile originalFile)? failed,
   }) {
     return downloaded?.call(originalFileHash, downloadedFile);
@@ -609,10 +575,8 @@ class _$MediaFileDownloadedImpl implements MediaFileDownloaded {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String originalFileHash, MediaFile originalFile)? pending,
-    TResult Function(String originalFileHash, MediaFile originalFile)?
-    downloading,
-    TResult Function(String originalFileHash, MediaFile downloadedFile)?
-    downloaded,
+    TResult Function(String originalFileHash, MediaFile originalFile)? downloading,
+    TResult Function(String originalFileHash, MediaFile downloadedFile)? downloaded,
     TResult Function(String originalFileHash, MediaFile originalFile)? failed,
     required TResult orElse(),
   }) {
@@ -746,8 +710,7 @@ class _$MediaFileDownloadFailedImpl implements MediaFileDownloadFailed {
             other is _$MediaFileDownloadFailedImpl &&
             (identical(other.originalFileHash, originalFileHash) ||
                 other.originalFileHash == originalFileHash) &&
-            (identical(other.originalFile, originalFile) ||
-                other.originalFile == originalFile));
+            (identical(other.originalFile, originalFile) || other.originalFile == originalFile));
   }
 
   @override
@@ -758,22 +721,16 @@ class _$MediaFileDownloadFailedImpl implements MediaFileDownloadFailed {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$MediaFileDownloadFailedImplCopyWith<_$MediaFileDownloadFailedImpl>
-  get copyWith => __$$MediaFileDownloadFailedImplCopyWithImpl<
-    _$MediaFileDownloadFailedImpl
-  >(this, _$identity);
+  _$$MediaFileDownloadFailedImplCopyWith<_$MediaFileDownloadFailedImpl> get copyWith =>
+      __$$MediaFileDownloadFailedImplCopyWithImpl<_$MediaFileDownloadFailedImpl>(this, _$identity);
 
   @override
   @optionalTypeArgs
   TResult when<TResult extends Object?>({
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    pending,
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    downloading,
-    required TResult Function(String originalFileHash, MediaFile downloadedFile)
-    downloaded,
-    required TResult Function(String originalFileHash, MediaFile originalFile)
-    failed,
+    required TResult Function(String originalFileHash, MediaFile originalFile) pending,
+    required TResult Function(String originalFileHash, MediaFile originalFile) downloading,
+    required TResult Function(String originalFileHash, MediaFile downloadedFile) downloaded,
+    required TResult Function(String originalFileHash, MediaFile originalFile) failed,
   }) {
     return failed(originalFileHash, originalFile);
   }
@@ -782,10 +739,8 @@ class _$MediaFileDownloadFailedImpl implements MediaFileDownloadFailed {
   @optionalTypeArgs
   TResult? whenOrNull<TResult extends Object?>({
     TResult? Function(String originalFileHash, MediaFile originalFile)? pending,
-    TResult? Function(String originalFileHash, MediaFile originalFile)?
-    downloading,
-    TResult? Function(String originalFileHash, MediaFile downloadedFile)?
-    downloaded,
+    TResult? Function(String originalFileHash, MediaFile originalFile)? downloading,
+    TResult? Function(String originalFileHash, MediaFile downloadedFile)? downloaded,
     TResult? Function(String originalFileHash, MediaFile originalFile)? failed,
   }) {
     return failed?.call(originalFileHash, originalFile);
@@ -795,10 +750,8 @@ class _$MediaFileDownloadFailedImpl implements MediaFileDownloadFailed {
   @optionalTypeArgs
   TResult maybeWhen<TResult extends Object?>({
     TResult Function(String originalFileHash, MediaFile originalFile)? pending,
-    TResult Function(String originalFileHash, MediaFile originalFile)?
-    downloading,
-    TResult Function(String originalFileHash, MediaFile downloadedFile)?
-    downloaded,
+    TResult Function(String originalFileHash, MediaFile originalFile)? downloading,
+    TResult Function(String originalFileHash, MediaFile downloadedFile)? downloaded,
     TResult Function(String originalFileHash, MediaFile originalFile)? failed,
     required TResult orElse(),
   }) {
@@ -860,6 +813,6 @@ abstract class MediaFileDownloadFailed implements MediaFileDownload {
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MediaFileDownloadFailedImplCopyWith<_$MediaFileDownloadFailedImpl>
-  get copyWith => throw _privateConstructorUsedError;
+  _$$MediaFileDownloadFailedImplCopyWith<_$MediaFileDownloadFailedImpl> get copyWith =>
+      throw _privateConstructorUsedError;
 }

@@ -77,14 +77,15 @@ pub async fn enable_nip55_signer(pubkey: String) -> Result<(), ApiError> {
     let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
 
     // Enable NIP55 signer - this should persist the setting so future operations use the signer
-    whitenoise
-        .enable_nip55_signer(&account)
-        .await
-        .map_err(|e| {
-            // Log the error for debugging
-            eprintln!("Failed to enable NIP55 signer for account {}: {:?}", pubkey.to_hex(), e);
-            ApiError::from(e)
-        })
+    whitenoise.enable_nip55_signer(&account).await.map_err(|e| {
+        // Log the error for debugging
+        eprintln!(
+            "Failed to enable NIP55 signer for account {}: {:?}",
+            pubkey.to_hex(),
+            e
+        );
+        ApiError::from(e)
+    })
 }
 
 /// Disable NIP-55 external signer for a specific account

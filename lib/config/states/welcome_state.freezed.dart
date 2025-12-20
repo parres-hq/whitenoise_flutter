@@ -27,8 +27,7 @@ mixin _$WelcomesState {
   /// Create a copy of WelcomesState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $WelcomesStateCopyWith<WelcomesState> get copyWith =>
-      throw _privateConstructorUsedError;
+  $WelcomesStateCopyWith<WelcomesState> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -109,8 +108,7 @@ class _$WelcomesStateCopyWithImpl<$Res, $Val extends WelcomesState>
 }
 
 /// @nodoc
-abstract class _$$WelcomesStateImplCopyWith<$Res>
-    implements $WelcomesStateCopyWith<$Res> {
+abstract class _$$WelcomesStateImplCopyWith<$Res> implements $WelcomesStateCopyWith<$Res> {
   factory _$$WelcomesStateImplCopyWith(
     _$WelcomesStateImpl value,
     $Res Function(_$WelcomesStateImpl) then,
@@ -269,8 +267,7 @@ class _$WelcomesStateImpl implements _WelcomesState {
               other._welcomeDigests,
               _welcomeDigests,
             ) &&
-            (identical(other.isLoading, isLoading) ||
-                other.isLoading == isLoading) &&
+            (identical(other.isLoading, isLoading) || other.isLoading == isLoading) &&
             (identical(other.error, error) || other.error == error));
   }
 

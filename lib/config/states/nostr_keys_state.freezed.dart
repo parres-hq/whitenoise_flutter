@@ -25,8 +25,7 @@ mixin _$NostrKeysState {
   /// Create a copy of NostrKeysState
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $NostrKeysStateCopyWith<NostrKeysState> get copyWith =>
-      throw _privateConstructorUsedError;
+  $NostrKeysStateCopyWith<NostrKeysState> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
@@ -88,8 +87,7 @@ class _$NostrKeysStateCopyWithImpl<$Res, $Val extends NostrKeysState>
 }
 
 /// @nodoc
-abstract class _$$NostrKeysStateImplCopyWith<$Res>
-    implements $NostrKeysStateCopyWith<$Res> {
+abstract class _$$NostrKeysStateImplCopyWith<$Res> implements $NostrKeysStateCopyWith<$Res> {
   factory _$$NostrKeysStateImplCopyWith(
     _$NostrKeysStateImpl value,
     $Res Function(_$NostrKeysStateImpl) then,
@@ -177,8 +175,7 @@ class _$NostrKeysStateImpl implements _NostrKeysState {
             other is _$NostrKeysStateImpl &&
             (identical(other.nsec, nsec) || other.nsec == nsec) &&
             (identical(other.npub, npub) || other.npub == npub) &&
-            (identical(other.isLoading, isLoading) ||
-                other.isLoading == isLoading) &&
+            (identical(other.isLoading, isLoading) || other.isLoading == isLoading) &&
             (identical(other.error, error) || other.error == error));
   }
 
