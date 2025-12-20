@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mockito/annotations.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/chat_stream_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
@@ -10,8 +9,6 @@ import 'package:whitenoise/config/states/group_state.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart';
 import 'package:whitenoise/src/rust/api/messages.dart';
-import 'package:whitenoise/utils/pubkey_formatter.dart';
-
 import '../../shared/mocks/mock_active_pubkey_notifier.dart';
 
 class MockGroupsNotifier extends GroupsNotifier {
@@ -25,7 +22,6 @@ class MockGroupsNotifier extends GroupsNotifier {
   }
 }
 
-@GenerateMocks([PubkeyFormatter])
 void main() {
   group('ChatStreamNotifier Tests', () {
     TestWidgetsFlutterBinding.ensureInitialized();
@@ -141,7 +137,7 @@ void main() {
       final msg2 = createChatMessage(
         id: '2',
         content: 'Second',
-        pubkey: 'otherpubkey',
+        pubkey: otherPubkey,
         createdAt: DateTime.now(),
       );
 
