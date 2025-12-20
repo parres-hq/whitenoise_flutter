@@ -106,7 +106,14 @@
         "privateKeyWarningTitle": "¡Mantén tu llave privada segura!",
         "privateKeyWarningDescription": "No compartas tu llave privada y úsala sólo para iniciar sesión en otras aplicaciones Nostr.",
         "loadingPrivateKey": "Cargando llave privada...",
-        "errorLoadingPrivateKey": "Error al cargar la llave privada"
+        "errorLoadingPrivateKey": "Error al cargar la llave privada",
+        "externalSignerTitle": "Firmante Externo",
+        "useExternalSigner": "Usar Firmante Externo",
+        "usingExternalSigner": "Usando Firmante Externo",
+        "externalSignerDescription": "Delega las operaciones de firma a una aplicación de firma externa de Android (como Amber) para mayor seguridad.",
+        "externalSignerEnabledDescription": "Tu cuenta está usando una aplicación de firma externa para operaciones de firma.",
+        "checkingSigner": "Buscando aplicación de firma...",
+        "signerNotInstalled": "No se encontró ninguna aplicación de firma externa. Instala una aplicación como Amber para usar esta función."
     },
     "network": {
         "addRelay": "Agregar relé",

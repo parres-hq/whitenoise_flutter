@@ -109,7 +109,9 @@
         "errorLoadingPrivateKey": "Error loading private key",
         "externalSignerTitle": "External Signer",
         "useExternalSigner": "Use External Signer",
+        "usingExternalSigner": "Using External Signer",
         "externalSignerDescription": "Delegate signing operations to an external Android signer app (like Amber) for enhanced security.",
+        "externalSignerEnabledDescription": "Your account is using an external signer app for signing operations.",
         "checkingSigner": "Checking for signer app...",
         "signerNotInstalled": "No external signer app found. Install an app like Amber to use this feature."
     },

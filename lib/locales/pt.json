@@ -106,7 +106,14 @@
         "privateKeyWarningTitle": "Mantenha sua chave privada segura!",
         "privateKeyWarningDescription": "Não compartilhe sua chave privada publicamente e use-a apenas para fazer login em outros aplicativos Nostr.",
         "loadingPrivateKey": "Carregando chave privada...",
-        "errorLoadingPrivateKey": "Erro ao carregar chave privada"
+        "errorLoadingPrivateKey": "Erro ao carregar chave privada",
+        "externalSignerTitle": "Assinador Externo",
+        "useExternalSigner": "Usar Assinador Externo",
+        "usingExternalSigner": "Usando Assinador Externo",
+        "externalSignerDescription": "Delegue operações de assinatura para um aplicativo de assinatura Android externo (como Amber) para maior segurança.",
+        "externalSignerEnabledDescription": "Sua conta está usando um aplicativo de assinatura externo para operações de assinatura.",
+        "checkingSigner": "Verificando aplicativo de assinatura...",
+        "signerNotInstalled": "Nenhum aplicativo de assinatura externo encontrado. Instale um aplicativo como Amber para usar este recurso."
     },
     "network": {
         "addRelay": "Adicionar relay",

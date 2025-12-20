@@ -106,7 +106,14 @@
         "privateKeyWarningTitle": "Держите ваш приватный ключ в безопасности!",
         "privateKeyWarningDescription": "Не делитесь своим приватным ключом публично и используйте его только для входа в другие приложения Nostr.",
         "loadingPrivateKey": "Загрузка приватного ключа...",
-        "errorLoadingPrivateKey": "Ошибка загрузки приватного ключа"
+        "errorLoadingPrivateKey": "Ошибка загрузки приватного ключа",
+        "externalSignerTitle": "Внешний Подписант",
+        "useExternalSigner": "Использовать Внешнего Подписанта",
+        "usingExternalSigner": "Используется Внешний Подписант",
+        "externalSignerDescription": "Делегируйте операции подписи внешнему приложению подписи Android (например, Amber) для повышения безопасности.",
+        "externalSignerEnabledDescription": "Ваш аккаунт использует внешнее приложение подписи для операций подписи.",
+        "checkingSigner": "Поиск приложения подписи...",
+        "signerNotInstalled": "Внешнее приложение подписи не найдено. Установите приложение, такое как Amber, чтобы использовать эту функцию."
     },
     "network": {
         "addRelay": "Добавить релей",

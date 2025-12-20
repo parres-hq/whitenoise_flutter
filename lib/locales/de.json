@@ -106,7 +106,14 @@
         "privateKeyWarningTitle": "Halte deinen privaten Schlüssel sicher!",
         "privateKeyWarningDescription": "Teile deinen privaten Schlüssel nicht öffentlich und verwende ihn nur zur Anmeldung bei anderen Nostr-Apps.",
         "loadingPrivateKey": "Privater Schlüssel wird geladen...",
-        "errorLoadingPrivateKey": "Fehler beim Laden des privaten Schlüssels"
+        "errorLoadingPrivateKey": "Fehler beim Laden des privaten Schlüssels",
+        "externalSignerTitle": "Externer Signierer",
+        "useExternalSigner": "Externen Signierer verwenden",
+        "usingExternalSigner": "Externer Signierer wird verwendet",
+        "externalSignerDescription": "Übertrage Signiervorgänge an eine externe Android-Signier-App (wie Amber) für mehr Sicherheit.",
+        "externalSignerEnabledDescription": "Dein Konto verwendet eine externe Signier-App für Signiervorgänge.",
+        "checkingSigner": "Suche nach Signier-App...",
+        "signerNotInstalled": "Keine externe Signier-App gefunden. Installiere eine App wie Amber, um diese Funktion zu nutzen."
     },
     "network": {
         "addRelay": "Relay hinzufügen",

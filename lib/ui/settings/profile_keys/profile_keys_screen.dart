@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -18,6 +19,8 @@ import 'package:whitenoise/ui/core/ui/wn_text_form_field.dart';
 import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
+import 'package:whitenoise/utils/public_key_validation_extension.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ProfileKeysScreen extends ConsumerStatefulWidget {
@@ -41,14 +44,28 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(nostrKeysProvider.notifier).loadKeys();
-      _publicKeyController.text = ref.read(nostrKeysProvider).npub?.formatPublicKey() ?? '';
-      _privateKeyController.text = ref.read(nostrKeysProvider).nsec ?? '';
+      _updateKeyControllers();
 
       // Check if external signer is installed (Android only)
       if (Platform.isAndroid) {
-        _checkExternalSignerInstalled();
+        await _checkExternalSignerInstalled();
+        await _checkExternalSignerEnabled();
       }
     });
+  }
+
+  void _updateKeyControllers() {
+    if (!mounted) return;
+    final nostrKeys = ref.read(nostrKeysProvider);
+    final newPublicKey = nostrKeys.npub?.formatPublicKey() ?? '';
+    final newPrivateKey = nostrKeys.nsec ?? '';
+
+    if (_publicKeyController.text != newPublicKey) {
+      _publicKeyController.text = newPublicKey;
+    }
+    if (_privateKeyController.text != newPrivateKey) {
+      _privateKeyController.text = newPrivateKey;
+    }
   }
 
   Future<void> _checkExternalSignerInstalled() async {
@@ -71,6 +88,48 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
           _isCheckingSigner = false;
         });
       }
+    }
+  }
+
+  /// Check if NIP-55 signer is enabled for the current account
+  /// by comparing the signer's pubkey with the account's pubkey
+  Future<void> _checkExternalSignerEnabled() async {
+    if (!_isSignerInstalled) {
+      return;
+    }
+
+    try {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount.account == null) {
+        return;
+      }
+
+      final accountPubkey = activeAccount.account!.pubkey;
+
+      // Get the signer's pubkey
+      final resultJson = await Nip55Service.callNip55Method(
+        method: 'get_public_key',
+        params: '{}',
+      );
+      final result = jsonDecode(resultJson) as Map<String, dynamic>;
+      final pubkeyNpub = result['result'] as String?;
+
+      if (pubkeyNpub != null && pubkeyNpub.isValidNpubPublicKey) {
+        final signerHexPubkey = PubkeyFormatter(pubkey: pubkeyNpub).toHex();
+        if (signerHexPubkey != null &&
+            signerHexPubkey.toLowerCase() == accountPubkey.toLowerCase()) {
+          // Signer's pubkey matches account's pubkey, so signer should be enabled
+          if (mounted) {
+            setState(() {
+              _isExternalSignerEnabled = true;
+            });
+          }
+        }
+      }
+    } catch (e) {
+      // If we can't check (e.g., signer not available or not a NIP-55 account),
+      // leave _isExternalSignerEnabled as false
+      _logger.fine('Could not check NIP-55 signer enabled state: $e');
     }
   }
 
@@ -155,6 +214,19 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
   Widget build(BuildContext context) {
     final nostrKeys = ref.watch(nostrKeysProvider);
 
+    // Update controllers when keys change
+    if (mounted) {
+      final newPublicKey = nostrKeys.npub?.formatPublicKey() ?? '';
+      final newPrivateKey = nostrKeys.nsec ?? '';
+
+      if (_publicKeyController.text != newPublicKey) {
+        _publicKeyController.text = newPublicKey;
+      }
+      if (_privateKeyController.text != newPrivateKey) {
+        _privateKeyController.text = newPrivateKey;
+      }
+    }
+
     return WnSettingsScreenWrapper(
       title: 'settings.profileKeys'.tr(),
       safeAreaBottom: false,
@@ -206,103 +278,108 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                         ),
                       ),
                       Gap(36.h),
-                      Text(
-                        'nostrKeys.privateKeyTitle'.tr(),
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.primary,
+                      // Hide private key section when using external signer
+                      if (!_isExternalSignerEnabled) ...[
+                        Text(
+                          'nostrKeys.privateKeyTitle'.tr(),
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: context.colors.primary,
+                          ),
                         ),
-                      ),
-                      Gap(10.h),
-                      if (nostrKeys.isLoading)
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(
-                              height: 20.h,
-                              width: 20.w,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  context.colors.mutedForeground,
-                                ),
-                              ),
-                            ),
-                            Gap(12.w),
-                            Text(
-                              'nostrKeys.loadingPrivateKey'.tr(),
-                              style: TextStyle(
-                                fontSize: 14.sp,
-                                color: context.colors.mutedForeground,
-                              ),
-                            ),
-                          ],
-                        )
-                      else if (nostrKeys.error != null)
-                        Center(
-                          child: Row(
+                        Gap(10.h),
+                        if (nostrKeys.isLoading)
+                          Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              WnImage(
-                                AssetsPaths.icErrorFilled,
-                                color: context.colors.destructive,
-
-                                size: 20.w,
-                              ),
-                              Gap(12.w),
-                              Expanded(
-                                child: Text(
-                                  '${'nostrKeys.errorLoadingPrivateKey'.tr()}: ${nostrKeys.error}',
-                                  style: TextStyle(
-                                    fontSize: 14.sp,
-                                    color: context.colors.destructive,
+                              SizedBox(
+                                height: 20.h,
+                                width: 20.w,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    context.colors.mutedForeground,
                                   ),
                                 ),
                               ),
+                              Gap(12.w),
+                              Text(
+                                'nostrKeys.loadingPrivateKey'.tr(),
+                                style: TextStyle(
+                                  fontSize: 14.sp,
+                                  color: context.colors.mutedForeground,
+                                ),
+                              ),
                             ],
-                          ),
-                        )
-                      else
-                        Row(
-                          children: [
-                            Expanded(
-                              child: WnTextFormField(
-                                controller: _privateKeyController,
-                                readOnly: true,
-                                obscureText: _obscurePrivateKey,
-                                size: FieldSize.small,
-                                decoration: InputDecoration(
-                                  suffixIcon: IconButton(
-                                    onPressed: _togglePrivateKeyVisibility,
-                                    icon: WnImage(
-                                      _obscurePrivateKey ? AssetsPaths.icEye : AssetsPaths.icEyeOff,
-                                      size: _obscurePrivateKey ? 16.w : 19.w,
-                                      color: context.colors.primary,
+                          )
+                        else if (nostrKeys.error != null)
+                          Center(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                WnImage(
+                                  AssetsPaths.icErrorFilled,
+                                  color: context.colors.destructive,
+
+                                  size: 20.w,
+                                ),
+                                Gap(12.w),
+                                Expanded(
+                                  child: Text(
+                                    '${'nostrKeys.errorLoadingPrivateKey'.tr()}: ${nostrKeys.error}',
+                                    style: TextStyle(
+                                      fontSize: 14.sp,
+                                      color: context.colors.destructive,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          Row(
+                            children: [
+                              Expanded(
+                                child: WnTextFormField(
+                                  controller: _privateKeyController,
+                                  readOnly: true,
+                                  obscureText: _obscurePrivateKey,
+                                  size: FieldSize.small,
+                                  decoration: InputDecoration(
+                                    suffixIcon: IconButton(
+                                      onPressed: _togglePrivateKeyVisibility,
+                                      icon: WnImage(
+                                        _obscurePrivateKey
+                                            ? AssetsPaths.icEye
+                                            : AssetsPaths.icEyeOff,
+                                        size: _obscurePrivateKey ? 16.w : 19.w,
+                                        color: context.colors.primary,
+                                      ),
                                     ),
                                   ),
                                 ),
                               ),
-                            ),
-                            Gap(4.w),
-                            WnIconButton(
-                              onTap: _copyPrivateKey,
-                              iconPath: AssetsPaths.icCopy,
-                              size: 44.h,
-                              padding: 14.w,
-                            ),
-                          ],
+                              Gap(4.w),
+                              WnIconButton(
+                                onTap: _copyPrivateKey,
+                                iconPath: AssetsPaths.icCopy,
+                                size: 44.h,
+                                padding: 14.w,
+                              ),
+                            ],
+                          ),
+                        Gap(10.h),
+                        Text(
+                          'nostrKeys.privateKeyDescription'.tr(),
+                          style: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            color: context.colors.mutedForeground,
+                          ),
                         ),
-                      Gap(10.h),
-                      Text(
-                        'nostrKeys.privateKeyDescription'.tr(),
-                        style: TextStyle(
-                          fontSize: 14.sp,
-                          fontWeight: FontWeight.w600,
-                          color: context.colors.mutedForeground,
-                        ),
-                      ),
-                      Gap(36.h),
+                        Gap(36.h),
+                      ],
                       if (Platform.isAndroid) ...[
                         Text(
                           'nostrKeys.externalSignerTitle'.tr(),
@@ -329,7 +406,9 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'nostrKeys.useExternalSigner'.tr(),
+                                      _isExternalSignerEnabled
+                                          ? 'nostrKeys.usingExternalSigner'.tr()
+                                          : 'nostrKeys.useExternalSigner'.tr(),
                                       style: TextStyle(
                                         fontSize: 14.sp,
                                         fontWeight: FontWeight.w600,
@@ -353,6 +432,14 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                           color: context.colors.destructive,
                                         ),
                                       )
+                                    else if (_isExternalSignerEnabled)
+                                      Text(
+                                        'nostrKeys.externalSignerEnabledDescription'.tr(),
+                                        style: TextStyle(
+                                          fontSize: 12.sp,
+                                          color: context.colors.mutedForeground,
+                                        ),
+                                      )
                                     else
                                       Text(
                                         'nostrKeys.externalSignerDescription'.tr(),
@@ -365,64 +452,73 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
                                 ),
                               ),
                               Gap(12.w),
-                              Switch(
-                                value: _isExternalSignerEnabled,
-                                onChanged: _isSignerInstalled ? _toggleExternalSigner : null,
-                                activeThumbColor: context.colors.primary,
-                              ),
+                              if (_isExternalSignerEnabled)
+                                Icon(
+                                  Icons.check_circle,
+                                  color: context.colors.primary,
+                                  size: 24.w,
+                                )
+                              else
+                                Switch(
+                                  value: _isExternalSignerEnabled,
+                                  onChanged: _isSignerInstalled ? _toggleExternalSigner : null,
+                                  activeThumbColor: context.colors.primary,
+                                ),
                             ],
                           ),
                         ),
                         Gap(24.h),
                       ],
-                      Container(
-                        padding: EdgeInsets.all(16.w),
-                        decoration: BoxDecoration(
-                          color: context.colors.destructive.withValues(alpha: 0.1),
-                          border: Border.all(
-                            color: context.colors.destructive,
-                            width: 1.w,
+                      // Hide warning box when using external signer
+                      if (!_isExternalSignerEnabled)
+                        Container(
+                          padding: EdgeInsets.all(16.w),
+                          decoration: BoxDecoration(
+                            color: context.colors.destructive.withValues(alpha: 0.1),
+                            border: Border.all(
+                              color: context.colors.destructive,
+                              width: 1.w,
+                            ),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Padding(
+                                padding: EdgeInsets.only(top: 4.w),
+                                child: WnImage(
+                                  AssetsPaths.icWarning,
+                                  size: 16.w,
+                                  color: context.colors.destructive,
+                                ),
+                              ),
+                              Gap(12.w),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'nostrKeys.privateKeyWarningTitle'.tr(),
+                                      style: TextStyle(
+                                        fontSize: 16.sp,
+                                        fontWeight: FontWeight.w600,
+                                        color: context.colors.primary,
+                                      ),
+                                    ),
+                                    Gap(8.h),
+                                    Text(
+                                      'nostrKeys.privateKeyWarningDescription'.tr(),
+                                      style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w500,
+                                        color: context.colors.primary,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: EdgeInsets.only(top: 4.w),
-                              child: WnImage(
-                                AssetsPaths.icWarning,
-                                size: 16.w,
-                                color: context.colors.destructive,
-                              ),
-                            ),
-                            Gap(12.w),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'nostrKeys.privateKeyWarningTitle'.tr(),
-                                    style: TextStyle(
-                                      fontSize: 16.sp,
-                                      fontWeight: FontWeight.w600,
-                                      color: context.colors.primary,
-                                    ),
-                                  ),
-                                  Gap(8.h),
-                                  Text(
-                                    'nostrKeys.privateKeyWarningDescription'.tr(),
-                                    style: TextStyle(
-                                      fontSize: 14.sp,
-                                      fontWeight: FontWeight.w500,
-                                      color: context.colors.primary,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                       Gap(24.h),
                     ],
                   ),

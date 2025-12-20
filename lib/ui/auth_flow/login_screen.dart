@@ -171,6 +171,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
         _logger.info('NIP55 signer enabled successfully');
       } catch (e, st) {
         _logger.severe('Failed to enable NIP-55 signer for account ${account.pubkey}', e, st);
+        if (mounted) {
+          ref.showErrorToast(
+            'Failed to enable external signer. Please try again.',
+          );
+        }
+        return; // Abort login flow if signer setup fails
       }
 
       _logger.fine('Refreshing active account provider');
@@ -240,6 +246,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                   e,
                   st,
                 );
+                if (mounted) {
+                  ref.showErrorToast(
+                    'Failed to enable external signer. Please try again.',
+                  );
+                }
+                return; // Abort recovery flow if signer setup fails
               }
 
               // Refresh account state
@@ -273,13 +285,23 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
         return; // Don't show generic error toast
       }
 
-      _logger.severe('Login with external signer failed: $e', e, st);
       if (mounted) {
-        final finalErrorMessage =
-            errorMessage.contains('not available') || errorMessage.contains('rebuild')
-                ? 'Please rebuild the Rust code first. Error: $e'
-                : 'Failed to login with external signer: $e';
-        ref.showErrorToast(finalErrorMessage);
+        if (errorMessage.contains('not available') || errorMessage.contains('rebuild')) {
+          // Log the original error for developers while showing user-friendly message
+          _logger.severe(
+            'NIP55 signer not available or requires rebuild. Original error: $e',
+            e,
+            st,
+          );
+          ref.showErrorToast(
+            'An internal error occurred while attempting to sign in. Please try again or contact support.',
+          );
+        } else {
+          _logger.severe('Login with external signer failed: $e', e, st);
+          ref.showErrorToast('Failed to login with external signer: $e');
+        }
+      } else {
+        _logger.severe('Login with external signer failed: $e', e, st);
       }
     }
   }

@@ -106,7 +106,14 @@
         "privateKeyWarningTitle": "Özel anahtarınızı güvende tutun!",
         "privateKeyWarningDescription": "Özel anahtarınızı herkese açık olarak paylaşmayın ve yalnızca diğer Nostr uygulamalarında oturum açmak için kullanın.",
         "loadingPrivateKey": "Özel anahtar yükleniyor...",
-        "errorLoadingPrivateKey": "Özel anahtar yükleme hatası"
+        "errorLoadingPrivateKey": "Özel anahtar yükleme hatası",
+        "externalSignerTitle": "Harici İmzalayıcı",
+        "useExternalSigner": "Harici İmzalayıcı Kullan",
+        "usingExternalSigner": "Harici İmzalayıcı Kullanılıyor",
+        "externalSignerDescription": "İmzalama işlemlerini artırılmış güvenlik için harici bir Android imzalayıcı uygulamasına (Amber gibi) devredin.",
+        "externalSignerEnabledDescription": "Hesabınız imzalama işlemleri için harici bir imzalayıcı uygulaması kullanıyor.",
+        "checkingSigner": "İmzalayıcı uygulaması aranıyor...",
+        "signerNotInstalled": "Harici imzalayıcı uygulaması bulunamadı. Bu özelliği kullanmak için Amber gibi bir uygulama yükleyin."
     },
     "network": {
         "addRelay": "Röle ekle",
