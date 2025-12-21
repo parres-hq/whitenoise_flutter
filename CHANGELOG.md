@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Standardized chat bubble (message widget) layout and dimensions according to design documentation [#883](https://github.com/marmot-protocol/whitenoise/issues/883)
 
+- Standardize media grid layout and dimensions according to design documentation
 ### Deprecated
 
 ### Removed
