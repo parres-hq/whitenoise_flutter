@@ -120,23 +120,3 @@ pub async fn find_welcome_by_event_id(
         .await?;
     Ok(welcome.into())
 }
-
-#[frb]
-pub async fn accept_welcome(pubkey: String, welcome_event_id: String) -> Result<(), ApiError> {
-    let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::parse(&pubkey)?;
-    whitenoise
-        .accept_welcome(&pubkey, welcome_event_id)
-        .await
-        .map_err(ApiError::from)
-}
-
-#[frb]
-pub async fn decline_welcome(pubkey: String, welcome_event_id: String) -> Result<(), ApiError> {
-    let whitenoise = Whitenoise::get_instance()?;
-    let pubkey = PublicKey::parse(&pubkey)?;
-    whitenoise
-        .decline_welcome(&pubkey, welcome_event_id)
-        .await
-        .map_err(ApiError::from)
-}
