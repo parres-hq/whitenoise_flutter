@@ -86,6 +86,8 @@ void main() {
           ),
         );
 
+        await tester.pumpAndSettle();
+
         final sizedBox = tester.widget<SizedBox>(
           find
               .descendant(
@@ -95,8 +97,13 @@ void main() {
               .first,
         );
 
-        final expectedWidth = MediaLayoutCalculator.singleImageSize.w;
-        expect(sizedBox.width, closeTo(expectedWidth, 0.001));
+        final screenWidth = tester.getSize(find.byType(MaterialApp)).width;
+        final maxBubbleWidth = screenWidth * 0.74;
+        final padding = 16.w;
+        final maxMediaWidth = maxBubbleWidth - padding;
+        final layoutConfig = MediaLayoutCalculator.calculateLayout(1, maxMediaWidth);
+
+        expect(sizedBox.width, closeTo(layoutConfig.gridWidth, 0.1));
       });
     });
 
@@ -143,6 +150,8 @@ void main() {
           ),
         );
 
+        await tester.pumpAndSettle();
+
         final sizedBox = tester.widget<SizedBox>(
           find
               .descendant(
@@ -152,9 +161,13 @@ void main() {
               .first,
         );
 
-        // 2 images: (120 * 2) + (4 * 1) spacing
-        final expectedWidth = (MediaLayoutCalculator.twoImagesSize.w * 2) + 4.w;
-        expect(sizedBox.width, closeTo(expectedWidth, 0.001));
+        final screenWidth = tester.getSize(find.byType(MaterialApp)).width;
+        final maxBubbleWidth = screenWidth * 0.74;
+        final padding = 16.w;
+        final maxMediaWidth = maxBubbleWidth - padding;
+        final layoutConfig = MediaLayoutCalculator.calculateLayout(2, maxMediaWidth);
+
+        expect(sizedBox.width, closeTo(layoutConfig.gridWidth, 0.1));
       });
     });
 
@@ -204,6 +217,8 @@ void main() {
           ),
         );
 
+        await tester.pumpAndSettle();
+
         final sizedBox = tester.widget<SizedBox>(
           find
               .descendant(
@@ -213,9 +228,13 @@ void main() {
               .first,
         );
 
-        // 3 images: (80 * 3) + (4 * 2) spacing
-        final expectedWidth = (MediaLayoutCalculator.multipleImagesSize.w * 3) + (4.w * 2);
-        expect(sizedBox.width, closeTo(expectedWidth, 0.001));
+        final screenWidth = tester.getSize(find.byType(MaterialApp)).width;
+        final maxBubbleWidth = screenWidth * 0.74;
+        final padding = 16.w;
+        final maxMediaWidth = maxBubbleWidth - padding;
+        final layoutConfig = MediaLayoutCalculator.calculateLayout(3, maxMediaWidth);
+
+        expect(sizedBox.width, closeTo(layoutConfig.gridWidth, 0.1));
       });
     });
 
@@ -326,6 +345,8 @@ void main() {
           ),
         );
 
+        await tester.pumpAndSettle();
+
         final sizedBox = tester.widget<SizedBox>(
           find
               .descendant(
@@ -335,9 +356,13 @@ void main() {
               .first,
         );
 
-        // 6 images in 3 columns: (80 * 3) + (4 * 2) spacing
-        final expectedWidth = (MediaLayoutCalculator.multipleImagesSize.w * 3) + (4.w * 2);
-        expect(sizedBox.width, closeTo(expectedWidth, 0.001));
+        final screenWidth = tester.getSize(find.byType(MaterialApp)).width;
+        final maxBubbleWidth = screenWidth * 0.74;
+        final padding = 16.w;
+        final maxMediaWidth = maxBubbleWidth - padding;
+        final layoutConfig = MediaLayoutCalculator.calculateLayout(6, maxMediaWidth);
+
+        expect(sizedBox.width, closeTo(layoutConfig.gridWidth, 0.1));
       });
     });
 

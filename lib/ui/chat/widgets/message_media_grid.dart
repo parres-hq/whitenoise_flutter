@@ -27,27 +27,54 @@ class MessageMediaGrid extends ConsumerWidget {
       ref.read(mediaFileDownloadsProvider.notifier).downloadMediaFiles(mediaFiles);
     });
 
-    final layoutConfig = MediaLayoutCalculator.calculateLayout(mediaFiles.length);
+    final screenWidth = MediaQuery.sizeOf(context).width;
+    final maxBubbleWidth = screenWidth * 0.74;
+    final bubblePadding = 16.w;
+    final maxMediaWidth = maxBubbleWidth - bubblePadding;
+
+    final layoutConfig = MediaLayoutCalculator.calculateLayout(
+      mediaFiles.length,
+      maxMediaWidth,
+    );
     final visibleFiles = mediaFiles.take(layoutConfig.visibleItemsCount).toList();
     final hasOverlay = mediaFiles.length > layoutConfig.visibleItemsCount;
     final remainingCount = mediaFiles.length - layoutConfig.visibleItemsCount;
 
-    return SizedBox(
-      width: layoutConfig.gridWidth.w,
-      child: Wrap(
-        spacing: MediaLayoutCalculator.spacing.w,
-        runSpacing: MediaLayoutCalculator.spacing.h,
-        children: List.generate(visibleFiles.length, (index) {
-          final isLastItem = index == visibleFiles.length - 1;
-          final showOverlay = hasOverlay && isLastItem;
+    final rows = (visibleFiles.length / layoutConfig.columns).ceil();
 
-          return _buildMediaItem(
-            context,
-            mediaFile: visibleFiles[index],
-            size: layoutConfig.itemSize,
-            showOverlay: showOverlay,
-            remainingCount: remainingCount,
-            index: index, // Pass the index for tap handling
+    return SizedBox(
+      width: layoutConfig.gridWidth,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: List.generate(rows, (rowIndex) {
+          final startIndex = rowIndex * layoutConfig.columns;
+          final endIndex = (startIndex + layoutConfig.columns).clamp(0, visibleFiles.length);
+          final rowItems = visibleFiles.sublist(startIndex, endIndex);
+
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: rowIndex < rows - 1 ? MediaLayoutCalculator.spacing : 0,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (int colIndex = 0; colIndex < rowItems.length; colIndex++) ...[
+                  if (colIndex > 0) const SizedBox(width: MediaLayoutCalculator.spacing),
+                  SizedBox(
+                    width: layoutConfig.itemSize,
+                    height: layoutConfig.itemSize,
+                    child: _buildMediaItem(
+                      context,
+                      mediaFile: rowItems[colIndex],
+                      size: layoutConfig.itemSize,
+                      showOverlay: hasOverlay && (startIndex + colIndex == visibleFiles.length - 1),
+                      remainingCount: remainingCount,
+                      index: startIndex + colIndex,
+                    ),
+                  ),
+                ],
+              ],
+            ),
           );
         }),
       ),

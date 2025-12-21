@@ -357,6 +357,55 @@ void main() {
         expect(find.byType(MessageMediaGrid), findsOneWidget);
         addTearDown(() => tester.binding.setSurfaceSize(null));
       });
+
+      testWidgets('media grid respects 74% screen width rule', (WidgetTester tester) async {
+        await tester.binding.setSurfaceSize(const Size(800, 1200));
+        final mediaFiles = [
+          createTestMediaFile(id: 'media-1'),
+          createTestMediaFile(id: 'media-2'),
+          createTestMediaFile(id: 'media-3'),
+        ];
+        final message = createTestMessage(
+          id: 'msg-1',
+          content: 'Message with multiple media',
+          sender: testUser,
+          isMe: false,
+          mediaAttachments: mediaFiles,
+        );
+
+        await tester.pumpWidget(
+          createTestWidget(
+            MessageWidget(
+              message: message,
+              isGroupMessage: false,
+              isSameSenderAsPrevious: false,
+              isSameSenderAsNext: false,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        final intrinsicWidth = find.descendant(
+          of: find.byType(MessageWidget),
+          matching: find.byType(IntrinsicWidth),
+        );
+
+        expect(intrinsicWidth, findsOneWidget);
+
+        final constrainedBoxFinder = find.descendant(
+          of: intrinsicWidth,
+          matching: find.byType(ConstrainedBox),
+        );
+
+        expect(constrainedBoxFinder, findsAtLeastNWidgets(1));
+
+        final constrainedBox = tester.widget<ConstrainedBox>(constrainedBoxFinder.first);
+
+        final screenWidth = 800.0;
+        final expectedMaxWidth = screenWidth * 0.74;
+        expect(constrainedBox.constraints.maxWidth, closeTo(expectedMaxWidth, 0.1));
+        addTearDown(() => tester.binding.setSurfaceSize(null));
+      });
     });
 
     group('reply to message', () {
@@ -882,6 +931,7 @@ void main() {
 
     group('empty content', () {
       testWidgets('shows only timestamp when message has no content but has media', (WidgetTester tester) async {
+        await tester.binding.setSurfaceSize(const Size(800, 1200));
         final mediaFile = createTestMediaFile(id: 'media-1');
         final message = createTestMessage(
           id: 'msg-1',
@@ -900,9 +950,11 @@ void main() {
             ),
           ),
         );
+        await tester.pumpAndSettle();
 
         expect(find.byType(MessageMediaGrid), findsOneWidget);
         expect(find.text(message.timeSent), findsOneWidget);
+        addTearDown(() => tester.binding.setSurfaceSize(null));
       });
     });
   });

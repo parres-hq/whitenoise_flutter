@@ -107,20 +107,10 @@ class MessageWidget extends StatelessWidget {
     final screenWidth = MediaQuery.sizeOf(context).width;
     final maxBubbleWidth = screenWidth * 0.74;
 
-    double? mediaWidth;
-    if (message.mediaAttachments.isNotEmpty) {
-      final layoutConfig = MediaLayoutCalculator.calculateLayout(
-        message.mediaAttachments.length,
-      );
-      mediaWidth = layoutConfig.gridWidth.w;
-    }
-
-    final effectiveMaxWidth = mediaWidth != null ? (mediaWidth + 8.w) : maxBubbleWidth;
-
     return IntrinsicWidth(
       child: ConstrainedBox(
         constraints: BoxConstraints(
-          maxWidth: effectiveMaxWidth,
+          maxWidth: maxBubbleWidth,
         ),
         child: Padding(
           padding: EdgeInsets.only(
@@ -166,10 +156,15 @@ class MessageWidget extends StatelessWidget {
                       builder: (context) {
                         double? mediaWidth;
                         if (message.mediaAttachments.isNotEmpty) {
+                          final screenWidth = MediaQuery.sizeOf(context).width;
+                          final maxBubbleWidth = screenWidth * 0.74;
+                          final padding = 16.w;
+                          final maxMediaWidth = maxBubbleWidth - padding;
                           final layoutConfig = MediaLayoutCalculator.calculateLayout(
                             message.mediaAttachments.length,
+                            maxMediaWidth,
                           );
-                          mediaWidth = layoutConfig.gridWidth.w;
+                          mediaWidth = layoutConfig.gridWidth;
                         }
                         return _buildMessageWithTimestamp(context, mediaWidth: mediaWidth);
                       },

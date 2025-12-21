@@ -3,42 +3,48 @@ class MediaLayoutConfig {
     required this.visibleItemsCount,
     required this.gridWidth,
     required this.itemSize,
+    required this.columns,
   });
 
   final int visibleItemsCount;
   final double gridWidth;
   final double itemSize;
+  final int columns;
 }
 
 class MediaLayoutCalculator {
-  static const double singleImageSize = 240.0;
-  static const double twoImagesSize = 120.0;
-  static const double multipleImagesSize = 80.0;
   static const double spacing = 4.0;
 
-  static MediaLayoutConfig calculateLayout(int mediaCount) {
+  static MediaLayoutConfig calculateLayout(int mediaCount, double maxWidth) {
     if (mediaCount == 1) {
-      return const MediaLayoutConfig(
+      final itemSize = maxWidth;
+      return MediaLayoutConfig(
         visibleItemsCount: 1,
-        gridWidth: singleImageSize,
-        itemSize: singleImageSize,
+        gridWidth: itemSize,
+        itemSize: itemSize,
+        columns: 1,
       );
     }
 
     if (mediaCount == 2) {
+      final availableWidth = maxWidth - spacing;
+      final itemSize = availableWidth / 2;
       return _buildConfig(
         columns: 2,
         visibleItemsCount: 2,
-        itemSize: twoImagesSize,
+        itemSize: itemSize,
       );
     }
 
     final visibleItemsCount = mediaCount <= 5 ? 3 : 6;
+    final columns = 3;
+    final availableWidth = maxWidth - (spacing * (columns - 1));
+    final itemSize = availableWidth / columns;
 
     return _buildConfig(
-      columns: 3,
+      columns: columns,
       visibleItemsCount: visibleItemsCount,
-      itemSize: multipleImagesSize,
+      itemSize: itemSize,
     );
   }
 
@@ -52,6 +58,7 @@ class MediaLayoutCalculator {
       visibleItemsCount: visibleItemsCount,
       gridWidth: gridWidth,
       itemSize: itemSize,
+      columns: columns,
     );
   }
 }
