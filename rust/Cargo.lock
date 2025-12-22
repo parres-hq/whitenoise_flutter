@@ -5075,7 +5075,7 @@ checksum = "a28ac98ddc8b9274cb41bb4d9d4d5c425b6020c50c46f25559911905610b4a88"
 [[package]]
 name = "whitenoise"
 version = "0.1.0"
-source = "git+https://github.com/marmot-protocol/whitenoise-rs?rev=d2b4422e914c505741ab725c69e2d7c71390dcf6#d2b4422e914c505741ab725c69e2d7c71390dcf6"
+source = "git+https://github.com/marmot-protocol/whitenoise-rs?rev=9f5814f0c7c323ff4c04a7edd2480e6fff400022#9f5814f0c7c323ff4c04a7edd2480e6fff400022"
 dependencies = [
  "anyhow",
  "async-trait",

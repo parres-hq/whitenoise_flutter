@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,6 +14,7 @@ import 'package:whitenoise/domain/services/nip55_service.dart';
 import 'package:whitenoise/src/rust/api.dart' show createWhitenoiseConfig, initializeWhitenoise;
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
+import 'package:whitenoise/src/rust/api/nip55.dart' as nip55_api;
 import 'package:whitenoise/src/rust/frb_generated.dart' show RustLib;
 import 'package:whitenoise/utils/pubkey_formatter.dart';
 
@@ -69,6 +71,28 @@ class AuthNotifier extends Notifier<AuthState> {
       /// 3. Auto-login if an account is already active
       try {
         final accounts = await getAccounts();
+
+        // Check for NIP-55 accounts and enable signer
+        // NIP-55 signer state is not persisted in memory across restarts, so we must re-enable it
+        // for accounts that don't have a private key stored locally.
+        for (final account in accounts) {
+          try {
+            // Check if we have a private key for this account
+            await exportAccountNsec(pubkey: account.pubkey);
+          } catch (e) {
+            // If export fails, likely no private key, so try enabling NIP-55
+            _logger.info(
+              'Could not export nsec for ${account.pubkey}, attempting to enable NIP-55 signer',
+            );
+            try {
+              await nip55_api.enableNip55Signer(pubkey: account.pubkey);
+              _logger.info('Enabled NIP-55 signer for ${account.pubkey}');
+            } catch (e2) {
+              _logger.warning('Failed to enable NIP-55 signer for ${account.pubkey}: $e2');
+            }
+          }
+        }
+
         if (accounts.isNotEmpty) {
           // Wait for active account provider to load from storage first
           final activePubkeyNotifier = ref.read(activePubkeyProvider.notifier);

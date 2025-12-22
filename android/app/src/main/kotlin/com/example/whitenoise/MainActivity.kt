@@ -8,7 +8,6 @@ import android.content.Intent
 import android.net.Uri
 import android.os.PersistableBundle
 import android.os.Build
-import androidx.activity.result.contract.ActivityResultContracts
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -26,12 +25,18 @@ class MainActivity: FlutterActivity() {
     private var cachedPublicKeyResult: Map<String, Any?>? = null
     private var cachedPublicKeyTimestamp: Long = 0
     private val CACHE_TTL_MS = 5 * 60 * 1000L // 5 minutes
+    
+    private val NIP55_REQUEST_CODE = 1001
 
-    private val nip55Launcher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        
+        if (requestCode != NIP55_REQUEST_CODE) {
+            return
+        }
+
         android.util.Log.d("NIP55", "=== ACTIVITY RESULT RECEIVED ===")
-        android.util.Log.d("NIP55", "Result code: ${result.resultCode}")
+        android.util.Log.d("NIP55", "Result code: $resultCode")
         android.util.Log.d("NIP55", "RESULT_OK = ${Activity.RESULT_OK}")
         android.util.Log.d("NIP55", "RESULT_CANCELED = ${Activity.RESULT_CANCELED}")
         
@@ -42,21 +47,21 @@ class MainActivity: FlutterActivity() {
 
         if (callback == null) {
             android.util.Log.e("NIP55", "No callback available for result")
-            return@registerForActivityResult
+            return
         }
 
-        if (result.resultCode != Activity.RESULT_OK) {
-            android.util.Log.e("NIP55", "Result not OK: ${result.resultCode}")
+        if (resultCode != Activity.RESULT_OK) {
+            android.util.Log.e("NIP55", "Result not OK: $resultCode")
             android.util.Log.e("NIP55", "This usually means user cancelled or Amber returned an error")
-            callback.error("USER_REJECTED", "Sign request rejected or cancelled. Result code: ${result.resultCode}", null)
-            return@registerForActivityResult
+            callback.error("USER_REJECTED", "Sign request rejected or cancelled. Result code: $resultCode", null)
+            return
         }
 
-        val resultData = result.data
+        val resultData = data
         if (resultData == null) {
             android.util.Log.e("NIP55", "No result data returned")
             callback.error("NO_RESULT", "No result data returned", null)
-            return@registerForActivityResult
+            return
         }
 
         android.util.Log.d("NIP55", "=== PROCESSING RESULT DATA ===")
@@ -252,6 +257,42 @@ class MainActivity: FlutterActivity() {
                     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     android.util.Log.d("NIP55", "Launching sign_event intent")
                 }
+                "nip44_encrypt" -> {
+                    val pubkey = params.optString("pubkey")
+                    val plaintext = params.optString("plaintext")
+                    val id = params.optString("id", "")
+                    val currentUser = params.optString("current_user", "")
+
+                    val uri = Uri.parse("nostrsigner:$plaintext")
+                    intent.data = uri
+                    intent.putExtra("type", "nip44_encrypt")
+                    intent.putExtra("pubkey", pubkey)
+                    if (id.isNotEmpty()) intent.putExtra("id", id)
+                    if (currentUser.isNotEmpty()) intent.putExtra("current_user", currentUser)
+
+                    signerPackageName?.let {
+                        intent.setPackage(it)
+                    }
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                }
+                "nip44_decrypt" -> {
+                    val pubkey = params.optString("pubkey")
+                    val ciphertext = params.optString("ciphertext")
+                    val id = params.optString("id", "")
+                    val currentUser = params.optString("current_user", "")
+
+                    val uri = Uri.parse("nostrsigner:$ciphertext")
+                    intent.data = uri
+                    intent.putExtra("type", "nip44_decrypt")
+                    intent.putExtra("pubkey", pubkey)
+                    if (id.isNotEmpty()) intent.putExtra("id", id)
+                    if (currentUser.isNotEmpty()) intent.putExtra("current_user", currentUser)
+
+                    signerPackageName?.let {
+                        intent.setPackage(it)
+                    }
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+                }
                 else -> {
                     result.error("UNKNOWN_METHOD", "Unknown NIP-55 method: $method", null)
                     return
@@ -268,7 +309,7 @@ class MainActivity: FlutterActivity() {
             }
 
             android.util.Log.d("NIP55", "Launching NIP55 intent")
-            nip55Launcher.launch(intent)
+            startActivityForResult(intent, NIP55_REQUEST_CODE)
         } catch (e: Exception) {
             android.util.Log.e("NIP55", "Exception in callNip55Method: ${e.message}", e)
             result.error("EXCEPTION", "Error calling NIP-55 method: ${e.message}", null)

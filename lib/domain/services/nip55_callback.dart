@@ -67,6 +67,22 @@ class Nip55CallbackInitializer {
               _logger.fine(
                 'Normalized sign_event params (first 200 chars): ${normalizedParams.length > 200 ? normalizedParams.substring(0, 200) : normalizedParams}',
               );
+            } else if ((method == 'nip44_encrypt' || method == 'nip44_decrypt') &&
+                parsed.length >= 2) {
+              _logger.fine('$method array detected with ${parsed.length} elements');
+              final pubkey = parsed[0] as String;
+              final text = parsed[1] as String;
+              final paramsMap = <String, dynamic>{
+                'pubkey': pubkey,
+                method == 'nip44_encrypt' ? 'plaintext' : 'ciphertext': text,
+              };
+
+              // Extract current_user if provided (third element)
+              if (parsed.length >= 3 && parsed[2] is String) {
+                paramsMap['current_user'] = parsed[2] as String;
+              }
+
+              normalizedParams = jsonEncode(paramsMap);
             } else {
               _logger.warning(
                 'Params was an array (${parsed.length} items) for method $method, converting to empty object',
