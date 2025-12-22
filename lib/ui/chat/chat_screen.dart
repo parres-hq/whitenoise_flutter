@@ -10,9 +10,10 @@ import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/chat_input_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
 import 'package:whitenoise/config/providers/chat_search_provider.dart';
+import 'package:whitenoise/config/providers/chat_stream_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_search_state.dart';
-import 'package:whitenoise/config/states/chat_state.dart';
+import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/services/displayed_chat_service.dart';
 import 'package:whitenoise/domain/services/last_read_manager.dart';
 import 'package:whitenoise/domain/services/notification_service.dart';
@@ -48,7 +49,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   static final _logger = Logger('ChatScreen');
   final ScrollController _scrollController = ScrollController();
   double _lastScrollOffset = 0.0;
-  ProviderSubscription<ChatState>? _chatSubscription;
+  ProviderSubscription<AsyncValue<List<MessageModel>>>? _chatSubscription;
   bool _hasInitialScrollCompleted = false;
   bool _isKeyboardOpen = false;
   bool _hasScheduledInitialScroll = false;
@@ -70,14 +71,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
       await DisplayedChatService.registerDisplayedChat(widget.groupId);
       if (widget.inviteId == null) {
         ref.read(groupsProvider.notifier).loadGroupDetails(widget.groupId);
-        ref.read(chatProvider.notifier).loadMessagesForGroup(widget.groupId);
         _preloadMemberColors();
       }
     });
 
-    // Listen for chat state changes to handle auto-scroll
-    _chatSubscription = ref.listenManual(chatProvider, (previous, next) {
-      _handleChatStateChange(previous, next);
+    // Listen for chat stream changes to handle auto-scroll
+    _chatSubscription = ref.listenManual(chatStreamProvider(widget.groupId), (previous, next) {
+      _handleStreamStateChange(previous, next);
     });
   }
 
@@ -202,11 +202,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   }
 
   /// Handle chat state changes for auto-scroll
-  void _handleChatStateChange(ChatState? previous, ChatState next) {
-    final currentMessages = next.groupMessages[widget.groupId] ?? [];
-    final previousMessages = previous?.groupMessages[widget.groupId] ?? [];
-    final wasLoading = previous?.isGroupLoading(widget.groupId) ?? false;
-    final isLoading = next.isGroupLoading(widget.groupId);
+  void _handleStreamStateChange(
+    AsyncValue<List<MessageModel>>? previous,
+    AsyncValue<List<MessageModel>> next,
+  ) {
+    final currentMessages = next.value ?? [];
+    final previousMessages = previous?.value ?? [];
+    final wasLoading = previous?.isLoading ?? false;
+    final isLoading = next.isLoading;
     final isLoadingCompleted = wasLoading && !isLoading;
 
     // Auto-scroll when chat first loads (loading transition detected)
@@ -247,9 +250,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
 
   /// Save last read timestamp for current messages
   void _saveLastReadForCurrentMessages() {
-    final messages = ref.read(
-      chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
-    );
+    final messages = ref.read(chatStreamProvider(widget.groupId)).value ?? [];
     if (messages.isNotEmpty) {
       LastReadManager.saveLastReadForLatestMessage(widget.groupId, messages);
       ref.read(chatProvider.notifier).refreshUnreadCount(widget.groupId);
@@ -262,9 +263,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
 
     if (_isAtBottom()) {
       // User scrolled to bottom, save last read with debouncing
-      final messages = ref.read(
-        chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
-      );
+      final messages = ref.read(chatStreamProvider(widget.groupId)).value ?? [];
       if (messages.isNotEmpty) {
         final latestMessage = messages.last;
         LastReadManager.saveLastReadDebounced(
@@ -276,9 +275,7 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   }
 
   void _scrollToMessage(String messageId) {
-    final messages = ref.read(
-      chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
-    );
+    final messages = ref.read(chatStreamProvider(widget.groupId)).value ?? [];
     final messageIndex = messages.indexWhere((msg) => msg.id == messageId);
 
     if (messageIndex != -1 && _scrollController.hasClients) {
@@ -326,14 +323,13 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
   Widget build(BuildContext context) {
     final groupsNotifier = ref.watch(groupsProvider.notifier);
     final chatNotifier = ref.watch(chatProvider.notifier);
+    final chatStreamNotifier = ref.watch(chatStreamProvider(widget.groupId));
     final searchState = ref.watch(chatSearchProvider(widget.groupId));
     final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
     final isInviteMode = widget.inviteId != null;
 
     // Watch messages first so they're available for listeners
-    final messages = ref.watch(
-      chatProvider.select((state) => state.groupMessages[widget.groupId] ?? []),
-    );
+    final messages = chatStreamNotifier.value ?? [];
 
     final isLoading = ref.watch(
       chatProvider.select((state) => state.isGroupLoading(widget.groupId)),
@@ -497,16 +493,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                     child: MessageWidget(
                                           message: message,
                                           isGroupMessage: groupType == GroupType.group,
-                                          isSameSenderAsPrevious: chatNotifier.isSameSender(
-                                            messageIndex,
-                                            groupId: widget.groupId,
-                                          ),
+                                          isSameSenderAsPrevious:
+                                              messageIndex > 0 &&
+                                              messages[messageIndex].sender.publicKey ==
+                                                  messages[messageIndex - 1].sender.publicKey,
                                           isSameSenderAsNext:
                                               messageIndex + 1 < messages.length &&
-                                              chatNotifier.isSameSender(
-                                                messageIndex + 1,
-                                                groupId: widget.groupId,
-                                              ),
+                                              messages[messageIndex].sender.publicKey ==
+                                                  messages[messageIndex + 1].sender.publicKey,
                                           searchMatch:
                                               searchState.matches.isNotEmpty
                                                   ? _getMessageSearchMatch(
