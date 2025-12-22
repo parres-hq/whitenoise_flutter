@@ -1,8 +1,13 @@
-use crate::api::{error::ApiError, media_files::MediaFile, utils::group_id_from_string};
+use crate::api::{
+    error::ApiError,
+    media_files::MediaFile,
+    utils::{group_id_from_string, group_id_to_string},
+};
 use crate::frb_generated::StreamSink;
 use chrono::{DateTime, TimeZone, Utc};
 use flutter_rust_bridge::frb;
 use nostr_sdk::prelude::*;
+use whitenoise::whitenoise::message_aggregator::ChatMessageSummary as WhitenoiseChatMessageSummary;
 pub use whitenoise::{
     ChatMessage as WhitenoiseChatMessage, EmojiReaction as WhitenoiseEmojiReaction,
     MediaFile as WhitenoiseMediaFile, MessageUpdate as WhitenoiseMessageUpdate,
@@ -73,6 +78,17 @@ pub struct UserReaction {
 pub struct SerializableToken {
     pub token_type: String, // "Nostr", "Url", "Hashtag", "Text", "LineBreak", "Whitespace"
     pub content: Option<String>, // None for LineBreak and Whitespace
+}
+
+#[frb(non_opaque)]
+#[derive(Debug, Clone)]
+pub struct ChatMessageSummary {
+    pub mls_group_id: String,
+    pub author: String,
+    pub author_display_name: Option<String>,
+    pub content: String,
+    pub created_at: DateTime<Utc>,
+    pub media_attachment_count: u64,
 }
 
 /// What triggered a message update in the stream.
@@ -181,6 +197,19 @@ impl From<&WhitenoiseSerializableToken> for SerializableToken {
 impl From<WhitenoiseSerializableToken> for SerializableToken {
     fn from(token: WhitenoiseSerializableToken) -> Self {
         (&token).into()
+    }
+}
+
+impl From<WhitenoiseChatMessageSummary> for ChatMessageSummary {
+    fn from(summary: WhitenoiseChatMessageSummary) -> Self {
+        Self {
+            mls_group_id: group_id_to_string(&summary.mls_group_id),
+            author: summary.author.to_hex(),
+            author_display_name: summary.author_display_name,
+            content: summary.content,
+            created_at: summary.created_at,
+            media_attachment_count: summary.media_attachment_count as u64,
+        }
     }
 }
 

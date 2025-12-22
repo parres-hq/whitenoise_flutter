@@ -156,6 +156,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ApiError dco_decode_box_autoadd_api_error(dynamic raw);
 
   @protected
+  ChatMessageSummary dco_decode_box_autoadd_chat_message_summary(dynamic raw);
+
+  @protected
   FileMetadata dco_decode_box_autoadd_file_metadata(dynamic raw);
 
   @protected
@@ -180,6 +183,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   ChatMessage dco_decode_chat_message(dynamic raw);
+
+  @protected
+  ChatMessageSummary dco_decode_chat_message_summary(dynamic raw);
+
+  @protected
+  ChatSummary dco_decode_chat_summary(dynamic raw);
 
   @protected
   EmojiReaction dco_decode_emoji_reaction(dynamic raw);
@@ -228,6 +237,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<ChatMessage> dco_decode_list_chat_message(dynamic raw);
+
+  @protected
+  List<ChatSummary> dco_decode_list_chat_summary(dynamic raw);
 
   @protected
   List<EmojiReaction> dco_decode_list_emoji_reaction(dynamic raw);
@@ -282,6 +294,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   DateTime? dco_decode_opt_box_autoadd_Chrono_Utc(dynamic raw);
+
+  @protected
+  ChatMessageSummary? dco_decode_opt_box_autoadd_chat_message_summary(
+    dynamic raw,
+  );
 
   @protected
   FileMetadata? dco_decode_opt_box_autoadd_file_metadata(dynamic raw);
@@ -472,6 +489,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ApiError sse_decode_box_autoadd_api_error(SseDeserializer deserializer);
 
   @protected
+  ChatMessageSummary sse_decode_box_autoadd_chat_message_summary(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   FileMetadata sse_decode_box_autoadd_file_metadata(
     SseDeserializer deserializer,
   );
@@ -506,6 +528,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   ChatMessage sse_decode_chat_message(SseDeserializer deserializer);
+
+  @protected
+  ChatMessageSummary sse_decode_chat_message_summary(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  ChatSummary sse_decode_chat_summary(SseDeserializer deserializer);
 
   @protected
   EmojiReaction sse_decode_emoji_reaction(SseDeserializer deserializer);
@@ -556,6 +586,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<ChatMessage> sse_decode_list_chat_message(SseDeserializer deserializer);
+
+  @protected
+  List<ChatSummary> sse_decode_list_chat_summary(SseDeserializer deserializer);
 
   @protected
   List<EmojiReaction> sse_decode_list_emoji_reaction(
@@ -626,6 +659,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   DateTime? sse_decode_opt_box_autoadd_Chrono_Utc(SseDeserializer deserializer);
+
+  @protected
+  ChatMessageSummary? sse_decode_opt_box_autoadd_chat_message_summary(
+    SseDeserializer deserializer,
+  );
 
   @protected
   FileMetadata? sse_decode_opt_box_autoadd_file_metadata(
@@ -846,6 +884,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_chat_message_summary(
+    ChatMessageSummary self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_file_metadata(
     FileMetadata self,
     SseSerializer serializer,
@@ -886,6 +930,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_chat_message(ChatMessage self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_chat_message_summary(
+    ChatMessageSummary self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_chat_summary(ChatSummary self, SseSerializer serializer);
 
   @protected
   void sse_encode_emoji_reaction(EmojiReaction self, SseSerializer serializer);
@@ -944,6 +997,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_chat_message(
     List<ChatMessage> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_chat_summary(
+    List<ChatSummary> self,
     SseSerializer serializer,
   );
 
@@ -1031,6 +1090,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_opt_box_autoadd_Chrono_Utc(
     DateTime? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_chat_message_summary(
+    ChatMessageSummary? self,
     SseSerializer serializer,
   );
 
