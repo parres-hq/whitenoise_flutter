@@ -30,7 +30,9 @@ class QRScannerBottomSheet extends ConsumerStatefulWidget {
 }
 
 class _QRScannerBottomSheetState extends ConsumerState<QRScannerBottomSheet> {
-  MobileScannerController cameraController = MobileScannerController();
+  MobileScannerController cameraController = MobileScannerController(
+    formats: [BarcodeFormat.qrCode],
+  );
   bool _isScanning = true;
   String? _lastInvalidKey;
   Timer? _resetTimer;
