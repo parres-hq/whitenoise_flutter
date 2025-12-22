@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -9,6 +8,7 @@ import 'package:logging/logging.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/nostr_keys_provider.dart';
+import 'package:whitenoise/config/states/nostr_keys_state.dart';
 import 'package:whitenoise/domain/services/nip55_service.dart';
 import 'package:whitenoise/src/rust/api/nip55.dart' as nip55_api;
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -20,7 +20,6 @@ import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
 import 'package:whitenoise/utils/clipboard_utils.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 import 'package:whitenoise/utils/pubkey_formatter.dart';
-import 'package:whitenoise/utils/public_key_validation_extension.dart';
 import 'package:whitenoise/utils/string_extensions.dart';
 
 class ProfileKeysScreen extends ConsumerStatefulWidget {
@@ -37,6 +36,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
   bool _isExternalSignerEnabled = false;
   bool _isCheckingSigner = false;
   bool _isSignerInstalled = false;
+  ProviderSubscription<NostrKeysState>? _nostrKeysSubscription;
   static final Logger _logger = Logger('ProfileKeysScreen');
 
   @override
@@ -44,7 +44,6 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await ref.read(nostrKeysProvider.notifier).loadKeys();
-      _updateKeyControllers();
 
       // Check if external signer is installed (Android only)
       if (Platform.isAndroid) {
@@ -52,19 +51,48 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
         await _checkExternalSignerEnabled();
       }
     });
+
+    // Listen to key changes and update controllers
+    _nostrKeysSubscription = ref.listenManual(nostrKeysProvider, (previous, next) {
+      _updateKeyControllers();
+    });
   }
 
-  void _updateKeyControllers() {
+  Future<void> _updateKeyControllers() async {
     if (!mounted) return;
-    final nostrKeys = ref.read(nostrKeysProvider);
-    final newPublicKey = nostrKeys.npub?.formatPublicKey() ?? '';
-    final newPrivateKey = nostrKeys.nsec ?? '';
 
-    if (_publicKeyController.text != newPublicKey) {
-      _publicKeyController.text = newPublicKey;
+    // Get the active account's pubkey directly
+    try {
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount.account != null) {
+        final accountPubkey = activeAccount.account!.pubkey;
+        // Convert hex pubkey to npub format
+        final npub = PubkeyFormatter(pubkey: accountPubkey).toNpub() ?? accountPubkey;
+        final newPublicKey = npub.formatPublicKey();
+
+        if (_publicKeyController.text != newPublicKey && mounted) {
+          _publicKeyController.text = newPublicKey;
+        }
+      }
+    } catch (e) {
+      _logger.warning('Error updating public key controller: $e');
+      // Fallback to nostrKeys if available
+      if (mounted) {
+        final nostrKeys = ref.read(nostrKeysProvider);
+        final newPublicKey = nostrKeys.npub?.formatPublicKey() ?? '';
+        if (_publicKeyController.text != newPublicKey) {
+          _publicKeyController.text = newPublicKey;
+        }
+      }
     }
-    if (_privateKeyController.text != newPrivateKey) {
-      _privateKeyController.text = newPrivateKey;
+
+    // Update private key from nostrKeys
+    if (mounted) {
+      final nostrKeys = ref.read(nostrKeysProvider);
+      final newPrivateKey = nostrKeys.nsec ?? '';
+      if (_privateKeyController.text != newPrivateKey) {
+        _privateKeyController.text = newPrivateKey;
+      }
     }
   }
 
@@ -92,44 +120,35 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
   }
 
   /// Check if NIP-55 signer is enabled for the current account
-  /// by comparing the signer's pubkey with the account's pubkey
+  /// by checking if the account has a private key (nsec)
+  /// If there's no private key, the account is using NIP-55 external signer
   Future<void> _checkExternalSignerEnabled() async {
     if (!_isSignerInstalled) {
       return;
     }
 
     try {
-      final activeAccount = await ref.read(activeAccountProvider.future);
-      if (activeAccount.account == null) {
-        return;
-      }
+      final nostrKeys = ref.read(nostrKeysProvider);
 
-      final accountPubkey = activeAccount.account!.pubkey;
-
-      // Get the signer's pubkey
-      final resultJson = await Nip55Service.callNip55Method(
-        method: 'get_public_key',
-        params: '{}',
-      );
-      final result = jsonDecode(resultJson) as Map<String, dynamic>;
-      final pubkeyNpub = result['result'] as String?;
-
-      if (pubkeyNpub != null && pubkeyNpub.isValidNpubPublicKey) {
-        final signerHexPubkey = PubkeyFormatter(pubkey: pubkeyNpub).toHex();
-        if (signerHexPubkey != null &&
-            signerHexPubkey.toLowerCase() == accountPubkey.toLowerCase()) {
-          // Signer's pubkey matches account's pubkey, so signer should be enabled
-          if (mounted) {
-            setState(() {
-              _isExternalSignerEnabled = true;
-            });
-          }
+      // If the account doesn't have a private key (nsec), it's using NIP-55 external signer
+      // No need to call the signer app - we already know from the account state
+      if (nostrKeys.nsec == null || nostrKeys.nsec!.isEmpty) {
+        _logger.fine('Account has no private key, using NIP-55 external signer');
+        if (mounted) {
+          setState(() {
+            _isExternalSignerEnabled = true;
+          });
+        }
+      } else {
+        _logger.fine('Account has private key, not using NIP-55 external signer');
+        if (mounted) {
+          setState(() {
+            _isExternalSignerEnabled = false;
+          });
         }
       }
-    } catch (e) {
-      // If we can't check (e.g., signer not available or not a NIP-55 account),
-      // leave _isExternalSignerEnabled as false
-      _logger.fine('Could not check NIP-55 signer enabled state: $e');
+    } catch (e, stackTrace) {
+      _logger.fine('Could not check NIP-55 signer enabled state: $e', e, stackTrace);
     }
   }
 
@@ -165,6 +184,8 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
 
         await nip55_api.enableNip55Signer(pubkey: pubkey);
         ref.showSuccessToast('External signer enabled');
+        // Reload keys to update the state (nsec will be null for NIP-55 accounts)
+        await ref.read(nostrKeysProvider.notifier).loadKeys();
       } else {
         await nip55_api.disableNip55Signer(pubkey: pubkey);
         ref.showSuccessToast('External signer disabled');
@@ -178,13 +199,34 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
     }
   }
 
-  void _copyPublicKey() {
+  void _copyPublicKey() async {
+    try {
+      // Get the active account's pubkey directly
+      final activeAccount = await ref.read(activeAccountProvider.future);
+      if (activeAccount.account != null) {
+        final accountPubkey = activeAccount.account!.pubkey;
+        // Convert hex pubkey to npub format
+        final npub = PubkeyFormatter(pubkey: accountPubkey).toNpub() ?? accountPubkey;
+        ClipboardUtils.copyWithToast(
+          ref: ref,
+          textToCopy: npub,
+          successMessage: 'nostrKeys.copyPublicKeySuccess'.tr(),
+        );
+        return;
+      }
+    } catch (e) {
+      _logger.warning('Error copying public key: $e');
+    }
+
+    // Fallback to nostrKeys if available
     final npub = ref.read(nostrKeysProvider).npub;
-    ClipboardUtils.copyWithToast(
-      ref: ref,
-      textToCopy: npub,
-      successMessage: 'nostrKeys.copyPublicKeySuccess'.tr(),
-    );
+    if (npub != null && npub.isNotEmpty) {
+      ClipboardUtils.copyWithToast(
+        ref: ref,
+        textToCopy: npub,
+        successMessage: 'nostrKeys.copyPublicKeySuccess'.tr(),
+      );
+    }
   }
 
   void _copyPrivateKey() async {
@@ -206,6 +248,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
 
   @override
   void dispose() {
+    _nostrKeysSubscription?.close();
     _privateKeyController.dispose();
     super.dispose();
   }
@@ -213,19 +256,6 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
   @override
   Widget build(BuildContext context) {
     final nostrKeys = ref.watch(nostrKeysProvider);
-
-    // Update controllers when keys change
-    if (mounted) {
-      final newPublicKey = nostrKeys.npub?.formatPublicKey() ?? '';
-      final newPrivateKey = nostrKeys.nsec ?? '';
-
-      if (_publicKeyController.text != newPublicKey) {
-        _publicKeyController.text = newPublicKey;
-      }
-      if (_privateKeyController.text != newPrivateKey) {
-        _privateKeyController.text = newPrivateKey;
-      }
-    }
 
     return WnSettingsScreenWrapper(
       title: 'settings.profileKeys'.tr(),

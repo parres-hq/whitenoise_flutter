@@ -298,7 +298,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
           );
         } else {
           _logger.severe('Login with external signer failed: $e', e, st);
-          ref.showErrorToast('Failed to login with external signer: $e');
+          ref.showErrorToast('Failed to login with external signer. Please try again.');
         }
       } else {
         _logger.severe('Login with external signer failed: $e', e, st);
@@ -421,7 +421,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
                                 label: 'auth.login'.tr(),
                               ),
                               if (_isExternalSignerAvailable) ...[
-                                Gap(16.h),
+                                Gap(8.h),
                                 WnFilledButton(
                                   visualState: WnButtonVisualState.secondary,
                                   onPressed: _loginWithExternalSigner,

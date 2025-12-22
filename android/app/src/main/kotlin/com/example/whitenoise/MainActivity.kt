@@ -19,6 +19,11 @@ class MainActivity: FlutterFragmentActivity() {
     
     private var nip55ResultCallback: MethodChannel.Result? = null
     private var signerPackageName: String? = null
+    private var currentNip55Method: String? = null
+    
+    // Cache the public key result to avoid repeated Amber popups
+    // This is cleared when the app restarts or user logs out
+    private var cachedPublicKeyResult: Map<String, Any?>? = null
 
     private val nip55Launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -29,7 +34,9 @@ class MainActivity: FlutterFragmentActivity() {
         android.util.Log.d("NIP55", "RESULT_CANCELED = ${Activity.RESULT_CANCELED}")
         
         val callback = nip55ResultCallback
+        val method = currentNip55Method
         nip55ResultCallback = null
+        currentNip55Method = null
 
         if (callback == null) {
             android.util.Log.e("NIP55", "No callback available for result")
@@ -75,6 +82,18 @@ class MainActivity: FlutterFragmentActivity() {
         if (id != null) resultMap["id"] = id
         if (eventJson != null) resultMap["event"] = eventJson
         if (packageName != null) resultMap["package"] = packageName
+
+        // Cache get_public_key result to avoid repeated popups
+        // Only cache if this was a get_public_key call (not sign_event)
+        if (method == "get_public_key" && resultString != null) {
+            val cachedResult = resultMap.toMap()
+            cachedPublicKeyResult = cachedResult
+            android.util.Log.d("NIP55", "Cached get_public_key result")
+            android.util.Log.d("NIP55", "Cached result keys: ${cachedResult.keys}")
+            android.util.Log.d("NIP55", "Cached result value: ${cachedResult["result"]}")
+        } else {
+            android.util.Log.d("NIP55", "Not caching result - method: $method, resultString: ${resultString != null}, eventJson: ${eventJson != null}")
+        }
 
         android.util.Log.d("NIP55", "=== RETURNING RESULT TO FLUTTER ===")
         android.util.Log.d("NIP55", "Result map keys: ${resultMap.keys}")
@@ -128,6 +147,7 @@ class MainActivity: FlutterFragmentActivity() {
         try {
             android.util.Log.d("NIP55", "Calling NIP55 method: $method with params: $paramsJson")
             nip55ResultCallback = result
+            currentNip55Method = method
 
             val intent = Intent(Intent.ACTION_VIEW)
             
@@ -141,6 +161,16 @@ class MainActivity: FlutterFragmentActivity() {
             
             when (method) {
                 "get_public_key" -> {
+                    val cachedResult = cachedPublicKeyResult
+                    if (cachedResult != null) {
+                        android.util.Log.d("NIP55", "Returning cached get_public_key result")
+                        android.util.Log.d("NIP55", "Cached result keys: ${cachedResult.keys}")
+                        android.util.Log.d("NIP55", "Cached result: ${cachedResult["result"]}")
+                        result.success(cachedResult)
+                        return
+                    }
+                    
+                    android.util.Log.d("NIP55", "No cached result, launching intent for get_public_key")
                     val uri = Uri.parse("nostrsigner:")
                     intent.data = uri
                     intent.putExtra("type", "get_public_key")
@@ -150,19 +180,45 @@ class MainActivity: FlutterFragmentActivity() {
                     if (permissions != null) {
                         intent.putExtra("permissions", permissions.toString())
                     }
+                    
+                    val kindsArray = org.json.JSONArray()
+                    kindsArray.put(0)
+                    kindsArray.put(3)
+                    kindsArray.put(5)
+                    kindsArray.put(443)
+                    kindsArray.put(1059)
+                    kindsArray.put(10002)
+                    kindsArray.put(10050)
+                    kindsArray.put(10051)
+                    kindsArray.put(27235)
+                    intent.putExtra("kinds", kindsArray.toString())
+                    android.util.Log.d("NIP55", "Added kinds array to get_public_key intent: ${kindsArray.toString()}")
                 }
                 "sign_event" -> {
                     android.util.Log.d("NIP55", "=== SIGN_EVENT REQUEST ===")
                     val eventJson = params.optString("event", "")
+                    val currentUser = params.optString("current_user", "")
                     android.util.Log.d("NIP55", "Event JSON length: ${eventJson.length}")
-                    android.util.Log.d("NIP55", "Event JSON (first 200 chars): ${eventJson.take(200)}")
+                    android.util.Log.d("NIP55", "Current user: $currentUser")
+                    
+                    // Try Content Resolver first for silent signing (no popup)
+                    // This works if user has already approved this permission
+                    if (signerPackageName != null && currentUser.isNotEmpty()) {
+                        val contentResult = trySignEventViaContentResolver(eventJson, currentUser)
+                        if (contentResult != null) {
+                            android.util.Log.d("NIP55", "Content Resolver succeeded, returning result silently")
+                            nip55ResultCallback = null
+                            result.success(contentResult)
+                            return
+                        }
+                        android.util.Log.d("NIP55", "Content Resolver returned null, falling back to Intent")
+                    }
                     
                     val uri = Uri.parse("nostrsigner:$eventJson")
                     intent.data = uri
                     intent.putExtra("type", "sign_event")
                     
                     val id = params.optString("id", "")
-                    val currentUser = params.optString("current_user", "")
                     
                     android.util.Log.d("NIP55", "ID: $id, currentUser: $currentUser")
                     
@@ -178,38 +234,6 @@ class MainActivity: FlutterFragmentActivity() {
                     // Add flags for multiple intents
                     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     android.util.Log.d("NIP55", "Launching sign_event intent")
-                }
-                "nip04_encrypt", "nip44_encrypt", "nip04_decrypt", "nip44_decrypt" -> {
-                    val data = params.optString("data", "")
-                    val uri = Uri.parse("nostrsigner:$data")
-                    intent.data = uri
-                    intent.putExtra("type", method)
-                    
-                    val id = params.optString("id", "")
-                    val currentUser = params.optString("current_user", "")
-                    val pubkey = params.optString("pubkey", "")
-                    
-                    if (id.isNotEmpty()) intent.putExtra("id", id)
-                    if (currentUser.isNotEmpty()) intent.putExtra("current_user", currentUser)
-                    if (pubkey.isNotEmpty()) intent.putExtra("pubkey", pubkey)
-                    
-                    signerPackageName?.let { intent.setPackage(it) }
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                }
-                "decrypt_zap_event" -> {
-                    val eventJson = params.optString("event", "")
-                    val uri = Uri.parse("nostrsigner:$eventJson")
-                    intent.data = uri
-                    intent.putExtra("type", "decrypt_zap_event")
-                    
-                    val id = params.optString("id", "")
-                    val currentUser = params.optString("current_user", "")
-                    
-                    if (id.isNotEmpty()) intent.putExtra("id", id)
-                    if (currentUser.isNotEmpty()) intent.putExtra("current_user", currentUser)
-                    
-                    signerPackageName?.let { intent.setPackage(it) }
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP)
                 }
                 else -> {
                     result.error("UNKNOWN_METHOD", "Unknown NIP-55 method: $method", null)
@@ -231,6 +255,68 @@ class MainActivity: FlutterFragmentActivity() {
         } catch (e: Exception) {
             android.util.Log.e("NIP55", "Exception in callNip55Method: ${e.message}", e)
             result.error("EXCEPTION", "Error calling NIP-55 method: ${e.message}", null)
+        }
+    }
+    
+    /**
+     * Try to sign an event using Content Resolver (silent, no popup).
+     * Returns the result map if successful, or null if we need to fall back to Intent.
+     * 
+     * Per NIP-55: Content Resolver returns null if:
+     * - User didn't check "remember my choice"
+     * - The pubkey is not in Signer Application
+     * - The signer type is not recognized
+     */
+    private fun trySignEventViaContentResolver(eventJson: String, currentUser: String): Map<String, Any?>? {
+        val packageName = signerPackageName ?: return null
+        
+        try {
+            val uri = Uri.parse("content://$packageName.SIGN_EVENT")
+            android.util.Log.d("NIP55", "Trying Content Resolver: $uri")
+            
+            val cursor = contentResolver.query(
+                uri,
+                arrayOf(eventJson, "", currentUser),
+                null,
+                null,
+                null
+            )
+            
+            if (cursor == null) {
+                android.util.Log.d("NIP55", "Content Resolver returned null cursor")
+                return null
+            }
+            
+            cursor.use {
+                val rejectedIndex = it.getColumnIndex("rejected")
+                if (rejectedIndex > -1) {
+                    android.util.Log.d("NIP55", "Content Resolver: permission rejected")
+                    return null
+                }
+                
+                if (it.moveToFirst()) {
+                    val resultIndex = it.getColumnIndex("result")
+                    val eventIndex = it.getColumnIndex("event")
+                    
+                    val resultMap = mutableMapOf<String, Any?>()
+                    
+                    if (resultIndex > -1) {
+                        resultMap["result"] = it.getString(resultIndex)
+                    }
+                    if (eventIndex > -1) {
+                        resultMap["event"] = it.getString(eventIndex)
+                    }
+                    
+                    android.util.Log.d("NIP55", "Content Resolver success: ${resultMap.keys}")
+                    return resultMap
+                }
+            }
+            
+            android.util.Log.d("NIP55", "Content Resolver: cursor empty")
+            return null
+        } catch (e: Exception) {
+            android.util.Log.w("NIP55", "Content Resolver failed: ${e.message}")
+            return null
         }
     }
     
