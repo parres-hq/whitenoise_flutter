@@ -188,6 +188,8 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
         await ref.read(nostrKeysProvider.notifier).loadKeys();
       } else {
         await nip55_api.disableNip55Signer(pubkey: pubkey);
+        // Clear cache when disabling external signer
+        await Nip55Service.clearCache();
         ref.showSuccessToast('External signer disabled');
       }
     } catch (e) {
@@ -199,7 +201,7 @@ class _ProfileKeysScreenState extends ConsumerState<ProfileKeysScreen> {
     }
   }
 
-  void _copyPublicKey() async {
+  Future<void> _copyPublicKey() async {
     try {
       // Get the active account's pubkey directly
       final activeAccount = await ref.read(activeAccountProvider.future);

@@ -63,4 +63,24 @@ class Nip55Service {
       rethrow;
     }
   }
+
+  /// Clear the cached public key result
+  ///
+  /// This should be called when:
+  /// - User logs out
+  /// - User switches accounts
+  /// - User disables the external signer
+  static Future<void> clearCache() async {
+    if (!Platform.isAndroid) {
+      return;
+    }
+
+    try {
+      await _channel.invokeMethod('clearCache');
+      _logger.fine('NIP55 cache cleared');
+    } catch (e) {
+      _logger.warning('Error clearing NIP55 cache: $e');
+      // Don't throw - cache clearing is not critical
+    }
+  }
 }

@@ -9,11 +9,11 @@ import android.net.Uri
 import android.os.PersistableBundle
 import android.os.Build
 import androidx.activity.result.contract.ActivityResultContracts
-import io.flutter.embedding.android.FlutterFragmentActivity
+import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
-class MainActivity: FlutterFragmentActivity() {
+class MainActivity: FlutterActivity() {
     private val CLIPBOARD_CHANNEL = "clipboard_sensitive"
     private val NIP55_CHANNEL = "nip55_signer"
     
@@ -24,6 +24,8 @@ class MainActivity: FlutterFragmentActivity() {
     // Cache the public key result to avoid repeated Amber popups
     // This is cleared when the app restarts or user logs out
     private var cachedPublicKeyResult: Map<String, Any?>? = null
+    private var cachedPublicKeyTimestamp: Long = 0
+    private val CACHE_TTL_MS = 5 * 60 * 1000L // 5 minutes
 
     private val nip55Launcher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -88,6 +90,7 @@ class MainActivity: FlutterFragmentActivity() {
         if (method == "get_public_key" && resultString != null) {
             val cachedResult = resultMap.toMap()
             cachedPublicKeyResult = cachedResult
+            cachedPublicKeyTimestamp = System.currentTimeMillis()
             android.util.Log.d("NIP55", "Cached get_public_key result")
             android.util.Log.d("NIP55", "Cached result keys: ${cachedResult.keys}")
             android.util.Log.d("NIP55", "Cached result value: ${cachedResult["result"]}")
@@ -136,6 +139,12 @@ class MainActivity: FlutterFragmentActivity() {
                     val installed = isExternalSignerInstalled()
                     result.success(installed)
                 }
+                "clearCache" -> {
+                    cachedPublicKeyResult = null
+                    cachedPublicKeyTimestamp = 0
+                    android.util.Log.d("NIP55", "Cache cleared")
+                    result.success(null)
+                }
                 else -> {
                     result.notImplemented()
                 }
@@ -162,12 +171,20 @@ class MainActivity: FlutterFragmentActivity() {
             when (method) {
                 "get_public_key" -> {
                     val cachedResult = cachedPublicKeyResult
-                    if (cachedResult != null) {
+                    val now = System.currentTimeMillis()
+                    val isCacheValid = cachedResult != null && 
+                        (now - cachedPublicKeyTimestamp) < CACHE_TTL_MS
+                    
+                    if (isCacheValid) {
                         android.util.Log.d("NIP55", "Returning cached get_public_key result")
-                        android.util.Log.d("NIP55", "Cached result keys: ${cachedResult.keys}")
+                        android.util.Log.d("NIP55", "Cached result keys: ${cachedResult!!.keys}")
                         android.util.Log.d("NIP55", "Cached result: ${cachedResult["result"]}")
                         result.success(cachedResult)
                         return
+                    } else if (cachedResult != null) {
+                        android.util.Log.d("NIP55", "Cache expired, clearing and fetching fresh key")
+                        cachedPublicKeyResult = null
+                        cachedPublicKeyTimestamp = 0
                     }
                     
                     android.util.Log.d("NIP55", "No cached result, launching intent for get_public_key")

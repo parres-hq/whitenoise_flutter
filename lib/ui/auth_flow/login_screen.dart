@@ -155,154 +155,186 @@ class _LoginScreenState extends ConsumerState<LoginScreen> with WidgetsBindingOb
         return;
       }
 
+      await _setupPubkeyAndSigner(account.pubkey);
       if (!mounted) return;
 
-      _logger.fine('Setting active pubkey');
-      await ref.read(activePubkeyProvider.notifier).setActivePubkey(account.pubkey);
+      await _refreshAccountState();
+      if (!mounted) return;
 
-      if (!mounted) {
-        _logger.fine('Component not mounted after setting pubkey');
-        return;
+      _completeLogin();
+    } catch (e, st) {
+      await _handleLoginError(e, st);
+    }
+  }
+
+  /// Sets the active pubkey and enables the NIP-55 signer
+  ///
+  /// Throws if signer setup fails. Returns early if component is not mounted.
+  Future<void> _setupPubkeyAndSigner(String pubkey) async {
+    _logger.fine('Setting active pubkey');
+    await ref.read(activePubkeyProvider.notifier).setActivePubkey(pubkey);
+
+    if (!mounted) {
+      _logger.fine('Component not mounted after setting pubkey');
+      return;
+    }
+
+    _logger.info('Enabling NIP55 signer for pubkey: $pubkey');
+    try {
+      await nip55_core_api.enableNip55Signer(pubkey: pubkey);
+      _logger.info('NIP55 signer enabled successfully');
+    } catch (e, st) {
+      _logger.severe('Failed to enable NIP-55 signer for account $pubkey', e, st);
+      if (mounted) {
+        ref.showErrorToast(
+          'Failed to enable external signer. Please try again.',
+        );
       }
+      rethrow; // Abort login flow if signer setup fails
+    }
+  }
 
-      _logger.info('Enabling NIP55 signer for pubkey: ${account.pubkey}');
-      try {
-        await nip55_core_api.enableNip55Signer(pubkey: account.pubkey);
-        _logger.info('NIP55 signer enabled successfully');
-      } catch (e, st) {
-        _logger.severe('Failed to enable NIP-55 signer for account ${account.pubkey}', e, st);
-        if (mounted) {
-          ref.showErrorToast(
-            'Failed to enable external signer. Please try again.',
-          );
-        }
-        return; // Abort login flow if signer setup fails
-      }
+  /// Refreshes the active account provider state
+  ///
+  /// Returns early if component is not mounted.
+  Future<void> _refreshAccountState() async {
+    _logger.fine('Refreshing active account provider');
+    ref.invalidate(activeAccountProvider);
+    final accountState = await ref.read(activeAccountProvider.future);
+    _logger.fine('Account state loaded. Account exists: ${accountState.account != null}');
 
-      _logger.fine('Refreshing active account provider');
-      ref.invalidate(activeAccountProvider);
-      final accountState = await ref.read(activeAccountProvider.future);
-      _logger.fine('Account state loaded. Account exists: ${accountState.account != null}');
+    if (!mounted) {
+      _logger.fine('Component not mounted after account refresh');
+      return;
+    }
+  }
 
-      if (!mounted) {
-        _logger.fine('Component not mounted after account refresh');
-        return;
-      }
+  /// Completes the login flow by setting authenticated state and navigating
+  void _completeLogin() {
+    _logger.info('Updating auth state to authenticated');
+    ref.read(authProvider.notifier).setAuthenticated();
 
-      _logger.info('Updating auth state to authenticated');
-      ref.read(authProvider.notifier).setAuthenticated();
+    final currentAuthState = ref.read(authProvider);
+    _logger.fine(
+      'Auth state after update: isAuthenticated=${currentAuthState.isAuthenticated}, isLoading=${currentAuthState.isLoading}',
+    );
 
-      final currentAuthState = ref.read(authProvider);
-      _logger.fine(
-        'Auth state after update: isAuthenticated=${currentAuthState.isAuthenticated}, isLoading=${currentAuthState.isLoading}',
+    if (!mounted) {
+      _logger.fine('Component not mounted after auth update');
+      return;
+    }
+
+    _logger.info('Navigating to chats screen');
+    context.go(Routes.chats);
+    _logger.info('NIP55 login flow completed successfully');
+  }
+
+  /// Attempts to recover from a relay setup error
+  ///
+  /// Returns true if recovery succeeded, false otherwise.
+  Future<bool> _recoverFromRelayError() async {
+    _logger.info('Attempting recovery: getting pubkey from signer');
+    try {
+      final resultJson = await Nip55Service.callNip55Method(
+        method: 'get_public_key',
+        params: '{}',
       );
 
-      if (!mounted) {
-        _logger.fine('Component not mounted after auth update');
-        return;
-      }
+      final result = jsonDecode(resultJson) as Map<String, dynamic>;
+      final pubkeyNpub = result['result'] as String?;
 
-      _logger.info('Navigating to chats screen');
-      context.go(Routes.chats);
-      _logger.info('NIP55 login flow completed successfully');
-    } catch (e, st) {
-      _logger.severe('NIP55 login flow failed', e, st);
-      final errorMessage = e.toString();
+      if (pubkeyNpub != null && pubkeyNpub.isValidNpubPublicKey) {
+        // Convert npub to hex
+        final hexPubkey = PubkeyFormatter(pubkey: pubkeyNpub).toHex();
+        if (hexPubkey != null && mounted) {
+          _logger.info('Recovery successful: setting active pubkey to $hexPubkey');
+          await ref.read(activePubkeyProvider.notifier).setActivePubkey(hexPubkey);
 
-      // Check if this is a relay setup error - account might still be created
-      if (errorMessage.contains('relay not found') || errorMessage.contains('Relay not found')) {
-        _logger.warning(
-          'Relay setup failed during login, but account may have been created. Error: $e',
-          e,
-          st,
-        );
+          _logger.info('Recovery: Enabling NIP55 signer for pubkey: $hexPubkey');
+          try {
+            await nip55_core_api.enableNip55Signer(pubkey: hexPubkey);
+            _logger.info('Recovery: NIP55 signer enabled successfully');
+          } catch (e, st) {
+            _logger.severe(
+              'Failed to enable NIP-55 signer during recovery for $hexPubkey',
+              e,
+              st,
+            );
+            if (mounted) {
+              ref.showErrorToast(
+                'Failed to enable external signer. Please try again.',
+              );
+            }
+            return false; // Abort recovery flow if signer setup fails
+          }
 
-        // Try to recover: get the pubkey from signer and set it as active
-        // The account was likely created, just relay setup failed
-        try {
-          _logger.info('Attempting recovery: getting pubkey from signer');
-          final resultJson = await Nip55Service.callNip55Method(
-            method: 'get_public_key',
-            params: '{}',
+          // Refresh account state
+          ref.invalidate(activeAccountProvider);
+          await ref.read(activeAccountProvider.future);
+
+          // Mark authenticated even if relay setup failed. Without this, GoRouter redirects
+          // back to the login flow until app restart.
+          ref.read(authProvider.notifier).setAuthenticated();
+
+          ref.showWarningToast(
+            'Login successful, but relay setup failed. Please add relays in settings.',
           );
 
-          final result = jsonDecode(resultJson) as Map<String, dynamic>;
-          final pubkeyNpub = result['result'] as String?;
-
-          if (pubkeyNpub != null && pubkeyNpub.isValidNpubPublicKey) {
-            // Convert npub to hex
-            final hexPubkey = PubkeyFormatter(pubkey: pubkeyNpub).toHex();
-            if (hexPubkey != null && mounted) {
-              _logger.info('Recovery successful: setting active pubkey to $hexPubkey');
-              await ref.read(activePubkeyProvider.notifier).setActivePubkey(hexPubkey);
-
-              _logger.info('Recovery: Enabling NIP55 signer for pubkey: $hexPubkey');
-              try {
-                await nip55_core_api.enableNip55Signer(pubkey: hexPubkey);
-                _logger.info('Recovery: NIP55 signer enabled successfully');
-              } catch (e, st) {
-                _logger.severe(
-                  'Failed to enable NIP-55 signer during recovery for $hexPubkey',
-                  e,
-                  st,
-                );
-                if (mounted) {
-                  ref.showErrorToast(
-                    'Failed to enable external signer. Please try again.',
-                  );
-                }
-                return; // Abort recovery flow if signer setup fails
-              }
-
-              // Refresh account state
-              ref.invalidate(activeAccountProvider);
-              await ref.read(activeAccountProvider.future);
-
-              // Mark authenticated even if relay setup failed. Without this, GoRouter redirects
-              // back to the login flow until app restart.
-              ref.read(authProvider.notifier).setAuthenticated();
-
-              ref.showWarningToast(
-                'Login successful, but relay setup failed. Please add relays in settings.',
-              );
-
-              if (mounted) {
-                context.go(Routes.chats);
-              }
-              return; // Successfully recovered
-            }
+          if (mounted) {
+            context.go(Routes.chats);
           }
-        } catch (recoveryError) {
-          _logger.warning('Recovery attempt failed: $recoveryError');
+          return true; // Successfully recovered
         }
+      }
+    } catch (recoveryError) {
+      _logger.warning('Recovery attempt failed: $recoveryError');
+    }
 
+    return false; // Recovery failed
+  }
+
+  /// Handles login errors, including relay error recovery
+  Future<void> _handleLoginError(dynamic e, StackTrace st) async {
+    _logger.severe('NIP55 login flow failed', e, st);
+    final errorMessage = e.toString();
+
+    // Check if this is a relay setup error - account might still be created
+    if (errorMessage.contains('relay not found') || errorMessage.contains('Relay not found')) {
+      _logger.warning(
+        'Relay setup failed during login, but account may have been created. Error: $e',
+        e,
+        st,
+      );
+
+      final recovered = await _recoverFromRelayError();
+      if (!recovered) {
         // If recovery failed, show error
         if (mounted) {
           ref.showErrorToast(
             'Account created but relay setup failed. Please add relays in settings and try logging in again.',
           );
         }
-        return; // Don't show generic error toast
       }
+      return; // Don't show generic error toast
+    }
 
-      if (mounted) {
-        if (errorMessage.contains('not available') || errorMessage.contains('rebuild')) {
-          // Log the original error for developers while showing user-friendly message
-          _logger.severe(
-            'NIP55 signer not available or requires rebuild. Original error: $e',
-            e,
-            st,
-          );
-          ref.showErrorToast(
-            'An internal error occurred while attempting to sign in. Please try again or contact support.',
-          );
-        } else {
-          _logger.severe('Login with external signer failed: $e', e, st);
-          ref.showErrorToast('Failed to login with external signer. Please try again.');
-        }
+    if (mounted) {
+      if (errorMessage.contains('not available') || errorMessage.contains('rebuild')) {
+        // Log the original error for developers while showing user-friendly message
+        _logger.severe(
+          'NIP55 signer not available or requires rebuild. Original error: $e',
+          e,
+          st,
+        );
+        ref.showErrorToast(
+          'An internal error occurred while attempting to sign in. Please try again or contact support.',
+        );
       } else {
         _logger.severe('Login with external signer failed: $e', e, st);
+        ref.showErrorToast('Failed to login with external signer. Please try again.');
       }
+    } else {
+      _logger.severe('Login with external signer failed: $e', e, st);
     }
   }
 

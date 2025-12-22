@@ -11,6 +11,7 @@ import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
+import 'package:whitenoise/domain/services/nip55_service.dart';
 import 'package:whitenoise/routing/routes.dart';
 import 'package:whitenoise/src/rust/api/accounts.dart' show Account, getAccounts;
 import 'package:whitenoise/ui/core/themes/assets.dart';
@@ -65,6 +66,9 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   Future<void> _switchAccount(String accountPubkey) async {
     try {
+      // Clear NIP55 cache when switching accounts
+      await Nip55Service.clearCache();
+      
       await ref.read(activePubkeyProvider.notifier).setActivePubkey(accountPubkey);
 
       if (mounted) {

@@ -9,6 +9,7 @@ import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/states/auth_state.dart';
 import 'package:whitenoise/domain/services/nip55_callback.dart';
+import 'package:whitenoise/domain/services/nip55_service.dart';
 import 'package:whitenoise/src/rust/api.dart' show createWhitenoiseConfig, initializeWhitenoise;
 import 'package:whitenoise/src/rust/api/accounts.dart';
 import 'package:whitenoise/src/rust/api/error.dart' show ApiError;
@@ -299,6 +300,9 @@ class AuthNotifier extends Notifier<AuthState> {
       final activeAccount = activeAccountState.account;
       if (activeAccount != null) {
         await logout(pubkey: activeAccount.pubkey);
+
+        // Clear NIP55 cache when logging out
+        await Nip55Service.clearCache();
 
         // Clear the active account
         await ref.read(activePubkeyProvider.notifier).clearActivePubkey();
