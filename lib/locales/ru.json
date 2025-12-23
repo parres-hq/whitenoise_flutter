@@ -163,8 +163,6 @@
         "noRelaysConnected": "Релеи не подключены",
         "appWontWorkUntilRelay": "Приложение не будет работать, пока вы не добавите хотя бы один.",
         "connectRelays": "Подключить релеи",
-        "updateAvailable": "Доступно обновление",
-        "newVersionAvailable": "Доступна версия {version}. Обновите для получения последних функций и исправлений.",
         "checkingForNewMessages": "Проверка новых сообщений…",
         "searchChats": "Поиск чатов",
         "emptySlogan": "Децентрализованный. Нецензурируемый.\nБезопасные сообщения.",
@@ -335,7 +333,9 @@
         "membersAddedSuccess": "Участники успешно добавлены",
         "failedToAddMembers": "Не удалось добавить участников",
         "addingMembers": "Добавление участников...",
-        "selectedCount": "{count} выбрано"
+        "selectedCount": "{count} выбрано",
+        "newVersionAvailable": "Доступна новая версия",
+        "updateWhiteNoise": "Обновите White Noise, чтобы получить последние исправления и улучшения."
     },
     "errors": {
         "errorOccurred": "Произошла ошибка",

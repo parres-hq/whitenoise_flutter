@@ -163,8 +163,6 @@
         "noRelaysConnected": "Nenhum relay conectado",
         "appWontWorkUntilRelay": "O aplicativo não funcionará até você adicionar pelo menos um.",
         "connectRelays": "Conectar relays",
-        "updateAvailable": "Atualização disponível",
-        "newVersionAvailable": "A versão {version} está disponível. Atualize para os recursos e correções mais recentes.",
         "checkingForNewMessages": "Verificando novas mensagens…",
         "searchChats": "Pesquisar conversas",
         "emptySlogan": "Descentralizado. Incensurável.\nMensagens seguras.",
@@ -335,7 +333,9 @@
         "membersAddedSuccess": "Membros adicionados com sucesso",
         "failedToAddMembers": "Falha ao adicionar membros",
         "addingMembers": "Adicionando membros...",
-        "selectedCount": "{count} selecionados"
+        "selectedCount": "{count} selecionados",
+        "newVersionAvailable": "Nova versão disponível",
+        "updateWhiteNoise": "Atualize o White Noise para obter as últimas correções e melhorias."
     },
     "errors": {
         "errorOccurred": "Ocorreu um erro",

@@ -163,8 +163,6 @@
         "noRelaysConnected": "Bağlı Röle Yok",
         "appWontWorkUntilRelay": "En az bir tane ekleyene kadar uygulama çalışmayacak.",
         "connectRelays": "Röleleri Bağla",
-        "updateAvailable": "Güncelleme Mevcut",
-        "newVersionAvailable": "{version} sürümü mevcut. En son özellikler ve düzeltmeler için güncelleyin.",
         "checkingForNewMessages": "Yeni mesajlar kontrol ediliyor…",
         "searchChats": "Sohbetleri Ara",
         "emptySlogan": "Merkeziyetsiz. Sansürlenemez.\nGüvenli Mesajlaşma.",
@@ -335,7 +333,9 @@
         "membersAddedSuccess": "Üyeler başarıyla eklendi",
         "failedToAddMembers": "Üye ekleme başarısız",
         "addingMembers": "Üyeler ekleniyor...",
-        "selectedCount": "{count} seçildi"
+        "selectedCount": "{count} seçildi",
+        "newVersionAvailable": "Yeni Sürüm Mevcut",
+        "updateWhiteNoise": "En son düzeltmeleri ve iyileştirmeleri almak için White Noise'u güncelleyin."
     },
     "errors": {
         "errorOccurred": "Bir hata oluştu",

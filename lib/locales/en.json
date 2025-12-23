@@ -163,8 +163,6 @@
         "noRelaysConnected": "No Relays Connected",
         "appWontWorkUntilRelay": "The app won't work until you add at least one.",
         "connectRelays": "Connect Relays",
-        "updateAvailable": "Update Available",
-        "newVersionAvailable": "Version {version} is available. Update for the latest features and fixes.",
         "checkingForNewMessages": "Checking for new messages…",
         "searchChats": "Search Chats",
         "emptySlogan": "Decentralized. Uncensorable.\nSecure Messaging.",
@@ -335,7 +333,9 @@
         "membersAddedSuccess": "Members added successfully",
         "failedToAddMembers": "Failed to add members",
         "addingMembers": "Adding members...",
-        "selectedCount": "{count} selected"
+        "selectedCount": "{count} selected",
+        "newVersionAvailable": "New Version Available",
+        "updateWhiteNoise": "Update White Noise to get the latest fixes and improvements."
     },
     "errors": {
         "errorOccurred": "An error occurred",
