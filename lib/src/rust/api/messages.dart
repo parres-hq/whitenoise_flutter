@@ -12,7 +12,7 @@ import 'media_files.dart';
 
 part 'messages.freezed.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_receiver_is_total_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`, `from`
 
 Future<MessageWithTokens> sendMessageToGroup({
   required String pubkey,
@@ -113,6 +113,57 @@ class ChatMessage {
           reactions == other.reactions &&
           mediaAttachments == other.mediaAttachments &&
           kind == other.kind;
+}
+
+/// Lightweight message summary for chat list previews.
+class ChatMessageSummary {
+  /// MLS group this message belongs to (hex string)
+  final String mlsGroupId;
+
+  /// Author's public key (hex)
+  final String author;
+
+  /// Author's display name (from metadata, may be None)
+  final String? authorDisplayName;
+
+  /// Message content preview
+  final String content;
+
+  /// When the message was sent
+  final DateTime createdAt;
+
+  /// Number of media attachments
+  final BigInt mediaAttachmentCount;
+
+  const ChatMessageSummary({
+    required this.mlsGroupId,
+    required this.author,
+    this.authorDisplayName,
+    required this.content,
+    required this.createdAt,
+    required this.mediaAttachmentCount,
+  });
+
+  @override
+  int get hashCode =>
+      mlsGroupId.hashCode ^
+      author.hashCode ^
+      authorDisplayName.hashCode ^
+      content.hashCode ^
+      createdAt.hashCode ^
+      mediaAttachmentCount.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChatMessageSummary &&
+          runtimeType == other.runtimeType &&
+          mlsGroupId == other.mlsGroupId &&
+          author == other.author &&
+          authorDisplayName == other.authorDisplayName &&
+          content == other.content &&
+          createdAt == other.createdAt &&
+          mediaAttachmentCount == other.mediaAttachmentCount;
 }
 
 /// Flutter-compatible emoji reaction details
