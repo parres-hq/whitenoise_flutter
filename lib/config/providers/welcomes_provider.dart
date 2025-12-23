@@ -322,7 +322,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       }
 
       final String requestPubkey = activePubkey;
-      await acceptWelcome(pubkey: requestPubkey, welcomeEventId: welcomeEventId);
+      // TODO: Either replace this whole acceptWelcomeInvitation method
+      // or use the account_group method here to accept a group invitation
       if (requestPubkey != (ref.read(activePubkeyProvider) ?? '')) {
         return false;
       }
@@ -357,7 +358,8 @@ class WelcomesNotifier extends Notifier<WelcomesState> {
       }
 
       final String requestPubkey = activePubkey;
-      await declineWelcome(pubkey: requestPubkey, welcomeEventId: welcomeEventId);
+      // TODO: Either replace this whole declineWelcomeInvitation method
+      // or use the account_group method to decline a group invitation
       if (requestPubkey != (ref.read(activePubkeyProvider) ?? '')) {
         return false;
       }

@@ -222,6 +222,8 @@ pub struct ChatSummary {
     pub group_image_url: Option<String>,
     /// Preview of the last message (None if no messages)
     pub last_message: Option<ChatMessageSummary>,
+    /// Whether the group is pending user confirmation
+    pub pending_confirmation: bool,
 }
 
 impl From<WhitenoiseChatListItem> for ChatSummary {
@@ -236,6 +238,7 @@ impl From<WhitenoiseChatListItem> for ChatSummary {
                 .map(|p| p.to_string_lossy().to_string()),
             group_image_url: item.group_image_url,
             last_message: item.last_message.map(|m| m.into()),
+            pending_confirmation: item.pending_confirmation,
         }
     }
 }

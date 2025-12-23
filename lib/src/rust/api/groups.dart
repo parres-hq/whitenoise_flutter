@@ -123,7 +123,6 @@ Future<String?> getGroupImagePath({
 /// Summary of a chat/group for the chat list screen.
 ///
 /// Contains pre-computed display data (resolved names, images, last message).
-/// The Dart `ChatListItem` can consume this for its chat entries.
 class ChatSummary {
   /// MLS group identifier (hex string)
   final String mlsGroupId;
@@ -148,6 +147,9 @@ class ChatSummary {
   /// Preview of the last message (None if no messages)
   final ChatMessageSummary? lastMessage;
 
+  /// Whether the group is pending user confirmation
+  final bool pendingConfirmation;
+
   const ChatSummary({
     required this.mlsGroupId,
     this.name,
@@ -156,6 +158,7 @@ class ChatSummary {
     this.groupImagePath,
     this.groupImageUrl,
     this.lastMessage,
+    required this.pendingConfirmation,
   });
 
   @override
@@ -166,7 +169,8 @@ class ChatSummary {
       createdAt.hashCode ^
       groupImagePath.hashCode ^
       groupImageUrl.hashCode ^
-      lastMessage.hashCode;
+      lastMessage.hashCode ^
+      pendingConfirmation.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -179,7 +183,8 @@ class ChatSummary {
           createdAt == other.createdAt &&
           groupImagePath == other.groupImagePath &&
           groupImageUrl == other.groupImageUrl &&
-          lastMessage == other.lastMessage;
+          lastMessage == other.lastMessage &&
+          pendingConfirmation == other.pendingConfirmation;
 }
 
 class FlutterGroupDataUpdate {
