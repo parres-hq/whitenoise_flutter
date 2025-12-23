@@ -156,8 +156,6 @@ class MessageWidget extends StatelessWidget {
                       builder: (context) {
                         double? mediaWidth;
                         if (message.mediaAttachments.isNotEmpty) {
-                          final screenWidth = MediaQuery.sizeOf(context).width;
-                          final maxBubbleWidth = screenWidth * 0.74;
                           final padding = 16.w;
                           final maxMediaWidth = maxBubbleWidth - padding;
                           final layoutConfig = MediaLayoutCalculator.calculateLayout(
