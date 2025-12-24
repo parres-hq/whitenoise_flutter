@@ -94,7 +94,9 @@
         "failedToLoadProfile": "Errore nel caricamento del profilo",
         "publicKeyCopied": "Chiave pubblica copiata",
         "scanToConnect": "Scansiona per connetterti.",
-        "scanQrCode": "Scansiona Codice QR"
+        "scanQrCode": "Scansiona Codice QR",
+        "profilePublicTitle": "Il tuo profilo è pubblico",
+        "profilePublicDescription": "Nome, foto e biografia sono pubblici. Usa ciò che ti senti a tuo agio a condividere. Il tuo profilo rimane privato per impostazione predefinita a meno che non lo rendi personale."
     },
     "nostrKeys": {
         "copyPublicKeySuccess": "Chiave pubblica copiata negli appunti",

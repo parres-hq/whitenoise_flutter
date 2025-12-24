@@ -8,6 +8,7 @@ import 'package:whitenoise/config/providers/create_profile_screen_provider.dart'
 import 'package:whitenoise/ui/auth_flow/auth_header.dart';
 import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
+import 'package:whitenoise/ui/core/ui/warning_box.dart';
 import 'package:whitenoise/ui/core/ui/wn_avatar.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
@@ -226,6 +227,17 @@ class _CreateProfileScreenState extends ConsumerState<CreateProfileScreen>
                   maxLines: 3,
                   minLines: 3,
                   keyboardType: TextInputType.multiline,
+                ),
+                Gap(36.h),
+                WarningBox(
+                  title: 'profile.profilePublicTitle'.tr(),
+                  description: 'profile.profilePublicDescription'.tr(),
+                  iconPath: AssetsPaths.icInfoFilled,
+                  backgroundColor: context.colors.primaryForeground,
+                  borderColor: context.colors.primary,
+                  iconColor: context.colors.primary,
+                  titleColor: context.colors.primary,
+                  descriptionColor: context.colors.mutedForeground,
                 ),
                 Gap(16.h),
               ],
