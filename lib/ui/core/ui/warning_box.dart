@@ -45,12 +45,13 @@ class WarningBox extends StatelessWidget {
       padding: EdgeInsets.all(16.w),
       decoration: BoxDecoration(
         color: bgColor,
-        border: showBorder
-            ? Border.all(
-                color: border,
-                width: 1.w,
-              )
-            : null,
+        border:
+            showBorder
+                ? Border.all(
+                  color: border,
+                  width: 1.w,
+                )
+                : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,4 +94,3 @@ class WarningBox extends StatelessWidget {
     );
   }
 }
-
