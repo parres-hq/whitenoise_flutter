@@ -9,6 +9,7 @@ import 'package:gap/gap.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/config/providers/app_update_provider.dart';
 import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/delayed_relay_error_provider.dart';
 import 'package:whitenoise/config/providers/filtered_chat_items_provider.dart';
@@ -330,6 +331,9 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
     final delayedRelayErrorState = ref.watch(delayedRelayErrorProvider);
     final shouldShowRelayError = delayedRelayErrorState.shouldShowBanner;
 
+    final appUpdateState = ref.watch(appUpdateProvider);
+    final shouldShowUpdateBanner = appUpdateState.shouldShowBanner;
+
     return GestureDetector(
       onTap: _unfocusSearchIfNeeded,
       child: Scaffold(
@@ -390,6 +394,24 @@ class _ChatListScreenState extends ConsumerState<ChatListScreen> with TickerProv
                             ),
                             onTap: () => context.push(Routes.settingsNetwork),
                           ),
+                        ).animate().fadeIn(),
+                  ),
+                if (shouldShowUpdateBanner)
+                  SliverAppBar(
+                    automaticallyImplyLeading: false,
+                    titleSpacing: 0,
+                    elevation: 0,
+                    pinned: true,
+                    toolbarHeight: 94.h - MediaQuery.of(context).padding.top,
+                    flexibleSpace:
+                        WnHeadsUp(
+                          title: 'ui.newVersionAvailable'.tr(),
+                          subtitle: 'ui.updateWhiteNoise'.tr(),
+                          type: WnHeadingType.infoBlack,
+                          showCloseButton: true,
+                          onClose: () {
+                            ref.read(appUpdateProvider.notifier).dismissBanner();
+                          },
                         ).animate().fadeIn(),
                   ),
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
@@ -8,6 +9,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:whitenoise/config/extensions/toast_extension.dart';
 import 'package:whitenoise/config/providers/active_account_provider.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
+import 'package:whitenoise/config/providers/app_update_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/domain/models/user_profile.dart';
 import 'package:whitenoise/domain/services/draft_message_service.dart';
@@ -17,6 +19,7 @@ import 'package:whitenoise/ui/core/themes/assets.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_button.dart';
 import 'package:whitenoise/ui/core/ui/wn_dialog.dart';
+import 'package:whitenoise/ui/core/ui/wn_heads_up.dart';
 import 'package:whitenoise/ui/core/ui/wn_image.dart';
 import 'package:whitenoise/ui/core/widgets/wn_settings_screen_wrapper.dart';
 import 'package:whitenoise/ui/settings/developer/developer_settings_screen.dart';
@@ -190,16 +193,32 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final appUpdateState = ref.watch(appUpdateProvider);
+    final shouldShowUpdateBanner = appUpdateState.shouldShowBanner;
+
     return WnSettingsScreenWrapper(
       title: 'settings.title'.tr(),
-      body: ListView(
-        padding: EdgeInsets.symmetric(vertical: 24.h),
+      body: Column(
         children: [
-          RepaintBoundary(
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              child: Column(
-                children: [
+          if (shouldShowUpdateBanner)
+            WnHeadsUp(
+              title: 'ui.newVersionAvailable'.tr(),
+              subtitle: 'ui.updateWhiteNoise'.tr(),
+              type: WnHeadingType.infoBlack,
+              showCloseButton: true,
+              onClose: () {
+                ref.read(appUpdateProvider.notifier).dismissBanner();
+              },
+            ).animate().fadeIn(),
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.symmetric(vertical: 20.h),
+              children: [
+                RepaintBoundary(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    child: Column(
+                      children: [
                   const ActiveAccountTile(),
                   SizedBox(height: 12.h),
                   WnFilledButton(
@@ -310,6 +329,9 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
               ),
             ),
           SizedBox(height: 16.h),
+              ],
+            ),
+          ),
         ],
       ),
     );

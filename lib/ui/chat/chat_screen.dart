@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:logging/logging.dart';
+import 'package:whitenoise/config/providers/app_update_provider.dart';
 import 'package:whitenoise/config/providers/avatar_color_provider.dart';
 import 'package:whitenoise/config/providers/chat_input_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
@@ -29,6 +30,7 @@ import 'package:whitenoise/ui/chat/widgets/user_profile_info.dart';
 import 'package:whitenoise/ui/core/themes/src/extensions.dart';
 import 'package:whitenoise/ui/core/ui/wn_app_bar.dart';
 import 'package:whitenoise/ui/core/ui/wn_bottom_fade.dart';
+import 'package:whitenoise/ui/core/ui/wn_heads_up.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -327,6 +329,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
     final searchState = ref.watch(chatSearchProvider(widget.groupId));
     final searchNotifier = ref.read(chatSearchProvider(widget.groupId).notifier);
     final isInviteMode = widget.inviteId != null;
+    final appUpdateState = ref.watch(appUpdateProvider);
+    final shouldShowUpdateBanner = appUpdateState.shouldShowBanner;
 
     // Watch messages first so they're available for listeners
     final messages = chatStreamNotifier.value ?? [];
@@ -418,61 +422,83 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
       },
       child: Scaffold(
         resizeToAvoidBottomInset: true,
-        body: NotificationListener<ScrollNotification>(
-          onNotification: (scrollInfo) {
-            if (scrollInfo is ScrollUpdateNotification) {
-              final currentFocus = FocusManager.instance.primaryFocus;
-              if (currentFocus != null && currentFocus.hasFocus && !_isKeyboardOpen) {
-                final currentOffset = scrollInfo.metrics.pixels;
-                final scrollDelta = currentOffset - _lastScrollOffset;
-                if (scrollDelta < -20) currentFocus.unfocus();
-                _lastScrollOffset = currentOffset;
-              }
-            }
-            return false;
-          },
-          child: GestureDetector(
-            onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-            behavior: HitTestBehavior.translucent,
-            child: Column(
-              children: [
-                if (searchState.isSearchActive)
-                  ChatSearchWidget(
-                    groupId: widget.groupId,
-                    onClose: searchNotifier.deactivateSearch,
-                  ),
-                Expanded(
-                  child: Stack(
+        body: Column(
+          children: [
+            Expanded(
+              child: NotificationListener<ScrollNotification>(
+                onNotification: (scrollInfo) {
+                  if (scrollInfo is ScrollUpdateNotification) {
+                    final currentFocus = FocusManager.instance.primaryFocus;
+                    if (currentFocus != null && currentFocus.hasFocus && !_isKeyboardOpen) {
+                      final currentOffset = scrollInfo.metrics.pixels;
+                      final scrollDelta = currentOffset - _lastScrollOffset;
+                      if (scrollDelta < -20) currentFocus.unfocus();
+                      _lastScrollOffset = currentOffset;
+                    }
+                  }
+                  return false;
+                },
+                child: GestureDetector(
+                  onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                  behavior: HitTestBehavior.translucent,
+                  child: Column(
                     children: [
-                      CustomScrollView(
-                        controller: _scrollController,
-                        slivers: [
-                          if (!searchState.isSearchActive)
-                            WnAppBar.sliver(
-                              floating: true,
-                              pinned: true,
-                              title: Consumer(
-                                builder: (context, ref, child) {
-                                  return ChatGroupAppbar(
-                                    groupId: widget.groupId,
-                                    onTap: () => context.push('/chats/${widget.groupId}/info'),
-                                  );
-                                },
-                              ),
-                            ),
-                          SliverPadding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 8.w,
-                              vertical: 8.h,
-                            ).copyWith(bottom: 24.h),
-                            sliver: SliverList.builder(
-                              itemCount: messages.length + 1,
-                              itemBuilder: (context, index) {
-                                if (index == 0) {
-                                  return ChatUserHeader(group: group);
-                                }
-                                final int messageIndex = index - 1;
-                                final message = messages[messageIndex];
+                      if (searchState.isSearchActive)
+                        ChatSearchWidget(
+                          groupId: widget.groupId,
+                          onClose: searchNotifier.deactivateSearch,
+                        ),
+                      Expanded(
+                        child: Stack(
+                          children: [
+                            CustomScrollView(
+                              controller: _scrollController,
+                              slivers: [
+                                if (!searchState.isSearchActive)
+                                  WnAppBar.sliver(
+                                    floating: true,
+                                    pinned: true,
+                                    title: Consumer(
+                                      builder: (context, ref, child) {
+                                        return ChatGroupAppbar(
+                                          groupId: widget.groupId,
+                                          onTap:
+                                              () => context.push('/chats/${widget.groupId}/info'),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                if (shouldShowUpdateBanner)
+                                  SliverAppBar(
+                                    automaticallyImplyLeading: false,
+                                    titleSpacing: 0,
+                                    elevation: 0,
+                                    pinned: true,
+                                    toolbarHeight: 94.h - MediaQuery.of(context).padding.top,
+                                    flexibleSpace:
+                                        WnHeadsUp(
+                                          title: 'ui.newVersionAvailable'.tr(),
+                                          subtitle: 'ui.updateWhiteNoise'.tr(),
+                                          type: WnHeadingType.infoBlack,
+                                          showCloseButton: true,
+                                          onClose: () {
+                                            ref.read(appUpdateProvider.notifier).dismissBanner();
+                                          },
+                                        ).animate().fadeIn(),
+                                  ),
+                                SliverPadding(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 8.w,
+                                    vertical: 8.h,
+                                  ).copyWith(bottom: 24.h),
+                                  sliver: SliverList.builder(
+                                    itemCount: messages.length + 1,
+                                    itemBuilder: (context, index) {
+                                      if (index == 0) {
+                                        return ChatUserHeader(group: group);
+                                      }
+                                      final int messageIndex = index - 1;
+                                      final message = messages[messageIndex];
 
                                 return SwipeToReplyWidget(
                                   message: message,
