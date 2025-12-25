@@ -1,3 +1,4 @@
+use crate::api::messages::ChatMessageSummary;
 use crate::api::{error::ApiError, group_id_from_string, group_id_to_string};
 use chrono::{DateTime, Utc};
 use flutter_rust_bridge::frb;
@@ -5,6 +6,7 @@ use mdk_core::prelude::group_types::Group as WhitenoiseGroup;
 use mdk_core::prelude::group_types::GroupState as WhitenoiseGroupState;
 use mdk_core::prelude::{NostrGroupConfigData, NostrGroupDataUpdate};
 use nostr_sdk::prelude::*;
+use whitenoise::whitenoise::chat_list::ChatListItem as WhitenoiseChatListItem;
 use whitenoise::{
     GroupInformation as WhitenoiseGroupInformation, GroupType as WhitenoiseGroupType, RelayType,
     Whitenoise,
@@ -198,6 +200,49 @@ impl From<WhitenoiseGroupInformation> for GroupInformation {
     }
 }
 
+/// Summary of a chat/group for the chat list screen.
+///
+/// Contains pre-computed display data (resolved names, images, last message).
+#[frb(non_opaque)]
+#[derive(Debug, Clone)]
+pub struct ChatSummary {
+    /// MLS group identifier (hex string)
+    pub mls_group_id: String,
+    /// Display name for this chat:
+    /// - Groups: The group name (may be empty)
+    /// - DMs: The other user's display name (None if no metadata)
+    pub name: Option<String>,
+    /// Type of chat: Group or DirectMessage
+    pub group_type: GroupType,
+    /// When this group was created
+    pub created_at: DateTime<Utc>,
+    /// Path to cached decrypted group image (Groups only)
+    pub group_image_path: Option<String>,
+    /// Profile picture URL of the other user (DMs only)
+    pub group_image_url: Option<String>,
+    /// Preview of the last message (None if no messages)
+    pub last_message: Option<ChatMessageSummary>,
+    /// Whether the group is pending user confirmation
+    pub pending_confirmation: bool,
+}
+
+impl From<WhitenoiseChatListItem> for ChatSummary {
+    fn from(item: WhitenoiseChatListItem) -> Self {
+        Self {
+            mls_group_id: group_id_to_string(&item.mls_group_id),
+            name: item.name,
+            group_type: item.group_type.into(),
+            created_at: item.created_at,
+            group_image_path: item
+                .group_image_path
+                .map(|p| p.to_string_lossy().to_string()),
+            group_image_url: item.group_image_url,
+            last_message: item.last_message.map(|m| m.into()),
+            pending_confirmation: item.pending_confirmation,
+        }
+    }
+}
+
 #[frb]
 pub async fn active_groups(pubkey: String) -> Result<Vec<Group>, ApiError> {
     let whitenoise = Whitenoise::get_instance()?;
@@ -359,6 +404,19 @@ pub async fn get_groups_informations(
         .into_iter()
         .map(|info| info.into())
         .collect())
+}
+
+/// Retrieves the chat list for an account.
+///
+/// Returns a list of chat summaries sorted by last activity (most recent first).
+/// Groups without messages are sorted by creation date.
+#[frb]
+pub async fn get_chat_list(account_pubkey: String) -> Result<Vec<ChatSummary>, ApiError> {
+    let whitenoise = Whitenoise::get_instance()?;
+    let pubkey = PublicKey::parse(&account_pubkey)?;
+    let account = whitenoise.find_account_by_pubkey(&pubkey).await?;
+    let chat_list = whitenoise.get_chat_list(&account).await?;
+    Ok(chat_list.into_iter().map(|item| item.into()).collect())
 }
 
 // Result structure for upload_group_image

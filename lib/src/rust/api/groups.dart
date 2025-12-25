@@ -8,8 +8,9 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 import '../frb_generated.dart';
 import '../lib.dart';
 import 'error.dart';
+import 'messages.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `from`, `from`, `from`, `from`, `from`, `from`
 
 Future<List<Group>> activeGroups({required String pubkey}) =>
     RustLib.instance.api.crateApiGroupsActiveGroups(pubkey: pubkey);
@@ -90,6 +91,15 @@ Future<List<GroupInformation>> getGroupsInformations({
   groupIds: groupIds,
 );
 
+/// Retrieves the chat list for an account.
+///
+/// Returns a list of chat summaries sorted by last activity (most recent first).
+/// Groups without messages are sorted by creation date.
+Future<List<ChatSummary>> getChatList({required String accountPubkey}) =>
+    RustLib.instance.api.crateApiGroupsGetChatList(
+      accountPubkey: accountPubkey,
+    );
+
 Future<UploadGroupImageResult> uploadGroupImage({
   required String accountPubkey,
   required String groupId,
@@ -109,6 +119,73 @@ Future<String?> getGroupImagePath({
   accountPubkey: accountPubkey,
   groupId: groupId,
 );
+
+/// Summary of a chat/group for the chat list screen.
+///
+/// Contains pre-computed display data (resolved names, images, last message).
+class ChatSummary {
+  /// MLS group identifier (hex string)
+  final String mlsGroupId;
+
+  /// Display name for this chat:
+  /// - Groups: The group name (may be empty)
+  /// - DMs: The other user's display name (None if no metadata)
+  final String? name;
+
+  /// Type of chat: Group or DirectMessage
+  final GroupType groupType;
+
+  /// When this group was created
+  final DateTime createdAt;
+
+  /// Path to cached decrypted group image (Groups only)
+  final String? groupImagePath;
+
+  /// Profile picture URL of the other user (DMs only)
+  final String? groupImageUrl;
+
+  /// Preview of the last message (None if no messages)
+  final ChatMessageSummary? lastMessage;
+
+  /// Whether the group is pending user confirmation
+  final bool pendingConfirmation;
+
+  const ChatSummary({
+    required this.mlsGroupId,
+    this.name,
+    required this.groupType,
+    required this.createdAt,
+    this.groupImagePath,
+    this.groupImageUrl,
+    this.lastMessage,
+    required this.pendingConfirmation,
+  });
+
+  @override
+  int get hashCode =>
+      mlsGroupId.hashCode ^
+      name.hashCode ^
+      groupType.hashCode ^
+      createdAt.hashCode ^
+      groupImagePath.hashCode ^
+      groupImageUrl.hashCode ^
+      lastMessage.hashCode ^
+      pendingConfirmation.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ChatSummary &&
+          runtimeType == other.runtimeType &&
+          mlsGroupId == other.mlsGroupId &&
+          name == other.name &&
+          groupType == other.groupType &&
+          createdAt == other.createdAt &&
+          groupImagePath == other.groupImagePath &&
+          groupImageUrl == other.groupImageUrl &&
+          lastMessage == other.lastMessage &&
+          pendingConfirmation == other.pendingConfirmation;
+}
 
 class FlutterGroupDataUpdate {
   final String? name;
