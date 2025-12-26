@@ -11,6 +11,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated_io.dart';
 
 import 'api.dart';
 import 'api/accounts.dart';
+import 'api/app_update.dart';
 import 'api/error.dart';
 import 'api/groups.dart';
 import 'api/media_files.dart';
@@ -145,6 +146,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   ApiError dco_decode_api_error(dynamic raw);
+
+  @protected
+  AppUpdateInfo dco_decode_app_update_info(dynamic raw);
 
   @protected
   bool dco_decode_bool(dynamic raw);
@@ -478,6 +482,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   ApiError sse_decode_api_error(SseDeserializer deserializer);
+
+  @protected
+  AppUpdateInfo sse_decode_app_update_info(SseDeserializer deserializer);
 
   @protected
   bool sse_decode_bool(SseDeserializer deserializer);
@@ -867,6 +874,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_api_error(ApiError self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_app_update_info(AppUpdateInfo self, SseSerializer serializer);
 
   @protected
   void sse_encode_bool(bool self, SseSerializer serializer);

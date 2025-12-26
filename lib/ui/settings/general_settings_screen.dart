@@ -219,116 +219,116 @@ class _GeneralSettingsScreenState extends ConsumerState<GeneralSettingsScreen> {
                     padding: EdgeInsets.symmetric(horizontal: 16.w),
                     child: Column(
                       children: [
-                  const ActiveAccountTile(),
-                  SizedBox(height: 12.h),
-                  WnFilledButton(
-                    label: 'ui.switchAccount'.tr(),
-                    size: WnButtonSize.small,
-                    visualState: WnButtonVisualState.secondary,
-                    onPressed: () async => await _showAccountSwitcher(),
-                    suffixIcon: WnImage(
-                      AssetsPaths.icArrowsVertical,
-                      color: context.colors.primary,
+                        const ActiveAccountTile(),
+                        SizedBox(height: 12.h),
+                        WnFilledButton(
+                          label: 'ui.switchAccount'.tr(),
+                          size: WnButtonSize.small,
+                          visualState: WnButtonVisualState.secondary,
+                          onPressed: () async => await _showAccountSwitcher(),
+                          suffixIcon: WnImage(
+                            AssetsPaths.icArrowsVertical,
+                            color: context.colors.primary,
+                          ),
+                        ),
+                        SizedBox(height: 16.h),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 16.h),
-                ],
-              ),
-            ),
-          ),
-
-          Container(
-            height: 1,
-            color: context.colors.baseMuted,
-          ),
-
-          RepaintBoundary(
-            child: _SettingsSection(
-              padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
-              children: [
-                SettingsListTile(
-                  assetPath: AssetsPaths.icUser,
-                  text: 'settings.editProfile'.tr(),
-                  onTap: () => context.push('${Routes.settings}/profile'),
                 ),
-                SettingsListTile(
-                  assetPath: AssetsPaths.icPassword,
-                  text: 'settings.profileKeys'.tr(),
-                  onTap: () => context.push('${Routes.settings}/keys'),
-                ),
-                SettingsListTile(
-                  assetPath: AssetsPaths.icDataVis3,
-                  text: 'settings.networkRelays'.tr(),
-                  onTap: () => context.push('${Routes.settings}/network'),
-                ),
-                SettingsListTile(
-                  assetPath: AssetsPaths.icLogout,
-                  text: 'settings.signOut'.tr(),
-                  onTap: _handleLogout,
-                ),
-              ],
-            ),
-          ),
 
-          Container(
-            height: 1,
-            color: context.colors.baseMuted,
-            margin: EdgeInsets.symmetric(vertical: 12.h),
-          ),
-
-          RepaintBoundary(
-            child: _SettingsSection(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              children: [
-                SettingsListTile(
-                  assetPath: AssetsPaths.icSettings,
-                  text: 'settings.appSettings'.tr(),
-                  onTap: () => context.push('${Routes.settings}/app_settings'),
+                Container(
+                  height: 1,
+                  color: context.colors.baseMuted,
                 ),
-                SettingsListTile(
-                  assetPath: AssetsPaths.icFavorite,
-                  text: 'settings.donateToWhiteNoise'.tr(),
-                  onTap: () => context.push(Routes.settingsDonate),
-                ),
-              ],
-            ),
-          ),
 
-          Container(
-            height: 1,
-            color: context.colors.baseMuted,
-            margin: EdgeInsets.symmetric(vertical: 12.h),
-          ),
-
-          RepaintBoundary(
-            child: _SettingsSection(
-              padding: EdgeInsets.symmetric(horizontal: 16.w),
-              children: [
-                SettingsListTile(
-                  assetPath: AssetsPaths.icDevelopment,
-                  text: 'settings.developerSettings'.tr(),
-                  onTap: () => DeveloperSettingsScreen.show(context),
-                  foregroundColor: context.colors.mutedForeground,
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: 32.h),
-          if (_packageInfo != null)
-            RepaintBoundary(
-              child: Center(
-                child: Text(
-                  '${'settings.version'.tr()} ${_packageInfo!.version}+${_packageInfo!.buildNumber}',
-                  style: TextStyle(
-                    fontSize: 10.sp,
-                    fontWeight: FontWeight.w400,
-                    color: context.colors.mutedForeground,
+                RepaintBoundary(
+                  child: _SettingsSection(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 10.h),
+                    children: [
+                      SettingsListTile(
+                        assetPath: AssetsPaths.icUser,
+                        text: 'settings.editProfile'.tr(),
+                        onTap: () => context.push('${Routes.settings}/profile'),
+                      ),
+                      SettingsListTile(
+                        assetPath: AssetsPaths.icPassword,
+                        text: 'settings.profileKeys'.tr(),
+                        onTap: () => context.push('${Routes.settings}/keys'),
+                      ),
+                      SettingsListTile(
+                        assetPath: AssetsPaths.icDataVis3,
+                        text: 'settings.networkRelays'.tr(),
+                        onTap: () => context.push('${Routes.settings}/network'),
+                      ),
+                      SettingsListTile(
+                        assetPath: AssetsPaths.icLogout,
+                        text: 'settings.signOut'.tr(),
+                        onTap: _handleLogout,
+                      ),
+                    ],
                   ),
                 ),
-              ),
-            ),
-          SizedBox(height: 16.h),
+
+                Container(
+                  height: 1,
+                  color: context.colors.baseMuted,
+                  margin: EdgeInsets.symmetric(vertical: 12.h),
+                ),
+
+                RepaintBoundary(
+                  child: _SettingsSection(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    children: [
+                      SettingsListTile(
+                        assetPath: AssetsPaths.icSettings,
+                        text: 'settings.appSettings'.tr(),
+                        onTap: () => context.push('${Routes.settings}/app_settings'),
+                      ),
+                      SettingsListTile(
+                        assetPath: AssetsPaths.icFavorite,
+                        text: 'settings.donateToWhiteNoise'.tr(),
+                        onTap: () => context.push(Routes.settingsDonate),
+                      ),
+                    ],
+                  ),
+                ),
+
+                Container(
+                  height: 1,
+                  color: context.colors.baseMuted,
+                  margin: EdgeInsets.symmetric(vertical: 12.h),
+                ),
+
+                RepaintBoundary(
+                  child: _SettingsSection(
+                    padding: EdgeInsets.symmetric(horizontal: 16.w),
+                    children: [
+                      SettingsListTile(
+                        assetPath: AssetsPaths.icDevelopment,
+                        text: 'settings.developerSettings'.tr(),
+                        onTap: () => DeveloperSettingsScreen.show(context),
+                        foregroundColor: context.colors.mutedForeground,
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(height: 32.h),
+                if (_packageInfo != null)
+                  RepaintBoundary(
+                    child: Center(
+                      child: Text(
+                        '${'settings.version'.tr()} ${_packageInfo!.version}+${_packageInfo!.buildNumber}',
+                        style: TextStyle(
+                          fontSize: 10.sp,
+                          fontWeight: FontWeight.w400,
+                          color: context.colors.mutedForeground,
+                        ),
+                      ),
+                    ),
+                  ),
+                SizedBox(height: 16.h),
               ],
             ),
           ),

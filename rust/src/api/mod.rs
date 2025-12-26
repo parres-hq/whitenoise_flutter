@@ -65,10 +65,12 @@ pub mod relays;
 pub mod users;
 pub mod utils;
 pub use utils::{group_id_from_string, group_id_to_string};
+pub mod app_update;
 pub mod welcomes;
 
 // Re-export everything
 pub use accounts::*;
+pub use app_update::*;
 pub use error::*;
 pub use groups::*;
 pub use media_files::*;

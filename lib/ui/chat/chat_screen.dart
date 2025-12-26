@@ -500,97 +500,102 @@ class _ChatScreenState extends ConsumerState<ChatScreen> with WidgetsBindingObse
                                       final int messageIndex = index - 1;
                                       final message = messages[messageIndex];
 
-                                return SwipeToReplyWidget(
-                                  message: message,
-                                  onReply:
-                                      () => chatNotifier.handleReply(
-                                        message,
-                                        groupId: widget.groupId,
-                                      ),
-                                  onLongPress:
-                                      () => ChatDialogService.showReactionDialog(
-                                        context: context,
-                                        ref: ref,
+                                      return SwipeToReplyWidget(
                                         message: message,
-                                        messageIndex: messageIndex,
-                                      ),
-                                  child: Hero(
-                                    tag: message.id,
-                                    child: MessageWidget(
-                                          message: message,
-                                          isGroupMessage: groupType == GroupType.group,
-                                          isSameSenderAsPrevious:
-                                              messageIndex > 0 &&
-                                              messages[messageIndex].sender.publicKey ==
-                                                  messages[messageIndex - 1].sender.publicKey,
-                                          isSameSenderAsNext:
-                                              messageIndex + 1 < messages.length &&
-                                              messages[messageIndex].sender.publicKey ==
-                                                  messages[messageIndex + 1].sender.publicKey,
-                                          searchMatch:
-                                              searchState.matches.isNotEmpty
-                                                  ? _getMessageSearchMatch(
-                                                    searchState.matches,
-                                                    message.id,
-                                                  )
-                                                  : null,
-                                          isActiveSearchMatch:
-                                              searchNotifier.currentMatch?.messageId == message.id,
-                                          currentActiveMatch:
-                                              searchNotifier.currentMatch?.messageId == message.id
-                                                  ? searchNotifier.currentMatch
-                                                  : null,
-                                          isSearchActive: searchState.isSearchActive,
-                                          onReactionTap: (reaction) {
-                                            chatNotifier.updateMessageReaction(
+                                        onReply:
+                                            () => chatNotifier.handleReply(
+                                              message,
+                                              groupId: widget.groupId,
+                                            ),
+                                        onLongPress:
+                                            () => ChatDialogService.showReactionDialog(
+                                              context: context,
+                                              ref: ref,
                                               message: message,
-                                              reaction: reaction,
-                                            );
-                                          },
-                                          onReplyTap: (messageId) {
-                                            _scrollToMessage(messageId);
-                                          },
-                                        )
-                                        .animate()
-                                        .fadeIn(duration: const Duration(milliseconds: 200))
-                                        .slide(
-                                          begin: const Offset(0, 0.1),
-                                          duration: const Duration(milliseconds: 200),
+                                              messageIndex: messageIndex,
+                                            ),
+                                        child: Hero(
+                                          tag: message.id,
+                                          child: MessageWidget(
+                                                message: message,
+                                                isGroupMessage: groupType == GroupType.group,
+                                                isSameSenderAsPrevious:
+                                                    messageIndex > 0 &&
+                                                    messages[messageIndex].sender.publicKey ==
+                                                        messages[messageIndex - 1].sender.publicKey,
+                                                isSameSenderAsNext:
+                                                    messageIndex + 1 < messages.length &&
+                                                    messages[messageIndex].sender.publicKey ==
+                                                        messages[messageIndex + 1].sender.publicKey,
+                                                searchMatch:
+                                                    searchState.matches.isNotEmpty
+                                                        ? _getMessageSearchMatch(
+                                                          searchState.matches,
+                                                          message.id,
+                                                        )
+                                                        : null,
+                                                isActiveSearchMatch:
+                                                    searchNotifier.currentMatch?.messageId ==
+                                                    message.id,
+                                                currentActiveMatch:
+                                                    searchNotifier.currentMatch?.messageId ==
+                                                            message.id
+                                                        ? searchNotifier.currentMatch
+                                                        : null,
+                                                isSearchActive: searchState.isSearchActive,
+                                                onReactionTap: (reaction) {
+                                                  chatNotifier.updateMessageReaction(
+                                                    message: message,
+                                                    reaction: reaction,
+                                                  );
+                                                },
+                                                onReplyTap: (messageId) {
+                                                  _scrollToMessage(messageId);
+                                                },
+                                              )
+                                              .animate()
+                                              .fadeIn(duration: const Duration(milliseconds: 200))
+                                              .slide(
+                                                begin: const Offset(0, 0.1),
+                                                duration: const Duration(milliseconds: 200),
+                                              ),
                                         ),
+                                      );
+                                    },
                                   ),
-                                );
-                              },
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            if (messages.isNotEmpty)
+                              Positioned(
+                                bottom: 0,
+                                left: 0,
+                                right: 0,
+                                height: 20.h,
+                                child: const WnBottomFade().animate().fadeIn(),
+                              ),
+                          ],
+                        ),
                       ),
-                      if (messages.isNotEmpty)
-                        Positioned(
-                          bottom: 0,
-                          left: 0,
-                          right: 0,
-                          height: 20.h,
-                          child: const WnBottomFade().animate().fadeIn(),
+                      if (!searchState.isSearchActive)
+                        ChatInput(
+                          groupId: widget.groupId,
+                          onSend: (message, isEditing) async {
+                            await ref
+                                .read(chatInputProvider(widget.groupId).notifier)
+                                .sendMessage(
+                                  message: message,
+                                  isEditing: isEditing,
+                                );
+                            _scrollToBottom();
+                          },
                         ),
                     ],
                   ),
                 ),
-                if (!searchState.isSearchActive)
-                  ChatInput(
-                    groupId: widget.groupId,
-                    onSend: (message, isEditing) async {
-                      await ref
-                          .read(chatInputProvider(widget.groupId).notifier)
-                          .sendMessage(
-                            message: message,
-                            isEditing: isEditing,
-                          );
-                      _scrollToBottom();
-                    },
-                  ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
