@@ -48,7 +48,7 @@ void main() {
         find.byWidgetPredicate(
           (widget) =>
               widget is WnImage &&
-              widget.src.contains('assets/svgs/ic_warning.svg'),
+              widget.src == AssetsPaths.icWarning,
         ),
         findsOneWidget,
       );
@@ -69,7 +69,7 @@ void main() {
         find.byWidgetPredicate(
           (widget) =>
               widget is WnImage &&
-              widget.src.contains('assets/svgs/ic_information_filled.svg'),
+              widget.src == AssetsPaths.icInfoFilled,
         ),
         findsOneWidget,
       );
