@@ -21,22 +21,6 @@ Future<Welcome> findWelcomeByEventId({
   welcomeEventId: welcomeEventId,
 );
 
-Future<void> acceptWelcome({
-  required String pubkey,
-  required String welcomeEventId,
-}) => RustLib.instance.api.crateApiWelcomesAcceptWelcome(
-  pubkey: pubkey,
-  welcomeEventId: welcomeEventId,
-);
-
-Future<void> declineWelcome({
-  required String pubkey,
-  required String welcomeEventId,
-}) => RustLib.instance.api.crateApiWelcomesDeclineWelcome(
-  pubkey: pubkey,
-  welcomeEventId: welcomeEventId,
-);
-
 /// Converts a GroupId to a hex string representation.
 ///
 /// This function provides a consistent way to convert MLS group IDs to strings

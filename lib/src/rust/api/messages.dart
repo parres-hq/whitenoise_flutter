@@ -115,24 +115,12 @@ class ChatMessage {
           kind == other.kind;
 }
 
-/// Lightweight message summary for chat list previews.
 class ChatMessageSummary {
-  /// MLS group this message belongs to (hex string)
   final String mlsGroupId;
-
-  /// Author's public key (hex)
   final String author;
-
-  /// Author's display name (from metadata, may be None)
   final String? authorDisplayName;
-
-  /// Message content preview
   final String content;
-
-  /// When the message was sent
   final DateTime createdAt;
-
-  /// Number of media attachments
   final BigInt mediaAttachmentCount;
 
   const ChatMessageSummary({
