@@ -94,7 +94,9 @@
         "failedToLoadProfile": "Failed to load profile",
         "publicKeyCopied": "Public key copied",
         "scanToConnect": "Scan to connect.",
-        "scanQrCode": "Scan QR Code"
+        "scanQrCode": "Scan QR Code",
+        "profilePublicTitle": "Your profile is public",
+        "profilePublicDescription": "Name, photo, and bio are public. Use what you are comfortable sharing. Your profile stays private by default unless you make it personal."
     },
     "nostrKeys": {
         "copyPublicKeySuccess": "Public key copied to clipboard",
