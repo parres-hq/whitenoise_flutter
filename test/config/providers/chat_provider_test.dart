@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
+import 'package:whitenoise/config/providers/chat_stream_provider.dart';
 
 import 'package:whitenoise/config/providers/group_messages_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
@@ -56,6 +57,22 @@ class MockMessageSenderService implements MessageSenderService {
   }
 
   @override
+  Future<MessageWithTokens> sendReaction({
+    required String pubkey,
+    required String groupId,
+    required String messageId,
+    required String messagePubkey,
+    required int messageKind,
+    required String emoji,
+  }) async {
+    sendCallCount++;
+    if (errorToThrow != null) {
+      throw errorToThrow!;
+    }
+    return messageToReturn!;
+  }
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
@@ -76,6 +93,21 @@ class MockGroupMessagesNotifier extends GroupMessagesNotifier {
       throw errorToThrow!;
     }
     return List<MessageModel>.from(messagesToReturn);
+  }
+}
+
+class MockChatStreamNotifier extends ChatStreamNotifier {
+  final List<MessageModel> addedOptimisticMessages = [];
+  final List<MessageModel> updatedOptimisticReactions = [];
+
+  @override
+  Future<void> addOptimisticMessage(MessageModel message) async {
+    addedOptimisticMessages.add(message);
+  }
+
+  @override
+  Future<void> updateOptimisticReaction(MessageModel message) async {
+    updatedOptimisticReactions.add(message);
   }
 }
 
@@ -912,7 +944,23 @@ void main() {
             container.dispose();
           });
 
-          test('sends message via service', () async {
+          test('sends message via service and delegates optimistic update', () async {
+            final mockStreamNotifier = MockChatStreamNotifier();
+            container = ProviderContainer(
+              overrides: [
+                authProvider.overrideWith(
+                  () => MockAuthNotifier(isAuthenticated: true),
+                ),
+                activePubkeyProvider.overrideWith(
+                  () => MockActivePubkeyNotifier(testPubkey),
+                ),
+                chatProvider.overrideWith(
+                  () => ChatNotifier(messageSenderService: mockMessageSenderService),
+                ),
+                chatStreamProvider.overrideWith(() => mockStreamNotifier),
+              ],
+            );
+
             final notifier = container.read(chatProvider.notifier);
             await notifier.sendMessage(
               groupId: testGroupId,
@@ -924,6 +972,8 @@ void main() {
             final messages = state.getMessagesForGroup(testGroupId);
             expect(messages, isEmpty);
             expect(mockMessageSenderService.sendCallCount, 1);
+            expect(mockStreamNotifier.addedOptimisticMessages.length, 1);
+            expect(mockStreamNotifier.addedOptimisticMessages.first.content, testMessage);
           });
         });
 
@@ -972,8 +1022,31 @@ void main() {
             container.dispose();
           });
 
-          test('sends message via service', () async {
+          test('sends message via service and delegates optimistic update', () async {
+            final mockStreamNotifier = MockChatStreamNotifier();
+            container = ProviderContainer(
+              overrides: [
+                authProvider.overrideWith(
+                  () => MockAuthNotifier(isAuthenticated: true),
+                ),
+                activePubkeyProvider.overrideWith(
+                  () => MockActivePubkeyNotifier(testPubkey),
+                ),
+                chatProvider.overrideWith(
+                  () => ChatNotifier(messageSenderService: mockMessageSenderService),
+                ),
+                chatStreamProvider.overrideWith(() => mockStreamNotifier),
+              ],
+            );
+
+            // Set initial state
             final notifier = container.read(chatProvider.notifier);
+            notifier.state = notifier.state.copyWith(
+              groupMessages: {
+                testGroupId: [existingMessage],
+              },
+            );
+
             await notifier.sendMessage(
               groupId: testGroupId,
               message: testMessage,
@@ -984,6 +1057,7 @@ void main() {
             final messages = state.getMessagesForGroup(testGroupId);
             expect(messages.length, 1); // Only keeping existing message in state
             expect(mockMessageSenderService.sendCallCount, 1);
+            expect(mockStreamNotifier.addedOptimisticMessages.length, 1);
           });
 
           test('keeps existing messages', () async {
@@ -1300,8 +1374,31 @@ void main() {
             container.dispose();
           });
 
-          test('sends reply message via service', () async {
+          test('sends reply message via service and delegates optimistic update', () async {
+            final mockStreamNotifier = MockChatStreamNotifier();
+            container = ProviderContainer(
+              overrides: [
+                authProvider.overrideWith(
+                  () => MockAuthNotifier(isAuthenticated: true),
+                ),
+                activePubkeyProvider.overrideWith(
+                  () => MockActivePubkeyNotifier(testPubkey),
+                ),
+                chatProvider.overrideWith(
+                  () => ChatNotifier(messageSenderService: mockMessageSenderService),
+                ),
+                chatStreamProvider.overrideWith(() => mockStreamNotifier),
+              ],
+            );
+
+            // Set initial state
             final notifier = container.read(chatProvider.notifier);
+            notifier.state = notifier.state.copyWith(
+              groupMessages: {
+                testGroupId: [originalMessage],
+              },
+            );
+
             await notifier.sendReplyMessage(
               groupId: testGroupId,
               replyToMessage: replyToMessage,
@@ -1313,6 +1410,7 @@ void main() {
             final messages = state.getMessagesForGroup(testGroupId);
             expect(messages.length, 1); // Only original message
             expect(mockMessageSenderService.sendCallCount, 1);
+            expect(mockStreamNotifier.addedOptimisticMessages.length, 1);
           });
 
           test('keeps original message', () async {
@@ -2065,6 +2163,61 @@ void main() {
         final state = container.read(chatProvider);
         expect(state.getUnreadCountForGroup(g1), 1);
         expect(state.getUnreadCountForGroup(g2), 0);
+      });
+    });
+
+    group('updateMessageReaction', () {
+      late ProviderContainer container;
+      late MockMessageSenderService mockMessageSenderService;
+      const testGroupId = 'test-group-123';
+      const testPubkey = 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
+
+      final testMessage = createTestMessage(
+        id: 'msg-1',
+        content: 'Test message',
+        senderPubkey: 'other-pubkey',
+        createdAt: DateTime.now(),
+        groupId: testGroupId,
+      );
+
+      setUp(() {
+        mockMessageSenderService = MockMessageSenderService(
+          messageToReturn: createTestMessageWithTokens(
+            id: 'msg-reply',
+            pubkey: testPubkey,
+            content: 'Reply',
+          ),
+        );
+      });
+
+      test('delegates optimistic reaction update', () async {
+        final mockStreamNotifier = MockChatStreamNotifier();
+        container = ProviderContainer(
+          overrides: [
+            authProvider.overrideWith(
+              () => MockAuthNotifier(isAuthenticated: true),
+            ),
+            activePubkeyProvider.overrideWith(
+              () => MockActivePubkeyNotifier(testPubkey),
+            ),
+            chatProvider.overrideWith(
+              () => ChatNotifier(messageSenderService: mockMessageSenderService),
+            ),
+            chatStreamProvider.overrideWith(() => mockStreamNotifier),
+          ],
+        );
+
+        final notifier = container.read(chatProvider.notifier);
+        final success = await notifier.updateMessageReaction(
+          message: testMessage,
+          reaction: '👍',
+        );
+
+        expect(success, true);
+        expect(mockStreamNotifier.updatedOptimisticReactions.length, 1);
+        expect(mockStreamNotifier.updatedOptimisticReactions.first.id, testMessage.id);
+        expect(mockStreamNotifier.updatedOptimisticReactions.first.reactions.length, 1);
+        expect(mockStreamNotifier.updatedOptimisticReactions.first.reactions.first.emoji, '👍');
       });
     });
   });

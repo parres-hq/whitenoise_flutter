@@ -586,5 +586,57 @@ void main() {
       await Future.delayed(Duration.zero);
       expect(results.last.length, 0);
     });
+    test('should handle concurrent state computation updates', () async {
+      final overrides = [
+        chatStreamProvider.overrideWith(
+          () => ChatStreamNotifier(subscriber: mockSubscriber),
+        ),
+        activePubkeyProvider.overrideWith(
+          () => MockActivePubkeyNotifier(testActivePubkey),
+        ),
+        groupsProvider.overrideWith(
+          () => MockGroupsNotifier(
+            members: {
+              testGroupId: [testUser, otherUser],
+            },
+          ),
+        ),
+      ];
+
+      final testContainer = ProviderContainer(overrides: overrides);
+      addTearDown(testContainer.dispose);
+
+      final results = <List<MessageModel>>[];
+      testContainer.listen(
+        chatStreamProvider(testGroupId),
+        (previous, next) {
+          if (next.hasValue) results.add(next.value!);
+        },
+      );
+
+      for (var i = 0; i < 5; i++) {
+        final msg = createChatMessage(
+          id: 'msg_$i',
+          content: 'Message $i',
+          pubkey: testActivePubkey,
+          createdAt: DateTime.now().add(Duration(milliseconds: i)),
+        );
+        streamController.add(
+          MessageStreamItem.update(
+            update: MessageUpdate(
+              trigger: UpdateTrigger.newMessage,
+              message: msg,
+            ),
+          ),
+        );
+      }
+
+      await Future.delayed(Duration.zero);
+      await Future.delayed(Duration.zero); // Extra delay for the scheduled microtask
+
+      expect(results.length, greaterThan(0));
+      expect(results.last.length, 5);
+      expect(results.last.last.content, 'Message 4');
+    });
   });
 }
