@@ -102,6 +102,7 @@ void main() {
           ),
         ],
       );
+      addTearDown(container.dispose);
 
       final stream = container.read(chatStreamProvider(testGroupId).future);
       final result = await stream;
@@ -126,6 +127,7 @@ void main() {
       ];
 
       final testContainer = ProviderContainer(overrides: overrides);
+      addTearDown(testContainer.dispose);
 
       // Create unordered messages
       final msg1 = createChatMessage(
@@ -177,6 +179,7 @@ void main() {
       ];
 
       final testContainer = ProviderContainer(overrides: overrides);
+      addTearDown(testContainer.dispose);
 
       final msg1 = createChatMessage(
         id: '1',
@@ -249,6 +252,7 @@ void main() {
       ];
 
       final testContainer = ProviderContainer(overrides: overrides);
+      addTearDown(testContainer.dispose);
 
       final msg1 = createChatMessage(
         id: '1',
@@ -325,6 +329,7 @@ void main() {
       ];
 
       final testContainer = ProviderContainer(overrides: overrides);
+      addTearDown(testContainer.dispose);
 
       final future = testContainer.read(
         chatStreamProvider(testGroupId).future,
@@ -355,6 +360,7 @@ void main() {
       ];
 
       final testContainer = ProviderContainer(overrides: overrides);
+      addTearDown(testContainer.dispose);
 
       final msg1 = createChatMessage(
         id: '1',
@@ -407,6 +413,7 @@ void main() {
       ];
 
       final testContainer = ProviderContainer(overrides: overrides);
+      addTearDown(testContainer.dispose);
 
       final msg1 = createChatMessage(
         id: '1',
@@ -448,6 +455,7 @@ void main() {
       ];
 
       final testContainer = ProviderContainer(overrides: overrides);
+      addTearDown(testContainer.dispose);
 
       final msg1 = createChatMessage(
         id: '1',
@@ -541,6 +549,7 @@ void main() {
       ];
 
       final testContainer = ProviderContainer(overrides: overrides);
+      addTearDown(testContainer.dispose);
       final results = <List<MessageModel>>[];
       testContainer.listen(
         chatStreamProvider(testGroupId),

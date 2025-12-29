@@ -39,18 +39,21 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
     _messageMap = {};
     _optimisticMessages = [];
 
-    if (activePubkey == null || activePubkey.isEmpty) {
-      _controller?.add([]);
-      return _controller?.stream ?? const Stream<List<MessageModel>>.empty();
-    }
-
-    _subscribeToRustStream(groupId, activePubkey);
+    _messageMap = {};
+    _optimisticMessages = [];
 
     ref.onDispose(() {
       _logger.info('ChatStreamNotifier: Disposing stream');
       _rustStreamSubscription?.cancel();
       _controller?.close();
     });
+
+    if (activePubkey == null || activePubkey.isEmpty) {
+      _controller?.add([]);
+      return _controller?.stream ?? const Stream<List<MessageModel>>.empty();
+    }
+
+    _subscribeToRustStream(groupId, activePubkey);
 
     return _controller?.stream ?? const Stream<List<MessageModel>>.empty();
   }
@@ -141,7 +144,9 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
         ref.read(groupsProvider.select((groupState) => groupState.groupMembers?[groupId])) ?? [];
 
     final usersMap = {
-      for (var user in groupMembers) PubkeyFormatter(pubkey: user.publicKey).toHex() ?? '': user,
+      for (var user in groupMembers)
+        if (PubkeyFormatter(pubkey: user.publicKey).toHex() case final hex? when hex.isNotEmpty)
+          hex: user,
     };
 
     final convertedStreamMessages = await MessageConverter.fromChatMessageList(
