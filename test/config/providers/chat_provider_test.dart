@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
 import 'package:whitenoise/config/providers/chat_provider.dart';
+
 import 'package:whitenoise/config/providers/group_messages_provider.dart';
 import 'package:whitenoise/domain/models/message_model.dart';
 import 'package:whitenoise/domain/models/user_model.dart' show User;
@@ -911,7 +912,7 @@ void main() {
             container.dispose();
           });
 
-          test('adds optimistic message to state', () async {
+          test('sends message via service', () async {
             final notifier = container.read(chatProvider.notifier);
             await notifier.sendMessage(
               groupId: testGroupId,
@@ -921,8 +922,8 @@ void main() {
 
             final state = container.read(chatProvider);
             final messages = state.getMessagesForGroup(testGroupId);
-            expect(messages.length, 1);
-            expect(messages[0].id, 'msg-new');
+            expect(messages, isEmpty);
+            expect(mockMessageSenderService.sendCallCount, 1);
           });
         });
 
@@ -971,7 +972,7 @@ void main() {
             container.dispose();
           });
 
-          test('adds optimistic message to state', () async {
+          test('sends message via service', () async {
             final notifier = container.read(chatProvider.notifier);
             await notifier.sendMessage(
               groupId: testGroupId,
@@ -981,7 +982,8 @@ void main() {
 
             final state = container.read(chatProvider);
             final messages = state.getMessagesForGroup(testGroupId);
-            expect(messages.length, 2);
+            expect(messages.length, 1); // Only keeping existing message in state
+            expect(mockMessageSenderService.sendCallCount, 1);
           });
 
           test('keeps existing messages', () async {
@@ -997,7 +999,7 @@ void main() {
             expect(messages[0].id, 'msg-1');
           });
 
-          test('appends new message at end', () async {
+          test('does not append new message to state', () async {
             final notifier = container.read(chatProvider.notifier);
             await notifier.sendMessage(
               groupId: testGroupId,
@@ -1007,7 +1009,8 @@ void main() {
 
             final state = container.read(chatProvider);
             final messages = state.getMessagesForGroup(testGroupId);
-            expect(messages[1].id, 'msg-new');
+            // Should NOT contain the new message
+            expect(messages.any((m) => m.id == 'msg-new'), isFalse);
           });
         });
 
@@ -1049,7 +1052,7 @@ void main() {
             container.dispose();
           });
 
-          test('optimistic message includes media files', () async {
+          test('passes media files to service', () async {
             final notifier = container.read(chatProvider.notifier);
             await notifier.sendMessage(
               groupId: testGroupId,
@@ -1059,8 +1062,8 @@ void main() {
 
             final state = container.read(chatProvider);
             final messages = state.getMessagesForGroup(testGroupId);
-            expect(messages[0].mediaAttachments.length, 1);
-            expect(messages[0].mediaAttachments[0].id, 'media-1');
+            expect(messages, isEmpty);
+            expect(mockMessageSenderService.sendCallCount, 1);
           });
         });
       });
@@ -1072,7 +1075,13 @@ void main() {
       const testGroupId = 'test-group-123';
       const testPubkey = 'abcdef1234567890abcdef1234567890abcdef1234567890abcdef1234567890';
       const testMessage = 'Reply message';
-      const replyToMessageId = 'msg-original';
+      final replyToMessage = createTestMessage(
+        id: 'msg-original',
+        content: 'Original message',
+        senderPubkey: testPubkey,
+        createdAt: DateTime(2025, 1, 1, 10),
+        groupId: testGroupId,
+      );
 
       group('when not authenticated', () {
         setUp(() {
@@ -1096,7 +1105,7 @@ void main() {
           final notifier = container.read(chatProvider.notifier);
           final result = await notifier.sendReplyMessage(
             groupId: testGroupId,
-            replyToMessageId: replyToMessageId,
+            replyToMessage: replyToMessage,
             message: testMessage,
             mediaFiles: [],
           );
@@ -1108,7 +1117,7 @@ void main() {
           final notifier = container.read(chatProvider.notifier);
           await notifier.sendReplyMessage(
             groupId: testGroupId,
-            replyToMessageId: replyToMessageId,
+            replyToMessage: replyToMessage,
             message: testMessage,
             mediaFiles: [],
           );
@@ -1121,7 +1130,7 @@ void main() {
           final notifier = container.read(chatProvider.notifier);
           await notifier.sendReplyMessage(
             groupId: testGroupId,
-            replyToMessageId: replyToMessageId,
+            replyToMessage: replyToMessage,
             message: testMessage,
             mediaFiles: [],
           );
@@ -1153,7 +1162,7 @@ void main() {
           final notifier = container.read(chatProvider.notifier);
           final result = await notifier.sendReplyMessage(
             groupId: testGroupId,
-            replyToMessageId: replyToMessageId,
+            replyToMessage: replyToMessage,
             message: testMessage,
             mediaFiles: [],
           );
@@ -1165,7 +1174,7 @@ void main() {
           final notifier = container.read(chatProvider.notifier);
           await notifier.sendReplyMessage(
             groupId: testGroupId,
-            replyToMessageId: replyToMessageId,
+            replyToMessage: replyToMessage,
             message: testMessage,
             mediaFiles: [],
           );
@@ -1178,7 +1187,7 @@ void main() {
           final notifier = container.read(chatProvider.notifier);
           await notifier.sendReplyMessage(
             groupId: testGroupId,
-            replyToMessageId: replyToMessageId,
+            replyToMessage: replyToMessage,
             message: testMessage,
             mediaFiles: [],
           );
@@ -1210,7 +1219,7 @@ void main() {
           final notifier = container.read(chatProvider.notifier);
           final result = await notifier.sendReplyMessage(
             groupId: testGroupId,
-            replyToMessageId: replyToMessageId,
+            replyToMessage: replyToMessage,
             message: testMessage,
             mediaFiles: [],
           );
@@ -1222,7 +1231,7 @@ void main() {
           final notifier = container.read(chatProvider.notifier);
           await notifier.sendReplyMessage(
             groupId: testGroupId,
-            replyToMessageId: replyToMessageId,
+            replyToMessage: replyToMessage,
             message: testMessage,
             mediaFiles: [],
           );
@@ -1235,7 +1244,7 @@ void main() {
           final notifier = container.read(chatProvider.notifier);
           await notifier.sendReplyMessage(
             groupId: testGroupId,
-            replyToMessageId: replyToMessageId,
+            replyToMessage: replyToMessage,
             message: testMessage,
             mediaFiles: [],
           );
@@ -1249,7 +1258,7 @@ void main() {
         group('with original message in state', () {
           late MockMessageSenderService mockMessageSenderService;
           final originalMessage = createTestMessage(
-            id: replyToMessageId,
+            id: replyToMessage.id,
             content: 'Original message',
             senderPubkey: testPubkey,
             createdAt: DateTime(2025, 1, 1, 10),
@@ -1291,60 +1300,60 @@ void main() {
             container.dispose();
           });
 
-          test('adds optimistic reply message to state', () async {
+          test('sends reply message via service', () async {
             final notifier = container.read(chatProvider.notifier);
             await notifier.sendReplyMessage(
               groupId: testGroupId,
-              replyToMessageId: replyToMessageId,
+              replyToMessage: replyToMessage,
               message: testMessage,
               mediaFiles: [],
             );
 
             final state = container.read(chatProvider);
             final messages = state.getMessagesForGroup(testGroupId);
-            expect(messages.length, 2);
+            expect(messages.length, 1); // Only original message
+            expect(mockMessageSenderService.sendCallCount, 1);
           });
 
           test('keeps original message', () async {
             final notifier = container.read(chatProvider.notifier);
             await notifier.sendReplyMessage(
               groupId: testGroupId,
-              replyToMessageId: replyToMessageId,
+              replyToMessage: replyToMessage,
               message: testMessage,
               mediaFiles: [],
             );
 
             final state = container.read(chatProvider);
             final messages = state.getMessagesForGroup(testGroupId);
-            expect(messages[0].id, replyToMessageId);
+            expect(messages[0].id, replyToMessage.id);
           });
 
-          test('appends reply message at end', () async {
+          test('does not append reply message to state', () async {
             final notifier = container.read(chatProvider.notifier);
             await notifier.sendReplyMessage(
               groupId: testGroupId,
-              replyToMessageId: replyToMessageId,
+              replyToMessage: replyToMessage,
               message: testMessage,
               mediaFiles: [],
             );
 
             final state = container.read(chatProvider);
             final messages = state.getMessagesForGroup(testGroupId);
-            expect(messages[1].id, 'msg-reply');
+            expect(messages.length, 1);
+            expect(messages[0].id, replyToMessage.id);
           });
 
-          test('reply message references original', () async {
+          test('reply message references original is not checked in state', () async {
             final notifier = container.read(chatProvider.notifier);
             await notifier.sendReplyMessage(
               groupId: testGroupId,
-              replyToMessageId: replyToMessageId,
+              replyToMessage: replyToMessage,
               message: testMessage,
               mediaFiles: [],
             );
 
-            final state = container.read(chatProvider);
-            final messages = state.getMessagesForGroup(testGroupId);
-            expect(messages[1].replyTo?.id, replyToMessageId);
+            expect(mockMessageSenderService.sendCallCount, 1);
           });
         });
 
@@ -1352,7 +1361,7 @@ void main() {
           late MockMessageSenderService mockMessageSenderService;
           late MediaFile testMediaFile;
           final originalMessage = createTestMessage(
-            id: replyToMessageId,
+            id: replyToMessage.id,
             content: 'Original message',
             senderPubkey: testPubkey,
             createdAt: DateTime(2025, 1, 1, 10),
@@ -1400,19 +1409,19 @@ void main() {
             container.dispose();
           });
 
-          test('optimistic reply message includes media files', () async {
+          test('passes media files provided to service', () async {
             final notifier = container.read(chatProvider.notifier);
             await notifier.sendReplyMessage(
               groupId: testGroupId,
-              replyToMessageId: replyToMessageId,
+              replyToMessage: replyToMessage,
               message: testMessage,
               mediaFiles: [testMediaFile],
             );
 
             final state = container.read(chatProvider);
             final messages = state.getMessagesForGroup(testGroupId);
-            expect(messages[1].mediaAttachments.length, 1);
-            expect(messages[1].mediaAttachments[0].id, 'media-1');
+            expect(messages.length, 1); // Original message only in state
+            expect(mockMessageSenderService.sendCallCount, 1);
           });
         });
       });

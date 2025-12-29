@@ -1,11 +1,9 @@
-// ignore_for_file: avoid_redundant_argument_values
-
-import 'package:collection/collection.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
 import 'package:whitenoise/config/providers/auth_provider.dart';
+import 'package:whitenoise/config/providers/chat_stream_provider.dart';
 import 'package:whitenoise/config/providers/group_messages_provider.dart';
 import 'package:whitenoise/config/providers/group_provider.dart';
 import 'package:whitenoise/config/states/chat_state.dart';
@@ -183,26 +181,7 @@ class ChatNotifier extends Notifier<ChatState> {
         mediaFiles: mediaFiles,
       );
 
-      final stateMessages = state.groupMessages[groupId] ?? [];
-      final updatedMessages = [...stateMessages, optimisticMessageModel];
-      final digest = _calculateMessageDigest(updatedMessages);
-
-      state = state.copyWith(
-        groupMessages: {
-          ...state.groupMessages,
-          groupId: updatedMessages,
-        },
-        sendingStates: {
-          ...state.sendingStates,
-          groupId: false,
-        },
-        messageDigests: {
-          ...state.messageDigests,
-          groupId: digest,
-        },
-      );
-
-      await _updateGroupOrderForNewMessage(groupId);
+      ref.read(chatStreamProvider(groupId).notifier).addOptimisticMessage(optimisticMessageModel);
 
       // Save last read when user sends a message (immediate save)
       final messagesForLastRead = state.groupMessages[groupId] ?? [];
@@ -512,27 +491,45 @@ class ChatNotifier extends Notifier<ChatState> {
         _logger.severe('No active account found');
         return false;
       }
-      final groupId = message.groupId;
-      if (groupId == null || groupId.isEmpty) {
+      final groupId = message.groupId ?? '';
+      if (groupId.isEmpty) {
         _logger.warning('Cannot update reaction: message has no groupId');
         return false;
       }
 
       _logger.info('ChatProvider: Adding reaction "$reaction" to message ${message.id}');
 
-      // Use the message's actual kind (now stored in MessageModel)
+      final allReactions = message.reactions;
+
+      final reactionExistsForUser = allReactions.any(
+        (r) => r.emoji == reaction && r.user.publicKey == activePubkey,
+      );
+
+      if (reactionExistsForUser) {
+        _logger.info('ChatProvider: Reaction already exists for user');
+        return false;
+      }
+
       final originalMessageKind = messageKind ?? message.kind;
+
       await _messageSenderService.sendReaction(
         pubkey: activePubkey,
-        groupId: message.groupId ?? '',
+        groupId: groupId,
         messageId: message.id,
         messagePubkey: message.sender.publicKey,
         messageKind: originalMessageKind,
         emoji: reaction,
       );
 
-      // Refresh messages to get updated reactions
-      await refreshMessagesForGroup(message.groupId ?? '');
+      final optimisticReactionMessage = MessageConverter.createOptimisticReactions(
+        originalMessage: message,
+        reaction: reaction,
+        currentUserPublicKey: activePubkey,
+      );
+
+      ref
+          .read(chatStreamProvider(groupId).notifier)
+          .updateOptimisticReaction(optimisticReactionMessage);
 
       _logger.info('ChatProvider: Reaction added successfully');
       return true;
@@ -545,7 +542,7 @@ class ChatNotifier extends Notifier<ChatState> {
   /// Send a reply message to a specific message
   Future<MessageWithTokens?> sendReplyMessage({
     required String groupId,
-    required String replyToMessageId,
+    required MessageModel replyToMessage,
     required String message,
     required List<MediaFile> mediaFiles,
     void Function()? onMessageSent,
@@ -560,8 +557,6 @@ class ChatNotifier extends Notifier<ChatState> {
       return null;
     }
 
-    final allMessages = getMessagesForGroup(groupId);
-    final replyToMessage = allMessages.firstWhereOrNull((msg) => msg.id == replyToMessageId);
     state = state.copyWith(
       sendingStates: {
         ...state.sendingStates,
@@ -570,12 +565,12 @@ class ChatNotifier extends Notifier<ChatState> {
     );
 
     try {
-      _logger.info('ChatProvider: Sending reply to message $replyToMessageId');
+      _logger.info('ChatProvider: Sending reply to message ${replyToMessage.id}');
 
       final sendingMessage = await _messageSenderService.sendReply(
         pubkey: activePubkey,
         groupId: groupId,
-        replyToMessageId: replyToMessageId,
+        replyToMessageId: replyToMessage.id,
         content: message,
         mediaFiles: mediaFiles,
       );
@@ -589,26 +584,8 @@ class ChatNotifier extends Notifier<ChatState> {
         mediaFiles: mediaFiles,
       );
 
-      final stateMessages = state.groupMessages[groupId] ?? [];
-      final updatedMessages = [...stateMessages, optimisticMessage];
-      final digest = _calculateMessageDigest(updatedMessages);
+      ref.read(chatStreamProvider(groupId).notifier).addOptimisticMessage(optimisticMessage);
 
-      state = state.copyWith(
-        groupMessages: {
-          ...state.groupMessages,
-          groupId: updatedMessages,
-        },
-        sendingStates: {
-          ...state.sendingStates,
-          groupId: false,
-        },
-        messageDigests: {
-          ...state.messageDigests,
-          groupId: digest,
-        },
-      );
-
-      _updateGroupOrderForNewMessage(groupId);
       onMessageSent?.call();
       return sendingMessage;
     } catch (e, st) {

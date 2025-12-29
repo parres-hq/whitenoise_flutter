@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:logging/logging.dart';
 import 'package:whitenoise/config/providers/active_pubkey_provider.dart';
@@ -14,68 +16,151 @@ typedef GroupMessageSubscriber =
 
 class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageModel>, String> {
   final _logger = Logger('ChatStreamNotifier');
-
   final GroupMessageSubscriber _subscriber;
+
+  Map<String, ChatMessage> _messageMap = {};
+  List<MessageModel> _optimisticMessages = [];
+  StreamController<List<MessageModel>>? _controller;
+  StreamSubscription<MessageStreamItem>? _rustStreamSubscription;
 
   ChatStreamNotifier({
     GroupMessageSubscriber subscriber = subscribeToGroupMessages,
   }) : _subscriber = subscriber;
 
   @override
-  Stream<List<MessageModel>> build(String groupId) async* {
+  Stream<List<MessageModel>> build(String groupId) {
     final activePubkey = ref.watch(activePubkeyProvider);
+
+    _controller?.close();
+    _rustStreamSubscription?.cancel();
+
+    _controller = StreamController<List<MessageModel>>();
+
+    _messageMap = {};
+    _optimisticMessages = [];
+
     if (activePubkey == null || activePubkey.isEmpty) {
-      yield [];
+      _controller?.add([]);
+      return _controller?.stream ?? const Stream<List<MessageModel>>.empty();
+    }
+
+    _subscribeToRustStream(groupId, activePubkey);
+
+    ref.onDispose(() {
+      _logger.info('ChatStreamNotifier: Disposing stream');
+      _rustStreamSubscription?.cancel();
+      _controller?.close();
+    });
+
+    return _controller?.stream ?? const Stream<List<MessageModel>>.empty();
+  }
+
+  void _subscribeToRustStream(String groupId, String activePubkey) {
+    try {
+      _logger.info('ChatStreamNotifier: Requesting stream');
+      final stream = _subscriber(groupId: groupId);
+
+      _rustStreamSubscription = stream.listen(
+        (item) async {
+          item.when(
+            initialSnapshot: (messages) {
+              _messageMap = {for (var message in messages) message.id: message};
+            },
+            update: (update) {
+              _messageMap[update.message.id] = update.message;
+            },
+          );
+
+          await _emitMergedState(groupId, activePubkey);
+        },
+        onError: (error) {
+          _logger.severe('ChatStreamNotifier: Error in Rust stream', error);
+          if (_messageMap.isEmpty &&
+              _optimisticMessages.isEmpty &&
+              _controller?.isClosed == false) {
+            _controller?.add([]);
+          }
+        },
+      );
+    } catch (e) {
+      _logger.severe('ChatStreamNotifier: Error building stream for group', e);
+      if (_controller?.isClosed == false) {
+        _controller?.add([]);
+      }
+    }
+  }
+
+  void addOptimisticMessage(MessageModel message) {
+    if (_optimisticMessages.any((m) => m.id == message.id)) {
       return;
     }
 
-    Map<String, ChatMessage> messageMap = {};
+    _optimisticMessages.add(message);
+    final groupId = arg;
+    final activePubkey = ref.read(activePubkeyProvider);
 
-    try {
-      _logger.info('ChatStreamNotifier: Requesting stream for group $groupId');
+    if (activePubkey != null && activePubkey.isNotEmpty) {
+      _emitMergedState(groupId, activePubkey);
+    }
+  }
 
-      final stream = _subscriber(groupId: groupId);
+  void updateOptimisticReaction(MessageModel optimisticReactionMessage) {
+    final activePubkey = ref.read(activePubkeyProvider);
 
-      await for (final item in stream) {
-        item.when(
-          initialSnapshot: (messages) {
-            messageMap = {for (var message in messages) message.id: message};
-          },
-          update: (update) {
-            messageMap[update.message.id] = update.message;
-          },
-        );
+    if (activePubkey != null && activePubkey.isNotEmpty) {
+      _optimisticMessages.removeWhere((m) => m.id == optimisticReactionMessage.id);
+      _optimisticMessages.add(optimisticReactionMessage);
 
-        //maintainin strict chronological order to handle potential
-        // out-of-order delivery of real-time updates.
-        final sortedMessages =
-            messageMap.values.toList()..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+      final groupId = arg;
+      _emitMergedState(groupId, activePubkey);
+    }
+  }
 
-        // Watch group members to resolve sender details -replace with get group members from rust later
-        final groupMembers =
-            ref.watch(groupsProvider.select((groupState) => groupState.groupMembers?[groupId])) ??
-            [];
+  void removeOptimisticMessage(String messageId) {
+    _optimisticMessages.removeWhere((m) => m.id == messageId);
 
-        final usersMap = {
-          for (var user in groupMembers)
-            // TODO: refactor to always return a hex pubkey in codebase, fomart to npub only in UI
-            PubkeyFormatter(pubkey: user.publicKey).toHex() ?? '': user,
-        };
+    final groupId = arg;
+    final activePubkey = ref.read(activePubkeyProvider);
 
-        final convertedMessages = await MessageConverter.fromChatMessageList(
-          sortedMessages,
-          currentUserPublicKey: activePubkey,
-          groupId: groupId,
-          usersMap: usersMap,
-        );
+    if (activePubkey != null && activePubkey.isNotEmpty) {
+      _emitMergedState(groupId, activePubkey);
+    }
+  }
 
-        yield convertedMessages;
-      }
-    } catch (e) {
-      _logger.severe('ChatStreamNotifier: Error building stream for group', e);
-      if (messageMap.isEmpty) {
-        yield [];
-      }
+  Future<void> _emitMergedState(String groupId, String activePubkey) async {
+    if (_controller == null || _controller!.isClosed) return;
+
+    _optimisticMessages.removeWhere(
+      (optimistic) => _messageMap.containsKey(optimistic.id),
+    );
+
+    final sortedMessages =
+        _messageMap.values.toList()..sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+    final groupMembers =
+        ref.read(groupsProvider.select((groupState) => groupState.groupMembers?[groupId])) ?? [];
+
+    final usersMap = {
+      for (var user in groupMembers) PubkeyFormatter(pubkey: user.publicKey).toHex() ?? '': user,
+    };
+
+    final convertedStreamMessages = await MessageConverter.fromChatMessageList(
+      sortedMessages,
+      currentUserPublicKey: activePubkey,
+      groupId: groupId,
+      usersMap: usersMap,
+    );
+
+    final optimisticIds = _optimisticMessages.map((m) => m.id).toSet();
+
+    final effectiveStreamMessages = convertedStreamMessages.where(
+      (m) => !optimisticIds.contains(m.id),
+    );
+
+    final mergedMessages = [...effectiveStreamMessages, ..._optimisticMessages];
+    mergedMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+    if (!_controller!.isClosed) {
+      _controller!.add(mergedMessages);
     }
   }
 }

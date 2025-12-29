@@ -245,7 +245,7 @@ class ChatInputNotifier extends FamilyNotifier<ChatInputState, String> {
     if (replyingTo != null) {
       messageSent = await chatNotifier.sendReplyMessage(
         groupId: _groupId,
-        replyToMessageId: replyingTo.id,
+        replyToMessage: replyingTo,
         message: message,
         mediaFiles: uploadedMediaFiles,
       );

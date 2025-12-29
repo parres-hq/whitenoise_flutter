@@ -3,6 +3,7 @@ import 'package:whitenoise/domain/models/user_model.dart' as domain_user;
 import 'package:whitenoise/src/rust/api/media_files.dart' show MediaFile;
 import 'package:whitenoise/src/rust/api/messages.dart';
 import 'package:whitenoise/utils/localization_extensions.dart';
+import 'package:whitenoise/utils/pubkey_formatter.dart';
 import 'package:whitenoise/utils/pubkey_utils.dart';
 import 'package:whitenoise/utils/reaction_converter.dart';
 
@@ -132,6 +133,36 @@ class MessageConverter {
       status: MessageStatus.sending,
       replyTo: replyToMessage,
       mediaAttachments: mediaFiles,
+    );
+  }
+
+  static MessageModel createOptimisticReactions({
+    required MessageModel originalMessage,
+    required String reaction,
+    required String currentUserPublicKey,
+  }) {
+    final user = domain_user.User(
+      id: currentUserPublicKey,
+      displayName: 'You',
+      nip05: '',
+      publicKey: currentUserPublicKey,
+    );
+
+    final newReaction = Reaction(
+      emoji: reaction,
+      user: user,
+      createdAt: DateTime.now(),
+    );
+
+    final otherReactions =
+        originalMessage.reactions
+            .where((r) => PubkeyFormatter(pubkey: r.user.publicKey).toHex() != currentUserPublicKey)
+            .toList();
+
+    final updatedReactions = [...otherReactions, newReaction];
+
+    return originalMessage.copyWith(
+      reactions: updatedReactions,
     );
   }
 

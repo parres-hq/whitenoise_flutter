@@ -430,5 +430,152 @@ void main() {
       expect(messages.first.sender.id, otherPubkey);
       expect(messages.first.sender.displayName, 'shared.unknownUser');
     });
+    test('should handle optimistic message lifecycle (add -> stream confirm -> dedupe)', () async {
+      final overrides = [
+        chatStreamProvider.overrideWith(
+          () => ChatStreamNotifier(subscriber: mockSubscriber),
+        ),
+        activePubkeyProvider.overrideWith(
+          () => MockActivePubkeyNotifier(testActivePubkey),
+        ),
+        groupsProvider.overrideWith(
+          () => MockGroupsNotifier(
+            members: {
+              testGroupId: [testUser, otherUser],
+            },
+          ),
+        ),
+      ];
+
+      final testContainer = ProviderContainer(overrides: overrides);
+
+      final msg1 = createChatMessage(
+        id: '1',
+        content: 'Server Message',
+        pubkey: otherPubkey,
+        createdAt: DateTime.now().subtract(const Duration(minutes: 5)),
+      );
+
+      final results = <List<MessageModel>>[];
+      final sub = testContainer.listen(
+        chatStreamProvider(testGroupId),
+        (previous, next) {
+          if (next.hasValue) {
+            results.add(next.value!);
+          }
+        },
+      );
+
+      streamController.add(
+        MessageStreamItem.initialSnapshot(messages: [msg1]),
+      );
+      await Future.delayed(Duration.zero);
+      expect(results.length, 1);
+      expect(results.last.length, 1);
+      expect(results.last.first.id, '1');
+
+      final optimisticMsg = MessageModel(
+        id: 'temp_id_999',
+        content: 'Optimistic!',
+        type: MessageType.text,
+        createdAt: DateTime.now(),
+        sender: testUser,
+        isMe: true,
+        groupId: testGroupId,
+        status: MessageStatus.sending,
+        mediaAttachments: [],
+        reactions: [],
+      );
+
+      testContainer
+          .read(chatStreamProvider(testGroupId).notifier)
+          .addOptimisticMessage(optimisticMsg);
+
+      await Future.delayed(Duration.zero);
+
+      expect(results.length, 2);
+      expect(results.last.length, 2);
+      expect(results.last.any((m) => m.id == 'temp_id_999'), isTrue);
+
+      expect(results.last.last.content, 'Optimistic!');
+
+      final confirmedMsg = createChatMessage(
+        id: 'temp_id_999',
+        content: 'Optimistic!',
+        pubkey: testActivePubkey,
+        createdAt: optimisticMsg.createdAt,
+      );
+
+      streamController.add(
+        MessageStreamItem.update(
+          update: MessageUpdate(
+            trigger: UpdateTrigger.newMessage,
+            message: confirmedMsg,
+          ),
+        ),
+      );
+      await Future.delayed(Duration.zero);
+
+      expect(results.length, 3);
+      expect(results.last.length, 2);
+      expect(results.last.any((m) => m.id == 'temp_id_999'), isTrue);
+
+      sub.close();
+    });
+
+    test('should remove optimistic message manually', () async {
+      final overrides = [
+        chatStreamProvider.overrideWith(
+          () => ChatStreamNotifier(subscriber: mockSubscriber),
+        ),
+        activePubkeyProvider.overrideWith(
+          () => MockActivePubkeyNotifier(testActivePubkey),
+        ),
+        groupsProvider.overrideWith(
+          () => MockGroupsNotifier(
+            members: {
+              testGroupId: [testUser, otherUser],
+            },
+          ),
+        ),
+      ];
+
+      final testContainer = ProviderContainer(overrides: overrides);
+      final results = <List<MessageModel>>[];
+      testContainer.listen(
+        chatStreamProvider(testGroupId),
+        (previous, next) {
+          if (next.hasValue) results.add(next.value!);
+        },
+      );
+
+      streamController.add(const MessageStreamItem.initialSnapshot(messages: []));
+      await Future.delayed(Duration.zero);
+
+      final optimisticMsg = MessageModel(
+        id: 'fail_msg',
+        content: 'Will fail',
+        type: MessageType.text,
+        createdAt: DateTime.now(),
+        sender: testUser,
+        isMe: true,
+        groupId: testGroupId,
+        status: MessageStatus.sending,
+        mediaAttachments: [],
+        reactions: [],
+      );
+
+      testContainer
+          .read(chatStreamProvider(testGroupId).notifier)
+          .addOptimisticMessage(optimisticMsg);
+      await Future.delayed(Duration.zero);
+      expect(results.last.length, 1);
+
+      testContainer
+          .read(chatStreamProvider(testGroupId).notifier)
+          .removeOptimisticMessage('fail_msg');
+      await Future.delayed(Duration.zero);
+      expect(results.last.length, 0);
+    });
   });
 }

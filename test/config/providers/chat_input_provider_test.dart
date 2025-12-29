@@ -121,14 +121,14 @@ class MockChatProvider extends ChatNotifier {
   @override
   Future<MessageWithTokens?> sendReplyMessage({
     required String groupId,
-    required String replyToMessageId,
+    required MessageModel replyToMessage,
     required String message,
     void Function()? onMessageSent,
     required List<rust_media_files.MediaFile> mediaFiles,
   }) async {
     _sendReplyMessageCalls.add({
       'groupId': groupId,
-      'replyToMessageId': replyToMessageId,
+      'replyToMessageId': replyToMessage.id,
       'message': message,
       'mediaFiles': mediaFiles,
     });
