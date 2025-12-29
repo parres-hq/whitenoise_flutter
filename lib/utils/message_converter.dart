@@ -156,7 +156,11 @@ class MessageConverter {
 
     final otherReactions =
         originalMessage.reactions
-            .where((r) => PubkeyFormatter(pubkey: r.user.publicKey).toHex() != currentUserPublicKey)
+            .where(
+              (r) =>
+                  PubkeyFormatter(pubkey: r.user.publicKey).toHex() !=
+                  PubkeyFormatter(pubkey: currentUserPublicKey).toHex(),
+            )
             .toList();
 
     final updatedReactions = [...otherReactions, newReaction];

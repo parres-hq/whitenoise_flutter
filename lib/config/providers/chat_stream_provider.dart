@@ -23,6 +23,9 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
   StreamController<List<MessageModel>>? _controller;
   StreamSubscription<MessageStreamItem>? _rustStreamSubscription;
 
+  bool _isComputingState = false;
+  bool _computeStatePending = false;
+
   ChatStreamNotifier({
     GroupMessageSubscriber subscriber = subscribeToGroupMessages,
   }) : _subscriber = subscriber;
@@ -38,9 +41,8 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
 
     _messageMap = {};
     _optimisticMessages = [];
-
-    _messageMap = {};
-    _optimisticMessages = [];
+    _isComputingState = false;
+    _computeStatePending = false;
 
     ref.onDispose(() {
       _logger.info('ChatStreamNotifier: Disposing stream');
@@ -64,7 +66,7 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
       final stream = _subscriber(groupId: groupId);
 
       _rustStreamSubscription = stream.listen(
-        (item) async {
+        (item) {
           item.when(
             initialSnapshot: (messages) {
               _messageMap = {for (var message in messages) message.id: message};
@@ -74,7 +76,7 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
             },
           );
 
-          await _emitMergedState(groupId, activePubkey);
+          _emitMergedState(groupId, activePubkey);
         },
         onError: (error) {
           _logger.severe('ChatStreamNotifier: Error in Rust stream', error);
@@ -93,7 +95,7 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
     }
   }
 
-  void addOptimisticMessage(MessageModel message) {
+  Future<void> addOptimisticMessage(MessageModel message) async {
     if (_optimisticMessages.any((m) => m.id == message.id)) {
       return;
     }
@@ -103,11 +105,11 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
     final activePubkey = ref.read(activePubkeyProvider);
 
     if (activePubkey != null && activePubkey.isNotEmpty) {
-      _emitMergedState(groupId, activePubkey);
+      await _emitMergedState(groupId, activePubkey);
     }
   }
 
-  void updateOptimisticReaction(MessageModel optimisticReactionMessage) {
+  Future<void> updateOptimisticReaction(MessageModel optimisticReactionMessage) async {
     final activePubkey = ref.read(activePubkeyProvider);
 
     if (activePubkey != null && activePubkey.isNotEmpty) {
@@ -115,23 +117,42 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
       _optimisticMessages.add(optimisticReactionMessage);
 
       final groupId = arg;
-      _emitMergedState(groupId, activePubkey);
+      await _emitMergedState(groupId, activePubkey);
     }
   }
 
-  void removeOptimisticMessage(String messageId) {
+  Future<void> removeOptimisticMessage(String messageId) async {
     _optimisticMessages.removeWhere((m) => m.id == messageId);
 
     final groupId = arg;
     final activePubkey = ref.read(activePubkeyProvider);
 
     if (activePubkey != null && activePubkey.isNotEmpty) {
-      _emitMergedState(groupId, activePubkey);
+      await _emitMergedState(groupId, activePubkey);
     }
   }
 
   Future<void> _emitMergedState(String groupId, String activePubkey) async {
-    if (_controller == null || _controller!.isClosed) return;
+    if (_isComputingState) {
+      _computeStatePending = true;
+      return;
+    }
+
+    _isComputingState = true;
+    _computeStatePending = false;
+
+    try {
+      await _buildAndEmitState(groupId, activePubkey);
+    } finally {
+      _isComputingState = false;
+      if (_computeStatePending) {
+        _emitMergedState(groupId, activePubkey);
+      }
+    }
+  }
+
+  Future<void> _buildAndEmitState(String groupId, String activePubkey) async {
+    if (_controller?.isClosed ?? true) return;
 
     _optimisticMessages.removeWhere(
       (optimistic) => _messageMap.containsKey(optimistic.id),
