@@ -146,7 +146,7 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
     } finally {
       _isComputingState = false;
       if (_computeStatePending) {
-        _emitMergedState(groupId, activePubkey);
+        await _emitMergedState(groupId, activePubkey);
       }
     }
   }
@@ -185,8 +185,9 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
 
     final mergedMessages = [...effectiveStreamMessages, ..._optimisticMessages];
     mergedMessages.sort((a, b) => a.createdAt.compareTo(b.createdAt));
-    if (!_controller!.isClosed) {
-      _controller!.add(mergedMessages);
+    final controllerClosed = _controller?.isClosed ?? true;
+    if (!controllerClosed) {
+      _controller?.add(mergedMessages);
     }
   }
 }
