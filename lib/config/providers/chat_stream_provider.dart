@@ -154,9 +154,7 @@ class ChatStreamNotifier extends AutoDisposeFamilyStreamNotifier<List<MessageMod
   Future<void> _buildAndEmitState(String groupId, String activePubkey) async {
     if (_controller?.isClosed ?? true) return;
 
-    _optimisticMessages.removeWhere(
-      (optimistic) => _messageMap.containsKey(optimistic.id),
-    );
+    _optimisticMessages.removeWhere((optimistic) => _messageMap.containsKey(optimistic.id));
 
     final sortedMessages =
         _messageMap.values.toList()..sort((a, b) => a.createdAt.compareTo(b.createdAt));
